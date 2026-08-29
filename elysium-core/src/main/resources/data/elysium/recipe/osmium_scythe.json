@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "MMM",
+    "  S",
+    "  S"
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/osmium"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "elysium:osmium_scythe",
+    "count": 1
+  }
+}

@@ -1,0 +1,136 @@
+// ---------------------------------------------------------------------------
+// The root build: coordination only
+// ---------------------------------------------------------------------------
+//
+// This project has no sources, no plugins and no NeoGradle. All it does is
+// give the six included builds a single entry point, so that one push to one
+// repository builds every mod.
+//
+// Every task here is a fan-out to the included builds. None of them changes how
+// an individual mod is built — that still lives in its own build.gradle, which
+// is why each directory remains buildable on its own.
+
+// The library is listed first for readability only. The build *order* is not
+// decided here and must not be: Gradle derives it from the dependency
+// substitution in settings.gradle, which is the single place that knows the
+// five content mods need the library's classes. Pinning an order here as well
+// would be a second, silently divergent answer to the same question.
+def MODS = ['elysium-lib', 'elysium-core', 'elysium-dungeons', 'elysium-mobs',
+            'elysium-trinkets', 'elysium-npcs']
+
+tasks.register('buildAll') {
+    group = 'elysium'
+    description = 'Builds all six mods. The jars land in each mod\'s build/libs.'
+    dependsOn MODS.collect { gradle.includedBuild(it).task(':build') }
+}
+
+/**
+ * `build` at the root, because that is what everybody types.
+ *
+ * When these were four repositories, `./gradlew build` at a repo root was the
+ * command — it is what the per-repo CI ran, what the README said, and what
+ * muscle memory reaches for. Folding them into a composite build silently took
+ * it away: a composite root gets no lifecycle tasks of its own, so `./gradlew
+ * build` here stopped meaning "build the mods" and started meaning "Task
+ * 'build' not found in root project 'elysium'".
+ *
+ * That is a migration leaving a trap behind rather than a design decision.
+ * Anything still running the old command — an old workflow, a script, a person
+ * — deserves to get what it asked for instead of an error about a task name.
+ */
+tasks.register('build') {
+    group = 'elysium'
+    description = 'Alias for buildAll, so the pre-monorepo command still works.'
+    dependsOn 'buildAll'
+}
+
+tasks.register('cleanAll') {
+    group = 'elysium'
+    description = 'Cleans all six builds.'
+    dependsOn MODS.collect { gradle.includedBuild(it).task(':clean') }
+}
+
+tasks.register('clean') {
+    group = 'elysium'
+    description = 'Alias for cleanAll — see `build` above.'
+    dependsOn 'cleanAll'
+}
+
+tasks.register('publishAll') {
+    group = 'elysium'
+    description = 'Publishes all six to ~/.m2, for consumers outside this repo.'
+    dependsOn MODS.collect { gradle.includedBuild(it).task(':publishToMavenLocal') }
+}
+
+/**
+ * Every jar, gathered into one directory.
+ *
+ * Without this, "where are my mods" is four separate build/libs directories,
+ * and the answer to "which files do I drop in my mods folder" is a scavenger
+ * hunt across the repo. This is also what CI uploads, so the workflow artifact
+ * is exactly the set of files a player installs.
+ *
+ * Sources jars are excluded on purpose: dropping one into a mods folder is a
+ * well-known way to get a confusing crash, and there is no reason for one to be
+ * sitting next to the real jars in a directory named "dist".
+ */
+// Everything the task's action needs is captured here, at configuration time,
+// as a plain File and a plain int. A closure that reaches back for `MODS`,
+// `layout` or `fileTree` when it runs is holding a reference to the build
+// script itself, which the configuration cache refuses — "Cannot reference a
+// Gradle script object from a Groovy closure". Found by running it.
+def distDir = layout.projectDirectory.dir('dist').asFile
+def expectedJars = MODS.size()
+
+tasks.register('collectJars', Copy) {
+    group = 'elysium'
+    description = 'Copies every mod jar into dist/.'
+    dependsOn 'buildAll'
+
+    MODS.each { mod ->
+        from(layout.projectDirectory.dir("$mod/build/libs")) {
+            include '*.jar'
+            exclude '*-sources.jar'
+            exclude '*-javadoc.jar'
+        }
+    }
+    into distDir
+
+    doLast {
+        def jars = (distDir.listFiles() ?: new File[0])
+                .findAll { it.name.endsWith('.jar') }
+                .sort { it.name }
+        logger.lifecycle("\ncollected ${jars.size()} jar(s) into dist/:")
+        jars.each { logger.lifecycle("  ${it.name}") }
+        if (jars.size() != expectedJars) {
+            throw new GradleException(
+                    "expected ${expectedJars} jars in dist/, found ${jars.size()} — " +
+                    "one of the mods did not produce one")
+        }
+    }
+}
+
+/**
+ * The Python validators, run the way CI runs them.
+ *
+ * They are seconds of work and they fail on things a Gradle build never looks
+ * at: a library class referring to a mod built on it, an item with no recipe, a
+ * missing lang key, a hand-edited generated palette. Worth running before the
+ * twenty-minute part.
+ */
+tasks.register('validateAll', Exec) {
+    group = 'elysium'
+    description = 'Runs every mod\'s validate.py.'
+    commandLine 'python3', 'validate.py'
+    workingDir projectDir
+}
+
+tasks.register('checkAll') {
+    group = 'elysium'
+    description = 'validateAll, then buildAll, then collectJars — what CI does.'
+    dependsOn 'validateAll', 'collectJars'
+}
+
+// Ordering, so a validator failure is what you read rather than the last of a
+// hundred lines of Gradle output.
+tasks.named('collectJars') { mustRunAfter 'validateAll' }

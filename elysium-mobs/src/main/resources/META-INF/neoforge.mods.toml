@@ -1,0 +1,54 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+issueTrackerURL="https://github.com/BelialRunnerX/elysium-mobs/issues"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description='''
+${mod_description}
+'''
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+# The engine. Faction standing, level scaling and the bestiary all live there,
+# so this mod does not run without it.
+[[dependencies.${mod_id}]]
+    modId="elysiumlib"
+    type="required"
+    versionRange="[1.0.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+# Neither of these is required. Elysium Mobs registers its creatures into the
+# library's bestiary and never names another mod; dungeons reads that bestiary
+# and never names this one. Both are listed only so load order is right when
+# they are present.
+[[dependencies.${mod_id}]]
+    modId="elysium"
+    type="optional"
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="elysiumdungeons"
+    type="optional"
+    versionRange="[0,)"
+    ordering="BEFORE"
+    side="BOTH"

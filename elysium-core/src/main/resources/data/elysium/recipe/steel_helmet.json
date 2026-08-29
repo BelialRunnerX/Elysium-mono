@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "MMM",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/steel"
+    }
+  },
+  "result": {
+    "id": "elysium:steel_helmet",
+    "count": 1
+  }
+}

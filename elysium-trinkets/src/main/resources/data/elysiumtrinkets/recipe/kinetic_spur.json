@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "MMM",
+    "G G",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "elysium:neutronium_ingot"
+    },
+    "G": {
+      "item": "minecraft:amethyst_shard"
+    }
+  },
+  "result": {
+    "id": "elysiumtrinkets:kinetic_spur",
+    "count": 1
+  }
+}

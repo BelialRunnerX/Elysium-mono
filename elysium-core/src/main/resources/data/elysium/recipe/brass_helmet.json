@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "MMM",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/brass"
+    }
+  },
+  "result": {
+    "id": "elysium:brass_helmet",
+    "count": 1
+  }
+}

@@ -1,0 +1,53 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url = 'https://maven.neoforged.net/releases' }
+    }
+}
+
+plugins {
+    // Lets Gradle fetch a JDK 21 toolchain automatically when one is not
+    // already installed.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'elysium'
+
+// ---------------------------------------------------------------------------
+// Six builds, one repository
+// ---------------------------------------------------------------------------
+//
+// This is a *composite* build (includeBuild) rather than a multi-project one
+// (include). The difference matters here:
+//
+//   - Each of the six directories below is still a complete, standalone Gradle
+//     build, with its own settings.gradle, gradle.properties and wrapper. You
+//     can `cd elysium-lib && ./gradlew build` and it behaves exactly as it did
+//     when it was its own repository. That escape hatch is worth keeping,
+//     because NeoGradle's behaviour inside a shared multi-project build is not
+//     something the NeoForge documentation covers, and a coordination layer
+//     that can be stepped around is much safer than one that cannot.
+//
+//   - From the root, `./gradlew buildAll` builds all six in dependency order,
+//     and the substitution below means the five content mods compile against
+//     the library's *source* rather than a published jar. Nothing has to be
+//     published first, and there is no stale-jar failure mode.
+//
+// The substitution is written out rather than left to Gradle's automatic
+// matching. Automatic substitution keys on the Gradle project name, which for
+// the library is "elysium-lib", while every dependent asks for the coordinate
+// "com.elysium:elysiumlib" — so the automatic route silently does not fire and
+// the build falls through to Maven and fails. That was verified by removing
+// this block and watching it fail with "Could not find com.elysium:elysiumlib".
+
+includeBuild('elysium-lib') {
+    dependencySubstitution {
+        substitute module('com.elysium:elysiumlib') using project(':')
+    }
+}
+
+includeBuild('elysium-core')
+includeBuild('elysium-dungeons')
+includeBuild('elysium-mobs')
+includeBuild('elysium-trinkets')
+includeBuild('elysium-npcs')

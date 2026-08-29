@@ -1,0 +1,44 @@
+{
+  "type": "silentgear:simple",
+  "parent": "silentgear:empty",
+  "crafting": {
+    "can_salvage": true,
+    "categories": [
+      "metal"
+    ],
+    "gear_type_blacklist": [],
+    "ingredient": {
+      "item": "elysium:aetherium_ingot"
+    },
+    "part_substitutes": {}
+  },
+  "display": {
+    "color": "#FF7FD4E8",
+    "main_texture_type": "HIGH_CONTRAST",
+    "name": {
+      "translate": "material.elysium.aetherium"
+    }
+  },
+  "properties": {
+    "silentgear:main": {
+      "durability": 1800.0,
+      "armor_durability": 22.5,
+      "armor": 17.0,
+      "armor/helmet": 2.5,
+      "armor/chestplate": 6.8,
+      "armor/leggings": 5.4,
+      "armor/boots": 2.2,
+      "magic_armor": 5.1,
+      "attack_damage": 3.5,
+      "attack_speed": 0.2,
+      "harvest_speed": 10.0,
+      "enchantment_value": 22.0,
+      "rarity": 60.0,
+      "harvest_tier": {
+        "name": "diamond",
+        "level_hint": "3",
+        "incorrect_blocks_for_tool": "minecraft:incorrect_for_diamond_tool"
+      }
+    }
+  }
+}

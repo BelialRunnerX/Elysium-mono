@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "MMM",
+    "  S",
+    "  S"
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/constantan"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "elysium:constantan_scythe",
+    "count": 1
+  }
+}

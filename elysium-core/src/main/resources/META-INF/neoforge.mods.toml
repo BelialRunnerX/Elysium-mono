@@ -1,0 +1,63 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+issueTrackerURL="https://github.com/BelialRunnerX/elysium/issues"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description='''
+${mod_description}
+'''
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+# The engine. Required, and ordered BEFORE this mod: core's constructor
+# registers races, classes, runes, factions, dispatchers, rewards and ore into
+# the library's registries, and those registries have to exist first.
+#
+# Declaring it here is what turns a missing library into a clear message on the
+# mods screen rather than a NoClassDefFoundError in a crash report.
+[[dependencies.${mod_id}]]
+    modId="elysiumlib"
+    type="required"
+    versionRange="[1.0.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+# Optional integrations. Elysium runs standalone; these only change behaviour
+# when the mod in question happens to be installed.
+[[dependencies.${mod_id}]]
+    modId="apotheosis"
+    type="optional"
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="silentgear"
+    type="optional"
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="legendarytooltips"
+    type="optional"
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="CLIENT"

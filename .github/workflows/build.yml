@@ -1,0 +1,94 @@
+name: Build
+
+# One workflow for all six mods. They were four repositories with four
+# identical workflows; a composite build means one push builds everything, in
+# dependency order, with the content mods compiling against the library's
+# sources rather than a jar that has to be published first.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      # First, because it takes seconds and it fails on things Gradle never
+      # looks at: a library class referring to a mod built on it, an item with
+      # no recipe, a missing lang key, a hand-edited generated palette.
+      - name: Validate all six mods
+        run: python3 validate.py
+
+      # The only automated check the interface gets. screens.py lays out every
+      # screen at both shapes that matter and exits non-zero if a panel does not
+      # fit — which is how the reforge table's four-pixel overhang was found.
+      - name: Render interface previews
+        run: |
+          python3 -m pip install --quiet pillow
+          cd elysium-lib && python3 ui/screens.py
+
+      # Builds all six and gathers the jars into dist/. collectJars derives the
+      # expected count from the mod list in build.gradle and fails if it does
+      # not end up with that many, so a mod that silently produced no jar is a
+      # red run rather than a short artifact nobody counts.
+      - name: Build all six mods
+        run: ./gradlew collectJars --stacktrace
+
+      - name: List the jars
+        run: ls -lh dist/
+
+      # The set of files a player installs, in one download. Grab it from the
+      # "Artifacts" section at the bottom of this run's summary page.
+      - name: Upload mod jars
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: elysium-jars
+          path: dist/*.jar
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload interface previews
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: interface-previews
+          path: elysium-lib/ui/preview/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # Kept separate so a failed build still hands you something to read.
+      - name: Upload build reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports
+          path: |
+            elysium-lib/build/reports/
+            elysium-core/build/reports/
+            elysium-dungeons/build/reports/
+            elysium-mobs/build/reports/
+            elysium-trinkets/build/reports/
+            elysium-npcs/build/reports/
+          if-no-files-found: ignore
+          retention-days: 7

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "vvv",
+    "i#i",
+    "iii"
+  ],
+  "key": {
+    "v": {
+      "item": "elysium:voidglass_ingot"
+    },
+    "#": {
+      "item": "elysium:neutronium_ingot"
+    },
+    "i": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "result": {
+    "id": "elysium:rune_socket_table",
+    "count": 1
+  }
+}

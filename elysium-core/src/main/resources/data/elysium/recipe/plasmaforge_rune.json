@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " v ",
+    "vcv",
+    " v "
+  ],
+  "key": {
+    "v": {
+      "item": "elysium:voidglass_ingot"
+    },
+    "c": {
+      "item": "minecraft:blaze_rod"
+    }
+  },
+  "result": {
+    "id": "elysium:plasmaforge_rune",
+    "count": 1
+  }
+}

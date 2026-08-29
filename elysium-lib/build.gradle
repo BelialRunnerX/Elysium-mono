@@ -1,0 +1,168 @@
+plugins {
+    id 'java-library'
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.neoforged.gradle.userdev' version '7.1.38'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+// Mojang ships Java 21 with 1.21.1, so mods target Java 21.
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+sourceSets.main.resources {
+    // Pick up anything produced by `gradlew runData`.
+    srcDir 'src/generated/resources'
+
+    exclude '**/*.bbmodel'
+    exclude 'src/generated/**/.cache'
+    exclude '.gitkeep'
+}
+
+repositories {
+    // NeoGradle contributes the NeoForged maven itself; nothing else is needed.
+}
+
+// Default run configurations.
+runs {
+    configureEach {
+        systemProperty 'forge.logging.markers', 'REGISTRIES'
+        systemProperty 'forge.logging.console.level', 'debug'
+        workingDirectory project.layout.projectDirectory.dir('run').dir(name)
+        modSource project.sourceSets.main
+    }
+
+    client {
+        systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+    }
+
+    server {
+        systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        argument '--nogui'
+    }
+
+    data {
+        arguments.addAll '--mod', project.mod_id,
+                '--all',
+                '--output', file('src/generated/resources/').getAbsolutePath(),
+                '--existing', file('src/main/resources/').getAbsolutePath()
+    }
+}
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+dependencies {
+    implementation "net.neoforged:neoforge:${neo_version}"
+
+    // The library depends on nothing but NeoForge. That is the point of it:
+    // anything it needed from a content mod would be a thing a content mod
+    // could not replace.
+}
+
+// Expands ${mod_id}, ${mod_version} and friends inside neoforge.mods.toml.
+// Without this the placeholders ship literally and the mod fails to load.
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
+
+    // Hand-written resources win over anything datagen produces, so running
+    // `runData` never breaks a subsequent `build`.
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+jar {
+    manifest {
+        attributes([
+                'Specification-Title'   : mod_id,
+                'Specification-Vendor'  : mod_authors,
+                'Specification-Version' : '1',
+                'Implementation-Title'  : mod_name,
+                'Implementation-Version': mod_version,
+                'Implementation-Vendor' : mod_authors
+        ])
+    }
+}
+
+// How elysium-core (and any other Elysium mod) gets hold of this jar.
+//
+// `gradlew publish` writes it into ./repo, a plain directory maven. Point a
+// dependent project's repositories block at that directory and it resolves
+// like any other artifact, with no network and no account:
+//
+//     repositories { maven { url '../elysium-lib/repo' } }
+//     dependencies { implementation 'com.elysium:elysiumlib:1.0.0' }
+//
+// `gradlew publishToMavenLocal` does the same into ~/.m2, which is what to use
+// when the two repos are not checked out side by side.
+//
+// For a shared build, uncomment the GitHub Packages repository below and set
+// GITHUB_ACTOR / GITHUB_TOKEN in the environment. It is commented out rather
+// than deleted because a publish target that silently fails to authenticate is
+// worse than one that is obviously not configured yet.
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            // The coordinates are stated rather than defaulted.
+            //
+            // Gradle defaults a publication's artifactId to the *Gradle project
+            // name*, not to base.archivesName — so this published as
+            // "com.elysium:elysium-lib" while every dependent asked for
+            // "com.elysium:elysiumlib", and the sibling-checkout flow the
+            // README documents would have failed to resolve on a first real
+            // build. Verified by publishing to a file repo and reading the path.
+            groupId = mod_group_id
+            artifactId = mod_id
+            version = mod_version
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            name = 'localRepo'
+            url = "file://${project.projectDir}/repo"
+        }
+        // maven {
+        //     name = 'GitHubPackages'
+        //     url = 'https://maven.pkg.github.com/BelialRunnerX/elysium-lib'
+        //     credentials {
+        //         username = System.getenv('GITHUB_ACTOR')
+        //         password = System.getenv('GITHUB_TOKEN')
+        //     }
+        // }
+    }
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}

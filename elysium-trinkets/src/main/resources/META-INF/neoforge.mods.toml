@@ -1,0 +1,62 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+issueTrackerURL="https://github.com/BelialRunnerX/elysium-trinkets/issues"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description='''
+${mod_description}
+'''
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+# The engine. Faction standing, level scaling and the bestiary all live there,
+# so this mod does not run without it.
+[[dependencies.${mod_id}]]
+    modId="elysiumlib"
+    type="required"
+    versionRange="[1.0.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+# Curios owns the slots. Required, and the only hard dependency this mod has
+# beyond the library: with no accessory API there is nowhere to put any of
+# this, and forty items that cannot be worn is not a degraded mod, it is a
+# broken one.
+#
+# The dependency is one class wide on our side - see CuriosSlots. Every effect
+# is an ElysiumPassive registered with the library, so Curios answers "what is
+# worn" and never decides what a trinket does.
+[[dependencies.${mod_id}]]
+    modId="curios"
+    type="required"
+    versionRange="[9.0.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+# Optional, and listed only for load order. This mod registers its trinkets
+# into the library and names no other mod; elysium-core's reforge table picks
+# them up because they are ElysiumSocketable, not because either knows the
+# other exists.
+[[dependencies.${mod_id}]]
+    modId="elysium"
+    type="optional"
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"

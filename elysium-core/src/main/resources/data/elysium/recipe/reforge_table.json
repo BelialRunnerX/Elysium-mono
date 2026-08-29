@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###",
+    "iai",
+    "iii"
+  ],
+  "key": {
+    "#": {
+      "item": "elysium:neutronium_ingot"
+    },
+    "i": {
+      "item": "minecraft:iron_block"
+    },
+    "a": {
+      "item": "minecraft:anvil"
+    }
+  },
+  "result": {
+    "id": "elysium:reforge_table",
+    "count": 1
+  }
+}

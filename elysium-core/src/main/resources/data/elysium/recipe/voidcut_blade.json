@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " v ",
+    " r ",
+    " n "
+  ],
+  "key": {
+    "v": {
+      "item": "elysium:voidglass_ingot"
+    },
+    "r": {
+      "item": "elysium:voidward_rune"
+    },
+    "n": {
+      "item": "elysium:neutronium_ingot"
+    }
+  },
+  "result": {
+    "id": "elysium:voidcut_blade",
+    "count": 1
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "mmm",
+    "  s",
+    "  s"
+  ],
+  "key": {
+    "m": {
+      "item": "elysium:aetherium_ingot"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "elysium:aetherium_scythe",
+    "count": 1
+  }
+}

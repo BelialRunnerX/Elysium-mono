@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " a ",
+    "ava",
+    " a "
+  ],
+  "key": {
+    "a": {
+      "item": "elysium:aetherium_ingot"
+    },
+    "v": {
+      "item": "elysium:voidglass_ingot"
+    }
+  },
+  "result": {
+    "id": "elysium:elysium_reforge",
+    "count": 1
+  }
+}

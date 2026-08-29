@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysium:neutronium_ore",
+    "elysium:neutronium_block",
+    "elysium:aetherium_ore",
+    "elysium:voidglass_ore",
+    "elysium:reforge_table",
+    "elysium:rune_socket_table",
+    "elysium:ascension_forge"
+  ]
+}

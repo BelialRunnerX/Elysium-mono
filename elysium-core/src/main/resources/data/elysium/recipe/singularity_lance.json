@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  a",
+    " a ",
+    "nr "
+  ],
+  "key": {
+    "a": {
+      "item": "elysium:aetherium_ingot"
+    },
+    "n": {
+      "item": "elysium:neutronium_ingot"
+    },
+    "r": {
+      "item": "elysium:dimensionalshift_rune"
+    }
+  },
+  "result": {
+    "id": "elysium:singularity_lance",
+    "count": 1
+  }
+}

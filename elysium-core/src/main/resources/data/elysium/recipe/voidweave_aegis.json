@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "v v",
+    "vnv",
+    "vvv"
+  ],
+  "key": {
+    "v": {
+      "item": "elysium:voidglass_ingot"
+    },
+    "n": {
+      "item": "elysium:neutronium_block"
+    }
+  },
+  "result": {
+    "id": "elysium:voidweave_aegis",
+    "count": 1
+  }
+}

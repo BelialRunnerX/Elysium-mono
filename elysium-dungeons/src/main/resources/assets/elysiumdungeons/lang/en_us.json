@@ -1,0 +1,15 @@
+{
+  "itemGroup.elysiumdungeons": "Elysium Dungeons",
+  "block.elysiumdungeons.rift_frame": "Rift Frame",
+  "block.elysiumdungeons.rift_portal": "Rift",
+  "item.elysiumdungeons.rift_frame": "Rift Frame",
+  "item.elysiumdungeons.rift_key": "Rift Key",
+  "elysiumdungeons.tooltip.rift_key": "Strike a rift frame to open it.",
+  "elysiumdungeons.tooltip.rift_key_reroll": "Every trip through builds a new dungeon.",
+  "elysiumdungeons.message.no_frame": "No complete rift frame here. It needs an empty rectangle at least %sx%s, walled in on every side.",
+  "elysiumdungeons.message.no_dimension": "The rift has nowhere to lead. The dungeon dimension is missing.",
+  "elysiumdungeons.message.entered_new": "The rift opens onto somewhere new.",
+  "elysiumdungeons.message.entered_joined": "You step into a rift already open.",
+  "elysiumdungeons.message.collapsed": "The dungeon collapses behind you. The next one will be different.",
+  "elysiumdungeons.entity.rift_warden": "Rift Warden"
+}

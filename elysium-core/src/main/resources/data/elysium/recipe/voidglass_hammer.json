@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "mmm",
+    "msm",
+    " s "
+  ],
+  "key": {
+    "m": {
+      "item": "elysium:voidglass_ingot"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "elysium:voidglass_hammer",
+    "count": 1
+  }
+}

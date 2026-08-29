@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "MMM",
+    "MSM",
+    " S "
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/bronze"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "elysium:bronze_broadaxe",
+    "count": 1
+  }
+}

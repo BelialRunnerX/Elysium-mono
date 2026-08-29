@@ -1,0 +1,19 @@
+# Disable autocrlf on generated files; they always generate with LF, and
+# without this git reports them as changed whenever only line endings differ.
+#
+# Anchored with **/ because the four mods live one directory down. The
+# single-repo version of this file used "src/generated/**", which git treats as
+# rooted at the repo top and which therefore matches nothing here.
+**/src/generated/**/.cache/* text eol=lf
+**/src/generated/**/*.json text eol=lf
+
+# gradlew is executed by /bin/sh on the CI runner. Committed from a Windows
+# checkout with autocrlf on, its CRLF line endings make the shebang unparseable
+# and every build fails with "bad interpreter". Pin it to LF.
+#
+# No leading slash, so this covers the root wrapper and all four mods'.
+gradlew text eol=lf
+*.sh text eol=lf
+
+# Never touch the wrapper jar.
+gradle-wrapper.jar binary

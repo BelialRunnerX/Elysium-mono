@@ -1,0 +1,42 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "portal": "elysiumdungeons:block/rift_portal",
+    "particle": "elysiumdungeons:block/rift_portal"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        6
+      ],
+      "to": [
+        16,
+        16,
+        10
+      ],
+      "shade": false,
+      "faces": {
+        "north": {
+          "texture": "#portal"
+        },
+        "south": {
+          "texture": "#portal"
+        },
+        "east": {
+          "texture": "#portal"
+        },
+        "west": {
+          "texture": "#portal"
+        },
+        "up": {
+          "texture": "#portal"
+        },
+        "down": {
+          "texture": "#portal"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "type": "silentgear:simple",
+  "parent": "silentgear:empty",
+  "crafting": {
+    "can_salvage": true,
+    "categories": [
+      "metal"
+    ],
+    "gear_type_blacklist": [],
+    "ingredient": {
+      "item": "elysium:neutronium_ingot"
+    },
+    "part_substitutes": {}
+  },
+  "display": {
+    "color": "#FF4A4A4A",
+    "main_texture_type": "HIGH_CONTRAST",
+    "name": {
+      "translate": "material.elysium.neutronium"
+    }
+  },
+  "properties": {
+    "silentgear:main": {
+      "durability": 2500.0,
+      "armor_durability": 31.2,
+      "armor": 22.0,
+      "armor/helmet": 3.3,
+      "armor/chestplate": 8.8,
+      "armor/leggings": 7.0,
+      "armor/boots": 2.9,
+      "magic_armor": 6.6,
+      "attack_damage": 5.0,
+      "attack_speed": 0.0,
+      "harvest_speed": 12.0,
+      "enchantment_value": 25.0,
+      "rarity": 80.0,
+      "harvest_tier": {
+        "name": "netherite",
+        "level_hint": "4",
+        "incorrect_blocks_for_tool": "minecraft:incorrect_for_netherite_tool"
+      }
+    }
+  }
+}

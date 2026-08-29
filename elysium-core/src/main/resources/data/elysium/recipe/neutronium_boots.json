@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "# #",
+    "# #"
+  ],
+  "key": {
+    "#": {
+      "item": "elysium:neutronium_ingot"
+    }
+  },
+  "result": {
+    "id": "elysium:neutronium_boots",
+    "count": 1
+  }
+}

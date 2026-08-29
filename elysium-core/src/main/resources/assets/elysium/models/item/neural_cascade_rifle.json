@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "elysium:item/neural_cascade_rifle"
+  }
+}

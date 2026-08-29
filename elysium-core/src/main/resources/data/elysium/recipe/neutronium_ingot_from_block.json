@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysium:neutronium_block"
+    }
+  ],
+  "result": {
+    "id": "elysium:neutronium_ingot",
+    "count": 9
+  }
+}

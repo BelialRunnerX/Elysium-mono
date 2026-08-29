@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "a a",
+    "ara"
+  ],
+  "key": {
+    "a": {
+      "item": "elysium:aetherium_ingot"
+    },
+    "r": {
+      "item": "elysium:dimensionalshift_rune"
+    }
+  },
+  "result": {
+    "id": "elysium:dimensional_boots",
+    "count": 1
+  }
+}

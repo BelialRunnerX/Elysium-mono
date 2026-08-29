@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "elysiumdungeons:block/rift_portal_ns"
+    },
+    "axis=z": {
+      "model": "elysiumdungeons:block/rift_portal_ew"
+    }
+  }
+}

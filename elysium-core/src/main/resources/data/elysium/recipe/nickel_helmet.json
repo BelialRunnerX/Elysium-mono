@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "MMM",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/nickel"
+    }
+  },
+  "result": {
+    "id": "elysium:nickel_helmet",
+    "count": 1
+  }
+}
