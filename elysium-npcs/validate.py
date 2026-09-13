@@ -87,6 +87,98 @@ for meter in ("FAVOR", "SUSPICION"):
 print(f"standing coverage  : both meters have envoys")
 
 # ---------------------------------------------------------------------------
+# The ledger each office brings to its trade screen
+# ---------------------------------------------------------------------------
+#
+# Since the envoys grew a merchant screen, EnvoyKind decides not just WHICH
+# shelf an office deals off but the whole spread of its offer list. That
+# arithmetic is easy to get subtly wrong in a way nothing else would catch: a
+# lowest tier above the reward tier produces an empty or inverted list, and a
+# screen whose rows are not in price order is one a player cannot read.
+#
+# So the shape is re-derived here from the same numbers the enum declares, and
+# tierForOffer's arithmetic is reimplemented rather than trusted - which is the
+# point of a validator that does not share code with the thing it validates.
+
+no_comments = re.sub(r"/\*.*?\*/", " ", kind_source, flags=re.S)
+shapes = re.findall(
+    r'^\s+[A-Z_]+\("(\w+)",\s*Meter\.\w+,\s*[\w.]+,\s*(\d+),\s*(\d+),\s*(\d+)',
+    no_comments, re.M)
+
+if len(shapes) != len(kinds):
+    fail(f"read a trade shape for {len(shapes)} of {len(kinds)} envoys - the "
+         f"EnvoyKind declaration shape has changed and the ledger checks below "
+         f"are no longer checking anything")
+
+MAX_TIER = 3
+deals_at_bottom = False
+total_offers = 0
+
+for envoy, reward_tier, lowest_tier, offer_count in shapes:
+    reward_tier, lowest_tier, offer_count = int(reward_tier), int(lowest_tier), int(offer_count)
+    total_offers += offer_count
+
+    if not 0 <= lowest_tier <= MAX_TIER or not 0 <= reward_tier <= MAX_TIER:
+        fail(f"{envoy} deals at tiers {lowest_tier}..{reward_tier}, outside 0..{MAX_TIER}")
+    if lowest_tier > reward_tier:
+        fail(f"{envoy}'s lowest tier ({lowest_tier}) is above its reward tier "
+             f"({reward_tier}) - its offer list would be inverted")
+    if offer_count < 1:
+        fail(f"{envoy} brings {offer_count} offers, so its screen is empty and "
+             f"opening it is indistinguishable from a broken entity")
+    if offer_count > 12:
+        fail(f"{envoy} brings {offer_count} offers - past what the vanilla trade "
+             f"screen shows without scrolling, so the tail is invisible")
+    if lowest_tier == 0:
+        deals_at_bottom = True
+
+    # tierForOffer, reimplemented. Must stay inside the office's own range and
+    # must never step backwards, or the list is not in price order.
+    previous = -1
+    for i in range(offer_count):
+        if offer_count <= 1 or reward_tier <= lowest_tier:
+            tier = reward_tier
+        else:
+            tier = lowest_tier + (i * (reward_tier - lowest_tier)) // (offer_count - 1)
+        if not lowest_tier <= tier <= reward_tier:
+            fail(f"{envoy} offer {i} lands at tier {tier}, outside its own "
+                 f"{lowest_tier}..{reward_tier} range")
+        if tier < previous:
+            fail(f"{envoy} offer {i} is cheaper than the one before it - the "
+                 f"screen is not in price order")
+        previous = tier
+
+if not deals_at_bottom:
+    fail("no envoy deals at tier 0, so a player the Code has not noticed has "
+         "nobody to trade with at all")
+
+print(f"trade ledgers      : {total_offers} offers across {len(shapes)} envoys, "
+      f"all in range and in price order")
+
+# ---------------------------------------------------------------------------
+# The library still ships no items
+# ---------------------------------------------------------------------------
+#
+# Prices are a provider registry for the same reason rewards are. If the
+# library ever names a modded item the whole arrangement collapses into the
+# thing it exists to avoid - so the one place that is allowed to name an item
+# (the vanilla emerald fallback) is checked to still be the only one.
+
+prices_path = os.path.join(WORK, "..", "elysium-lib", "src", "main", "java",
+                           "com", "elysium", "lib", "standing", "ElysiumPrices.java")
+if not os.path.exists(prices_path):
+    fail("elysium-lib has no ElysiumPrices - the trade screen has no way to "
+         "name a price and every offer would be free")
+else:
+    prices_src = open(prices_path, encoding="utf-8").read()
+    for forbidden in ("com.elysium.core", "com.elysium.mobs", "com.elysium.dungeons",
+                      "com.elysium.trinkets", "com.elysium.npcs"):
+        if forbidden in prices_src:
+            fail(f"ElysiumPrices references {forbidden} - the library must not "
+                 f"know what is built on top of it")
+    print("price registry     : present, and names no mod's items")
+
+# ---------------------------------------------------------------------------
 # The model draws every accessory the enum can ask for
 # ---------------------------------------------------------------------------
 #

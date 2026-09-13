@@ -42,6 +42,7 @@ public enum EnvoyKind {
      * interest.
      */
     EMPEROR("emperor", Meter.SUSPICION, ElysiumStanding.BAND_HUNTED, 3,
+            /* deals off  */ 3, /* offers */ 2,
             Regalia.CROWN, Regalia.CAPE, Regalia.PAULDRONS),
 
     /**
@@ -49,6 +50,7 @@ public enum EnvoyKind {
      * which is why what she gives is worth most to somebody who reforges.
      */
     ARCHITECT("architect", Meter.SUSPICION, 1, 2,
+            /* deals off  */ 1, /* offers */ 4,
             Regalia.COLLAR, Regalia.CAPE),
 
     /**
@@ -57,6 +59,7 @@ public enum EnvoyKind {
      * not noticed at all — observation is its whole office.
      */
     SENTINEL("sentinel", Meter.SUSPICION, 0, 1,
+            /* deals off  */ 0, /* offers */ 5,
             Regalia.VISOR, Regalia.PAULDRONS),
 
     /**
@@ -64,6 +67,7 @@ public enum EnvoyKind {
      * recruits from people the Unsworn already trust.
      */
     COMMANDER("commander", Meter.FAVOR, 1, 2,
+            /* deals off  */ 1, /* offers */ 4,
             Regalia.CAPE),
 
     /**
@@ -71,6 +75,7 @@ public enum EnvoyKind {
      * the most of it, and is the only one who does not carry a weapon.
      */
     QUEEN("queen", Meter.FAVOR, ElysiumStanding.BAND_HUNTED, 3,
+            /* deals off  */ 2, /* offers */ 3,
             Regalia.CROWN, Regalia.CAPE, Regalia.HALO);
 
     /** Which standing meter an envoy reads before deciding to deal. */
@@ -90,13 +95,18 @@ public enum EnvoyKind {
     private final Meter meter;
     private final int bandRequired;
     private final int rewardTier;
+    private final int lowestTier;
+    private final int offerCount;
     private final java.util.Set<Regalia> regalia;
 
-    EnvoyKind(String id, Meter meter, int bandRequired, int rewardTier, Regalia... regalia) {
+    EnvoyKind(String id, Meter meter, int bandRequired, int rewardTier,
+              int lowestTier, int offerCount, Regalia... regalia) {
         this.id = id;
         this.meter = meter;
         this.bandRequired = bandRequired;
         this.rewardTier = rewardTier;
+        this.lowestTier = lowestTier;
+        this.offerCount = offerCount;
         this.regalia = java.util.Set.of(regalia);
     }
 
@@ -108,8 +118,50 @@ public enum EnvoyKind {
         return meter;
     }
 
+    /** The best shelf this office deals off. */
     public int rewardTier() {
         return rewardTier;
+    }
+
+    /**
+     * The worst shelf this office deals off.
+     *
+     * Together with {@link #rewardTier()} this is the SPREAD an envoy's trade
+     * screen covers, and it is what makes the five feel different now that
+     * there is a browsable list rather than a single item in the hand.
+     *
+     * The shape follows the office, like everything else here. A Sentinel
+     * observes everybody, so it deals across the whole range and mostly at the
+     * bottom of it: a long list of cheap things, from the one envoy who will
+     * talk to a player the Code has not noticed. The Emperor deals off one
+     * shelf and it is the top one — two offers, both ruinous. The rest sit
+     * between.
+     */
+    public int lowestTier() {
+        return lowestTier;
+    }
+
+    /** How many offers this envoy's screen holds. */
+    public int offerCount() {
+        return offerCount;
+    }
+
+    /**
+     * The tier of the {@code index}-th offer, cheapest first.
+     *
+     * Spread evenly across the office's range rather than rolled, so an envoy
+     * dealing over several shelves shows one of each instead of a random pile.
+     * A screen whose rows are sorted is one a player can read at a glance, and
+     * the sort has to be by something they can see: price rises with tier, so
+     * cheapest-first is also price order.
+     */
+    public int tierForOffer(int index) {
+        if (offerCount <= 1 || rewardTier <= lowestTier) {
+            return rewardTier;
+        }
+        int span = rewardTier - lowestTier;
+        int step = (index * span) / (offerCount - 1);
+        return lowestTier + step;
     }
 
     public boolean wears(Regalia part) {

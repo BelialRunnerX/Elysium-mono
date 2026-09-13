@@ -9,6 +9,7 @@ import com.elysium.lib.character.ElysiumRace;
 import com.elysium.lib.entity.ElysiumFaction;
 import com.elysium.lib.item.ElysiumRune;
 import com.elysium.lib.standing.ElysiumDispatch;
+import com.elysium.lib.standing.ElysiumPrices;
 import com.elysium.lib.standing.ElysiumRewards;
 import com.elysium.lib.stats.ElysiumStats;
 import net.minecraft.core.BlockPos;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Everything this mod tells the library about itself.
@@ -55,6 +57,7 @@ public final class ElysiumContent {
         registerFactions();
         registerDispatchers();
         registerRewards();
+        registerPrices();
         registerOres();
 
         // The codex is handed out on first join and reopens the character
@@ -202,6 +205,43 @@ public final class ElysiumContent {
                     ? new ItemStack(Elysium.NEUTRONIUM_INGOT.get())
                     : new ItemStack(rawMaterial(random));
             default -> new ItemStack(rawMaterial(random));
+        });
+    }
+
+    /**
+     * What the court charges, once core is installed.
+     *
+     * The mirror of {@link #registerRewards()}: rewards decide what comes off a
+     * shelf, this decides what it costs to reach. Without a provider the
+     * library falls back to emeralds, which is playable and says nothing about
+     * Elysium — this is what makes the court's economy run on Elysium's own
+     * materials instead.
+     *
+     * <h4>The prices are one shelf below the reward</h4>
+     *
+     * A tier-3 offer is paid for in the material a tier-2 reward is made of.
+     * That is the whole shape of the exchange: the court does not sell relics
+     * for coins, it takes the good material you have accumulated and gives back
+     * something you could not have made. A player who has never traded has
+     * nothing an envoy wants, and one who has been grinding the meters is
+     * exactly who can afford the top shelf.
+     *
+     * The counts rise steeply on purpose. A tier-3 row costs a stack-and-a-half
+     * of refined metal because it is bought once — {@code usesFor} allows a
+     * single purchase — and a price that could be met from a pocket would make
+     * the top of the ladder the first thing a player buys rather than the last.
+     */
+    private static void registerPrices() {
+        ElysiumPrices.register((tier, random) -> switch (tier) {
+            // The throne's shelf. Paid in the metal, not in ore.
+            case 3 -> new ItemStack(Elysium.NEUTRONIUM_INGOT.get(), 24 + random.nextInt(9));
+            // Middle shelves are paid in the raw materials a player mines.
+            case 2 -> new ItemStack(rawMaterial(random), 12 + random.nextInt(5));
+            case 1 -> new ItemStack(rawMaterial(random), 4 + random.nextInt(3));
+            // The bottom shelf is deliberately affordable to somebody who has
+            // only just arrived: this is the Sentinel's stock, and the Sentinel
+            // is the one envoy who deals with a player nobody has noticed.
+            default -> new ItemStack(Items.IRON_INGOT, 2 + random.nextInt(3));
         });
     }
 
