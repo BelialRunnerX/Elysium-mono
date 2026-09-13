@@ -261,15 +261,28 @@ public abstract class ElysiumMob extends Monster {
     }
 
     /**
-     * Elysium creatures never despawn on their own.
+     * Elysium creatures never despawn on their own — except roaming bands.
      *
-     * They are placed deliberately — by a dungeon room or by a standing
-     * dispatch — and a mob that vanished while the player was walking to it
-     * would make the boss room empty about a third of the time.
+     * The rule and its exception are the same observation from two sides.
+     * Almost everything here is placed <em>deliberately</em>: a dungeon room, a
+     * standing dispatch, a register wave. Each is somewhere specific for a
+     * reason, and one that vanished while the player walked to it would empty
+     * the boss room about a third of the time.
+     *
+     * A roaming band is the one kind that is not placed for a reason. It
+     * arrives every couple of minutes for as long as the player keeps playing,
+     * and a permanent one turns a three-hour session into a hundred and eighty
+     * abandoned mobs scattered along the path the player walked — every one of
+     * them loaded again the moment they walk back. That is not difficulty, it
+     * is a leak with a clock on it.
+     *
+     * So a band member consents to the ordinary vanilla despawn rules, which
+     * still will not touch it inside 128 blocks or while it is fighting. It
+     * says yes; {@code Mob.checkDespawn} decides.
      */
     @Override
     public boolean removeWhenFarAway(double distanceToClosestPlayer) {
-        return false;
+        return com.elysium.lib.entity.ElysiumSquads.isAmbient(this);
     }
 
     static {

@@ -248,6 +248,109 @@ if os.path.exists(palette_tool) and os.path.exists(palette_java):
 else:
     fail("ui/palette.py or the generated ElysiumPalette.java is missing")
 
+# ---------------------------------------------------------------------------
+# 8. Roaming bands arrive consistently, and cannot lock themselves out
+# ---------------------------------------------------------------------------
+#
+# ElysiumSquads is a tuning table that documents its own numbers in a javadoc
+# table and then computes them somewhere else. That is exactly the shape of
+# claim this file exists to check: the prose and the arithmetic drift apart
+# silently, and nothing at runtime ever compares them.
+#
+# Two of these are invariants rather than tuning, and they are the reason the
+# section is here at all:
+#
+#   * the crowd cap must be strictly larger than the largest band, or one full
+#     band permanently blocks every later one and the feature switches itself
+#     off for anybody who runs instead of fighting — the failure looks exactly
+#     like "it just stopped working";
+#   * the longest legal gap has to bound the reschedule sanity check in
+#     ElysiumSquadHandler, which reads GAP_BASE + GAP_SPREAD to decide whether a
+#     stored appointment is nonsense. If a gap could exceed that sum, a
+#     legitimate appointment would be thrown away every time it was made.
+squads = read("entity/ElysiumSquads.java")
+squads_code = COMMENT.sub(" ", squads)
+
+
+def constant(text, name, kind="int"):
+    found = re.search(
+        rf"public static final {kind} {name}\s*=\s*([^;]+);", text)
+    if not found:
+        fail(f"ElysiumSquads.{name} is missing")
+        return None
+    # Java's float and double suffixes are not Python's.
+    literal = re.sub(r"(\d)[FfDdLl]\b", r"\1", found.group(1))
+    return eval(literal)  # noqa: S307 - arithmetic only
+
+
+GAP_BASE = constant(squads_code, "GAP_BASE")
+GAP_SPREAD = constant(squads_code, "GAP_SPREAD")
+MIN_SIZE = constant(squads_code, "MIN_SIZE")
+NEARBY_CAP = constant(squads_code, "NEARBY_CAP")
+MIN_RANGE = constant(squads_code, "MIN_RANGE", kind="double")
+MAX_RANGE = constant(squads_code, "MAX_RANGE", kind="double")
+
+if None not in (GAP_BASE, GAP_SPREAD, MIN_SIZE, NEARBY_CAP, MIN_RANGE, MAX_RANGE):
+    # The table in gapFor's javadoc, in ticks, as prose claims it.
+    claimed = {
+        0: (20 * 60 * 2, 20 * 60 * 4),
+        1: (20 * 90, 20 * 60 * 3),
+        2: (20 * 60, 20 * 60 * 2),
+        3: (20 * 30, 20 * 60),
+    }
+    for band, (low, high) in claimed.items():
+        # gapFor: (GAP_BASE + rand(GAP_SPREAD)) * (4 - band) / 4
+        actual_low = (GAP_BASE * (4 - band)) // 4
+        actual_high = ((GAP_BASE + GAP_SPREAD - 1) * (4 - band)) // 4
+        if actual_low != low or abs(actual_high - high) > 20:
+            fail(f"squads: band {band} gap is {actual_low}-{actual_high} ticks, "
+                 f"but gapFor's table says {low}-{high}")
+
+    # Monotonic: more standing is never quieter.
+    gaps = [(GAP_BASE * (4 - b)) // 4 for b in range(4)]
+    if gaps != sorted(gaps, reverse=True):
+        fail(f"squads: gaps do not shorten with band: {gaps}")
+    if gaps[3] <= 0:
+        fail("squads: band 3 has a zero-length gap — bands would arrive every check")
+
+    # sizeFor: MIN_SIZE .. MIN_SIZE + (band + 1) // 2
+    sizes = {b: (MIN_SIZE, MIN_SIZE + (b + 1) // 2) for b in range(4)}
+    largest = max(high for _, high in sizes.values())
+    if MIN_SIZE < 2:
+        fail(f"squads: MIN_SIZE is {MIN_SIZE} — a band of one is a wanderer")
+    if largest > 4:
+        fail(f"squads: largest band is {largest}, which is no longer 'small'")
+    if NEARBY_CAP <= largest:
+        fail(f"squads: NEARBY_CAP {NEARBY_CAP} is not above the largest band "
+             f"{largest} — one band would block every later one forever")
+    if MIN_RANGE >= MAX_RANGE:
+        fail(f"squads: MIN_RANGE {MIN_RANGE} is not below MAX_RANGE {MAX_RANGE}")
+
+    # The handler's sanity bound must be the longest gap this table can produce.
+    handler = read("event/ElysiumSquadHandler.java")
+    if "ElysiumSquads.GAP_BASE + ElysiumSquads.GAP_SPREAD" not in handler:
+        fail("squads: ElysiumSquadHandler no longer bounds a stored appointment "
+             "by GAP_BASE + GAP_SPREAD, so a clock that went backwards would "
+             "switch the feature off for that player with nothing logged")
+
+    # The tag is one literal, read by two systems in two modules. A second
+    # spelling of it would break despawning or clearance and neither would say
+    # anything.
+    tags = re.findall(r'"elysium_squad"', squads)
+    if len(tags) != 1:
+        fail(f"squads: the tag literal appears {len(tags)} times in "
+             f"ElysiumSquads.java — it must be written once, as TAG")
+
+    # Ambient bands must not be made permanent. setPersistenceRequired here
+    # would reintroduce exactly the leak the tag exists to prevent, and would
+    # do it silently: the mobs would simply stop despawning.
+    if "setPersistenceRequired" in squads_code:
+        fail("squads: send() calls setPersistenceRequired — roaming bands must "
+             "be allowed to despawn or a long session strews the world with them")
+
+    print(f"roaming bands      : gaps {gaps[0]}-{gaps[3]} ticks by band, "
+          f"{MIN_SIZE}-{largest} per band, cap {NEARBY_CAP}, one tag literal")
+
 print()
 
 if problems:

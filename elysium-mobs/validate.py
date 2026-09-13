@@ -249,6 +249,56 @@ for dirpath, _, filenames in os.walk(RES):
 
 print(f"lang keys           : {len(lang)}")
 print(f"json files parsed   : {count}")
+
+# ---------------------------------------------------------------------------
+# Roaming bands do not break the two systems they touch
+# ---------------------------------------------------------------------------
+#
+# The library sends small squads of whatever is registered in the bestiary, on
+# its own clock, forever. That is fine on its own and breaks two things here,
+# both silently, and both in a way that looks like an unrelated bug:
+#
+#   1. ElysiumMob refuses to despawn. Correct for a dungeon boss, catastrophic
+#      for a mob that arrives every two minutes for the length of a session.
+#   2. RegisterScheduler decides a wave is cleared by counting nearby Empire
+#      mobs. An ambient Empire band standing in the field holds every later
+#      wave forever — the player clears the wave, nothing comes, and the action
+#      eventually times out with no explanation.
+#
+# Both are fixed by the same scoreboard tag, and both fixes are one expression
+# that a later edit could quietly revert. So both are checked.
+SQUAD_COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
+
+mob_code = SQUAD_COMMENT.sub(" ", read("entity/ElysiumMob.java"))
+far_away = re.search(r"removeWhenFarAway\([^)]*\)\s*\{(.*?)\}", mob_code, re.S)
+if not far_away:
+    fail("ElysiumMob.removeWhenFarAway is missing")
+elif "isAmbient" not in far_away.group(1):
+    fail("ElysiumMob.removeWhenFarAway no longer consults ElysiumSquads."
+         "isAmbient — either every roaming band is now permanent (the world "
+         "fills up) or every dungeon boss now despawns (rooms come out empty)")
+
+sched_code = SQUAD_COMMENT.sub(" ", read("register/RegisterScheduler.java"))
+survivors = re.search(r"private static int survivors\([^)]*\)\s*\{(.*?)\n    \}",
+                      sched_code, re.S)
+if not survivors:
+    fail("RegisterScheduler.survivors is missing")
+elif "isAmbient" not in survivors.group(1):
+    fail("RegisterScheduler.survivors counts roaming bands as wave survivors — "
+         "an unrelated band parks a register action forever")
+
+if "addSuppressor" not in sched_code:
+    fail("RegisterScheduler no longer suppresses roaming bands during an "
+         "action; the ten-minute warning §14.3 asks for is unusable if bands "
+         "keep arriving through it")
+
+mods_code = SQUAD_COMMENT.sub(" ", read("ElysiumMobs.java"))
+if "suppressWhileActive()" not in mods_code:
+    fail("ElysiumMobs never calls RegisterScheduler.suppressWhileActive, so the "
+         "suppressor is written and never registered")
+
+print("roaming bands       : despawn consent tagged, wave clearance excludes "
+      "them, suppressed mid-action")
 print()
 
 if problems:

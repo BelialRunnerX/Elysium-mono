@@ -166,6 +166,9 @@ public class ElysiumMobs {
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(
                 com.elysium.mobs.register.RegisterScheduler.class);
 
+        // An announced siege wants the roads quiet while the player prepares.
+        com.elysium.mobs.register.RegisterScheduler.suppressWhileActive();
+
         registerFactions();
         registerBestiary();
         registerDispatchers();

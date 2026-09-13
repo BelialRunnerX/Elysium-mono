@@ -682,9 +682,17 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
         return false;
     }
 
+    /**
+     * Not {@code .value()}: {@code SoundEvents.VILLAGER_YES} is a plain
+     * {@link SoundEvent}, not a holder. Most of the fields around it in that
+     * class <em>are</em> holders, which is why the wrong spelling reads as
+     * correct — and the whole class is unresolvable to a compiler without
+     * Minecraft on the classpath, so it type-checks as an unknown method on an
+     * unknown type and says nothing.
+     */
     @Override
     public SoundEvent getNotifyTradeSound() {
-        return SoundEvents.VILLAGER_YES.value();
+        return SoundEvents.VILLAGER_YES;
     }
 
     @Override

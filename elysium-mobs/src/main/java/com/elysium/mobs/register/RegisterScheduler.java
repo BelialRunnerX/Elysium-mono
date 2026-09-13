@@ -1,5 +1,6 @@
 package com.elysium.mobs.register;
 
+import com.elysium.lib.entity.ElysiumSquads;
 import com.elysium.lib.standing.ElysiumRewards;
 import com.elysium.lib.standing.ElysiumStanding;
 import com.elysium.mobs.ElysiumMobs;
@@ -64,6 +65,23 @@ import java.util.List;
 public final class RegisterScheduler {
 
     private RegisterScheduler() {
+    }
+
+    /**
+     * Tells the world to keep roaming bands away from a player mid-action.
+     *
+     * Called once from the mod constructor. The suppression is not about
+     * difficulty — a siege can afford some extra company — it is about the
+     * <em>announcement</em>, which §14.3 makes the point of the whole Marked
+     * row. Ten minutes of warning is ten minutes the player is supposed to
+     * spend preparing, and preparing is impossible if bands keep walking in
+     * during it. A warning you cannot act on is just a notification.
+     *
+     * Registered as a predicate rather than checked inside the library because
+     * the library has no idea register actions exist, and should not learn.
+     */
+    public static void suppressWhileActive() {
+        ElysiumSquads.addSuppressor(player -> !RegisterAction.get(player).isIdle());
     }
 
     /** How often an idle player is considered. Four minutes. */
@@ -252,11 +270,33 @@ public final class RegisterScheduler {
     // Spawning
     // ------------------------------------------------------------------
 
-    /** Empire mobs still standing near the player. */
+    /**
+     * Empire mobs still standing near the player — the action's own, not the
+     * traffic.
+     *
+     * The class documentation argues that counting by proximity is right even
+     * though unrelated Empire mobs count: if the Empire is standing on you, the
+     * action is not over. That argument held while the only Empire mobs nearby
+     * were ones something had deliberately sent.
+     *
+     * Roaming bands break it. They arrive on their own clock, they are often
+     * Empire, and they do not stop arriving because a siege is running — so
+     * every wave after the first would wait on a band that has nothing to do
+     * with the action, and a player who cleared the wave would stand in an
+     * empty field wondering why the next one never came. One stalled action
+     * disables the system for that player permanently, which is exactly the
+     * failure {@code ABANDON_TICKS} exists to bound and should not have to.
+     *
+     * So clearance counts only mobs that are not roaming — and the scheduler
+     * additionally asks the world to hold bands off entirely while an action is
+     * pending, below. Both are needed: the suppressor stops new bands, and this
+     * handles the ones that were already standing there when the action was
+     * announced ten minutes ago.
+     */
     private static int survivors(ServerLevel level, ServerPlayer player) {
         AABB box = player.getBoundingBox().inflate(RANGE);
         List<ElysiumMob> nearby = level.getEntitiesOfClass(ElysiumMob.class, box,
-                mob -> mob.isAlive() && isEmpire(mob));
+                mob -> mob.isAlive() && isEmpire(mob) && !ElysiumSquads.isAmbient(mob));
         return nearby.size();
     }
 

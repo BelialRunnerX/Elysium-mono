@@ -84,15 +84,16 @@ public class ElysiumLib {
         ElysiumElements.bootstrap();
         ElysiumElements.registerPsionicAffixes();
 
-        // All three are declared in the elysiumlib namespace, so they have to
-        // go on *this* mod's event bus. Registering them from a content mod's
-        // constructor instead — which is what the split briefly did with the
-        // standing attachments — produces ids whose namespace does not match
-        // the bus they were registered on, and leaves the library broken when
-        // it is installed on its own.
+        // All of these are declared in the elysiumlib namespace, so they have
+        // to go on *this* mod's event bus. Registering them from a content
+        // mod's constructor instead — which is what the split briefly did with
+        // the standing attachments — produces ids whose namespace does not
+        // match the bus they were registered on, and leaves the library broken
+        // when it is installed on its own.
         ElysiumCharacter.ATTACHMENTS.register(modEventBus);
         ElysiumStanding.ATTACHMENTS.register(modEventBus);
         ElysiumCommission.ATTACHMENTS.register(modEventBus);
+        com.elysium.lib.event.ElysiumSquadHandler.ATTACHMENTS.register(modEventBus);
         ElysiumComponents.COMPONENTS.register(modEventBus);
 
         LOGGER.info("Elysium Library ready: {} elements, {} stats",
