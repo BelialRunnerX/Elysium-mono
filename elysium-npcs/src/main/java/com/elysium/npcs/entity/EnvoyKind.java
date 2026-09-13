@@ -74,7 +74,7 @@ public enum EnvoyKind {
      * Aurelia, Queen, and before that a sentient star. Reads Favor, asks for
      * the most of it, and is the only one who does not carry a weapon.
      */
-    QUEEN("queen", Meter.FAVOR, ElysiumStanding.BAND_HUNTED, 3,
+    QUEEN("queen", Meter.FAVOR, ElysiumStanding.BAND_EXALTED, 3,
             /* deals off  */ 2, /* offers */ 3,
             Regalia.CROWN, Regalia.CAPE, Regalia.HALO);
 

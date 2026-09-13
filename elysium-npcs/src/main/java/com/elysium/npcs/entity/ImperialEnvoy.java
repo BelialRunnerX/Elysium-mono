@@ -382,9 +382,81 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
         this.offers = value;
     }
 
+    /**
+     * Also where a sold-out row is replaced.
+     *
+     * §14.4 of the specification says court offers are "rerolled after
+     * successful trades", and this is where that happens — on the screen
+     * closing rather than at the moment of the trade.
+     *
+     * <h4>Why not in notifyTrade, where the trade actually is</h4>
+     *
+     * Because the menu is open at that point and is indexing into the very
+     * list a reroll would rewrite. {@code MerchantResultSlot} holds the offer
+     * the player is mid-transaction with; swapping it underneath is how a
+     * trade completes against one offer and pays out another. Vanilla mutates
+     * a villager's offers there too, but only by bumping a counter on an offer
+     * it keeps — it never replaces the object.
+     *
+     * Waiting for the close costs nothing the player can perceive: the row
+     * they exhausted still reads as sold out for as long as they are looking
+     * at it, and the new one is there when they come back. What it buys is
+     * that the server never edits a list the client is holding a copy of.
+     *
+     * <h4>The row, not the ledger</h4>
+     *
+     * Only rows that actually sold out are redrawn. Rerolling everything after
+     * any trade would punish the one thing a browsable list is for — buying the
+     * cheap row first and coming back for the expensive one — by moving the
+     * expensive one every time you saved up for it.
+     */
     @Override
     public void setTradingPlayer(@Nullable Player player) {
+        boolean closing = player == null && this.tradingPlayer != null;
         this.tradingPlayer = player;
+        if (closing) {
+            refreshSoldOut();
+        }
+    }
+
+    /**
+     * Draw a new offer into every exhausted row.
+     *
+     * A row that cannot be refilled — because nothing will pay out at its tier
+     * any more — is left sold out rather than removed. Removing it would
+     * renumber every row below it, and the use counts saved against this
+     * ledger are positional.
+     */
+    private void refreshSoldOut() {
+        MerchantOffers current = offers;
+        if (current == null || level().isClientSide()) {
+            return;
+        }
+        EnvoyKind kind = getKind();
+        for (int i = 0; i < current.size(); i++) {
+            if (!current.get(i).isOutOfStock()) {
+                continue;
+            }
+            int tier = kind.tierForOffer(i);
+            // A fresh draw from the entity's own source, not the ledger seed.
+            // The seed reproduces the ledger an envoy ARRIVED with; what
+            // replaces a spent row is new, and deriving it from the same seed
+            // would hand back the row that was just bought.
+            ItemStack reward = ElysiumRewards.roll(tier, getRandom());
+            if (reward.isEmpty()) {
+                continue;
+            }
+            ItemStack price = ElysiumPrices.roll(tier, getRandom());
+            if (price.isEmpty()) {
+                continue;
+            }
+            current.set(i, new MerchantOffer(
+                    new ItemCost(price.getItem(), price.getCount()),
+                    reward,
+                    usesFor(tier),
+                    0,
+                    0.0F));
+        }
     }
 
     @Override

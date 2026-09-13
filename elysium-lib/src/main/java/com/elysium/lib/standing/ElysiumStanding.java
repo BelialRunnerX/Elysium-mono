@@ -133,6 +133,22 @@ public final class ElysiumStanding {
     /** The top band — Exalted on the Favor side, Hunted on the Suspicion side. */
     public static final int BAND_HUNTED = 3;
 
+    /**
+     * The same band, named from the Favor side.
+     *
+     * One value, two names, because the two meters are one number wearing two
+     * fictions and the specification's Court table gates Aurelia at "Exalted"
+     * while gating Elysomnion at "Hunted". A Favor envoy declaring its gate as
+     * {@code BAND_HUNTED} is not wrong, it just reads as though the Queen were
+     * waiting for the Code to take an interest in you, which is the opposite of
+     * what she reads.
+     *
+     * Deliberately an alias rather than a second constant with its own value:
+     * if the bands are ever renumbered, one of two independent constants would
+     * be updated and the other would not.
+     */
+    public static final int BAND_EXALTED = BAND_HUNTED;
+
     /** 0 = below notice, 1, 2, 3 = the top band. */
     public static int bandOf(int value) {
         if (value >= 75) {
