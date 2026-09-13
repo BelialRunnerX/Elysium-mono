@@ -357,6 +357,43 @@ def write_lang():
         "elysiumnpcs.nothing_to_give":
             "They search their office and find nothing to give you.",
         "elysiumnpcs.arrival": "%s has come to find you.",
+
+        # §27.1's amnesty row. The tooltip carries the floor caveat as well as
+        # the failure message does, because a player reads the tooltip in the
+        # shop and the failure message only after carrying the writ home.
+        "item.elysiumnpcs.writ_of_amnesty": "Writ of Amnesty",
+        "elysiumnpcs.amnesty.tooltip":
+            "Discharges %s Suspicion when used.",
+        "elysiumnpcs.amnesty.tooltip_floor":
+            "Never below the structural floor of what you have claimed.",
+        "elysiumnpcs.amnesty.granted":
+            "The file is amended. %s discharged; %s outstanding.",
+        "elysiumnpcs.amnesty.at_floor":
+            "Nothing here can be discharged. Suspicion is already at the "
+            "structural floor of %s — the Empire will not forget a fortress.",
+        "elysiumnpcs.amnesty.nothing_filed":
+            "There is nothing on file to amend.",
+
+        # Court commissions, §14.5/§19.2. These belong here rather than in the
+        # JSON because write_lang() REWRITES that file wholesale — a key added
+        # by hand survives exactly until the next time anybody runs this script,
+        # which is how all seven of these were lost once already. The validator
+        # caught it; the fix is to put them where the generator can see them.
+        "elysiumnpcs.commission.expired":
+            "The commission lapsed. The Court has noted it.",
+        "elysiumnpcs.commission.issued":
+            "Commission: deliver %s %s within %s seconds.",
+        "elysiumnpcs.commission.not_my_office":
+            "This office does not commission work. Take it to the throne.",
+        "elysiumnpcs.commission.nothing_wanted":
+            "The Court wants for nothing it can name.",
+        "elysiumnpcs.commission.outstanding":
+            "Outstanding: %s more %s. %s seconds remain.",
+        "elysiumnpcs.commission.settled":
+            "The commission is discharged. %s rewards are entered against "
+            "your name.",
+        "elysiumnpcs.commission.unknown_item":
+            "something no longer catalogued",
     }
     for kind, (name, refusal) in NAMES.items():
         lang[f"entity.elysiumnpcs.envoy.{kind}"] = name
@@ -373,6 +410,13 @@ def write_lang():
 def write_models():
     """A plain generated model for each writ, so none of them is a purple cube."""
     written = 0
+    path = RES / "models/item/writ_of_amnesty.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump({"parent": "minecraft:item/generated",
+                   "textures": {"layer0": "elysiumnpcs:item/writ_of_amnesty"}},
+                  handle, indent=2)
+    written += 1
     for kind in NAMES:
         path = RES / f"models/item/{kind}_summons.json"
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -412,6 +456,48 @@ def write_writ_sprites():
     return written
 
 
+def write_amnesty_sprite():
+    """
+    The same document, with the seal broken.
+
+    Deliberately built from the summons writ rather than given a shape of its
+    own. Every writ in this mod is one piece of Imperial paperwork, and what
+    tells them apart is the seal — five whole seals in five colours summon five
+    offices, and the one BROKEN seal is the file being closed. A player who has
+    learned to read the seals already knows what this is.
+
+    It is also the only writ with a struck-through line, which is the second
+    reading at a glance: something on the page has been cancelled.
+    """
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    parchment = (216, 206, 180, 255)
+    shadow = (168, 158, 134, 255)
+    ink = (28, 26, 24, 255)
+    gold = (216, 177, 58, 255)
+
+    draw.rectangle([3, 1, 12, 14], fill=parchment, outline=ink)
+    draw.rectangle([3, 11, 12, 14], fill=shadow)
+    for y in (4, 6, 8):
+        draw.line([(5, y), (10, y)], fill=shadow)
+    # The cancellation, straight through the writing.
+    draw.line([(4, 3), (11, 9)], fill=gold)
+
+    # One seal with a break punched through it.
+    #
+    # Drawn whole and then split, rather than as two small rectangles. Two
+    # 2-pixel rectangles with a 1-pixel outline each are 2 pixels of outline
+    # and none of fill, so the "broken gold seal" rendered as two black blocks
+    # — the difference is invisible in the source and obvious at 16x.
+    draw.rectangle([4, 10, 11, 13], fill=gold, outline=ink)
+    draw.rectangle([7, 10, 8, 13], fill=ink)
+
+    path = RES / "textures/item/writ_of_amnesty.png"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(path)
+    return 1
+
+
 def main():
     (JAVA / "client/model").mkdir(parents=True, exist_ok=True)
 
@@ -428,7 +514,7 @@ def main():
 
     print(f"model + renderer  : 3 files")
     print(f"skins written     : {skins}")
-    print(f"writ sprites      : {write_writ_sprites()}")
+    print(f"writ sprites      : {write_writ_sprites() + write_amnesty_sprite()}")
     print(f"item models       : {write_models()}")
     print(f"lang keys         : {write_lang()}")
 

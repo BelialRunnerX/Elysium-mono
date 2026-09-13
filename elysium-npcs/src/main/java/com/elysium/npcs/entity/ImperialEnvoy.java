@@ -1,5 +1,6 @@
 package com.elysium.npcs.entity;
 
+import com.elysium.npcs.ElysiumNpcs;
 import com.elysium.lib.standing.ElysiumCommission;
 import com.elysium.lib.standing.ElysiumPrices;
 import com.elysium.lib.standing.ElysiumRewards;
@@ -137,6 +138,18 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
 
     /** Top-shelf rolls paid on settlement. */
     private static final int kCommissionPayout = 3;
+
+    /**
+     * How many writs of amnesty one visit will sell.
+     *
+     * Two, at a price rolled from the office's top tier. One would make the
+     * decision "can I afford this at all"; unlimited would make Suspicion a
+     * currency problem rather than a consequence, since a rich player could
+     * simply buy their file clean after every siege. Two is enough to move a
+     * Hunted player to Marked in a single visit if they can pay for both, which
+     * is a real escape and still costs them the visit.
+     */
+    private static final int kAmnestyUses = 2;
 
     /** Standing gained for settling, and lost for letting one lapse. */
     private static final int kCommissionStanding = 12;
@@ -456,6 +469,29 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
         // entity's shared random would make the ledger depend on everything
         // else that had asked it for a number first.
         RandomSource ledger = RandomSource.create(ledgerSeed);
+
+        // §27.1's amnesty row, and the one offer on this screen that is not a
+        // roll.
+        //
+        // Guaranteed, because it is the only way a player has of lowering
+        // Suspicion by choosing to. An amnesty that turned up one visit in
+        // four would be a release valve you cannot reach for — the player
+        // needing it most is the one being besieged, and telling them to wait
+        // for a better envoy is the same as not having built it.
+        //
+        // Only from an office that reads Suspicion. §14.4 puts Lillith and
+        // Aurelia on the Favor side, and the Unsworn have no register to strike
+        // you from; a diaspora cannot pardon you for mining.
+        if (kind.meter() == EnvoyKind.Meter.SUSPICION) {
+            ItemStack cost = ElysiumPrices.roll(kind.rewardTier(), ledger);
+            if (!cost.isEmpty()) {
+                rolled.add(new MerchantOffer(
+                        new ItemCost(cost.getItem(), cost.getCount()),
+                        new ItemStack(ElysiumNpcs.WRIT_OF_AMNESTY.get()),
+                        kAmnestyUses, 0, 0.0F));
+            }
+        }
+
         for (int i = 0; i < kind.offerCount(); i++) {
             int tier = kind.tierForOffer(i);
 

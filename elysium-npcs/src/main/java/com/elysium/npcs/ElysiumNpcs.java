@@ -91,6 +91,17 @@ public class ElysiumNpcs {
         }
     }
 
+    /**
+     * §27.1's amnesty row, as something you can carry.
+     *
+     * Registered here rather than in a content mod because the court is what
+     * sells it — see {@code ImperialEnvoy.rollOffers}, where it is the one
+     * guaranteed row on a Suspicion-reading office's list.
+     */
+    public static final DeferredHolder<Item, Item> WRIT_OF_AMNESTY =
+            ITEMS.register("writ_of_amnesty",
+                    () -> new WritOfAmnestyItem(new Item.Properties()));
+
     public ElysiumNpcs(IEventBus modEventBus) {
         modEventBus.addListener(ElysiumNpcEvents::onAttributes);
 
@@ -124,6 +135,7 @@ public class ElysiumNpcs {
                         for (DeferredHolder<Item, Item> egg : allSummons()) {
                             output.accept(egg.get());
                         }
+                        output.accept(WRIT_OF_AMNESTY.get());
                     })
                     .build());
 }

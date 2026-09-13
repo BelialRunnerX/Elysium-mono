@@ -1,4 +1,9 @@
 {
+  "elysiumnpcs.amnesty.at_floor": "Nothing here can be discharged. Suspicion is already at the structural floor of %s — the Empire will not forget a fortress.",
+  "elysiumnpcs.amnesty.granted": "The file is amended. %s discharged; %s outstanding.",
+  "elysiumnpcs.amnesty.nothing_filed": "There is nothing on file to amend.",
+  "elysiumnpcs.amnesty.tooltip": "Discharges %s Suspicion when used.",
+  "elysiumnpcs.amnesty.tooltip_floor": "Never below the structural floor of what you have claimed.",
   "elysiumnpcs.arrival": "%s has come to find you.",
   "elysiumnpcs.commission.expired": "The commission lapsed. The Court has noted it.",
   "elysiumnpcs.commission.issued": "Commission: deliver %s %s within %s seconds.",
@@ -29,5 +34,6 @@
   "item.elysiumnpcs.emperor_summons": "Writ of Audience: Elysomnion",
   "item.elysiumnpcs.queen_summons": "Writ of Audience: Aurelia",
   "item.elysiumnpcs.sentinel_summons": "Writ of Audience: Sentinel",
+  "item.elysiumnpcs.writ_of_amnesty": "Writ of Amnesty",
   "itemGroup.elysiumnpcs": "Elysium Court"
 }

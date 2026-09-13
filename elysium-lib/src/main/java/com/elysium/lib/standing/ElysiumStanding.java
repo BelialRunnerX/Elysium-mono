@@ -156,6 +156,16 @@ public final class ElysiumStanding {
     public static final String CAUSE_CLEARED = "cleared";
     /** Trading with the court. */
     public static final String CAUSE_COURT = "court";
+    /**
+     * §27.1's amnesty row: pressure discharged by arrangement.
+     *
+     * Its own cause rather than folded into {@link #CAUSE_COURT}, because the
+     * archive is read to answer "why am I Marked" and "you bought your way
+     * down 25" is a different answer from "you traded with an envoy". They are
+     * also the only two entries that can appear in the same session with
+     * opposite signs.
+     */
+    public static final String CAUSE_AMNESTY = "amnesty";
 
     /**
      * What an unattributed change is filed as.

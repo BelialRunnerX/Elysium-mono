@@ -290,6 +290,130 @@ for dirpath, _, filenames in os.walk(os.path.join(WORK, "src/main/resources")):
                 fail(f"invalid JSON {filename}: {exc}")
 
 print(f"json files parsed  : {count}")
+
+# ---------------------------------------------------------------------------
+# §27.1's amnesty row: the only way Suspicion goes down by choice
+# ---------------------------------------------------------------------------
+#
+# Everything else in §14 pushes Suspicion up. A meter with no release valve is
+# not a resource a player manages, it is a timer they endure — so each of these
+# is a way for the valve to quietly close, with nothing failing to compile.
+writ_path = os.path.join(JAVA, "WritOfAmnestyItem.java")
+if not os.path.exists(writ_path):
+    fail("WritOfAmnestyItem.java is missing — §27.1's amnesty row is the only "
+         "way a player can lower Suspicion by choosing to")
+else:
+    writ = re.sub(r"//[^\n]*|/\*.*?\*/", " ",
+                  open(writ_path, encoding="utf-8").read(), flags=re.S)
+
+    # The floor is the design. Amnesty discharges pressure and must never touch
+    # §14.2's structural floor, or claiming stops meaning anything.
+    if "floorFor" not in writ:
+        fail("the writ of amnesty does not read the claim floor, so it would "
+             "discharge Suspicion below what §14.2 calls a permanent floor — "
+             "buying your way out of having built a fortress")
+
+    # Refused, not consumed. This is the case a player hits by accident, having
+    # bought two and used one.
+    if "InteractionResultHolder.fail" not in writ:
+        fail("a writ used at the floor is consumed rather than refused — an "
+             "item that vanishes having done nothing reads as a bug")
+
+    for key in ("elysiumnpcs.amnesty.granted", "elysiumnpcs.amnesty.at_floor",
+                "elysiumnpcs.amnesty.nothing_filed",
+                "elysiumnpcs.amnesty.tooltip",
+                "elysiumnpcs.amnesty.tooltip_floor",
+                "item.elysiumnpcs.writ_of_amnesty"):
+        if key not in lang:
+            fail(f"no lang entry for {key} — the raw key shows in game")
+
+    for rel in ("models/item/writ_of_amnesty.json",
+                "textures/item/writ_of_amnesty.png"):
+        if not exists(rel):
+            fail(f"the writ of amnesty has no {rel} — it renders as a "
+                 f"purple-and-black square")
+
+    envoy_src = open(os.path.join(JAVA, "entity/ImperialEnvoy.java"),
+                     encoding="utf-8").read()
+    envoy_code = re.sub(r"//[^\n]*|/\*.*?\*/", " ", envoy_src, flags=re.S)
+    if "WRIT_OF_AMNESTY" not in envoy_code:
+        fail("no envoy sells a writ of amnesty, so it exists and cannot be "
+             "obtained")
+    # Guaranteed, not rolled. A valve that appears one visit in four is one the
+    # player being besieged cannot reach for.
+    if "ElysiumRewards.roll" in envoy_code and "WRIT_OF_AMNESTY" in envoy_code:
+        offer_block = envoy_code.split("WRIT_OF_AMNESTY")[0]
+        if "Meter.SUSPICION" not in offer_block:
+            fail("the amnesty offer is not gated on a Suspicion-reading "
+                 "office. §14.4 puts Lillith and Aurelia on the Favor side, "
+                 "and a diaspora cannot pardon you for mining")
+
+    print("amnesty            : sold by Suspicion offices, floors at the claim, "
+          "refused rather than wasted")
+
+# ---------------------------------------------------------------------------
+# The language file is generated, and a hand edit to it is a time bomb
+# ---------------------------------------------------------------------------
+#
+# tools/gen_npcs.py writes assets/elysiumnpcs/lang/en_us.json wholesale — it
+# builds a dict and dumps it, so anything added to the JSON by hand survives
+# exactly until the next person runs the generator.
+#
+# That is not hypothetical. Seven commission lines were added to the JSON
+# directly and were silently erased the next time the script ran; the only
+# reason it was noticed is that another check happened to look for those keys.
+# A key added tomorrow for something nothing else checks would just quietly stop
+# existing, and the symptom is a player reading a raw translation key.
+#
+# So the file is regenerated in memory and compared, the same way
+# elysium-lib guards its generated palette.
+generator = os.path.join(WORK, "tools", "gen_npcs.py")
+lang_json = os.path.join(RES, "lang", "en_us.json")
+if not os.path.exists(generator):
+    fail("tools/gen_npcs.py is missing, so the generated lang file is unguarded")
+elif not os.path.exists(lang_json):
+    fail("assets/elysiumnpcs/lang/en_us.json is missing — run tools/gen_npcs.py")
+else:
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("gen_npcs", generator)
+    module = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(module)
+    except Exception as exc:                      # noqa: BLE001 - reported
+        module = None
+        fail(f"tools/gen_npcs.py could not be imported to check the lang file: {exc}")
+
+    if module is not None:
+        # write_lang() writes as a side effect and returns a count, so the
+        # comparison is done on the file it produces rather than on a return
+        # value: regenerate, read, and put the original back either way.
+        with open(lang_json, encoding="utf-8") as handle:
+            before = handle.read()
+        try:
+            module.write_lang()
+            with open(lang_json, encoding="utf-8") as handle:
+                after = handle.read()
+        finally:
+            with open(lang_json, "w", encoding="utf-8") as handle:
+                handle.write(before)
+
+        if before != after:
+            missing = sorted(set(json.loads(before)) - set(json.loads(after)))
+            extra = sorted(set(json.loads(after)) - set(json.loads(before)))
+            detail = ""
+            if missing:
+                detail += f" Keys the generator does not know about: {missing}."
+            if extra:
+                detail += f" Keys it would add: {extra}."
+            fail(f"assets/elysiumnpcs/lang/en_us.json does not match "
+                 f"tools/gen_npcs.py — the next run of the generator would "
+                 f"overwrite it.{detail} Add the strings to the generator, not "
+                 f"to the JSON.")
+        else:
+            print(f"generated lang     : {len(json.loads(before))} keys, "
+                  f"matches tools/gen_npcs.py")
+
 print()
 
 if problems:
