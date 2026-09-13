@@ -404,5 +404,10 @@
   "elysium.archive.floor": "Structural floor: Suspicion will not fall below %s. %s",
   "elysium.archive.holdings": "(%s claim(s) filed here, largest %s structures)",
   "elysium.archive.no_claim": "No claim filed. Nothing holds your Suspicion up.",
-  "elysium.archive.empty": "The file is empty. Nothing recent is recorded."
+  "elysium.archive.empty": "The file is empty. Nothing recent is recorded.",
+  "block.elysium.inspection_beacon": "Inspection Beacon",
+  "elysium.inspection.reporting": "Imperial inspection post. Reporting extraction within %s blocks at %sx for another %s minute(s).",
+  "elysium.inspection.lapsed": "This post has lapsed. It is reporting nothing.",
+  "elysium.inspection.resisted": "The post is destroyed. +%s Suspicion — and the Empire has sent someone to ask about it.",
+  "elysium.inspection.resisted_quiet": "The post is destroyed. +%s Suspicion. Nobody was free to answer it."
 }

@@ -60,6 +60,15 @@ public final class ElysiumContent {
         registerPrices();
         registerOres();
 
+        // §14.5's inspection beacon. The library owns the threshold, the
+        // lifetime and the rate; it has no blocks and will not grow any, so
+        // the one thing it cannot do is put one in the world. Registered here
+        // for the same reason rewards, prices and dispatchers are — with no
+        // content mod installed the threshold is crossed and nothing happens,
+        // which is the correct behaviour for a library on its own.
+        com.elysium.lib.imperial.ElysiumInspections.setPlanter(
+                com.elysium.core.block.InspectionBeaconBlock::plant);
+
         // The codex is handed out on first join and reopens the character
         // sheet. Supplied rather than assumed: the library falls back to
         // /elysium sheet when no mod offers one.

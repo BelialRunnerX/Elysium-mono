@@ -168,6 +168,26 @@ public final class ElysiumStanding {
     public static final String CAUSE_AMNESTY = "amnesty";
 
     /**
+     * §14.5: extraction that an inspection post was reporting.
+     *
+     * Its own cause because the archive's whole job is answering "why is this
+     * number moving faster than it was". Filing a watched vein as ordinary ore
+     * would show the player a +8 next to a +2 for the same block and explain
+     * nothing.
+     */
+    public static final String CAUSE_INSPECTED = "inspected";
+
+    /**
+     * §27.1's "resist": destroying Imperial equipment.
+     *
+     * The Empire's own row calls resistance one of the legitimate responses to
+     * an inspection, and it charges for it. Separate from a kill because it is
+     * property rather than people, and a player reading their file should be
+     * able to tell which they did.
+     */
+    public static final String CAUSE_RESISTED = "resisted";
+
+    /**
      * What an unattributed change is filed as.
      *
      * The two-argument overloads above route here rather than skipping the

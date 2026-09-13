@@ -426,6 +426,21 @@ WORKSTATION_INLAY = {
                           (2, 3), (2, 5), (2, 7), (2, 9), (2, 11)],
                          [(11, 9), (12, 9), (11, 10), (12, 10)]),
 
+    # Inspection Beacon — a single eye over a ruled baseline.
+    #
+    # An eye, which the Registry Beacon deliberately is not: that block files
+    # ground, this one WATCHES it, and the two need to be told apart at a
+    # glance in a world where both are dark metal cubes. The baseline under it
+    # is the record being kept — the same ruled lines the archive uses, so the
+    # three Imperial blocks read as one set of equipment.
+    "inspection_beacon": ([(5, 5), (6, 4), (7, 4), (8, 4), (9, 4), (10, 5),
+                           (11, 6), (11, 7),
+                           (10, 8), (9, 9), (8, 9), (7, 9), (6, 9), (5, 8),
+                           (4, 7), (4, 6),
+                           (4, 12), (5, 12), (6, 12), (7, 12), (8, 12),
+                           (9, 12), (10, 12), (11, 12)],
+                          [(7, 6), (8, 6), (7, 7), (8, 7)]),
+
     "registry_beacon": ([(5, 4), (6, 4), (7, 4), (8, 4), (9, 4), (10, 4),
                          (5, 11), (6, 11), (7, 11), (8, 11), (9, 11), (10, 11),
                          (4, 5), (4, 6), (4, 7), (4, 8), (4, 9), (4, 10),

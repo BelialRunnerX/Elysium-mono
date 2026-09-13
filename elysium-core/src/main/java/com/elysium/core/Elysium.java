@@ -156,6 +156,17 @@ public class Elysium {
             BLOCKS.register("imperial_archive",
                     com.elysium.core.block.ImperialArchiveBlock::new);
 
+    /**
+     * §14.5's inspection beacon. Planted by the Empire, never by a player —
+     * see {@link com.elysium.core.block.InspectionBeaconBlock}. It has no
+     * recipe, no loot and no creative-tab entry on purpose: a player holding a
+     * stack of these would have a supply of a block whose only function is to
+     * tax them.
+     */
+    public static final DeferredHolder<Block, Block> INSPECTION_BEACON =
+            BLOCKS.register("inspection_beacon",
+                    com.elysium.core.block.InspectionBeaconBlock::new);
+
     // ------------------------------------------------------------------
     // Block items
     // ------------------------------------------------------------------

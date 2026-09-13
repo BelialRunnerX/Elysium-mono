@@ -4,11 +4,15 @@ import com.elysium.lib.ElysiumHooks;
 import com.elysium.lib.ElysiumLib;
 import com.elysium.lib.claim.ElysiumClaim;
 import com.elysium.lib.claim.ElysiumClaims;
+import com.elysium.lib.imperial.ElysiumInspection;
+import com.elysium.lib.imperial.ElysiumInspections;
 import com.elysium.lib.standing.ElysiumDispatch;
 import com.elysium.lib.character.ElysiumCharacter;
 import com.elysium.lib.entity.ElysiumFaction;
 import com.elysium.lib.standing.ElysiumStanding;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -27,7 +31,10 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * The two loops, and the clock that runs them down.
@@ -96,6 +103,13 @@ public final class ElysiumStandingHandler {
                 ElysiumStanding.addSuspicion(player, -ElysiumPassives.decayRate(player),
                         ElysiumStanding.CAUSE_DECAY);
             }
+
+            // Lapsed inspection posts are forgotten on this tick rather than on
+            // a clock of their own. They lapse after twenty minutes and nothing
+            // reads a lapsed one anyway — reporting() skips them — so all a
+            // sweep buys is the map not growing, and two minutes of slack on
+            // that cannot hurt.
+            ElysiumInspections.of(level).sweep(level.getGameTime());
         }
 
         if (player.tickCount % DISPATCH_INTERVAL == 0) {
@@ -287,12 +301,87 @@ public final class ElysiumStandingHandler {
         }
     }
 
+    // ------------------------------------------------------------------
+    // §14.5: high-volume extraction, and who notices
+    // ------------------------------------------------------------------
+
+    /** Ores inside one window that bring an inspection post. */
+    private static final int EXTRACTION_THRESHOLD = 64;
+
+    /** How long that window is. Five minutes. */
+    private static final int EXTRACTION_WINDOW = 20 * 60 * 5;
+
+    /**
+     * How much extraction it takes to be noticed, counted per player.
+     *
+     * <b>A rate, not a total.</b> The count resets when the window elapses, so
+     * what triggers a post is sixty-four ores in five minutes — somebody
+     * working a vein hard — and not sixty-four ores across an afternoon of
+     * ordinary caving. §14.5 says "high-volume extraction" and the word doing
+     * the work is volume: a total would eventually catch every player alive and
+     * stop discriminating between them.
+     *
+     * Kept in a server-side map rather than on a player attachment because it
+     * is genuinely disposable — a player who logs out mid-vein has stopped
+     * extracting, and resuming their count an hour later would be measuring
+     * nothing. The map is keyed by UUID and trimmed by the same window that
+     * resets the count, so it cannot grow without bound on a busy server.
+     */
+    private record Extraction(int count, long windowStart) {
+    }
+
+    private static final Map<UUID, Extraction> EXTRACTING = new HashMap<>();
+
+    private static void extracted(ServerLevel level, Player player, BlockPos where) {
+        if (!ElysiumInspections.canPlant()) {
+            return;                    // no content mod supplies a beacon
+        }
+        // Below the notice threshold the Empire is not watching anybody, which
+        // is the rule the whole of §14.1 runs on. Planting a post for a player
+        // with a clean record would be the one place that rule did not hold.
+        if (ElysiumStanding.getSuspicion(player) < ElysiumStanding.NOTICE) {
+            return;
+        }
+
+        long now = level.getGameTime();
+        UUID id = player.getUUID();
+        Extraction state = EXTRACTING.get(id);
+        if (state == null || now - state.windowStart() > EXTRACTION_WINDOW) {
+            state = new Extraction(0, now);
+        }
+
+        int count = state.count() + 1;
+        if (count < EXTRACTION_THRESHOLD) {
+            EXTRACTING.put(id, new Extraction(count, state.windowStart()));
+            return;
+        }
+
+        // Threshold reached: the count resets whether or not a post actually
+        // gets planted. Leaving it at the threshold would retry on every
+        // subsequent swing, which for a player standing where nothing can be
+        // placed is a placement search per ore block.
+        EXTRACTING.put(id, new Extraction(0, now));
+
+        ElysiumInspection post = ElysiumInspections.of(level)
+                .plant(level, player, where);
+        if (post != null) {
+            player.displayClientMessage(Component.translatable(
+                            "elysium.inspection.planted",
+                            post.anchor().getX(), post.anchor().getY(),
+                            post.anchor().getZ(),
+                            ElysiumInspection.LIFETIME / (20 * 60))
+                    .withStyle(ChatFormatting.RED), false);
+        }
+    }
+
     @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         Player player = event.getPlayer();
         if (player == null || player.level().isClientSide()) {
             return;
         }
+        ServerLevel level = player.level() instanceof ServerLevel server
+                ? server : null;
 
         Block block = event.getState().getBlock();
 
@@ -308,11 +397,30 @@ public final class ElysiumStandingHandler {
         int suspicion = ElysiumHooks.isRichOre(block) ? 4 : ElysiumHooks.isOre(block) ? 2 : 0;
 
         if (suspicion > 0) {
+            // §14.5: "inspection beacons that report nearby high-volume
+            // extraction until disabled". A post reprices the vein rather than
+            // forbidding it — see ElysiumInspection.MULTIPLIER.
+            boolean watched = level != null
+                    && ElysiumInspections.of(level)
+                            .reporting(event.getPos(), level.getGameTime()) != null;
+            if (watched) {
+                suspicion *= ElysiumInspection.MULTIPLIER;
+            }
+
             ElysiumStanding.addSuspicion(player, suspicion,
-                    ElysiumHooks.isRichOre(block)
-                            ? ElysiumStanding.CAUSE_RICH_ORE
-                            : ElysiumStanding.CAUSE_ORE);
+                    watched
+                            ? ElysiumStanding.CAUSE_INSPECTED
+                            : ElysiumHooks.isRichOre(block)
+                                    ? ElysiumStanding.CAUSE_RICH_ORE
+                                    : ElysiumStanding.CAUSE_ORE);
             ElysiumCharacter.addXp(player, 6);
+
+            // Volume, not value: §14.5 says "high-volume extraction", so a
+            // hundred cobblestone-adjacent ores count the same as a hundred
+            // rich ones. The threshold is about how hard you are digging.
+            if (level != null) {
+                extracted(level, player, event.getPos());
+            }
 
             // Prospector: a Reclaimer sometimes gets a second ingot out of a
             // vein. Dropped at the block rather than added to the loot table,

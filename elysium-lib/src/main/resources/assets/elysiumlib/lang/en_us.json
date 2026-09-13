@@ -99,5 +99,8 @@
   "elysium.cause.cleared": "cleared a register action",
   "elysium.cause.court": "dealings with the Court",
   "elysium.cause.unknown": "unattributed",
-  "elysium.cause.amnesty": "amnesty granted"
+  "elysium.cause.amnesty": "amnesty granted",
+  "elysium.inspection.planted": "An Imperial inspection post has been raised at %s, %s, %s. It reports for %s minutes.",
+  "elysium.cause.inspected": "extraction under inspection",
+  "elysium.cause.resisted": "destroyed Imperial equipment"
 }

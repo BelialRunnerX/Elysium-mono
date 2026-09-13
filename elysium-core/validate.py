@@ -87,8 +87,54 @@ blocks = re.findall(r'BLOCKS\.register\("([a-z_]+)"', source)
 ITEM_HELPERS = r'(?<!\.)\b(?:register|item|simpleItem|armour|neutroniumArmour|weapon|tool)'
 items = re.findall(ITEM_HELPERS + r'\(\s*"([a-z_]+)"', source)
 
-# blockItem() derives the item name from the block's registry name.
-items = set(items) | set(blocks)
+# blockItem() derives the item name from the block's registry name — but not
+# every block gets one.
+#
+# This used to assume they all did, and simply unioned the block names into the
+# item names. That is true of seven of the eight blocks here and false of the
+# inspection beacon, which is Imperial equipment: it is planted by the Empire,
+# has no recipe, drops nothing, and a player holding a stack of them would have
+# a supply of a block whose only function is to tax them. Assuming an item
+# produced two complaints about a block that is working exactly as designed.
+#
+# So the block items are read from the blockItem() calls that actually create
+# them, via the holder constant each block is assigned to. A block with no
+# blockItem() line is then genuinely itemless — and because forgetting that line
+# is a real mistake with the same signature as making the choice deliberately,
+# the itemless ones must be named below.
+block_constants = dict(re.findall(
+    r'DeferredHolder<Block, Block>\s+(\w+)\s*=\s*\n?\s*BLOCKS\.register\("([a-z_]+)"',
+    source))
+with_items = {block_constants[const]
+              for const in re.findall(r'blockItem\((\w+)\)', source)
+              if const in block_constants}
+
+# Blocks that deliberately have no item. Each needs a reason, and the reason
+# has to be that a player is never meant to hold one.
+ITEMLESS_BLOCKS = {
+    "inspection_beacon": "Imperial equipment: planted by the Empire, drops "
+                         "nothing, and a player who could place one could put "
+                         "an Imperial sensor in somebody else's base",
+}
+
+if len(block_constants) != len(blocks):
+    fail(f"read a holder constant for {len(block_constants)} of {len(blocks)} "
+         f"blocks — the declaration shape has changed and the block-item "
+         f"checks below are no longer checking anything")
+
+for block in blocks:
+    if block in with_items or block in ITEMLESS_BLOCKS:
+        continue
+    fail(f"{block} has no blockItem() and is not listed as deliberately "
+         f"itemless — it would be a block nobody can obtain or place. Add the "
+         f"blockItem line, or add it to ITEMLESS_BLOCKS with a reason.")
+
+for block in ITEMLESS_BLOCKS:
+    if block in with_items:
+        fail(f"{block} is listed as deliberately itemless but has a "
+             f"blockItem() — one of the two is wrong")
+
+items = set(items) | with_items
 
 # Runes are library objects registered by id, and the item that carries one is
 # registered separately. Read the definitions rather than the items, so a rune
@@ -784,6 +830,78 @@ else:
              "one")
     print("registry beacon   : strikes on destruction by any hand, erases "
           "nothing, anchors respawn")
+
+# ---------------------------------------------------------------------------
+# §14.5's inspection beacon: planted automatically, into somebody's world
+# ---------------------------------------------------------------------------
+#
+# This is the only thing in the mod that puts a block into the world without a
+# player asking it to, on a timer, near where they are standing. That makes one
+# property non-negotiable: it must never replace anything. A placement that
+# overwrote a block would be the mod damaging a build, and the player would
+# have no way to know what happened or what was there.
+#
+# The rest is the §27.1 row it implements — "cooperate" and "resist" — and both
+# halves have to work or the row is decorative.
+inspection_path = os.path.join(
+    WORK, "src/main/java/com/elysium/core/block/InspectionBeaconBlock.java")
+if not os.path.exists(inspection_path):
+    fail("InspectionBeaconBlock.java is missing — §14.5's inspection beacon is "
+         "the Empire's half of the structure pair a claim is the player's half "
+         "of")
+else:
+    inspection = re.sub(r"//[^\n]*|/\*.*?\*/", " ",
+                        open(inspection_path, encoding="utf-8").read(), flags=re.S)
+
+    if "isAir()" not in inspection:
+        fail("InspectionBeaconBlock.plant does not check that its target is "
+             "air — an automatic placement that overwrites a block is the mod "
+             "damaging somebody's build on a timer")
+    if "setBlockAndUpdate" in inspection and "getBlockState(surface).isAir()" not in inspection:
+        fail("InspectionBeaconBlock.plant writes a block without first "
+             "confirming the position is empty")
+
+    # "resist": breaking it must stop the reporting AND be filed.
+    if "onRemove" not in inspection or "remove(pos)" not in inspection:
+        fail("breaking an inspection beacon does not remove its record, so it "
+             "would keep doubling extraction from beyond the grave")
+    if "CAUSE_RESISTED" not in inspection:
+        fail("destroying Imperial equipment is free — §27.1 lists resistance "
+             "as a response, and a response with no cost is not a decision")
+    # The charge alone is not the price, and priced as Suspicion alone the
+    # decision collapses: simulated, a flat charge is beaten by cooperating
+    # after about four ore blocks and stays beaten forever, because the doubled
+    # rate accrues per block and a one-off does not. Resistance has to cost a
+    # currency the doubled rate cannot be compared against.
+    if "ElysiumSquads.send" not in inspection:
+        fail("resisting an inspection costs only Suspicion. Two options where "
+             "one always wins by arithmetic is not a decision — the band the "
+             "Empire sends is what makes it one")
+    if "elysium.inspection.resisted_quiet" not in inspection:
+        fail("resisting reports a band unconditionally, but ElysiumSquads.send "
+             "is allowed to refuse (crowd cap, suppressors) — the message "
+             "would promise enforcement that never arrives")
+    # Only a player resists. A creeper has not committed a crime.
+    if "playerWillDestroy" not in inspection:
+        fail("the resistance charge is not on the player-destroy path, so a "
+             "creeper flattening a post would bill the nearest person")
+
+    # It must stay unobtainable, both ways round.
+    if "inspection_beacon" not in ITEMLESS_BLOCKS:
+        fail("the inspection beacon has become obtainable — a player holding a "
+             "stack of these has a supply of a block whose only function is to "
+             "tax them")
+    if os.path.exists(os.path.join(RES, "data/elysium/recipe/inspection_beacon.json")):
+        fail("the inspection beacon has a recipe; it is Imperial equipment, "
+             "not player equipment")
+
+    for key in ("block.elysium.inspection_beacon", "elysium.inspection.reporting",
+                "elysium.inspection.lapsed", "elysium.inspection.resisted"):
+        if key not in lang:
+            fail(f"no lang entry for {key} — the raw key shows in game")
+
+    print("inspection beacon : never overwrites, resisting is filed, "
+          "unobtainable by design")
 
 print()
 

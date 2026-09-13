@@ -284,6 +284,24 @@ public final class ElysiumSquads {
      * @return how many were placed
      */
     public static int send(ServerLevel level, Player player, RandomSource random) {
+        return send(level, player, random, null);
+    }
+
+    /**
+     * The same, from a faction the caller names.
+     *
+     * Used when a band is a <em>consequence</em> rather than traffic — the
+     * Empire answering somebody who broke its equipment, say. Weighting by the
+     * meters would be wrong there: it is not a question of who happens to be
+     * around, it is a question of who was wronged.
+     *
+     * Everything else still applies, including the suppressors and the crowd
+     * cap. A caller sending a band as a consequence still does not get to drop
+     * one on a player who already has six, or through an announced siege — the
+     * consequence is allowed to be refused, and reports it by returning zero.
+     */
+    public static int send(ServerLevel level, Player player, RandomSource random,
+                           @Nullable ElysiumFaction from) {
         // Peaceful would discard them on their first despawn check anyway, but
         // spawning a band that vanishes a tick later still costs the chunk
         // loads and still puts three entity-join packets on the wire.
@@ -301,7 +319,9 @@ public final class ElysiumSquads {
 
         int favor = ElysiumStanding.getFavor(player);
         int suspicion = ElysiumStanding.getSuspicion(player);
-        ElysiumFaction faction = factionFor(favor, suspicion, random);
+        ElysiumFaction faction = from != null
+                ? from
+                : factionFor(favor, suspicion, random);
         int band = ElysiumStanding.bandOf(
                 faction == ElysiumFaction.EMPIRE ? suspicion : favor);
 

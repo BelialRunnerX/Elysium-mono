@@ -127,6 +127,11 @@ def main():
     # so it shares the Empire's colour and differs in its stone.
     sprites.workstation("imperial_archive", "obsidian", "kinetic").save(
         out("block/imperial_archive.png"))
+    # Neutronium and a cold dimensional blue: Imperial equipment rather than
+    # Imperial authority. The gold blocks are things the Empire decides with;
+    # this is a thing it measures with.
+    sprites.workstation("inspection_beacon", "neutronium", "dimensional").save(
+        out("block/inspection_beacon.png"))
 
     # -- armour layers -----------------------------------------------------
     layers.layer_one("voidsteel", "void").save(out("models/armor/elysium_layer_1.png"))

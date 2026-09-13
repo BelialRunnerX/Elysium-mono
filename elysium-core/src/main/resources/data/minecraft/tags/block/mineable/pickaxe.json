@@ -9,6 +9,7 @@
     "elysium:rune_socket_table",
     "elysium:ascension_forge",
     "elysium:registry_beacon",
-    "elysium:imperial_archive"
+    "elysium:imperial_archive",
+    "elysium:inspection_beacon"
   ]
 }
