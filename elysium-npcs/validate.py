@@ -179,6 +179,63 @@ else:
     print("price registry     : present, and names no mod's items")
 
 # ---------------------------------------------------------------------------
+# Court commissions (Fourth Edition 14.5 / 19.2)
+# ---------------------------------------------------------------------------
+#
+# A commission is the "high-standing endgame sink" 19.2 names. Two things make
+# it that rather than another errand: only top-shelf offices issue one, and
+# there has to be at least one office that does. Both are easy to break by
+# retuning a tier, and neither breaks loudly - the feature would simply become
+# unreachable, or become available from the first envoy a new player meets.
+
+issuers = [envoy for envoy, reward_tier, _lowest, _count in shapes if int(reward_tier) >= 3]
+if not issuers:
+    fail("no office issues court commissions, so 14.5's contracts can never be "
+         "taken by anybody")
+for envoy, reward_tier, _lowest, _count in shapes:
+    if int(reward_tier) < 3 and envoy in issuers:
+        fail(f"{envoy} issues commissions without dealing at the top tier")
+
+commission_path = os.path.join(WORK, "..", "elysium-lib", "src", "main", "java",
+                               "com", "elysium", "lib", "standing",
+                               "ElysiumCommission.java")
+if not os.path.exists(commission_path):
+    fail("elysium-lib has no ElysiumCommission - the court can issue contracts "
+         "that nothing persists")
+else:
+    commission_src = open(commission_path, encoding="utf-8").read()
+    for forbidden in ("com.elysium.core", "com.elysium.mobs", "com.elysium.dungeons",
+                      "com.elysium.trinkets", "com.elysium.npcs"):
+        if forbidden in commission_src:
+            fail(f"ElysiumCommission references {forbidden} - the library must "
+                 f"not know what is built on top of it")
+    # A commission that copied on death would make the deadline unfalsifiable:
+    # the one failure state a player can actually hit is running out of time,
+    # and dying is the ordinary way that happens.
+    #
+    # Checked against the CODE, not the file. The first version of this grepped
+    # the whole source and fired on the Javadoc paragraph that explains why the
+    # attachment deliberately does not copy on death - a validator that cannot
+    # tell a call from a comment about the call will eventually be silenced by
+    # somebody rather than fixed, and then it checks nothing.
+    commission_code = re.sub(r"/\*.*?\*/", " ", commission_src, flags=re.S)
+    commission_code = re.sub(r"//[^\n]*", " ", commission_code)
+    if "copyOnDeath" in commission_code:
+        fail("the commission attachment copies on death - see the note in "
+             "ElysiumCommission about why it deliberately does not")
+
+# Every commission line the court can say must exist in the lang file.
+commission_keys = set(re.findall(r'"(elysiumnpcs\.commission\.[a-z_]+)"',
+                                 open(os.path.join(JAVA, "entity/ImperialEnvoy.java"),
+                                      encoding="utf-8").read()))
+missing = sorted(k for k in commission_keys if k not in lang)
+if missing:
+    fail(f"commission lines with no lang entry: {missing} - they render as raw keys")
+
+print(f"court commissions  : issued by {len(issuers)} top-shelf office(s), "
+      f"{len(commission_keys)} lines all translated")
+
+# ---------------------------------------------------------------------------
 # The model draws every accessory the enum can ask for
 # ---------------------------------------------------------------------------
 #

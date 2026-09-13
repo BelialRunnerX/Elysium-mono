@@ -3,6 +3,7 @@ package com.elysium.lib;
 import com.elysium.lib.character.ElysiumCharacter;
 import com.elysium.lib.element.ElysiumElements;
 import com.elysium.lib.item.ElysiumComponents;
+import com.elysium.lib.standing.ElysiumCommission;
 import com.elysium.lib.standing.ElysiumStanding;
 import com.elysium.lib.stats.ElysiumStats;
 import com.mojang.logging.LogUtils;
@@ -91,6 +92,7 @@ public class ElysiumLib {
         // it is installed on its own.
         ElysiumCharacter.ATTACHMENTS.register(modEventBus);
         ElysiumStanding.ATTACHMENTS.register(modEventBus);
+        ElysiumCommission.ATTACHMENTS.register(modEventBus);
         ElysiumComponents.COMPONENTS.register(modEventBus);
 
         LOGGER.info("Elysium Library ready: {} elements, {} stats",

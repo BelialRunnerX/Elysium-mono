@@ -1,5 +1,12 @@
 {
   "elysiumnpcs.arrival": "%s has come to find you.",
+  "elysiumnpcs.commission.expired": "The commission lapsed. The Court has noted it.",
+  "elysiumnpcs.commission.issued": "Commission: deliver %s %s within %s seconds.",
+  "elysiumnpcs.commission.not_my_office": "This office does not commission work. Take it to the throne.",
+  "elysiumnpcs.commission.nothing_wanted": "The Court wants for nothing it can name.",
+  "elysiumnpcs.commission.outstanding": "Outstanding: %s more %s. %s seconds remain.",
+  "elysiumnpcs.commission.settled": "The commission is discharged. %s rewards are entered against your name.",
+  "elysiumnpcs.commission.unknown_item": "something no longer catalogued",
   "elysiumnpcs.nothing_to_give": "They search their office and find nothing to give you.",
   "elysiumnpcs.refusal.architect": "You have not been drawn on any plan of mine.",
   "elysiumnpcs.refusal.commander": "The fleet takes recommendations. You have none.",

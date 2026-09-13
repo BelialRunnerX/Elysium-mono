@@ -147,6 +147,20 @@ public enum EnvoyKind {
     }
 
     /**
+     * Whether this office issues court commissions (§14.5).
+     *
+     * Only the two that deal at the top shelf. §19.2 calls a commission a
+     * "high-standing endgame sink", and a sink that the first envoy you ever
+     * meet can hand you is not one — it is a tutorial. Deriving it from the
+     * reward tier rather than storing a sixth flag means an office that is
+     * ever retuned to the top shelf starts issuing them without anybody having
+     * to remember that this list exists.
+     */
+    public boolean issuesCommissions() {
+        return rewardTier >= 3;
+    }
+
+    /**
      * The tier of the {@code index}-th offer, cheapest first.
      *
      * Spread evenly across the office's range rather than rolled, so an envoy

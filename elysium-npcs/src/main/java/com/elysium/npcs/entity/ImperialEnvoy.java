@@ -1,10 +1,12 @@
 package com.elysium.npcs.entity;
 
+import com.elysium.lib.standing.ElysiumCommission;
 import com.elysium.lib.standing.ElysiumPrices;
 import com.elysium.lib.standing.ElysiumRewards;
 import com.elysium.lib.standing.ElysiumStanding;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -118,6 +120,27 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
      * is for.
      */
     public static final int VISIT_TICKS = 20 * 60 * 20;
+
+    /**
+     * How long a commission runs. Three in-game days.
+     *
+     * Long enough that it is a project rather than an errand — the whole point
+     * is that you go away and do something — and short enough that it cannot be
+     * forgotten about and stumbled over a week later. It deliberately outlasts
+     * the envoy's own twenty-minute visit, because the contract is with the
+     * Court and any envoy will settle it.
+     */
+    public static final int kCommissionTicks = 20 * 60 * 20 * 3;
+
+    /** How many times the trade-tier quantity a commission asks for. */
+    private static final int kCommissionMultiple = 8;
+
+    /** Top-shelf rolls paid on settlement. */
+    private static final int kCommissionPayout = 3;
+
+    /** Standing gained for settling, and lost for letting one lapse. */
+    private static final int kCommissionStanding = 12;
+    private static final int kCommissionFailure = 8;
 
     private int ticksHere;
 
@@ -239,6 +262,15 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
         }
 
         EnvoyKind kind = getKind();
+        // Crouching asks about the ledger of a different kind: §14.5's court
+        // commissions. A separate gesture rather than a row in the trade
+        // screen, because a commission is not a trade — it is taken now and
+        // settled later, and putting it in a window whose whole grammar is
+        // "this for that, immediately" would teach the wrong thing about it.
+        if (player.isShiftKeyDown()) {
+            return commission(player, kind);
+        }
+
         if (!kind.willDealWith(player)) {
             // copy() first: refusal() is typed Component, and withStyle is a
             // MutableComponent method. Only a real build could tell.
@@ -263,6 +295,136 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
         // vanilla screen and means nothing here. See showProgressBar().
         openTradingScreen(player, getDisplayName(), 1);
         return InteractionResult.CONSUME;
+    }
+
+    // ------------------------------------------------------------------
+    // Commissions
+    // ------------------------------------------------------------------
+
+    /**
+     * Take a contract, report on one, or settle it.
+     *
+     * Only the two offices that deal at the top shelf issue them, which is what
+     * makes a commission the "high-standing endgame sink" §19.2 calls it rather
+     * than another thing to do on the way up. Any envoy will <em>settle</em>
+     * one, because a contract is with the Court and not with the individual who
+     * handed it over — and because a system that required you to find the same
+     * wandering entity again would be a system nobody finished.
+     */
+    private InteractionResult commission(Player player, EnvoyKind kind) {
+        ElysiumCommission held = ElysiumCommission.get(player);
+        long now = level().getGameTime();
+
+        if (held.isNone()) {
+            if (!kind.issuesCommissions()) {
+                player.displayClientMessage(
+                        Component.translatable("elysiumnpcs.commission.not_my_office")
+                                .withStyle(ChatFormatting.GRAY), false);
+                return InteractionResult.CONSUME;
+            }
+            if (!kind.willDealWith(player)) {
+                player.displayClientMessage(kind.refusal().copy()
+                        .withStyle(ChatFormatting.RED), true);
+                return InteractionResult.CONSUME;
+            }
+            return issue(player, kind, now);
+        }
+
+        if (held.isExpired(now)) {
+            // The Court noticed you did not come back. Losing standing is the
+            // failure consequence the reference brief asks for, and it is the
+            // only thing that makes the deadline mean anything.
+            ElysiumCommission.clear(player);
+            if (kind.meter() == EnvoyKind.Meter.SUSPICION) {
+                ElysiumStanding.addSuspicion(player, -kCommissionFailure);
+            } else {
+                ElysiumStanding.addFavor(player, -kCommissionFailure);
+            }
+            player.displayClientMessage(
+                    Component.translatable("elysiumnpcs.commission.expired")
+                            .withStyle(ChatFormatting.RED), false);
+            return InteractionResult.CONSUME;
+        }
+
+        int carried = held.carried(player);
+        if (carried < held.required()) {
+            player.displayClientMessage(
+                    Component.translatable("elysiumnpcs.commission.outstanding",
+                            held.required() - carried,
+                            describe(held),
+                            held.remaining(now) / 20L).withStyle(ChatFormatting.GRAY),
+                    false);
+            return InteractionResult.CONSUME;
+        }
+
+        if (!held.collect(player)) {
+            return InteractionResult.CONSUME;
+        }
+        ElysiumCommission.clear(player);
+
+        // The unusual reward §14.5 asks for: several draws at the top shelf,
+        // which is more than any single trade row can pay and is the whole
+        // reason to take a contract instead of just shopping.
+        int paid = 0;
+        for (int i = 0; i < kCommissionPayout; i++) {
+            ItemStack reward = ElysiumRewards.roll(ElysiumRewards.MAX_TIER, getRandom());
+            if (reward.isEmpty()) {
+                continue;
+            }
+            paid++;
+            if (!player.addItem(reward)) {
+                player.drop(reward, false);
+            }
+        }
+        if (kind.meter() == EnvoyKind.Meter.SUSPICION) {
+            ElysiumStanding.addSuspicion(player, kCommissionStanding);
+        } else {
+            ElysiumStanding.addFavor(player, kCommissionStanding);
+        }
+        player.displayClientMessage(
+                Component.translatable("elysiumnpcs.commission.settled", paid)
+                        .withStyle(ChatFormatting.GOLD), false);
+        return InteractionResult.CONSUME;
+    }
+
+    /** Draw a contract and hand it over. */
+    private InteractionResult issue(Player player, EnvoyKind kind, long now) {
+        // What it asks for is a price-tier item, in a quantity no trade would
+        // ask for. Reusing the price pool rather than adding a third registry
+        // keeps the rule the rest of the court runs on: this mod names no item.
+        ItemStack want = ElysiumPrices.roll(ElysiumRewards.MAX_TIER, getRandom());
+        if (want.isEmpty()) {
+            player.displayClientMessage(
+                    Component.translatable("elysiumnpcs.commission.nothing_wanted")
+                            .withStyle(ChatFormatting.GRAY), false);
+            return InteractionResult.CONSUME;
+        }
+
+        int required = want.getCount() * kCommissionMultiple;
+        ElysiumCommission issued = new ElysiumCommission(
+                BuiltInRegistries.ITEM.getKey(want.getItem()).toString(),
+                required,
+                ElysiumRewards.MAX_TIER,
+                now,
+                now + kCommissionTicks,
+                kind.id());
+        ElysiumCommission.set(player, issued);
+
+        player.displayClientMessage(kind.displayName().copy()
+                .withStyle(ChatFormatting.GOLD), false);
+        player.displayClientMessage(
+                Component.translatable("elysiumnpcs.commission.issued",
+                        required, describe(issued),
+                        kCommissionTicks / 20L).withStyle(ChatFormatting.YELLOW), false);
+        return InteractionResult.CONSUME;
+    }
+
+    /** The contract's item, named the way the player's inventory names it. */
+    private static Component describe(ElysiumCommission commission) {
+        return commission.resolve()
+                .map(item -> (Component) new ItemStack(item).getHoverName())
+                .orElseGet(() -> Component.translatable(
+                        "elysiumnpcs.commission.unknown_item"));
     }
 
     // ------------------------------------------------------------------
