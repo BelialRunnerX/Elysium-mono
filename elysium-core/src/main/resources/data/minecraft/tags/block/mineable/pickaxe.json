@@ -8,6 +8,7 @@
     "elysium:reforge_table",
     "elysium:rune_socket_table",
     "elysium:ascension_forge",
-    "elysium:registry_beacon"
+    "elysium:registry_beacon",
+    "elysium:imperial_archive"
   ]
 }

@@ -258,7 +258,8 @@ public final class RegisterScheduler {
         int floor = RegisterAction.floorAfter(player);
         int current = ElysiumStanding.getSuspicion(player);
         if (current > floor) {
-            ElysiumStanding.addSuspicion(player, floor - current);
+            ElysiumStanding.addSuspicion(player, floor - current,
+                    ElysiumStanding.CAUSE_CLEARED);
         }
 
         player.displayClientMessage(Component.translatable(

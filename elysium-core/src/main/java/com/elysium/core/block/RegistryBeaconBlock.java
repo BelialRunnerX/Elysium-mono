@@ -131,7 +131,8 @@ public class RegistryBeaconBlock extends Block {
         int floor = claim.floor();
         int current = ElysiumStanding.getSuspicion(player);
         if (current < floor) {
-            ElysiumStanding.addSuspicion(player, floor - current);
+            ElysiumStanding.addSuspicion(player, floor - current,
+                    ElysiumStanding.CAUSE_CLAIM);
         }
 
         player.displayClientMessage(Component.translatable(

@@ -87,13 +87,14 @@ public final class ElysiumStandingHandler {
         // the clock and nothing is reachable. See ElysiumStanding.decays.
         if (player.tickCount % ElysiumStanding.DECAY_INTERVAL == 0) {
             if (ElysiumStanding.decays(ElysiumStanding.getFavor(player))) {
-                ElysiumStanding.addFavor(player, -1);
+                ElysiumStanding.addFavor(player, -1, ElysiumStanding.CAUSE_DECAY);
             }
             // Suspicion alone takes the player-aware overload: §14.2's claim
             // floor holds it up, and nothing holds Favor up — the Unsworn have
             // no register of who owns what.
             if (ElysiumStanding.decays(player, ElysiumStanding.getSuspicion(player))) {
-                ElysiumStanding.addSuspicion(player, -ElysiumPassives.decayRate(player));
+                ElysiumStanding.addSuspicion(player, -ElysiumPassives.decayRate(player),
+                        ElysiumStanding.CAUSE_DECAY);
             }
         }
 
@@ -216,15 +217,16 @@ public final class ElysiumStandingHandler {
         switch (ElysiumFaction.of(victim)) {
             case EMPIRE ->
                 // Killing the Empire's own is the one thing it cannot overlook.
-                    ElysiumStanding.addSuspicion(player, 12);
+                    ElysiumStanding.addSuspicion(player, 12,
+                            ElysiumStanding.CAUSE_EMPIRE_KILL);
             case UNSWORN -> {
                 // A named raider is a sanctioned target and always counts. An
                 // ordinary hostile counts sometimes, or a night of mob farming
                 // would top the meter out on its own.
                 if (named) {
-                    ElysiumStanding.addFavor(player, 4);
+                    ElysiumStanding.addFavor(player, 4, ElysiumStanding.CAUSE_UNSWORN_KILL);
                 } else if (player.getRandom().nextFloat() < INCIDENTAL_FAVOR_CHANCE) {
-                    ElysiumStanding.addFavor(player, 1);
+                    ElysiumStanding.addFavor(player, 1, ElysiumStanding.CAUSE_INCIDENTAL);
                 }
             }
             default -> {
@@ -280,7 +282,8 @@ public final class ElysiumStandingHandler {
         Player owner = level.getServer().getPlayerList().getPlayer(claim.owner());
         if (owner != null && ElysiumStanding.getSuspicion(owner) < after) {
             ElysiumStanding.addSuspicion(owner,
-                    after - ElysiumStanding.getSuspicion(owner));
+                    after - ElysiumStanding.getSuspicion(owner),
+                    ElysiumStanding.CAUSE_CLAIM);
         }
     }
 
@@ -305,7 +308,10 @@ public final class ElysiumStandingHandler {
         int suspicion = ElysiumHooks.isRichOre(block) ? 4 : ElysiumHooks.isOre(block) ? 2 : 0;
 
         if (suspicion > 0) {
-            ElysiumStanding.addSuspicion(player, suspicion);
+            ElysiumStanding.addSuspicion(player, suspicion,
+                    ElysiumHooks.isRichOre(block)
+                            ? ElysiumStanding.CAUSE_RICH_ORE
+                            : ElysiumStanding.CAUSE_ORE);
             ElysiumCharacter.addXp(player, 6);
 
             // Prospector: a Reclaimer sometimes gets a second ingot out of a

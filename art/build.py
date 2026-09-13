@@ -123,6 +123,10 @@ def main():
     # Beacon is a piece of Imperial paperwork, not a piece of Elysium's magic.
     sprites.workstation("registry_beacon", "voidsteel", "kinetic").save(
         out("block/registry_beacon.png"))
+    # Obsidian and the same kinetic gold: the archive is the beacon's paperwork,
+    # so it shares the Empire's colour and differs in its stone.
+    sprites.workstation("imperial_archive", "obsidian", "kinetic").save(
+        out("block/imperial_archive.png"))
 
     # -- armour layers -----------------------------------------------------
     layers.layer_one("voidsteel", "void").save(out("models/armor/elysium_layer_1.png"))

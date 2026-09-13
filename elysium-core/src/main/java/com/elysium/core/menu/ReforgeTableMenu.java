@@ -162,7 +162,7 @@ public class ReforgeTableMenu extends AbstractContainerMenu {
                 rune.shrink(1);
                 setChanged();
                 // Working through Imperial channels is what Favor is for.
-                ElysiumStanding.addFavor(player, 2);
+                ElysiumStanding.addFavor(player, 2, ElysiumStanding.CAUSE_CRAFT);
             }
             return;
         }
@@ -181,7 +181,7 @@ public class ReforgeTableMenu extends AbstractContainerMenu {
                 setChanged();
                 // Ascension is power taken rather than granted. The Code has
                 // opinions about that.
-                ElysiumStanding.addSuspicion(player, 8);
+                ElysiumStanding.addSuspicion(player, 8, ElysiumStanding.CAUSE_ASCEND);
             }
             return;
         }
@@ -193,7 +193,7 @@ public class ReforgeTableMenu extends AbstractContainerMenu {
                 setSlot(ReforgeTableBlockEntity.SLOT_ARMOR, reforged);
                 material.shrink(1);
                 setChanged();
-                ElysiumStanding.addFavor(player, 2);
+                ElysiumStanding.addFavor(player, 2, ElysiumStanding.CAUSE_CRAFT);
             }
         }
     }

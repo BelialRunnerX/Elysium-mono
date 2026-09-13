@@ -145,6 +145,17 @@ public class Elysium {
             BLOCKS.register("registry_beacon",
                     com.elysium.core.block.RegistryBeaconBlock::new);
 
+    /**
+     * §14.5's regional archive: "reveal how much the Empire currently knows".
+     *
+     * The counterpart to the beacon rather than another workstation — it makes
+     * everything §14 already does legible. See
+     * {@link com.elysium.core.block.ImperialArchiveBlock}.
+     */
+    public static final DeferredHolder<Block, Block> IMPERIAL_ARCHIVE =
+            BLOCKS.register("imperial_archive",
+                    com.elysium.core.block.ImperialArchiveBlock::new);
+
     // ------------------------------------------------------------------
     // Block items
     // ------------------------------------------------------------------
@@ -157,6 +168,7 @@ public class Elysium {
     public static final DeferredHolder<Item, Item> RUNE_SOCKET_TABLE_ITEM = blockItem(RUNE_SOCKET_TABLE);
     public static final DeferredHolder<Item, Item> ASCENSION_FORGE_ITEM = blockItem(ASCENSION_FORGE);
     public static final DeferredHolder<Item, Item> REGISTRY_BEACON_ITEM = blockItem(REGISTRY_BEACON);
+    public static final DeferredHolder<Item, Item> IMPERIAL_ARCHIVE_ITEM = blockItem(IMPERIAL_ARCHIVE);
 
     // ------------------------------------------------------------------
     // Materials
@@ -451,6 +463,7 @@ public class Elysium {
             event.accept(RUNE_SOCKET_TABLE_ITEM.get());
             event.accept(ASCENSION_FORGE_ITEM.get());
             event.accept(REGISTRY_BEACON_ITEM.get());
+            event.accept(IMPERIAL_ARCHIVE_ITEM.get());
         }
         if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
             event.accept(NEUTRONIUM_INGOT.get());

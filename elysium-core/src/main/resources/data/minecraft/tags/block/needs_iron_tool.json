@@ -3,6 +3,7 @@
   "values": [
     "elysium:aetherium_ore",
     "elysium:voidglass_ore",
-    "elysium:registry_beacon"
+    "elysium:registry_beacon",
+    "elysium:imperial_archive"
   ]
 }

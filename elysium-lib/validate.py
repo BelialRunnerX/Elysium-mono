@@ -196,7 +196,46 @@ for key in sorted(literal):
     if key not in lang and not key.endswith("."):
         fail(f"missing lang key: {key} (referenced literally in the sources)")
 
+# Causes are the one place this project stores a string that becomes half of a
+# translation key at runtime. The literal scan above cannot see them, because
+# nothing anywhere writes "elysium.cause.ore" — the key is assembled from a
+# prefix in ElysiumFile and a constant in ElysiumStanding. So a cause added
+# without a lang entry would ship, and would render in the archive as the raw
+# key, which is the exact failure mode this file exists to catch.
+standing_src = COMMENT.sub(" ", read("standing/ElysiumStanding.java"))
+causes = re.findall(r'String CAUSE_\w+ = "([a-z_]+)";', standing_src)
+if not causes:
+    fail("no CAUSE_ constants found in ElysiumStanding — either they were "
+         "removed or they are no longer declared as String constants, and the "
+         "archive's causes are unchecked either way")
+for cause in causes:
+    key = f"elysium.cause.{cause}"
+    if key not in lang:
+        fail(f"missing lang key: {key} (assembled from ElysiumStanding's "
+             f"CAUSE_ constants, so the literal scan cannot see it)")
+
+# And the other direction: a cause constant nothing passes is dead weight that
+# reads as coverage.
+used = set()
+for module in ("elysium-lib", "elysium-core", "elysium-mobs", "elysium-npcs",
+               "elysium-trinkets", "elysium-dungeons"):
+    root = os.path.join(os.path.dirname(WORK), module, "src/main/java")
+    for dirpath, _, filenames in os.walk(root):
+        for filename in filenames:
+            # ElysiumStanding.java is where they are declared. Counting it as a
+            # user makes every constant self-justifying, which is how the first
+            # version of this check managed to be unable to fail.
+            if filename.endswith(".java") and filename != "ElysiumStanding.java":
+                text = open(os.path.join(dirpath, filename), encoding="utf-8").read()
+                used |= set(re.findall(r"CAUSE_(\w+)", COMMENT.sub(" ", text)))
+declared = set(re.findall(r"String CAUSE_(\w+) =", standing_src))
+orphans = sorted(name for name in declared - used if name != "UNKNOWN")
+if orphans:
+    fail(f"CAUSE_ constants nothing ever files: {orphans} — an archive that "
+         f"can never show a cause is worse than one that does not list it")
+
 print(f"lang keys          : {len(lang)}")
+print(f"standing causes    : {len(causes)} declared, all translated, all filed")
 
 # ---------------------------------------------------------------------------
 # 6. All JSON parses

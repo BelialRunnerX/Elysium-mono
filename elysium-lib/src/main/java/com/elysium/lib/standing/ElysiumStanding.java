@@ -84,6 +84,10 @@ public final class ElysiumStanding {
      * and scaling a negative by 1.5 would make Presence a penalty on decay.
      */
     public static boolean addFavor(Player player, int delta) {
+        return addFavor(player, delta, CAUSE_UNKNOWN);
+    }
+
+    public static boolean addFavor(Player player, int delta, String cause) {
         if (delta > 0) {
             delta = scale(delta, ElysiumPassives.favorScale(player));
         }
@@ -93,11 +97,16 @@ public final class ElysiumStanding {
             return false;
         }
         player.setData(FAVOR.get(), after);
+        file(player, after - before, cause, false);
         announce(player, before, after, true);
         return true;
     }
 
     public static boolean addSuspicion(Player player, int delta) {
+        return addSuspicion(player, delta, CAUSE_UNKNOWN);
+    }
+
+    public static boolean addSuspicion(Player player, int delta, String cause) {
         if (delta > 0) {
             delta = scale(delta, ElysiumPassives.suspicionScale(player));
         }
@@ -107,8 +116,65 @@ public final class ElysiumStanding {
             return false;
         }
         player.setData(SUSPICION.get(), after);
+        file(player, after - before, cause, true);
         announce(player, before, after, false);
         return true;
+    }
+
+    // ------------------------------------------------------------------
+    // The file
+    // ------------------------------------------------------------------
+    //
+    // §14.5 asks for an archive that reveals "how much the Empire currently
+    // knows", and §21 lists "recent causes" among what it shows. Recording the
+    // cause here rather than at each call site is the same argument the Presence
+    // scale above makes: a handler that grants points cannot forget to file
+    // them, because filing is not something a handler does.
+    //
+    // The causes are declared as constants rather than passed as loose strings
+    // so that a typo is a compile error instead of an archive line reading
+    // "elysium.cause.mine_ritch_ore".
+
+    /** Killing one of the Empire's own. §14.2. */
+    public static final String CAUSE_EMPIRE_KILL = "empire_kill";
+    /** Killing a sanctioned Unsworn target. §14.2. */
+    public static final String CAUSE_UNSWORN_KILL = "unsworn_kill";
+    /** An ordinary hostile that happened to count. §14.2, "incidental". */
+    public static final String CAUSE_INCIDENTAL = "incidental";
+    /** Extraction. §14.2 taxes rich ore at double. */
+    public static final String CAUSE_ORE = "ore";
+    public static final String CAUSE_RICH_ORE = "rich_ore";
+    /** Socketing or reforging. §14.2. */
+    public static final String CAUSE_CRAFT = "craft";
+    /** Ascending gear — §14.2 calls it "high-visibility progression". */
+    public static final String CAUSE_ASCEND = "ascend";
+    /** Planting a Registry Beacon, or building inside a claim. §14.2. */
+    public static final String CAUSE_CLAIM = "claim";
+    /** Time passing. The only cause that is always negative. */
+    public static final String CAUSE_DECAY = "decay";
+    /** Clearing a register action. §14.3's success row. */
+    public static final String CAUSE_CLEARED = "cleared";
+    /** Trading with the court. */
+    public static final String CAUSE_COURT = "court";
+
+    /**
+     * What an unattributed change is filed as.
+     *
+     * The two-argument overloads above route here rather than skipping the
+     * ledger, so a caller that has not been taught to name its cause still
+     * shows up in the archive as something that happened. An unexplained entry
+     * is worth more than a missing one: a player who sees "+4, unattributed"
+     * knows to look, and a player who sees nothing concludes the archive is
+     * broken.
+     */
+    public static final String CAUSE_UNKNOWN = "unknown";
+
+    private static void file(Player player, int delta, String cause, boolean suspicion) {
+        if (player.level().isClientSide()) {
+            return;
+        }
+        ElysiumFile.record(player, player.level().getGameTime(), delta, cause,
+                suspicion);
     }
 
     /**

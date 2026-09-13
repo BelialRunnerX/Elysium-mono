@@ -293,7 +293,7 @@ public final class UniqueTrinkets {
             new TrinketPassive("tithe_bracelet") {
                 @Override
                 public void onKill(Player killer, LivingEntity victim) {
-                    ElysiumStanding.addFavor(killer, 1);
+                    ElysiumStanding.addFavor(killer, 1, ElysiumStanding.CAUSE_INCIDENTAL);
                 }
             });
 

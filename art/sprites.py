@@ -409,6 +409,23 @@ WORKSTATION_INLAY = {
     # stops there. What this block does is file a piece of ground, so it is a
     # surveyor's mark — and the four bearings running off the tile are what
     # make a row of them read as a boundary rather than as four machines.
+    # Imperial Archive — a ledger: stacked rules with a seal in the margin.
+    #
+    # The registry beacon is a mark on the ground; this is a record of it, so
+    # the two are deliberately built from different primitives — one radiates,
+    # one stacks. At 16 pixels that contrast is most of what lets a player tell
+    # two dark metal cubes apart across a room.
+    "imperial_archive": ([(4, 3), (5, 3), (6, 3), (7, 3), (8, 3), (9, 3),
+                          (10, 3), (11, 3),
+                          (4, 5), (5, 5), (6, 5), (7, 5), (8, 5), (9, 5),
+                          (4, 7), (5, 7), (6, 7), (7, 7), (8, 7), (9, 7),
+                          (10, 7), (11, 7),
+                          (4, 9), (5, 9), (6, 9), (7, 9),
+                          (4, 11), (5, 11), (6, 11), (7, 11), (8, 11), (9, 11),
+                          (10, 11),
+                          (2, 3), (2, 5), (2, 7), (2, 9), (2, 11)],
+                         [(11, 9), (12, 9), (11, 10), (12, 10)]),
+
     "registry_beacon": ([(5, 4), (6, 4), (7, 4), (8, 4), (9, 4), (10, 4),
                          (5, 11), (6, 11), (7, 11), (8, 11), (9, 11), (10, 11),
                          (4, 5), (4, 6), (4, 7), (4, 8), (4, 9), (4, 10),

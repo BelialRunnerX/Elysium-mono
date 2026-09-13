@@ -336,9 +336,11 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
             // only thing that makes the deadline mean anything.
             ElysiumCommission.clear(player);
             if (kind.meter() == EnvoyKind.Meter.SUSPICION) {
-                ElysiumStanding.addSuspicion(player, -kCommissionFailure);
+                ElysiumStanding.addSuspicion(player, -kCommissionFailure,
+                        ElysiumStanding.CAUSE_COURT);
             } else {
-                ElysiumStanding.addFavor(player, -kCommissionFailure);
+                ElysiumStanding.addFavor(player, -kCommissionFailure,
+                        ElysiumStanding.CAUSE_COURT);
             }
             player.displayClientMessage(
                     Component.translatable("elysiumnpcs.commission.expired")
@@ -377,9 +379,11 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
             }
         }
         if (kind.meter() == EnvoyKind.Meter.SUSPICION) {
-            ElysiumStanding.addSuspicion(player, kCommissionStanding);
+            ElysiumStanding.addSuspicion(player, kCommissionStanding,
+                    ElysiumStanding.CAUSE_COURT);
         } else {
-            ElysiumStanding.addFavor(player, kCommissionStanding);
+            ElysiumStanding.addFavor(player, kCommissionStanding,
+                    ElysiumStanding.CAUSE_COURT);
         }
         player.displayClientMessage(
                 Component.translatable("elysiumnpcs.commission.settled", paid)
@@ -644,9 +648,9 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
             return;
         }
         if (getKind().meter() == EnvoyKind.Meter.SUSPICION) {
-            ElysiumStanding.addSuspicion(player, 3);
+            ElysiumStanding.addSuspicion(player, 3, ElysiumStanding.CAUSE_COURT);
         } else {
-            ElysiumStanding.addFavor(player, 3);
+            ElysiumStanding.addFavor(player, 3, ElysiumStanding.CAUSE_COURT);
         }
     }
 

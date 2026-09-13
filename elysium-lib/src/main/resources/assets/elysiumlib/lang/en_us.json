@@ -81,5 +81,22 @@
   "elysium.suspicion.noted": "Suspicion: Noted",
   "elysium.tooltip.aligned": "(aligned)",
   "elysium.tooltip.requires_level": "Requires character level %s",
-  "elysium.tooltip.runes": "Runes: %s/%s"
+  "elysium.tooltip.runes": "Runes: %s/%s",
+  "elysium.file.entry": "%s %s — %s, %s",
+  "elysium.file.suspicion": "Suspicion",
+  "elysium.file.favor": "Favor",
+  "elysium.file.just_now": "just now",
+  "elysium.file.minutes_ago": "%s min ago",
+  "elysium.cause.empire_kill": "killed an Imperial combatant",
+  "elysium.cause.unsworn_kill": "killed a sanctioned target",
+  "elysium.cause.incidental": "incidental action",
+  "elysium.cause.ore": "extracted ore",
+  "elysium.cause.rich_ore": "extracted rich ore",
+  "elysium.cause.craft": "worked through Imperial channels",
+  "elysium.cause.ascend": "ascended equipment",
+  "elysium.cause.claim": "territorial claim",
+  "elysium.cause.decay": "time passing",
+  "elysium.cause.cleared": "cleared a register action",
+  "elysium.cause.court": "dealings with the Court",
+  "elysium.cause.unknown": "unattributed"
 }

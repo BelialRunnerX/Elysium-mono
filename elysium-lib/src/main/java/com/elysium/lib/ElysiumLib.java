@@ -93,6 +93,7 @@ public class ElysiumLib {
         ElysiumCharacter.ATTACHMENTS.register(modEventBus);
         ElysiumStanding.ATTACHMENTS.register(modEventBus);
         ElysiumCommission.ATTACHMENTS.register(modEventBus);
+        com.elysium.lib.standing.ElysiumFile.ATTACHMENTS.register(modEventBus);
         com.elysium.lib.event.ElysiumSquadHandler.ATTACHMENTS.register(modEventBus);
         ElysiumComponents.COMPONENTS.register(modEventBus);
 
