@@ -178,8 +178,12 @@ public class Elysium {
     public static final DeferredHolder<Item, Item> REFORGE_TABLE_ITEM = blockItem(REFORGE_TABLE);
     public static final DeferredHolder<Item, Item> RUNE_SOCKET_TABLE_ITEM = blockItem(RUNE_SOCKET_TABLE);
     public static final DeferredHolder<Item, Item> ASCENSION_FORGE_ITEM = blockItem(ASCENSION_FORGE);
-    public static final DeferredHolder<Item, Item> REGISTRY_BEACON_ITEM = blockItem(REGISTRY_BEACON);
-    public static final DeferredHolder<Item, Item> IMPERIAL_ARCHIVE_ITEM = blockItem(IMPERIAL_ARCHIVE);
+    public static final DeferredHolder<Item, Item> REGISTRY_BEACON_ITEM =
+            blockItem(REGISTRY_BEACON,
+                    "elysium.tooltip.registry_beacon",
+                    "elysium.tooltip.registry_beacon.cost");
+    public static final DeferredHolder<Item, Item> IMPERIAL_ARCHIVE_ITEM =
+            blockItem(IMPERIAL_ARCHIVE, "elysium.tooltip.imperial_archive");
 
     // ------------------------------------------------------------------
     // Materials
@@ -562,6 +566,21 @@ public class Elysium {
     private static DeferredHolder<Item, Item> blockItem(DeferredHolder<Block, Block> block) {
         return register(block.getId().getPath(),
                 () -> new BlockItem(block.get(), new Item.Properties()));
+    }
+
+    /**
+     * The same, for a block whose effect is not visible from looking at it.
+     *
+     * See {@link com.elysium.core.item.DescribedBlockItem}. Used for the three
+     * Imperial blocks, where the interesting behaviour is entirely on a meter —
+     * a Registry Beacon in particular looks decorative and levies a permanent
+     * Suspicion floor.
+     */
+    private static DeferredHolder<Item, Item> blockItem(DeferredHolder<Block, Block> block,
+                                                        String... tooltipKeys) {
+        return register(block.getId().getPath(),
+                () -> new com.elysium.core.item.DescribedBlockItem(
+                        block.get(), new Item.Properties(), tooltipKeys));
     }
 
     private static DeferredHolder<Item, Item> armour(String name, ArmorItem.Type type,

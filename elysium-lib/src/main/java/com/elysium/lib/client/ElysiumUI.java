@@ -395,7 +395,37 @@ public final class ElysiumUI {
      */
     public static int wrapped(GuiGraphics g, Component text, int x, int y, int w,
                               int colour, int maxY) {
-        int lineGap = 1;
+        int lineGap = LINE_GAP;
+        java.util.List<String> lines = wrapLines(text, w);
+
+        int room = Math.max(0, (maxY - y + lineGap) / (lineHeight() + lineGap));
+        int shown = Math.min(room, lines.size());
+        for (int i = 0; i < shown; i++) {
+            String drawn = lines.get(i);
+            if (i == shown - 1 && shown < lines.size()) {
+                drawn = truncate(Component.literal(drawn + " ..."), w).getString();
+            }
+            g.drawString(font(), drawn, x, y, colour, false);
+            y += lineHeight() + lineGap;
+        }
+        return y;
+    }
+
+    /** The gap between wrapped lines, shared by everything that wraps. */
+    public static final int LINE_GAP = 1;
+
+    /**
+     * How {@link #wrapped} breaks a string, as a list rather than as pixels.
+     *
+     * Extracted so that anything needing the <em>height</em> of wrapped text
+     * before drawing it — a tooltip has to size its panel first — asks the same
+     * function that will later draw it. The obvious alternative is a
+     * {@code measureWrapped} that reimplements the rule, and two copies of a
+     * wrapping rule drift: the panel ends up a line short and the last line of
+     * every long tooltip spills over the edge, which is invisible until some
+     * particular string happens to be long enough.
+     */
+    public static java.util.List<String> wrapLines(Component text, int w) {
         java.util.List<String> lines = new java.util.ArrayList<>();
         StringBuilder line = new StringBuilder();
         for (String word : text.getString().split("\\s+")) {
@@ -415,18 +445,93 @@ public final class ElysiumUI {
         if (line.length() > 0) {
             lines.add(line.toString());
         }
+        return lines;
+    }
 
-        int room = Math.max(0, (maxY - y + lineGap) / (lineHeight() + lineGap));
-        int shown = Math.min(room, lines.size());
-        for (int i = 0; i < shown; i++) {
-            String drawn = lines.get(i);
-            if (i == shown - 1 && shown < lines.size()) {
-                drawn = truncate(Component.literal(drawn + " ..."), w).getString();
-            }
-            g.drawString(font(), drawn, x, y, colour, false);
-            y += lineHeight() + lineGap;
+    // ==================================================================
+    // Tooltips
+    // ==================================================================
+
+    /**
+     * The widest a tooltip gets before it wraps.
+     *
+     * Narrow on purpose. A tooltip is read in a glance with the cursor held
+     * still, and a 300-pixel line makes the eye travel back across the panel
+     * for every line — which is exactly the reading a player will not do
+     * mid-hover.
+     */
+    public static final int TOOLTIP_WIDTH = 150;
+
+    /**
+     * A hover explanation, in the interface's own style.
+     *
+     * <h3>Why not {@code GuiGraphics.renderTooltip}</h3>
+     *
+     * Vanilla's tooltip is a texture-backed nine-slice with its own purple
+     * gradient border. It would be the one element on these screens that is not
+     * this palette — a vanilla box popping up over an Elysium panel — and the
+     * theming here is not decoration; it is the reason {@link ElysiumPalette}
+     * is generated and checked against its own source. So a tooltip is built
+     * from the same {@code panel} every other surface uses, and inherits every
+     * later change to it for free.
+     *
+     * <h3>Placement</h3>
+     *
+     * Down and right of the cursor, then pushed back inside the screen on
+     * whichever axis it would have left. Flipping to the other side of the
+     * cursor is the more usual answer and is worse here: these panels are
+     * centred, so every stat in the right-hand column sits near the right edge,
+     * and a tooltip that flipped would jump across the cursor as the player
+     * moved down a column of rows that all behave identically.
+     *
+     * @param title what is hovered, at full text strength
+     * @param body  what it does; wrapped and muted, and may be null
+     */
+    public static void tooltip(GuiGraphics g, Component title, Component body,
+                               int mouseX, int mouseY, int screenW, int screenH) {
+        int pad = 5;
+        int line = lineHeight();
+
+        java.util.List<String> bodyLines = body == null
+                ? java.util.List.of()
+                : wrapLines(body, TOOLTIP_WIDTH);
+
+        int width = textWidth(title);
+        for (String wrapped : bodyLines) {
+            width = Math.max(width, textWidth(Component.literal(wrapped)));
         }
-        return y;
+        width = Math.min(TOOLTIP_WIDTH, width);
+
+        int height = line
+                + (bodyLines.isEmpty() ? 0 : 2 + bodyLines.size() * (line + LINE_GAP));
+
+        int x = mouseX + 10;
+        int y = mouseY + 10;
+        if (x + width + pad * 2 > screenW) {
+            x = Math.max(2, screenW - width - pad * 2 - 2);
+        }
+        if (y + height + pad * 2 > screenH) {
+            y = Math.max(2, screenH - height - pad * 2 - 2);
+        }
+
+        // Above everything else. Without the z push the panel lands under the
+        // text drawn before it and the tooltip reads as transparent in patches.
+        g.pose().pushPose();
+        g.pose().translate(0.0F, 0.0F, 400.0F);
+        panel(g, x, y, width + pad * 2, height + pad * 2,
+                ElysiumPalette.SURFACE_RAISED, ElysiumPalette.ACCENT_DIM);
+        // Truncated to the panel, because the width above is clamped to
+        // TOOLTIP_WIDTH and a title longer than that would otherwise run out
+        // through the right edge. Every stat name is short; a content mod's
+        // need not be.
+        g.drawString(font(), truncate(title, width), x + pad, y + pad,
+                ElysiumPalette.TEXT, false);
+        int ty = y + pad + line + 2;
+        for (String wrapped : bodyLines) {
+            g.drawString(font(), wrapped, x + pad, ty, ElysiumPalette.TEXT_MUTED, false);
+            ty += line + LINE_GAP;
+        }
+        g.pose().popPose();
     }
 
     /** A heading with an accent rule under it. Returns the y below it. */

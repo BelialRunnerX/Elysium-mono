@@ -294,11 +294,45 @@ public interface ElysiumSocketable {
                     .append(Component.translatable("elysium.rune." + rune.getSerialisedName() + ".effect")
                             .withStyle(aligned ? ChatFormatting.AQUA : ChatFormatting.GRAY));
             if (aligned) {
+                // The multiplier, not just the word. "(aligned)" alone told the
+                // player that something was true and nothing about what it was
+                // worth — the difference between a label and an explanation,
+                // and the reason nobody would learn that matching a rune's
+                // element to its gear is worth going out of the way for.
                 line = line.copy().append(Component.literal(" ")
-                        .append(Component.translatable("elysium.tooltip.aligned")
+                        .append(Component.translatable("elysium.tooltip.aligned",
+                                        formatMultiplier(ElysiumSockets.ALIGNED_MULTIPLIER))
                                 .withStyle(ChatFormatting.GOLD)));
             }
             tooltip.add(line);
         }
+
+        // What to do about the empty ones. A socket count with nothing telling
+        // the reader where runes go is a number they cannot act on, and the
+        // hint that would have said lives on the rune item — no use to somebody
+        // who has not found one yet.
+        if (runes.size() < getMaxRuneSlots(stack)) {
+            tooltip.add(Component.translatable("elysium.tooltip.sockets_free",
+                            formatMultiplier(ElysiumSockets.ALIGNED_MULTIPLIER))
+                    .withStyle(ChatFormatting.DARK_GRAY));
+        }
+    }
+
+    /**
+     * A multiplier the way a player would write it.
+     *
+     * {@code Float.toString(1.75F)} is "1.75", which is fine, but the constant
+     * is allowed to change and "1.7000000476837158" in a tooltip is the classic
+     * way for a float to embarrass an interface.
+     */
+    static String formatMultiplier(float value) {
+        if (value == Math.rint(value)) {
+            return Integer.toString((int) value);
+        }
+        String text = String.format(java.util.Locale.ROOT, "%.2f", value);
+        if (text.endsWith("0")) {
+            text = text.substring(0, text.length() - 1);
+        }
+        return text;
     }
 }

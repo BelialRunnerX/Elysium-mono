@@ -234,7 +234,51 @@ if orphans:
     fail(f"CAUSE_ constants nothing ever files: {orphans} — an archive that "
          f"can never show a cause is worse than one that does not list it")
 
+# ---------------------------------------------------------------------------
+# Everything on the character sheet explains itself on hover
+# ---------------------------------------------------------------------------
+#
+# The twelve stat descriptions existed in the language file for a long time and
+# were never shown anywhere — which is the failure this section is really for.
+# A description nothing renders is indistinguishable from no description at all,
+# and the only way to notice is to open the screen and hover, which nobody does
+# while adding a stat.
+screen_src = COMMENT.sub(" ", read("screen/ElysiumCharacterScreen.java"))
+ui_src = COMMENT.sub(" ", read("client/ElysiumUI.java"))
+
+if "ElysiumUI.tooltip(" not in screen_src:
+    fail("the character screen never draws a tooltip, so the twelve stat "
+         "descriptions in the language file are text nothing renders")
+if "stat.getDescription()" not in screen_src:
+    fail("the stats tab does not pass stat.getDescription() to anything — the "
+         "hover would explain the stat's name back to the reader")
+
+# The tooltip has to be built from this interface's own vocabulary. Vanilla's
+# renderTooltip is a textured nine-slice with its own purple gradient border,
+# and one of those popping up over an Elysium panel is the single most visible
+# way to break the theming these screens exist for.
+if "renderTooltip" in screen_src or "renderTooltip" in ui_src:
+    fail("something calls vanilla's renderTooltip. It is a textured nine-slice "
+         "with its own border and would be the one element on these screens "
+         "that is not ElysiumPalette")
+if "ElysiumPalette" not in ui_src.split("public static void tooltip(")[-1][:1200]:
+    fail("ElysiumUI.tooltip does not use ElysiumPalette — the tooltip would not "
+         "follow the generated theme the rest of the interface is checked "
+         "against")
+
+# One wrapping rule, not two. A tooltip has to size its panel before drawing
+# the text, and the obvious way to do that is a second copy of the wrap loop —
+# which drifts, and then the last line of long tooltips spills out of the box
+# for whichever strings happen to be long enough.
+if ui_src.count("font().width(candidate)") != 1:
+    fail(f"the line-wrapping rule appears "
+         f"{ui_src.count('font().width(candidate)')} times in ElysiumUI. A "
+         f"tooltip that measures with one copy and draws with another sizes "
+         f"its panel wrong as soon as they drift")
+
 print(f"lang keys          : {len(lang)}")
+print(f"stat tooltips      : {len(stat_ids)} stats, each with a name and a "
+      f"description the screen renders on hover")
 print(f"standing causes    : {len(causes)} declared, all translated, all filed")
 
 # ---------------------------------------------------------------------------

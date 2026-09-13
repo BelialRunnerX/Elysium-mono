@@ -79,8 +79,8 @@
   "elysium.suspicion.hunted": "Suspicion: Hunted",
   "elysium.suspicion.marked": "Suspicion: Marked — enforcers dispatched",
   "elysium.suspicion.noted": "Suspicion: Noted",
-  "elysium.tooltip.aligned": "(aligned)",
-  "elysium.tooltip.requires_level": "Requires character level %s",
+  "elysium.tooltip.aligned": "(aligned, %sx)",
+  "elysium.tooltip.requires_level": "Grants no bonus stats below character level %s",
   "elysium.tooltip.runes": "Runes: %s/%s",
   "elysium.file.entry": "%s %s — %s, %s",
   "elysium.file.suspicion": "Suspicion",
@@ -102,5 +102,10 @@
   "elysium.cause.amnesty": "amnesty granted",
   "elysium.inspection.planted": "An Imperial inspection post has been raised at %s, %s, %s. It reports for %s minutes.",
   "elysium.cause.inspected": "extraction under inspection",
-  "elysium.cause.resisted": "destroyed Imperial equipment"
+  "elysium.cause.resisted": "destroyed Imperial equipment",
+  "elysium.screen.spend": "Raise %s",
+  "elysium.screen.spend.desc": "Spends one point. Permanent — points are not refunded, though /elysium respec returns them all at once.",
+  "elysium.screen.favor.desc": "The Unsworn's regard. Raised by killing the Empire's sanctioned targets. Higher Favor brings more Unsworn after you and raises the TIER of what everything drops. Decays slowly when you stop earning it.",
+  "elysium.screen.suspicion.desc": "The Empire's attention. Raised by mining, ascending gear, killing enforcers and claiming ground. Higher Suspicion brings more Imperial company and raises the AMOUNT everything drops — and past 50 it brings announced sieges against your claim.",
+  "elysium.tooltip.sockets_free": "Socket runes at a Rune Socket Table. A rune of this piece's own element is worth %sx."
 }

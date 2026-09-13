@@ -105,8 +105,17 @@ items = re.findall(ITEM_HELPERS + r'\(\s*"([a-z_]+)"', source)
 block_constants = dict(re.findall(
     r'DeferredHolder<Block, Block>\s+(\w+)\s*=\s*\n?\s*BLOCKS\.register\("([a-z_]+)"',
     source))
+# Matches both blockItem(BLOCK) and the described form, which takes tooltip
+# keys after the block and wraps across lines:
+#
+#     blockItem(REGISTRY_BEACON,
+#             "elysium.tooltip.registry_beacon", ...)
+#
+# The narrower pattern this replaces silently stopped matching the moment two
+# blocks grew tooltips, and reported both of them as unobtainable — loudly,
+# which is the behaviour that made it worth fixing rather than working around.
 with_items = {block_constants[const]
-              for const in re.findall(r'blockItem\((\w+)\)', source)
+              for const in re.findall(r'blockItem\(\s*(\w+)', source)
               if const in block_constants}
 
 # Blocks that deliberately have no item. Each needs a reason, and the reason

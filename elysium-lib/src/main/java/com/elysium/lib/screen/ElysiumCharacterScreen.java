@@ -79,6 +79,17 @@ public class ElysiumCharacterScreen extends Screen {
     private ElysiumRace pickedRace;
     private ElysiumClass pickedClass;
 
+    /**
+     * What the cursor is over, if it is over anything that explains itself.
+     *
+     * Collected during the render pass and drawn at the very end, because a
+     * tooltip has to sit above every panel on the screen and the row that knows
+     * it is hovered is drawn long before the last of them. Cleared at the top
+     * of each frame, so it cannot survive the cursor moving away.
+     */
+    private Component hoverTitle;
+    private Component hoverBody;
+
     /** What the picker's description pane is currently describing. */
     private Component focusTitle = Component.empty();
     private Component focusBody = Component.empty();
@@ -116,12 +127,34 @@ public class ElysiumCharacterScreen extends Screen {
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         hits.clear();
+        hoverTitle = null;
+        hoverBody = null;
         ElysiumUI.scrim(g, this.width, this.height);
 
         if (sheet.chosen()) {
             renderSheet(g, mouseX, mouseY);
         } else {
             renderPicker(g, mouseX, mouseY);
+        }
+
+        if (hoverTitle != null) {
+            ElysiumUI.tooltip(g, hoverTitle, hoverBody, mouseX, mouseY,
+                    this.width, this.height);
+        }
+    }
+
+    /**
+     * Records that the cursor is over something worth explaining.
+     *
+     * Last writer wins, which is right for the one case where two hover regions
+     * overlap: a stat row and the stepper sitting inside it. The stepper is
+     * drawn after the row and is the more specific thing under the cursor.
+     */
+    private void explains(int mouseX, int mouseY, int x, int y, int w, int h,
+                          Component title, Component body) {
+        if (ElysiumUI.within(mouseX, mouseY, x, y, w, h)) {
+            hoverTitle = title;
+            hoverBody = body;
         }
     }
 
@@ -181,7 +214,7 @@ public class ElysiumCharacterScreen extends Screen {
         int bodyBottom = py + ph - pad - footer;
         switch (tab) {
             case TAB_STATS -> renderStatsTab(g, x, y, inner, bodyBottom, mouseX, mouseY);
-            case TAB_STANDING -> renderStandingTab(g, x, y, inner, bodyBottom);
+            case TAB_STANDING -> renderStandingTab(g, x, y, inner, bodyBottom, mouseX, mouseY);
             default -> renderCharacterTab(g, x, y, inner, bodyBottom);
         }
 
@@ -298,6 +331,13 @@ public class ElysiumCharacterScreen extends Screen {
             ElysiumUI.statRow(g, stat.getDisplayName(), Component.literal(Integer.toString(value)),
                     cx, cy, valueWidth, barFor(value), ElysiumPalette.TEXT);
 
+            // The whole row, not just the name. A player reaching for an
+            // explanation moves the cursor at the number or the bar as often as
+            // at the label, and a hover target the width of one word is one
+            // most people never find.
+            explains(mouseX, mouseY, cx, cy, col, ElysiumUI.statRowHeight() - 2,
+                    stat.getDisplayName(), stat.getDescription());
+
             int sx = cx + col - ElysiumUI.STEPPER;
             int sy = cy - 1;
             boolean hovered = ElysiumUI.within(mouseX, mouseY, sx, sy,
@@ -305,6 +345,12 @@ public class ElysiumCharacterScreen extends Screen {
             ElysiumUI.stepper(g, sx, sy, canSpend, hovered);
             if (canSpend) {
                 hits.add(new Hit(sx, sy, ElysiumUI.STEPPER, ElysiumUI.STEPPER, () -> spend(stat)));
+                // Over the stepper the useful sentence is what the button does,
+                // not what the stat is — the player already knows which row
+                // they are on, because they aimed at it.
+                explains(mouseX, mouseY, sx, sy, ElysiumUI.STEPPER, ElysiumUI.STEPPER,
+                        Component.translatable("elysium.screen.spend", stat.getDisplayName()),
+                        Component.translatable("elysium.screen.spend.desc"));
             }
         }
 
@@ -328,15 +374,28 @@ public class ElysiumCharacterScreen extends Screen {
     }
 
     /** The two meters, with their band names and the notice threshold marked. */
-    private void renderStandingTab(GuiGraphics g, int x, int y, int w, int bottom) {
+    private void renderStandingTab(GuiGraphics g, int x, int y, int w, int bottom,
+                                   int mouseX, int mouseY) {
         float notice = (float) ElysiumStanding.NOTICE / ElysiumStanding.MAX;
+        int favorTop = y;
         y = meter(g, Component.translatable("elysium.screen.favor"),
                 sheet.favor(), ElysiumStanding.favorBand(sheet.favor()),
                 ElysiumPalette.FAVOR, notice, x, y, w, bottom);
+        // Both meters explain the loop they drive. These two numbers decide
+        // what spawns and what it drops, and nothing anywhere else in the
+        // interface says so.
+        explains(mouseX, mouseY, x, favorTop, w, y - favorTop,
+                Component.translatable("elysium.screen.favor"),
+                Component.translatable("elysium.screen.favor.desc"));
+
         y += ElysiumPalette.GAP_WIDE;
+        int suspicionTop = y;
         y = meter(g, Component.translatable("elysium.screen.suspicion"),
                 sheet.suspicion(), ElysiumStanding.suspicionBand(sheet.suspicion()),
                 ElysiumPalette.SUSPICION, notice, x, y, w, bottom);
+        explains(mouseX, mouseY, x, suspicionTop, w, y - suspicionTop,
+                Component.translatable("elysium.screen.suspicion"),
+                Component.translatable("elysium.screen.suspicion.desc"));
         y += ElysiumPalette.GAP;
         ElysiumUI.wrapped(g, Component.translatable("elysium.screen.standing_hint"),
                 x, y, w, ElysiumPalette.TEXT_FAINT, bottom);
