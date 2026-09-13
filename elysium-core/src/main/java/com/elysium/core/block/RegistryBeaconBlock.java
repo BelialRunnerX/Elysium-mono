@@ -72,10 +72,11 @@ public class RegistryBeaconBlock extends Block {
     public RegistryBeaconBlock() {
         super(BlockBehaviour.Properties.of()
                 .mapColor(MapColor.METAL)
-                // Tough, and blast resistance well above stone: §14.3 makes
-                // this a siege target, and a siege target that an early
-                // creeper can delete would make the failure row fire by
-                // accident more often than by defeat.
+                // Tough, and blast resistance well above stone. §14.3's
+                // register actions place their waves around this block, so it
+                // is literally what a siege is aimed at — and a siege target an
+                // early creeper can delete would make the failure row fire by
+                // accident far more often than by defeat.
                 .strength(6.0F, 1800.0F)
                 .requiresCorrectToolForDrops()
                 .lightLevel(state -> state.getValue(CLAIMED) ? 10 : 0)

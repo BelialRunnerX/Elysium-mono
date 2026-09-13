@@ -287,6 +287,50 @@ elif "isAmbient" not in survivors.group(1):
     fail("RegisterScheduler.survivors counts roaming bands as wave survivors — "
          "an unrelated band parks a register action forever")
 
+# ---------------------------------------------------------------------------
+# 14.3 is "Register Actions and base sieges" — the second half is the claim
+# ---------------------------------------------------------------------------
+#
+# Waves used to spawn around the player wherever they stood, which made the
+# ten-minute warning meaningless: walking into the wilderness took the siege
+# with you and the base you were told to prepare was never involved. A siege has
+# to have somewhere to be.
+#
+# Each of these is a way for that to quietly revert to following the player,
+# with nothing failing and nothing logged.
+if "claimOf" not in sched_code or "ElysiumClaims" not in sched_code:
+    fail("RegisterScheduler no longer looks up the player's claim, so a "
+         "register action targets nobody's base — §14.3 is titled 'Register "
+         "Actions and base sieges' and the warning has nowhere to point")
+
+for helper, why in (
+    ("centreOf", "the centre a wave is placed around"),
+    ("placement(level, centre", "placement working from a centre rather than "
+                               "from the player"),
+    ("survivors(level, centre", "wave clearance counted at the siege, not "
+                                "around the player"),
+):
+    if helper not in sched_code:
+        fail(f"RegisterScheduler lost {why} — waves would follow the player "
+             f"again and the claim would stop mattering")
+
+# The Noted patrol is the deliberate exception, and it is easy to "fix" by
+# making it consistent with the sieges. §14.3 calls a patrol an "interruption",
+# and one that arrived at a base the player is nowhere near interrupts nothing.
+if "player.blockPosition(), band, 2" not in sched_code:
+    fail("the Noted patrol no longer spawns around the player. §14.3 calls it "
+         "an interruption; sieges go to the base, patrols find you")
+
+# The failure row, for an action already running.
+if "register.failed" not in sched_code:
+    fail("nothing ends a running action whose claim has been struck — §14.3's "
+         "failure row would leave waves arriving at a beacon that is gone")
+if "isIn(level)" not in sched_code:
+    fail("RegisterScheduler checks a claim without checking it is in this "
+         "dimension. ElysiumClaims is per dimension, so an Overworld claim "
+         "reads as destroyed from the Nether and stepping through a portal "
+         "would end the siege as a failure")
+
 if "addSuppressor" not in sched_code:
     fail("RegisterScheduler no longer suppresses roaming bands during an "
          "action; the ten-minute warning §14.3 asks for is unusable if bands "
@@ -299,6 +343,8 @@ if "suppressWhileActive()" not in mods_code:
 
 print("roaming bands       : despawn consent tagged, wave clearance excludes "
       "them, suppressed mid-action")
+print("base sieges         : actions target the largest claim, fail when its "
+      "beacon is struck")
 print()
 
 if problems:

@@ -4,11 +4,14 @@ import com.elysium.mobs.ElysiumMobs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.elysium.lib.standing.ElysiumStanding;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -28,18 +31,17 @@ import java.util.function.Supplier;
  *                                     structural floor
  * </pre>
  *
- * All five rows are implemented. The failure row was the last, and it is the
- * one this class does <em>not</em> implement, which is the point: it is written
- * against a <b>claim</b> — a territorial structure with a beacon, from §14.2 —
- * and it is the Registry Beacon block that strikes the claim when it is
- * destroyed, by any hand, including a creeper from one of these waves. Nothing
- * here needed to know about it. §E.1's invariant holds for free for the same
- * reason: the code that strikes a claim touches no blocks, so
- * <blockquote>beacon destruction releases claim but does not erase constructed
- * world.</blockquote>
+ * All five rows are implemented, and the failure row is split between two
+ * places on purpose. The <em>striking</em> of a claim belongs to the Registry
+ * Beacon block, which does it whenever the beacon is destroyed by any hand —
+ * §E.1's invariant then holds for free, because that code touches no blocks and
+ * so <blockquote>beacon destruction releases claim but does not erase
+ * constructed world.</blockquote> What belongs here is only the consequence for
+ * an action already in flight: an action against a claim that no longer exists
+ * ends, paying nothing.
  *
  * The ordinary failure — you die, or you leave — still ends the action paying
- * nothing, and is the only failure available to a player who never claimed
+ * nothing too, and is the only failure available to a player who never claimed
  * anything.
  *
  * <h2>Why Suspicion only</h2>
@@ -61,7 +63,60 @@ import java.util.function.Supplier;
  * duration, that the player is expected to spend.
  */
 public record RegisterAction(int phase, int band, int wave, long nextTick,
-                             long deadline) {
+                             long deadline, Optional<Target> target) {
+
+    /**
+     * The claim an action is against.
+     *
+     * §14.3 is titled "Register Actions and <b>base sieges</b>", and until
+     * claims existed the second half of that was not implemented: waves spawned
+     * around the player wherever they happened to be, so walking into the
+     * wilderness took the siege with you and your base was scenery. The
+     * ten-minute warning is ten minutes to prepare <em>somewhere</em>, and
+     * without a target there was nowhere for it to be.
+     *
+     * The dimension is stored beside the position because a player can be
+     * elsewhere when the action runs, and {@code ElysiumClaims} is per
+     * dimension — asking the Nether whether a claim in the Overworld still
+     * exists gets "no", which would read as the beacon having been destroyed
+     * and end the action as a failure the player never saw happen.
+     */
+    public record Target(String dimension, BlockPos anchor) {
+
+        public static final Codec<Target> CODEC =
+                RecordCodecBuilder.create(instance -> instance.group(
+                        Codec.STRING.fieldOf("dimension").forGetter(Target::dimension),
+                        BlockPos.CODEC.fieldOf("anchor").forGetter(Target::anchor)
+                ).apply(instance, Target::new));
+
+        public static Target of(ServerLevel level, BlockPos anchor) {
+            return new Target(level.dimension().location().toString(), anchor);
+        }
+
+        /** Whether this level is the one holding the claim. */
+        public boolean isIn(ServerLevel level) {
+            return level.dimension().location().toString().equals(dimension);
+        }
+    }
+
+    /**
+     * An action against nobody's base in particular.
+     *
+     * Kept as a constructor rather than pushed onto every call site, because
+     * most of them are transitions that carry the existing target forward and
+     * would otherwise all have to repeat it. It is also what an action loaded
+     * from a save written before targets existed comes back as — see the
+     * optional field in the codec.
+     */
+    public RegisterAction(int phase, int band, int wave, long nextTick,
+                          long deadline) {
+        this(phase, band, wave, nextTick, deadline, Optional.empty());
+    }
+
+    /** The same action, still against the same place. */
+    public RegisterAction at(int phase, int wave, long nextTick) {
+        return new RegisterAction(phase, band, wave, nextTick, deadline, target);
+    }
 
     // --- Phases ---------------------------------------------------------
     //
@@ -86,7 +141,14 @@ public record RegisterAction(int phase, int band, int wave, long nextTick,
                     Codec.INT.fieldOf("band").forGetter(RegisterAction::band),
                     Codec.INT.fieldOf("wave").forGetter(RegisterAction::wave),
                     Codec.LONG.fieldOf("next").forGetter(RegisterAction::nextTick),
-                    Codec.LONG.fieldOf("deadline").forGetter(RegisterAction::deadline)
+                    Codec.LONG.fieldOf("deadline").forGetter(RegisterAction::deadline),
+                    // Optional, so a save written before sieges had a target
+                    // loads as an untargeted action rather than failing to
+                    // decode — which for an attachment means the player
+                    // silently loses whatever action was running, and for a
+                    // player mid-siege means the waves simply stop.
+                    Target.CODEC.optionalFieldOf("target")
+                            .forGetter(RegisterAction::target)
             ).apply(instance, RegisterAction::new));
 
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =

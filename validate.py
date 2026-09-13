@@ -56,6 +56,18 @@ def main():
         failures.append("gear")
     print()
 
+    # Cross-cutting, and invisible to every per-module validator: they check
+    # that a translation key exists, which is a different question from whether
+    # it is given the arguments its string asks for. A mismatch renders as a
+    # raw %s or as a value in the wrong sentence, and nothing short of
+    # triggering the message in game shows it.
+    print("=" * 70)
+    print("messages — every translated string gets the arguments it asks for")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_lang.py"], cwd=HERE).returncode != 0:
+        failures.append("messages")
+    print()
+
     # Also cross-cutting: the six mods ship as six jars and also as one, and a
     # resource path two of them both write is a file the merged jar can quietly
     # lose. tools/mergejar.py refuses at packaging time; this asks the same

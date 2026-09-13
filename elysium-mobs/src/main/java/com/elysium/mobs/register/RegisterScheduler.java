@@ -1,5 +1,7 @@
 package com.elysium.mobs.register;
 
+import com.elysium.lib.claim.ElysiumClaim;
+import com.elysium.lib.claim.ElysiumClaims;
 import com.elysium.lib.entity.ElysiumSquads;
 import com.elysium.lib.standing.ElysiumRewards;
 import com.elysium.lib.standing.ElysiumStanding;
@@ -21,6 +23,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * When the Empire comes, and what it sends.
@@ -136,7 +139,12 @@ public final class RegisterScheduler {
             // not an event. It costs the player a minute and tells them the
             // Empire has started looking, which is the whole job of this row.
             if (random.nextFloat() < CHANCE) {
-                spawnWave(level, player, band, 2, false, random);
+                // Deliberately around the player, not around any claim they
+                // hold. §14.3 calls a patrol an "interruption", and a patrol
+                // that turned up at a base the player is nowhere near would
+                // interrupt nothing. Sieges go to the base; patrols find you.
+                spawnWave(level, player, player.blockPosition(), band, 2, false,
+                        random);
                 say(player, "elysiummobs.register.patrol", ChatFormatting.YELLOW);
             }
             return;
@@ -147,15 +155,80 @@ public final class RegisterScheduler {
         }
 
         long now = level.getGameTime();
+        Optional<RegisterAction.Target> target = claimOf(level, player);
         RegisterAction.set(player, new RegisterAction(
                 RegisterAction.ANNOUNCED, band, 0,
                 now + RegisterAction.WARNING_TICKS,
-                now + RegisterAction.WARNING_TICKS + RegisterAction.ABANDON_TICKS));
-        player.displayClientMessage(Component.translatable(
-                        "elysiummobs.register.announced",
-                        RegisterAction.wavesFor(band),
-                        RegisterAction.WARNING_TICKS / (20 * 60))
-                .withStyle(ChatFormatting.RED), false);
+                now + RegisterAction.WARNING_TICKS + RegisterAction.ABANDON_TICKS,
+                target));
+
+        // Two announcements, because they are asking for two different things.
+        // With a claim the message names the place, and the ten minutes are ten
+        // minutes to get there and dig in. Without one there is nowhere to
+        // defend and the warning only means "be somewhere survivable".
+        if (target.isPresent()) {
+            BlockPos where = target.get().anchor();
+            player.displayClientMessage(Component.translatable(
+                            "elysiummobs.register.announced_claim",
+                            RegisterAction.wavesFor(band),
+                            RegisterAction.WARNING_TICKS / (20 * 60),
+                            where.getX(), where.getY(), where.getZ())
+                    .withStyle(ChatFormatting.RED), false);
+        } else {
+            player.displayClientMessage(Component.translatable(
+                            "elysiummobs.register.announced",
+                            RegisterAction.wavesFor(band),
+                            RegisterAction.WARNING_TICKS / (20 * 60))
+                    .withStyle(ChatFormatting.RED), false);
+        }
+    }
+
+    /**
+     * The claim this action will be against, if the player holds one here.
+     *
+     * The largest of them, by structure count, when there is more than one. A
+     * player with an outpost and a fortress is besieged at the fortress —
+     * §14.2's floor is computed from what you have built and the Empire's
+     * attention follows the same thing, so sending five waves at a hut while
+     * the citadel two thousand blocks away goes unvisited would be the system
+     * contradicting its own arithmetic.
+     *
+     * This dimension only. A claim in another one is not somewhere the player
+     * can be marched to in ten minutes, and an action announced against a base
+     * in the Nether while the player is mining in the Overworld is a warning
+     * they cannot act on.
+     */
+    private static Optional<RegisterAction.Target> claimOf(ServerLevel level,
+                                                           ServerPlayer player) {
+        ElysiumClaim best = null;
+        for (ElysiumClaim claim : ElysiumClaims.of(level).all()) {
+            if (!claim.owner().equals(player.getUUID())) {
+                continue;
+            }
+            if (best == null || claim.structures() > best.structures()) {
+                best = claim;
+            }
+        }
+        return best == null
+                ? Optional.empty()
+                : Optional.of(RegisterAction.Target.of(level, best.anchor()));
+    }
+
+    /**
+     * Where this action is happening: the claim, or the player.
+     *
+     * Falls back to the player whenever the target cannot be honoured — no
+     * claim was recorded, or the player is in another dimension. The fallback
+     * is the old behaviour, which is the right thing for it to be: enforcement
+     * that cannot reach your base comes to find you instead.
+     */
+    private static BlockPos centreOf(ServerLevel level, ServerPlayer player,
+                                     RegisterAction action) {
+        Optional<RegisterAction.Target> target = action.target();
+        if (target.isPresent() && target.get().isIn(level)) {
+            return target.get().anchor();
+        }
+        return player.blockPosition();
     }
 
     // ------------------------------------------------------------------
@@ -177,13 +250,30 @@ public final class RegisterScheduler {
             return;
         }
 
+        // §14.3's failure row, for an action already in flight. The beacon
+        // block strikes the claim; this is what that means for the siege
+        // standing on it.
+        //
+        // Checked only in the dimension that holds the claim — ElysiumClaims is
+        // per dimension, so asking the Nether about an Overworld claim returns
+        // nothing, and treating that as "the beacon is gone" would end the
+        // action as a failure the moment the player stepped through a portal.
+        if (action.target().isPresent() && action.target().get().isIn(level)
+                && ElysiumClaims.of(level)
+                        .anchored(action.target().get().anchor()) == null) {
+            RegisterAction.clear(player);
+            say(player, "elysiummobs.register.failed", ChatFormatting.DARK_RED);
+            return;
+        }
+
+        BlockPos centre = centreOf(level, player, action);
+
         if (action.phase() == RegisterAction.ANNOUNCED) {
             if (now < action.nextTick()) {
                 return;
             }
-            RegisterAction.set(player, new RegisterAction(
-                    RegisterAction.RUNNING, action.band(), 0, now,
-                    action.deadline()));
+            RegisterAction.set(player,
+                    action.at(RegisterAction.RUNNING, 0, now));
             say(player, "elysiummobs.register.begins", ChatFormatting.RED);
             return;
         }
@@ -194,7 +284,7 @@ public final class RegisterScheduler {
 
         // A wave is not sent until the last one is dead. The timer is a floor
         // on the pace, not the pace itself.
-        if (action.wave() > 0 && survivors(level, player) > CLEARED_AT) {
+        if (action.wave() > 0 && survivors(level, centre) > CLEARED_AT) {
             return;
         }
 
@@ -210,20 +300,19 @@ public final class RegisterScheduler {
         // §14.3: Hunted ends with a Praetor. The elite pressure builds before
         // it — a wave count alone would make five waves of the same thing.
         if (last && action.band() >= 3) {
-            spawnPraetor(level, player, random);
+            spawnPraetor(level, player, centre, random);
             say(player, "elysiummobs.register.praetor", ChatFormatting.DARK_RED);
         } else {
             int count = 2 + wave + (action.band() >= 3 ? 1 : 0);
-            spawnWave(level, player, action.band(), count, wave >= 2, random);
+            spawnWave(level, player, centre, action.band(), count, wave >= 2, random);
         }
 
         player.displayClientMessage(Component.translatable(
                 "elysiummobs.register.wave", wave, total)
                 .withStyle(ChatFormatting.RED), true);
 
-        RegisterAction.set(player, new RegisterAction(
-                RegisterAction.RUNNING, action.band(), wave,
-                now + RegisterAction.WAVE_TICKS, action.deadline()));
+        RegisterAction.set(player,
+                action.at(RegisterAction.RUNNING, wave, now + RegisterAction.WAVE_TICKS));
     }
 
     /**
@@ -294,8 +383,8 @@ public final class RegisterScheduler {
      * handles the ones that were already standing there when the action was
      * announced ten minutes ago.
      */
-    private static int survivors(ServerLevel level, ServerPlayer player) {
-        AABB box = player.getBoundingBox().inflate(RANGE);
+    private static int survivors(ServerLevel level, BlockPos centre) {
+        AABB box = new AABB(centre).inflate(RANGE);
         List<ElysiumMob> nearby = level.getEntitiesOfClass(ElysiumMob.class, box,
                 mob -> mob.isAlive() && isEmpire(mob) && !ElysiumSquads.isAmbient(mob));
         return nearby.size();
@@ -315,7 +404,19 @@ public final class RegisterScheduler {
                 || type == ElysiumMobs.ADEPT.get();
     }
 
-    private static void spawnWave(ServerLevel level, ServerPlayer player, int band,
+    /**
+     * A wave, placed around {@code centre} and pointed at the player.
+     *
+     * The two are separate arguments because a base siege is exactly the case
+     * where they differ: the wave arrives at the claim, and what it wants is
+     * the person who filed it. When the player is not there, the mobs are
+     * placed anyway and stand in the base until somebody comes home — they are
+     * {@code setPersistenceRequired}, so they wait rather than evaporating, and
+     * walking back into your own courtyard to find the Empire already in it is
+     * the correct consequence of having left.
+     */
+    private static void spawnWave(ServerLevel level, ServerPlayer player,
+                                  BlockPos centre, int band,
                                   int count, boolean withElite, RandomSource random) {
         int mobLevel = 1 + band * 6;
         for (int i = 0; i < count; i++) {
@@ -330,7 +431,7 @@ public final class RegisterScheduler {
             if (mob == null) {
                 continue;
             }
-            BlockPos at = placement(level, player, random);
+            BlockPos at = placement(level, centre, random);
             if (at == null) {
                 continue;
             }
@@ -347,7 +448,7 @@ public final class RegisterScheduler {
     }
 
     private static void spawnPraetor(ServerLevel level, ServerPlayer player,
-                                     RandomSource random) {
+                                     BlockPos centre, RandomSource random) {
         // ElysiumBoss extends ElysiumMob, so a Praetor is initialised and
         // targeted exactly like anything else the Empire sends. Typing it as
         // the base rather than as Entity is what makes that true at compile
@@ -356,7 +457,7 @@ public final class RegisterScheduler {
         if (praetor == null) {
             return;
         }
-        BlockPos at = placement(level, player, random);
+        BlockPos at = placement(level, centre, random);
         if (at == null) {
             return;
         }
@@ -379,17 +480,17 @@ public final class RegisterScheduler {
      * die on arrival is worse than no siege — the player never learns what
      * happened, only that a warning came to nothing.
      */
-    private static BlockPos placement(ServerLevel level, ServerPlayer player,
+    private static BlockPos placement(ServerLevel level, BlockPos centre,
                                       RandomSource random) {
         for (int attempt = 0; attempt < 12; attempt++) {
             int dx = random.nextInt(RANGE) - RANGE / 2;
             int dz = random.nextInt(RANGE) - RANGE / 2;
             if (Math.abs(dx) < 8 && Math.abs(dz) < 8) {
-                continue;                       // not on top of the player
+                continue;                       // not on top of the centre
             }
             BlockPos at = level.getHeightmapPos(
                     Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    player.blockPosition().offset(dx, 0, dz));
+                    centre.offset(dx, 0, dz));
             if (level.getBlockState(at).isAir()
                     && level.getBlockState(at.above()).isAir()) {
                 return at;
