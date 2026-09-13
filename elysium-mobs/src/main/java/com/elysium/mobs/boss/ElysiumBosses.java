@@ -161,6 +161,8 @@ public final class ElysiumBosses {
                         getZ() + getRandom().nextDouble() * 4.0D - 2.0D,
                         getRandom().nextFloat() * 360.0F, 0.0F);
                 spawned.setTarget(getTarget());
+                // Summoned, so it persists — see ElysiumMob.removeWhenFarAway.
+                spawned.setPersistenceRequired();
                 server.addFreshEntity(spawned);
             }
         }

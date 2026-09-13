@@ -261,28 +261,37 @@ public abstract class ElysiumMob extends Monster {
     }
 
     /**
-     * Elysium creatures never despawn on their own — except roaming bands.
+     * Elysium creatures consent to the ordinary despawn rules. Persistence is
+     * claimed by whatever placed them, not granted by being one of these.
      *
-     * The rule and its exception are the same observation from two sides.
-     * Almost everything here is placed <em>deliberately</em>: a dungeon room, a
-     * standing dispatch, a register wave. Each is somewhere specific for a
-     * reason, and one that vanished while the player walked to it would empty
-     * the boss room about a third of the time.
+     * <h3>This was the other way round, and natural spawning broke it</h3>
      *
-     * A roaming band is the one kind that is not placed for a reason. It
-     * arrives every couple of minutes for as long as the player keeps playing,
-     * and a permanent one turns a three-hour session into a hundred and eighty
-     * abandoned mobs scattered along the path the player walked — every one of
-     * them loaded again the moment they walk back. That is not difficulty, it
-     * is a leak with a clock on it.
+     * The rule used to be "never despawn", on the argument that these are all
+     * placed deliberately — a dungeon room, a standing dispatch, a register
+     * wave — and one that vanished while the player walked to it would empty
+     * the boss room. That argument was sound for as long as the premise held.
      *
-     * So a band member consents to the ordinary vanilla despawn rules, which
-     * still will not touch it inside 128 blocks or while it is fighting. It
-     * says yes; {@code Mob.checkDespawn} decides.
+     * It stopped holding the moment these families were added to the overworld
+     * spawn tables. A naturally spawned mob is placed by the game, constantly,
+     * everywhere the player goes — and an immortal one means a session leaves a
+     * permanent trail of them across the map, every one reloaded the moment the
+     * player walks back. The same leak the roaming bands were given an
+     * exception to avoid, arriving through a different door.
+     *
+     * So the exception became the rule. Everything here says yes to
+     * {@code Mob.checkDespawn}, which still will not touch a mob inside 128
+     * blocks or one that is fighting, and anything placed <em>on purpose</em>
+     * calls {@code setPersistenceRequired} — which vanilla checks first, before
+     * this method is ever consulted. Dungeon rooms, register waves, boss
+     * summons and standing dispatches all do.
+     *
+     * The inversion is worth the words because it fails in opposite directions:
+     * forget it here and the world fills up, forget the persistence call at a
+     * placement site and a boss room is empty when the player arrives.
      */
     @Override
     public boolean removeWhenFarAway(double distanceToClosestPlayer) {
-        return com.elysium.lib.entity.ElysiumSquads.isAmbient(this);
+        return true;
     }
 
     static {

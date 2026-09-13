@@ -176,6 +176,12 @@ public final class ElysiumStandingHandler {
                 level.getRandom().nextFloat() * 360.0F, 0.0F);
         mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.EVENT, null);
         mob.setTarget(player);
+        // Deliberate, so it persists. Since Elysium mobs now consent to the
+        // ordinary despawn rules — natural spawning would otherwise fill the
+        // world with immortal ones — anything sent ON PURPOSE has to say so, or
+        // a dispatch the player walked away from evaporates and the meter that
+        // summoned it looks broken.
+        mob.setPersistenceRequired();
         level.addFreshEntity(mob);
     }
 

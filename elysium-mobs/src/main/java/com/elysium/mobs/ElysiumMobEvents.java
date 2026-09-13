@@ -78,7 +78,20 @@ public final class ElysiumMobEvents {
         event.register(type,
                 SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                (SpawnPlacements.SpawnPredicate<T>) Monster::checkMonsterSpawnRules,
+                // checkAnyLightMonsterSpawnRules, not checkMonsterSpawnRules.
+                //
+                // The difference is the light check, and dropping it is the
+                // whole point: these are not things that creep out of the dark,
+                // they are two factions who go where they like. A Drone
+                // patrolling a field at noon is the Empire being present in the
+                // world; a Drone that can only exist in a cave at night is a
+                // zombie with a different texture.
+                //
+                // Everything else vanilla checks is kept — solid ground, room
+                // to stand, not inside a block, not on peaceful — because those
+                // are correctness rather than flavour, and a mob spawned inside
+                // a wall suffocates before the player sees it.
+                (SpawnPlacements.SpawnPredicate<T>) Monster::checkAnyLightMonsterSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
 }

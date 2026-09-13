@@ -269,14 +269,58 @@ print(f"json files parsed   : {count}")
 # that a later edit could quietly revert. So both are checked.
 SQUAD_COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
 
+# The despawn rule, and the placements that opt out of it.
+#
+# Elysium mobs consent to the ordinary vanilla despawn rules, because they are
+# in the overworld spawn tables: an immortal naturally-spawned mob means a
+# session leaves a permanent trail of them across the map. Persistence is
+# claimed by whatever placed the mob deliberately, and vanilla checks that
+# BEFORE removeWhenFarAway is consulted.
+#
+# The two halves fail in opposite directions, which is why both are checked:
+# lose the rule and the world fills up, lose a persistence call and a boss room
+# is empty when the player walks in.
 mob_code = SQUAD_COMMENT.sub(" ", read("entity/ElysiumMob.java"))
 far_away = re.search(r"removeWhenFarAway\([^)]*\)\s*\{(.*?)\}", mob_code, re.S)
 if not far_away:
     fail("ElysiumMob.removeWhenFarAway is missing")
-elif "isAmbient" not in far_away.group(1):
-    fail("ElysiumMob.removeWhenFarAway no longer consults ElysiumSquads."
-         "isAmbient — either every roaming band is now permanent (the world "
-         "fills up) or every dungeon boss now despawns (rooms come out empty)")
+elif "return true" not in far_away.group(1):
+    fail("ElysiumMob.removeWhenFarAway no longer returns true. These families "
+         "are in the overworld spawn tables, so refusing to despawn leaves a "
+         "permanent trail of them everywhere a player has been")
+
+# Every deliberate placement in the repository marks itself persistent.
+DELIBERATE = {
+    "elysium-mobs/src/main/java/com/elysium/mobs/register/RegisterScheduler.java":
+        "register action waves",
+    "elysium-mobs/src/main/java/com/elysium/mobs/boss/ElysiumBosses.java":
+        "boss summons",
+    "elysium-dungeons/src/main/java/com/elysium/dungeons/room/DungeonRooms.java":
+        "dungeon room occupants",
+    "elysium-lib/src/main/java/com/elysium/lib/event/ElysiumStandingHandler.java":
+        "standing dispatches",
+}
+# ElysiumSquads is the one that deliberately does NOT: a roaming band is the
+# thing that is allowed to be forgotten.
+repo = os.path.dirname(WORK)
+for rel, what in DELIBERATE.items():
+    path = os.path.join(repo, rel)
+    if not os.path.exists(path):
+        continue
+    body = SQUAD_COMMENT.sub(" ", open(path, encoding="utf-8").read())
+    if "addFreshEntity" in body and "setPersistenceRequired" not in body:
+        fail(f"{rel} places {what} without setPersistenceRequired — they now "
+             f"despawn like natural spawns, so the player arrives to an empty "
+             f"room")
+
+squads_path = os.path.join(
+    repo, "elysium-lib/src/main/java/com/elysium/lib/entity/ElysiumSquads.java")
+if os.path.exists(squads_path):
+    squads_body = SQUAD_COMMENT.sub(" ", open(squads_path, encoding="utf-8").read())
+    if "setPersistenceRequired" in squads_body:
+        fail("ElysiumSquads makes roaming bands persistent — a band arrives "
+             "every couple of minutes forever and a permanent one is a leak "
+             "with a clock on it")
 
 sched_code = SQUAD_COMMENT.sub(" ", read("register/RegisterScheduler.java"))
 survivors = re.search(r"private static int survivors\([^)]*\)\s*\{(.*?)\n    \}",
