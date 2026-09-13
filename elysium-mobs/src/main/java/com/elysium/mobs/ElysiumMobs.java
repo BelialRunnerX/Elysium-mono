@@ -151,6 +151,7 @@ public class ElysiumMobs {
         ENTITIES.register(modEventBus);
         ITEMS.register(modEventBus);
         CREATIVE_TABS.register(modEventBus);
+        com.elysium.mobs.register.RegisterAction.ATTACHMENTS.register(modEventBus);
 
         modEventBus.addListener(ElysiumMobEvents::onAttributes);
         modEventBus.addListener(ElysiumMobEvents::onSpawnPlacements);
@@ -159,6 +160,11 @@ public class ElysiumMobs {
         // variants exist in the source and not in the game, and every creature
         // spawns unvariant - which is legal, silent, and wrong.
         ElysiumVariants.bootstrap();
+
+        // The Empire's enforcement arm. On the game bus rather than the mod
+        // bus: it runs on player ticks, not on registration.
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(
+                com.elysium.mobs.register.RegisterScheduler.class);
 
         registerFactions();
         registerBestiary();

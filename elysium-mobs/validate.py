@@ -257,4 +257,76 @@ if problems:
         print("  - " + problem)
     sys.exit(1)
 
+# ---------------------------------------------------------------------------
+# Register actions (Fourth Edition 14.3)
+# ---------------------------------------------------------------------------
+#
+# 14.3 is a table, and a table is the easiest kind of specification to drift
+# from: every number in it is a plain integer in a switch that compiles fine
+# whatever it says. These checks re-read the numbers out of the source and
+# compare them against the specification, so a retune has to be deliberate.
+
+action_src = open(os.path.join(SRC, "register/RegisterAction.java"),
+                  encoding="utf-8").read()
+sched_src = open(os.path.join(SRC, "register/RegisterScheduler.java"),
+                 encoding="utf-8").read()
+
+# 14.3: Marked sends 3 waves, Hunted sends 5, and nothing below sends an action.
+waves = dict(re.findall(r"case (\d+) -> (\d+);", action_src.split("wavesFor")[1]
+                        .split("}")[0] + "}"))
+for band, expected in (("3", "5"), ("2", "3")):
+    if waves.get(band) != expected:
+        fail(f"14.3 says band {band} sends {expected} waves; wavesFor says "
+             f"{waves.get(band, 'nothing')}")
+
+# 14.3: "announced ~10 minutes early".
+warning = re.search(r"WARNING_TICKS = 20 \* 60 \* (\d+)", action_src)
+if not warning:
+    fail("WARNING_TICKS is no longer written as minutes, so the 14.3 "
+         "announcement window cannot be checked")
+elif warning.group(1) != "10":
+    fail(f"14.3 announces an action ~10 minutes early; WARNING_TICKS is "
+         f"{warning.group(1)} minutes")
+
+# 14.3: clearing returns Suspicion "toward structural floor" - the bottom of
+# the band that sent the action, not zero. The band thresholds live in the
+# library; these must agree with them or clearing an action would drop a player
+# out of the band that sent it.
+floors = dict(re.findall(r"case (\d+) -> (\d+);", action_src.split("floorFor")[1]
+                         .split("}")[0] + "}"))
+for band, expected in (("3", "75"), ("2", "50")):
+    if floors.get(band) != expected:
+        fail(f"clearing a band-{band} action should floor Suspicion at "
+             f"{expected} (the bottom of that band); floorFor says "
+             f"{floors.get(band, 'nothing')}")
+
+# The promise made in RegisterScheduler.isEmpire's own comment: every Empire
+# family is listed there. A family added later and forgotten would simply never
+# count toward clearing a wave, and the action would stall with the player
+# standing in a crowd of enemies.
+families_src = open(os.path.join(SRC, "entity/ElysiumFamilies.java"),
+                    encoding="utf-8").read()
+empire_families = []
+for chunk in families_src.split("public static class ")[1:]:
+    name = re.match(r"(\w+)", chunk).group(1)
+    body = chunk.split("public static class ")[0]
+    if "ElysiumFaction.EMPIRE" in body:
+        empire_families.append(name)
+if not empire_families:
+    fail("no Empire family found in ElysiumFamilies - the register action has "
+         "nothing to send")
+for name in empire_families:
+    if f"ElysiumMobs.{name.upper()}.get()" not in sched_src:
+        fail(f"{name} is an Empire family but is not counted by "
+             f"RegisterScheduler.isEmpire - a wave containing one could never "
+             f"be cleared")
+
+register_keys = set(re.findall(r'"(elysiummobs\.register\.[a-z_]+)"', sched_src))
+missing_register = sorted(k for k in register_keys if k not in lang)
+if missing_register:
+    fail(f"register action lines with no lang entry: {missing_register}")
+
+print(f"register actions   : 14.3 table matches, {len(empire_families)} Empire "
+      f"families all counted, {len(register_keys)} lines translated")
+
 print("all mob checks passed")
