@@ -78,9 +78,26 @@ public final class RoomContext {
     // Placing
     // ------------------------------------------------------------------
 
-    /** Sets one block, in room coordinates. Outside the interior does nothing. */
+    /**
+     * Sets one block, in room coordinates. Outside the interior does nothing.
+     *
+     * <h3>Fluids are refused</h3>
+     *
+     * A dungeon is a set of sealed rooms and a fluid is the one block that does
+     * not stay where it is put. Water placed in a basin flows through the first
+     * doorway anything opens, pushes items and mobs down a corridor, floats a
+     * loot drop into a corner and drowns the rest — and none of that is visible
+     * from the line that placed it, which is what makes it worth refusing here
+     * rather than remembering not to do.
+     *
+     * Dropped silently rather than thrown. A decorator that asks for water gets
+     * a room with no water in it, which is the intended outcome; throwing would
+     * abandon a half-built dungeon around a player who is already standing in
+     * it. The validator catches the source line, which is the right place for
+     * somebody to learn about it.
+     */
     public void set(int x, int y, int z, BlockState state) {
-        if (!inside(x, y, z)) {
+        if (!inside(x, y, z) || !state.getFluidState().isEmpty()) {
             return;
         }
         // Flag 2 is "send to clients, do not trigger neighbour updates". Block

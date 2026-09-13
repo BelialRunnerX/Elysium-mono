@@ -159,6 +159,26 @@ public final class DungeonBuilder {
                     roomOrigin(origin, cell).offset(1, 1, 1),
                     INTERIOR, INTERIOR_HEIGHT, INTERIOR, cell,
                     instance.getPartyLevel());
+
+            // The footprint, before the room decorates itself.
+            //
+            // Applied here rather than inside each room so that every room gets
+            // it without nine decorators each remembering to ask, and so that
+            // the decorators run on whatever floor is left — a chest placed
+            // before the shape was cut could end up inside a wall.
+            //
+            // Only filler and loot rooms. The entrance is where a player
+            // arrives and has to read at a glance, and the boss room is a fight
+            // that needs its floor; an L-shaped boss arena is a Praetor stuck
+            // round a corner.
+            if (cell.kind == DungeonLayout.Kind.FILLER
+                    || cell.kind == DungeonLayout.Kind.LOOT) {
+                RandomSource shapeRandom = RandomSource.create(
+                        DungeonSeed.derive(seed, "shape", cell.x, cell.z));
+                RoomShape.apply(context, RoomShape.roll(shapeRandom),
+                        shapeRandom.nextInt(4));
+            }
+
             room.decorate(context,
                     RandomSource.create(DungeonSeed.derive(seed, "room", cell.x, cell.z)));
         }

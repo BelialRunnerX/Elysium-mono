@@ -70,7 +70,7 @@ import java.util.Set;
 public final class DungeonLayout {
 
     /** How many cells across the grid may be. Not how big a dungeon is. */
-    public static final int GRID = 9;
+    public static final int GRID = 13;
 
     /** What a cell is for. */
     public enum Kind {
@@ -140,7 +140,7 @@ public final class DungeonLayout {
             // Mostly the newest cell, sometimes an older one: see the class
             // comment for why this particular mix is the whole character of
             // the dungeon.
-            int pick = random.nextFloat() < 0.72F
+            int pick = random.nextFloat() < 0.80F
                     ? occupied.size() - 1
                     : random.nextInt(occupied.size());
             long[] from = occupied.get(pick);

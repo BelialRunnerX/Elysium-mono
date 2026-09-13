@@ -126,16 +126,28 @@ public final class DungeonRooms {
                 populate(context, random);
             });
 
-    /** Shallow water and a broken floor. */
+    /**
+     * A drained sump: a sunken basin, a broken floor, and no water in it.
+     *
+     * This room used to be a foot of standing water, and the water is gone on
+     * purpose. In a sealed dungeon a fluid is the one block that does not stay
+     * where it is put — it flows through a doorway the moment anything opens
+     * one, it pushes items and mobs around, it drowns a loot drop into a
+     * corner, and none of that is visible from the code that placed it. A
+     * basin that is simply <em>dry</em> reads as the same ruin and cannot leak.
+     *
+     * Whether it is dry is not left to this method to remember: RoomContext
+     * refuses to place a fluid at all.
+     */
     public static final DungeonRoom CISTERN = DungeonRoom.builder(id("cistern"))
             .weight(2)
             .build((context, random) -> {
-                BlockState water = Blocks.WATER.defaultBlockState();
-                // A basin inset from the walls, so the doorways stay dry and a
-                // player never steps out of a doorway into water.
+                // The basin floor, one step down, inset from the walls so the
+                // doorways stay level.
+                BlockState silt = Blocks.MUD.defaultBlockState();
                 for (int x = 3; x < context.width() - 3; x++) {
                     for (int z = 3; z < context.depth() - 3; z++) {
-                        context.set(x, 0, z, water);
+                        context.set(x, 0, z, silt);
                     }
                 }
                 for (int i = 0; i < 6; i++) {
@@ -538,6 +550,134 @@ public final class DungeonRooms {
                 context.set(at.getX(), h - 1 - y, at.getZ(),
                         Blocks.CHAIN.defaultBlockState());
             }
+        }
+
+        fittings(context, random);
+    }
+
+    /**
+     * The second pass: what the room is made of, rather than what shape it is.
+     *
+     * Everything above is masonry — trim, wear, pilasters, chains. It reads as
+     * a ruin and it reads as the <em>same</em> ruin in every room, because the
+     * only thing that varies is where the cracks landed.
+     *
+     * These are fittings: things somebody installed and then left. Each one is
+     * rolled independently and most rooms get two or three, so two rooms are
+     * rarely furnished alike even when they are the same shape and the same
+     * kind. None of it is placed where it could seal a doorway, and none of it
+     * is placed on a tile a shape has already filled in — {@code setClear}
+     * handles the first, and {@link RoomContext#set} lands harmlessly on solid
+     * rock for the second.
+     */
+    private static void fittings(RoomContext context, RandomSource random) {
+        int w = context.width();
+        int d = context.depth();
+        int h = context.height();
+
+        // --- Cable runs -------------------------------------------------
+        //
+        // Chains along the wall at head height, in broken lengths. The single
+        // cheapest thing that makes a corridor read as built rather than
+        // excavated: a straight line at a constant height is unmistakably
+        // somebody's work.
+        if (random.nextInt(3) > 0) {
+            int y = h - 3;
+            for (int x = 1; x < w - 1; x++) {
+                if (random.nextInt(9) != 0 && !context.blocksDoorway(x, 1)) {
+                    context.set(x, y, 1, Blocks.CHAIN.defaultBlockState());
+                }
+                if (random.nextInt(9) != 0 && !context.blocksDoorway(x, d - 2)) {
+                    context.set(x, y, d - 2, Blocks.CHAIN.defaultBlockState());
+                }
+            }
+        }
+
+        // --- Vents ------------------------------------------------------
+        //
+        // Iron bars set into the wall at floor level, with a dark recess
+        // behind. Reads as ductwork and costs two blocks.
+        int vents = random.nextInt(4);
+        for (int i = 0; i < vents; i++) {
+            boolean onX = random.nextBoolean();
+            int a = 2 + random.nextInt(Math.max(1, (onX ? w : d) - 4));
+            int wall = random.nextBoolean() ? 0 : (onX ? d : w) - 1;
+            int vx = onX ? a : wall;
+            int vz = onX ? wall : a;
+            if (context.blocksDoorway(vx, vz)) {
+                continue;
+            }
+            context.set(vx, 1, vz, Blocks.IRON_BARS.defaultBlockState());
+            context.set(vx, 2, vz, Blocks.IRON_BARS.defaultBlockState());
+        }
+
+        // --- Consoles ---------------------------------------------------
+        //
+        // A slab on a block, against a wall, with a lit face. Furniture the
+        // player reads as a workstation somebody abandoned.
+        int consoles = random.nextInt(3);
+        for (int i = 0; i < consoles; i++) {
+            BlockPos at = context.randomFloorPos(random);
+            int cx = at.getX();
+            int cz = at.getZ();
+            context.setClear(cx, 1, cz, Blocks.POLISHED_DEEPSLATE.defaultBlockState());
+            context.setClear(cx, 2, cz,
+                    Blocks.POLISHED_DEEPSLATE_SLAB.defaultBlockState());
+            if (random.nextBoolean()) {
+                context.setClear(cx, 3, cz, Blocks.REDSTONE_LAMP.defaultBlockState()
+                        .setValue(net.minecraft.world.level.block.RedstoneLampBlock.LIT, true));
+            }
+        }
+
+        // --- Amethyst growth --------------------------------------------
+        //
+        // The one thing in the palette that is not grey, and deliberately rare.
+        // A room with a seam of crystal in the corner is the room a player
+        // describes afterwards; a dungeon where every room has one is a dungeon
+        // made of crystal.
+        if (random.nextInt(5) == 0) {
+            BlockPos at = context.randomFloorPos(random);
+            int budded = 1 + random.nextInt(4);
+            for (int i = 0; i < budded; i++) {
+                int bx = at.getX() + random.nextInt(3) - 1;
+                int bz = at.getZ() + random.nextInt(3) - 1;
+                context.setClear(bx, 1, bz, Blocks.AMETHYST_BLOCK.defaultBlockState());
+                if (random.nextBoolean()) {
+                    context.setClear(bx, 2, bz, Blocks.AMETHYST_CLUSTER.defaultBlockState());
+                }
+            }
+        }
+
+        // --- Floor inlay ------------------------------------------------
+        //
+        // A band of tile across the middle of the floor, one axis only. Catches
+        // the eye from a doorway and gives the room a direction.
+        if (random.nextInt(3) == 0) {
+            BlockState inlay = Blocks.POLISHED_DEEPSLATE.defaultBlockState();
+            if (random.nextBoolean()) {
+                for (int x = 1; x < w - 1; x++) {
+                    context.set(x, 0, d / 2, inlay);
+                    context.set(x, 0, d / 2 - 1, inlay);
+                }
+            } else {
+                for (int z = 1; z < d - 1; z++) {
+                    context.set(w / 2, 0, z, inlay);
+                    context.set(w / 2 - 1, 0, z, inlay);
+                }
+            }
+        }
+
+        // --- Rubble piles -----------------------------------------------
+        //
+        // Half-height, so they read as debris rather than as furniture, and
+        // they do not block a sightline.
+        int piles = random.nextInt(5);
+        for (int i = 0; i < piles; i++) {
+            BlockPos at = context.randomFloorPos(random);
+            context.setClear(at.getX(), 1, at.getZ(),
+                    random.nextBoolean()
+                            ? Blocks.COBBLED_DEEPSLATE_SLAB.defaultBlockState()
+                            : Blocks.DEEPSLATE_TILE_SLAB.defaultBlockState());
         }
     }
 

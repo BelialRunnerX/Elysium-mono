@@ -223,6 +223,38 @@ if 'modId="elysium"' in manifest and 'type="required"' in manifest.split('modId=
          "cannot run without; requiring it makes dungeons unavailable to anyone not playing core")
 
 # ---------------------------------------------------------------------------
+# 5b. No fluid ever reaches a dungeon
+# ---------------------------------------------------------------------------
+#
+# A dungeon is sealed rooms, and a fluid is the one block that does not stay
+# where it is put: it flows through the first doorway anything opens, pushes
+# items and mobs around, and floats a loot drop into a corner. RoomContext.set
+# refuses fluids so it cannot happen by accident, and this catches the source
+# line so whoever wrote it finds out here rather than wondering why their water
+# vanished.
+for name in ("room/DungeonRooms.java", "room/RoomShape.java",
+             "room/DungeonBuilder.java"):
+    path = os.path.join(SRC, name)
+    if not os.path.exists(path):
+        continue
+    body = re.sub(r"//[^\n]*|/\*.*?\*/", " ",
+                  open(path, encoding="utf-8").read(), flags=re.S)
+    for fluid in ("Blocks.WATER", "Blocks.LAVA", "Fluids.WATER", "Fluids.LAVA"):
+        if fluid in body:
+            fail(f"{name} places {fluid}. Dungeons are sealed rooms and a fluid "
+                 f"does not stay where it is put — RoomContext.set drops it, so "
+                 f"this line is dead code that reads as working")
+
+guard = re.sub(r"//[^\n]*|/\*.*?\*/", " ",
+               open(os.path.join(SRC, "room/RoomContext.java"), encoding="utf-8").read(),
+               flags=re.S)
+if "getFluidState().isEmpty()" not in guard:
+    fail("RoomContext.set no longer refuses fluids, so any decorator can flood "
+         "a sealed dungeon and nothing would report it")
+else:
+    print("fluids             : refused at RoomContext.set, none in any room")
+
+# ---------------------------------------------------------------------------
 # 6. Room registrations line up with the layout's kinds
 # ---------------------------------------------------------------------------
 #

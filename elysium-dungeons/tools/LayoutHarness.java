@@ -1,4 +1,5 @@
 import com.elysium.dungeons.room.DungeonLayout;
+import com.elysium.dungeons.room.RoomShape;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
@@ -39,10 +40,60 @@ public final class LayoutHarness {
         }
     }
 
+    /**
+     * Every room shape, against every door arrangement and every rotation.
+     *
+     * A shape fills part of a room back in as wall, and a dungeon of sealed
+     * rooms has no second route: fill the wrong square and a doorway is behind
+     * a wall, the room past it is unreachable, and the player is in a dead end
+     * the layout believes is connected. RoomShape.mask refuses a shape that
+     * would do that and falls back to a square — this checks that the shapes as
+     * written never need the fallback, because a shape that silently degrades
+     * on some door arrangement is a feature that quietly does not happen.
+     */
+    private static void checkShapes() {
+        int w = 22;
+        int d = 22;
+        int fell = 0;
+        int combinations = 0;
+
+        for (RoomShape shape : RoomShape.values()) {
+            for (int quarter = 0; quarter < 4; quarter++) {
+                for (int doors = 1; doors < 16; doors++) {
+                    final int bits = doors;
+                    RoomShape.DoorwayTest test = (x, z) -> {
+                        int midX = w / 2;
+                        int midZ = d / 2;
+                        int clear = 2;
+                        if ((bits & 1) != 0 && z <= 1 && Math.abs(x - midX) <= clear) return true;
+                        if ((bits & 2) != 0 && z >= d - 2 && Math.abs(x - midX) <= clear) return true;
+                        if ((bits & 4) != 0 && x <= 1 && Math.abs(z - midZ) <= clear) return true;
+                        if ((bits & 8) != 0 && x >= w - 2 && Math.abs(z - midZ) <= clear) return true;
+                        return false;
+                    };
+                    combinations++;
+                    if (RoomShape.mask(shape, quarter, w, d, test) == null) {
+                        fell++;
+                        check(false, shape + " rotation " + quarter + " with doors "
+                                + Integer.toBinaryString(bits)
+                                + " strands a doorway and falls back to a square");
+                    }
+                }
+            }
+        }
+        System.out.println("shapes            : " + RoomShape.values().length
+                + " shapes x 4 rotations x 15 door sets = " + combinations
+                + " combinations, " + fell + " needed the square fallback");
+    }
+
     public static void main(String[] args) {
+        checkShapes();
         int trials = 400;
-        int rooms = 12;
-        int loot = 2;
+        // The numbers DungeonTravel actually asks for. Left at 12/2 for a long
+        // time after the real dungeon went to 20/3, which meant the harness was
+        // certifying a size nobody generates.
+        int rooms = 20;
+        int loot = 3;
 
         Set<String> fingerprints = new HashSet<>();
         int totalDepth = 0;

@@ -54,9 +54,22 @@ public final class DungeonTravel {
     /** Ticks a player is ignored by portals after using one. */
     public static final int COOLDOWN_TICKS = 60;
 
-    /** Rooms in a dungeon, and how many of them hold loot. */
-    private static final int ROOM_COUNT = 12;
-    private static final int LOOT_ROOMS = 2;
+    /**
+     * Rooms in a dungeon, and how many of them hold loot.
+     *
+     * Twenty rather than twelve. Twelve rooms on a weighted growth is a spine
+     * of about seven with a couple of stubs off it — enough to be a dungeon and
+     * not enough to be a place, and a player reaches the boss before the layout
+     * has said anything about itself. Twenty gives roughly a ten-room walk with
+     * real branches, which is where the dead ends start being worth exploring
+     * rather than being two rooms you check on the way past.
+     *
+     * Loot scales with it. Two loot rooms in twenty is a worse ratio than two
+     * in twelve, and a longer dungeon that pays the same is a longer dungeon
+     * nobody finishes.
+     */
+    private static final int ROOM_COUNT = 20;
+    private static final int LOOT_ROOMS = 3;
 
     private static final Map<UUID, Integer> cooldowns = new HashMap<>();
 
