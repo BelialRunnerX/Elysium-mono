@@ -45,7 +45,7 @@ public class LictorModel<T extends ElysiumMob> extends EntityModel<T> {
                 CubeListBuilder.create().texOffs(0, 0)
                         .addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8),
                 PartPose.offset(0.0F, 4.0F, 0.0F));
-        root.addOrReplaceChild("body",
+        PartDefinition body = root.addOrReplaceChild("body",
                 CubeListBuilder.create().texOffs(0, 16)
                         .addBox(-6.0F, 0.0F, -3.0F, 12, 12, 6),
                 PartPose.offset(0.0F, 4.0F, 0.0F));
@@ -57,27 +57,51 @@ public class LictorModel<T extends ElysiumMob> extends EntityModel<T> {
                 CubeListBuilder.create().texOffs(0, 34)
                         .addBox(-5.0F, -2.0F, -2.0F, 5, 15, 5),
                 PartPose.offset(-6.0F, 6.0F, 0.0F));
-        root.addOrReplaceChild("leg_left",
+        PartDefinition legLeft = root.addOrReplaceChild("leg_left",
                 CubeListBuilder.create().texOffs(32, 0)
                         .addBox(-2.0F, 0.0F, -2.0F, 5, 8, 5),
                 PartPose.offset(3.0F, 16.0F, 0.0F));
-        root.addOrReplaceChild("leg_right",
+        PartDefinition legRight = root.addOrReplaceChild("leg_right",
                 CubeListBuilder.create().texOffs(32, 0)
                         .addBox(-3.0F, 0.0F, -2.0F, 5, 8, 5),
                 PartPose.offset(-3.0F, 16.0F, 0.0F));
         head.addOrReplaceChild("crest",
-                CubeListBuilder.create().texOffs(36, 16)
+                CubeListBuilder.create().texOffs(52, 0)
                         .addBox(-1.0F, -11.0F, -4.0F, 2, 4, 9),
                 PartPose.offset(0.0F, 0.0F, 0.0F));
         armLeft.addOrReplaceChild("pauldron_left",
-                CubeListBuilder.create().texOffs(20, 34)
+                CubeListBuilder.create().texOffs(36, 16)
                         .addBox(-1.0F, -3.0F, -3.0F, 7, 4, 7),
                 PartPose.offset(0.0F, 0.0F, 0.0F));
         armRight.addOrReplaceChild("pauldron_right",
-                CubeListBuilder.create().texOffs(20, 34)
+                CubeListBuilder.create().texOffs(36, 16)
                         .addBox(-6.0F, -3.0F, -3.0F, 7, 4, 7),
                 PartPose.offset(0.0F, 0.0F, 0.0F));
-        return LayerDefinition.create(mesh, 64, 64);
+        head.addOrReplaceChild("visor",
+                CubeListBuilder.create().texOffs(74, 0)
+                        .addBox(-3.0F, -5.0F, -5.0F, 6, 2, 2),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("gorget",
+                CubeListBuilder.create().texOffs(64, 16)
+                        .addBox(-4.0F, 0.0F, -4.0F, 8, 3, 8),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        body.addOrReplaceChild("cuirass",
+                CubeListBuilder.create().texOffs(20, 34)
+                        .addBox(-7.0F, 2.0F, -4.0F, 14, 7, 8),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        legLeft.addOrReplaceChild("greave_left",
+                CubeListBuilder.create().texOffs(36, 16)
+                        .addBox(-3.0F, 3.0F, -3.0F, 7, 4, 7),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        legRight.addOrReplaceChild("greave_right",
+                CubeListBuilder.create().texOffs(36, 16)
+                        .addBox(-4.0F, 3.0F, -3.0F, 7, 4, 7),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        body.addOrReplaceChild("banner",
+                CubeListBuilder.create().texOffs(90, 0)
+                        .addBox(-1.0F, 2.0F, 4.0F, 2, 12, 1),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        return LayerDefinition.create(mesh, 96, 96);
     }
 
     /**

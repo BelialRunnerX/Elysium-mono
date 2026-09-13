@@ -49,11 +49,11 @@ public class WhisperModel<T extends ElysiumMob> extends EntityModel<T> {
                 CubeListBuilder.create().texOffs(0, 13)
                         .addBox(-3.0F, 0.0F, -2.0F, 6, 12, 3),
                 PartPose.offset(0.0F, 5.0F, 0.0F));
-        root.addOrReplaceChild("arm_left",
+        PartDefinition armLeft = root.addOrReplaceChild("arm_left",
                 CubeListBuilder.create().texOffs(0, 28)
                         .addBox(0.0F, -1.0F, -1.0F, 2, 14, 2),
                 PartPose.offset(3.0F, 6.0F, 0.0F));
-        root.addOrReplaceChild("arm_right",
+        PartDefinition armRight = root.addOrReplaceChild("arm_right",
                 CubeListBuilder.create().texOffs(0, 28)
                         .addBox(-2.0F, -1.0F, -1.0F, 2, 14, 2),
                 PartPose.offset(-3.0F, 6.0F, 0.0F));
@@ -72,6 +72,34 @@ public class WhisperModel<T extends ElysiumMob> extends EntityModel<T> {
         body.addOrReplaceChild("shroud",
                 CubeListBuilder.create().texOffs(8, 28)
                         .addBox(-4.0F, 2.0F, 1.0F, 8, 12, 2),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("mask",
+                CubeListBuilder.create().texOffs(36, 0)
+                        .addBox(-2.0F, -5.0F, -5.0F, 4, 3, 2),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("horn_left",
+                CubeListBuilder.create().texOffs(48, 0)
+                        .addBox(3.0F, -9.0F, -2.0F, 2, 3, 2),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("horn_right",
+                CubeListBuilder.create().texOffs(48, 0)
+                        .addBox(-5.0F, -9.0F, -2.0F, 2, 3, 2),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        body.addOrReplaceChild("tatter_left",
+                CubeListBuilder.create().texOffs(56, 0)
+                        .addBox(-5.0F, 6.0F, 0.0F, 2, 9, 2),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        body.addOrReplaceChild("tatter_right",
+                CubeListBuilder.create().texOffs(56, 0)
+                        .addBox(3.0F, 6.0F, 0.0F, 2, 9, 2),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        armLeft.addOrReplaceChild("claw_left",
+                CubeListBuilder.create().texOffs(50, 13)
+                        .addBox(-1.0F, 12.0F, -2.0F, 3, 4, 3),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        armRight.addOrReplaceChild("claw_right",
+                CubeListBuilder.create().texOffs(50, 13)
+                        .addBox(-2.0F, 12.0F, -2.0F, 3, 4, 3),
                 PartPose.offset(0.0F, 0.0F, 0.0F));
         return LayerDefinition.create(mesh, 64, 64);
     }

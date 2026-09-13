@@ -58,16 +58,19 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 JAVA = ROOT / "src/main/java/com/elysium/mobs"
 RES = ROOT / "src/main/resources/assets/elysiummobs"
 
-# Still 64, and checked rather than assumed. Adding the detail parts looked
-# like it needed a bigger sheet, and it does not: the shelf packer fits all
-# fourteen boxes of the largest family inside 64x64 with room to spare, because
-# mirrored parts share one patch. Thirty variant sheets at 128x128 would have
-# been four times the texture memory for empty space.
+# The sheet size is MEASURED, not chosen — smallest_sheet does it per family.
 #
-# The packer raises rather than overlapping when it genuinely runs out, so this
-# number is load-bearing; the model is told the same figure, so the two cannot
-# drift.
-SHEET = 64
+# It used to be a constant 64 with a comment explaining that the detail parts
+# fit inside it "with room to spare". That was true when it was written and
+# stopped being true the moment a second pass of detail was added: the packer
+# refused, correctly, rather than overlapping two boxes and producing mobs
+# textured with each other's parts and no error anywhere.
+#
+# Replacing 64 with a constant 128 would have worked and been wrong in the other
+# direction, for the reason the old comment gave against it: thirty variant
+# sheets at 128 where 96 would do is wasted texture memory forever. So each
+# family now asks the same helper the bosses already used, and the model is told
+# the same figure so the two cannot drift.
 
 # ---------------------------------------------------------------------------
 # The table
@@ -114,6 +117,14 @@ FAMILIES = {
             ("hood", -4, -8, -4, 8, 3, 8, 0, 0, 0, "head"),
             ("pauldron_left", -1, -2, -3, 5, 3, 6, 0, 0, 0, "arm_left"),
             ("satchel", -3, 3, 2, 6, 5, 3, 0, 0, 0, "body"),
+            # A second pass of detail. The first gave each family a silhouette;
+            # these give it a surface, which is what a player sees once the
+            # thing is close enough to be hitting them.
+            ("scrap_horn", 2, -9, -1, 2, 3, 2, 0, 0, 0, "head"),
+            ("bracer_right", -3, 4, -3, 5, 3, 6, 0, 0, 0, "arm_right"),
+            ("knee_left", -3, 3, -3, 6, 2, 6, 0, 0, 0, "leg_left"),
+            ("knee_right", -3, 3, -3, 6, 2, 6, 0, 0, 0, "leg_right"),
+            ("belt", -5, 7, -3, 10, 2, 6, 0, 0, 0, "body"),
         ],
     },
     "reaver": {
@@ -130,6 +141,13 @@ FAMILIES = {
             ("tusk_left", 1, 1, -3, 2, 3, 2, 0, 0, 0, "head"),
             ("tusk_right", -3, 1, -3, 2, 3, 2, 0, 0, 0, "head"),
             ("spine", -2, -2, 3, 4, 10, 3, 0, 0, 0, "body"),
+            ("jaw", -2, 3, -3, 4, 2, 4, 0, 0, 0, "head"),
+            ("fist_left", -1, 13, -4, 8, 5, 8, 0, 0, 0, "arm_left"),
+            ("fist_right", -7, 13, -4, 8, 5, 8, 0, 0, 0, "arm_right"),
+            ("slag_left", -4, 1, -5, 3, 6, 3, 0, 0, 0, "body"),
+            ("slag_right", 1, 1, -5, 3, 6, 3, 0, 0, 0, "body"),
+            ("boot_left", -4, 4, -4, 8, 3, 8, 0, 0, 0, "leg_left"),
+            ("boot_right", -4, 4, -4, 8, 3, 8, 0, 0, 0, "leg_right"),
         ],
     },
     "whisper": {
@@ -145,6 +163,13 @@ FAMILIES = {
             # than a box, and a shroud that trails from the shoulders.
             ("cowl", -4, -8, -4, 8, 4, 8, 0, 0, 0, "head"),
             ("shroud", -4, 2, 1, 8, 12, 2, 0, 0, 0, "body"),
+            ("mask", -2, -5, -5, 4, 3, 2, 0, 0, 0, "head"),
+            ("horn_left", 3, -9, -2, 2, 3, 2, 0, 0, 0, "head"),
+            ("horn_right", -5, -9, -2, 2, 3, 2, 0, 0, 0, "head"),
+            ("tatter_left", -5, 6, 0, 2, 9, 2, 0, 0, 0, "body"),
+            ("tatter_right", 3, 6, 0, 2, 9, 2, 0, 0, 0, "body"),
+            ("claw_left", -1, 12, -2, 3, 4, 3, 0, 0, 0, "arm_left"),
+            ("claw_right", -2, 12, -2, 3, 4, 3, 0, 0, 0, "arm_right"),
         ],
     },
     "drone": {
@@ -161,6 +186,12 @@ FAMILIES = {
             ("antenna", -1, -7, -1, 2, 4, 2, 0, 0, 0, "head"),
             ("fin_left", 2, 0, -1, 3, 4, 5, 0, 0, 0, "body"),
             ("fin_right", -5, 0, -1, 3, 4, 5, 0, 0, 0, "body"),
+            ("lens", -2, -2, -5, 4, 4, 2, 0, 0, 0, "head"),
+            ("vane_left", 1, -5, -1, 4, 2, 2, 0, 0, 0, "head"),
+            ("vane_right", -5, -5, -1, 4, 2, 2, 0, 0, 0, "head"),
+            ("thruster", -2, 4, 2, 4, 3, 3, 0, 0, 0, "body"),
+            ("muzzle_left", 7, -2, -2, 3, 4, 4, 0, 0, 0, "arm_left"),
+            ("muzzle_right", -10, -2, -2, 3, 4, 4, 0, 0, 0, "arm_right"),
         ],
     },
     "lictor": {
@@ -177,6 +208,12 @@ FAMILIES = {
             ("crest", -1, -11, -4, 2, 4, 9, 0, 0, 0, "head"),
             ("pauldron_left", -1, -3, -3, 7, 4, 7, 0, 0, 0, "arm_left"),
             ("pauldron_right", -6, -3, -3, 7, 4, 7, 0, 0, 0, "arm_right"),
+            ("visor", -3, -5, -5, 6, 2, 2, 0, 0, 0, "head"),
+            ("gorget", -4, 0, -4, 8, 3, 8, 0, 0, 0, "head"),
+            ("cuirass", -7, 2, -4, 14, 7, 8, 0, 0, 0, "body"),
+            ("greave_left", -3, 3, -3, 7, 4, 7, 0, 0, 0, "leg_left"),
+            ("greave_right", -4, 3, -3, 7, 4, 7, 0, 0, 0, "leg_right"),
+            ("banner", -1, 2, 4, 2, 12, 1, 0, 0, 0, "body"),
         ],
     },
     "adept": {
@@ -192,6 +229,12 @@ FAMILIES = {
             # heavy collar under it, so the head reads as worn rather than big.
             ("mitre", -4, -13, -4, 8, 5, 8, 0, 0, 0, "head"),
             ("collar", -6, 0, -3, 12, 3, 7, 0, 0, 0, "body"),
+            ("halo", -6, -15, -1, 12, 2, 2, 0, 0, 0, "head"),
+            ("cheek_left", 4, -6, -4, 2, 5, 8, 0, 0, 0, "head"),
+            ("cheek_right", -6, -6, -4, 2, 5, 8, 0, 0, 0, "head"),
+            ("stole_left", -5, 3, -3, 2, 11, 1, 0, 0, 0, "body"),
+            ("stole_right", 3, 3, -3, 2, 11, 1, 0, 0, 0, "body"),
+            ("censer", -2, 12, -3, 3, 4, 3, 0, 0, 0, "arm_right"),
         ],
     },
 }
@@ -432,8 +475,11 @@ def main():
 
     for family, spec in FAMILIES.items():
         cls = camel(family)
+        family_sheet = smallest_sheet(spec["boxes"])
         (model_dir / ("%sModel.java" % cls)).write_text(
-            MODEL_TEMPLATE.format(Cls=cls, parts=part_lines(spec["boxes"]), sheet=SHEET))
+            MODEL_TEMPLATE.format(Cls=cls,
+                                  parts=part_lines(spec["boxes"], family_sheet),
+                                  sheet=family_sheet))
         written["models"] += 1
 
         (JAVA / "client" / ("%sRenderer.java" % cls)).write_text(
@@ -445,8 +491,12 @@ def main():
 
         base, _highlight = FAMILY_BASE[family]
         for variant in FAMILY_VARIANTS[family]:
+            # The same measured size the model was told. Defaulting here is
+            # what made the texture and the model disagree the first time —
+            # write_texture fell back to 64 while the model said 96.
             write_texture(RES / "textures/entity" / family / ("%s.png" % variant),
-                          spec["boxes"], base, VARIANT_ACCENT[variant])
+                          spec["boxes"], base, VARIANT_ACCENT[variant],
+                          family_sheet)
             written["textures"] += 1
 
     # Bosses: their own geometry, built from their family's silhouette.

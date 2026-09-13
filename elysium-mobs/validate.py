@@ -165,6 +165,54 @@ if layers != len(types) or renderers != len(types):
     fail(f"{len(types)} entity types but {layers} layer definitions and {renderers} "
          f"renderers registered - a missing one is an invisible mob with no error")
 
+# ---------------------------------------------------------------------------
+# The model and its texture agree about the sheet size
+# ---------------------------------------------------------------------------
+#
+# A sheet size appears twice: in the model's LayerDefinition and in the PNG. The
+# generator measures it per family with smallest_sheet, so the two come from one
+# number — but they are written by two different calls, and the first version of
+# that change passed the size to the model and let the texture default to 64.
+#
+# The symptom is not a crash. It is every box on that family sampling the wrong
+# part of the sheet: a mob wearing its own pauldron as a face. Nothing reports
+# it and it is invisible until somebody looks at one.
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
+
+if Image is None:
+    print("model sheets        : Pillow missing, texture sizes unchecked")
+else:
+    checked = 0
+    for type_name in types:
+        cls = camel(type_name)
+        model_path = os.path.join(SRC, f"client/model/{cls}Model.java")
+        if not os.path.exists(model_path):
+            continue
+        declared = re.search(r"LayerDefinition\.create\(mesh, (\d+), (\d+)\)",
+                             open(model_path, encoding="utf-8").read())
+        if not declared:
+            fail(f"{type_name}: no LayerDefinition.create(mesh, w, h) in its model")
+            continue
+        w, h = int(declared.group(1)), int(declared.group(2))
+        if w != h:
+            fail(f"{type_name}: model sheet is {w}x{h}, not square")
+        folder = os.path.join(RES, "textures/entity", type_name)
+        if not os.path.isdir(folder):
+            continue
+        for filename in sorted(os.listdir(folder)):
+            if not filename.endswith(".png"):
+                continue
+            size = Image.open(os.path.join(folder, filename)).size
+            checked += 1
+            if size != (w, h):
+                fail(f"{type_name}/{filename} is {size[0]}x{size[1]} but its "
+                     f"model declares {w}x{h} — every box on this family would "
+                     f"sample the wrong part of the sheet, with no error")
+    print(f"model sheets        : {checked} textures, all matching their model")
+
 print(f"entity types        : {len(types)}, all with model, renderer, attributes and placement")
 
 # ---------------------------------------------------------------------------

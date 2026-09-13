@@ -49,11 +49,11 @@ public class DroneModel<T extends ElysiumMob> extends EntityModel<T> {
                 CubeListBuilder.create().texOffs(32, 0)
                         .addBox(-3.0F, 0.0F, -3.0F, 6, 5, 6),
                 PartPose.offset(0.0F, 14.0F, 0.0F));
-        root.addOrReplaceChild("arm_left",
+        PartDefinition armLeft = root.addOrReplaceChild("arm_left",
                 CubeListBuilder.create().texOffs(0, 16)
                         .addBox(0.0F, -1.0F, -1.0F, 8, 2, 2),
                 PartPose.offset(3.0F, 15.0F, 0.0F));
-        root.addOrReplaceChild("arm_right",
+        PartDefinition armRight = root.addOrReplaceChild("arm_right",
                 CubeListBuilder.create().texOffs(0, 16)
                         .addBox(-8.0F, -1.0F, -1.0F, 8, 2, 2),
                 PartPose.offset(-3.0F, 15.0F, 0.0F));
@@ -76,6 +76,30 @@ public class DroneModel<T extends ElysiumMob> extends EntityModel<T> {
         body.addOrReplaceChild("fin_right",
                 CubeListBuilder.create().texOffs(0, 26)
                         .addBox(-5.0F, 0.0F, -1.0F, 3, 4, 5),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("lens",
+                CubeListBuilder.create().texOffs(8, 20)
+                        .addBox(-2.0F, -2.0F, -5.0F, 4, 4, 2),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("vane_left",
+                CubeListBuilder.create().texOffs(20, 16)
+                        .addBox(1.0F, -5.0F, -1.0F, 4, 2, 2),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("vane_right",
+                CubeListBuilder.create().texOffs(20, 16)
+                        .addBox(-5.0F, -5.0F, -1.0F, 4, 2, 2),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        body.addOrReplaceChild("thruster",
+                CubeListBuilder.create().texOffs(20, 20)
+                        .addBox(-2.0F, 4.0F, 2.0F, 4, 3, 3),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        armLeft.addOrReplaceChild("muzzle_left",
+                CubeListBuilder.create().texOffs(16, 26)
+                        .addBox(7.0F, -2.0F, -2.0F, 3, 4, 4),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        armRight.addOrReplaceChild("muzzle_right",
+                CubeListBuilder.create().texOffs(16, 26)
+                        .addBox(-10.0F, -2.0F, -2.0F, 3, 4, 4),
                 PartPose.offset(0.0F, 0.0F, 0.0F));
         return LayerDefinition.create(mesh, 64, 64);
     }

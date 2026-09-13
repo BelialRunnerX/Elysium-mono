@@ -53,7 +53,7 @@ public class AdeptModel<T extends ElysiumMob> extends EntityModel<T> {
                 CubeListBuilder.create().texOffs(40, 0)
                         .addBox(0.0F, -1.0F, -1.0F, 3, 13, 3),
                 PartPose.offset(4.0F, 7.0F, 0.0F));
-        root.addOrReplaceChild("arm_right",
+        PartDefinition armRight = root.addOrReplaceChild("arm_right",
                 CubeListBuilder.create().texOffs(40, 0)
                         .addBox(-3.0F, -1.0F, -1.0F, 3, 13, 3),
                 PartPose.offset(-4.0F, 7.0F, 0.0F));
@@ -72,6 +72,30 @@ public class AdeptModel<T extends ElysiumMob> extends EntityModel<T> {
         body.addOrReplaceChild("collar",
                 CubeListBuilder.create().texOffs(0, 51)
                         .addBox(-6.0F, 0.0F, -3.0F, 12, 3, 7),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("halo",
+                CubeListBuilder.create().texOffs(32, 38)
+                        .addBox(-6.0F, -15.0F, -1.0F, 12, 2, 2),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("cheek_left",
+                CubeListBuilder.create().texOffs(42, 19)
+                        .addBox(4.0F, -6.0F, -4.0F, 2, 5, 8),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("cheek_right",
+                CubeListBuilder.create().texOffs(42, 19)
+                        .addBox(-6.0F, -6.0F, -4.0F, 2, 5, 8),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        body.addOrReplaceChild("stole_left",
+                CubeListBuilder.create().texOffs(52, 0)
+                        .addBox(-5.0F, 3.0F, -3.0F, 2, 11, 1),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        body.addOrReplaceChild("stole_right",
+                CubeListBuilder.create().texOffs(52, 0)
+                        .addBox(3.0F, 3.0F, -3.0F, 2, 11, 1),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        armRight.addOrReplaceChild("censer",
+                CubeListBuilder.create().texOffs(38, 51)
+                        .addBox(-2.0F, 12.0F, -3.0F, 3, 4, 3),
                 PartPose.offset(0.0F, 0.0F, 0.0F));
         return LayerDefinition.create(mesh, 64, 64);
     }

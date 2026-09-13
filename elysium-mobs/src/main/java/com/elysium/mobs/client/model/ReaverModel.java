@@ -49,19 +49,19 @@ public class ReaverModel<T extends ElysiumMob> extends EntityModel<T> {
                 CubeListBuilder.create().texOffs(0, 8)
                         .addBox(-7.0F, 0.0F, -4.0F, 14, 12, 8),
                 PartPose.offset(0.0F, 6.0F, 0.0F));
-        root.addOrReplaceChild("arm_left",
+        PartDefinition armLeft = root.addOrReplaceChild("arm_left",
                 CubeListBuilder.create().texOffs(0, 28)
                         .addBox(0.0F, -2.0F, -3.0F, 6, 16, 6),
                 PartPose.offset(7.0F, 8.0F, 0.0F));
-        root.addOrReplaceChild("arm_right",
+        PartDefinition armRight = root.addOrReplaceChild("arm_right",
                 CubeListBuilder.create().texOffs(0, 28)
                         .addBox(-6.0F, -2.0F, -3.0F, 6, 16, 6),
                 PartPose.offset(-7.0F, 8.0F, 0.0F));
-        root.addOrReplaceChild("leg_left",
+        PartDefinition legLeft = root.addOrReplaceChild("leg_left",
                 CubeListBuilder.create().texOffs(24, 28)
                         .addBox(-3.0F, 0.0F, -3.0F, 6, 6, 6),
                 PartPose.offset(4.0F, 18.0F, 0.0F));
-        root.addOrReplaceChild("leg_right",
+        PartDefinition legRight = root.addOrReplaceChild("leg_right",
                 CubeListBuilder.create().texOffs(24, 28)
                         .addBox(-3.0F, 0.0F, -3.0F, 6, 6, 6),
                 PartPose.offset(-4.0F, 18.0F, 0.0F));
@@ -76,6 +76,34 @@ public class ReaverModel<T extends ElysiumMob> extends EntityModel<T> {
         body.addOrReplaceChild("spine",
                 CubeListBuilder.create().texOffs(44, 8)
                         .addBox(-2.0F, -2.0F, 3.0F, 4, 10, 3),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("jaw",
+                CubeListBuilder.create().texOffs(24, 0)
+                        .addBox(-2.0F, 3.0F, -3.0F, 4, 2, 4),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        armLeft.addOrReplaceChild("fist_left",
+                CubeListBuilder.create().texOffs(0, 50)
+                        .addBox(-1.0F, 13.0F, -4.0F, 8, 5, 8),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        armRight.addOrReplaceChild("fist_right",
+                CubeListBuilder.create().texOffs(0, 50)
+                        .addBox(-7.0F, 13.0F, -4.0F, 8, 5, 8),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        body.addOrReplaceChild("slag_left",
+                CubeListBuilder.create().texOffs(48, 28)
+                        .addBox(-4.0F, 1.0F, -5.0F, 3, 6, 3),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        body.addOrReplaceChild("slag_right",
+                CubeListBuilder.create().texOffs(48, 28)
+                        .addBox(1.0F, 1.0F, -5.0F, 3, 6, 3),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        legLeft.addOrReplaceChild("boot_left",
+                CubeListBuilder.create().texOffs(32, 50)
+                        .addBox(-4.0F, 4.0F, -4.0F, 8, 3, 8),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        legRight.addOrReplaceChild("boot_right",
+                CubeListBuilder.create().texOffs(32, 50)
+                        .addBox(-4.0F, 4.0F, -4.0F, 8, 3, 8),
                 PartPose.offset(0.0F, 0.0F, 0.0F));
         return LayerDefinition.create(mesh, 64, 64);
     }

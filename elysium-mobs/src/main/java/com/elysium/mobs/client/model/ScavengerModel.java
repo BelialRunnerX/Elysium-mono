@@ -53,15 +53,15 @@ public class ScavengerModel<T extends ElysiumMob> extends EntityModel<T> {
                 CubeListBuilder.create().texOffs(0, 12)
                         .addBox(-1.0F, -1.0F, -2.0F, 3, 10, 4),
                 PartPose.offset(5.0F, 13.0F, 0.0F));
-        root.addOrReplaceChild("arm_right",
+        PartDefinition armRight = root.addOrReplaceChild("arm_right",
                 CubeListBuilder.create().texOffs(0, 12)
                         .addBox(-2.0F, -1.0F, -2.0F, 3, 10, 4),
                 PartPose.offset(-5.0F, 13.0F, 0.0F));
-        root.addOrReplaceChild("leg_left",
+        PartDefinition legLeft = root.addOrReplaceChild("leg_left",
                 CubeListBuilder.create().texOffs(48, 0)
                         .addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4),
                 PartPose.offset(2.0F, 18.0F, 0.0F));
-        root.addOrReplaceChild("leg_right",
+        PartDefinition legRight = root.addOrReplaceChild("leg_right",
                 CubeListBuilder.create().texOffs(48, 0)
                         .addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4),
                 PartPose.offset(-2.0F, 18.0F, 0.0F));
@@ -76,6 +76,26 @@ public class ScavengerModel<T extends ElysiumMob> extends EntityModel<T> {
         body.addOrReplaceChild("satchel",
                 CubeListBuilder.create().texOffs(46, 12)
                         .addBox(-3.0F, 3.0F, 2.0F, 6, 5, 3),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("scrap_horn",
+                CubeListBuilder.create().texOffs(22, 26)
+                        .addBox(2.0F, -9.0F, -1.0F, 2, 3, 2),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        armRight.addOrReplaceChild("bracer_right",
+                CubeListBuilder.create().texOffs(0, 26)
+                        .addBox(-3.0F, 4.0F, -3.0F, 5, 3, 6),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        legLeft.addOrReplaceChild("knee_left",
+                CubeListBuilder.create().texOffs(30, 26)
+                        .addBox(-3.0F, 3.0F, -3.0F, 6, 2, 6),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        legRight.addOrReplaceChild("knee_right",
+                CubeListBuilder.create().texOffs(30, 26)
+                        .addBox(-3.0F, 3.0F, -3.0F, 6, 2, 6),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
+        body.addOrReplaceChild("belt",
+                CubeListBuilder.create().texOffs(0, 35)
+                        .addBox(-5.0F, 7.0F, -3.0F, 10, 2, 6),
                 PartPose.offset(0.0F, 0.0F, 0.0F));
         return LayerDefinition.create(mesh, 64, 64);
     }
