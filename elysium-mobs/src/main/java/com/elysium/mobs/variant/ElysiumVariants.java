@@ -43,6 +43,58 @@ public final class ElysiumVariants {
     }
 
     // ==================================================================
+    // Harrier — the Unsworn who stopped trying to out-hit anyone
+    // ==================================================================
+    //
+    // Every one of these spends the same 3.00 the other thirty do. The family
+    // is where "fast" lives; these five are still a choice about how a
+    // particular one of them goes wrong for you.
+
+    public static final MobVariant CUTTHROAT = variant("cutthroat", ElysiumFamilies.HARRIER_ID,
+            1.00F, 1.00F, 1.00F, ChatFormatting.GRAY, MobAbilities.none());
+
+    /** Even faster, and there is almost nothing left to hit. */
+    public static final MobVariant SWIFTBLADE = variant("swiftblade", ElysiumFamilies.HARRIER_ID,
+            0.65F, 0.95F, 1.40F, ChatFormatting.YELLOW, MobAbilities.none());
+
+    /** Trades what little it has for a blow that lands like a Reaver's. */
+    public static final MobVariant BLOODLETTER = variant("bloodletter", ElysiumFamilies.HARRIER_ID,
+            0.70F, 1.55F, 0.75F, ChatFormatting.RED, MobAbilities.cornered(0.75F));
+
+    /** Hard to corner, and harder once it is hurt. */
+    public static final MobVariant WINDSHEAR = variant("windshear", ElysiumFamilies.HARRIER_ID,
+            0.80F, 0.85F, 1.35F, ChatFormatting.AQUA, MobAbilities.cornered(0.85F));
+
+    /** Feeds on what it opens, and closes its own wounds doing it. */
+    public static final MobVariant FLENSER = variant("flenser", ElysiumFamilies.HARRIER_ID,
+            1.30F, 0.95F, 0.75F, ChatFormatting.DARK_PURPLE,
+            MobAbilities.knitting(0.020F));
+
+    // ==================================================================
+    // Bulwark — the Empire's doorway
+    // ==================================================================
+
+    public static final MobVariant SHIELDWALL = variant("shieldwall", ElysiumFamilies.BULWARK_ID,
+            1.00F, 1.00F, 1.00F, ChatFormatting.GRAY, MobAbilities.none());
+
+    /** Slower still, and correspondingly harder to remove. */
+    public static final MobVariant IMMOVABLE = variant("immovable", ElysiumFamilies.BULWARK_ID,
+            1.45F, 0.90F, 0.65F, ChatFormatting.BLUE, MobAbilities.none());
+
+    /** Hits like the thing it is named after. */
+    public static final MobVariant ANVIL = variant("anvil", ElysiumFamilies.BULWARK_ID,
+            0.95F, 1.45F, 0.60F, ChatFormatting.GOLD, MobAbilities.none());
+
+    /** Will not be moved off the door, and mends between swings. */
+    public static final MobVariant GATEKEEPER = variant("gatekeeper", ElysiumFamilies.BULWARK_ID,
+            1.35F, 0.85F, 0.80F, ChatFormatting.AQUA, MobAbilities.knitting(0.015F));
+
+    /** The one that is worst when it is nearly done. */
+    public static final MobVariant OBSTINATE = variant("obstinate", ElysiumFamilies.BULWARK_ID,
+            1.15F, 1.10F, 0.75F, ChatFormatting.DARK_GREEN,
+            MobAbilities.cornered(0.70F));
+
+    // ==================================================================
     // Scavenger — the Unsworn who kept moving
     // ==================================================================
 

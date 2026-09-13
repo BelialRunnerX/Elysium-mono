@@ -57,11 +57,17 @@ variants = re.findall(
 
 CONST_TO_FAMILY = {const: name for const, name in FAMILIES}
 
-if len(family_names) != 6:
-    fail(f"expected 6 families, read {len(family_names)}: {family_names}")
-if len(variants) != 30:
-    fail(f"expected 30 sub-variants, read {len(variants)} - the mod promises "
-         f"2 factions x 3 families x 5 variants")
+# Eight families, four a side, five variants each.
+#
+# The counts are asserted rather than derived because they are a promise the
+# mod makes about itself: an even split between the factions, and every family
+# offering the same number of choices. A seventh family on one side would be a
+# balance change disguised as a content addition.
+if len(family_names) != 8:
+    fail(f"expected 8 families, read {len(family_names)}: {family_names}")
+if len(variants) != 40:
+    fail(f"expected 40 sub-variants, read {len(variants)} - the mod promises "
+         f"2 factions x 4 families x 5 variants")
 
 # Five per family, no more and no fewer.
 per_family = {}
@@ -134,8 +140,8 @@ if orphans:
 # ---------------------------------------------------------------------------
 main_src = read("ElysiumMobs.java")
 types = re.findall(r'family\("(\w+)",', main_src)
-if len(types) != 8:
-    fail(f"expected 8 entity types (6 families + 2 bosses), read {len(types)}: {types}")
+if len(types) != 10:
+    fail(f"expected 10 entity types (8 families + 2 bosses), read {len(types)}: {types}")
 
 events_src = read("ElysiumMobEvents.java")
 attribute_puts = len(re.findall(r"event\.put\(", events_src))
@@ -222,6 +228,15 @@ factions = set(re.findall(r"return ElysiumFaction\.(\w+);", families_src))
 for side in ("UNSWORN", "EMPIRE"):
     if side not in factions:
         fail(f"no family is on the {side} side")
+
+# And evenly. Counting the returns rather than the classes, because that is
+# what actually decides which side a family fights for.
+per_side = {side: len(re.findall(rf"return ElysiumFaction\.{side};", families_src))
+            for side in ("UNSWORN", "EMPIRE")}
+if per_side["UNSWORN"] != per_side["EMPIRE"]:
+    fail(f"the factions are uneven: {per_side}. Both meters drive spawning, so "
+         f"one side having more families means one loop quietly produces more "
+         f"opposition than the other")
 
 boss_src = read("boss/ElysiumBosses.java")
 boss_factions = set(re.findall(r"return ElysiumFaction\.(\w+);", boss_src))
@@ -439,12 +454,6 @@ print("base sieges         : actions target the largest claim, fail when its "
       "beacon is struck")
 print()
 
-if problems:
-    print(f"{len(problems)} PROBLEM(S):")
-    for problem in problems:
-        print("  - " + problem)
-    sys.exit(1)
-
 # ---------------------------------------------------------------------------
 # Register actions (Fourth Edition 14.3)
 # ---------------------------------------------------------------------------
@@ -532,5 +541,26 @@ if missing_register:
 
 print(f"register actions   : 14.3 table matches, {len(empire_families)} Empire "
       f"families all counted, {len(register_keys)} lines translated")
+
+# ---------------------------------------------------------------------------
+# The report, and it is the LAST thing in this file on purpose
+# ---------------------------------------------------------------------------
+#
+# It used to sit in the middle. Every section appended after it — the whole of
+# the register-action block — recorded failures into a list that had already
+# been printed, and the file ended with an unconditional "all mob checks
+# passed". Those checks could not fail. They ran, they found a real problem (a
+# new Empire family missing from isEmpire), and the script exited 0 announcing
+# success.
+#
+# That is the worst failure mode a validator has: not a missing check, but a
+# check that looks present, prints a reassuring line, and is structurally
+# incapable of reporting anything. The root validator now refuses any module
+# whose file calls fail() after this block.
+if problems:
+    print(f"{len(problems)} PROBLEM(S):")
+    for problem in problems:
+        print("  - " + problem)
+    sys.exit(1)
 
 print("all mob checks passed")

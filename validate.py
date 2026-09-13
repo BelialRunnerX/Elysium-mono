@@ -56,6 +56,17 @@ def main():
         failures.append("gear")
     print()
 
+    # First, because it decides whether anything below can be believed. A
+    # module validator whose report block is not the last thing in the file
+    # runs its later checks into a list nobody prints, and then announces
+    # success. One of them was doing exactly that.
+    print("=" * 70)
+    print("validators — each one can actually report what it finds")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_validators.py"], cwd=HERE).returncode != 0:
+        failures.append("validators")
+    print()
+
     # Cross-cutting, and invisible to every per-module validator: they check
     # that a translation key exists, which is a different question from whether
     # it is given the arguments its string asks for. A mismatch renders as a

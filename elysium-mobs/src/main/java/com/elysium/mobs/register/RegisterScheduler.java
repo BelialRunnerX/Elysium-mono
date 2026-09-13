@@ -401,7 +401,8 @@ public final class RegisterScheduler {
         EntityType<?> type = entity.getType();
         return type == ElysiumMobs.DRONE.get()
                 || type == ElysiumMobs.LICTOR.get()
-                || type == ElysiumMobs.ADEPT.get();
+                || type == ElysiumMobs.ADEPT.get()
+                || type == ElysiumMobs.BULWARK.get();
     }
 
     /**

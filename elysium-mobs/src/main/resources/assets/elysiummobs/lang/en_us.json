@@ -71,5 +71,19 @@
   "item.elysiummobs.whisper_spawn_egg": "Whisper Spawn Egg",
   "itemGroup.elysiummobs": "Elysium Mobs",
   "elysiummobs.register.announced_claim": "REGISTER ACTION FILED: %s waves against your claim, arriving in %s minutes. They are coming to %s, %s, %s.",
-  "elysiummobs.register.failed": "Your beacon is gone. The action is struck from the register — the Empire has nothing left to collect."
+  "elysiummobs.register.failed": "Your beacon is gone. The action is struck from the register — the Empire has nothing left to collect.",
+  "entity.elysiummobs.harrier": "Harrier",
+  "item.elysiummobs.harrier_spawn_egg": "Harrier Spawn Egg",
+  "elysiummobs.variant.cutthroat": "Cutthroat Harrier",
+  "elysiummobs.variant.swiftblade": "Swiftblade Harrier",
+  "elysiummobs.variant.bloodletter": "Bloodletter Harrier",
+  "elysiummobs.variant.windshear": "Windshear Harrier",
+  "elysiummobs.variant.flenser": "Flenser Harrier",
+  "entity.elysiummobs.bulwark": "Bulwark",
+  "item.elysiummobs.bulwark_spawn_egg": "Bulwark Spawn Egg",
+  "elysiummobs.variant.shieldwall": "Shieldwall Bulwark",
+  "elysiummobs.variant.immovable": "Immovable Bulwark",
+  "elysiummobs.variant.anvil": "Anvil Bulwark",
+  "elysiummobs.variant.gatekeeper": "Gatekeeper Bulwark",
+  "elysiummobs.variant.obstinate": "Obstinate Bulwark"
 }

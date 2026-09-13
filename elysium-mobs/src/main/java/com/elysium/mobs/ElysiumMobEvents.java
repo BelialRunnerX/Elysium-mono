@@ -48,6 +48,10 @@ public final class ElysiumMobEvents {
                 ElysiumFamilies.Lictor.createAttributes().build());
         event.put(ElysiumMobs.ADEPT.get(),
                 ElysiumFamilies.Adept.createAttributes().build());
+        event.put(ElysiumMobs.HARRIER.get(),
+                ElysiumFamilies.Harrier.createAttributes().build());
+        event.put(ElysiumMobs.BULWARK.get(),
+                ElysiumFamilies.Bulwark.createAttributes().build());
         event.put(ElysiumMobs.CHOIR.get(),
                 ElysiumBosses.Choir.createAttributes().build());
         event.put(ElysiumMobs.PRAETOR.get(),
@@ -61,6 +65,8 @@ public final class ElysiumMobEvents {
         placement(event, ElysiumMobs.DRONE.get());
         placement(event, ElysiumMobs.LICTOR.get());
         placement(event, ElysiumMobs.ADEPT.get());
+        placement(event, ElysiumMobs.HARRIER.get());
+        placement(event, ElysiumMobs.BULWARK.get());
         placement(event, ElysiumMobs.CHOIR.get());
         placement(event, ElysiumMobs.PRAETOR.get());
     }

@@ -61,10 +61,13 @@ public final class ElysiumFamilies {
     public static final ResourceLocation DRONE_ID = id("drone");
     public static final ResourceLocation LICTOR_ID = id("lictor");
     public static final ResourceLocation ADEPT_ID = id("adept");
+    public static final ResourceLocation HARRIER_ID = id("harrier");
+    public static final ResourceLocation BULWARK_ID = id("bulwark");
 
     /** Every family id, in the order they are shown and generated. */
     public static final ResourceLocation[] ALL = {
-            SCAVENGER_ID, REAVER_ID, WHISPER_ID, DRONE_ID, LICTOR_ID, ADEPT_ID};
+            SCAVENGER_ID, REAVER_ID, WHISPER_ID, HARRIER_ID,
+            DRONE_ID, LICTOR_ID, ADEPT_ID, BULWARK_ID};
 
     // ==================================================================
     // Unsworn
@@ -314,6 +317,133 @@ public final class ElysiumFamilies {
      * this method grows a second knob it stops being shared code and becomes a
      * configuration language.
      */
+    // ==================================================================
+    // The two that fight on a different clock
+    // ==================================================================
+
+    /**
+     * Harrier — attacks fast, dies fast.
+     *
+     * The Unsworn answer to armour they cannot punch through: do not punch
+     * through it, land four hits in the time anything else lands one and be
+     * somewhere else. Eight health is the lowest in the mod — two clean hits
+     * from an iron sword — and the attack interval is eight ticks against
+     * vanilla's twenty.
+     *
+     * The point is the window it denies you. A Scavenger gives you a second
+     * after it connects; a Harrier gives you a third of one, so the fight is
+     * about not being in reach rather than about out-trading it. Stand still
+     * and the smallest thing in the mod kills you.
+     */
+    public static class Harrier extends ElysiumMob {
+
+        /** Eight ticks. Vanilla's melee interval is twenty. */
+        private static final int INTERVAL = 8;
+
+        public Harrier(EntityType<? extends Monster> type, Level level) {
+            super(type, level);
+        }
+
+        public static AttributeSupplier.Builder createAttributes() {
+            return Monster.createMonsterAttributes()
+                    .add(Attributes.MAX_HEALTH, 8.0D)
+                    // Low per hit on purpose. At this interval the damage per
+                    // second is already above a Reaver's, and giving it a
+                    // Reaver's damage as well would make it strictly better
+                    // than the family built around hitting hard.
+                    .add(Attributes.ATTACK_DAMAGE, 1.5D)
+                    .add(Attributes.MOVEMENT_SPEED, 0.40D)
+                    .add(Attributes.FOLLOW_RANGE, 28.0D)
+                    .add(Attributes.ARMOR, 0.0D);
+        }
+
+        @Override
+        protected void registerGoals() {
+            pacedGoals(this, 1.55D, INTERVAL);
+        }
+
+        @Override
+        public ElysiumFaction getFaction() {
+            return ElysiumFaction.UNSWORN;
+        }
+
+        @Override
+        public ResourceLocation getFamilyId() {
+            return HARRIER_ID;
+        }
+    }
+
+    /**
+     * Bulwark — moves slowly, hits slowly, and does not fall over.
+     *
+     * The Empire's answer to being outnumbered: one of these holds a doorway.
+     * Sixty health with real armour and full knockback resistance, at half a
+     * Lictor's speed and a forty-tick swing.
+     *
+     * It is the one family a player is meant to be able to <em>walk away
+     * from</em>, and that is deliberate rather than a weakness left in by
+     * accident. A slow enemy you cannot escape is just a fast one with extra
+     * steps; a slow enemy you can escape turns every room it is in into a
+     * question about where you want to be standing, which is the only thing
+     * "tanky" can mean in a game where the player sets the range.
+     */
+    public static class Bulwark extends ElysiumMob {
+
+        /** Forty ticks. Twice vanilla's, and five times a Harrier's. */
+        private static final int INTERVAL = 40;
+
+        public Bulwark(EntityType<? extends Monster> type, Level level) {
+            super(type, level);
+        }
+
+        public static AttributeSupplier.Builder createAttributes() {
+            return Monster.createMonsterAttributes()
+                    .add(Attributes.MAX_HEALTH, 60.0D)
+                    .add(Attributes.ATTACK_DAMAGE, 9.0D)
+                    .add(Attributes.MOVEMENT_SPEED, 0.16D)
+                    // Short, so it holds ground rather than following you
+                    // across a dungeon at walking pace — which is the version
+                    // of this that is merely annoying.
+                    .add(Attributes.FOLLOW_RANGE, 16.0D)
+                    .add(Attributes.ARMOR, 12.0D)
+                    .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
+        }
+
+        @Override
+        protected void registerGoals() {
+            pacedGoals(this, 1.0D, INTERVAL);
+        }
+
+        @Override
+        public ElysiumFaction getFaction() {
+            return ElysiumFaction.EMPIRE;
+        }
+
+        @Override
+        public ResourceLocation getFamilyId() {
+            return BULWARK_ID;
+        }
+    }
+
+    /**
+     * The standard goals, with the melee swing on a named cadence.
+     *
+     * Everything except the attack goal is identical to {@link #standardGoals},
+     * and they are kept as two methods rather than one with a parameter because
+     * the six original families are tuned against vanilla's twenty ticks and
+     * folding them into this would invite changing all six by accident.
+     */
+    private static void pacedGoals(ElysiumMob mob, double chaseSpeed, int interval) {
+        mob.goalSelector.addGoal(0, new FloatGoal(mob));
+        mob.goalSelector.addGoal(2, new PacedAttackGoal(mob, chaseSpeed, interval));
+        mob.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(mob, 0.8D));
+        mob.goalSelector.addGoal(8, new LookAtPlayerGoal(mob, Player.class, 12.0F));
+        mob.goalSelector.addGoal(8, new RandomLookAroundGoal(mob));
+
+        mob.targetSelector.addGoal(1, new HurtByTargetGoal(mob));
+        mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, Player.class, true));
+    }
+
     private static void standardGoals(ElysiumMob mob, double chaseSpeed) {
         mob.goalSelector.addGoal(0, new FloatGoal(mob));
         mob.goalSelector.addGoal(2, new MeleeAttackGoal(mob, chaseSpeed, false));

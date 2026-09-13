@@ -98,6 +98,14 @@ public class ElysiumMobs {
     public static final DeferredHolder<EntityType<?>, EntityType<ElysiumFamilies.Adept>>
             ADEPT = family("adept", ElysiumFamilies.Adept::new, 0.7F, 2.0F);
 
+    /** Fast and fragile — see {@link ElysiumFamilies.Harrier}. */
+    public static final DeferredHolder<EntityType<?>, EntityType<ElysiumFamilies.Harrier>>
+            HARRIER = family("harrier", ElysiumFamilies.Harrier::new, 0.6F, 1.4F);
+
+    /** Slow and immovable — see {@link ElysiumFamilies.Bulwark}. */
+    public static final DeferredHolder<EntityType<?>, EntityType<ElysiumFamilies.Bulwark>>
+            BULWARK = family("bulwark", ElysiumFamilies.Bulwark::new, 1.1F, 2.1F);
+
     // ==================================================================
     // The two bosses
     // ==================================================================
@@ -129,6 +137,10 @@ public class ElysiumMobs {
             egg("lictor", LICTOR, 0x181430, 0xa86ef0);
     public static final DeferredHolder<Item, Item> ADEPT_EGG =
             egg("adept", ADEPT, 0x241d38, 0x33d296);
+    public static final DeferredHolder<Item, Item> HARRIER_EGG =
+            egg("harrier", HARRIER, 0x2b2118, 0xe0c040);
+    public static final DeferredHolder<Item, Item> BULWARK_EGG =
+            egg("bulwark", BULWARK, 0x1c1f2a, 0x4060d4);
     public static final DeferredHolder<Item, Item> CHOIR_EGG =
             egg("choir", CHOIR, 0x3a1414, 0xd44a2e);
     public static final DeferredHolder<Item, Item> PRAETOR_EGG =
@@ -213,6 +225,10 @@ public class ElysiumMobs {
         bestiary("drone", ElysiumFaction.EMPIRE, ElysiumBestiary.Role.GRUNT, 4, DRONE);
         bestiary("lictor", ElysiumFaction.EMPIRE, ElysiumBestiary.Role.ELITE, 2, LICTOR);
         bestiary("adept", ElysiumFaction.EMPIRE, ElysiumBestiary.Role.GRUNT, 2, ADEPT);
+        // A Harrier is a grunt; a Bulwark is an elite, because a room that
+        // rolled three of them would be a wall rather than a fight.
+        bestiary("harrier", ElysiumFaction.UNSWORN, ElysiumBestiary.Role.GRUNT, 3, HARRIER);
+        bestiary("bulwark", ElysiumFaction.EMPIRE, ElysiumBestiary.Role.ELITE, 2, BULWARK);
 
         bossEntry("choir", ElysiumFaction.UNSWORN, CHOIR);
         bossEntry("praetor", ElysiumFaction.EMPIRE, PRAETOR);
