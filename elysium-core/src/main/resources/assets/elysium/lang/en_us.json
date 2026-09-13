@@ -395,7 +395,7 @@
   "material.elysium.aetherium": "Aetherium",
   "material.elysium.neutronium": "Neutronium",
   "block.elysium.registry_beacon": "Registry Beacon",
-  "elysium.claim.staked": "You claim this ground. The Empire opens a file: %s blocks in every direction, Suspicion held at %s.",
+  "elysium.claim.staked": "You claim this ground. The Empire opens a file: %s blocks in every direction, Suspicion held at %s. You will respawn here.",
   "elysium.claim.report": "Filed: %s structures, Suspicion floor %s, radius %s.",
   "elysium.claim.not_yours": "This ground is filed to %s.",
   "elysium.claim.struck": "Your beacon is destroyed. The claim is struck — what you built remains, and is nobody's.",

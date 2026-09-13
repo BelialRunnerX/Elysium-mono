@@ -772,7 +772,18 @@ else:
     if "state.is(newState.getBlock())" not in beacon:
         fail("RegistryBeaconBlock.onRemove does not guard on the block "
              "actually changing, so lighting up would strike its own claim")
-    print("registry beacon   : strikes on destruction by any hand, erases nothing")
+    # Claiming must not be pure cost. 14.2 levies a permanent Suspicion floor
+    # and 14.3 makes the beacon a siege target; F.1's glossary names what comes
+    # back - "ownership state with respawn/persistence/Empire consequences".
+    # Without the respawn half, no rational player plants a beacon and the whole
+    # of 14.2 and 14.3 is content nobody opts into, which is the worst way for a
+    # system to fail: it works perfectly and is never seen.
+    if "setRespawnPosition" not in beacon:
+        fail("RegistryBeaconBlock does not anchor respawn, so a claim is all "
+             "cost and no benefit - see F.1, and note that nobody would plant "
+             "one")
+    print("registry beacon   : strikes on destruction by any hand, erases "
+          "nothing, anchors respawn")
 
 print()
 

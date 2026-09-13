@@ -125,6 +125,7 @@ public class RegistryBeaconBlock extends Block {
         level.setBlock(pos, state.setValue(CLAIMED, true), Block.UPDATE_ALL);
         level.playSound(null, pos, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS,
                 1.0F, 1.0F);
+        anchorRespawn(level, pos, player);
 
         // §14.2: the floor applies from the moment the file is opened, not
         // from the next decay tick two minutes later.
@@ -138,6 +139,45 @@ public class RegistryBeaconBlock extends Block {
         player.displayClientMessage(Component.translatable(
                         "elysium.claim.staked", claim.radius(), floor)
                 .withStyle(ChatFormatting.GOLD), false);
+    }
+
+    /**
+     * A claim is where you come back to.
+     *
+     * <h3>The hole this closes</h3>
+     *
+     * Claiming, as built, was <b>pure cost</b>: a permanent Suspicion floor, a
+     * siege target, and nothing in return. A rational player would never plant
+     * one, which would have made the whole of §14.2 and §14.3 content nobody
+     * opts into — the worst way for a system to fail, because it works
+     * perfectly and is never seen.
+     *
+     * §F.1's glossary says what the other half is, and it is not a bonus
+     * invented to balance the cost: <blockquote>Claim: Registry Beacon
+     * ownership state with <b>respawn</b>/persistence/Empire
+     * consequences.</blockquote> §22 lists the same thing among what claim
+     * status changes. It was always part of what a claim is.
+     *
+     * <h3>Why this and not a bed</h3>
+     *
+     * It behaves like a respawn anchor rather than a bed: forced, so it works
+     * in any dimension and does not care about the time of day, and it does not
+     * consume anything. A base you have filed with the Empire is somewhere you
+     * are <em>registered</em>; being sent back there is the literal meaning of
+     * the word.
+     *
+     * A struck claim leaves the respawn position pointing at a block that is no
+     * longer a beacon. That is deliberately not cleaned up here: vanilla
+     * already handles a respawn position whose block has gone — the player
+     * lands at world spawn and is told their respawn point was missing or
+     * obstructed, which is exactly the right message and exactly the right
+     * moment to receive it. Clearing it eagerly would swap a clear explanation
+     * for a silent one.
+     */
+    private void anchorRespawn(ServerLevel level, BlockPos pos, Player player) {
+        if (player instanceof ServerPlayer server) {
+            server.setRespawnPosition(level.dimension(), pos, 0.0F, true, false);
+        }
     }
 
     private void report(Player player, ElysiumClaim claim) {
