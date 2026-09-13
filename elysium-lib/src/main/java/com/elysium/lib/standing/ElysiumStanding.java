@@ -301,4 +301,36 @@ public final class ElysiumStanding {
     public static boolean decays(int value) {
         return value > NOTICE;
     }
+
+    /**
+     * The Suspicion this player cannot fall below.
+     *
+     * §14.2 lists claiming as the one entry that grants no points and instead
+     * puts a permanent floor under the meter: you cannot be quietly forgotten
+     * while standing on something with your name on it. Everything else on that
+     * table decays.
+     *
+     * Returned as a number rather than folded into {@link #decays} because two
+     * callers want it for different reasons — decay stops at it, and clearing a
+     * register action returns you <em>to</em> it — and a boolean can only serve
+     * the first.
+     *
+     * Zero for a player holding no claims, which is every player until they
+     * plant a beacon and every world where no mod supplies one.
+     */
+    public static int floorFor(Player player) {
+        return com.elysium.lib.claim.ElysiumClaims.floorFor(player);
+    }
+
+    /**
+     * Whether Suspicion decays for this player at this value.
+     *
+     * The claim floor, then the notice threshold. A claim below the notice
+     * threshold — a beacon with almost nothing built around it, floor eight —
+     * changes nothing, which is right: eight points is not a file, it is a
+     * form.
+     */
+    public static boolean decays(Player player, int value) {
+        return decays(value) && value > floorFor(player);
+    }
 }

@@ -135,6 +135,16 @@ public class Elysium {
     public static final DeferredHolder<Block, Block> ASCENSION_FORGE =
             BLOCKS.register("ascension_forge", AscensionForgeBlock::new);
 
+    /**
+     * §B.2's Command machine: "Claims planet and anchors Imperial file."
+     *
+     * The one block in this mod whose whole effect is on a meter rather than on
+     * an inventory — see {@link com.elysium.core.block.RegistryBeaconBlock}.
+     */
+    public static final DeferredHolder<Block, Block> REGISTRY_BEACON =
+            BLOCKS.register("registry_beacon",
+                    com.elysium.core.block.RegistryBeaconBlock::new);
+
     // ------------------------------------------------------------------
     // Block items
     // ------------------------------------------------------------------
@@ -146,6 +156,7 @@ public class Elysium {
     public static final DeferredHolder<Item, Item> REFORGE_TABLE_ITEM = blockItem(REFORGE_TABLE);
     public static final DeferredHolder<Item, Item> RUNE_SOCKET_TABLE_ITEM = blockItem(RUNE_SOCKET_TABLE);
     public static final DeferredHolder<Item, Item> ASCENSION_FORGE_ITEM = blockItem(ASCENSION_FORGE);
+    public static final DeferredHolder<Item, Item> REGISTRY_BEACON_ITEM = blockItem(REGISTRY_BEACON);
 
     // ------------------------------------------------------------------
     // Materials
@@ -439,6 +450,7 @@ public class Elysium {
             event.accept(REFORGE_TABLE_ITEM.get());
             event.accept(RUNE_SOCKET_TABLE_ITEM.get());
             event.accept(ASCENSION_FORGE_ITEM.get());
+            event.accept(REGISTRY_BEACON_ITEM.get());
         }
         if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
             event.accept(NEUTRONIUM_INGOT.get());

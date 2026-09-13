@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "elysium:aetherium_ore",
-    "elysium:voidglass_ore"
+    "elysium:voidglass_ore",
+    "elysium:registry_beacon"
   ]
 }

@@ -2,6 +2,8 @@ package com.elysium.lib.event;
 
 import com.elysium.lib.ElysiumHooks;
 import com.elysium.lib.ElysiumLib;
+import com.elysium.lib.claim.ElysiumClaim;
+import com.elysium.lib.claim.ElysiumClaims;
 import com.elysium.lib.standing.ElysiumDispatch;
 import com.elysium.lib.character.ElysiumCharacter;
 import com.elysium.lib.entity.ElysiumFaction;
@@ -87,7 +89,10 @@ public final class ElysiumStandingHandler {
             if (ElysiumStanding.decays(ElysiumStanding.getFavor(player))) {
                 ElysiumStanding.addFavor(player, -1);
             }
-            if (ElysiumStanding.decays(ElysiumStanding.getSuspicion(player))) {
+            // Suspicion alone takes the player-aware overload: §14.2's claim
+            // floor holds it up, and nothing holds Favor up — the Unsworn have
+            // no register of who owns what.
+            if (ElysiumStanding.decays(player, ElysiumStanding.getSuspicion(player))) {
                 ElysiumStanding.addSuspicion(player, -ElysiumPassives.decayRate(player));
             }
         }
@@ -225,6 +230,57 @@ public final class ElysiumStandingHandler {
             default -> {
                 // Neutral. The Empire does not care.
             }
+        }
+    }
+
+    /**
+     * Building inside a claim grows the file.
+     *
+     * §A.2's floor is a function of {@code totalStructureVoxels}, and this is
+     * the only place that number can honestly come from: nothing in a Minecraft
+     * world remembers who placed a block, so it has to be counted as it
+     * happens. See {@link com.elysium.lib.claim.ElysiumClaim} for why only
+     * placements count and breaks never subtract.
+     *
+     * <b>Anyone's placements, not only the owner's.</b> A claim is territorial,
+     * and a wall a friend helped you build is still your wall — the Empire is
+     * filing the structure, not auditing the labour.
+     *
+     * The cost of this is one map walk per block placed, over a map that holds
+     * one entry per beacon in the dimension. That is the price of the feature
+     * and it is paid on an action that already writes a block, updates
+     * lighting, and sends a packet.
+     */
+    @SubscribeEvent
+    public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) {
+            return;
+        }
+        ElysiumClaims claims = ElysiumClaims.of(level);
+        if (claims.size() == 0) {
+            return;
+        }
+        ElysiumClaim claim = claims.at(event.getPos());
+        if (claim == null) {
+            return;
+        }
+
+        int before = claim.floor();
+        claims.grew(claim.anchor(), 1);
+        int after = ElysiumClaim.floorFor(claim.structures() + 1);
+        if (after <= before) {
+            return;
+        }
+
+        // The floor moved. Suspicion is pushed up to meet it rather than left
+        // below a floor it is supposed to be standing on — a floor that only
+        // applies on the next decay tick would let a player build a fortress
+        // and stay at zero for two minutes, which reads as the feature not
+        // working.
+        Player owner = level.getServer().getPlayerList().getPlayer(claim.owner());
+        if (owner != null && ElysiumStanding.getSuspicion(owner) < after) {
+            ElysiumStanding.addSuspicion(owner,
+                    after - ElysiumStanding.getSuspicion(owner));
         }
     }
 

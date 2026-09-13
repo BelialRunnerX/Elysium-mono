@@ -118,6 +118,11 @@ def main():
         out("block/rune_socket_table.png"))
     sprites.workstation("ascension_forge", "voidsteel", "plasma").save(
         out("block/ascension_forge.png"))
+    # Kinetic gold rather than any of the arcane glows: the Empire's colour is
+    # the one the Praetor and the court regalia already use, and a Registry
+    # Beacon is a piece of Imperial paperwork, not a piece of Elysium's magic.
+    sprites.workstation("registry_beacon", "voidsteel", "kinetic").save(
+        out("block/registry_beacon.png"))
 
     # -- armour layers -----------------------------------------------------
     layers.layer_one("voidsteel", "void").save(out("models/armor/elysium_layer_1.png"))

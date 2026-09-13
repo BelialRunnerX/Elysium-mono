@@ -735,6 +735,45 @@ for dirpath, _, filenames in os.walk(RES):
                 fail(f"invalid JSON {os.path.join(dirpath, filename)}: {exc}")
 
 print(f"json files parsed : {count}")
+
+# ---------------------------------------------------------------------------
+# The Registry Beacon answers to §14.3's failure row
+# ---------------------------------------------------------------------------
+#
+# "Failure | beacon destroyed | claim is struck; structures remain and world
+# changes persist" - and "destroyed" there means destroyed, not mined. The
+# whole point of the row is that an Empire siege can break your beacon, and
+# hooking the player-destroy path would make exactly that case the one case
+# that did nothing, while a player quietly picking up their own beacon worked
+# fine. That is an easy edit to make by accident and impossible to notice
+# without playing a siege to its end.
+beacon_path = os.path.join(
+    WORK, "src/main/java/com/elysium/core/block/RegistryBeaconBlock.java")
+if not os.path.exists(beacon_path):
+    fail("RegistryBeaconBlock.java is missing")
+else:
+    beacon = re.sub(r"//[^\n]*|/\*.*?\*/", " ",
+                    open(beacon_path, encoding="utf-8").read(), flags=re.S)
+    if "onRemove" not in beacon:
+        fail("RegistryBeaconBlock does not override onRemove, so a beacon "
+             "destroyed by anything other than a player never strikes its "
+             "claim - which is the one case §14.3's failure row is about")
+    if "playerWillDestroy" in beacon:
+        fail("RegistryBeaconBlock hooks playerWillDestroy; §14.3's failure "
+             "row does not care who broke the beacon")
+    if "strike(" not in beacon:
+        fail("RegistryBeaconBlock never strikes a claim")
+    # §E.1: "beacon destruction releases claim but does not erase constructed
+    # world". Nothing in this block may remove or replace blocks.
+    for forbidden in ("destroyBlock", "removeBlock", "setBlockAndUpdate"):
+        if forbidden in beacon:
+            fail(f"RegistryBeaconBlock calls {forbidden} - §E.1 requires that "
+                 f"striking a claim leaves the constructed world alone")
+    if "state.is(newState.getBlock())" not in beacon:
+        fail("RegistryBeaconBlock.onRemove does not guard on the block "
+             "actually changing, so lighting up would strike its own claim")
+    print("registry beacon   : strikes on destruction by any hand, erases nothing")
+
 print()
 
 if problems:

@@ -1,0 +1,187 @@
+package com.elysium.core.block;
+
+import com.elysium.lib.claim.ElysiumClaim;
+import com.elysium.lib.claim.ElysiumClaims;
+import com.elysium.lib.standing.ElysiumStanding;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.phys.BlockHitResult;
+
+/**
+ * The Registry Beacon: the block that claims ground.
+ *
+ * <h2>What the specification asks for</h2>
+ *
+ * §B.2 lists it among the Command machines — <blockquote>Registry Beacon | 3 |
+ * Command | Claims planet and anchors Imperial file.</blockquote> — and §8.3
+ * puts it at the third rung of the base ladder, at Homestead, which is the
+ * moment a camp becomes somewhere you live.
+ *
+ * §14.2 says what it costs: a permanent Suspicion floor rather than points that
+ * decay. §14.3 and §E.1 say what happens when it dies, in the same words twice
+ * — <blockquote>beacon destruction releases claim but does not erase
+ * constructed world.</blockquote>
+ *
+ * <h2>Claiming is an act, not a side effect of placing a block</h2>
+ *
+ * A beacon placed is dormant. It claims when a player uses it.
+ *
+ * The alternative — claiming on placement — is one fewer click and worse in
+ * every other way. The cost of a claim is a permanent floor under the meter
+ * that decides whether the Empire besieges you, and levying that because
+ * somebody mis-clicked while rearranging a chest room is a trap. It also gives
+ * the block nothing to do: a machine you never operate is scenery. Making the
+ * claim an act means the beacon can be crafted, carried, placed and positioned
+ * before anyone commits to anything, which is how every other consequential
+ * thing in this mod already works.
+ *
+ * <h2>The block state is cosmetic and the save data is the truth</h2>
+ *
+ * {@link #CLAIMED} exists so that a claimed beacon lights up. Nothing decides
+ * anything from it. Every question — is this claimed, by whom, how large — is
+ * put to {@link ElysiumClaims}, which is the only thing that can answer
+ * correctly when the two disagree.
+ *
+ * They can disagree: a block state lives in a chunk and a claim lives in
+ * dimension data, and a save restored from a partial backup can have one
+ * without the other. Using the block state as a cache that is only ever
+ * <em>displayed</em> means that divergence is a beacon that looks wrong for as
+ * long as nobody touches it, and is corrected the first time anybody does —
+ * rather than a beacon that <em>is</em> wrong.
+ */
+public class RegistryBeaconBlock extends Block {
+
+    /** Lit when the ground is filed. Display only — see the class note. */
+    public static final BooleanProperty CLAIMED = BooleanProperty.create("claimed");
+
+    public RegistryBeaconBlock() {
+        super(BlockBehaviour.Properties.of()
+                .mapColor(MapColor.METAL)
+                // Tough, and blast resistance well above stone: §14.3 makes
+                // this a siege target, and a siege target that an early
+                // creeper can delete would make the failure row fire by
+                // accident more often than by defeat.
+                .strength(6.0F, 1800.0F)
+                .requiresCorrectToolForDrops()
+                .lightLevel(state -> state.getValue(CLAIMED) ? 10 : 0)
+                .sound(SoundType.ANVIL));
+        registerDefaultState(stateDefinition.any().setValue(CLAIMED, false));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(CLAIMED);
+    }
+
+    // ------------------------------------------------------------------
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level,
+                                               BlockPos pos, Player player,
+                                               BlockHitResult hit) {
+        if (!(level instanceof ServerLevel server) || !(player instanceof ServerPlayer)) {
+            return InteractionResult.SUCCESS;
+        }
+
+        ElysiumClaims claims = ElysiumClaims.of(server);
+        ElysiumClaim existing = claims.anchored(pos);
+
+        if (existing == null) {
+            stake(server, claims, pos, player, state);
+            return InteractionResult.CONSUME;
+        }
+
+        // Someone else's. Reported rather than silently doing nothing, because
+        // a button that does nothing is indistinguishable from a bug.
+        if (!existing.owner().equals(player.getUUID())) {
+            player.displayClientMessage(Component.translatable(
+                            "elysium.claim.not_yours", existing.ownerName())
+                    .withStyle(ChatFormatting.RED), false);
+            return InteractionResult.CONSUME;
+        }
+
+        report(player, existing);
+        return InteractionResult.CONSUME;
+    }
+
+    private void stake(ServerLevel level, ElysiumClaims claims, BlockPos pos,
+                       Player player, BlockState state) {
+        ElysiumClaim claim = claims.stake(player, pos, ElysiumClaim.DEFAULT_RADIUS);
+        level.setBlock(pos, state.setValue(CLAIMED, true), Block.UPDATE_ALL);
+        level.playSound(null, pos, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS,
+                1.0F, 1.0F);
+
+        // §14.2: the floor applies from the moment the file is opened, not
+        // from the next decay tick two minutes later.
+        int floor = claim.floor();
+        int current = ElysiumStanding.getSuspicion(player);
+        if (current < floor) {
+            ElysiumStanding.addSuspicion(player, floor - current);
+        }
+
+        player.displayClientMessage(Component.translatable(
+                        "elysium.claim.staked", claim.radius(), floor)
+                .withStyle(ChatFormatting.GOLD), false);
+    }
+
+    private void report(Player player, ElysiumClaim claim) {
+        player.displayClientMessage(Component.translatable(
+                        "elysium.claim.report", claim.structures(), claim.floor(),
+                        claim.radius())
+                .withStyle(ChatFormatting.YELLOW), false);
+    }
+
+    // ------------------------------------------------------------------
+
+    /**
+     * The beacon is gone.
+     *
+     * On {@code onRemove} rather than on {@code playerWillDestroy}, because
+     * §14.3's failure row is "beacon destroyed" and does not care who did it. A
+     * Praetor breaching the roof, a creeper, a piston, {@code /setblock} — each
+     * is the same event, and hooking the player-destroy path would have made
+     * exactly the one case the specification is about (the Empire breaks your
+     * beacon) the one case that did nothing.
+     *
+     * The guard on the block changing is vanilla's own idiom: {@code onRemove}
+     * also fires when a block state changes in place, and striking the claim
+     * every time this beacon lights up would be a claim that could not be made.
+     *
+     * Nothing here touches a block. §E.1's invariant is the point — the walls,
+     * the floors and the machines are all still there. They are simply nobody's.
+     */
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos,
+                            BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock()) && level instanceof ServerLevel server) {
+            ElysiumClaim struck = ElysiumClaims.of(server).strike(pos);
+            if (struck != null) {
+                ServerPlayer owner = server.getServer().getPlayerList()
+                        .getPlayer(struck.owner());
+                if (owner != null) {
+                    owner.displayClientMessage(Component.translatable(
+                                    "elysium.claim.struck")
+                            .withStyle(ChatFormatting.RED), false);
+                }
+                server.playSound(null, pos, SoundEvents.BEACON_DEACTIVATE,
+                        SoundSource.BLOCKS, 1.0F, 0.6F);
+            }
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+}

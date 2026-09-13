@@ -255,7 +255,7 @@ public final class RegisterScheduler {
             }
         }
 
-        int floor = RegisterAction.floorFor(action.band());
+        int floor = RegisterAction.floorAfter(player);
         int current = ElysiumStanding.getSuspicion(player);
         if (current > floor) {
             ElysiumStanding.addSuspicion(player, floor - current);

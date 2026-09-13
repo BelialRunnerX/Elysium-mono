@@ -351,6 +351,95 @@ if None not in (GAP_BASE, GAP_SPREAD, MIN_SIZE, NEARBY_CAP, MIN_RANGE, MAX_RANGE
     print(f"roaming bands      : gaps {gaps[0]}-{gaps[3]} ticks by band, "
           f"{MIN_SIZE}-{largest} per band, cap {NEARBY_CAP}, one tag literal")
 
+# ---------------------------------------------------------------------------
+# 9. The claim floor is §A.2's formula
+# ---------------------------------------------------------------------------
+#
+#   Claim floor   min(70, 8 + 2 x sqrt(totalStructureVoxels/100))
+#
+# Transcribed from the specification, so it is worth re-deriving here rather
+# than trusting that the Java says what the javadoc quoting it says. A formula
+# that is subtly wrong in the fourth decimal place is invisible; one that is
+# wrong in the constant is a base that never becomes politically expensive.
+import math
+
+claim = COMMENT.sub(" ", read("claim/ElysiumClaim.java"))
+BASE_FLOOR = constant(claim, "BASE_FLOOR")
+MAX_FLOOR = constant(claim, "MAX_FLOOR")
+RADIUS = constant(claim, "DEFAULT_RADIUS")
+
+if None not in (BASE_FLOOR, MAX_FLOOR, RADIUS):
+    if BASE_FLOOR != 8:
+        fail(f"§A.2's claim floor starts at 8; BASE_FLOOR is {BASE_FLOOR}")
+    if MAX_FLOOR != 70:
+        fail(f"§A.2 caps the claim floor at 70; MAX_FLOOR is {MAX_FLOOR}")
+
+    # The gap that carries the design argument: building can make you Marked
+    # and must never make you Hunted, because a five-wave siege ending in a
+    # Praetor should be something you provoked, not something you constructed.
+    # 75 is the bottom of Hunted, from ElysiumStanding's own bands.
+    if MAX_FLOOR >= 75:
+        fail(f"MAX_FLOOR {MAX_FLOOR} reaches the Hunted band - building alone "
+             f"would schedule five-wave register actions")
+
+    # Tie the derivation below to the Java, or this section grades its own
+    # homework: everything after this point tests a Python transcription of
+    # §A.2, and would pass unchanged if ElysiumClaim.floorFor rounded the other
+    # way, squared instead of rooted, or divided by ten.
+    java_floor = re.search(r"int floorFor\(int structures\)\s*\{(.*?)\n    \}",
+                           claim, re.S)
+    if not java_floor:
+        fail("ElysiumClaim.floorFor is missing")
+    else:
+        body = re.sub(r"\s+", "", java_floor.group(1))
+        for fragment, why in (
+            ("2.0D*Math.sqrt(structures/100.0D)",
+             "§A.2's 2 x sqrt(structures/100)"),
+            ("BASE_FLOOR+", "§A.2's leading 8"),
+            ("Math.min(MAX_FLOOR", "§A.2's cap"),
+            ("Math.floor(", "flooring rather than rounding, which is what "
+                            "makes the table below reproducible"),
+        ):
+            if fragment.replace(" ", "") not in body:
+                fail(f"ElysiumClaim.floorFor no longer contains {why}")
+
+    def spec_floor(n):
+        if n <= 0:
+            return BASE_FLOOR
+        return int(min(MAX_FLOOR, math.floor(BASE_FLOOR + 2.0 * math.sqrt(n / 100.0))))
+
+    # The curve, at the sizes a player actually passes through.
+    for structures, expected in ((0, 8), (100, 10), (2500, 18), (10000, 28),
+                                 (96000, 69), (1000000, 70)):
+        if spec_floor(structures) != expected:
+            fail(f"claim floor at {structures} structures is "
+                 f"{spec_floor(structures)}, expected {expected}")
+
+    # Monotonic and bounded, which the square root guarantees and a typo does
+    # not.
+    previous = -1
+    for structures in range(0, 200000, 997):
+        value = spec_floor(structures)
+        if value < previous:
+            fail(f"claim floor falls at {structures} structures")
+            break
+        if value > MAX_FLOOR:
+            fail(f"claim floor exceeds its cap at {structures} structures")
+            break
+        previous = value
+
+    # A claim is a cylinder: territory is a footprint, and a sphere would put a
+    # mine directly under its own beacon outside the claim.
+    contains = re.search(r"boolean contains\([^)]*\)\s*\{(.*?)\n    \}", claim, re.S)
+    if not contains:
+        fail("ElysiumClaim.contains is missing")
+    elif "getY()" in contains.group(1):
+        fail("ElysiumClaim.contains measures vertically - a claim is a "
+             "cylinder, or a mine below its own beacon is outside it")
+
+    print(f"claims             : §A.2 floor {BASE_FLOOR}..{MAX_FLOOR} verified "
+          f"at 6 sizes, monotonic, radius {RADIUS} cylinder")
+
 print()
 
 if problems:

@@ -3,6 +3,7 @@ package com.elysium.mobs.register;
 import com.elysium.mobs.ElysiumMobs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.elysium.lib.standing.ElysiumStanding;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -27,13 +28,19 @@ import java.util.function.Supplier;
  *                                     structural floor
  * </pre>
  *
- * Four of those five rows are implemented here. The failure row is not, and the
- * reason is worth stating rather than leaving as an absence: it is written
+ * All five rows are implemented. The failure row was the last, and it is the
+ * one this class does <em>not</em> implement, which is the point: it is written
  * against a <b>claim</b> — a territorial structure with a beacon, from §14.2 —
- * and this mod has no claims. Inventing a beacon block so that a row of a table
- * could be ticked would be building the consequence before the thing it is a
- * consequence of. Failure is therefore the ordinary one: you die, or you leave,
- * and the action ends paying nothing.
+ * and it is the Registry Beacon block that strikes the claim when it is
+ * destroyed, by any hand, including a creeper from one of these waves. Nothing
+ * here needed to know about it. §E.1's invariant holds for free for the same
+ * reason: the code that strikes a claim touches no blocks, so
+ * <blockquote>beacon destruction releases claim but does not erase constructed
+ * world.</blockquote>
+ *
+ * The ordinary failure — you die, or you leave — still ends the action paying
+ * nothing, and is the only failure available to a player who never claimed
+ * anything.
  *
  * <h2>Why Suspicion only</h2>
  *
@@ -146,17 +153,29 @@ public record RegisterAction(int phase, int band, int wave, long nextTick,
      * The Suspicion a cleared action leaves you at — §14.3's "structural
      * floor".
      *
-     * Clearing an action does not wipe your record. It returns you to the
-     * bottom of the band that sent it, which is the difference between the
-     * Empire being satisfied and the Empire forgetting: you are still Marked,
-     * they just have nothing outstanding on you today.
+     * <h3>This used to be the wrong number, and the mistake is instructive</h3>
+     *
+     * The first version returned the bottom of the band that sent the action:
+     * 75 at Hunted, 50 at Marked. It read well — "the Empire is satisfied but
+     * has not forgotten" — and it was a stand-in, because §14.2's claims did
+     * not exist yet and something had to stand for "structural".
+     *
+     * It is a stand-in that inverts the reward. A Hunted player who survives
+     * five waves ending in a Praetor was returned to 75, which is still Hunted,
+     * which schedules the next five-wave action on the very next check. The
+     * largest fight in the mod paid out its loot and then immediately bought
+     * another one. Nothing in the table says that, and no player would read
+     * "large reward" and expect it.
+     *
+     * The word "structural" was always pointing at the thing it now points at:
+     * §A.2's claim floor, computed from what you have built. So a cleared
+     * action returns you to <em>your own</em> floor — high if you hold a
+     * fortress, low if you hold nothing — and never below the notice
+     * threshold, since an Empire that files you at zero for surviving a siege
+     * is not filing you at all.
      */
-    public static int floorFor(int band) {
-        return switch (band) {
-            case 3 -> 75;
-            case 2 -> 50;
-            default -> 25;
-        };
+    public static int floorAfter(Player player) {
+        return Math.max(ElysiumStanding.NOTICE, ElysiumStanding.floorFor(player));
     }
 
     public boolean isIdle() {

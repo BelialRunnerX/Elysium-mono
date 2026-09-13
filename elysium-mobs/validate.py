@@ -338,17 +338,33 @@ elif warning.group(1) != "10":
     fail(f"14.3 announces an action ~10 minutes early; WARNING_TICKS is "
          f"{warning.group(1)} minutes")
 
-# 14.3: clearing returns Suspicion "toward structural floor" - the bottom of
-# the band that sent the action, not zero. The band thresholds live in the
-# library; these must agree with them or clearing an action would drop a player
-# out of the band that sent it.
-floors = dict(re.findall(r"case (\d+) -> (\d+);", action_src.split("floorFor")[1]
-                         .split("}")[0] + "}"))
-for band, expected in (("3", "75"), ("2", "50")):
-    if floors.get(band) != expected:
-        fail(f"clearing a band-{band} action should floor Suspicion at "
-             f"{expected} (the bottom of that band); floorFor says "
-             f"{floors.get(band, 'nothing')}")
+# 14.3: clearing returns Suspicion "toward structural floor". "Structural" is
+# 14.2's claim floor - what you have built - and NOT the bottom of the band that
+# sent the action, which is what this used to check.
+#
+# The old check enforced a real bug, which is the argument for checking the
+# property rather than the constant. Flooring a cleared Hunted action at 75
+# leaves the player Hunted, so the next check schedules another five-wave
+# action: the biggest fight in the mod paid its reward and immediately bought a
+# rematch. So what is checked now is the property that made it wrong - clearing
+# an action must be able to lower the band.
+if "floorFor(int band)" in action_src:
+    fail("RegisterAction still floors a cleared action by band. 14.3's "
+         "'structural floor' is 14.2's claim floor; a band floor leaves a "
+         "cleared Hunted action still Hunted and schedules the next one "
+         "immediately")
+elif "floorAfter" not in action_src:
+    fail("RegisterAction has no floorAfter - nothing implements 14.3's "
+         "'Suspicion returns toward structural floor'")
+else:
+    body = action_src.split("floorAfter")[1].split("}")[0]
+    if "ElysiumStanding.floorFor" not in body:
+        fail("floorAfter does not read the claim floor, so 14.2's permanent "
+             "floor has no effect on clearing an action")
+    if "NOTICE" not in body:
+        fail("floorAfter has no lower bound - a player with no claim who "
+             "clears a siege would be filed at zero, which switches off both "
+             "standing loops")
 
 # The promise made in RegisterScheduler.isEmpire's own comment: every Empire
 # family is listed there. A family added later and forgotten would simply never

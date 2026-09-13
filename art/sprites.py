@@ -398,6 +398,26 @@ WORKSTATION_INLAY = {
                          (7, 6), (8, 6), (6, 7), (9, 7), (5, 8), (10, 8),
                          (7, 10), (8, 10), (6, 11), (9, 11), (5, 12), (10, 12)],
                         [(7, 2), (8, 2)]),
+
+    # Registry Beacon — a survey marker: a sealed ring with four bearings
+    # running out to the block edge.
+    #
+    # Deliberately not an eye, an antenna or a flag, all of which were tried at
+    # this size. An eye reads as surveillance, which is the *inspection*
+    # beacon's job in §14.5 and would make the two indistinguishable the day
+    # both exist. An antenna reads as a radio. A flag reads as ownership and
+    # stops there. What this block does is file a piece of ground, so it is a
+    # surveyor's mark — and the four bearings running off the tile are what
+    # make a row of them read as a boundary rather than as four machines.
+    "registry_beacon": ([(5, 4), (6, 4), (7, 4), (8, 4), (9, 4), (10, 4),
+                         (5, 11), (6, 11), (7, 11), (8, 11), (9, 11), (10, 11),
+                         (4, 5), (4, 6), (4, 7), (4, 8), (4, 9), (4, 10),
+                         (11, 5), (11, 6), (11, 7), (11, 8), (11, 9), (11, 10),
+                         (7, 1), (8, 1), (7, 2), (8, 2),
+                         (7, 13), (8, 13), (7, 14), (8, 14),
+                         (1, 7), (1, 8), (2, 7), (2, 8),
+                         (13, 7), (13, 8), (14, 7), (14, 8)],
+                        [(7, 7), (8, 7), (7, 8), (8, 8)]),
 }
 
 

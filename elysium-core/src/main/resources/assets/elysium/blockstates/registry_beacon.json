@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "claimed=false": {
+      "model": "elysium:block/registry_beacon"
+    },
+    "claimed=true": {
+      "model": "elysium:block/registry_beacon"
+    }
+  }
+}
