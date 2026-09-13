@@ -72,8 +72,22 @@ chmod +x ./gradlew
 ./gradlew checkAll
 ```
 
-`checkAll` is what CI does: validate, build, collect. The jars end up in
-`dist/`, and those six files are exactly what goes in a `mods` folder.
+`checkAll` is what CI does: validate, build, collect, merge, check the merge.
+`dist/` ends up with the six mod jars and `elysium-all-<version>.jar`, which is
+all six in one file. Install either the one or the six, never both — the same
+mod id twice is a duplicate-mod error on startup.
+
+### Without Gradle
+
+Gradle needs to reach the NeoForge repositories, and not every environment can.
+`./compile.sh --jars` type-checks all six modules against a real NeoForge
+classpath and produces the same seven jars in `dist/`, given a directory holding
+the Minecraft and NeoForge jars plus a `cp.txt` naming them (`ELYSIUM_MC_LIBS`,
+default `/tmp/mc`).
+
+It is not a substitute for the Gradle build — no reobfuscation, no dependency
+resolution, no data generation — and it says so. It packages what is already
+there, which is everything the merged jar needs.
 
 The first run downloads NeoForge and decompiles Minecraft — ten to twenty
 minutes, and a few GB in `~/.gradle`. After that it is fast. If it runs out of

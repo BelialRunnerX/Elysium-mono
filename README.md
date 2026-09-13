@@ -30,8 +30,24 @@ somebody's load time.
 ./gradlew checkAll
 ```
 
-That runs all six validators, builds all six mods, and gathers the jars into
-`dist/`. The six files there are exactly what goes in a `mods` folder.
+That runs all six validators, builds all six mods, gathers the jars into
+`dist/`, and merges them into one.
+
+`dist/` ends up with seven files:
+
+```
+dist/
+  elysium-all-1.0.0.jar     <- everything, one file
+  elysiumlib-1.0.0.jar      <- or install these six individually
+  elysium-1.0.0.jar
+  elysiumdungeons-1.0.0.jar
+  elysiummobs-1.0.0.jar
+  elysiumnpcs-1.0.0.jar
+  elysiumtrinkets-1.0.0.jar
+```
+
+**Install either the one or the six, never both** — the same mod id twice is a
+duplicate-mod error on startup.
 
 Other entry points:
 
@@ -39,9 +55,37 @@ Other entry points:
 |---|---|
 | `./gradlew validateAll` | Every mod's `validate.py`. Seconds, and it fails on things Gradle never looks at. Run it first. |
 | `./gradlew buildAll` | Builds all six. Jars land in each mod's `build/libs`. |
-| `./gradlew collectJars` | `buildAll`, then copies the jars into `dist/`. Fails if it does not end up with six. |
+| `./gradlew collectJars` | `buildAll`, then copies the six jars into `dist/`. |
+| `./gradlew mergeJar` | `collectJars`, then merges the six into `dist/elysium-all-<version>.jar`. |
+| `./gradlew checkMergedJar` | `mergeJar`, then proves the merged jar declares and contains all six mods. |
 | `./gradlew publishAll` | Publishes all six to `~/.m2`, for consumers outside this repo. |
 | `./gradlew cleanAll` | Cleans all six. |
+
+## The merged jar
+
+NeoForge reads every `[[mods]]` block in `META-INF/neoforge.mods.toml` and finds
+each mod's `@Mod` class by scanning the jar, so one file can carry all six.
+
+**The mod ids do not change.** `elysiumlib`, `elysium`, `elysiumdungeons`,
+`elysiummobs`, `elysiumnpcs` and `elysiumtrinkets` are all still there, still
+separate, still loaded in dependency order. Merging changes how Elysium is
+*installed* and nothing about what it registers, so existing worlds carry over
+untouched — which would not be true of renaming the ids, since that renames
+every registry entry, attachment, lang key, texture path, recipe and loot table
+with them.
+
+Merging is not concatenation, and the reason is worth knowing before anyone adds
+a file. Six jars are six resource packs and the game merges data packs across
+them; one jar is one pack, and a path holds one file. Today exactly one path is
+written by two modules — `data/minecraft/tags/block/mineable/pickaxe.json`, from
+core and dungeons — and `tools/mergejar.py` unions it, which is what the game
+would have computed. Any other collision is a hard failure rather than a last
+writer winning, because the symptom otherwise is not a crash: it is nine Elysium
+blocks quietly no longer dropping anything when mined.
+
+`python3 check_merge.py` asks the same question at source level in under a
+second, and runs as part of `validate.py`, so a colliding file is caught by
+whoever adds it.
 
 The first build downloads NeoForge and decompiles Minecraft. Expect ten to
 twenty minutes and a few GB in `~/.gradle`. Everything after that is fast.

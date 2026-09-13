@@ -97,8 +97,12 @@ tasks.register('collectJars', Copy) {
     into distDir
 
     doLast {
+        // The merged jar also lives in dist/ and is not one of the six this
+        // task produces, so it is excluded from the count. Without this the
+        // second run of collectJars after a mergeJar finds seven jars and
+        // fails with a message about a mod that did not build.
         def jars = (distDir.listFiles() ?: new File[0])
-                .findAll { it.name.endsWith('.jar') }
+                .findAll { it.name.endsWith('.jar') && !it.name.startsWith('elysium-all') }
                 .sort { it.name }
         logger.lifecycle("\ncollected ${jars.size()} jar(s) into dist/:")
         jars.each { logger.lifecycle("  ${it.name}") }
@@ -108,6 +112,86 @@ tasks.register('collectJars', Copy) {
                     "one of the mods did not produce one")
         }
     }
+}
+
+/**
+ * Every mod in one installable jar.
+ *
+ * NeoForge reads every `[[mods]]` block in META-INF/neoforge.mods.toml and
+ * finds each mod's @Mod class by scanning the jar, so one file can carry all
+ * six. The mod ids are deliberately unchanged: renaming them would rename every
+ * registry entry, attachment, lang key, texture path, recipe and loot table
+ * with them, and every existing world would lose its Elysium items, blocks,
+ * standing and claims. A jar is what a player installs; a mod id is not.
+ *
+ * This takes the six real jars from dist/ as input rather than reaching into
+ * each module's build directory, so what is merged is exactly what would have
+ * shipped.
+ *
+ * The merge is not concatenation. Six jars are six resource packs and the game
+ * merges data packs across them; one jar is one pack, and a path holds one
+ * file. tools/mergejar.py unions additive tag files — today
+ * data/minecraft/tags/block/mineable/pickaxe.json, written by both core and
+ * dungeons — and fails on any other collision rather than letting a last writer
+ * win. The failure being avoided is not a crash: it is nine Elysium blocks
+ * quietly no longer dropping anything when mined.
+ */
+def libProperties = new Properties()
+file('elysium-lib/gradle.properties').withInputStream { libProperties.load(it) }
+def mergedJar = layout.projectDirectory
+        .file("dist/elysium-all-${libProperties.getProperty('mod_version')}.jar").asFile
+def mergeTool = layout.projectDirectory.file('tools/mergejar.py').asFile
+def checkTool = layout.projectDirectory.file('tools/checkjar.py').asFile
+
+tasks.register('mergeJar', Exec) {
+    group = 'elysium'
+    description = 'Merges the six mod jars in dist/ into one installable jar.'
+    dependsOn 'collectJars'
+
+    // Captured as plain values at configuration time. A closure that reaches
+    // back for `layout` or `file` when it runs holds a reference to the build
+    // script, which the configuration cache refuses — the same trap
+    // collectJars documents above.
+    def dist = distDir
+    def output = mergedJar
+    def tool = mergeTool
+
+    workingDir projectDir
+    commandLine 'sh', '-c',
+            "python3 '${tool}' '${output}' " +
+            "\$(ls '${dist}'/*.jar | grep -v elysium-all)"
+
+    doLast {
+        if (!output.exists()) {
+            throw new GradleException("mergeJar produced no ${output.name}")
+        }
+        logger.lifecycle("\nmerged jar: dist/${output.name} " +
+                "(${(output.length() / 1024) as int} KiB)")
+    }
+}
+
+/**
+ * Proof that the merged jar is installable rather than merely present.
+ *
+ * Everything it checks is something that produces a jar which builds fine and
+ * then misbehaves in game: a `[[mods]]` block whose @Mod class is not in the
+ * archive, a namespace that lost its assets, a tag that lost half its entries.
+ * None of those fails a build, which is exactly why they need a check of their
+ * own.
+ */
+tasks.register('checkMergedJar', Exec) {
+    group = 'elysium'
+    description = 'Verifies the merged jar declares and contains all six mods.'
+    dependsOn 'mergeJar'
+
+    def dist = distDir
+    def output = mergedJar
+    def tool = checkTool
+
+    workingDir projectDir
+    commandLine 'sh', '-c',
+            "python3 '${tool}' '${output}' " +
+            "\$(ls '${dist}'/*.jar | grep -v elysium-all)"
 }
 
 /**
@@ -127,8 +211,8 @@ tasks.register('validateAll', Exec) {
 
 tasks.register('checkAll') {
     group = 'elysium'
-    description = 'validateAll, then buildAll, then collectJars — what CI does.'
-    dependsOn 'validateAll', 'collectJars'
+    description = 'validateAll, buildAll, collectJars, mergeJar, checkMergedJar — what CI does.'
+    dependsOn 'validateAll', 'checkMergedJar'
 }
 
 // Ordering, so a validator failure is what you read rather than the last of a

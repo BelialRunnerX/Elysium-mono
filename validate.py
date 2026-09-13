@@ -56,6 +56,18 @@ def main():
         failures.append("gear")
     print()
 
+    # Also cross-cutting: the six mods ship as six jars and also as one, and a
+    # resource path two of them both write is a file the merged jar can quietly
+    # lose. tools/mergejar.py refuses at packaging time; this asks the same
+    # question at source level, before the build, where the answer is useful to
+    # whoever added the file.
+    print("=" * 70)
+    print("packaging — the six modules can still be merged into one jar")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_merge.py"], cwd=HERE).returncode != 0:
+        failures.append("packaging")
+    print()
+
     for name, blurb in MODS:
         directory = HERE / name
         script = directory / "validate.py"

@@ -18,15 +18,26 @@
 # set Gradle would assemble.
 #
 #   ./compile.sh            type-check everything, in dependency order
+#   ./compile.sh --jars      also package each module, then merge them into one
 #
-# Exits non-zero on the first module that fails. Output classes are throwaway;
-# this proves the source compiles, it does not build a mod.
+# Exits non-zero if any module fails. With --jars the six module jars and the
+# merged jar land in dist/, which is the same directory the Gradle build uses —
+# so `./compile.sh --jars` here and `./gradlew checkAll` on a machine that can
+# reach the NeoForge repositories produce the same set of files.
+#
+# The packaging is not a substitute for the Gradle build: there is no
+# reobfuscation, no dependency resolution and no data generation. It packages
+# what is already there, which is all the merged jar needs.
 
 set -u
 
 MC="${ELYSIUM_MC_LIBS:-/tmp/mc}"
 ANNOTATIONS="${ELYSIUM_ANNOTATIONS:-/opt/gradle-8.14.3/lib/annotations-24.0.1.jar}"
 OUT="${ELYSIUM_OUT:-/tmp/elysium-classes}"
+DIST="${ELYSIUM_DIST:-dist}"
+
+JARS=0
+[ "${1:-}" = "--jars" ] && JARS=1
 
 if [ ! -f "$MC/cp.txt" ]; then
     echo "no Minecraft classpath at $MC/cp.txt — set ELYSIUM_MC_LIBS to a"
@@ -75,3 +86,27 @@ if [ "$failed" -ne 0 ]; then
     exit 1
 fi
 echo "all modules compile against NeoForge"
+
+[ "$JARS" -eq 0 ] && exit 0
+
+# --- packaging ------------------------------------------------------------
+#
+# The library is packaged and listed first, and the merge preserves that order.
+# NeoForge does not need it — load order comes from the dependency stanzas in
+# the merged toml, not from position in the file — but a reader opening the jar
+# should meet the engine before the five things built on it.
+echo
+echo "packaging:"
+mkdir -p "$DIST"
+MERGE_INPUTS=""
+for module in $MODULES; do
+    id=$(grep '^mod_id=' "$module/gradle.properties" | cut -d= -f2)
+    version=$(grep '^mod_version=' "$module/gradle.properties" | cut -d= -f2)
+    jar="$DIST/$id-$version.jar"
+    python3 tools/packjar.py "$module" "$OUT/$module" "$jar" || exit 1
+    MERGE_INPUTS="$MERGE_INPUTS $jar"
+done
+
+echo
+python3 tools/mergejar.py "$DIST/elysium-all-$(grep '^mod_version=' \
+    elysium-lib/gradle.properties | cut -d= -f2).jar" $MERGE_INPUTS || exit 1
