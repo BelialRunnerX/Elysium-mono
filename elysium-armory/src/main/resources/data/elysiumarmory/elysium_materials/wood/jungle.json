@@ -1,0 +1,10 @@
+{
+  "type": "simple",
+  "parent": "elysiumarmory:wood",
+  "crafting": {
+    "ingredient": "minecraft:jungle_planks"
+  },
+  "display": {
+    "name": "Jungle Wood"
+  }
+}

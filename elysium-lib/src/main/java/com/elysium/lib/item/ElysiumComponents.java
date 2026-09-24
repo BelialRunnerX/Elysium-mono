@@ -17,6 +17,43 @@ public final class ElysiumComponents {
     public static final DeferredRegister.DataComponents COMPONENTS =
             DeferredRegister.createDataComponents(ElysiumLib.MODID);
 
+    /**
+     * Which office a scanner reports its finds to.
+     *
+     * An integer rather than an enum codec, and deliberately tolerant: a stack
+     * that has never been set, or one written by an older version, reads as
+     * zero and therefore as the first filing option. The setting is a
+     * preference, not a possession — losing it should cost a click, not throw.
+     */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>>
+            FILING = COMPONENTS.registerComponentType("filing", builder -> builder
+                    .persistent(com.mojang.serialization.Codec.INT)
+                    .networkSynchronized(
+                            net.minecraft.network.codec.ByteBufCodecs.VAR_INT));
+
+    /**
+     * A rune item's tier. Absent on every rune ever dropped before tiers, which
+     * reads as tier 1 — see {@link ElysiumRuneStacks#tierOf}. Part of the stack's
+     * identity, so a tier-1 and a tier-2 rune never stack together.
+     */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>>
+            RUNE_TIER = COMPONENTS.registerComponentType("rune_tier", builder -> builder
+                    .persistent(com.mojang.serialization.Codec.INT)
+                    .networkSynchronized(
+                            net.minecraft.network.codec.ByteBufCodecs.VAR_INT));
+
+    /**
+     * The affixes rolled onto an item, and at what level.
+     *
+     * Part of the stack's identity: two swords that rolled differently are not
+     * the same sword and must not stack together.
+     */
+    public static final DeferredHolder<DataComponentType<?>,
+            DataComponentType<com.elysium.lib.affix.ElysiumItemAffixes>> AFFIXES =
+            COMPONENTS.registerComponentType("affixes", builder -> builder
+                    .persistent(com.elysium.lib.affix.ElysiumItemAffixes.CODEC)
+                    .networkSynchronized(com.elysium.lib.affix.ElysiumItemAffixes.STREAM_CODEC));
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ElysiumGearData>> GEAR_DATA =
             COMPONENTS.registerComponentType("gear_data", builder -> builder
                     .persistent(ElysiumGearData.CODEC)

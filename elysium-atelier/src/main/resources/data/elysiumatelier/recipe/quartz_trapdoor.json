@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:quartz_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:quartz_trapdoor",
+    "count": 2
+  }
+}

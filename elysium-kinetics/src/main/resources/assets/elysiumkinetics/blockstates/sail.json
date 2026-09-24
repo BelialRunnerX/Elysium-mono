@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "elysiumkinetics:block/sail"
+    },
+    "axis=y": {
+      "model": "elysiumkinetics:block/sail"
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/sail"
+    }
+  }
+}

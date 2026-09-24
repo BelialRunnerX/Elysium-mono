@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "elysiumsolarpunk:verdigris_copper"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:verdigris_copper_slab",
+    "count": 6
+  }
+}

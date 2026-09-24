@@ -1,0 +1,117 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:gems/emerald",
+    "categories": [
+      "gem",
+      "advanced"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/emerald"
+    }
+  },
+  "display": {
+    "name": "Emerald"
+  },
+  "properties": {
+    "main": {
+      "durability": 1080.0,
+      "armor_durability": 24.0,
+      "harvest_tier": "emerald",
+      "harvest_speed": 10.0,
+      "attack_damage": 2.0,
+      "attack_speed": 0.0,
+      "magic_damage": 2.0,
+      "ranged_damage": 1.0,
+      "draw_speed": -0.1,
+      "projectile_speed": 1.1,
+      "projectile_accuracy": 0.9,
+      "armor": 16.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 6.0,
+      "armor/leggings": 4.0,
+      "armor/boots": 3.0,
+      "armor_toughness": 4.0,
+      "magic_armor": 6.0,
+      "enchantment_value": 16.0,
+      "charging_value": 1.0,
+      "rarity": 40.0,
+      "repair_value": 0.25,
+      "attack_speed/hoe": 1.0,
+      "traits": [
+        {
+          "trait": "brittle",
+          "level": 1
+        },
+        {
+          "trait": "synergistic",
+          "level": 2
+        }
+      ]
+    },
+    "rod": {
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.3
+      },
+      "traits": [
+        {
+          "trait": "brittle",
+          "level": 4,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    },
+    "setting": {
+      "traits": [
+        {
+          "trait": "reach",
+          "level": 2
+        }
+      ]
+    },
+    "tip": {
+      "armor_durability": {
+        "op": "add",
+        "value": 12.0
+      },
+      "attack_damage": {
+        "op": "add",
+        "value": 1.0
+      },
+      "durability": {
+        "op": "add",
+        "value": 512.0
+      },
+      "harvest_speed": {
+        "op": "add",
+        "value": 2.0
+      },
+      "harvest_tier": "emerald",
+      "magic_damage": {
+        "op": "add",
+        "value": 2.0
+      },
+      "ranged_damage": {
+        "op": "add",
+        "value": 1.0
+      },
+      "rarity": {
+        "op": "add",
+        "value": 20.0
+      },
+      "traits": [
+        {
+          "trait": "brittle",
+          "level": 1
+        },
+        {
+          "trait": "synergistic",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

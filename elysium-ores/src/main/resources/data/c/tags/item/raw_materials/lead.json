@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:raw_lead",
+      "required": false
+    },
+    {
+      "id": "mekanism:raw_lead",
+      "required": false
+    },
+    {
+      "id": "tfmg:raw_lead",
+      "required": false
+    }
+  ]
+}

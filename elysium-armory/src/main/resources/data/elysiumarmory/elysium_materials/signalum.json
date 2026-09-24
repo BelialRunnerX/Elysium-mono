@@ -1,0 +1,71 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/signalum",
+    "categories": [
+      "metal",
+      "endgame"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/signalum"
+    }
+  },
+  "display": {
+    "name": "Signalum"
+  },
+  "properties": {
+    "main": {
+      "durability": 800.0,
+      "armor_durability": 25.0,
+      "harvest_tier": "diamond",
+      "harvest_speed": 13.0,
+      "attack_damage": 3.0,
+      "attack_speed": 0.0,
+      "magic_damage": 4.0,
+      "ranged_damage": 2.0,
+      "draw_speed": 0.2,
+      "armor": 16.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 7.0,
+      "armor/leggings": 5.0,
+      "armor/boots": 2.0,
+      "armor_toughness": 2.0,
+      "magic_armor": 4.0,
+      "enchantment_value": 16.0,
+      "charging_value": 1.2,
+      "rarity": 50.0,
+      "repair_value": 0.15,
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 2
+        },
+        {
+          "trait": "lustrous",
+          "level": 4
+        }
+      ]
+    },
+    "rod": {
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.3
+      },
+      "rarity": 50.0,
+      "repair_efficiency": {
+        "op": "multiply_total",
+        "value": -0.1
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 4
+        },
+        {
+          "trait": "lustrous",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

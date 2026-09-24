@@ -1,0 +1,35 @@
+{
+  "display": {
+    "icon": {
+      "id": "elysiumspawners:spawner",
+      "count": 1
+    },
+    "title": {
+      "translate": "advancements.elysiumspawners.carried.title"
+    },
+    "description": {
+      "translate": "advancements.elysiumspawners.carried.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "spawner": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "elysiumspawners:spawner"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "spawner"
+    ]
+  ],
+  "parent": "elysiumspawners:root"
+}

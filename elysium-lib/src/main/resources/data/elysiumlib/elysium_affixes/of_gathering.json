@@ -1,0 +1,16 @@
+{
+  "type": "suffix",
+  "on": [
+    "harvest_tool"
+  ],
+  "min_tier": 0,
+  "weight": 9,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "item_magnet",
+      "range": 3.0,
+      "pull": 0.06
+    }
+  ]
+}

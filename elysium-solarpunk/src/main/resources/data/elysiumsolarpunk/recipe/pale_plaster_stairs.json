@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "b  ",
+    "bb ",
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "elysiumsolarpunk:pale_plaster"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:pale_plaster_stairs",
+    "count": 4
+  }
+}

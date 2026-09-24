@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:spruce_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:spruce_stool",
+    "count": 4
+  }
+}

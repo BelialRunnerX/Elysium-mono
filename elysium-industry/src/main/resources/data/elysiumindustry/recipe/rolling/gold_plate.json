@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "item": "minecraft:gold_ingot"
+  },
+  "result": {
+    "id": "elysiumindustry:gold_plate",
+    "count": 1
+  },
+  "ticks": 100
+}

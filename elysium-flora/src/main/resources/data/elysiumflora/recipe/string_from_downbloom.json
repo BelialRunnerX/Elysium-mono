@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "elysiumflora:downbloom_tuft"
+    },
+    {
+      "item": "elysiumflora:downbloom_tuft"
+    },
+    {
+      "item": "elysiumflora:downbloom_tuft"
+    },
+    {
+      "item": "elysiumflora:downbloom_tuft"
+    }
+  ],
+  "result": {
+    "id": "minecraft:string",
+    "count": 1
+  }
+}

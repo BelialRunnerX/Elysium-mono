@@ -1,0 +1,38 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": [
+    "elysiumspace:pale_moon_caves",
+    "elysiumspace:pale_moon_desert"
+  ],
+  "features": [
+    "elysiumores:pale_aluminum_ore",
+    "elysiumores:pale_azure_silver_ore",
+    "elysiumores:pale_bort_ore",
+    "elysiumores:pale_certus_quartz_ore",
+    "elysiumores:pale_cindrium_ore",
+    "elysiumores:pale_coal_ore",
+    "elysiumores:pale_copper_ore",
+    "elysiumores:pale_crimson_iron_ore",
+    "elysiumores:pale_cryonite_ore",
+    "elysiumores:pale_diamond_ore",
+    "elysiumores:pale_emerald_ore",
+    "elysiumores:pale_fluorite_ore",
+    "elysiumores:pale_frostite_ore",
+    "elysiumores:pale_gold_ore",
+    "elysiumores:pale_lapis_ore",
+    "elysiumores:pale_lead_ore",
+    "elysiumores:pale_lithium_ore",
+    "elysiumores:pale_lunite_ore",
+    "elysiumores:pale_nickel_ore",
+    "elysiumores:pale_osmium_ore",
+    "elysiumores:pale_platinum_ore",
+    "elysiumores:pale_quartz_ore",
+    "elysiumores:pale_redstone_ore",
+    "elysiumores:pale_silver_ore",
+    "elysiumores:pale_tin_ore",
+    "elysiumores:pale_uraninite_ore",
+    "elysiumores:pale_uranium_ore",
+    "elysiumores:pale_zinc_ore"
+  ],
+  "step": "underground_ores"
+}

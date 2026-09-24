@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "item": "elysiumfoundry:hardened_bronze_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:hardened_bronze_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

@@ -1,0 +1,38 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": [
+    "elysiumspace:cinderveil_desert",
+    "elysiumspace:cinderveil_infernal_barrens"
+  ],
+  "features": [
+    "elysiumores:cinder_aluminum_ore",
+    "elysiumores:cinder_azure_silver_ore",
+    "elysiumores:cinder_bort_ore",
+    "elysiumores:cinder_certus_quartz_ore",
+    "elysiumores:cinder_cindrium_ore",
+    "elysiumores:cinder_copper_ore",
+    "elysiumores:cinder_crimson_iron_ore",
+    "elysiumores:cinder_cryonite_ore",
+    "elysiumores:cinder_emerald_ore",
+    "elysiumores:cinder_fluorite_ore",
+    "elysiumores:cinder_frostite_ore",
+    "elysiumores:cinder_iron_ore",
+    "elysiumores:cinder_lapis_ore",
+    "elysiumores:cinder_lead_ore",
+    "elysiumores:cinder_lithium_ore",
+    "elysiumores:cinder_lunite_ore",
+    "elysiumores:cinder_nickel_ore",
+    "elysiumores:cinder_osmium_ore",
+    "elysiumores:cinder_platinum_ore",
+    "elysiumores:cinder_quartz_ore",
+    "elysiumores:cinder_redstone_ore",
+    "elysiumores:cinder_rime_shard_ore",
+    "elysiumores:cinder_silver_ore",
+    "elysiumores:cinder_steel_ore",
+    "elysiumores:cinder_tin_ore",
+    "elysiumores:cinder_uraninite_ore",
+    "elysiumores:cinder_uranium_ore",
+    "elysiumores:cinder_zinc_ore"
+  ],
+  "step": "underground_ores"
+}

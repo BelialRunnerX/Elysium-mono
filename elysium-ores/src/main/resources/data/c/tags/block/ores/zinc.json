@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "create:deepslate_zinc_ore",
+      "required": false
+    },
+    {
+      "id": "create:zinc_ore",
+      "required": false
+    },
+    "elysiumores:cinder_zinc_ore",
+    "elysiumores:end_stone_zinc_ore",
+    "elysiumores:frost_zinc_ore",
+    "elysiumores:netherrack_zinc_ore",
+    "elysiumores:pale_zinc_ore"
+  ]
+}

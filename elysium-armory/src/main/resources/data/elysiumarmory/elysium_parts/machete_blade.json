@@ -1,0 +1,23 @@
+{
+  "type": "core",
+  "gear_type": "machete",
+  "part_type": "main",
+  "crafting": {
+    "materials": 3
+  },
+  "properties": {
+    "attack_damage": {
+      "op": "add",
+      "value": 2.0
+    },
+    "attack_speed": {
+      "op": "add",
+      "value": 1.8
+    },
+    "harvest_speed": {
+      "op": "multiply_base",
+      "value": 0.4
+    },
+    "repair_efficiency": 1.0
+  }
+}

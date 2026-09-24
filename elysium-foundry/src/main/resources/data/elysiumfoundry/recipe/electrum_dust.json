@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:electrum_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:electrum_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

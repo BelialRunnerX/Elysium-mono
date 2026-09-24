@@ -1,0 +1,13 @@
+{
+  "name": "Magmatic",
+  "max_level": 1,
+  "description": "Auto-smelting",
+  "conditions": [
+    "on:harvest_tool"
+  ],
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "Snow Walker",
+  "max_level": 1,
+  "description": "Walk on powder snow without sinking",
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

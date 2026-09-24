@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createaddition:diamond_grit",
+      "required": false
+    },
+    {
+      "id": "mekanism:dust_diamond",
+      "required": false
+    }
+  ]
+}

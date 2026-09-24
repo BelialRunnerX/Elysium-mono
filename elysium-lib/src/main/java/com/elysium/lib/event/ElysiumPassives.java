@@ -3,6 +3,7 @@ package com.elysium.lib.event;
 import com.elysium.lib.ElysiumLib;
 import com.elysium.lib.character.ElysiumCharacter;
 import com.elysium.lib.character.ElysiumPassive;
+import com.elysium.lib.stats.ElysiumShares;
 import com.elysium.lib.stats.ElysiumStats;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -78,7 +79,10 @@ public final class ElysiumPassives {
                 passive -> passive.reflectShare(defender)));
         float multiplier = ElysiumCharacter.passiveProduct(defender,
                 passive -> passive.reflectMultiplier(defender));
-        return ElysiumStats.clampShare(share * multiplier);
+        // "Double whatever you reflect" doubles the stat behind the share,
+        // not the share: doubling 60% would be 120%, and clamping that was a
+        // cap. Doubling the stat gives 75%, and still climbs without end.
+        return ElysiumShares.scaled(share, multiplier);
     }
 
     @SubscribeEvent

@@ -1,0 +1,16 @@
+{
+  "type": "elysiumfoundry:alloying",
+  "first": {
+    "tag": "c:ingots/copper"
+  },
+  "first_count": 3,
+  "second": {
+    "item": "elysiumfoundry:zinc_ingot"
+  },
+  "second_count": 1,
+  "result": {
+    "id": "elysiumfoundry:brass_ingot",
+    "count": 1
+  },
+  "ticks": 160
+}

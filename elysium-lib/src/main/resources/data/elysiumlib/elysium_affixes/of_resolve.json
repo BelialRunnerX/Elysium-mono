@@ -1,0 +1,18 @@
+{
+  "type": "suffix",
+  "on": [
+    "armor"
+  ],
+  "min_tier": 2,
+  "weight": 5,
+  "max_level": 2,
+  "effects": [
+    {
+      "type": "cancel_effects",
+      "effects": [
+        "minecraft:weakness",
+        "minecraft:mining_fatigue"
+      ]
+    }
+  ]
+}

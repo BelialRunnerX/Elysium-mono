@@ -1,0 +1,11 @@
+{
+  "type": "core",
+  "gear_type": "helmet",
+  "part_type": "main",
+  "crafting": {
+    "materials": 5
+  },
+  "properties": {
+    "repair_efficiency": 1.0
+  }
+}

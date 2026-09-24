@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumkinetics:block/small_cogwheel"
+    },
+    "axis=x": {
+      "model": "elysiumkinetics:block/small_cogwheel",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/small_cogwheel",
+      "x": 90
+    }
+  }
+}

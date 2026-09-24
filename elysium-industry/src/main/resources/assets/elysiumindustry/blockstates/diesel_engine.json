@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "elysiumindustry:block/diesel_engine"
+    },
+    "lit=true": {
+      "model": "elysiumindustry:block/diesel_engine_on"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "elysiumsolarpunk:farming",
+  "input": {
+    "item": "minecraft:kelp"
+  },
+  "result": {
+    "id": "minecraft:kelp",
+    "count": 3
+  },
+  "time": 160,
+  "energy": 480
+}

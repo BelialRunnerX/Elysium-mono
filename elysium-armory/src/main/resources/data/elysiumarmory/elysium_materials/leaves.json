@@ -1,0 +1,41 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#minecraft:leaves",
+    "categories": [
+      "organic",
+      "basic"
+    ]
+  },
+  "display": {
+    "name": "Leaf"
+  },
+  "properties": {
+    "main": {
+      "durability": 0.0,
+      "armor_durability": 2.0,
+      "armor": 3.0,
+      "armor/helmet": 0.5,
+      "armor/chestplate": 1.0,
+      "armor/leggings": 1.0,
+      "armor/boots": 0.5,
+      "enchantment_value": 12.0,
+      "charging_value": 1.1,
+      "rarity": 1.0,
+      "traits": [
+        {
+          "trait": "flammable",
+          "level": 1
+        },
+        {
+          "trait": "light",
+          "level": 1
+        }
+      ]
+    },
+    "fletching": {
+      "projectile_accuracy": 0.9,
+      "projectile_speed": 1.1
+    }
+  }
+}

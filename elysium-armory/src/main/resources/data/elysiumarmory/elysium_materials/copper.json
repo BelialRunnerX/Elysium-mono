@@ -1,0 +1,94 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/copper",
+    "categories": [
+      "metal",
+      "basic"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/copper"
+    }
+  },
+  "display": {
+    "name": "Copper"
+  },
+  "properties": {
+    "main": {
+      "durability": 151.0,
+      "armor_durability": 12.0,
+      "harvest_tier": "copper",
+      "harvest_speed": 5.0,
+      "attack_damage": 1.5,
+      "attack_speed": 0.1,
+      "magic_damage": 1.0,
+      "ranged_damage": 0.1,
+      "draw_speed": 0.0,
+      "armor": 10.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 4.0,
+      "armor/leggings": 3.0,
+      "armor/boots": 1.0,
+      "magic_armor": 8.0,
+      "enchantment_value": 15.0,
+      "charging_value": 1.3,
+      "rarity": 12.0,
+      "attack_speed/axe": -0.1,
+      "attack_speed/hoe": 0.0,
+      "traits": [
+        {
+          "trait": "soft",
+          "level": 1,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    },
+    "rod": {
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "traits": [
+        {
+          "trait": "bending",
+          "level": 3
+        },
+        {
+          "trait": "soft",
+          "level": 3
+        }
+      ]
+    },
+    "tip": {
+      "armor_durability": {
+        "op": "add",
+        "value": 1.0
+      },
+      "durability": {
+        "op": "add",
+        "value": 32.0
+      },
+      "harvest_speed": {
+        "op": "add",
+        "value": 1.0
+      },
+      "harvest_tier": "copper",
+      "rarity": {
+        "op": "add",
+        "value": 4.0
+      },
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 1
+        },
+        {
+          "trait": "dulling",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

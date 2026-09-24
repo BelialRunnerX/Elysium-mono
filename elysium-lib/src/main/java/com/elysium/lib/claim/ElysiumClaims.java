@@ -162,11 +162,31 @@ public final class ElysiumClaims extends SavedData {
         if (existing != null) {
             return existing;
         }
-        ElysiumClaim claim = new ElysiumClaim(owner.getUUID(),
+        ElysiumClaim claim = ElysiumClaim.staked(owner.getUUID(),
                 owner.getGameProfile().getName(), anchor, radius, 0);
         claims.put(anchor, claim);
         setDirty();
         return claim;
+    }
+
+    /**
+     * Grow a claim by one ascension tier.
+     *
+     * The radius and the Suspicion floor both move; {@link ElysiumClaim#ascended}
+     * owns that arithmetic so there is one place it happens.
+     *
+     * @return the grown claim, or null when nothing is anchored here
+     */
+    @Nullable
+    public ElysiumClaim ascend(BlockPos anchor) {
+        ElysiumClaim existing = claims.get(anchor);
+        if (existing == null) {
+            return null;
+        }
+        ElysiumClaim grown = existing.ascended();
+        claims.put(anchor, grown);
+        setDirty();
+        return grown;
     }
 
     /**

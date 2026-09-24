@@ -106,6 +106,11 @@ public interface ElysiumSocketable {
         return ElysiumSockets.socket(stack, getEffectiveTier(stack), rune);
     }
 
+    /** Socket a rune that has been merged to a tier. */
+    default boolean socketRune(ItemStack stack, ElysiumRune rune, int runeTier) {
+        return ElysiumSockets.socket(stack, getEffectiveTier(stack), rune, runeTier);
+    }
+
     default ItemAttributeModifiers applyRunes(ItemStack stack,
                                               ItemAttributeModifiers modifiers,
                                               EquipmentSlotGroup group) {
@@ -267,6 +272,28 @@ public interface ElysiumSocketable {
         }
     }
 
+    /**
+     * Everything Elysium knows about this piece, as lines of text — built from
+     * the piece's own data and nothing else.
+     *
+     * <h2>Why this exists beside the tooltip</h2>
+     *
+     * The Reforge Table's teardown readout needs these lines on the <em>server</em>,
+     * and a tooltip is client code. It used to call {@code appendHoverText}
+     * directly, which runs every other mod's hook into item tooltips — and on
+     * a dedicated server one of them (Relics) calls a method that only exists
+     * in client builds. {@code NoSuchMethodError}, and the whole server went
+     * down when a player pressed the button with a crown on the bench.
+     *
+     * This method never calls {@code Item.appendHoverText}, so nothing outside
+     * Elysium runs. The tooltip is built from it too, so the two cannot drift.
+     */
+    default void describe(ItemStack stack, List<Component> lines) {
+        appendIdentityTooltip(stack, lines);
+        appendStatTooltip(stack, lines);
+        appendRuneTooltip(stack, lines);
+    }
+
     /** Element, tier and Imperial clearance. */
     default void appendIdentityTooltip(ItemStack stack, List<Component> tooltip) {
         int tier = getEffectiveTier(stack);
@@ -287,12 +314,22 @@ public interface ElysiumSocketable {
         tooltip.add(Component.translatable("elysium.tooltip.runes",
                 runes.size(), getMaxRuneSlots(stack)).withStyle(ChatFormatting.DARK_AQUA));
 
-        for (ElysiumRune rune : runes) {
+        for (ElysiumSockets.Socketed socketed : ElysiumSockets.socketed(stack)) {
+            ElysiumRune rune = socketed.rune();
             boolean aligned = ElysiumSockets.isAligned(rune, getElement());
             Component line = Component.literal(" • ")
                     .withStyle(ChatFormatting.DARK_GRAY)
                     .append(Component.translatable("elysium.rune." + rune.getSerialisedName() + ".effect")
                             .withStyle(aligned ? ChatFormatting.AQUA : ChatFormatting.GRAY));
+            // The tier, and what it is worth: "III · x3". Shown only past the
+            // base, so a piece with ordinary runes reads exactly as it did.
+            if (socketed.tier() > ElysiumRuneTiers.BASE) {
+                line = line.copy().append(Component.literal(" ")
+                        .append(Component.translatable("elysium.tooltip.rune_tier",
+                                        ElysiumRuneTiers.numeral(socketed.tier()),
+                                        formatMultiplier(socketed.scale()))
+                                .withStyle(ChatFormatting.LIGHT_PURPLE)));
+            }
             if (aligned) {
                 // The multiplier, not just the word. "(aligned)" alone told the
                 // player that something was true and nothing about what it was

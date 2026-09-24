@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PRP",
+    "RTR",
+    "PRP"
+  ],
+  "key": {
+    "P": {
+      "tag": "c:plates/iron"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "T": {
+      "item": "elysiumagronomy:pot"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:accelerator",
+    "count": 1
+  }
+}

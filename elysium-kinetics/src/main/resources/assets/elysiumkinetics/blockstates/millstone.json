@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "elysiumkinetics:block/millstone"
+    },
+    "axis=y": {
+      "model": "elysiumkinetics:block/millstone"
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/millstone"
+    }
+  }
+}

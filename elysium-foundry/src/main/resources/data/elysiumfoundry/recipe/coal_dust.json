@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "minecraft:coal"
+  },
+  "result": {
+    "id": "elysiumfoundry:coal_dust",
+    "count": 1
+  },
+  "ticks": 80
+}

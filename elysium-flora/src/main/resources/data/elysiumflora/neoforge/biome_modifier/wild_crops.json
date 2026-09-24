@@ -1,0 +1,9 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": [
+    "elysiumflora:wild_loomflax",
+    "elysiumflora:wild_downbloom"
+  ],
+  "step": "vegetal_decoration"
+}

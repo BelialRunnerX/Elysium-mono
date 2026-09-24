@@ -1,6 +1,6 @@
 # Building Elysium
 
-One repository, six mods, one command.
+One repository, seven mods, one command.
 
 **NeoForge 21.1.248 · Minecraft 1.21.1 · JDK 21**
 
@@ -16,16 +16,16 @@ cd elysium
 # too deep and Actions will never run — see "If no workflow runs" below.
 ls .github/workflows/build.yml
 
-git init && git add . && git commit -m "Elysium: six mods, one repo"
+git init && git add . && git commit -m "Elysium: seven mods, one repo"
 git branch -M main
 git remote add origin git@github.com:BelialRunnerX/elysium.git
 git push -u origin main
 ```
 
-`.github/workflows/build.yml` runs on every push. It validates all six mods,
-renders the interface previews, builds everything, and uploads the six jars as
+`.github/workflows/build.yml` runs on every push. It validates every mod,
+renders the interface previews, builds everything, and uploads the jars as
 a single artifact called **elysium-jars** — at the bottom of the run's summary
-page. There is one workflow, not six; a push builds the whole set in dependency
+page. There is one workflow per repository, not one per mod; a push builds the whole set in dependency
 order.
 
 ### If no workflow runs
@@ -73,14 +73,14 @@ chmod +x ./gradlew
 ```
 
 `checkAll` is what CI does: validate, build, collect, merge, check the merge.
-`dist/` ends up with the six mod jars and `elysium-all-<version>.jar`, which is
-all six in one file. Install either the one or the six, never both — the same
+`dist/` ends up with every mod jar and `elysium-all-<version>.jar`, which is
+all of them in one file. Install either the merged jar or the individual ones, never both — the same
 mod id twice is a duplicate-mod error on startup.
 
 ### Without Gradle
 
 Gradle needs to reach the NeoForge repositories, and not every environment can.
-`./compile.sh --jars` type-checks all six modules against a real NeoForge
+`./compile.sh --jars` type-checks every module against a real NeoForge
 classpath and produces the same seven jars in `dist/`, given a directory holding
 the Minecraft and NeoForge jars plus a `cp.txt` naming them (`ELYSIUM_MC_LIBS`,
 default `/tmp/mc`).
@@ -88,6 +88,32 @@ default `/tmp/mc`).
 It is not a substitute for the Gradle build — no reobfuscation, no dependency
 resolution, no data generation — and it says so. It packages what is already
 there, which is everything the merged jar needs.
+
+### Curios inside the jar (`--bundle`)
+
+`elysium-trinkets` requires Curios: forty accessories with nowhere to put them
+is not a degraded mod, it is a broken one. So a player who downloads one
+Elysium jar and drops it in their mods folder gets a load error rather than a
+game, unless Curios travels with it.
+
+`./compile.sh --bundle` does that. It puts the Curios jar, unmodified, inside
+`META-INF/jarjar/` of the merged jar, writes the index NeoForge reads, and
+copies Curios' own licence files and a pointer to its source into
+`licences/curios/`. Curios is LGPL-3.0-or-later; shipping it without its
+licence text is the one mistake here that is not merely a bug, so
+`tools/checkbundle.py` fails the build if any of it is missing, and that
+checker runs on every packaged build whether or not anything was bundled.
+
+It is **opt-in, and off by default**, for one reason: an installed copy of a
+mod always wins over an embedded one, so bundling can never override what a
+player already has — but a dev instance that already has Curios installed does
+not need every working build to carry a second copy of it. Release builds pass
+`--bundle`; the working loop does not.
+
+The version range in the index is read from our own `neoforge.mods.toml`
+rather than chosen in the packager, because the two numbers have to agree: a
+bundled jar outside the range its dependent declares is a jar the loader
+unpacks and then refuses anyway.
 
 The first run downloads NeoForge and decompiles Minecraft — ten to twenty
 minutes, and a few GB in `~/.gradle`. After that it is fast. If it runs out of
@@ -103,10 +129,13 @@ Minecraft signatures each file uses, and every validator and harness passes:
 |---|---|
 | Stub compile harness | All five source sets compile, with cross-mod classpaths withheld. Not shipped in this repo — it is a scaffold that exists only because a real Gradle build could not be run, and `./gradlew buildAll` supersedes it entirely once it goes green. |
 | `elysium-lib/validate.py` | Nothing in the library refers to a mod built on it; element ring closed; twelve stats; every lang key present; `ElysiumPalette.java` matches its generator |
-| `elysium-core/validate.py` | 196 material gear items with recipes; every item obtainable or explicitly excused; no orphan GUI textures |
+| `elysium-core/validate.py` | Every material gear item (nine tool shapes and four armour pieces per material) with a recipe, a model and a texture; shapes read out of the Shape enum rather than listed; every item obtainable or explicitly excused |
 | `elysium-dungeons/validate.py` | Nine room types across four kinds; blocks, items and JSON all present |
 | `elysium-trinkets/validate.py` | Forty trinkets: model, texture and lang each; slot registered, granted and tagged; crafted has a recipe, found has a loot table, neither has both |
 | `elysium-npcs/validate.py` | Five envoys: skin, writ and lang each; both standing meters covered; every `Regalia` value wired to a model part; no import of elysium-core |
+| `elysium-solarpunk/validate.py` | Thirty-three blocks: blockstate, models, textures, loot, recipe, lang and mineable tag each; render type matched to the texture's alpha; no import of any other Elysium mod; the eight unfinished machines described identically in `MACHINES.md`, in `block/pending/` and on the tooltip |
+| `elysium-armory/validate.py` | No reference to Silent Gear in code or mods.toml, imports limited to the library and itself; the property engine compiles on the JDK alone and `PropertyHarness` passes (averaging, operation order, floors, no ceilings) |
+| `elysium-ascendancy/validate.py` | No reference to Apotheosis, Apothic or Placebo, imports limited to the library and itself; the weighting engine compiles on the JDK alone and `WeightHarness` passes (tier gaps weigh nothing, luck buys quality, exact shares over 100000 rolls) |
 | `elysium-mobs/validate.py` | Eight entity types with model, renderer, attributes and spawn placement; both factions have families and a boss |
 | Layout harness | 400 generated dungeons: every room placed, boss always reachable, 400 distinct layouts |
 | `elysium-lib/ui/screens.py` | Every screen laid out at 427x240 and 320x240; fails if a panel does not fit |

@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "dndesires:diamond_shard",
+      "required": false
+    },
+    {
+      "id": "silentgear:diamond_shard",
+      "required": false
+    }
+  ]
+}

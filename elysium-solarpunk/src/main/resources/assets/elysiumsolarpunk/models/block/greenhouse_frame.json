@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "elysiumsolarpunk:block/greenhouse_frame"
+  },
+  "render_type": "minecraft:translucent"
+}

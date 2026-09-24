@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:dust_nickel",
+      "required": false
+    },
+    {
+      "id": "oritech:nickel_dust",
+      "required": false
+    }
+  ]
+}

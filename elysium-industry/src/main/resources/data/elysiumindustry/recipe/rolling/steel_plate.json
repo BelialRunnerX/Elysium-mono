@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "tag": "c:ingots/steel"
+  },
+  "result": {
+    "id": "elysiumindustry:steel_plate",
+    "count": 1
+  },
+  "ticks": 140
+}

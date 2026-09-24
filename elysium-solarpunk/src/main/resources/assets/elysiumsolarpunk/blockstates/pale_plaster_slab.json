@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "elysiumsolarpunk:block/pale_plaster_slab"
+    },
+    "type=top": {
+      "model": "elysiumsolarpunk:block/pale_plaster_slab_top"
+    },
+    "type=double": {
+      "model": "elysiumsolarpunk:block/pale_plaster"
+    }
+  }
+}

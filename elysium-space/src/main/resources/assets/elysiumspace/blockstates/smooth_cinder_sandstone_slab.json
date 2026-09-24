@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "elysiumspace:block/smooth_cinder_sandstone_slab"
+    },
+    "type=double": {
+      "model": "elysiumspace:block/smooth_cinder_sandstone"
+    },
+    "type=top": {
+      "model": "elysiumspace:block/smooth_cinder_sandstone_slab_top"
+    }
+  }
+}

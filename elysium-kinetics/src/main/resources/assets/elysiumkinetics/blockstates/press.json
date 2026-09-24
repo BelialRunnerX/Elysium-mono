@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "elysiumkinetics:block/press"
+    },
+    "axis=y": {
+      "model": "elysiumkinetics:block/press"
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/press"
+    }
+  }
+}

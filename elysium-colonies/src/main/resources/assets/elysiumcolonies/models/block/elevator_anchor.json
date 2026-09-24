@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_top",
+  "textures": {
+    "top": "elysiumcolonies:block/elevator_anchor_top",
+    "side": "elysiumcolonies:block/elevator_anchor"
+  }
+}

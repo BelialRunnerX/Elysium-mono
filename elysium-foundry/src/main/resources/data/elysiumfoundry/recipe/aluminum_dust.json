@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:aluminum_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:aluminum_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

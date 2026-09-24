@@ -1,0 +1,463 @@
+# The Great Conversion
+
+**Goal, in Dylan's words:** *"You're going to convert (or make like with the
+space mod) and pack every other mod from V+ and Tech into the Elysium system…
+This is deeper than reskinning, this is full deep systemic integration… The end
+project will not retain the original create or etc jars, and instead will only
+be Elysium-namehere jars."*
+
+This file is the contract for that work. It exists because the work is far
+longer than any one conversation: **every step is written down here and in
+MANIFEST.md, and the manifest is the source of truth for what is done.** A
+session that has lost its history reads these two files and knows exactly where
+it is.
+
+---
+
+## 0. How to resume (read this first)
+
+1. `docs/MANIFEST.md` — every jar in the pack, what we decided about it, which
+   Elysium module absorbs it, and its status. **Update the row the moment a
+   module lands.** Nothing is "done" until its row says so.
+2. `docs/CONVERSION.md` — this file: the architecture, the tiers, the order.
+3. `CLAUDE-NOTES.md` on the user's machine — the running log of shipped work.
+4. Working mode is unchanged and non-negotiable: *architect one feature,
+   implement, validate (validator + pure-rules harness + negative tests that
+   break every rule), build the jar, deliver it, commit it to
+   `Instances/Claude-dev-build/mods/`, append to CLAUDE-NOTES.md.*
+
+---
+
+## 1. What "conversion" means here
+
+It is **reimplementation, not repackaging**. For each mod we keep the *idea*
+and write the code and the art ourselves, exactly as elysium-ascendancy
+replaced Apotheosis and elysium-space replaced Stellaris:
+
+* mechanics are reimplemented from the published behaviour (wikis, in-game
+  observation, and where the licence allows it, source);
+* every number lives in a pure rules class a harness executes;
+* art is generated or drawn by us — **no third-party assets are copied**;
+* names, lore and flavour are re-themed into Elysium's own world;
+* the original jar is then unnecessary and comes out of the pack.
+
+Licensing is the user's to settle with authors where it ever needs settling
+(his standing instruction). What this repository does is keep the line clean:
+our code, our art, our names, credit where a design came from.
+
+---
+
+## 2. The tech spine
+
+The three big tech mods are not three mods here. They are **three ages of one
+technology**, and the whole point of the conversion is that they become a
+progression rather than three parallel ones.
+
+| Age | Elysium module | Modelled on | The fiction | The feel |
+|---|---|---|---|---|
+| I — **Kinetics** | `elysium-kinetics` | Create (+ its addons) | Salvage. Pre-collapse machinery restarted with wood, brass and water. | Rotation, stress, contraptions. Things you can watch turn. |
+| II — **Industry** | `elysium-industry` | Immersive Engineering, TFMG | The Reconstruction. Heavy plant, wires on poles, diesel and steam. | Multiblocks, high voltage, ugly and enormous. |
+| III — **Atomics** | `elysium-atomics` | Mekanism (+Generators/Tools), Powah, Extreme Reactors, ZeroCore | The Ascendancy's own century. Chemical processing, fission, fusion. | Factories, ore multiplication, gases, matrices. |
+| IV — **Foundry** | `elysium-foundry` | GregTech (our equivalent) | What the Empire actually runs on. | Deep material science: every metal has a real chain. |
+
+**The rules that make it one progression rather than four:**
+
+1. **One energy unit.** Forge Energy, as elysium-space already uses. Age I
+   produces rotation and converts to FE badly; Age II produces FE properly;
+   Age III produces it in quantity; Age IV assumes it.
+2. **One rotation unit.** Stress units, from Age I, and Age II machines can be
+   driven by Age I shafts at a penalty — so the ages physically connect.
+3. **One material ladder.** Age I gives you raw metal. Age II doubles it. Age
+   III triples and separates it into chemicals. Age IV is the full chain.
+   Every tier's *output* is the next tier's *input*, so nothing is skippable
+   and nothing is obsolete.
+4. **Gated by world tier, not by a research tree.** The Ascension/world-tier
+   system already exists and already means something; the ages hang off it.
+5. **Each age keeps a reason to exist.** Age I contraptions stay the only way
+   to do moving structures; Age II multiblocks stay the cheapest bulk power;
+   Age III is the only chemistry; Age IV is the only full recovery.
+
+---
+
+## 3. The module map
+
+New modules, each a jar, each merged into `elysium-all` unless it is an add-on
+to a mod we do not own (the `STANDALONE` rule in `compile.sh`).
+
+| Module | Absorbs |
+|---|---|
+| `elysium-kinetics` | create, createaddition, createdeco, create_connected, create-stuff-additions, createbigcannons, createdieselgenerators, create-new-age, create-aeronautics, create-central-kitchen, create-enchantment-industry, create-integrated-farming, create_aquatic_ambitions, create_ultimate_factory, create_power_loader, CreateDragonsPlus, copycats, sliceanddice, interiors, steam/rail content |
+| `elysium-industry` | ImmersiveEngineering, tfmg, powergrid, oritech |
+| `elysium-atomics` | Mekanism, MekanismGenerators, MekanismTools, Applied-Mekanistics, Powah, ExtremeReactors2, ZeroCore2, FluxNetworks |
+| `elysium-foundry` | our GregTech equivalent (new design, informed by all of the above) |
+| `elysium-logistics` | appliedenergistics2, ExtendedAE, refinedstorage, StorageDrawers, functionalstorage, dankstorage, sophisticatedcore/storage/backpacks, enderchests, modular_backpacks, integrateddynamics, allthecompressed |
+| `elysium-agronomy` | our space Pam's (crops + trees), MysticalAgriculture, MysticalAgradditions, botanypots, productivebees, FarmersDelight, Aquaculture, solcarrot, tide, cobblegengalore |
+| `elysium-transit` | our Automobility equivalent, waystones, create trains where they belong |
+| `elysium-arsenal` | simplyswords, mythsandlegends, Reforged, SimplyBows, simplest_hammers/excavators/paxels/scythes, betterarcheology |
+| `elysium-bestiary` | born_in_chaos, fangs_n_claws, mobs_of_mythology, naturalist, friendsandfoes, knightquest, mob_grinding_utils |
+| `elysium-atelier` | the eleven macaw mods, chipped, handcrafted, amendments, supplementaries, beautify, bellsandwhistles, DnDesires, Design-n-Decor, DustyDecorations, cluttered, bf_blockpack, Clothing_Of_The_Lowlands, valhelsia_furniture, woodworks, fusion, everycomp, diagonal fences/walls/windows, chimes |
+| `elysium-wilds` | wwoo, ctov, Quark's worldgen half, NaturesCompass |
+| `elysium-comforts` | comforts, gravestone, lootr, easy-villagers, towntalk, a Patchouli-style guide, envelope, polymorph-like QoL |
+| `elysium-arcana` | ProjectE, projectexpansion, relics, GeOre |
+
+Existing modules stay as they are and absorb what belongs to them
+(elysium-ores took the ore unification, elysium-colonies the MineColonies
+layer, and so on).
+
+---
+
+## 4. Order of work
+
+Highest leverage first, and always a thing that can be finished and shipped.
+
+1. ~~**The spine** — `elysium-kinetics` rotation/stress engine~~ — **done,
+   2026-09-24.** 13 blocks, four machines, three connection rules, the windmill.
+2. ~~`elysium-industry` on top of it~~ — **the frame is done, 2026-09-24.**
+   Twelve blocks, five parts, four machines, both directions of the joint with
+   Age I, and the free-energy loop closed in arithmetic (0.6 return, proved in
+   closed form and swept). *Not* yet the catalogue: Immersive Engineering,
+   TFMG and Powah still have content this module has to absorb before their
+   rows can move, and the multiblocks are not built. See MANIFEST.md.
+3. ~~`elysium-atomics`~~ — **the frame is done, 2026-09-24.** Ten blocks,
+   three parts, the grid taught to lend and borrow, a reactor whose heat
+   settles rather than running away, and the uranium chain the pack was
+   missing. *Not* yet the catalogue: Mekanism, Powah and the rest of the
+   fission mods still have content this module has to absorb.
+4. ~~`elysium-logistics`~~ — **done, 2026-09-24.** Three drawers, a bus and a
+   controller that makes a wall of drawers one inventory a hopper can reach;
+   then an assembly core, assemblers and a terminal on top of it. The planner
+   now *orders* what it costs as well as costing it, and the harness follows
+   four thousand random plans to the end without an ingredient ever going
+   short. **No pattern items:** the core reads the game's own crafting recipes,
+   so the gate on autocrafting is machinery and power rather than paperwork.
+   **No screen:** the terminal is asked by holding up what you want. A screen
+   is a strict addition to this and changes nothing behind it.
+5. ~~`elysium-agronomy`~~ — **the frame is done, 2026-09-24.** A pot, an
+   accelerator, a hive, three rungs of rock generator, five essence tiers and
+   eight seeds — with the one rule that matters executed on every build: a farm
+   loses to a mine by a stated margin, and overtaking one has to be a
+   deliberate industrial project. The space crops are declared in
+   `AgronomyRules.FRONTIERS` and each is tied to a condition of its world; the
+   blocks for them are not built. Farmer's Delight's cooking and Aquaculture's
+   fishing are not started.
+6. ~~`elysium-foundry`~~ — **the frame is done, 2026-09-24.** Thirty-one
+   material families, a chain proved acyclic and leak-free by execution, four
+   casing tiers, and the ore debt every earlier module had been quietly
+   running up: every ore `elysium-ores` generates now has a supplier, so the
+   day the old jars come out nothing stops dropping.
+7. ~~`elysium-almanac`~~ — **done, 2026-09-24.** The quest book: 45 steps over
+   8 chapters, each with a reason rather than a checklist entry, proved three
+   separate ways to contain no cycle and strand nothing. It depends on no
+   module it describes, which is what lets it describe all of them.
+8. ~~`elysium-transit`~~ — **the waystone half is done, 2026-09-24.** A stone
+   you bind, a price the grid pays, and — the part that took the work — a
+   price that **cannot be arbitraged**. The first draft had a free allowance
+   under 256 blocks, which lets a player chain short hops across a world for
+   nothing; the second priced distance linearly, which made bouncing off the
+   moon and back a flat 44,000 for *any* distance at home. Both were found by
+   executing a million random triples, neither by reading. The price now
+   saturates, which makes it concave, which makes it subadditive.
+   The other half landed the same day: **three rungs of one vehicle** — cart,
+   truck, hauler — that run on anything that burns, read the block under the
+   wheels as one of four surfaces, and lose to walking over rough ground while
+   a full load is aboard, which is the entire argument for laying a road. A
+   fourth rung is four numbers and a sprite, not a file.
+9. ~~`elysium-arcana`~~ — **the transmutation half is done, 2026-09-24.** One
+   block. A price table derived from the pack's own loaded recipes rather than
+   shipped, so another mod or a datapack is priced without this module knowing
+   it exists — and **proved to contain no arrangement that makes value out of
+   nothing**, which every mod that has ever done this has shipped at least
+   once. Relics and GeOre are not started.
+10. ~~`elysium-comforts`~~ — **the grave is done, 2026-09-24.** One block, and
+   the only claim worth making about it: **nothing a player owned is ever
+   lost.** That is a counting problem rather than a sentiment — every
+   gravestone mod that has eaten somebody's backpack did it by deciding in
+   advance how many slots a grave has, so this one is built around what it is
+   handed, and it is filled from *what would have dropped* rather than from
+   the inventory, so a slot added by a mod this module has never heard of is
+   buried like anything else.
+
+   **Per-player loot landed the same day.** A dungeon chest on a server is a
+   race; whoever arrives first takes the lot. Every answer is "give each player
+   their own copy", and what differs is the bookkeeping. Here the roll is a
+   *function* of the container and the player, so nothing has to be remembered
+   about who has opened what — the same player always gets the same chest, for
+   ever, with no record of them anywhere. Only what they have **taken** is
+   stored, and that is let go of the moment they have taken all of it. The
+   original container is never unpacked, so the hundredth player gets the same
+   chance as the first. Comforts' own sleeping bags, easy-villagers, towntalk
+   and envelope are not started.
+11. ~~`elysium-atelier`~~ — **the furniture half and the joining half are done,
+   2026-09-24.** Twelve
+   shapes the game does not have, in sixteen materials it already has: **192
+   blocks, no new textures and no new dependencies**, because every shape is
+   cut from a vanilla material and wears that material's own face. The whole
+   catalogue is registered from a loop, so a thirteenth shape is one line in
+   `AtelierRules.SHAPES` and nothing else anywhere.
+
+   **Nothing is retired for it yet, on purpose.** Twelve shapes covers what
+   `handcrafted` and Macaw's Furniture are *for* and not their catalogues —
+   beds, couches, counters, sinks, cupboards, drawers — and doors, windows,
+   roofs, bridges, paths and lights are shapes this does not have at all. A
+   frame is not a catalogue; those rows stay PLANNED until it is one.
+   **The joining half, added the same day: 36 more blocks.** Doors, trapdoors,
+   gates, fences and panes — but only in the five materials the game has none
+   of, plus panes in everything. The first draft added all eighty and eleven
+   materials' worth of them were blocks Minecraft has shipped since 2011,
+   which this module's own shape list says in so many words is adding nothing.
+   The principle is a check now rather than a comment: `JoinRules` carries a
+   written list of what the game ships, the catalogue subtracts it, and the
+   harness fails on anything you could already craft.
+
+   What goes wrong with a fence is never inside the fence. Joining is written
+   in **tags** — the game's fence asks whether its neighbour is in `#fences`
+   and whether the two agree about `#wooden_fences`, a villager asks whether a
+   door is in `#wooden_doors` before walking through it — so a block left out
+   of one tag works perfectly and simply does not join. The tags are derived,
+   joining is proved symmetric over all 1,296 ordered pairs, and the validator
+   diffs the **shipped tag files against the rules** rather than against the
+   generator that wrote them.
+
+   The blockstates are transcribed out of the game's own jar rather than
+   derived. Three of the five were right when I worked them out by hand; the
+   trapdoor turned its top half the wrong way and the pane put its blank sides
+   on the wrong sides. The validator re-reads the jar every run. It then found
+   a third: our trapdoor models were built on the *orientable* template, which
+   turns its texture with the facing.
+
+12. ~~`elysium-arsenal`~~ — **the broad tools are done, 2026-09-24.** Hammer,
+   excavator, scythe and paxel in six vanilla tiers. Adding one of these
+   without making the pickaxe pointless is the whole difficulty, so every one
+   is **slower per swing** than the tool it replaces and **every block it takes
+   costs a point of durability** exactly as if it had been mined singly. That
+   leaves one band of speed where a broad tool is worth carrying, and the
+   harness sweeps a thousand speeds to check the band is a band rather than an
+   opinion.
+
+   **And thirty-six melee weapons, the same day.** Six kinds in six tiers. The
+   problem five weapon mods create between them is not that any one of them is
+   badly made — it is that a hundred swords are never compared *to each
+   other*, so three of them answer every question and ninety-seven fill loot
+   tables. So the rule is **domination**: at least as good on every axis and
+   better on one makes the other dead content, and the harness proves no
+   weapon of a tier dominates another and that each is the best at something.
+   Four faults on the first run: two kinds best at nothing, a longsword that
+   beat the vanilla diamond sword on every axis, a ladder that dipped because
+   gold sits between iron and diamond in the *registry* and below both in
+   damage, and two weapons sharing a crafting grid. Bows and archaeology are
+   not started, and Reforged turns out — on opening the jar rather than
+   guessing from the name — to be three smithing hammers.
+13. ~~`elysium-bestiary`~~ — **the floor is done, 2026-09-24.** Nine hostile
+   beasts in three families of three, one entity class, three model shapes.
+   The point of it is not the mobs: seven jars in this pack put things in the
+   dark and not one of them states what any of them is worth against any other,
+   which is how a pack ends up with a mob nobody fights twice and another that
+   every grinder in the pack is built for. So **the stats are chosen and the
+   rewards are not** — experience and drops do not appear in the table at all
+   and are derived from the threat the stats come to, in order of danger, each
+   forced past the one below it. The harness runs that derivation over a
+   hundred thousand random bestiaries, so a tenth beast inherits the property
+   instead of needing it re-checked; it also proves the whole set sits inside a
+   1.5x band of reward-per-danger and that **the game's own zombie sits inside
+   that band**, which is the check nobody writes because writing it means
+   measuring your own work against somebody else's game. The model is a table
+   of boxes the renderer squashes onto the declared hitbox, so nothing is ever
+   a different size on screen than the box you swing at. *Not* the catalogues:
+   born\_in\_chaos, fangs\_n\_claws, mobs\_of\_mythology, naturalist,
+   friendsandfoes, knightquest and mob\_grinding\_utils stay PLANNED. Nine
+   beasts is a floor, not sixty creatures, bosses, passive fauna or spawner
+   tooling.
+14. `elysium-wilds` — **the rules and the check are done, 2026-09-24; the
+   content is not.** The game picks a biome by which of their claims on a
+   six-dimensional climate space is nearest, so a claim sitting inside an
+   earlier claim ties everywhere it could win, loses every tie, and never
+   generates. **This pack shipped one** — `emerald_bastion_river` — and nothing
+   reported it, because nothing was wrong: the file was valid and the id
+   resolved. So the module is the game's own nearest-box rule against the JDK
+   alone, and `check_worldgen.py` runs it over every dimension file in the
+   repository. Two things it corrected that I had written wrong: a thin box is
+   not a small territory (a sliver still wins everything nearer to it than to
+   anything else), and there is no universal floor on a biome's share — a river
+   failed the one I wrote, for being a river. How much of a world one biome may
+   be is now a per-world claim in a table, and a world with no row is an error.
+   *Not* the content: wwoo, ctov, Quark's worldgen and NaturesCompass all stay
+   PLANNED. There are no biomes, structures or compass in it yet — what exists
+   is the part that says whether any of them would have worked.
+
+Interleaved, because they are small and were asked for directly:
+
+* ~~unified GUI theming across every Elysium screen (the `ElysiumUI` kit)~~ —
+  **done, 2026-09-24**. `ElysiumButton` and `ElysiumChooser` added so a plain
+  `Screen` can use the kit at all, the three space screens ported onto them,
+  and `check_ui.py` wired into root validation so no module the conversion adds
+  can drift: every screen must reach `ElysiumUI`, no vanilla widgets, no blits,
+  no colour written by hand, no English typed into a screen. **Every new module
+  below inherits this — build screens on `ElysiumChooser` or a container screen
+  drawn with `ElysiumUI`, and put every colour in `ui/palette.py`.**
+* ~~natural, **working** portals to the other worlds at ruined-portal
+  frequency~~ — **done**, the waygate structure set.
+* ~~the Apotheosis/Silent Gear coverage audit against the wikis~~ — **done**,
+  `SPEC_CLONE.md` §P3b.
+
+### The slowest loop in this project, and the check that closed it
+
+Every check here reads a file or runs arithmetic, and `check_loadtest.py` runs
+the game's *data* loaders. Nothing ran our **Java**. A block's constructor is
+where a surprising amount of a mod lives, and every mistake in one throws when
+FML fires the registry event — four seconds into loading, before any screen. The
+only report is a crash log, and getting one meant asking Dylan to launch the
+game.
+
+`check_construct.py` builds them all here instead. A `DeferredRegister` keeps
+its suppliers in a private map until FML asks; this asks. It thaws the
+registries `Bootstrap` froze, builds each entry, registers what it built, and
+goes round until a pass builds nothing new. **2,138 blocks, items and types
+across 28 modules**, and on its first successful run it found that the stone
+doors added that morning were built on `BlockSetType.STONE` — which *opens by
+hand*, because it is what stone buttons are built on and the game has no stone
+door for it to have been wrong about. That was a crash on world load, caught by
+the guard written for exactly that disagreement.
+
+What it cannot see is anything behind a lazy supplier: a spawn egg holds a
+`Supplier<EntityType>`, so an egg pointing at a mob nothing registers builds
+perfectly and fails the first time somebody holds one. Written down rather than
+assumed.
+
+### The mistake this project keeps making, and the check that now catches it
+
+A validator proves things about the source by looking for text in it. A rule
+that looks for a **call** — `"ComfortRules.seedFor("` — goes on passing the day
+somebody writes `long seed = 0L; if (false) seed = ComfortRules.seedFor(...);`.
+The call is still there, the rule still matches, and the behaviour it was
+written to guarantee is gone.
+
+**This has happened fourteen times**, every single one found by a negative test
+rather than by reading. The fix is always the same: name the *whole statement*.
+
+So `check_rules.py` now finds rules that compare a truncated string — one
+ending in `(` or `,` — against a **method body**, and fails the build on a new
+one. Rules that ask whether a declaration exists are compared against a whole
+file and are left alone; that distinction is why the check is signal rather
+than noise. There are **94 already here**, recorded in
+`docs/RULES_BASELINE.txt` as a ratchet: a new one fails, and the recorded ones
+come off the list as the modules they live in are next touched.
+
+**And three rules the ages below hand upwards.** Every later age inherits
+these from Age II, because each of them was a bug before it was a rule:
+
+* **A block on an Age I line must say what it is made of.** The default is
+  timber, so a node that stays silent caps the line under it at timber's shear
+  rating, and the line comes apart at a speed the player was told was safe.
+  Age II answers it once in `SteelNode`; Age III and IV each need their own.
+* **What a machine draws from a grid must not depend on what the grid can
+  give.** That is a loop with no fixed point — it oscillates and never settles.
+  A starved machine draws its full rating and runs more weakly.
+* **Any two ages that convert energy both ways must be proved unable to pay.**
+  Not tested on one arrangement — proved in closed form over every count and
+  gearing, and swept to confirm the form. Both ages return exactly 0.6, and
+  Age III's harness also checks the case neither age's own proof covers: both
+  ages' motors on one line, settled by Age I's solver rather than by a formula.
+* **An age that adds a new kind of grid member extends Age II's model rather
+  than running a second grid.** Age III's cells describe themselves in two
+  floats (`IndustryRules.Reserve`) and Age II settles them. Two grids would be
+  two models that disagree, and the disagreement would be found by a player.
+* **A module is not finished until the integrations it inherited are written.**
+  Age III ships raw uranium because `elysium-ores` generates the ore and every
+  mod that could have filled its tag is being retired.
+
+**And one rule the conversion inherits from an incident.** Every listener must
+be on the bus its event is actually fired on. `check_buses.py` asks the NeoForge
+jars, because nothing in the type system does and we shipped a jar that crashed
+before the title screen over one line. The tech modules will add hundreds of
+listeners; this is checked from now on, not remembered.
+
+---
+
+## 4b. Retiring a jar, and the integrations that go with it
+
+*Dylan: "Make sure to remove old mods once we have converted them so there
+isn't redundancy."*
+
+`python3 tools/prune.py` lists what is removable, read out of `MANIFEST.md`
+rather than from memory: only rows marked **DONE**. A PLANNED jar still holds
+content nothing replaces; a DROP jar is a library something still depends on.
+Removal is a **move** into `mods/_superseded/`, never a delete — a jar that
+turns out to have been holding something up is one you want back in half a
+minute.
+
+**Before removing, check two things on the device**, both of which are a
+scripted scan of the remaining jars and not a judgement call:
+
+1. **Required dependencies.** No remaining jar may declare the removed mod
+   `type="required"`. (At the first prune: none did.)
+2. **Tag entries.** A tag entry naming a missing item breaks *the whole tag*
+   unless it is marked `required: false`. (At the first prune: every one was
+   optional.)
+
+### The second prune, 2026-09-24
+
+Five more jars moved to `mods/_superseded/` in both the dev instance and the
+test copy: **ProjectE**, **projectexpansion**, **StorageDrawers**,
+**dankstorage** and **functionalstorage**. Both scripted pre-checks were run
+against the 189 remaining jars on the device and both came back clean:
+
+* **Required dependencies** — nothing remaining declares any of the five
+  `type="required"`.
+* **Tag entries** — 7,514 tag files scanned across every remaining jar; every
+  reference to the five is optional, so no tag is broken.
+
+`tools/prune.py` had a bug worth recording: it listed **our own jars** and the
+`(new) …` design-note rows as removable, because both are marked DONE. A prune
+list that tells you to delete the thing doing the replacing is worse than no
+list, so it now excludes both.
+
+### The third thing, which is not automatic
+
+Other mods ship **integration recipes** against the jar being removed, and
+those quietly stop loading. They are not errors and nothing breaks; a feature
+simply is not there any more. At the first prune this orphaned:
+
+| Mod | What it lost |
+|---|---|
+| `productivebees` | azure silver and crimson iron bees, and their centrifuge recipes — they named Silent Gear's ores |
+| `create-enchantment-industry` | the whole Apotheosis chain: gem cutter, affix augmentor, dissolving materials by rarity, apotheotic assembly |
+| `FarmersDelight` | netherwood cutting |
+| `botanypots` | flax and fluffy seed crops |
+
+At the second prune this orphaned exactly one thing: **`ExtendedAE`**'s three
+EMC bus recipes (`ex_emc_export_bus`, `ex_emc_import_bus`, `ex_emc_interface`),
+which named ProjectE. ExtendedAE is itself PLANNED into `elysium-logistics`,
+so the same rule applies — they come back natively when that conversion lands,
+written against our own motes, rather than as a shim for a jar that is no
+longer in the pack.
+
+Config files left behind by the five (`config/projecte/`,
+`config/functionalstorage/`, Ex Deorum's compost colour lists, EveryCompat's
+wood-type entries) are read by nothing and were left alone. Apotheosis'
+`name_generation.cfg` still names ProjectE gear; Apotheosis went at the first
+prune, so that file is read by nothing either.
+
+**These are not patched twice.** Every mod in that table is itself PLANNED —
+productivebees into `elysium-agronomy`, create-enchantment-industry into
+`elysium-kinetics`, FarmersDelight into `elysium-agronomy`, botanypots the
+same. When each is converted its recipes are written against *our* items, and
+the integration comes back natively rather than as a compatibility shim for a
+jar that is no longer in the pack.
+
+**So the rule is:** when a module converts a mod, it inherits that mod's
+integrations with anything already replaced, and the conversion is not finished
+until they are written. A row in this table that is still orphaned when its
+module is marked DONE is a bug in that module, not a leftover.
+
+## 5. Things explicitly not being done
+
+* **The tech retexture generator** — cancelled by the user. `tools/retexture`
+  and `check_retexture.py` stay in the tree as a working tool, because the
+  pack it already built is in the user's instance, but no further work goes
+  into it and it is not part of this programme.
+* **Performance and rendering mods** — sodium, iris, modernfix, ferritecore,
+  entityculling, immediatelyfast, ETF/EMF, lithium. They are not content and
+  reimplementing them would be building worse versions of them.
+* **Pure libraries** — architectury, balm, bookshelf and the rest. They exist
+  to be depended on; when the mods depending on them are gone, so are they.
+  Anything of theirs we actually need is already in `elysium-lib`.

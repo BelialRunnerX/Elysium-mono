@@ -1,0 +1,103 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/crimson_steel",
+    "categories": [
+      "metal",
+      "endgame"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/crimson_steel"
+    }
+  },
+  "display": {
+    "name": "Crimson Steel"
+  },
+  "properties": {
+    "main": {
+      "durability": 2400.0,
+      "armor_durability": 42.0,
+      "harvest_tier": "crimson_steel",
+      "harvest_speed": 15.0,
+      "attack_damage": 6.0,
+      "attack_speed": -0.1,
+      "magic_damage": 6.0,
+      "ranged_damage": 3.0,
+      "draw_speed": -0.1,
+      "projectile_speed": 1.0,
+      "projectile_accuracy": 1.3,
+      "armor": 22.0,
+      "armor/helmet": 4.0,
+      "armor/chestplate": 8.0,
+      "armor/leggings": 6.0,
+      "armor/boots": 4.0,
+      "armor_toughness": 10.0,
+      "magic_armor": 10.0,
+      "enchantment_value": 19.0,
+      "charging_value": 0.9,
+      "rarity": 83.0,
+      "repair_value": 0.5,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 5
+        },
+        {
+          "trait": "hard",
+          "level": 3
+        },
+        {
+          "trait": "flame_ward",
+          "level": 1,
+          "conditions": [
+            "(count>=3 OR ratio>=0.33)"
+          ]
+        }
+      ]
+    },
+    "rod": {
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "ranged_damage": {
+        "op": "add",
+        "value": 1.0
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 4
+        },
+        {
+          "trait": "sturdy",
+          "level": 1,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    },
+    "tip": {
+      "armor_durability": {
+        "op": "add",
+        "value": 16.0
+      },
+      "durability": {
+        "op": "add",
+        "value": 448.0
+      },
+      "harvest_tier": "crimson_steel",
+      "rarity": {
+        "op": "add",
+        "value": 20.0
+      },
+      "traits": [
+        {
+          "trait": "magmatic",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

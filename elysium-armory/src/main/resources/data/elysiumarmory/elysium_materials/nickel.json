@@ -1,0 +1,68 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/nickel",
+    "categories": [
+      "metal",
+      "intermediate"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/nickel"
+    }
+  },
+  "display": {
+    "name": "Nickel"
+  },
+  "properties": {
+    "main": {
+      "durability": 380.0,
+      "armor_durability": 17.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 7.0,
+      "attack_damage": 2.5,
+      "attack_speed": 0.1,
+      "magic_damage": 1.0,
+      "ranged_damage": 0.5,
+      "draw_speed": 0.1,
+      "armor": 13.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 5.0,
+      "armor/leggings": 4.0,
+      "armor/boots": 2.0,
+      "magic_armor": 6.0,
+      "enchantment_value": 12.0,
+      "charging_value": 1.0,
+      "rarity": 40.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        },
+        {
+          "trait": "adamant",
+          "level": 1,
+          "conditions": [
+            "(count>=3 OR ratio>=0.35)"
+          ]
+        }
+      ]
+    },
+    "rod": {
+      "attack_damage": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "durability": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "rarity": 40.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        }
+      ]
+    }
+  }
+}

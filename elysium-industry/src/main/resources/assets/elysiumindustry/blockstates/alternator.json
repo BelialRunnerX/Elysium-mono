@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumindustry:block/alternator"
+    },
+    "axis=x": {
+      "model": "elysiumindustry:block/alternator",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumindustry:block/alternator",
+      "x": 90
+    }
+  }
+}

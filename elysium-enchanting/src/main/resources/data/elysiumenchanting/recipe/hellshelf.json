@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "nrn",
+    "rBr",
+    "nrn"
+  ],
+  "key": {
+    "n": {
+      "item": "minecraft:netherrack"
+    },
+    "r": {
+      "item": "minecraft:blaze_rod"
+    },
+    "B": {
+      "item": "minecraft:bookshelf"
+    }
+  },
+  "result": {
+    "id": "elysiumenchanting:hellshelf",
+    "count": 1
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "elysiumspace:cinder_stone"
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:chiseled_cinder_stone_bricks"
+  }
+}

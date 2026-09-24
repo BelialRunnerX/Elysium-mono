@@ -1,0 +1,16 @@
+{
+  "type": "suffix",
+  "on": [
+    "armor"
+  ],
+  "min_tier": 1,
+  "weight": 7,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "negate_damage",
+      "tag": "minecraft:fall",
+      "scale_per_level": 0.2
+    }
+  ]
+}

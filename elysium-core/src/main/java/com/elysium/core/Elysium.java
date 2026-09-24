@@ -27,6 +27,7 @@ import com.elysium.lib.item.ElysiumRune;
 import com.elysium.lib.item.ElysiumComponents;
 import com.elysium.lib.item.ElysiumRarities;
 import com.elysium.core.item.ElysiumReforgeItem;
+import com.elysium.core.item.ElysiumScannerItem;
 import com.elysium.core.item.ElysiumTools;
 import com.elysium.core.item.ElysiumWeaponItem;
 import com.elysium.core.item.NeutroniumArmorMaterials;
@@ -136,6 +137,38 @@ public class Elysium {
             BLOCKS.register("ascension_forge", AscensionForgeBlock::new);
 
     /**
+     * The Gem Cutting Table (Apotheosis' AP-13): dust spent to climb a purity.
+     *
+     * The other way up from the Ascension Forge's two-into-one merge, and
+     * priced the same, so a player chooses between them on what they have
+     * rather than on which is cheaper.
+     */
+    /**
+     * The two rogue spawners (Apotheosis' AP-24). One block class, two modes:
+     * a few creatures each worth being afraid of, or many that are not.
+     */
+    public static final DeferredHolder<Block, Block> BRUTAL_SPAWNER =
+            BLOCKS.register("brutal_spawner", () -> new com.elysium.core.block.RogueSpawnerBlock(
+                    com.elysium.core.block.RogueSpawnerBlockEntity.Mode.BRUTAL));
+
+    public static final DeferredHolder<Block, Block> SWARM_SPAWNER =
+            BLOCKS.register("swarm_spawner", () -> new com.elysium.core.block.RogueSpawnerBlock(
+                    com.elysium.core.block.RogueSpawnerBlockEntity.Mode.SWARM));
+
+    /** The Caged Invader (AP-23): a fight a player chooses to start by breaking it. */
+    public static final DeferredHolder<Block, Block> CAGED_INVADER =
+            BLOCKS.register("caged_invader", com.elysium.core.block.CagedInvaderBlock::new);
+
+    public static final DeferredHolder<Block, Block> GEM_CUTTING_TABLE =
+            BLOCKS.register("gem_cutting_table",
+                    com.elysium.core.block.GemCuttingTableBlock::new);
+
+    /** The Augmenting Table (Apotheosis' AP-17): where a sigil is spent. */
+    public static final DeferredHolder<Block, Block> AUGMENTING_TABLE =
+            BLOCKS.register("augmenting_table",
+                    com.elysium.core.block.AugmentingTableBlock::new);
+
+    /**
      * §B.2's Command machine: "Claims planet and anchors Imperial file."
      *
      * The one block in this mod whose whole effect is on a meter rather than on
@@ -177,6 +210,42 @@ public class Elysium {
     public static final DeferredHolder<Item, Item> NEUTRONIUM_BLOCK_ITEM = blockItem(NEUTRONIUM_BLOCK);
     public static final DeferredHolder<Item, Item> REFORGE_TABLE_ITEM = blockItem(REFORGE_TABLE);
     public static final DeferredHolder<Item, Item> RUNE_SOCKET_TABLE_ITEM = blockItem(RUNE_SOCKET_TABLE);
+
+    public static final DeferredHolder<Item, Item> BRUTAL_SPAWNER_ITEM = blockItem(BRUTAL_SPAWNER);
+
+    public static final DeferredHolder<Item, Item> SWARM_SPAWNER_ITEM = blockItem(SWARM_SPAWNER);
+
+    public static final DeferredHolder<Item, Item> CAGED_INVADER_ITEM = blockItem(CAGED_INVADER);
+
+    public static final DeferredHolder<Item, Item> GEM_CUTTING_TABLE_ITEM =
+            blockItem(GEM_CUTTING_TABLE);
+
+    public static final DeferredHolder<Item, Item> AUGMENTING_TABLE_ITEM = blockItem(AUGMENTING_TABLE);
+
+    /**
+     * What a rune grinds down to, and what cutting one costs.
+     *
+     * One item for every rune rather than one per kind: dust is what a tablet
+     * is worth once it is not one, and a player who has ground up the wrong
+     * rune should be able to spend that on the right one.
+     */
+    public static final DeferredHolder<Item, Item> GEM_DUST =
+            register("gem_dust", () -> new Item(new Item.Properties()));
+
+    public static final DeferredHolder<Item, Item> GEM_CASE =
+            register("gem_case", com.elysium.core.item.GemCaseItem::new);
+
+    public static final DeferredHolder<Item, Item> SIGIL_OF_SOCKETING =
+            sigil("sigil_of_socketing", com.elysium.lib.item.ElysiumAugments.SOCKETING);
+
+    public static final DeferredHolder<Item, Item> SIGIL_OF_ENHANCEMENT =
+            sigil("sigil_of_enhancement", com.elysium.lib.item.ElysiumAugments.ENHANCEMENT);
+
+    public static final DeferredHolder<Item, Item> SIGIL_OF_WITHDRAWAL =
+            sigil("sigil_of_withdrawal", com.elysium.lib.item.ElysiumAugments.WITHDRAWAL);
+
+    public static final DeferredHolder<Item, Item> SIGIL_OF_REBIRTH =
+            sigil("sigil_of_rebirth", com.elysium.lib.item.ElysiumAugments.REBIRTH);
     public static final DeferredHolder<Item, Item> ASCENSION_FORGE_ITEM = blockItem(ASCENSION_FORGE);
     public static final DeferredHolder<Item, Item> REGISTRY_BEACON_ITEM =
             blockItem(REGISTRY_BEACON,
@@ -198,8 +267,59 @@ public class Elysium {
     public static final DeferredHolder<Item, Item> VOIDGLASS_INGOT =
             simpleItem("voidglass_ingot");
 
+    /**
+     * The two smithing templates that cross a piece of gear between systems.
+     *
+     * Two rather than one because the two crossings are different acts, and a
+     * player deserves to be told which one they are about to perform before
+     * they spend the template. The seam template swaps a piece between Elysium
+     * and Silent Gear; the ring template grants a piece the other system's
+     * identity without taking anything away. See
+     * {@link com.elysium.core.compat.GearConvergence}.
+     */
+    public static final DeferredHolder<Item, Item> SILENT_CONVERGENCE_TEMPLATE =
+            simpleItem("silent_convergence_template");
+
+    public static final DeferredHolder<Item, Item> AFFIX_CONVERGENCE_TEMPLATE =
+            simpleItem("affix_convergence_template");
+
+    /**
+     * The Field Scanner. See {@link com.elysium.core.item.ElysiumScannerItem}.
+     */
+    public static final DeferredHolder<Item, Item> FIELD_SCANNER =
+            item("field_scanner", ElysiumScannerItem::new);
+
     public static final DeferredHolder<Item, Item> ELYSIUM_REFORGE =
             item("elysium_reforge", ElysiumReforgeItem::new);
+
+    // ------------------------------------------------------------------
+    // Field rations — §15.5's food that answers a hazard
+    // ------------------------------------------------------------------
+    //
+    // Five meals, one per hazard, each granting that hazard's ward for three
+    // minutes. This is §10.2's *cheap* counter made craftable: the built
+    // answers are a full matching armour set and a filed claim, and both are
+    // projects. A player who walks into a burning valley on their second day
+    // has neither, and a hazard with no answer they can reach today is a wall
+    // rather than a problem.
+    //
+    // The ward itself lives in elysium-lib — see ElysiumWards — so that the
+    // hazard tick can read "is this player warded" without knowing that these
+    // five items are what did it. Anything may grant one.
+    public static final DeferredHolder<Item, Item> THERMAL_RATION =
+            ration("thermal_ration", com.elysium.lib.hazard.ElysiumHazards.THERMAL);
+
+    public static final DeferredHolder<Item, Item> CRYOGENIC_RATION =
+            ration("cryogenic_ration", com.elysium.lib.hazard.ElysiumHazards.CRYOGENIC);
+
+    public static final DeferredHolder<Item, Item> CORROSIVE_RATION =
+            ration("corrosive_ration", com.elysium.lib.hazard.ElysiumHazards.CORROSIVE);
+
+    public static final DeferredHolder<Item, Item> RADIOLOGICAL_RATION =
+            ration("radiological_ration", com.elysium.lib.hazard.ElysiumHazards.RADIOLOGICAL);
+
+    public static final DeferredHolder<Item, Item> PRESSURE_RATION =
+            ration("pressure_ration", com.elysium.lib.hazard.ElysiumHazards.PRESSURE);
 
     /**
      * The character sheet in the hand. Issued once on first join and never
@@ -363,11 +483,28 @@ public class Elysium {
     // Block entities and menus
     // ------------------------------------------------------------------
 
+    public static final DeferredHolder<BlockEntityType<?>,
+            BlockEntityType<com.elysium.core.block.RogueSpawnerBlockEntity>> ROGUE_SPAWNER_ENTITY =
+            BLOCK_ENTITIES.register("rogue_spawner", () -> BlockEntityType.Builder
+                    .of(com.elysium.core.block.RogueSpawnerBlockEntity::new,
+                            BRUTAL_SPAWNER.get(), SWARM_SPAWNER.get())
+                    .build(null));
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReforgeTableBlockEntity>> REFORGE_TABLE_BLOCK_ENTITY =
             BLOCK_ENTITIES.register("reforge_table", () -> BlockEntityType.Builder
                     .of(ReforgeTableBlockEntity::new,
                             REFORGE_TABLE.get(), RUNE_SOCKET_TABLE.get(), ASCENSION_FORGE.get())
                     .build(null));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<com.elysium.core.menu.GemCuttingMenu>>
+            GEM_CUTTING_MENU = MENUS.register("gem_cutting",
+                    () -> new MenuType<>(com.elysium.core.menu.GemCuttingMenu::new,
+                            FeatureFlags.DEFAULT_FLAGS));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<com.elysium.core.menu.AugmentingMenu>>
+            AUGMENTING_MENU = MENUS.register("augmenting",
+                    () -> new MenuType<>(com.elysium.core.menu.AugmentingMenu::new,
+                            FeatureFlags.DEFAULT_FLAGS));
 
     public static final DeferredHolder<MenuType<?>, MenuType<ReforgeTableMenu>> REFORGE_TABLE_MENU =
             MENUS.register("reforge_table", () -> new MenuType<>(ReforgeTableMenu::new, FeatureFlags.DEFAULT_FLAGS));
@@ -437,6 +574,33 @@ public class Elysium {
         CREATIVE_TABS.register(modEventBus);
         ENTITIES.register(modEventBus);
         ElysiumArmorMaterials.ARMOR_MATERIALS.register(modEventBus);
+        // Gear conversion. Both registers are unconditional and neither touches
+        // Silent Gear or Apotheosis: the component is Elysium's own and the
+        // smithing recipe only ever *mentions* the bridge classes inside a
+        // ModList-guarded branch, so with neither mod installed neither bridge
+        // is ever loaded. See com.elysium.core.compat.GearConvergence.
+        com.elysium.core.compat.ConvergenceComponents.register(modEventBus);
+        com.elysium.core.event.ElysiumStartingKit.ATTACHMENTS.register(modEventBus);
+        // The catalogue a scanner writes into. An attachment on the player, so
+        // it survives death and travels with them between dimensions.
+        com.elysium.lib.discovery.ElysiumDiscoveries.register(modEventBus);
+        // What a player has come to understand, and which deeds have already
+        // been counted. Two attachments, both on the player, both surviving
+        // death — see ElysiumResearch for why they are two and not one.
+        com.elysium.lib.research.ElysiumResearch.register(modEventBus);
+        // The one remembered thing about a villager's stress: how bad it got.
+        // Everything else is derived from the world when somebody asks.
+        com.elysium.lib.stress.ElysiumStressRecord.register(modEventBus);
+        // Who made a piece of gear and how well, written on the item itself,
+        // and the per-item practice count that decides the grade.
+        com.elysium.lib.craft.ElysiumMakersMark.register(modEventBus);
+        com.elysium.lib.craft.ElysiumCraftLog.register(modEventBus);
+        // Issued work, its deadline and what letting it lapse costs.
+        com.elysium.lib.contract.ElysiumContracts.register(modEventBus);
+        // What each villager has spent their life doing, per trade.
+        com.elysium.lib.practice.ElysiumPracticeLog.register(modEventBus);
+        com.elysium.core.compat.ConvergenceSmithingRecipe.register(modEventBus);
+        com.elysium.core.recipe.GemGrindingRecipe.register(modEventBus);
 
         modEventBus.addListener(this::addCreative);
 
@@ -563,6 +727,17 @@ public class Elysium {
         return register(name, () -> new Item(new Item.Properties()));
     }
 
+    /**
+     * One field ration, bound to the hazard it answers.
+     *
+     * The hazard is passed rather than looked up from the name so that a typo
+     * is a compile error instead of a ration that silently wards nothing.
+     */
+    private static DeferredHolder<Item, Item> ration(String name,
+                                                     com.elysium.lib.hazard.ElysiumHazard hazard) {
+        return register(name, () -> new com.elysium.core.item.ElysiumRationItem(hazard));
+    }
+
     private static DeferredHolder<Item, Item> blockItem(DeferredHolder<Block, Block> block) {
         return register(block.getId().getPath(),
                 () -> new BlockItem(block.get(), new Item.Properties()));
@@ -608,6 +783,10 @@ public class Elysium {
      * One tool shape in one material. The factory keeps the four shapes from
      * needing four near-identical helpers.
      */
+    private static DeferredHolder<Item, Item> sigil(String name, String augment) {
+        return register(name, () -> new com.elysium.core.item.SigilItem(augment));
+    }
+
     private static DeferredHolder<Item, Item> rune(String name, ElysiumRune rune) {
         return register(name, () -> new ElysiumRuneItem(rune));
     }

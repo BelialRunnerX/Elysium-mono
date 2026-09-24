@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:milling",
+  "input": {
+    "item": "minecraft:blaze_rod"
+  },
+  "result": {
+    "id": "minecraft:blaze_powder",
+    "count": 4
+  },
+  "ticks": 160,
+  "pace": "steady"
+}

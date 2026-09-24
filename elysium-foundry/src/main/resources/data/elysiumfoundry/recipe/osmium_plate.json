@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "item": "elysiumfoundry:osmium_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:osmium_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

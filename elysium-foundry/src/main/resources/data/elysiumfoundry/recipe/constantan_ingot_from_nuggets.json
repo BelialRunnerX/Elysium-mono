@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "NNN",
+    "NNN",
+    "NNN"
+  ],
+  "key": {
+    "N": {
+      "item": "elysiumfoundry:constantan_nugget"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:constantan_ingot",
+    "count": 1
+  }
+}

@@ -203,7 +203,7 @@ public final class ElysiumUI {
         // visible as a bar rather than as an empty track.
         if (filled > 0 && filled < w) {
             g.fill(x + filled - 1, y, x + filled, y + h,
-                    ElysiumPalette.alpha(0xFFFFFFFF, 0.35F));
+                    ElysiumPalette.alpha(ElysiumPalette.HIGHLIGHT, 0.35F));
         }
     }
 

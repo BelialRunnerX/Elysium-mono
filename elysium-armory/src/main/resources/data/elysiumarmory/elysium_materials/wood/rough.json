@@ -1,0 +1,30 @@
+{
+  "type": "simple",
+  "crafting": {
+    "categories": [
+      "organic",
+      "wood"
+    ],
+    "can_salvage": false,
+    "part_substitutes": {
+      "rod": "#silentgear:rods/rough"
+    }
+  },
+  "display": {
+    "name": "Rough Wood"
+  },
+  "properties": {
+    "rod": {
+      "traits": [
+        {
+          "trait": "crude",
+          "level": 3
+        },
+        {
+          "trait": "bending",
+          "level": 5
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "side": "elysiumsolarpunk:block/white_marble",
+    "top": "elysiumsolarpunk:block/white_marble",
+    "bottom": "elysiumsolarpunk:block/white_marble"
+  }
+}

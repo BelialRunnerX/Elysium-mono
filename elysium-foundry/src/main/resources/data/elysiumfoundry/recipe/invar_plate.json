@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "item": "elysiumfoundry:invar_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:invar_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

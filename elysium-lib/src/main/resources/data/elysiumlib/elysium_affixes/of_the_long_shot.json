@@ -1,0 +1,24 @@
+{
+  "type": "suffix",
+  "on": [
+    "ranged_weapon"
+  ],
+  "min_tier": 2,
+  "weight": 5,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "elysiumlib:projectile_damage",
+          "operation": "add_multiplied_base",
+          "slot": "mainhand",
+          "min": 0.05,
+          "max": 0.25,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

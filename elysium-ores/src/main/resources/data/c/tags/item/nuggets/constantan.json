@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:nugget_constantan",
+      "required": false
+    },
+    {
+      "id": "tfmg:constantan_nugget",
+      "required": false
+    }
+  ]
+}

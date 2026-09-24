@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:radiant_essence",
+    "count": 1
+  }
+}

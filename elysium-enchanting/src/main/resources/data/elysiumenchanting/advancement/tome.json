@@ -1,0 +1,35 @@
+{
+  "display": {
+    "icon": {
+      "id": "elysiumenchanting:patience_tome",
+      "count": 1
+    },
+    "title": {
+      "translate": "advancements.elysiumenchanting.tome.title"
+    },
+    "description": {
+      "translate": "advancements.elysiumenchanting.tome.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "tome": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "elysiumenchanting:patience_tome"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "tome"
+    ]
+  ],
+  "parent": "elysiumenchanting:enchanted"
+}

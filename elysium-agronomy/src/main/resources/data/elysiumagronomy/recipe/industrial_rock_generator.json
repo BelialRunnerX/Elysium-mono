@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PGP",
+    "PWP"
+  ],
+  "key": {
+    "P": {
+      "tag": "c:plates/steel"
+    },
+    "G": {
+      "item": "elysiumagronomy:driven_rock_generator"
+    },
+    "W": {
+      "item": "elysiumindustry:gold_wire"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:industrial_rock_generator",
+    "count": 1
+  }
+}

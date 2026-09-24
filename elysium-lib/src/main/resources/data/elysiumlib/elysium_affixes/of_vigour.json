@@ -1,0 +1,24 @@
+{
+  "type": "suffix",
+  "on": [
+    "curio"
+  ],
+  "min_tier": 0,
+  "weight": 9,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "minecraft:generic.max_health",
+          "operation": "add_value",
+          "slot": "any",
+          "min": 1.0,
+          "max": 4.0,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

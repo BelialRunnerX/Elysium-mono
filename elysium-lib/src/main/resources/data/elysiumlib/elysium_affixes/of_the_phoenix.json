@@ -1,0 +1,24 @@
+{
+  "type": "suffix",
+  "on": [
+    "curio"
+  ],
+  "min_tier": 3,
+  "weight": 4,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "elysiumlib:healing_received",
+          "operation": "add_value",
+          "slot": "any",
+          "min": 0.1,
+          "max": 0.3,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

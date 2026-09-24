@@ -1,0 +1,16 @@
+{
+  "name": "Refractive",
+  "max_level": 1,
+  "description": "Place phantom lights when used",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "block_placer",
+      "block": "minecraft:phantom_light",
+      "cost": 5,
+      "cooldown": 0
+    }
+  ]
+}

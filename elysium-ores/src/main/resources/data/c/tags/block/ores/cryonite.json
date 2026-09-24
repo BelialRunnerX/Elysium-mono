@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:cryonite_ore",
+      "required": false
+    },
+    "elysiumores:cinder_cryonite_ore",
+    "elysiumores:deepslate_cryonite_ore",
+    "elysiumores:end_stone_cryonite_ore",
+    "elysiumores:frost_cryonite_ore",
+    "elysiumores:netherrack_cryonite_ore",
+    "elysiumores:pale_cryonite_ore"
+  ]
+}

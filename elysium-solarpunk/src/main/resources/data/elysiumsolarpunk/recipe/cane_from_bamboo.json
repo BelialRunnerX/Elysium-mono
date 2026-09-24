@@ -1,0 +1,13 @@
+{
+  "type": "elysiumsolarpunk:weaving",
+  "input": {
+    "item": "minecraft:bamboo"
+  },
+  "result": {
+    "id": "elysiumsolarpunk:woven_cane",
+    "count": 2
+  },
+  "time": 140,
+  "energy": 280,
+  "input_count": 4
+}

@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:milling",
+  "input": {
+    "item": "minecraft:deepslate"
+  },
+  "result": {
+    "id": "minecraft:cobbled_deepslate",
+    "count": 1
+  },
+  "ticks": 200,
+  "pace": "steady"
+}

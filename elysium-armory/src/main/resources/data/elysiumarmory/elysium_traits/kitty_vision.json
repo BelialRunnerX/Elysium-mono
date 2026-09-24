@@ -1,0 +1,33 @@
+{
+  "name": "Kitty Vision",
+  "max_level": 1,
+  "description": "Gives night vision on helmets and curios",
+  "conditions": [
+    "any:on:helmet,on:curio"
+  ],
+  "effects": [
+    {
+      "type": "wielder_effect",
+      "targets": [
+        {
+          "gear": "curio",
+          "effect": "minecraft:night_vision",
+          "mode": "trait_level",
+          "levels": [
+            1
+          ],
+          "duration": 318
+        },
+        {
+          "gear": "helmet",
+          "effect": "minecraft:night_vision",
+          "mode": "trait_level",
+          "levels": [
+            1
+          ],
+          "duration": 318
+        }
+      ]
+    }
+  ]
+}

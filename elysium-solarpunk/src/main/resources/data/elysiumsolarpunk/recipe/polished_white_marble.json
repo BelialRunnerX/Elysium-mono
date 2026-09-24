@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "ss",
+    "ss"
+  ],
+  "key": {
+    "s": {
+      "item": "elysiumsolarpunk:white_marble"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:polished_white_marble",
+    "count": 4
+  }
+}

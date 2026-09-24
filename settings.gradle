@@ -28,10 +28,13 @@ rootProject.name = 'elysium'
 //     something the NeoForge documentation covers, and a coordination layer
 //     that can be stepped around is much safer than one that cannot.
 //
-//   - From the root, `./gradlew buildAll` builds all six in dependency order,
-//     and the substitution below means the five content mods compile against
-//     the library's *source* rather than a published jar. Nothing has to be
-//     published first, and there is no stale-jar failure mode.
+//   - From the root, `./gradlew buildAll` builds every module in dependency
+//     order, and the substitution below means the content mods that use the
+//     library compile against its *source* rather than a published jar.
+//     Nothing has to be published first, and there is no stale-jar failure
+//     mode. elysium-solarpunk is deliberately not among them: it is blocks, it
+//     registers into nothing, and it gets no substitution because it has no
+//     dependency to substitute.
 //
 // The substitution is written out rather than left to Gradle's automatic
 // matching. Automatic substitution keys on the Gradle project name, which for
@@ -50,4 +53,22 @@ includeBuild('elysium-core')
 includeBuild('elysium-dungeons')
 includeBuild('elysium-mobs')
 includeBuild('elysium-trinkets')
+
+// The solarpunk set depends on nothing else here, so it is included without a
+// substitution: it does not ask for com.elysium:elysiumlib and there is nothing
+// to substitute. That is deliberate — see its neoforge.mods.toml.
+includeBuild('elysium-solarpunk')
 includeBuild('elysium-npcs')
+
+// The two replacement systems. Each asks for the library by its coordinate, so
+// each needs the same substitution the library block above performs — which a
+// bare includeBuild already gets, because the substitution is declared once on
+// the library's included build and applies to every build in this composite.
+includeBuild('elysium-armory')
+includeBuild('elysium-ascendancy')
+includeBuild('elysium-enchanting')
+includeBuild('elysium-spawners')
+includeBuild('elysium-space')
+includeBuild('elysium-ores')
+includeBuild('elysium-flora')
+includeBuild('elysium-colonies')

@@ -1,0 +1,71 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/electrum",
+    "categories": [
+      "metal",
+      "intermediate"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/electrum"
+    }
+  },
+  "display": {
+    "name": "Electrum"
+  },
+  "properties": {
+    "main": {
+      "durability": 96.0,
+      "armor_durability": 10.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 14.0,
+      "attack_damage": 2.0,
+      "attack_speed": 0.3,
+      "magic_damage": 5.0,
+      "ranged_damage": 1.0,
+      "draw_speed": 0.4,
+      "armor": 15.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 6.0,
+      "armor/leggings": 5.0,
+      "armor/boots": 2.0,
+      "magic_armor": 11.0,
+      "enchantment_value": 25.0,
+      "charging_value": 1.5,
+      "rarity": 40.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        },
+        {
+          "trait": "soft",
+          "level": 2,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    },
+    "rod": {
+      "attack_speed": {
+        "op": "add",
+        "value": 0.1
+      },
+      "draw_speed": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "rarity": 40.0,
+      "traits": [
+        {
+          "trait": "lustrous",
+          "level": 3,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    }
+  }
+}

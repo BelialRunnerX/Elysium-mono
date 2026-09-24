@@ -63,6 +63,11 @@ MOD_SHAPES = [
     ("mobs", "mobs", "ElysiumMobs"),
     ("trinkets", "trinkets", "ElysiumTrinkets"),
     ("npcs", "npcs", "ElysiumNpcs"),
+    ("solarpunk", "solarpunk", "ElysiumSolarpunk"),
+    ("armory", "armory", "ElysiumArmory"),
+    ("ascendancy", "ascendancy", "ElysiumAscendancy"),
+    ("space", "space", "ElysiumSpace"),
+    ("colonies", "colonies", "ElysiumColonies"),
 ]
 
 

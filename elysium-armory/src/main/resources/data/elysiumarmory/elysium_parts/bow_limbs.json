@@ -1,0 +1,23 @@
+{
+  "type": "core",
+  "gear_type": "bow",
+  "part_type": "main",
+  "crafting": {
+    "materials": 3
+  },
+  "properties": {
+    "draw_speed": {
+      "op": "add",
+      "value": 1.0
+    },
+    "enchantment_value": {
+      "op": "multiply_base",
+      "value": -0.45
+    },
+    "ranged_damage": {
+      "op": "add",
+      "value": 1.0
+    },
+    "repair_efficiency": 1.0
+  }
+}

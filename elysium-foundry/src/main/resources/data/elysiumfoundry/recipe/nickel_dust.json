@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:nickel_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:nickel_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

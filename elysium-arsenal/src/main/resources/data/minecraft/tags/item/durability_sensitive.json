@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumarsenal:wooden_hammer",
+    "elysiumarsenal:wooden_excavator",
+    "elysiumarsenal:wooden_scythe",
+    "elysiumarsenal:wooden_paxel",
+    "elysiumarsenal:stone_hammer",
+    "elysiumarsenal:stone_excavator",
+    "elysiumarsenal:stone_scythe",
+    "elysiumarsenal:stone_paxel",
+    "elysiumarsenal:iron_hammer",
+    "elysiumarsenal:iron_excavator",
+    "elysiumarsenal:iron_scythe",
+    "elysiumarsenal:iron_paxel",
+    "elysiumarsenal:golden_hammer",
+    "elysiumarsenal:golden_excavator",
+    "elysiumarsenal:golden_scythe",
+    "elysiumarsenal:golden_paxel",
+    "elysiumarsenal:diamond_hammer",
+    "elysiumarsenal:diamond_excavator",
+    "elysiumarsenal:diamond_scythe",
+    "elysiumarsenal:diamond_paxel",
+    "elysiumarsenal:netherite_hammer",
+    "elysiumarsenal:netherite_excavator",
+    "elysiumarsenal:netherite_scythe",
+    "elysiumarsenal:netherite_paxel"
+  ]
+}

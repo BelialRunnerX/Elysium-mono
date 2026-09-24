@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarmory:item/sickle",
+    "layer1": "elysiumarmory:item/sickle_grip"
+  }
+}

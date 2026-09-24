@@ -1,0 +1,16 @@
+{
+  "name": "Vulcan",
+  "max_level": 1,
+  "description": "Places obsidian at a high durability cost",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "block_placer",
+      "block": "minecraft:obsidian",
+      "cost": 20,
+      "cooldown": 100
+    }
+  ]
+}

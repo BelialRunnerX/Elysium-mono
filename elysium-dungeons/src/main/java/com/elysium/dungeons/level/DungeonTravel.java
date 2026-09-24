@@ -167,6 +167,40 @@ public final class DungeonTravel {
                                 ? "elysiumdungeons.message.entered_new"
                                 : "elysiumdungeons.message.entered_joined")
                         .withStyle(ChatFormatting.LIGHT_PURPLE), true);
+        cartography(player, layout);
+    }
+
+    /**
+     * What Rift Science research buys: the shape of the place, on arrival.
+     *
+     * Read off the layout that was going to be generated anyway — it is a pure
+     * function of the instance seed, so this costs nothing beyond the counting
+     * and cannot disagree with the dungeon the player is standing in.
+     *
+     * On arrival rather than before entering, and that is a real limitation
+     * rather than a design choice: the instance is not allocated until somebody
+     * walks through, so there is nothing to forecast from while the player is
+     * still looking at the portal. What it buys is the difference between
+     * exploring blind and knowing how much is left — which is the difference
+     * between leaving a dungeon satisfied and leaving it wondering.
+     */
+    private static void cartography(ServerPlayer player, DungeonLayout layout) {
+        if (!com.elysium.lib.research.ElysiumResearch.has(
+                player, com.elysium.lib.research.ElysiumUnlock.RIFT_CARTOGRAPHY)) {
+            return;
+        }
+        int loot = 0;
+        int deepest = 0;
+        for (DungeonLayout.Cell cell : layout.cells()) {
+            if (cell.kind == DungeonLayout.Kind.LOOT) {
+                loot++;
+            }
+            deepest = Math.max(deepest, cell.depth);
+        }
+        player.displayClientMessage(Component.translatable(
+                        "elysiumdungeons.message.cartography",
+                        layout.size(), loot, deepest)
+                .withStyle(ChatFormatting.AQUA), false);
     }
 
     // ------------------------------------------------------------------

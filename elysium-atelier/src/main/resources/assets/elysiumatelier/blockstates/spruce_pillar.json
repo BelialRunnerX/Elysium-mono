@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumatelier:block/spruce_pillar"
+    },
+    "axis=x": {
+      "model": "elysiumatelier:block/spruce_pillar",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumatelier:block/spruce_pillar",
+      "x": 90
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:pressing",
+  "input": {
+    "item": "minecraft:bamboo"
+  },
+  "result": {
+    "id": "minecraft:paper",
+    "count": 1
+  },
+  "ticks": 120,
+  "pace": "slow"
+}

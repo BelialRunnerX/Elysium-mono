@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "melee_weapon"
+  ],
+  "min_tier": 1,
+  "weight": 7,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "minecraft:player.block_interaction_range",
+          "operation": "add_value",
+          "slot": "mainhand",
+          "min": 0.25,
+          "max": 1.0,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

@@ -11,5 +11,6 @@
   "elysiumdungeons.message.entered_new": "The rift opens onto somewhere new.",
   "elysiumdungeons.message.entered_joined": "You step into a rift already open.",
   "elysiumdungeons.message.collapsed": "The dungeon collapses behind you. The next one will be different.",
-  "elysiumdungeons.entity.rift_warden": "Rift Warden"
+  "elysiumdungeons.entity.rift_warden": "Rift Warden",
+  "elysiumdungeons.message.cartography": "Surveyed on arrival: %s rooms, %s vaults, %s deep."
 }

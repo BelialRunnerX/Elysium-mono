@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumindustry:copper_wire",
+    "elysiumindustry:gold_wire",
+    "elysiumindustry:steel_wire",
+    "elysiumindustry:transformer",
+    "elysiumindustry:crusher",
+    "elysiumindustry:rolling_mill",
+    "elysiumindustry:arc_furnace",
+    "elysiumindustry:separator",
+    "elysiumindustry:alternator",
+    "elysiumindustry:motor",
+    "elysiumindustry:steam_turbine",
+    "elysiumindustry:diesel_engine"
+  ]
+}

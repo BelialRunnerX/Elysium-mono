@@ -1,0 +1,29 @@
+{
+  "type": "core",
+  "gear_type": "slingshot",
+  "part_type": "main",
+  "crafting": {
+    "materials": 2
+  },
+  "properties": {
+    "draw_speed": {
+      "op": "add",
+      "value": 1.5
+    },
+    "enchantment_value": {
+      "op": "multiply_base",
+      "value": -0.65
+    },
+    "ranged_damage": [
+      {
+        "op": "add",
+        "value": 0.5
+      },
+      {
+        "op": "multiply_base",
+        "value": -0.75
+      }
+    ],
+    "repair_efficiency": 2.0
+  }
+}

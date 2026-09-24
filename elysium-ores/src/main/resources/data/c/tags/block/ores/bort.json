@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "silentgear:bort_ore",
+      "required": false
+    },
+    {
+      "id": "silentgear:deepslate_bort_ore",
+      "required": false
+    },
+    "elysiumores:cinder_bort_ore",
+    "elysiumores:end_stone_bort_ore",
+    "elysiumores:frost_bort_ore",
+    "elysiumores:netherrack_bort_ore",
+    "elysiumores:pale_bort_ore"
+  ]
+}

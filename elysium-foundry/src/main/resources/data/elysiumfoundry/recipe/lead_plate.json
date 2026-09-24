@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "item": "elysiumfoundry:lead_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:lead_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

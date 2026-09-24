@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumspace:raw_steel"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:raw_steel_block"
+  }
+}

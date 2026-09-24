@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "elysiumflora:emberwood_logs"
+    }
+  ],
+  "result": {
+    "id": "elysiumflora:emberwood_planks",
+    "count": 4
+  }
+}

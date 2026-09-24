@@ -1,0 +1,16 @@
+{
+  "name": "Pale Reach",
+  "icon": "icon.png",
+  "authors": [
+    "Elysium",
+    "re-themed from MineColonies' spacewars"
+  ],
+  "desc": "The Pale Moon's own: pale stone and sealed frames, because there is nothing outside to let in.",
+  "mods": [
+    "structurize",
+    "minecolonies",
+    "elysiumspace"
+  ],
+  "version": 1,
+  "pack-format": 1
+}

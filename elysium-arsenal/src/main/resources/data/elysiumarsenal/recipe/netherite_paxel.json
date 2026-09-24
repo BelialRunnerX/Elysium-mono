@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "ABC",
+    " S ",
+    " S "
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:netherite_pickaxe"
+    },
+    "B": {
+      "item": "minecraft:netherite_axe"
+    },
+    "C": {
+      "item": "minecraft:netherite_shovel"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:netherite_paxel",
+    "count": 1
+  }
+}

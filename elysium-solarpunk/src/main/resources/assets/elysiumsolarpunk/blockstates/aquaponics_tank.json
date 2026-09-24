@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumsolarpunk:block/aquaponics_tank"
+    },
+    "facing=east": {
+      "model": "elysiumsolarpunk:block/aquaponics_tank",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumsolarpunk:block/aquaponics_tank",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumsolarpunk:block/aquaponics_tank",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "mysticalagradditions:end_inferium_ore",
+      "required": false
+    },
+    {
+      "id": "mysticalagradditions:nether_inferium_ore",
+      "required": false
+    },
+    {
+      "id": "mysticalagriculture:deepslate_inferium_ore",
+      "required": false
+    },
+    {
+      "id": "mysticalagriculture:inferium_ore",
+      "required": false
+    }
+  ]
+}

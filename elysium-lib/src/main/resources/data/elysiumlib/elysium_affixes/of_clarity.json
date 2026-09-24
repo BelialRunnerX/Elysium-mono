@@ -1,0 +1,18 @@
+{
+  "type": "suffix",
+  "on": [
+    "armor"
+  ],
+  "min_tier": 1,
+  "weight": 5,
+  "max_level": 2,
+  "effects": [
+    {
+      "type": "cancel_effects",
+      "effects": [
+        "minecraft:blindness",
+        "minecraft:nausea"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "c:plates/steel"
+    },
+    "F": {
+      "item": "elysiumindustry:arc_furnace"
+    }
+  },
+  "result": {
+    "id": "elysiumatomics:reactor_core",
+    "count": 1
+  }
+}

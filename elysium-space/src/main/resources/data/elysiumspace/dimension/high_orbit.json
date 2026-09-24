@@ -1,0 +1,11 @@
+{
+  "type": "elysiumspace:high_orbit",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "elysiumspace:high_orbit_space",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "elysiumspace:high_orbit_space"
+    }
+  }
+}

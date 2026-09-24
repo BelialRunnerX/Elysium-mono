@@ -1,0 +1,14 @@
+{
+  "type": "core",
+  "gear_type": "all",
+  "part_type": "coating",
+  "gear_type_blacklist": [
+    "elytra"
+  ],
+  "crafting": {
+    "materials": 1,
+    "extra": [
+      "minecraft:glass_bottle"
+    ]
+  }
+}

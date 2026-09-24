@@ -1,0 +1,70 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:gems/amethyst",
+    "categories": [
+      "gem",
+      "intermediate"
+    ]
+  },
+  "display": {
+    "name": "Amethyst"
+  },
+  "properties": {
+    "main": {
+      "durability": 210.0,
+      "armor_durability": 10.0,
+      "harvest_tier": "amethyst",
+      "harvest_speed": 6.0,
+      "attack_damage": 1.0,
+      "attack_speed": 0.0,
+      "magic_damage": 3.0,
+      "ranged_damage": 1.0,
+      "draw_speed": 0.0,
+      "projectile_speed": 1.0,
+      "projectile_accuracy": 1.0,
+      "armor": 15.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 5.0,
+      "armor/leggings": 4.0,
+      "armor/boots": 3.0,
+      "magic_armor": 10.0,
+      "enchantment_value": 16.0,
+      "charging_value": 1.3,
+      "rarity": 35.0,
+      "traits": [
+        {
+          "trait": "renew",
+          "level": 1,
+          "conditions": [
+            "ratio>=0.7"
+          ]
+        }
+      ]
+    },
+    "setting": {
+      "traits": [
+        {
+          "trait": "cursed",
+          "level": 4
+        }
+      ]
+    },
+    "tip": {
+      "durability": {
+        "op": "multiply_total",
+        "value": -0.25
+      },
+      "harvest_tier": "amethyst",
+      "traits": [
+        {
+          "trait": "silky",
+          "level": 1,
+          "conditions": [
+            "ratio>=0.66"
+          ]
+        }
+      ]
+    }
+  }
+}

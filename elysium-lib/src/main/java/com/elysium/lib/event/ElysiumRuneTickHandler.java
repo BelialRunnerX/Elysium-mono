@@ -2,6 +2,7 @@ package com.elysium.lib.event;
 
 import com.elysium.lib.ElysiumLib;
 import com.elysium.lib.item.ElysiumRune;
+import com.elysium.lib.item.ElysiumGear;
 import com.elysium.lib.item.ElysiumSocketable;
 import com.elysium.lib.item.ElysiumSockets;
 import net.minecraft.world.entity.player.Player;
@@ -45,13 +46,17 @@ public final class ElysiumRuneTickHandler {
     }
 
     private static void run(Player player, ItemStack stack) {
-        if (!(stack.getItem() instanceof ElysiumSocketable gear)) {
+        ElysiumSocketable gear = ElysiumGear.of(stack);
+        if (gear == null) {
             return;
         }
-        for (ElysiumRune rune : gear.getSocketedRunes(stack)) {
-            ElysiumRune.RuneEffect effect = rune.getEffect();
+        for (ElysiumSockets.Socketed socketed : ElysiumSockets.socketed(stack)) {
+            ElysiumRune rune = socketed.rune();
+            ElysiumRune.TieredRuneEffect effect = rune.getEffect();
             if (effect != null) {
-                effect.apply(player, stack, ElysiumSockets.isAligned(rune, gear.getElement()));
+                effect.apply(player, stack,
+                        ElysiumSockets.isAligned(rune, gear.getElement()),
+                        socketed.scale());
             }
         }
     }

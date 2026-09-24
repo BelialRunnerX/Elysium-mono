@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_lapis_ore",
+    "elysiumores:end_stone_lapis_ore",
+    "elysiumores:frost_lapis_ore",
+    "elysiumores:netherrack_lapis_ore",
+    "elysiumores:pale_lapis_ore"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumflora:item/downbloom_seeds"
+  }
+}

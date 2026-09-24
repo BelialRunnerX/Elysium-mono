@@ -1,0 +1,23 @@
+{
+  "type": "core",
+  "gear_type": "fishing_rod",
+  "part_type": "main",
+  "crafting": {
+    "materials": 2
+  },
+  "properties": {
+    "attack_speed": {
+      "op": "add",
+      "value": 4.0
+    },
+    "durability": {
+      "op": "multiply_base",
+      "value": -0.5
+    },
+    "enchantment_value": {
+      "op": "multiply_base",
+      "value": -0.75
+    },
+    "repair_efficiency": 1.25
+  }
+}

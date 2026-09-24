@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:silver_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:silver_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

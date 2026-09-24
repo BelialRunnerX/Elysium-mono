@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:zinc_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:zinc_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 100
+}

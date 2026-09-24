@@ -3,6 +3,8 @@ package com.elysium.core.block;
 import com.elysium.lib.claim.ElysiumClaim;
 import com.elysium.lib.claim.ElysiumClaims;
 import com.elysium.lib.standing.ElysiumStanding;
+import com.elysium.lib.tier.ElysiumTiers;
+import com.elysium.lib.tier.ElysiumWorldTier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -10,7 +12,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -91,6 +96,44 @@ public class RegistryBeaconBlock extends Block {
 
     // ------------------------------------------------------------------
 
+    /**
+     * Using a Registry Beacon item on a claimed beacon ascends it.
+     *
+     * Anything else in hand falls through to {@link #useWithoutItem}, so
+     * right-clicking with a pickaxe still reports the claim rather than doing
+     * nothing.
+     */
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack held, BlockState state,
+                                              Level level, BlockPos pos,
+                                              Player player, InteractionHand hand,
+                                              BlockHitResult hit) {
+        if (!held.is(asItem())) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+        if (!(level instanceof ServerLevel server) || !(player instanceof ServerPlayer)) {
+            return ItemInteractionResult.SUCCESS;
+        }
+        ElysiumClaims claims = ElysiumClaims.of(server);
+        ElysiumClaim existing = claims.anchored(pos);
+        if (existing == null) {
+            // Not claimed yet. Ascending an unclaimed beacon would be a player
+            // spending beacons on nothing, so send them to the claim first.
+            player.displayClientMessage(Component.translatable(
+                            "elysium.claim.ascend.unclaimed")
+                    .withStyle(ChatFormatting.RED), false);
+            return ItemInteractionResult.CONSUME;
+        }
+        if (!existing.owner().equals(player.getUUID())) {
+            player.displayClientMessage(Component.translatable(
+                            "elysium.claim.not_yours", existing.ownerName())
+                    .withStyle(ChatFormatting.RED), false);
+            return ItemInteractionResult.CONSUME;
+        }
+        ascend(server, claims, pos, player, existing, held);
+        return ItemInteractionResult.CONSUME;
+    }
+
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level,
                                                BlockPos pos, Player player,
@@ -140,6 +183,26 @@ public class RegistryBeaconBlock extends Block {
         player.displayClientMessage(Component.translatable(
                         "elysium.claim.staked", claim.radius(), floor)
                 .withStyle(ChatFormatting.GOLD), false);
+
+        absorbWorks(level, player, claim);
+    }
+
+    /**
+     * The base lifecycle: a works built wild and then registered stops being
+     * watched. The claim takes over from here, at its own floor.
+     *
+     * Called on staking and on every ascension, because a claim that grows
+     * over a neighbouring works has registered it just as surely as one
+     * planted on top of it.
+     */
+    private static void absorbWorks(ServerLevel level, Player player,
+                                    ElysiumClaim claim) {
+        int cleared = com.elysium.lib.works.ElysiumWorks.of(level).registered(claim);
+        if (cleared > 0) {
+            player.displayClientMessage(Component.translatable(
+                            "elysium.works.registered", cleared)
+                    .withStyle(ChatFormatting.GOLD), false);
+        }
     }
 
     /**
@@ -181,7 +244,102 @@ public class RegistryBeaconBlock extends Block {
         }
     }
 
+    /**
+     * A beacon used on a claimed beacon ascends the claim.
+     *
+     * <h3>Why a second beacon and not a new item</h3>
+     *
+     * Gear ascends by feeding it another of itself — {@link
+     * com.elysium.core.item.ElysiumGearAscension} is built on exactly that, and
+     * a player who has ascended a blade already knows the verb. A dedicated
+     * "claim upgrade" item would be a second vocabulary for the same idea, and
+     * the beacon is already the expensive thing that means territory.
+     *
+     * <h3>Why the price rises and does not double</h3>
+     *
+     * Gear doubles, because reaching tier <i>n</i> costing 2^<i>n</i> pieces is
+     * the only thing limiting an uncapped ladder whose reward compounds. A
+     * claim's radius is linear — sixty-four a tier, flat — so a doubling price
+     * would be a wall two tiers in rather than a ladder.
+     *
+     * But the reward is not as flat as the radius reads: ground is area, and
+     * the second tier covers three times what the first did. So the price rises
+     * with the tier rather than staying at one, and one beacon buys the first
+     * tier, two the second, and so on. Triangular price, quadratic reward — the
+     * player is still gaining, and is not gaining for free.
+     */
+    private InteractionResult ascend(ServerLevel level, ElysiumClaims claims,
+                                     BlockPos pos, Player player,
+                                     ElysiumClaim existing, ItemStack held) {
+        int price = existing.ascension() + 1;
+        if (held.getCount() < price) {
+            player.displayClientMessage(Component.translatable(
+                            "elysium.claim.ascend.price", price,
+                            existing.ascension() + 1)
+                    .withStyle(ChatFormatting.RED), false);
+            return InteractionResult.CONSUME;
+        }
+
+        ElysiumClaim grown = claims.ascend(pos);
+        if (grown == null) {
+            return InteractionResult.CONSUME;    // struck between the two reads
+        }
+        if (!player.getAbilities().instabuild) {
+            held.shrink(price);
+        }
+        level.playSound(null, pos, SoundEvents.BEACON_POWER_SELECT,
+                SoundSource.BLOCKS, 1.0F, 1.0F + 0.1F * grown.ascension());
+
+        // The floor moves with the claim, and applies now rather than at the
+        // next decay tick — the same rule staking follows.
+        int floor = grown.floor();
+        int current = ElysiumStanding.getSuspicion(player);
+        if (current < floor) {
+            ElysiumStanding.addSuspicion(player, floor - current,
+                    ElysiumStanding.CAUSE_CLAIM);
+        }
+
+        player.displayClientMessage(Component.translatable(
+                        "elysium.claim.ascended", grown.ascension(),
+                        grown.radius(), floor)
+                .withStyle(ChatFormatting.AQUA), false);
+        noticed(player, grown);
+        absorbWorks(level, player, grown);
+        return InteractionResult.CONSUME;
+    }
+
+    /**
+     * The base's ascension counts as a world tier, from now on.
+     *
+     * Through {@link ElysiumTiers#lift} rather than a fourth term in the tier
+     * arithmetic, and the difference matters. A term would have to be read
+     * every time anything asked what tier a player is — which is every loot
+     * roll and every mob that spawns — and answering it means walking every
+     * loaded dimension's claim map looking for this player's beacons. A floor
+     * is written once, here, at the moment the player pays for it, and is
+     * free to read forever after.
+     *
+     * <p>It also says the right thing. A floor never falls, and neither does
+     * an ascension: the claim survives the beacon being broken, and the Empire
+     * "does not un-record it when you knock it down". A player who ascends
+     * four times and then dismantles the whole fortress has still built it.
+     *
+     * <p>Called from the report path as well as the ascend path, so a world
+     * that was already ascended before this existed catches up the first time
+     * its owner right-clicks their own beacon.
+     */
+    private void noticed(Player player, ElysiumClaim claim) {
+        int tier = ElysiumWorldTier.tierForAscension(claim.ascension());
+        if (ElysiumTiers.lift(player, tier)) {
+            player.displayClientMessage(Component.translatable(
+                            "elysium.claim.world_tier", tier,
+                            Component.translatable(ElysiumWorldTier.nameKey(tier)))
+                    .withStyle(ChatFormatting.LIGHT_PURPLE), false);
+        }
+    }
+
     private void report(Player player, ElysiumClaim claim) {
+        noticed(player, claim);
         player.displayClientMessage(Component.translatable(
                         "elysium.claim.report", claim.structures(), claim.floor(),
                         claim.radius())

@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "ranged_weapon"
+  ],
+  "min_tier": 2,
+  "weight": 6,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "elysiumlib:armor_pierce",
+          "operation": "add_value",
+          "slot": "mainhand",
+          "min": 1.0,
+          "max": 4.0,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:bronze_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:bronze_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

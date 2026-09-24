@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "mekanism:block_charcoal",
+      "required": false
+    },
+    {
+      "id": "quark:charcoal_block",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "type": "core",
+  "gear_type": "arrow",
+  "part_type": "main",
+  "crafting": {
+    "materials": 1
+  },
+  "properties": {
+    "enchantment_value": {
+      "op": "multiply_total",
+      "value": 0.0
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "planks",
+  "ingredients": [
+    {
+      "tag": "elysiumspace:emgrove_logs"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "elysiumspace:emgrove_planks"
+  }
+}

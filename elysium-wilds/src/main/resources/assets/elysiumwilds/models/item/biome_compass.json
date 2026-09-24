@@ -1,0 +1,104 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumwilds:item/biome_compass_00"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.0
+      },
+      "model": "elysiumwilds:item/biome_compass_00"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.03125
+      },
+      "model": "elysiumwilds:item/biome_compass_01"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.09375
+      },
+      "model": "elysiumwilds:item/biome_compass_02"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.15625
+      },
+      "model": "elysiumwilds:item/biome_compass_03"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.21875
+      },
+      "model": "elysiumwilds:item/biome_compass_04"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.28125
+      },
+      "model": "elysiumwilds:item/biome_compass_05"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.34375
+      },
+      "model": "elysiumwilds:item/biome_compass_06"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.40625
+      },
+      "model": "elysiumwilds:item/biome_compass_07"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.46875
+      },
+      "model": "elysiumwilds:item/biome_compass_08"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.53125
+      },
+      "model": "elysiumwilds:item/biome_compass_09"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.59375
+      },
+      "model": "elysiumwilds:item/biome_compass_10"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.65625
+      },
+      "model": "elysiumwilds:item/biome_compass_11"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.71875
+      },
+      "model": "elysiumwilds:item/biome_compass_12"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.78125
+      },
+      "model": "elysiumwilds:item/biome_compass_13"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.84375
+      },
+      "model": "elysiumwilds:item/biome_compass_14"
+    },
+    {
+      "predicate": {
+        "elysiumwilds:angle": 0.90625
+      },
+      "model": "elysiumwilds:item/biome_compass_15"
+    }
+  ]
+}

@@ -34,9 +34,15 @@ MODULES = [
     ("elysium-lib", "elysiumlib"),
     ("elysium-core", "elysium"),
     ("elysium-dungeons", "elysiumdungeons"),
+    ("elysium-space", "elysiumspace"),
     ("elysium-mobs", "elysiummobs"),
     ("elysium-npcs", "elysiumnpcs"),
     ("elysium-trinkets", "elysiumtrinkets"),
+    ("elysium-solarpunk", "elysiumsolarpunk"),
+    # An add-on rather than a world, and it talks to the player more than most
+    # of them: every message it sends is about a colony that is stuck, and a
+    # message about being stuck that reads "%s" is worse than none.
+    ("elysium-colonies", "elysiumcolonies"),
 ]
 
 

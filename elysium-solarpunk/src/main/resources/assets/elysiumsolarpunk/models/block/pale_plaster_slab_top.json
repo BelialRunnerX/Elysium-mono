@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "side": "elysiumsolarpunk:block/pale_plaster",
+    "top": "elysiumsolarpunk:block/pale_plaster",
+    "bottom": "elysiumsolarpunk:block/pale_plaster"
+  }
+}

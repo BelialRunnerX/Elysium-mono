@@ -1,6 +1,7 @@
 package com.elysium.lib.affix;
 
 import com.elysium.lib.ElysiumLib;
+import com.elysium.lib.item.ElysiumGear;
 import com.elysium.lib.item.ElysiumSocketable;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -62,7 +63,7 @@ public class ElysiumAffix {
 
     /** Affixes only ever apply to Elysium gear — armour, weapons or tools. */
     public boolean canApplyTo(ItemStack stack) {
-        return stack.getItem() instanceof ElysiumSocketable;
+        return ElysiumGear.is(stack);
     }
 
     /**
@@ -99,6 +100,33 @@ public class ElysiumAffix {
      */
     public AttributeModifier createModifier(float level, float scale, EquipmentSlotGroup group) {
         return new AttributeModifier(modifierId(group), roll(level) * scale, operation);
+    }
+
+    /**
+     * Whether this affix grants a percentage rather than a quantity.
+     *
+     * Read off the attribute itself, not a list: a flat bonus to an attribute
+     * whose whole range is 0 to 1 — knockback resistance, and any add-on
+     * attribute shaped like it — is a share of something. Those follow
+     * stat / (stat + b) when scaled; everything else scales linearly.
+     */
+    public boolean isShare() {
+        return operation == AttributeModifier.Operation.ADD_VALUE
+                && attribute.value() instanceof net.minecraft.world.entity.ai.attributes.RangedAttribute ranged
+                && ranged.getMaxValue() <= 1.0D;
+    }
+
+    /**
+     * The modifier for a percentage affix at {@code scale} times its stat:
+     * the base roll is the share at scale 1, and scale N is N times the stat
+     * behind it, so the share climbs without reaching the attribute's top.
+     */
+    public AttributeModifier createShareModifier(float level, float scale,
+                                                 EquipmentSlotGroup group) {
+        float base = (float) roll(level);
+        return new AttributeModifier(modifierId(group),
+                com.elysium.lib.stats.ElysiumShares.scaled(base,
+                        scale * com.elysium.lib.stats.ElysiumShares.PACE), operation);
     }
 
     public Component describe(float level) {

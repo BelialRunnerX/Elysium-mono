@@ -1,0 +1,19 @@
+{
+  "type": "core",
+  "gear_type": "shears",
+  "part_type": "main",
+  "crafting": {
+    "materials": 2
+  },
+  "properties": {
+    "attack_speed": {
+      "op": "add",
+      "value": 4.0
+    },
+    "durability": {
+      "op": "multiply_base",
+      "value": -0.048
+    },
+    "repair_efficiency": 1.25
+  }
+}

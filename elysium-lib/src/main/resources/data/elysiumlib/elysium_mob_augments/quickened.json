@@ -1,0 +1,12 @@
+{
+  "weight": 8,
+  "min_tier": 2,
+  "attributes": {
+    "minecraft:generic.movement_speed": 1.2
+  },
+  "effects": [
+    {
+      "effect": "minecraft:speed"
+    }
+  ]
+}

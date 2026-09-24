@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarmory:item/prospector_hammer",
+    "layer1": "elysiumarmory:item/prospector_hammer_grip"
+  }
+}

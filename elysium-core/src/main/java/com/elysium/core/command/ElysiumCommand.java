@@ -72,6 +72,11 @@ public final class ElysiumCommand {
                     context.getSource().sendSuccess(() -> ElysiumStanding.report(player), false);
                     return 1;
                 }))
+                .then(Commands.literal("tier").executes(context -> {
+                    Player player = context.getSource().getPlayerOrException();
+                    printTier(context.getSource(), player);
+                    return 1;
+                }))
                 .then(Commands.literal("respec").executes(context -> {
                     Player player = context.getSource().getPlayerOrException();
                     ElysiumCharacter.respec(player);
@@ -123,6 +128,34 @@ public final class ElysiumCommand {
         source.sendSuccess(() -> Component.literal(String.join(", ", uncovered))
                 .withStyle(ChatFormatting.WHITE), false);
         source.sendSuccess(() -> Component.translatable("elysium.command.materials.hint")
+                .withStyle(ChatFormatting.DARK_GRAY), false);
+    }
+
+    /**
+     * Where this player stands, and what it is worth.
+     *
+     * World tier is the one number every other system in this mod scales
+     * against — mobs, loot, enchanting ceilings — and until now it was the one
+     * number a player could not see. It is not on the character sheet because
+     * it is not a character stat: it is a property of how far they have come
+     * and where they are standing, and both halves are printed here.
+     */
+    private static void printTier(CommandSourceStack source, Player player) {
+        int tier = com.elysium.lib.tier.ElysiumTiers.of(player);
+        int floor = com.elysium.lib.tier.ElysiumTiers.floorOf(player);
+        source.sendSuccess(() -> Component.translatable("elysium.command.tier.header",
+                        Component.translatable(
+                                com.elysium.lib.tier.ElysiumWorldTier.nameKey(tier)),
+                        tier)
+                .withStyle(ChatFormatting.GOLD), false);
+        source.sendSuccess(() -> Component.translatable("elysium.command.tier.from",
+                        ElysiumCharacter.getLevel(player), floor)
+                .withStyle(ChatFormatting.GRAY), false);
+        // The share is the thing worth seeing: it is what every percentile
+        // effect in the mod is multiplied by, and it never reaches one.
+        source.sendSuccess(() -> Component.translatable("elysium.command.tier.share",
+                        String.format("%.1f",
+                                com.elysium.lib.tier.ElysiumWorldTier.share(tier) * 100.0D))
                 .withStyle(ChatFormatting.DARK_GRAY), false);
     }
 

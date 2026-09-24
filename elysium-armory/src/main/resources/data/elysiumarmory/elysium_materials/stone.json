@@ -1,0 +1,62 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:cobblestones",
+    "categories": [
+      "rock",
+      "basic"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/stone"
+    }
+  },
+  "display": {
+    "name": "Stone"
+  },
+  "properties": {
+    "main": {
+      "durability": 131.0,
+      "armor_durability": 5.0,
+      "harvest_tier": "stone",
+      "harvest_speed": 4.0,
+      "attack_damage": 1.0,
+      "attack_speed": 0.0,
+      "ranged_damage": 0.0,
+      "draw_speed": -0.2,
+      "projectile_speed": 1.0,
+      "projectile_accuracy": 0.8,
+      "armor": 5.0,
+      "armor/helmet": 1.0,
+      "armor/chestplate": 2.0,
+      "armor/leggings": 1.0,
+      "armor/boots": 1.0,
+      "enchantment_value": 5.0,
+      "charging_value": 0.5,
+      "rarity": 4.0,
+      "attack_speed/axe": -0.2,
+      "attack_speed/hoe": -1.0,
+      "traits": [
+        {
+          "trait": "ancient",
+          "level": 1
+        }
+      ]
+    },
+    "rod": {
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "traits": [
+        {
+          "trait": "brittle",
+          "level": 2
+        },
+        {
+          "trait": "crushing",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "simple",
+  "parent": "elysiumarmory:stone",
+  "crafting": {
+    "ingredient": "minecraft:diorite",
+    "categories": [
+      "rock",
+      "basic"
+    ]
+  },
+  "display": {
+    "name": "Diorite"
+  }
+}

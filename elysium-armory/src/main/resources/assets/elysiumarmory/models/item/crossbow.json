@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarmory:item/crossbow",
+    "layer1": "elysiumarmory:item/crossbow_grip"
+  }
+}

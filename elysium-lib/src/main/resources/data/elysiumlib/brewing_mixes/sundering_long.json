@@ -1,0 +1,5 @@
+{
+  "from": "elysiumlib:sundering",
+  "ingredient": "minecraft:redstone",
+  "to": "elysiumlib:long_sundering"
+}

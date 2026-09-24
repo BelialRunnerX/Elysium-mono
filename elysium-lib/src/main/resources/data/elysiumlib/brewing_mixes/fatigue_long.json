@@ -1,0 +1,5 @@
+{
+  "from": "elysiumlib:fatigue",
+  "ingredient": "minecraft:redstone",
+  "to": "elysiumlib:long_fatigue"
+}

@@ -1,0 +1,5 @@
+{
+  "from": "elysiumlib:absorption",
+  "ingredient": "minecraft:redstone",
+  "to": "elysiumlib:long_absorption"
+}

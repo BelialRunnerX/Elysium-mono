@@ -16,7 +16,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import com.elysium.lib.telegraph.ElysiumTelegraphedAttack;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -83,7 +83,7 @@ public final class ElysiumBosses {
         @Override
         protected void registerGoals() {
             goalSelector.addGoal(0, new FloatGoal(this));
-            goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.15D, false));
+            goalSelector.addGoal(2, new ElysiumTelegraphedAttack(this, 1.15D, false));
             goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 24.0F));
             targetSelector.addGoal(1,
                     new net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal(this));
@@ -200,7 +200,7 @@ public final class ElysiumBosses {
         @Override
         protected void registerGoals() {
             goalSelector.addGoal(0, new FloatGoal(this));
-            goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0D, true));
+            goalSelector.addGoal(2, new ElysiumTelegraphedAttack(this, 1.0D, true));
             goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 24.0F));
             targetSelector.addGoal(1,
                     new net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal(this));

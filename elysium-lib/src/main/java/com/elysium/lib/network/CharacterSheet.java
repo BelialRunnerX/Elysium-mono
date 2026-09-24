@@ -3,6 +3,9 @@ package com.elysium.lib.network;
 import com.elysium.lib.character.ElysiumCharacter;
 import com.elysium.lib.character.ElysiumClass;
 import com.elysium.lib.character.ElysiumRace;
+import com.elysium.lib.research.ElysiumResearch;
+import com.elysium.lib.research.ElysiumResearchField;
+import com.elysium.lib.research.ElysiumResearchRank;
 import com.elysium.lib.stats.ElysiumStat;
 import com.elysium.lib.stats.ElysiumStatBlock;
 import com.elysium.lib.stats.ElysiumStats;
@@ -14,7 +17,7 @@ import java.util.Map;
 /**
  * A character, flattened to one string and back.
  *
- * <pre>{@code   race|class|level|xp|xpNext|stat=value,stat=value,...|favor|suspicion   }</pre>
+ * <pre>{@code   race|class|level|xp|xpNext|stats|favor|suspicion|research|catalogued   }</pre>
  *
  * Deliberately boring. The alternative — a fifteen-field packet — has to agree
  * on field order between two sides that ship independently, and gets a field
@@ -63,7 +66,28 @@ public final class CharacterSheet {
                 // eighty. Two more fields on a string that already travels
                 // whenever anything changes is the cheap answer.
                 Integer.toString(ElysiumStanding.getFavor(player)),
-                Integer.toString(ElysiumStanding.getSuspicion(player))));
+                Integer.toString(ElysiumStanding.getSuspicion(player)),
+                // Fields 8 and 9, added with the research tracks. Appending is
+                // exactly what this format is for: a client on an older build
+                // reads seven fields and ignores the rest, and a client on a
+                // newer one reads zero research from an older server rather
+                // than failing to parse the sheet at all.
+                research(player),
+                Integer.toString(com.elysium.lib.discovery.ElysiumDiscoveries
+                        .catalogued(player))));
+    }
+
+    /** The six tracks, packed the same way the stats are. */
+    private static String research(Player player) {
+        StringBuilder out = new StringBuilder();
+        for (ElysiumResearchField field : ElysiumResearchField.values()) {
+            if (out.length() > 0) {
+                out.append(PAIR);
+            }
+            out.append(field.id()).append('=')
+                    .append(ElysiumResearch.points(player, field));
+        }
+        return out.toString();
     }
 
     /** The client-side view of a packed sheet. */
@@ -74,7 +98,30 @@ public final class CharacterSheet {
                          int xpNext,
                          Map<ElysiumStat, Integer> stats,
                          int favor,
-                         int suspicion) {
+                         int suspicion,
+                         Map<ElysiumResearchField, Integer> research,
+                         int catalogued) {
+
+        public int points(ElysiumResearchField field) {
+            Integer held = research.get(field);
+            return held == null ? 0 : held;
+        }
+
+        public ElysiumResearchRank rank(ElysiumResearchField field) {
+            return ElysiumResearchRank.of(points(field));
+        }
+
+        /**
+         * Whether this player has earned an unlock, as far as the client knows.
+         *
+         * For drawing only. Every place that acts on an unlock asks
+         * {@code ElysiumResearch.has} on the server, because a client that told
+         * the server what it had researched would be a client that decides what
+         * it has researched.
+         */
+        public boolean has(com.elysium.lib.research.ElysiumUnlock unlock) {
+            return unlock.metBy(points(unlock.field()));
+        }
 
         public int get(ElysiumStat stat) {
             Integer value = stats.get(stat);
@@ -93,7 +140,8 @@ public final class CharacterSheet {
 
     /** The sheet a client draws before the server has told it anything. */
     public static Parsed empty() {
-        return new Parsed(null, null, 1, 0, 1, new java.util.LinkedHashMap<>(), 0, 0);
+        return new Parsed(null, null, 1, 0, 1, new java.util.LinkedHashMap<>(), 0, 0,
+                new java.util.LinkedHashMap<>(), 0);
     }
 
     /**
@@ -138,7 +186,27 @@ public final class CharacterSheet {
         int favor = fields.length > 6 ? parseInt(fields[6], 0) : 0;
         int suspicion = fields.length > 7 ? parseInt(fields[7], 0) : 0;
 
-        return new Parsed(race, job, level, xp, Math.max(1, xpNext), stats, favor, suspicion);
+        // Fields 8 and 9, added with the research tracks, and read the same
+        // forgiving way: a sheet from a server that predates them is a player
+        // with no research rather than a screen that will not draw.
+        Map<ElysiumResearchField, Integer> research = new java.util.LinkedHashMap<>();
+        if (fields.length > 8 && !fields[8].isEmpty()) {
+            for (String entry : fields[8].split(PAIR)) {
+                int equals = entry.indexOf('=');
+                if (equals <= 0) {
+                    continue;
+                }
+                ElysiumResearchField field =
+                        ElysiumResearchField.byId(entry.substring(0, equals));
+                if (field != null) {
+                    research.put(field, parseInt(entry.substring(equals + 1), 0));
+                }
+            }
+        }
+        int catalogued = fields.length > 9 ? parseInt(fields[9], 0) : 0;
+
+        return new Parsed(race, job, level, xp, Math.max(1, xpNext), stats,
+                favor, suspicion, research, catalogued);
     }
 
     private static int parseInt(String text, int fallback) {

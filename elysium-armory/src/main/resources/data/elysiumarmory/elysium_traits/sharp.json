@@ -1,0 +1,25 @@
+{
+  "name": "Sharp",
+  "max_level": 5,
+  "description": "Gain harvest speed and attack damage as durability is lost",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "property",
+      "modifiers": {
+        "attack_damage": {
+          "per_level": 0.125,
+          "damage_ratio": true,
+          "of_value": true
+        },
+        "harvest_speed": {
+          "per_level": 0.125,
+          "damage_ratio": true,
+          "of_value": true
+        }
+      }
+    }
+  ]
+}

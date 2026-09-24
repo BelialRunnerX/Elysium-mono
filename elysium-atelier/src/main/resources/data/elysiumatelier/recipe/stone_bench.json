@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:stone"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:stone_bench",
+    "count": 2
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "mekanism:dust_quartz",
+      "required": false
+    },
+    {
+      "id": "oritech:quartz_dust",
+      "required": false
+    }
+  ]
+}

@@ -89,6 +89,24 @@ public enum EnvoyKind {
      * copies of a humanoid to keep in step, and the moment one of them gained
      * an arm and the others did not, the court would stop reading as one set.
      */
+    /**
+     * What a kind wears, as a fact about the character rather than as a list
+     * of model parts.
+     *
+     * <h4>Why this no longer drives the model</h4>
+     *
+     * It used to: EnvoyModel had one part per entry and showed the ones a kind
+     * wore. That worked while all five envoys were the same thirteen boxes in
+     * different colours, and stopped working the moment they were rebuilt as
+     * five separate costumes — Aurelia's hair is five chains, Lillith's
+     * greatcoat is two hanging tails and an emblem with wings, and neither is
+     * expressible as "this kind has CAPE".
+     *
+     * The model now shows a whole wardrobe per kind, which is both simpler and
+     * the only thing that can describe what the five actually look like. This
+     * enum stays because it is still the honest answer to "what is this envoy
+     * wearing", which the writ and the codex may yet want to say out loud.
+     */
     public enum Regalia { CROWN, CAPE, PAULDRONS, COLLAR, VISOR, HALO }
 
     private final String id;

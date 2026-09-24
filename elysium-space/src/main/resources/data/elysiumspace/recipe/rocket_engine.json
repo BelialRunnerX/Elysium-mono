@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "RXR",
+    "# #",
+    "# #"
+  ],
+  "key": {
+    "#": {
+      "tag": "c:ingots/steel"
+    },
+    "R": {
+      "tag": "c:storage_blocks/steel"
+    },
+    "X": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:rocket_engine"
+  }
+}

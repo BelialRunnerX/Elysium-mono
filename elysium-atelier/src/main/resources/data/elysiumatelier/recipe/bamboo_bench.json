@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:bamboo_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:bamboo_bench",
+    "count": 2
+  }
+}

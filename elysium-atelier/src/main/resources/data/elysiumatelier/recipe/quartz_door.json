@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MM",
+    "MM",
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:quartz_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:quartz_door",
+    "count": 3
+  }
+}

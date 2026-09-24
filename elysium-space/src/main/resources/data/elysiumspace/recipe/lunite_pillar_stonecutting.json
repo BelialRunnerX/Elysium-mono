@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "elysiumspace:lunite_plating"
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:lunite_pillar"
+  }
+}

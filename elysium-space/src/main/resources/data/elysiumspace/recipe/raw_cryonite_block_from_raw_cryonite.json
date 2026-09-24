@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumspace:raw_cryonite"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:raw_cryonite_block"
+  }
+}

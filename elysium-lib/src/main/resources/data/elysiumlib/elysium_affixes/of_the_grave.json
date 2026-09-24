@@ -1,0 +1,17 @@
+{
+  "type": "suffix",
+  "on": [
+    "weapon"
+  ],
+  "min_tier": 0,
+  "weight": 7,
+  "max_level": 4,
+  "effects": [
+    {
+      "type": "extra_damage",
+      "against": "tagged",
+      "tag": "minecraft:undead",
+      "per_level": 1.5
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Moonwalker",
+  "max_level": 5,
+  "description": "I don't believe in gravity!",
+  "conditions": [
+    "any:on:boots,on:curio"
+  ],
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "slot": "any",
+          "attribute": "minecraft:generic.gravity",
+          "operation": "add_multiplied_base",
+          "values": [
+            -0.15,
+            -0.3,
+            -0.45000002,
+            -0.6,
+            -0.75
+          ]
+        }
+      ]
+    }
+  ]
+}

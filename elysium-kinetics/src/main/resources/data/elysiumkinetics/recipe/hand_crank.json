@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "TI",
+    "PS"
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:stick"
+    },
+    "I": {
+      "item": "minecraft:iron_nugget"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "S": {
+      "item": "elysiumkinetics:timber_shaft"
+    }
+  },
+  "result": {
+    "id": "elysiumkinetics:hand_crank",
+    "count": 1
+  }
+}

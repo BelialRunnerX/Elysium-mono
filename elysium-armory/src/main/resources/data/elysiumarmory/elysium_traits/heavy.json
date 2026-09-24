@@ -1,0 +1,63 @@
+{
+  "name": "Heavy",
+  "max_level": 5,
+  "description": "Armor decreases movement speed",
+  "conditions": [
+    "on:armor"
+  ],
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "slot": "chest",
+          "attribute": "minecraft:generic.movement_speed",
+          "operation": "add_multiplied_base",
+          "values": [
+            -0.01,
+            -0.02,
+            -0.03,
+            -0.04,
+            -0.05
+          ]
+        },
+        {
+          "slot": "feet",
+          "attribute": "minecraft:generic.movement_speed",
+          "operation": "add_multiplied_base",
+          "values": [
+            -0.01,
+            -0.02,
+            -0.03,
+            -0.04,
+            -0.05
+          ]
+        },
+        {
+          "slot": "head",
+          "attribute": "minecraft:generic.movement_speed",
+          "operation": "add_multiplied_base",
+          "values": [
+            -0.01,
+            -0.02,
+            -0.03,
+            -0.04,
+            -0.05
+          ]
+        },
+        {
+          "slot": "legs",
+          "attribute": "minecraft:generic.movement_speed",
+          "operation": "add_multiplied_base",
+          "values": [
+            -0.01,
+            -0.02,
+            -0.03,
+            -0.04,
+            -0.05
+          ]
+        }
+      ]
+    }
+  ]
+}

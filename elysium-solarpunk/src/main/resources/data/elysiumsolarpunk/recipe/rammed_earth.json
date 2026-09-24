@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "dg",
+    "cd"
+  ],
+  "key": {
+    "d": {
+      "item": "minecraft:dirt"
+    },
+    "g": {
+      "item": "minecraft:gravel"
+    },
+    "c": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:rammed_earth",
+    "count": 4
+  }
+}

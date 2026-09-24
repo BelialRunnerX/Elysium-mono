@@ -1,0 +1,69 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/zinc",
+    "categories": [
+      "metal",
+      "basic"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/zinc"
+    }
+  },
+  "display": {
+    "name": "Zinc"
+  },
+  "properties": {
+    "main": {
+      "durability": 192.0,
+      "armor_durability": 10.0,
+      "harvest_tier": "stone",
+      "harvest_speed": 3.0,
+      "attack_damage": 1.5,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 0.0,
+      "draw_speed": 0.0,
+      "armor": 10.0,
+      "armor/helmet": 1.0,
+      "armor/chestplate": 5.0,
+      "armor/leggings": 3.0,
+      "armor/boots": 1.0,
+      "magic_armor": 2.0,
+      "enchantment_value": 15.0,
+      "charging_value": 1.1,
+      "rarity": 10.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 1
+        },
+        {
+          "trait": "soft",
+          "level": 2
+        }
+      ]
+    },
+    "rod": {
+      "attack_damage": {
+        "op": "multiply_total",
+        "value": 0.05
+      },
+      "durability": {
+        "op": "multiply_total",
+        "value": -0.05
+      },
+      "rarity": 15.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        },
+        {
+          "trait": "soft",
+          "level": 3
+        }
+      ]
+    }
+  }
+}

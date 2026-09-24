@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "create:iron_sheet",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:plate_iron",
+      "required": false
+    }
+  ]
+}

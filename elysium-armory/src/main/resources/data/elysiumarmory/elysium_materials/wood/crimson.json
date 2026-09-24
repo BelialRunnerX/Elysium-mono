@@ -1,0 +1,28 @@
+{
+  "type": "simple",
+  "parent": "elysiumarmory:wood",
+  "crafting": {
+    "ingredient": "minecraft:crimson_planks"
+  },
+  "display": {
+    "name": "Crimson Wood"
+  },
+  "properties": {
+    "main": {
+      "traits": [
+        {
+          "trait": "jagged",
+          "level": 1
+        }
+      ]
+    },
+    "rod": {
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

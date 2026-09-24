@@ -1,0 +1,12 @@
+{
+  "type": "elysiumsolarpunk:farming",
+  "input": {
+    "item": "minecraft:potato"
+  },
+  "result": {
+    "id": "minecraft:potato",
+    "count": 2
+  },
+  "time": 240,
+  "energy": 720
+}

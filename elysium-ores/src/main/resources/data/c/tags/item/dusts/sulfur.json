@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:dust_sulfur",
+      "required": false
+    },
+    {
+      "id": "mekanism:dust_sulfur",
+      "required": false
+    },
+    {
+      "id": "tfmg:sulfur_dust",
+      "required": false
+    }
+  ]
+}

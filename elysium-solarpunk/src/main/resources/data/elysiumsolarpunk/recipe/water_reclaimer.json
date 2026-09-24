@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "bwb",
+    "bcb",
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "elysiumsolarpunk:solar_brass_ingot"
+    },
+    "w": {
+      "item": "minecraft:copper_ingot"
+    },
+    "c": {
+      "item": "minecraft:cauldron"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:water_reclaimer",
+    "count": 1
+  }
+}

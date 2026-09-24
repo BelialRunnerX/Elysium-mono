@@ -1,0 +1,24 @@
+{
+  "type": "suffix",
+  "on": [
+    "armor"
+  ],
+  "min_tier": 1,
+  "weight": 8,
+  "max_level": 4,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "minecraft:generic.max_health",
+          "operation": "add_value",
+          "slot": "any",
+          "min": 2.0,
+          "max": 10.0,
+          "levels": 4
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumflora:block/stripped_emberwood_wood"
+    },
+    "axis=z": {
+      "model": "elysiumflora:block/stripped_emberwood_wood",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "elysiumflora:block/stripped_emberwood_wood",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

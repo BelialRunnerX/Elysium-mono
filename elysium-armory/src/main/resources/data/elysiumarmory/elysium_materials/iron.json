@@ -1,0 +1,89 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/iron",
+    "categories": [
+      "metal",
+      "intermediate"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/iron"
+    }
+  },
+  "display": {
+    "name": "Iron"
+  },
+  "properties": {
+    "main": {
+      "durability": 250.0,
+      "armor_durability": 15.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 6.0,
+      "attack_damage": 2.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 1.0,
+      "draw_speed": 0.1,
+      "projectile_speed": 1.0,
+      "projectile_accuracy": 1.1,
+      "armor": 15.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 6.0,
+      "armor/leggings": 5.0,
+      "armor/boots": 2.0,
+      "magic_armor": 6.0,
+      "enchantment_value": 14.0,
+      "charging_value": 0.7,
+      "rarity": 20.0,
+      "attack_speed/axe": -0.1,
+      "attack_speed/hoe": 0.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        }
+      ]
+    },
+    "rod": {
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 2
+        }
+      ]
+    },
+    "tip": {
+      "armor_durability": {
+        "op": "add",
+        "value": 4.0
+      },
+      "attack_damage": {
+        "op": "add",
+        "value": 1.0
+      },
+      "draw_speed": {
+        "op": "add",
+        "value": 0.2
+      },
+      "durability": {
+        "op": "add",
+        "value": 128.0
+      },
+      "harvest_speed": {
+        "op": "add",
+        "value": 1.0
+      },
+      "harvest_tier": "iron",
+      "rarity": {
+        "op": "add",
+        "value": 8.0
+      },
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

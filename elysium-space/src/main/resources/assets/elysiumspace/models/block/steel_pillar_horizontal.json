@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column_horizontal",
+  "textures": {
+    "side": "elysiumspace:block/steel_pillar",
+    "end": "elysiumspace:block/steel_pillar_top"
+  }
+}

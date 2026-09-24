@@ -1,0 +1,16 @@
+{
+  "type": "prefix",
+  "on": [
+    "melee_weapon"
+  ],
+  "min_tier": 1,
+  "weight": 8,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "target_effect",
+      "effect": "elysiumlib:bleeding",
+      "ticks_per_level": 40
+    }
+  ]
+}

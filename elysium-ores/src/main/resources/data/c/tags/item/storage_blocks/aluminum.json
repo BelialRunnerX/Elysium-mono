@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:storage_aluminum",
+      "required": false
+    },
+    {
+      "id": "tfmg:aluminum_block",
+      "required": false
+    }
+  ]
+}

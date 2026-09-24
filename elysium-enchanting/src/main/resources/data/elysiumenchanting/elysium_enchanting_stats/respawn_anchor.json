@@ -1,0 +1,7 @@
+{
+  "block": "minecraft:respawn_anchor",
+  "quanta": 1.5,
+  "arcana": 1.0,
+  "max_eterna": 25.0,
+  "_why": "a block that already does something the game will not explain"
+}

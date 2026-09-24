@@ -1,0 +1,11 @@
+{
+  "type": "elysiumatomics:centrifuging",
+  "input": {
+    "item": "minecraft:netherrack"
+  },
+  "result": {
+    "id": "minecraft:quartz",
+    "count": 1
+  },
+  "ticks": 300
+}

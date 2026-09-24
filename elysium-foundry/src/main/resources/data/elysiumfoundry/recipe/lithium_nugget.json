@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumfoundry:lithium_ingot"
+    }
+  ],
+  "result": {
+    "id": "elysiumfoundry:lithium_nugget",
+    "count": 9
+  }
+}

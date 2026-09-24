@@ -1,0 +1,8 @@
+{
+  "weight": 10,
+  "min_tier": 1,
+  "attributes": {
+    "minecraft:generic.follow_range": 2.0,
+    "minecraft:generic.movement_speed": 1.1
+  }
+}

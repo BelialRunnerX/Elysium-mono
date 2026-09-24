@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:storage_uranium",
+      "required": false
+    },
+    {
+      "id": "mekanism:block_uranium",
+      "required": false
+    }
+  ]
+}

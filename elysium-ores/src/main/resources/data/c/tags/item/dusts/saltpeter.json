@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:dust_saltpeter",
+      "required": false
+    },
+    {
+      "id": "tfmg:nitrate_dust",
+      "required": false
+    }
+  ]
+}

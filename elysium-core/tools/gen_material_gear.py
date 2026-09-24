@@ -69,7 +69,13 @@ MODELS = os.path.join(RES, "assets/elysium/models/item")
 LANG = os.path.join(RES, "assets/elysium/lang/en_us.json")
 RECIPES = os.path.join(RES, "data/elysium/recipe")
 
-SHAPES = ["hammer", "broadaxe", "scythe", "spear"]
+# The nine shapes every material gets, in the order they are registered.
+#
+# The plain five first, because that is the order a player meets them: a new
+# metal makes a pickaxe before it makes a hammer. The four area tools are the
+# second rung of the same material.
+SHAPES = ["sword", "pickaxe", "axe", "shovel", "hoe",
+          "hammer", "broadaxe", "scythe", "spear"]
 ARMOUR = ["helmet", "chestplate", "leggings", "boots"]
 
 # The element each Elysium element id maps to in the art system's glow ramps.
@@ -141,38 +147,113 @@ def read_materials():
 # Writers
 # ---------------------------------------------------------------------------
 
+def hand_drawn():
+    """
+    The sprite names art/build.py writes itself, which this script must not
+    touch.
+
+    <h2>Why this is scanned rather than listed</h2>
+
+    These two scripts write into the same directory and the overlap is real:
+    build.py draws `neutronium_helmet` by name, and `neutronium` is also a row
+    in the material table here, so the generated path for it is the same file.
+    Something has to give way, and it has to be this script, because build.py's
+    version is the deliberate one.
+
+    The old answer was "skip anything already on disk", and it was worse than
+    it looks. It is not a rule about which sprites are hand-drawn; it is a rule
+    about which files exist, and after the first run *every* generated sprite
+    exists. The generator had been reporting `sprites written: 0` for its
+    entire life. Editing a shape in art/sprites.py changed nothing, and the
+    only way to see an edit was to delete 196 files first — which nobody would
+    guess and nothing said.
+
+    Scanning build.py for the names it saves keeps one source of truth, and the
+    count assertion below is what stops a rewrite of build.py turning this into
+    a silent free-for-all that overwrites hand-drawn art.
+    """
+    source = os.path.join(_art_path(), "build.py")
+    with open(source, encoding="utf-8") as handle:
+        text = handle.read()
+    names = set(re.findall(r'out\(\s*f?"item/([\w{}]+)\.png"\s*\)', text))
+    # build.py's own loop over the three Empire tool materials, which is an
+    # f-string and so cannot be read literally.
+    for material in sprites.TOOL_MATERIALS:
+        for shape in sprites.TOOL_SHAPES:
+            names.add("%s_%s" % (material, shape))
+    names = {n for n in names if "{" not in n}
+
+    if len(names) < 20:
+        raise SystemExit(
+            "only found %d hand-drawn sprite names in art/build.py — the call "
+            "shape it uses must have changed. Refusing to run, because the "
+            "consequence of guessing wrong here is overwriting hand-drawn art "
+            "with generated art." % len(names))
+    return names
+
+
 def write_sprites(entries):
-    """A sprite per material and shape, skipping anything already drawn."""
+    """
+    A sprite per material and shape.
+
+    Everything this owns is rewritten every run. These are derived files: the
+    shape comes from art/pixelart.py and the colour from the material's ramp,
+    so the only correct response to either of those changing is to redraw all
+    of them.
+    """
     style.METAL.update(material_art.all_ramps())
-    written = 0
+    reserved = hand_drawn()
+    written = skipped = 0
+
     for name, glow, has_armour, _tag in entries:
         metal = name if name in style.METAL else "voidsteel"
+        # Armour for the Empire's materials takes the palette of their
+        # hand-drawn gear and ingot: voidglass is cut obsidian, not the generic
+        # voidsteel an unknown name falls back to. Armour only — the plain
+        # tools keep the sprites they shipped with, because nobody asked for
+        # those to change.
+        armour_metal = (sprites.TOOL_MATERIALS[name][0]
+                        if name in sprites.TOOL_MATERIALS else metal)
 
         for shape in SHAPES:
-            path = os.path.join(TEXTURES, "item", "%s_%s.png" % (name, shape))
-            if os.path.exists(path):
-                continue     # hand-drawn; leave it alone
-            getattr(sprites, shape)(metal, glow).save(path)
+            item = "%s_%s" % (name, shape)
+            if item in reserved:
+                skipped += 1
+                continue
+            getattr(sprites, shape)(metal, glow).save(
+                os.path.join(TEXTURES, "item", item + ".png"))
             written += 1
 
         if not has_armour:
             continue
         for piece in ARMOUR:
-            path = os.path.join(TEXTURES, "item", "%s_%s.png" % (name, piece))
-            if os.path.exists(path):
+            item = "%s_%s" % (name, piece)
+            if item in reserved:
+                skipped += 1
                 continue
-            getattr(sprites, piece)(metal, glow).save(path)
+            getattr(sprites, piece)(armour_metal, glow).save(
+                os.path.join(TEXTURES, "item", item + ".png"))
             written += 1
 
         # Worn armour layers, which are what the model on the player uses.
+        # build.py draws its own for elysium and neutronium, so those two names
+        # are reserved the same way.
         for index, builder in ((1, layers.layer_one), (2, layers.layer_two)):
-            path = os.path.join(TEXTURES, "models/armor",
-                                "%s_layer_%d.png" % (name, index))
-            if os.path.exists(path):
+            layer = "%s_layer_%d" % (name, index)
+            if layer in RESERVED_LAYERS:
+                skipped += 1
                 continue
-            builder(metal, glow).save(path)
+            builder(armour_metal, glow).save(
+                os.path.join(TEXTURES, "models/armor", layer + ".png"))
             written += 1
-    return written
+
+    return written, skipped
+
+
+# The worn-armour layers art/build.py draws by name. Short enough to list, and
+# unlike the item sprites there is no loop in build.py to scan.
+RESERVED_LAYERS = {"elysium_layer_1", "elysium_layer_2",
+                   "neutronium_layer_1", "neutronium_layer_2"}
 
 
 def write_models(entries):
@@ -202,6 +283,15 @@ def write_models(entries):
 # The crafting patterns. Tools use the same shapes the Elysium gear already
 # uses, so a player who has made one hammer knows how to make all of them.
 PATTERNS = {
+    # Vanilla's own patterns for the five plain shapes, unchanged. A player who
+    # knows how to make a pickaxe knows how to make one out of every metal this
+    # mod touches, which is most of the value of adding them.
+    "sword":      [" M ", " M ", " S "],
+    "pickaxe":    ["MMM", " S ", " S "],
+    "axe":        ["MM ", "MS ", " S "],
+    "shovel":     [" M ", " S ", " S "],
+    "hoe":        ["MM ", " S ", " S "],
+
     "hammer":     ["MMM", "MSM", " S "],
     "broadaxe":   ["MMM", "MSM", " S "],
     "scythe":     ["MMM", "  S", "  S"],
@@ -248,7 +338,9 @@ def write_recipes(entries):
 
 def write_lang(entries):
     lang = json.load(open(LANG, encoding="utf-8"))
-    titles = {"hammer": "Hammer", "broadaxe": "Broadaxe", "scythe": "Scythe",
+    titles = {"sword": "Sword", "pickaxe": "Pickaxe", "axe": "Axe",
+              "shovel": "Shovel", "hoe": "Hoe",
+              "hammer": "Hammer", "broadaxe": "Broadaxe", "scythe": "Scythe",
               "spear": "Spear", "helmet": "Helmet", "chestplate": "Chestplate",
               "leggings": "Leggings", "boots": "Boots"}
     added = 0
@@ -268,7 +360,8 @@ def write_lang(entries):
 def main():
     entries = read_materials()
     print("materials read     : %d" % len(entries))
-    print("sprites written    : %d" % write_sprites(entries))
+    written, reserved = write_sprites(entries)
+    print("sprites written    : %d (%d left to art/build.py)" % (written, reserved))
     print("models written     : %d" % write_models(entries))
     print("recipes written    : %d" % write_recipes(entries))
     print("lang keys added    : %d" % write_lang(entries))

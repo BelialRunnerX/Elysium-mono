@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "cbc"
+  ],
+  "key": {
+    "c": {
+      "item": "minecraft:clock"
+    },
+    "b": {
+      "item": "minecraft:book"
+    }
+  },
+  "result": {
+    "id": "elysiumenchanting:patience_tome",
+    "count": 1
+  }
+}

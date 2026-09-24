@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "cv",
+    "vc"
+  ],
+  "key": {
+    "c": {
+      "item": "minecraft:copper_ingot"
+    },
+    "v": {
+      "item": "elysiumsolarpunk:verdigris"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:verdigris_copper",
+    "count": 4
+  }
+}

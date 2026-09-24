@@ -1,0 +1,13 @@
+{
+  "name": "Cure Wither",
+  "max_level": 1,
+  "description": "Removes wither effect when equipped",
+  "effects": [
+    {
+      "type": "cancel_effects",
+      "effects": [
+        "minecraft:wither"
+      ]
+    }
+  ]
+}

@@ -17,9 +17,29 @@ import sys
 
 WORK = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(WORK, "src/main/resources/assets/elysiumnpcs")
+DATA = os.path.join(WORK, "src/main/resources/data/elysiumnpcs")
 JAVA = os.path.join(WORK, "src/main/java/com/elysium/npcs")
 
 problems = []
+
+
+def between(text, signature):
+    """The body of one method, by brace matching."""
+    start = text.find(signature)
+    if start < 0:
+        return ""
+    brace = text.find("{", start)
+    if brace < 0:
+        return ""
+    depth = 0
+    for index in range(brace, len(text)):
+        if text[index] == "{":
+            depth += 1
+        elif text[index] == "}":
+            depth -= 1
+            if depth == 0:
+                return text[brace:index + 1]
+    return text[brace:]
 
 
 def fail(msg):
@@ -239,22 +259,52 @@ print(f"court commissions  : issued by {len(issuers)} top-shelf office(s), "
 # The model draws every accessory the enum can ask for
 # ---------------------------------------------------------------------------
 #
-# EnvoyKind.Regalia is what a kind may wear; EnvoyModel is what can actually be
-# drawn. A value in the first with no part in the second is regalia that
-# silently does not appear - the kind is configured for it, nothing renders, and
-# there is no error anywhere.
+# Every kind's wardrobe has to be reachable.
+#
+# This used to compare EnvoyKind.Regalia against the parts EnvoyModel could
+# toggle, because the model had one part per regalia entry and showed the ones
+# a kind wore. The five envoys are five separate costumes now — Aurelia's hair
+# is five chains and Lillith's greatcoat is two hanging tails — and none of
+# that is expressible as "this kind has CAPE". The enum is still the honest
+# answer to what an envoy is wearing; it is no longer what draws them.
+#
+# So the rule moved to the mechanism that replaced it: one wardrobe array per
+# kind, each shown for exactly its own kind. A kind whose array is never
+# toggled renders in everybody's costume at once.
+model = open(os.path.join(JAVA, "client/model/EnvoyModel.java"), encoding="utf-8").read()
+kinds = sorted(set(re.findall(r"^\s*([A-Z]+)\(", kind_source, re.M)))
+if not kinds:
+    fail("EnvoyKind declares no kinds at all")
+wardrobe_sizes = {}
+for kind in kinds:
+    field = kind.lower() + "Parts"
+    if field not in model:
+        fail(f"EnvoyModel has no wardrobe for {kind}, so that envoy renders as "
+             f"a bare body")
+    elif f"show(this.{field}, kind == EnvoyKind.{kind})" not in model:
+        fail(f"EnvoyModel never shows {field} for exactly EnvoyKind.{kind}, so "
+             f"that envoy wears nothing, or wears everybody's costume at once")
+    else:
+        # ...and the wardrobe has to have something in it. The wiring check
+        # above passes on an empty array, which is an envoy whose costume was
+        # deleted from the generator: field present, toggle present, nothing
+        # drawn. A deliberate test removed every costume in the project and
+        # walked straight through.
+        declared = model.split(f"this.{field} = new ModelPart[] {{", 1)
+        worn = declared[1].split("};", 1)[0].count("at(") if len(declared) > 1 else 0
+        if worn == 0:
+            fail(f"{kind}'s wardrobe is empty, so that envoy renders as a bare "
+                 f"body wearing nothing at all")
+        wardrobe_sizes[kind] = worn
+if "static void show(" not in model and "private void show(" not in model:
+    fail("EnvoyModel has no show() helper, so nothing hides the four wardrobes "
+         "an envoy is not wearing")
 
-regalia = set(re.findall(r'public enum Regalia \{([^}]*)\}', kind_source)[0].replace(",", " ").split())
-model_path = os.path.join(JAVA, "client/model/EnvoyModel.java")
-if not os.path.exists(model_path):
-    fail("EnvoyModel.java is missing - run tools/gen_npcs.py")
-else:
-    model = open(model_path, encoding="utf-8").read()
-    for part in regalia:
-        if f"Regalia.{part}" not in model:
-            fail(f"EnvoyKind.Regalia.{part} exists but EnvoyModel never shows or hides "
-                 f"a part for it, so a kind that wears it renders without it")
-    print(f"regalia            : {len(regalia)} piece(s), all wired to a model part")
+if wardrobe_sizes:
+    smallest = min(wardrobe_sizes.items(), key=lambda pair: pair[1])
+    print(f"court wardrobes    : {len(kinds)} kinds, "
+          f"{sum(wardrobe_sizes.values())} costume parts between them, "
+          f"plainest is {smallest[0].lower()} at {smallest[1]}")
 
 # ---------------------------------------------------------------------------
 # No hard dependency on elysium-core
@@ -367,7 +417,14 @@ else:
 #
 # So the file is regenerated in memory and compared, the same way
 # elysium-lib guards its generated palette.
+#
+# Two generators write into this one file now: gen_npcs.py builds it wholesale
+# and gen_village.py adds the five professions' strings on top. That is exactly
+# the arrangement the paragraph above warns about, so the guard regenerates
+# *both*, in the order regen.sh runs them, and compares the result. Neither
+# script owns the file alone and neither can quietly drop the other's keys.
 generator = os.path.join(WORK, "tools", "gen_npcs.py")
+village_generator = os.path.join(WORK, "tools", "gen_village.py")
 lang_json = os.path.join(RES, "lang", "en_us.json")
 if not os.path.exists(generator):
     fail("tools/gen_npcs.py is missing, so the generated lang file is unguarded")
@@ -392,6 +449,22 @@ else:
             before = handle.read()
         try:
             module.write_lang()
+            if os.path.exists(village_generator):
+                village_spec = importlib.util.spec_from_file_location(
+                    "gen_village", village_generator)
+                village = importlib.util.module_from_spec(village_spec)
+                village_spec.loader.exec_module(village)
+                with open(lang_json, encoding="utf-8") as handle:
+                    merged = json.load(handle)
+                merged.update(village.lang_entries())
+                with open(lang_json, "w", encoding="utf-8") as handle:
+                    json.dump(merged, handle, indent=2, ensure_ascii=False,
+                              sort_keys=True)
+                    handle.write("\n")
+            else:
+                fail("tools/gen_village.py is missing, so the five professions' "
+                     "names are unguarded and the next gen_npcs.py run would "
+                     "erase them")
             with open(lang_json, encoding="utf-8") as handle:
                 after = handle.read()
         finally:
@@ -406,13 +479,220 @@ else:
                 detail += f" Keys the generator does not know about: {missing}."
             if extra:
                 detail += f" Keys it would add: {extra}."
-            fail(f"assets/elysiumnpcs/lang/en_us.json does not match "
-                 f"tools/gen_npcs.py — the next run of the generator would "
-                 f"overwrite it.{detail} Add the strings to the generator, not "
-                 f"to the JSON.")
+            fail(f"assets/elysiumnpcs/lang/en_us.json does not match its "
+                 f"generators — the next run would overwrite it.{detail} Add "
+                 f"the strings to gen_npcs.py or gen_village.py, not to the "
+                 f"JSON.")
         else:
             print(f"generated lang     : {len(json.loads(before))} keys, "
-                  f"matches tools/gen_npcs.py")
+                  f"matches gen_npcs.py + gen_village.py")
+
+# ---------------------------------------------------------------------------
+# The five village professions
+# ---------------------------------------------------------------------------
+#
+# A profession only works if three registrations in three different registries
+# agree: a block, a point of interest naming that block's states, and a
+# profession naming that point of interest. Break the middle link and the bench
+# is furniture — villagers walk past it forever and nothing in any log says why.
+# Break the last and the profession exists with no way into it.
+#
+# None of that fails to load, so none of it is caught by compiling. It is caught
+# here, by reading the Java that declares all three together and then checking
+# that every file each one needs is on disk.
+
+STATIONS = os.path.join(WORK, "src/main/java/com/elysium/npcs/village/ElysiumStations.java")
+VILLAGE = os.path.join(WORK, "src/main/java/com/elysium/npcs/village")
+TRADES = os.path.join(VILLAGE, "ElysiumVillagerTrades.java")
+
+if not os.path.exists(STATIONS):
+    fail("ElysiumStations.java is missing — there are no village professions")
+else:
+    station_source = open(STATIONS, encoding="utf-8").read()
+    # Comments stripped before anything is looked for in the code.
+    #
+    # Not fussiness: the first version of the block-state check below searched
+    # the whole file, and the javadoc above the POI registration explains the
+    # rule by naming the very method the check looks for. Deliberately breaking
+    # the code left the sentence in the comment behind, and the check passed.
+    station_code = re.sub(r"//[^\n]*|/\*.*?\*/", " ", station_source, flags=re.S)
+    stations = re.findall(r'station\("(\w+)",\s*"(\w+)",', station_code)
+
+    if not stations:
+        fail("read no stations out of ElysiumStations.java — the declaration "
+             "shape has changed and every check below would pass by finding "
+             "nothing")
+    else:
+        # The three registries are written by one helper taking one call. If
+        # that ever becomes three separate lists, a bench with no profession
+        # attached stops being impossible.
+        for registry in ("BLOCKS", "POI_TYPES", "PROFESSIONS"):
+            # Only the calls that register content. Each of these registers is
+            # also handed the mod bus once, in register(), and counting that as
+            # a content registration was the first version of this check
+            # failing on correct code.
+            calls = len(re.findall(registry + r"\.register\((?!modEventBus)",
+                                   station_source))
+            if calls != 1:
+                fail(f"{registry}.register is called {calls} times with content "
+                     f"in ElysiumStations. One call each, inside station(), is "
+                     f"what makes it impossible to register a bench without "
+                     f"the profession that claims it")
+
+        # A POI matches BlockStates, not Blocks. Registering the default state
+        # alone works today — these benches have no properties — and silently
+        # stops matching three rotations out of four the day one gains a facing.
+        if "getPossibleStates()" not in station_code:
+            fail("the point of interest is not registered against every block "
+                 "state. It works until a bench gains a property, and then "
+                 "villagers take the job only when the bench happens to face "
+                 "one way")
+
+        for role, bench in stations:
+            for rel, what in (
+                    (f"blockstates/{bench}.json", "blockstate"),
+                    (f"models/block/{bench}.json", "block model"),
+                    (f"models/item/{bench}.json", "item model"),
+                    (f"textures/block/{bench}_front.png", "front texture"),
+                    (f"textures/block/{bench}_side.png", "side texture"),
+                    (f"textures/block/{bench}_top.png", "top texture")):
+                if not os.path.exists(os.path.join(RES, rel)):
+                    fail(f"{bench} has no {what} ({rel})")
+
+            for rel, what in (
+                    (f"loot_table/blocks/{bench}.json", "loot table"),
+                    (f"recipe/{bench}.json", "recipe")):
+                if not os.path.exists(os.path.join(DATA, rel)):
+                    fail(f"{bench} has no {what} — it is "
+                         + ("unobtainable" if "recipe" in rel
+                            else "mined into nothing"))
+
+            # The villager's clothing. Vanilla looks for exactly this path, and
+            # a profession without one renders as the missing texture.
+            overlay = os.path.join(
+                RES, "textures/entity/villager/profession", role + ".png")
+            if not os.path.exists(overlay):
+                fail(f"the {role} has no clothing texture at "
+                     f"textures/entity/villager/profession/{role}.png, so every "
+                     f"villager who takes the job renders untextured")
+            else:
+                try:
+                    from PIL import Image
+                    size = Image.open(overlay).size
+                    if size != (64, 64):
+                        fail(f"the {role}'s clothing is {size[0]}x{size[1]}; a "
+                             f"villager overlay is 64x64 and anything else maps "
+                             f"to the wrong part of the model")
+                except ImportError:
+                    pass
+
+            # Vanilla drops the namespace when it builds a villager's name, so
+            # this key has to sit under minecraft's prefix in our own file.
+            for key, what in ((f"entity.minecraft.villager.{role}", "name"),
+                              (f"block.elysiumnpcs.{bench}", "bench name")):
+                if key not in lang:
+                    fail(f"no {what} for the {role} ({key}) — it shows as the "
+                         f"raw key in game")
+
+        # Every profession has to have something to say. A villager that takes
+        # a job and offers nothing is worse than one with no job at all: the
+        # player walked to it.
+        if not os.path.exists(TRADES):
+            fail("ElysiumVillagerTrades.java is missing — five professions "
+                 "exist and none of them trades")
+        else:
+            trade_source = re.sub(
+                r"//[^\n]*|/\*.*?\*/", " ",
+                open(TRADES, encoding="utf-8").read(), flags=re.S)
+            for role, _bench in stations:
+                constant = role.upper()
+                if f"ElysiumStations.{constant}" not in trade_source:
+                    fail(f"the {role} has no trade table. It can be trained "
+                         f"into and offers nothing")
+            # Every real offer names a concrete item as its first argument;
+            # the two helper *definitions* take an `Item` parameter and so do
+            # not match. Counting bare "buy(" instead caught the helpers and
+            # the wrappers, and needed three subtractions to get back to the
+            # right number — which is a sign the pattern was wrong rather than
+            # the arithmetic.
+            listed = len(re.findall(r"\b(?:buy|sell)\(Items\.", trade_source))
+            expected = len(stations) * 5 * 2
+            if listed != expected:
+                fail(f"the trade tables hold {listed} offers; "
+                     f"{len(stations)} professions at five levels and two "
+                     f"offers a level is {expected}. A level with one offer is "
+                     f"a tier that looks like a bug")
+
+            # The module depends on the library and treats core as optional, so
+            # a trade naming an Elysium item would resolve to air in a pack that
+            # has the NPCs and not the content.
+            for hit in re.findall(r'"(elysium[\w]*):', trade_source):
+                fail(f"a trade names {hit}: — every offer has to be a vanilla "
+                     f"item, or it is air in a pack without that mod")
+
+        print(f"village professions: {len(stations)} roles, each with a bench, "
+              f"a point of interest, clothing and five levels of trade")
+
+        # ------------------------------------------------------------------
+        # The wandering trader (SPEC_CLONE P12.2 and P12.8)
+        # ------------------------------------------------------------------
+        #
+        # He is the one merchant in the game who is not from here, and in
+        # vanilla he sells saplings and coral — things a player already has.
+        # What is checked here is that both of his pockets are filled, that the
+        # rare one is actually rarer, and that the registry other modules add
+        # through is still wired to the event.
+        wanderer_path = os.path.join(VILLAGE, "ElysiumWandererTrades.java")
+        if not os.path.exists(wanderer_path):
+            fail("ElysiumWandererTrades.java is missing — the wandering trader is "
+                 "vanilla's, which is to say he is a llama with some coral")
+        else:
+            wanderer = re.sub(r"//[^\n]*|/\*.*?\*/", " ",
+                              open(wanderer_path, encoding="utf-8").read(), flags=re.S)
+            if "WandererTradesEvent" not in wanderer:
+                fail("the wandering trader's table is never handed to the game")
+            if "getGenericTrades().addAll(" not in wanderer \
+                    or "getRareTrades().addAll(" not in wanderer:
+                fail("one of the wandering trader's two pockets is never filled, so "
+                     "half the table is written and never offered")
+            generic_block = between(wanderer, "private static List<VillagerTrades."
+                                              "ItemListing> generic()")
+            rare_block = between(wanderer, "private static List<VillagerTrades."
+                                           "ItemListing> rare()")
+            generic_offers = re.findall(r"\b(?:buy|sell)\(Items\.\w+,\s*\d+,\s*(\d+)",
+                                        generic_block)
+            rare_offers = re.findall(r"\bsell\(Items\.\w+,\s*\d+,\s*(\d+)", rare_block)
+            if len(generic_offers) < 8:
+                fail(f"the wandering trader has {len(generic_offers)} common offers. He "
+                     f"shows five of them at a time, so a short list is the same trader "
+                     f"every time")
+            if len(rare_offers) < 5:
+                fail(f"the wandering trader has {len(rare_offers)} rare offers and shows "
+                     f"two, so 'rare' means 'always these'")
+            if generic_offers and rare_offers \
+                    and min(int(price) for price in rare_offers) \
+                    <= max(int(price) for price in generic_offers):
+                fail("the wandering trader's rare pocket is not dearer than his common "
+                     "one, so the rare slots are two more common slots")
+            if re.search(r"\bbuy\(", rare_block):
+                fail("the wandering trader buys something in his rare pocket. The rare "
+                     "slots are what he happens to be carrying, and a buy offer there is "
+                     "a chore that sometimes exists")
+            if "public static void register(" not in wanderer:
+                fail("there is no way for anything else to put something in the "
+                     "wandering trader's pack, which is the whole of the trade registry")
+            if "new CopyOnWriteArrayList<>()" not in wanderer:
+                fail("the registry's list is not safe to read from a world thread while "
+                     "startup is still writing to it")
+            if "for (Added extra : ADDED)" not in wanderer:
+                fail("things registered from outside are never actually offered, so the "
+                     "registry accepts entries and drops them")
+            for hit in re.findall(r'"(elysium[\w]*):', wanderer):
+                fail(f"the wandering trader offers {hit}: — every offer has to be a "
+                     f"vanilla item, or it is air in a pack without that mod")
+            print(f"wandering trader   : {len(generic_offers)} common and "
+                  f"{len(rare_offers)} rare offers, the rare ones dearer, and a registry "
+                  f"anything can add to")
 
 print()
 

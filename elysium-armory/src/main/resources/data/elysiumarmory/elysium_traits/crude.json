@@ -1,0 +1,11 @@
+{
+  "name": "Crude",
+  "max_level": 5,
+  "description": "Reduces synergy",
+  "effects": [
+    {
+      "type": "synergy",
+      "per_level": -0.04
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "type": "upgrade",
+  "gear_type": "all",
+  "part_type": "misc_upgrade",
+  "properties": {
+    "durability": {
+      "op": "multiply_base",
+      "value": 0.2
+    },
+    "rarity": {
+      "op": "add",
+      "value": 10.0
+    },
+    "traits": [
+      {
+        "trait": "spoon",
+        "level": 1
+      }
+    ]
+  },
+  "upgrade": {
+    "gear_types": [
+      "pickaxe"
+    ],
+    "match_children": false
+  }
+}

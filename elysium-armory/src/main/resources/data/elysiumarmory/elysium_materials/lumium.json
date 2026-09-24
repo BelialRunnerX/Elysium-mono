@@ -1,0 +1,77 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/lumium",
+    "categories": [
+      "metal",
+      "advanced"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/lumium"
+    }
+  },
+  "display": {
+    "name": "Lumium"
+  },
+  "properties": {
+    "main": {
+      "durability": 920.0,
+      "armor_durability": 20.0,
+      "harvest_tier": "diamond",
+      "harvest_speed": 15.0,
+      "attack_damage": 4.0,
+      "attack_speed": 0.2,
+      "magic_damage": 3.0,
+      "ranged_damage": 2.0,
+      "draw_speed": 0.0,
+      "armor": 18.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 8.0,
+      "armor/leggings": 6.0,
+      "armor/boots": 2.0,
+      "armor_toughness": 4.0,
+      "magic_armor": 10.0,
+      "enchantment_value": 14.0,
+      "charging_value": 1.3,
+      "rarity": 75.0,
+      "repair_value": 0.15,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        },
+        {
+          "trait": "refractive",
+          "level": 1,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    },
+    "rod": {
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "ranged_damage": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "rarity": 75.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        },
+        {
+          "trait": "refractive",
+          "level": 1,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    }
+  }
+}

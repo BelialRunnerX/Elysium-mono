@@ -1,0 +1,25 @@
+{
+  "type": "core",
+  "gear_type": "dagger",
+  "part_type": "main",
+  "crafting": {
+    "materials": 1
+  },
+  "properties": {
+    "attack_damage": [
+      {
+        "op": "add",
+        "value": 2.0
+      },
+      {
+        "op": "multiply_base",
+        "value": -0.5
+      }
+    ],
+    "attack_speed": {
+      "op": "add",
+      "value": 2.8
+    },
+    "repair_efficiency": 2.0
+  }
+}

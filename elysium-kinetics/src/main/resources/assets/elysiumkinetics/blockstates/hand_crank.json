@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumkinetics:block/hand_crank"
+    },
+    "axis=x": {
+      "model": "elysiumkinetics:block/hand_crank",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/hand_crank",
+      "x": 90
+    }
+  }
+}

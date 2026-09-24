@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "melee_weapon"
+  ],
+  "min_tier": 1,
+  "weight": 10,
+  "max_level": 4,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "minecraft:generic.attack_damage",
+          "operation": "add_multiplied_base",
+          "slot": "mainhand",
+          "min": 0.05,
+          "max": 0.25,
+          "levels": 4
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "type": "suffix",
+  "on": [
+    "melee_weapon"
+  ],
+  "min_tier": 0,
+  "weight": 9,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "target_effect",
+      "effect": "minecraft:poison",
+      "ticks_per_level": 40
+    }
+  ]
+}

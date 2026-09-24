@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:nugget_aluminum",
+      "required": false
+    },
+    {
+      "id": "tfmg:aluminum_nugget",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "type": "simple",
+  "crafting": {
+    "categories": [
+      "metal"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/blaze"
+    }
+  },
+  "display": {
+    "name": "Blaze Rod"
+  },
+  "properties": {
+    "rod": {
+      "attack_damage": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "ranged_damage": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 4
+        },
+        {
+          "trait": "reach",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

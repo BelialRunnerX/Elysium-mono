@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "NNN",
+    "NNN",
+    "NNN"
+  ],
+  "key": {
+    "N": {
+      "item": "elysiumfoundry:tin_nugget"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:tin_ingot",
+    "count": 1
+  }
+}

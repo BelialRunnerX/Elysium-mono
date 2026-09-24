@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:mixing",
+  "input": {
+    "item": "minecraft:gravel"
+  },
+  "result": {
+    "id": "minecraft:flint",
+    "count": 1
+  },
+  "ticks": 200,
+  "pace": "steady"
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Imperial",
+  "max_level": 5,
+  "description": "Sometimes increases gem drops when mining",
+  "conditions": [
+    "on:harvest_tool"
+  ],
+  "effects": [
+    {
+      "type": "bonus_drops",
+      "ingredient": "elysiumarmory:imperial_drops",
+      "chance_per_level": 0.15,
+      "multiplier": 0.5
+    }
+  ]
+}

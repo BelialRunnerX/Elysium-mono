@@ -1,0 +1,35 @@
+{
+  "anvil_cost": 4,
+  "description": {
+    "translate": "enchantment.elysiumenchanting.steady_aim"
+  },
+  "effects": {
+    "minecraft:projectile_spread": [
+      {
+        "effect": {
+          "type": "minecraft:multiply",
+          "factor": {
+            "type": "minecraft:linear",
+            "base": 0.75,
+            "per_level_above_first": -0.15
+          }
+        }
+      }
+    ]
+  },
+  "max_cost": {
+    "base": 38,
+    "per_level_above_first": 18
+  },
+  "max_level": 3,
+  "min_cost": {
+    "base": 8,
+    "per_level_above_first": 18
+  },
+  "slots": [
+    "mainhand"
+  ],
+  "supported_items": "#minecraft:enchantable/bow",
+  "weight": 2,
+  "exclusive_set": "#elysiumenchanting:exclusive_set/aim"
+}

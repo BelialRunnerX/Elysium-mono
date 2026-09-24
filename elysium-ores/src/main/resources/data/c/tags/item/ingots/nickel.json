@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:ingot_nickel",
+      "required": false
+    },
+    {
+      "id": "oritech:nickel_ingot",
+      "required": false
+    },
+    {
+      "id": "tfmg:nickel_ingot",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/netherite",
+    "categories": [
+      "metal",
+      "endgame"
+    ]
+  },
+  "display": {
+    "name": "Netherite"
+  },
+  "properties": {
+    "coating": {
+      "armor_durability": {
+        "op": "multiply_total",
+        "value": 0.121212
+      },
+      "armor_toughness": {
+        "op": "add",
+        "value": 4.0
+      },
+      "attack_damage": {
+        "op": "multiply_total",
+        "value": 0.333333
+      },
+      "durability": [
+        {
+          "op": "multiply_total",
+          "value": 0.3
+        },
+        {
+          "op": "add",
+          "value": 2.0
+        }
+      ],
+      "enchantment_value": {
+        "op": "add",
+        "value": 5.0
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.125
+      },
+      "harvest_tier": "netherite",
+      "knockback_resistance": {
+        "op": "add",
+        "value": 1.0
+      },
+      "magic_damage": {
+        "op": "multiply_total",
+        "value": 0.333333
+      },
+      "ranged_damage": {
+        "op": "multiply_total",
+        "value": 0.333333
+      },
+      "traits": [
+        {
+          "trait": "fireproof",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

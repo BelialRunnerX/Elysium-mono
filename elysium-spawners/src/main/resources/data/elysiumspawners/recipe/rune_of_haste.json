@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " o ",
+    "oIo",
+    " o "
+  ],
+  "key": {
+    "o": {
+      "item": "minecraft:obsidian"
+    },
+    "I": {
+      "item": "minecraft:sugar"
+    }
+  },
+  "result": {
+    "id": "elysiumspawners:rune_of_haste",
+    "count": 2
+  }
+}

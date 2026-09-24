@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createaddition:electrum_block",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:storage_electrum",
+      "required": false
+    },
+    {
+      "id": "oritech:electrum_block",
+      "required": false
+    }
+  ]
+}

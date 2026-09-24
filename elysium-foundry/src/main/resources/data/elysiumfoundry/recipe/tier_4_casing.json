@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PPP",
+    "PGP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "item": "elysiumfoundry:starsteel_plate"
+    },
+    "G": {
+      "item": "elysiumfoundry:starsteel_gear"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:tier_4_casing",
+    "count": 2
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "mekanism:deepslate_osmium_ore",
+      "required": false
+    },
+    {
+      "id": "mekanism:osmium_ore",
+      "required": false
+    },
+    "elysiumores:cinder_osmium_ore",
+    "elysiumores:end_stone_osmium_ore",
+    "elysiumores:frost_osmium_ore",
+    "elysiumores:netherrack_osmium_ore",
+    "elysiumores:pale_osmium_ore"
+  ]
+}

@@ -90,5 +90,9 @@ jobs:
             elysium-mobs/build/reports/
             elysium-trinkets/build/reports/
             elysium-npcs/build/reports/
+            elysium-solarpunk/build/reports/
+            elysium-armory/build/reports/
+            elysium-ascendancy/build/reports/
+            elysium-space/build/reports/
           if-no-files-found: ignore
           retention-days: 7

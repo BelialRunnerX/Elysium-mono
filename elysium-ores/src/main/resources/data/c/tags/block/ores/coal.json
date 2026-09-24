@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:cinder_coal_ore",
+      "required": false
+    },
+    "elysiumores:end_stone_coal_ore",
+    "elysiumores:frost_coal_ore",
+    "elysiumores:netherrack_coal_ore",
+    "elysiumores:pale_coal_ore"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "elysiumsolarpunk:block/alabaster_iron_filigree"
+  }
+}

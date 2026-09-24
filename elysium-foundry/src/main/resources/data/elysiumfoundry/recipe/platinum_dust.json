@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:platinum_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:platinum_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

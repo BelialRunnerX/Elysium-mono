@@ -1,0 +1,61 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "minecraft:bamboo_planks",
+    "categories": [
+      "organic",
+      "wood",
+      "basic"
+    ],
+    "part_substitutes": {
+      "rod": "minecraft:bamboo"
+    }
+  },
+  "display": {
+    "name": "Bamboo"
+  },
+  "properties": {
+    "main": {
+      "durability": 65.0,
+      "armor_durability": 9.0,
+      "harvest_tier": "bamboo",
+      "harvest_speed": 2.0,
+      "attack_damage": 0.0,
+      "attack_speed": 0.0,
+      "ranged_damage": 0.0,
+      "draw_speed": 0.0,
+      "projectile_speed": 1.0,
+      "projectile_accuracy": 0.9,
+      "armor": 7.0,
+      "armor/helmet": 1.0,
+      "armor/chestplate": 3.0,
+      "armor/leggings": 2.0,
+      "armor/boots": 1.0,
+      "magic_armor": 2.0,
+      "enchantment_value": 15.0,
+      "charging_value": 0.7,
+      "rarity": 4.0,
+      "repair_value": 0.25,
+      "attack_speed/axe": -0.2,
+      "attack_speed/hoe": -2.0,
+      "traits": [
+        {
+          "trait": "flammable",
+          "level": 1
+        },
+        {
+          "trait": "flexible",
+          "level": 2
+        }
+      ]
+    },
+    "rod": {
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 3
+        }
+      ]
+    }
+  }
+}

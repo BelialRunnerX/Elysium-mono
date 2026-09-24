@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OCO",
+    "CSC",
+    "OCO"
+  ],
+  "key": {
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "C": {
+      "item": "elysiumspace:cryonite_ingot"
+    },
+    "S": {
+      "item": "elysiumspace:steel_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumspace:waygate_frame",
+    "count": 4
+  }
+}

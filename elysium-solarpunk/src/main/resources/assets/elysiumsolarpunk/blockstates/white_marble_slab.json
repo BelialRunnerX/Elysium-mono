@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "elysiumsolarpunk:block/white_marble_slab"
+    },
+    "type=top": {
+      "model": "elysiumsolarpunk:block/white_marble_slab_top"
+    },
+    "type=double": {
+      "model": "elysiumsolarpunk:block/white_marble"
+    }
+  }
+}

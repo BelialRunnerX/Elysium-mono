@@ -1,0 +1,35 @@
+{
+  "display": {
+    "icon": {
+      "id": "elysiumenchanting:arcane_table",
+      "count": 1
+    },
+    "title": {
+      "translate": "advancements.elysiumenchanting.arcane_table.title"
+    },
+    "description": {
+      "translate": "advancements.elysiumenchanting.arcane_table.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "table": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "elysiumenchanting:arcane_table"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "table"
+    ]
+  ],
+  "parent": "elysiumenchanting:root"
+}

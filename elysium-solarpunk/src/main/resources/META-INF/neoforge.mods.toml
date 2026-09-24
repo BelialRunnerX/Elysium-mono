@@ -1,0 +1,36 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+issueTrackerURL="https://github.com/BelialRunnerX/Elysium-mono/issues"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description='''
+${mod_description}
+'''
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+# Deliberately no dependency on elysiumlib.
+#
+# Every other content mod here needs the library, because every one of them
+# registers into it - races, runes, rewards, a bestiary. This one is blocks. It
+# has no standing, no stats and no factions, so a dependency would be a
+# requirement that buys the player nothing and stops the set being installable
+# on its own. If the machines later grow behaviour that wants the library, this
+# is the line that changes.

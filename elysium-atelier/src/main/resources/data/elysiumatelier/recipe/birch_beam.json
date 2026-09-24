@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:birch_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:birch_beam",
+    "count": 12
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:constantan_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:constantan_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

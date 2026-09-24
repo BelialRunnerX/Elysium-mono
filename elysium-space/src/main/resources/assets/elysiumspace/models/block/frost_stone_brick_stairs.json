@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "elysiumspace:block/frost_stone_bricks",
+    "top": "elysiumspace:block/frost_stone_bricks",
+    "side": "elysiumspace:block/frost_stone_bricks"
+  }
+}

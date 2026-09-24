@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "armor"
+  ],
+  "min_tier": 3,
+  "weight": 4,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "elysiumlib:ghost_health",
+          "operation": "add_value",
+          "slot": "any",
+          "min": 1.0,
+          "max": 5.0,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

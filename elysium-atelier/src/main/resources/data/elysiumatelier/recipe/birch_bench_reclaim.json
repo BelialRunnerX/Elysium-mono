@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:birch_bench"
+    }
+  ],
+  "result": {
+    "id": "minecraft:birch_planks",
+    "count": 1
+  }
+}

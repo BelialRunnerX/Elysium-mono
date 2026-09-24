@@ -1,0 +1,10 @@
+{
+  "type": "simple",
+  "parent": "elysiumarmory:terracotta",
+  "crafting": {
+    "ingredient": "minecraft:blue_terracotta"
+  },
+  "display": {
+    "name": "Blue Terracotta"
+  }
+}

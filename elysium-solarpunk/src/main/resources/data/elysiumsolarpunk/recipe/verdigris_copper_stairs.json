@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "b  ",
+    "bb ",
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "elysiumsolarpunk:verdigris_copper"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:verdigris_copper_stairs",
+    "count": 4
+  }
+}

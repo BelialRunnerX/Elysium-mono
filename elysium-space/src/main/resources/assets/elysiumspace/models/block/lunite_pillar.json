@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "elysiumspace:block/lunite_pillar",
+    "end": "elysiumspace:block/lunite_pillar_top"
+  }
+}

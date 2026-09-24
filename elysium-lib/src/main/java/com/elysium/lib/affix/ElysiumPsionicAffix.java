@@ -1,6 +1,7 @@
 package com.elysium.lib.affix;
 
 import com.elysium.lib.element.ElysiumElement;
+import com.elysium.lib.item.ElysiumGear;
 import com.elysium.lib.item.ElysiumSocketable;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -39,6 +40,7 @@ public class ElysiumPsionicAffix extends ElysiumAffix {
 
     @Override
     public boolean canApplyTo(ItemStack stack) {
-        return stack.getItem() instanceof ElysiumSocketable gear && gear.getElement() == this.element;
+        ElysiumSocketable gear = ElysiumGear.of(stack);
+        return gear != null && gear.getElement() == this.element;
     }
 }

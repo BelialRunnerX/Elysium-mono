@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " R ",
+    "RPR",
+    " R "
+  ],
+  "key": {
+    "R": {
+      "item": "elysiumfoundry:stainless_rod"
+    },
+    "P": {
+      "item": "elysiumfoundry:stainless_plate"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:stainless_gear",
+    "count": 1
+  }
+}

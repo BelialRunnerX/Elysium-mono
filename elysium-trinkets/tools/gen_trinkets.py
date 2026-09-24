@@ -342,12 +342,87 @@ DESCRIPTIONS = {
 }
 
 
+
+# ---------------------------------------------------------------------------
+# The potion charm (SPEC_CLONE P12.3)
+# ---------------------------------------------------------------------------
+#
+# One item for every potion there is. What is in a charm is a component, so a
+# charm of Regeneration and a charm of Night Vision are the same item carrying
+# different contents — which is how a bottle works, and means a mod that adds a
+# potion gets a charm for it without knowing this exists.
+#
+# The sprite is two layers because of that: the token, and a white field the
+# game multiplies by the potion's own colour. One sprite per potion is
+# impossible and one grey sprite makes every charm look alike in a hotbar.
+CHARM_METAL = "gold"
+CHARM_FALLBACK_METAL = "voidsteel"
+
+
+def write_potion_charm():
+    written = 0
+    style.METAL.update(material_art.all_ramps())
+    metal = CHARM_METAL if CHARM_METAL in style.METAL else CHARM_FALLBACK_METAL
+    body = os.path.join(TEXTURES, "potion_charm.png")
+    if not os.path.exists(body):
+        os.makedirs(TEXTURES, exist_ok=True)
+        # Drawn inert: the colour comes from what is in it, and a charm drawn
+        # in one element's light would look wrong holding any other potion.
+        trinket_art.charm(metal, "inert").save(body)
+        written += 1
+    fill = os.path.join(TEXTURES, "potion_charm_fill.png")
+    if not os.path.exists(fill):
+        trinket_art.charm_fill().save(fill)
+        written += 1
+    if write(os.path.join(MODELS, "potion_charm.json"),
+             {"parent": "minecraft:item/generated",
+              "textures": {"layer0": f"{MOD}:item/potion_charm",
+                           "layer1": f"{MOD}:item/potion_charm_fill"}}):
+        written += 1
+    # The empty charm. Gold and glass, because it is a bottle you wear.
+    if write(os.path.join(RECIPES, "potion_charm.json"),
+             {"type": "minecraft:crafting_shaped",
+              "category": "equipment",
+              "pattern": [" a ", "gbg", " a "],
+              "key": {"a": {"item": "minecraft:amethyst_shard"},
+                      "g": {"item": "minecraft:gold_ingot"},
+                      "b": {"item": "minecraft:glass_bottle"}},
+              "result": {"id": f"{MOD}:potion_charm", "count": 1}}):
+        written += 1
+    # Filling one, which has hundreds of results and so is a serializer rather
+    # than a file per potion. The file below is only the game being told that
+    # the serializer exists and may be used in a crafting grid.
+    if write(os.path.join(RECIPES, "potion_charm_filling.json"),
+             {"type": f"{MOD}:potion_charm", "category": "equipment"}):
+        written += 1
+    # It goes in the charm slot, like every other charm, so the same tag.
+    charm_tag = os.path.join(RES, "data/curios/tags/item/charm.json")
+    if os.path.exists(charm_tag):
+        tag = json.load(open(charm_tag, encoding="utf-8"))
+        if f"{MOD}:potion_charm" not in tag.get("values", []):
+            tag["values"] = sorted(set(tag.get("values", [])) | {f"{MOD}:potion_charm"})
+            with open(charm_tag, "w", encoding="utf-8") as handle:
+                json.dump(tag, handle, indent=2)
+                handle.write("\n")
+            written += 1
+    return written
+
+
 def write_lang(entries):
     lang = {}
     if os.path.exists(LANG):
         lang = json.load(open(LANG, encoding="utf-8"))
 
     lang.setdefault("itemGroup.elysiumtrinkets", "Elysium Trinkets")
+    for key, value in (
+            (f"item.{MOD}.potion_charm", "Potion Charm"),
+            (f"item.{MOD}.potion_charm.of", "Charm of %s"),
+            (f"item.{MOD}.potion_charm.worn",
+             "Worn in a charm slot: keeps the effect going, and wears out doing it"),
+            (f"item.{MOD}.potion_charm.empty",
+             "Craft it with a potion to fill it, and again to refill it"),
+            (f"item.{MOD}.potion_charm.spent", "Spent. Craft it with its potion again")):
+        lang.setdefault(key, value)
     for slot, text in SLOT_NAMES.items():
         lang.setdefault(f"elysiumtrinkets.tooltip.slot.{slot}", text)
 
@@ -379,6 +454,7 @@ def main():
     print(f"curios files       : {write_curios(entries)}")
     print(f"recipes written    : {write_recipes(entries)}")
     print(f"loot tables written: {write_loot(entries)}")
+    print(f"potion charm files : {write_potion_charm()}")
     print(f"lang keys added    : {write_lang(entries)}")
 
 

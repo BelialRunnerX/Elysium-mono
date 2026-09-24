@@ -1,0 +1,59 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:dusts/redstone",
+    "categories": [
+      "metal",
+      "dust",
+      "intermediate"
+    ]
+  },
+  "display": {
+    "name": "Redstone"
+  },
+  "properties": {
+    "main": {
+      "harvest_speed": 12.0,
+      "attack_damage": 4.0,
+      "ranged_damage": 2.0,
+      "enchantment_value": {
+        "op": "multiply_base",
+        "value": -0.1
+      },
+      "charging_value": {
+        "op": "multiply_base",
+        "value": 0.1
+      },
+      "rarity": 30.0,
+      "additive": 1.0,
+      "traits": [
+        {
+          "trait": "imperial",
+          "level": 3
+        }
+      ]
+    },
+    "tip": {
+      "attack_damage": {
+        "op": "add",
+        "value": 2.0
+      },
+      "attack_speed": {
+        "op": "add",
+        "value": 0.3
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "ranged_damage": {
+        "op": "add",
+        "value": 2.0
+      },
+      "rarity": {
+        "op": "add",
+        "value": 10.0
+      }
+    }
+  }
+}

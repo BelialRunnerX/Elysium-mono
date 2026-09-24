@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumflora:downbloom_tuft"
+    }
+  },
+  "result": {
+    "id": "elysiumflora:downbloom_bale",
+    "count": 1
+  }
+}

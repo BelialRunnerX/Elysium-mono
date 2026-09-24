@@ -1,0 +1,16 @@
+{
+  "type": "suffix",
+  "on": [
+    "weapon"
+  ],
+  "min_tier": 2,
+  "weight": 5,
+  "max_level": 4,
+  "effects": [
+    {
+      "type": "extra_damage",
+      "against": "high_health",
+      "per_level": 2.0
+    }
+  ]
+}

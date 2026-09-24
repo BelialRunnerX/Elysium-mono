@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:deepslate"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:deepslate_lattice",
+    "count": 8
+  }
+}

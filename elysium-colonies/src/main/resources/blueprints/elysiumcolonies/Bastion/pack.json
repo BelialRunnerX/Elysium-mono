@@ -1,0 +1,16 @@
+{
+  "name": "Bastion",
+  "icon": "icon.png",
+  "authors": [
+    "Elysium",
+    "re-themed from MineColonies' shire"
+  ],
+  "desc": "Emerald Bastion's own: the one world that gives more than it takes, built like somebody meant to stay.",
+  "mods": [
+    "structurize",
+    "minecolonies",
+    "elysiumspace"
+  ],
+  "version": 1,
+  "pack-format": 1
+}

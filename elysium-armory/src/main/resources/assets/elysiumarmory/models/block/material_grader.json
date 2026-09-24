@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "elysiumarmory:block/material_grader_top",
+    "side": "elysiumarmory:block/material_grader_side",
+    "bottom": "elysiumarmory:block/material_grader_side"
+  }
+}

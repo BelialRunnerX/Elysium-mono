@@ -1,0 +1,44 @@
+{
+  "type": "simple",
+  "crafting": {
+    "categories": [
+      "metal"
+    ],
+    "part_substitutes": {
+      "rod": "minecraft:end_rod"
+    }
+  },
+  "display": {
+    "name": "End Rod"
+  },
+  "properties": {
+    "rod": {
+      "attack_damage": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "ranged_damage": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 4
+        },
+        {
+          "trait": "sturdy",
+          "level": 2
+        },
+        {
+          "trait": "refractive",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

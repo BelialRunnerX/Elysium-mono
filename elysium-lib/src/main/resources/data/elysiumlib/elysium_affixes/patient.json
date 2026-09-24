@@ -1,0 +1,17 @@
+{
+  "type": "prefix",
+  "on": [
+    "harvest_tool"
+  ],
+  "min_tier": 1,
+  "weight": 8,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "self_repair",
+      "interval": 200,
+      "chance_per_level": 0.25,
+      "amount_per_level": 1
+    }
+  ]
+}

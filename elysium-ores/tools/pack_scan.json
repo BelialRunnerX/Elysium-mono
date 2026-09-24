@@ -1,0 +1,1563 @@
+{
+ "tags": {
+  "storage_blocks": {
+   "neptunium": [
+    "aquaculture:neptunium_block"
+   ],
+   "entro": [
+    "extendedae:entro_block"
+   ],
+   "silicon": [
+    "extendedae:silicon_block",
+    "oritech:silicon_block"
+   ],
+   "blutonium": [
+    "bigreactors:blutonium_block"
+   ],
+   "cyanite": [
+    "bigreactors:cyanite_block"
+   ],
+   "graphite": [
+    "bigreactors:graphite_block"
+   ],
+   "inanite": [
+    "bigreactors:inanite_block"
+   ],
+   "insanite": [
+    "bigreactors:insanite_block"
+   ],
+   "ludicrite": [
+    "bigreactors:ludicrite_block"
+   ],
+   "magentite": [
+    "bigreactors:magentite_block"
+   ],
+   "raw_uranium": [
+    "bigreactors:raw_yellorium_block",
+    "immersiveengineering:raw_block_uranium",
+    "mekanism:block_raw_uranium",
+    "oritech:raw_uranium_block"
+   ],
+   "ridiculite": [
+    "bigreactors:ridiculite_block"
+   ],
+   "yellorium": [
+    "bigreactors:yellorium_block"
+   ],
+   "beetroot": [
+    "farmersdelight:beetroot_crate",
+    "quark:beetroot_crate"
+   ],
+   "cabbage": [
+    "farmersdelight:cabbage_crate"
+   ],
+   "carrot": [
+    "farmersdelight:carrot_crate",
+    "quark:carrot_crate"
+   ],
+   "onion": [
+    "farmersdelight:onion_crate"
+   ],
+   "potato": [
+    "farmersdelight:potato_crate",
+    "quark:potato_crate"
+   ],
+   "rice": [
+    "farmersdelight:rice_bag"
+   ],
+   "rice_panicle": [
+    "farmersdelight:rice_bale"
+   ],
+   "straw": [
+    "farmersdelight:straw_bale"
+   ],
+   "tomato": [
+    "farmersdelight:tomato_crate"
+   ],
+   "aluminum": [
+    "immersiveengineering:storage_aluminum",
+    "tfmg:aluminum_block"
+   ],
+   "clay": [
+    "minecraft:clay"
+   ],
+   "coal_coke": [
+    "immersiveengineering:coke",
+    "tfmg:coal_coke_block"
+   ],
+   "constantan": [
+    "immersiveengineering:storage_constantan",
+    "tfmg:constantan_block"
+   ],
+   "electrum": [
+    "createaddition:electrum_block",
+    "immersiveengineering:storage_electrum",
+    "oritech:electrum_block"
+   ],
+   "glowstone": [
+    "minecraft:glowstone"
+   ],
+   "lead": [
+    "immersiveengineering:storage_lead",
+    "mekanism:block_lead",
+    "tfmg:lead_block"
+   ],
+   "nickel": [
+    "immersiveengineering:storage_nickel",
+    "oritech:nickel_block",
+    "tfmg:nickel_block"
+   ],
+   "raw_aluminum": [
+    "immersiveengineering:raw_block_aluminum"
+   ],
+   "raw_lead": [
+    "immersiveengineering:raw_block_lead",
+    "mekanism:block_raw_lead",
+    "tfmg:raw_lead_block"
+   ],
+   "raw_nickel": [
+    "immersiveengineering:raw_block_nickel",
+    "oritech:raw_nickel_block",
+    "tfmg:raw_nickel_block"
+   ],
+   "raw_silver": [
+    "immersiveengineering:raw_block_silver"
+   ],
+   "silver": [
+    "immersiveengineering:storage_silver"
+   ],
+   "steel": [
+    "createbigcannons:steel_block",
+    "elysiumspace:steel_block",
+    "immersiveengineering:storage_steel",
+    "mekanism:block_steel",
+    "oritech:steel_block",
+    "tfmg:steel_block"
+   ],
+   "uranium": [
+    "immersiveengineering:storage_uranium",
+    "mekanism:block_uranium"
+   ],
+   "bronze": [
+    "createbigcannons:bronze_block",
+    "mekanism:block_bronze"
+   ],
+   "charcoal": [
+    "mekanism:block_charcoal",
+    "quark:charcoal_block"
+   ],
+   "fluorite": [
+    "mekanism:block_fluorite"
+   ],
+   "osmium": [
+    "mekanism:block_osmium"
+   ],
+   "raw_osmium": [
+    "mekanism:block_raw_osmium"
+   ],
+   "raw_tin": [
+    "mekanism:block_raw_tin"
+   ],
+   "refined_glowstone": [
+    "mekanism:block_refined_glowstone"
+   ],
+   "refined_obsidian": [
+    "mekanism:block_refined_obsidian"
+   ],
+   "tin": [
+    "mekanism:block_tin"
+   ],
+   "imperium_coal": [
+    "mysticalagradditions:imperium_coal_block"
+   ],
+   "inferium_coal": [
+    "mysticalagradditions:inferium_coal_block"
+   ],
+   "insanium_coal": [
+    "mysticalagradditions:insanium_coal_block"
+   ],
+   "insanium_essence": [
+    "mysticalagradditions:insanium_block"
+   ],
+   "insanium_gemstone": [
+    "mysticalagradditions:insanium_gemstone_block"
+   ],
+   "insanium_ingot": [
+    "mysticalagradditions:insanium_ingot_block"
+   ],
+   "prudentium_coal": [
+    "mysticalagradditions:prudentium_coal_block"
+   ],
+   "supremium_coal": [
+    "mysticalagradditions:supremium_coal_block"
+   ],
+   "tertium_coal": [
+    "mysticalagradditions:tertium_coal_block"
+   ],
+   "awakened_supremium_essence": [
+    "mysticalagriculture:awakened_supremium_block"
+   ],
+   "awakened_supremium_gemstone": [
+    "mysticalagriculture:awakened_supremium_gemstone_block"
+   ],
+   "awakened_supremium_ingot": [
+    "mysticalagriculture:awakened_supremium_ingot_block"
+   ],
+   "imperium_essence": [
+    "mysticalagriculture:imperium_block"
+   ],
+   "imperium_gemstone": [
+    "mysticalagriculture:imperium_gemstone_block"
+   ],
+   "imperium_ingot": [
+    "mysticalagriculture:imperium_ingot_block"
+   ],
+   "inferium_essence": [
+    "mysticalagriculture:inferium_block"
+   ],
+   "inferium_gemstone": [
+    "mysticalagriculture:inferium_gemstone_block"
+   ],
+   "inferium_ingot": [
+    "mysticalagriculture:inferium_ingot_block"
+   ],
+   "prosperity_gemstone": [
+    "mysticalagriculture:prosperity_gemstone_block"
+   ],
+   "prosperity_ingot": [
+    "mysticalagriculture:prosperity_ingot_block"
+   ],
+   "prosperity_shard": [
+    "mysticalagriculture:prosperity_block"
+   ],
+   "prudentium_essence": [
+    "mysticalagriculture:prudentium_block"
+   ],
+   "prudentium_gemstone": [
+    "mysticalagriculture:prudentium_gemstone_block"
+   ],
+   "prudentium_ingot": [
+    "mysticalagriculture:prudentium_ingot_block"
+   ],
+   "soulium_dust": [
+    "mysticalagriculture:soulium_block"
+   ],
+   "soulium_gemstone": [
+    "mysticalagriculture:soulium_gemstone_block"
+   ],
+   "soulium_ingot": [
+    "mysticalagriculture:soulium_ingot_block"
+   ],
+   "supremium_essence": [
+    "mysticalagriculture:supremium_block"
+   ],
+   "supremium_gemstone": [
+    "mysticalagriculture:supremium_gemstone_block"
+   ],
+   "supremium_ingot": [
+    "mysticalagriculture:supremium_ingot_block"
+   ],
+   "tertium_essence": [
+    "mysticalagriculture:tertium_block"
+   ],
+   "tertium_gemstone": [
+    "mysticalagriculture:tertium_gemstone_block"
+   ],
+   "tertium_ingot": [
+    "mysticalagriculture:tertium_ingot_block"
+   ],
+   "uraninite": [
+    "powah:uraninite_block"
+   ],
+   "quartz": [
+    "minecraft:quartz_block"
+   ],
+   "apple": [
+    "quark:apple_crate"
+   ],
+   "stick": [
+    "quark:stick_block"
+   ],
+   "cocoa_beans": [
+    "quark:cocoa_beans_sack"
+   ],
+   "golden_carrot": [
+    "quark:golden_carrot_crate"
+   ],
+   "blaze_rod": [
+    "quark:blaze_lantern"
+   ],
+   "golden_apple": [
+    "quark:golden_apple_crate"
+   ],
+   "sugar_cane": [
+    "quark:sugar_cane_block"
+   ],
+   "leather": [
+    "quark:bonded_leather"
+   ],
+   "chorus_fruit": [
+    "quark:chorus_fruit_block"
+   ],
+   "sweet_berries": [
+    "quark:berry_sack"
+   ],
+   "nether_wart": [
+    "quark:nether_wart_sack"
+   ],
+   "rabbit_hide": [
+    "quark:bonded_rabbit_hide"
+   ],
+   "cactus": [
+    "quark:cactus_block"
+   ],
+   "gunpowder": [
+    "quark:gunpowder_sack"
+   ],
+   "glow_berries": [
+    "quark:glowberry_sack"
+   ],
+   "certus_quartz": [
+    "ae2:quartz_block"
+   ],
+   "gold": [
+    "cluttered:chiseled_gold_block"
+   ],
+   "cardboard": [
+    "create:cardboard_block"
+   ],
+   "brass": [
+    "create:brass_block"
+   ],
+   "andesite_alloy": [
+    "create:andesite_alloy_block"
+   ],
+   "zinc": [
+    "create:zinc_block"
+   ],
+   "raw_zinc": [
+    "create:raw_zinc_block"
+   ],
+   "prismarine_alloy": [
+    "create_aquatic_ambitions:prismarine_alloy_block"
+   ],
+   "bio": [
+    "createaddition:biomass_pellet_block"
+   ],
+   "biomass": [
+    "createaddition:biomass_pellet_block",
+    "oritech:biomass_block"
+   ],
+   "cast_iron": [
+    "createbigcannons:cast_iron_block",
+    "tfmg:cast_iron_block"
+   ],
+   "nethersteel": [
+    "createbigcannons:nethersteel_block"
+   ],
+   "industrial_iron": [
+    "create:industrial_iron_block"
+   ],
+   "cindrium": [
+    "elysiumspace:cindrium_block"
+   ],
+   "cryonite": [
+    "elysiumspace:cryonite_block"
+   ],
+   "frostite": [
+    "elysiumspace:frostite_block"
+   ],
+   "lunite": [
+    "elysiumspace:lunite_block"
+   ],
+   "raw_cindrium": [
+    "elysiumspace:raw_cindrium_block"
+   ],
+   "raw_cryonite": [
+    "elysiumspace:raw_cryonite_block"
+   ],
+   "raw_frostite": [
+    "elysiumspace:raw_frostite_block"
+   ],
+   "raw_lunite": [
+    "elysiumspace:raw_lunite_block"
+   ],
+   "raw_steel": [
+    "elysiumspace:raw_steel_block"
+   ],
+   "adamant": [
+    "oritech:adamant_block"
+   ],
+   "biosteel": [
+    "oritech:biosteel_block"
+   ],
+   "duratium": [
+    "oritech:duratium_block"
+   ],
+   "energite": [
+    "oritech:energite_block"
+   ],
+   "fluxite": [
+    "oritech:fluxite_block"
+   ],
+   "plastic": [
+    "oritech:plastic_block",
+    "tfmg:plastic_block"
+   ],
+   "platinum": [
+    "oritech:platinum_block"
+   ],
+   "raw_platinum": [
+    "oritech:raw_platinum_block"
+   ],
+   "uranium_dust": [
+    "oritech:uranium_dust_block"
+   ],
+   "honeycombs": [
+    "minecraft:honeycomb_block",
+    "productivebees:comb_ghostly",
+    "productivebees:comb_milky",
+    "productivebees:comb_powdery",
+    "productivebees:configurable_comb"
+   ],
+   "wax": [
+    "productivebees:wax_block"
+   ],
+   "azure_electrum": [
+    "silentgear:azure_electrum_block"
+   ],
+   "azure_silver": [
+    "silentgear:azure_silver_block"
+   ],
+   "blaze_gold": [
+    "silentgear:blaze_gold_block"
+   ],
+   "bort": [
+    "silentgear:bort_block"
+   ],
+   "crimson_iron": [
+    "silentgear:crimson_iron_block"
+   ],
+   "crimson_steel": [
+    "silentgear:crimson_steel_block"
+   ],
+   "netherwood_charcoal": [
+    "silentgear:netherwood_charcoal_block"
+   ],
+   "raw_azure_silver": [
+    "silentgear:raw_azure_silver_block"
+   ],
+   "raw_crimson_iron": [
+    "silentgear:raw_crimson_iron_block"
+   ],
+   "tyrian_steel": [
+    "silentgear:tyrian_steel_block"
+   ],
+   "feather": [
+    "supplementaries:feather_block"
+   ],
+   "flax": [
+    "supplementaries:flax_block"
+   ],
+   "flint": [
+    "supplementaries:flint_block"
+   ],
+   "soap": [
+    "supplementaries:soap_block"
+   ],
+   "lithium": [
+    "tfmg:lithium_block"
+   ],
+   "raw_lithium": [
+    "tfmg:raw_lithium_block"
+   ]
+  },
+  "nuggets": {
+   "neptunium": [
+    "aquaculture:neptunium_nugget"
+   ],
+   "coal": [
+    "dndesires:coal_piece"
+   ],
+   "diamond": [
+    "dndesires:diamond_shard",
+    "silentgear:diamond_shard"
+   ],
+   "lapis": [
+    "dndesires:lapis_lazuli_shard"
+   ],
+   "aluminum": [
+    "immersiveengineering:nugget_aluminum",
+    "tfmg:aluminum_nugget"
+   ],
+   "constantan": [
+    "immersiveengineering:nugget_constantan",
+    "tfmg:constantan_nugget"
+   ],
+   "copper": [
+    "create:copper_nugget",
+    "immersiveengineering:nugget_copper",
+    "oritech:copper_nugget"
+   ],
+   "electrum": [
+    "createaddition:electrum_nugget",
+    "immersiveengineering:nugget_electrum"
+   ],
+   "lead": [
+    "immersiveengineering:nugget_lead",
+    "mekanism:nugget_lead",
+    "tfmg:lead_nugget"
+   ],
+   "netherite": [
+    "createdeco:netherite_nugget",
+    "immersiveengineering:nugget_netherite"
+   ],
+   "nickel": [
+    "immersiveengineering:nugget_nickel",
+    "oritech:nickel_nugget",
+    "tfmg:nickel_nugget"
+   ],
+   "silver": [
+    "immersiveengineering:nugget_silver"
+   ],
+   "steel": [
+    "createbigcannons:steel_scrap",
+    "elysiumspace:steel_nugget",
+    "immersiveengineering:nugget_steel",
+    "mekanism:nugget_steel",
+    "tfmg:steel_nugget"
+   ],
+   "uranium": [
+    "immersiveengineering:nugget_uranium",
+    "mekanism:nugget_uranium"
+   ],
+   "bronze": [
+    "createbigcannons:bronze_scrap",
+    "mekanism:nugget_bronze"
+   ],
+   "osmium": [
+    "mekanism:nugget_osmium"
+   ],
+   "refined_glowstone": [
+    "mekanism:nugget_refined_glowstone"
+   ],
+   "refined_obsidian": [
+    "mekanism:nugget_refined_obsidian"
+   ],
+   "tin": [
+    "mekanism:nugget_tin"
+   ],
+   "insanium": [
+    "mysticalagradditions:insanium_nugget"
+   ],
+   "awakened_supremium": [
+    "mysticalagriculture:awakened_supremium_nugget"
+   ],
+   "imperium": [
+    "mysticalagriculture:imperium_nugget"
+   ],
+   "inferium": [
+    "mysticalagriculture:inferium_nugget"
+   ],
+   "prosperity": [
+    "mysticalagriculture:prosperity_nugget"
+   ],
+   "prudentium": [
+    "mysticalagriculture:prudentium_nugget"
+   ],
+   "soulium": [
+    "mysticalagriculture:soulium_nugget"
+   ],
+   "supremium": [
+    "mysticalagriculture:supremium_nugget"
+   ],
+   "tertium": [
+    "mysticalagriculture:tertium_nugget"
+   ],
+   "gold": [
+    "minecraft:gold_nugget"
+   ],
+   "iron": [
+    "minecraft:iron_nugget"
+   ],
+   "brass": [
+    "create:brass_nugget"
+   ],
+   "zinc": [
+    "create:zinc_nugget"
+   ],
+   "cast_iron": [
+    "createbigcannons:cast_iron_nugget",
+    "tfmg:cast_iron_nugget"
+   ],
+   "nethersteel": [
+    "createbigcannons:nethersteel_nugget"
+   ],
+   "industrial_iron": [
+    "createdeco:industrial_iron_nugget"
+   ],
+   "cindrium": [
+    "elysiumspace:cindrium_nugget"
+   ],
+   "cryonite": [
+    "elysiumspace:cryonite_nugget"
+   ],
+   "frostite": [
+    "elysiumspace:frostite_nugget"
+   ],
+   "lunite": [
+    "elysiumspace:lunite_nugget"
+   ],
+   "platinum": [
+    "oritech:platinum_nugget"
+   ],
+   "azure_electrum": [
+    "silentgear:azure_electrum_nugget"
+   ],
+   "azure_silver": [
+    "silentgear:azure_silver_nugget"
+   ],
+   "blaze_gold": [
+    "silentgear:blaze_gold_nugget"
+   ],
+   "crimson_iron": [
+    "silentgear:crimson_iron_nugget"
+   ],
+   "crimson_steel": [
+    "silentgear:crimson_steel_nugget"
+   ],
+   "emerald": [
+    "silentgear:emerald_shard"
+   ],
+   "tyrian_steel": [
+    "silentgear:tyrian_steel_nugget"
+   ],
+   "lithium": [
+    "tfmg:lithium_nugget"
+   ]
+  },
+  "ingots": {
+   "neptunium": [
+    "aquaculture:neptunium_ingot"
+   ],
+   "infused_entro": [
+    "extendedae:entro_ingot"
+   ],
+   "blutonium": [
+    "bigreactors:blutonium_ingot"
+   ],
+   "cyanite": [
+    "bigreactors:cyanite_ingot"
+   ],
+   "graphite": [
+    "bigreactors:graphite_ingot"
+   ],
+   "inanite": [
+    "bigreactors:inanite_ingot"
+   ],
+   "insanite": [
+    "bigreactors:insanite_ingot"
+   ],
+   "ludicrite": [
+    "bigreactors:ludicrite_ingot"
+   ],
+   "magentite": [
+    "bigreactors:magentite_ingot"
+   ],
+   "plutonium": [
+    "bigreactors:blutonium_ingot"
+   ],
+   "ridiculite": [
+    "bigreactors:ridiculite_ingot"
+   ],
+   "uranium": [
+    "bigreactors:yellorium_ingot",
+    "immersiveengineering:ingot_uranium",
+    "mekanism:ingot_uranium"
+   ],
+   "yellorium": [
+    "bigreactors:yellorium_ingot"
+   ],
+   "aluminum": [
+    "immersiveengineering:ingot_aluminum",
+    "tfmg:aluminum_ingot"
+   ],
+   "constantan": [
+    "immersiveengineering:ingot_constantan",
+    "tfmg:constantan_ingot"
+   ],
+   "electrum": [
+    "createaddition:electrum_ingot",
+    "immersiveengineering:ingot_electrum",
+    "oritech:electrum_ingot"
+   ],
+   "hop_graphite": [
+    "immersiveengineering:ingot_hop_graphite"
+   ],
+   "lead": [
+    "immersiveengineering:ingot_lead",
+    "mekanism:ingot_lead",
+    "tfmg:lead_ingot"
+   ],
+   "nickel": [
+    "immersiveengineering:ingot_nickel",
+    "oritech:nickel_ingot",
+    "tfmg:nickel_ingot"
+   ],
+   "silver": [
+    "immersiveengineering:ingot_silver"
+   ],
+   "steel": [
+    "createbigcannons:steel_ingot",
+    "elysiumspace:steel_ingot",
+    "immersiveengineering:ingot_steel",
+    "mekanism:ingot_steel",
+    "oritech:biosteel_ingot",
+    "oritech:steel_ingot",
+    "tfmg:steel_ingot"
+   ],
+   "bronze": [
+    "createbigcannons:bronze_ingot",
+    "mekanism:ingot_bronze",
+    "silentgear:bronze_ingot"
+   ],
+   "osmium": [
+    "mekanism:ingot_osmium"
+   ],
+   "refined_glowstone": [
+    "mekanism:ingot_refined_glowstone"
+   ],
+   "refined_obsidian": [
+    "mekanism:ingot_refined_obsidian"
+   ],
+   "tin": [
+    "mekanism:ingot_tin"
+   ],
+   "insanium": [
+    "mysticalagradditions:insanium_ingot"
+   ],
+   "awakened_supremium": [
+    "mysticalagriculture:awakened_supremium_ingot"
+   ],
+   "imperium": [
+    "mysticalagriculture:imperium_ingot"
+   ],
+   "inferium": [
+    "mysticalagriculture:inferium_ingot"
+   ],
+   "prosperity": [
+    "mysticalagriculture:prosperity_ingot"
+   ],
+   "prudentium": [
+    "mysticalagriculture:prudentium_ingot"
+   ],
+   "soulium": [
+    "mysticalagriculture:soulium_ingot"
+   ],
+   "supremium": [
+    "mysticalagriculture:supremium_ingot"
+   ],
+   "tertium": [
+    "mysticalagriculture:tertium_ingot"
+   ],
+   "copper": [
+    "minecraft:copper_ingot"
+   ],
+   "brass": [
+    "create:brass_ingot"
+   ],
+   "zinc": [
+    "create:zinc_ingot"
+   ],
+   "cast_iron": [
+    "createbigcannons:cast_iron_ingot",
+    "tfmg:cast_iron_ingot"
+   ],
+   "nethersteel": [
+    "createbigcannons:nethersteel_ingot"
+   ],
+   "andesite_alloy": [
+    "create:andesite_alloy"
+   ],
+   "industrial_iron": [
+    "createdeco:industrial_iron_ingot"
+   ],
+   "aetherium": [
+    "elysium:aetherium_ingot"
+   ],
+   "neutronium": [
+    "elysium:neutronium_ingot"
+   ],
+   "voidglass": [
+    "elysium:voidglass_ingot"
+   ],
+   "cindrium": [
+    "elysiumspace:cindrium_ingot"
+   ],
+   "cryonite": [
+    "elysiumspace:cryonite_ingot"
+   ],
+   "frostite": [
+    "elysiumspace:frostite_ingot"
+   ],
+   "lunite": [
+    "elysiumspace:lunite_ingot"
+   ],
+   "pink_slime": [
+    "industrialforegoing:pink_slime_ingot"
+   ],
+   "adamant": [
+    "oritech:adamant_ingot"
+   ],
+   "biosteel": [
+    "oritech:biosteel_ingot"
+   ],
+   "duratium": [
+    "oritech:duratium_ingot"
+   ],
+   "energite": [
+    "oritech:energite_ingot"
+   ],
+   "platinum": [
+    "oritech:platinum_ingot"
+   ],
+   "prometheum": [
+    "oritech:prometheum_ingot"
+   ],
+   "azure_electrum": [
+    "silentgear:azure_electrum_ingot"
+   ],
+   "azure_silver": [
+    "silentgear:azure_silver_ingot"
+   ],
+   "blaze_gold": [
+    "silentgear:blaze_gold_ingot"
+   ],
+   "crimson_iron": [
+    "silentgear:crimson_iron_ingot"
+   ],
+   "crimson_steel": [
+    "silentgear:crimson_steel_ingot"
+   ],
+   "tyrian_steel": [
+    "silentgear:tyrian_steel_ingot"
+   ],
+   "lithium": [
+    "tfmg:lithium_ingot"
+   ],
+   "plastic": [
+    "tfmg:plastic_sheet"
+   ],
+   "rubber": [
+    "tfmg:rubber_sheet"
+   ],
+   "silicon": [
+    "tfmg:silicon_ingot"
+   ],
+   "gold": [
+    "minecraft:gold_ingot"
+   ],
+   "iron": [
+    "minecraft:iron_ingot"
+   ],
+   "netherite": [
+    "minecraft:netherite_ingot"
+   ]
+  },
+  "dusts": {
+   "entro": [
+    "extendedae:entro_dust"
+   ],
+   "aluminum": [
+    "immersiveengineering:dust_aluminum"
+   ],
+   "coal_coke": [
+    "immersiveengineering:dust_coke",
+    "tfmg:coal_coke_dust"
+   ],
+   "constantan": [
+    "immersiveengineering:dust_constantan"
+   ],
+   "copper": [
+    "immersiveengineering:dust_copper",
+    "mekanism:dust_copper",
+    "oritech:copper_dust"
+   ],
+   "electrum": [
+    "immersiveengineering:dust_electrum",
+    "oritech:electrum_dust"
+   ],
+   "gold": [
+    "immersiveengineering:dust_gold",
+    "mekanism:dust_gold",
+    "oritech:gold_dust"
+   ],
+   "hop_graphite": [
+    "immersiveengineering:dust_hop_graphite"
+   ],
+   "iron": [
+    "immersiveengineering:dust_iron",
+    "mekanism:dust_iron",
+    "oritech:iron_dust"
+   ],
+   "lead": [
+    "immersiveengineering:dust_lead",
+    "mekanism:dust_lead"
+   ],
+   "nickel": [
+    "immersiveengineering:dust_nickel",
+    "oritech:nickel_dust"
+   ],
+   "saltpeter": [
+    "immersiveengineering:dust_saltpeter",
+    "tfmg:nitrate_dust"
+   ],
+   "silver": [
+    "immersiveengineering:dust_silver"
+   ],
+   "steel": [
+    "immersiveengineering:dust_steel",
+    "mekanism:dust_steel",
+    "oritech:steel_dust"
+   ],
+   "sulfur": [
+    "immersiveengineering:dust_sulfur",
+    "mekanism:dust_sulfur",
+    "tfmg:sulfur_dust"
+   ],
+   "uranium": [
+    "immersiveengineering:dust_uranium",
+    "mekanism:dust_uranium",
+    "oritech:uranium_dust"
+   ],
+   "wood": [
+    "createdieselgenerators:wood_chip",
+    "immersiveengineering:dust_wood",
+    "mekanism:sawdust"
+   ],
+   "bronze": [
+    "mekanism:dust_bronze"
+   ],
+   "charcoal": [
+    "mekanism:dust_charcoal"
+   ],
+   "coal": [
+    "mekanism:dust_coal",
+    "oritech:coal_dust"
+   ],
+   "diamond": [
+    "createaddition:diamond_grit",
+    "mekanism:dust_diamond"
+   ],
+   "emerald": [
+    "mekanism:dust_emerald"
+   ],
+   "fluorite": [
+    "mekanism:dust_fluorite"
+   ],
+   "lapis": [
+    "mekanism:dust_lapis_lazuli"
+   ],
+   "lithium": [
+    "mekanism:dust_lithium"
+   ],
+   "netherite": [
+    "mekanism:dust_netherite"
+   ],
+   "obsidian": [
+    "create:powdered_obsidian",
+    "mekanism:dust_obsidian"
+   ],
+   "osmium": [
+    "mekanism:dust_osmium"
+   ],
+   "quartz": [
+    "mekanism:dust_quartz",
+    "oritech:quartz_dust"
+   ],
+   "refined_obsidian": [
+    "mekanism:dust_refined_obsidian"
+   ],
+   "salt": [
+    "mekanism:salt"
+   ],
+   "tin": [
+    "mekanism:dust_tin"
+   ],
+   "certus_quartz": [
+    "ae2:certus_quartz_dust"
+   ],
+   "fluix": [
+    "ae2:fluix_dust"
+   ],
+   "sky_stone": [
+    "ae2:sky_dust"
+   ],
+   "ender_pearl": [
+    "ae2:ender_dust"
+   ],
+   "adamant": [
+    "oritech:adamant_dust"
+   ],
+   "biosteel": [
+    "oritech:biosteel_dust"
+   ],
+   "duratium": [
+    "oritech:duratium_dust"
+   ],
+   "energite": [
+    "oritech:energite_dust"
+   ],
+   "platinum": [
+    "oritech:platinum_dust"
+   ],
+   "plutonium": [
+    "oritech:plutonium_dust"
+   ],
+   "draconic": [
+    "productivebees:draconic_dust"
+   ],
+   "azure_electrum": [
+    "silentgear:azure_electrum_dust"
+   ],
+   "azure_silver": [
+    "silentgear:azure_silver_dust"
+   ],
+   "blaze_gold": [
+    "silentgear:blaze_gold_dust"
+   ],
+   "crimson_iron": [
+    "silentgear:crimson_iron_dust"
+   ],
+   "crimson_steel": [
+    "silentgear:crimson_steel_dust"
+   ],
+   "starmetal": [
+    "silentgear:starmetal_dust"
+   ],
+   "tyrian_steel": [
+    "silentgear:tyrian_steel_dust"
+   ],
+   "ash": [
+    "supplementaries:ash"
+   ],
+   "redstone": [
+    "minecraft:redstone"
+   ]
+  },
+  "gems": {
+   "entro": [
+    "extendedae:entro_crystal"
+   ],
+   "fluorite": [
+    "mekanism:fluorite_gem"
+   ],
+   "insanium": [
+    "mysticalagradditions:insanium_gemstone"
+   ],
+   "awakened_supremium": [
+    "mysticalagriculture:awakened_supremium_gemstone"
+   ],
+   "imperium": [
+    "mysticalagriculture:imperium_gemstone"
+   ],
+   "inferium": [
+    "mysticalagriculture:inferium_gemstone"
+   ],
+   "prosperity": [
+    "mysticalagriculture:prosperity_gemstone"
+   ],
+   "prudentium": [
+    "mysticalagriculture:prudentium_gemstone"
+   ],
+   "soulium": [
+    "mysticalagriculture:soulium_gemstone"
+   ],
+   "supremium": [
+    "mysticalagriculture:supremium_gemstone"
+   ],
+   "tertium": [
+    "mysticalagriculture:tertium_gemstone"
+   ],
+   "certus_quartz": [
+    "ae2:certus_quartz_crystal",
+    "ae2:charged_certus_quartz_crystal"
+   ],
+   "fluix": [
+    "ae2:fluix_crystal"
+   ],
+   "rime": [
+    "elysiumspace:rime_shard"
+   ],
+   "fluxite": [
+    "oritech:fluxite"
+   ],
+   "amethyst": [
+    "minecraft:amethyst_shard"
+   ],
+   "bort": [
+    "silentgear:bort"
+   ],
+   "diamond": [
+    "minecraft:diamond"
+   ],
+   "lapis": [
+    "minecraft:lapis_lazuli"
+   ],
+   "prismarine": [
+    "minecraft:prismarine_crystals"
+   ]
+  },
+  "ores": {
+   "anglesite": [
+    "bigreactors:anglesite_ore"
+   ],
+   "benitoite": [
+    "bigreactors:benitoite_ore"
+   ],
+   "uranium": [
+    "bigreactors:deepslate_yellorite_ore",
+    "bigreactors:yellorite_ore",
+    "immersiveengineering:deepslate_ore_uranium",
+    "immersiveengineering:ore_uranium",
+    "mekanism:deepslate_uranium_ore",
+    "mekanism:uranium_ore",
+    "oritech:deepslate_uranium_ore"
+   ],
+   "yellorite": [
+    "bigreactors:deepslate_yellorite_ore",
+    "bigreactors:yellorite_ore"
+   ],
+   "aluminum": [
+    "immersiveengineering:deepslate_ore_aluminum",
+    "immersiveengineering:ore_aluminum"
+   ],
+   "lead": [
+    "immersiveengineering:deepslate_ore_lead",
+    "immersiveengineering:ore_lead",
+    "mekanism:deepslate_lead_ore",
+    "mekanism:lead_ore",
+    "tfmg:deepslate_lead_ore",
+    "tfmg:lead_ore"
+   ],
+   "nickel": [
+    "immersiveengineering:deepslate_ore_nickel",
+    "immersiveengineering:ore_nickel",
+    "oritech:deepslate_nickel_ore",
+    "oritech:nickel_ore",
+    "tfmg:deepslate_nickel_ore",
+    "tfmg:nickel_ore"
+   ],
+   "silver": [
+    "immersiveengineering:deepslate_ore_silver",
+    "immersiveengineering:ore_silver"
+   ],
+   "fluorite": [
+    "mekanism:deepslate_fluorite_ore",
+    "mekanism:fluorite_ore"
+   ],
+   "osmium": [
+    "mekanism:deepslate_osmium_ore",
+    "mekanism:osmium_ore"
+   ],
+   "tin": [
+    "mekanism:deepslate_tin_ore",
+    "mekanism:tin_ore"
+   ],
+   "inferium": [
+    "mysticalagradditions:end_inferium_ore",
+    "mysticalagradditions:nether_inferium_ore",
+    "mysticalagriculture:deepslate_inferium_ore",
+    "mysticalagriculture:inferium_ore"
+   ],
+   "prosperity": [
+    "mysticalagradditions:end_prosperity_ore",
+    "mysticalagradditions:nether_prosperity_ore",
+    "mysticalagriculture:deepslate_prosperity_ore",
+    "mysticalagriculture:prosperity_ore"
+   ],
+   "soulium": [
+    "mysticalagriculture:soulium_ore"
+   ],
+   "uraninite_regular": [
+    "powah:deepslate_uraninite_ore",
+    "powah:uraninite_ore"
+   ],
+   "uraninite": [
+    "powah:deepslate_uraninite_ore",
+    "powah:deepslate_uraninite_ore_dense",
+    "powah:deepslate_uraninite_ore_poor",
+    "powah:uraninite_ore",
+    "powah:uraninite_ore_dense",
+    "powah:uraninite_ore_poor"
+   ],
+   "uraninite_dense": [
+    "powah:deepslate_uraninite_ore_dense",
+    "powah:uraninite_ore_dense"
+   ],
+   "uraninite_poor": [
+    "powah:deepslate_uraninite_ore_poor",
+    "powah:uraninite_ore_poor"
+   ],
+   "zinc": [
+    "create:deepslate_zinc_ore",
+    "create:zinc_ore"
+   ],
+   "cindrium": [
+    "elysiumspace:cindrium_ore"
+   ],
+   "coal": [
+    "elysiumspace:cinder_coal_ore"
+   ],
+   "cryonite": [
+    "elysiumspace:cryonite_ore"
+   ],
+   "diamond": [
+    "elysiumspace:cinder_diamond_ore",
+    "elysiumspace:frost_diamond_ore"
+   ],
+   "frostite": [
+    "elysiumspace:frostite_ore"
+   ],
+   "gold": [
+    "elysiumspace:cinder_gold_ore"
+   ],
+   "iron": [
+    "elysiumspace:frost_iron_ore",
+    "elysiumspace:pale_iron_ore"
+   ],
+   "lunite": [
+    "elysiumspace:lunite_ore"
+   ],
+   "rime_shard": [
+    "elysiumspace:frost_rime_shard_ore",
+    "elysiumspace:pale_rime_shard_ore"
+   ],
+   "steel": [
+    "elysiumspace:deepslate_steel_ore",
+    "elysiumspace:pale_steel_ore",
+    "elysiumspace:steel_ore"
+   ],
+   "quartz": [
+    "minecraft:nether_quartz_ore"
+   ],
+   "platinum": [
+    "oritech:deepslate_platinum_ore",
+    "oritech:endstone_platinum_ore"
+   ],
+   "azure_silver": [
+    "silentgear:azure_silver_ore"
+   ],
+   "bort": [
+    "silentgear:bort_ore",
+    "silentgear:deepslate_bort_ore"
+   ],
+   "crimson_iron": [
+    "silentgear:blackstone_crimson_iron_ore",
+    "silentgear:crimson_iron_ore"
+   ],
+   "lithium": [
+    "tfmg:deepslate_lithium_ore",
+    "tfmg:lithium_ore"
+   ]
+  },
+  "raw_materials": {
+   "uranium": [
+    "bigreactors:raw_yellorium",
+    "immersiveengineering:raw_uranium",
+    "mekanism:raw_uranium",
+    "oritech:raw_uranium"
+   ],
+   "yellorium": [
+    "bigreactors:raw_yellorium"
+   ],
+   "aluminum": [
+    "immersiveengineering:raw_aluminum"
+   ],
+   "lead": [
+    "immersiveengineering:raw_lead",
+    "mekanism:raw_lead",
+    "tfmg:raw_lead"
+   ],
+   "nickel": [
+    "immersiveengineering:raw_nickel",
+    "oritech:raw_nickel",
+    "tfmg:raw_nickel"
+   ],
+   "silver": [
+    "immersiveengineering:raw_silver"
+   ],
+   "osmium": [
+    "mekanism:raw_osmium"
+   ],
+   "tin": [
+    "mekanism:raw_tin"
+   ],
+   "uraninite": [
+    "powah:uraninite_raw"
+   ],
+   "zinc": [
+    "create:raw_zinc"
+   ],
+   "cindrium": [
+    "elysiumspace:raw_cindrium"
+   ],
+   "cryonite": [
+    "elysiumspace:raw_cryonite"
+   ],
+   "frostite": [
+    "elysiumspace:raw_frostite"
+   ],
+   "lunite": [
+    "elysiumspace:raw_lunite"
+   ],
+   "steel": [
+    "elysiumspace:raw_steel"
+   ],
+   "copper": [
+    "minecraft:raw_copper"
+   ],
+   "iron": [
+    "minecraft:raw_iron"
+   ],
+   "gold": [
+    "minecraft:raw_gold"
+   ],
+   "platinum": [
+    "oritech:raw_platinum"
+   ],
+   "azure_silver": [
+    "silentgear:raw_azure_silver"
+   ],
+   "crimson_iron": [
+    "silentgear:raw_crimson_iron"
+   ],
+   "lithium": [
+    "tfmg:raw_lithium"
+   ]
+  },
+  "plates": {
+   "aluminum": [
+    "immersiveengineering:plate_aluminum",
+    "tfmg:aluminum_sheet"
+   ],
+   "constantan": [
+    "immersiveengineering:plate_constantan"
+   ],
+   "copper": [
+    "create:copper_sheet",
+    "immersiveengineering:plate_copper"
+   ],
+   "electrum": [
+    "createaddition:electrum_sheet",
+    "immersiveengineering:plate_electrum"
+   ],
+   "gold": [
+    "create:golden_sheet",
+    "immersiveengineering:plate_gold"
+   ],
+   "hop_graphite": [
+    "immersiveengineering:plate_hop_graphite"
+   ],
+   "iron": [
+    "create:iron_sheet",
+    "immersiveengineering:plate_iron"
+   ],
+   "lead": [
+    "immersiveengineering:plate_lead",
+    "tfmg:lead_sheet"
+   ],
+   "nickel": [
+    "immersiveengineering:plate_nickel",
+    "tfmg:nickel_sheet"
+   ],
+   "plastic": [
+    "immersiveengineering:plate_duroplast",
+    "oritech:plastic_sheet"
+   ],
+   "silver": [
+    "immersiveengineering:plate_silver"
+   ],
+   "steel": [
+    "immersiveengineering:plate_steel",
+    "tfmg:heavy_plate"
+   ],
+   "uranium": [
+    "immersiveengineering:plate_uranium"
+   ],
+   "cardboard": [
+    "create:cardboard"
+   ],
+   "obsidian": [
+    "create:sturdy_sheet"
+   ],
+   "brass": [
+    "create:brass_sheet"
+   ],
+   "zinc": [
+    "createaddition:zinc_sheet",
+    "createdeco:zinc_sheet",
+    "powergrid:zinc_sheet"
+   ],
+   "andesite_alloy": [
+    "createdeco:andesite_sheet"
+   ],
+   "industrial_iron": [
+    "createdeco:industrial_iron_sheet"
+   ],
+   "cast_iron": [
+    "tfmg:cast_iron_sheet"
+   ]
+  }
+ },
+ "ores": {
+  "anglesite": [
+   "bigreactors:anglesite_ore"
+  ],
+  "benitoite": [
+   "bigreactors:benitoite_ore"
+  ],
+  "uranium": [
+   "bigreactors:deepslate_yellorite_ore",
+   "bigreactors:yellorite_ore",
+   "immersiveengineering:deepslate_ore_uranium",
+   "immersiveengineering:ore_uranium",
+   "mekanism:deepslate_uranium_ore",
+   "mekanism:uranium_ore",
+   "oritech:deepslate_uranium_ore"
+  ],
+  "yellorite": [
+   "bigreactors:deepslate_yellorite_ore",
+   "bigreactors:yellorite_ore"
+  ],
+  "aluminum": [
+   "immersiveengineering:deepslate_ore_aluminum",
+   "immersiveengineering:ore_aluminum"
+  ],
+  "lead": [
+   "immersiveengineering:deepslate_ore_lead",
+   "immersiveengineering:ore_lead",
+   "mekanism:deepslate_lead_ore",
+   "mekanism:lead_ore",
+   "tfmg:deepslate_lead_ore",
+   "tfmg:lead_ore"
+  ],
+  "nickel": [
+   "immersiveengineering:deepslate_ore_nickel",
+   "immersiveengineering:ore_nickel",
+   "oritech:deepslate_nickel_ore",
+   "oritech:nickel_ore",
+   "tfmg:deepslate_nickel_ore",
+   "tfmg:nickel_ore"
+  ],
+  "silver": [
+   "immersiveengineering:deepslate_ore_silver",
+   "immersiveengineering:ore_silver"
+  ],
+  "fluorite": [
+   "mekanism:deepslate_fluorite_ore",
+   "mekanism:fluorite_ore"
+  ],
+  "osmium": [
+   "mekanism:deepslate_osmium_ore",
+   "mekanism:osmium_ore"
+  ],
+  "tin": [
+   "mekanism:deepslate_tin_ore",
+   "mekanism:tin_ore"
+  ],
+  "inferium": [
+   "mysticalagradditions:end_inferium_ore",
+   "mysticalagradditions:nether_inferium_ore",
+   "mysticalagriculture:deepslate_inferium_ore",
+   "mysticalagriculture:inferium_ore"
+  ],
+  "prosperity": [
+   "mysticalagradditions:end_prosperity_ore",
+   "mysticalagradditions:nether_prosperity_ore",
+   "mysticalagriculture:deepslate_prosperity_ore",
+   "mysticalagriculture:prosperity_ore"
+  ],
+  "soulium": [
+   "mysticalagriculture:soulium_ore"
+  ],
+  "uraninite_regular": [
+   "powah:deepslate_uraninite_ore",
+   "powah:uraninite_ore"
+  ],
+  "uraninite": [
+   "powah:deepslate_uraninite_ore",
+   "powah:deepslate_uraninite_ore_dense",
+   "powah:deepslate_uraninite_ore_poor",
+   "powah:uraninite_ore",
+   "powah:uraninite_ore_dense",
+   "powah:uraninite_ore_poor"
+  ],
+  "uraninite_dense": [
+   "powah:deepslate_uraninite_ore_dense",
+   "powah:uraninite_ore_dense"
+  ],
+  "uraninite_poor": [
+   "powah:deepslate_uraninite_ore_poor",
+   "powah:uraninite_ore_poor"
+  ],
+  "zinc": [
+   "create:deepslate_zinc_ore",
+   "create:zinc_ore"
+  ],
+  "cindrium": [
+   "elysiumspace:cindrium_ore"
+  ],
+  "coal": [
+   "elysiumspace:cinder_coal_ore"
+  ],
+  "cryonite": [
+   "elysiumspace:cryonite_ore"
+  ],
+  "diamond": [
+   "elysiumspace:cinder_diamond_ore",
+   "elysiumspace:frost_diamond_ore"
+  ],
+  "frostite": [
+   "elysiumspace:frostite_ore"
+  ],
+  "gold": [
+   "elysiumspace:cinder_gold_ore"
+  ],
+  "iron": [
+   "elysiumspace:frost_iron_ore",
+   "elysiumspace:pale_iron_ore"
+  ],
+  "lunite": [
+   "elysiumspace:lunite_ore"
+  ],
+  "rime_shard": [
+   "elysiumspace:frost_rime_shard_ore",
+   "elysiumspace:pale_rime_shard_ore"
+  ],
+  "steel": [
+   "elysiumspace:deepslate_steel_ore",
+   "elysiumspace:pale_steel_ore",
+   "elysiumspace:steel_ore"
+  ],
+  "platinum": [
+   "oritech:deepslate_platinum_ore",
+   "oritech:endstone_platinum_ore"
+  ],
+  "azure_silver": [
+   "silentgear:azure_silver_ore"
+  ],
+  "bort": [
+   "silentgear:bort_ore",
+   "silentgear:deepslate_bort_ore"
+  ],
+  "crimson_iron": [
+   "silentgear:blackstone_crimson_iron_ore",
+   "silentgear:crimson_iron_ore"
+  ],
+  "lithium": [
+   "tfmg:deepslate_lithium_ore",
+   "tfmg:lithium_ore"
+  ]
+ }
+}

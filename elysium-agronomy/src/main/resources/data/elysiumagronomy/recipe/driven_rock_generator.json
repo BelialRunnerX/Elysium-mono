@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PGP",
+    "PWP"
+  ],
+  "key": {
+    "P": {
+      "tag": "c:plates/iron"
+    },
+    "G": {
+      "item": "elysiumagronomy:rock_generator"
+    },
+    "W": {
+      "item": "elysiumindustry:copper_wire"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:driven_rock_generator",
+    "count": 1
+  }
+}

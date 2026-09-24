@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "oritech:deepslate_platinum_ore",
+      "required": false
+    },
+    {
+      "id": "oritech:endstone_platinum_ore",
+      "required": false
+    },
+    "elysiumores:cinder_platinum_ore",
+    "elysiumores:frost_platinum_ore",
+    "elysiumores:netherrack_platinum_ore",
+    "elysiumores:pale_platinum_ore",
+    "elysiumores:stone_platinum_ore"
+  ]
+}

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Quiet. The game logs a great deal on bootstrap and none of it is the
+     answer to the one question this check asks. -->
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="stdout" target="SYSTEM_ERR">
+            <PatternLayout pattern="%msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="ERROR">
+            <AppenderRef ref="stdout"/>
+        </Root>
+    </Loggers>
+</Configuration>

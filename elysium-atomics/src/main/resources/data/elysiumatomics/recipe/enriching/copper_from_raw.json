@@ -1,0 +1,11 @@
+{
+  "type": "elysiumatomics:enriching",
+  "input": {
+    "item": "minecraft:raw_copper"
+  },
+  "result": {
+    "id": "minecraft:copper_ingot",
+    "count": 1
+  },
+  "ticks": 300
+}

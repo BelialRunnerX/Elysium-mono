@@ -1,0 +1,13 @@
+{
+  "type": "elysiumsolarpunk:farming",
+  "input": {
+    "item": "minecraft:wheat_seeds"
+  },
+  "result": {
+    "id": "minecraft:wheat",
+    "count": 2
+  },
+  "time": 200,
+  "energy": 600,
+  "input_count": 2
+}

@@ -1,0 +1,16 @@
+{
+  "type": "suffix",
+  "on": [
+    "melee_weapon"
+  ],
+  "min_tier": 1,
+  "weight": 7,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "target_effect",
+      "effect": "minecraft:weakness",
+      "ticks_per_level": 60
+    }
+  ]
+}

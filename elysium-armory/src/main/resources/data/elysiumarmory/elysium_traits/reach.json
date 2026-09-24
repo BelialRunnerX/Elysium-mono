@@ -1,0 +1,24 @@
+{
+  "name": "Reach",
+  "max_level": 5,
+  "description": "Increases block reach distance",
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "slot": "any",
+          "attribute": "minecraft:player.block_interaction_range",
+          "operation": "add_value",
+          "values": [
+            0.5,
+            1.0,
+            1.5,
+            2.0,
+            3.0
+          ]
+        }
+      ]
+    }
+  ]
+}

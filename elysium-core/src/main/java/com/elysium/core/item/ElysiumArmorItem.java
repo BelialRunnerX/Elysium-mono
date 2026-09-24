@@ -181,7 +181,16 @@ public class ElysiumArmorItem extends ArmorItem implements ElysiumSocketable {
                                 List<Component> tooltip,
                                 TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
+        describe(stack, tooltip);
+    }
 
+    /**
+     * The armour's lines: identity, what the set answers, stats, runes,
+     * reforges. Shared by the tooltip and the bench readout, and safe on a
+     * dedicated server — see ElysiumSocketable.describe.
+     */
+    @Override
+    public void describe(ItemStack stack, List<Component> tooltip) {
         appendIdentityTooltip(stack, tooltip);
 
         // What this set answers, so the counter matrix is discoverable in game

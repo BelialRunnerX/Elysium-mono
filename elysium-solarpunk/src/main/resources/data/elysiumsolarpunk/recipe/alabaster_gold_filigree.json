@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " s ",
+    "sms",
+    " s "
+  ],
+  "key": {
+    "s": {
+      "item": "elysiumsolarpunk:polished_alabaster"
+    },
+    "m": {
+      "item": "minecraft:gold_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:alabaster_gold_filigree",
+    "count": 4
+  }
+}

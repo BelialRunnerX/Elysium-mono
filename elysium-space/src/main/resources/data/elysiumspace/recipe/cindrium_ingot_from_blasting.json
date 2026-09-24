@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumspace:raw_cindrium"
+  },
+  "result": {
+    "id": "elysiumspace:cindrium_ingot"
+  },
+  "experience": 0.7,
+  "cookingtime": 100
+}

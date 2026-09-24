@@ -139,7 +139,7 @@ should feed each other, and this is the cleanest way to make that literal:
 - Rarer frame materials unlock deeper starting depth.
 
 This makes crafting, materials and the element system feed run design, which is
-the thing no standalone roguelike can do. It also gives the 196 material gear
+the thing no standalone roguelike can do. It also gives the material gear
 items and the 26 materials a second job.
 
 **Where it lives.** The portal already validates a frame. It would need to

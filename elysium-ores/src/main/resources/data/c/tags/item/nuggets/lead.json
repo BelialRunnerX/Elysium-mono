@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:nugget_lead",
+      "required": false
+    },
+    {
+      "id": "mekanism:nugget_lead",
+      "required": false
+    },
+    {
+      "id": "tfmg:lead_nugget",
+      "required": false
+    }
+  ]
+}

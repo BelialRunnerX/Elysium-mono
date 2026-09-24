@@ -1,0 +1,5 @@
+{
+  "from": "minecraft:awkward",
+  "ingredient": "minecraft:sweet_berries",
+  "to": "elysiumlib:vitality"
+}

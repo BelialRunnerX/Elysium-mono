@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumatelier:blackstone_door",
+    "elysiumatelier:deepslate_door",
+    "elysiumatelier:quartz_door",
+    "elysiumatelier:stone_door",
+    "elysiumatelier:tuff_door"
+  ]
+}

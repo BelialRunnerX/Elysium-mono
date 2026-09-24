@@ -51,7 +51,7 @@ LIBRARY_FILE = "ElysiumSocketable.java"
 def mod_sources():
     """Every content mod's java, under either the multi-repo or mono layout."""
     found = []
-    for short in ("core", "dungeons", "mobs", "trinkets", "npcs"):
+    for short in ("core", "dungeons", "mobs", "trinkets", "npcs", "armory", "ascendancy", "space"):
         for directory in (ROOT / short, ROOT / f"elysium-{short}"):
             source = directory / "src/main/java"
             if source.is_dir():

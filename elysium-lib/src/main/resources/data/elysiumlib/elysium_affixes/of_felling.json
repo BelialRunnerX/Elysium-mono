@@ -1,0 +1,16 @@
+{
+  "type": "suffix",
+  "on": [
+    "harvest_tool"
+  ],
+  "min_tier": 0,
+  "weight": 10,
+  "max_level": 4,
+  "effects": [
+    {
+      "type": "mining_speed",
+      "tag": "minecraft:mineable/axe",
+      "per_level": 0.2
+    }
+  ]
+}

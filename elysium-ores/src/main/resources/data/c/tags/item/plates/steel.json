@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:plate_steel",
+      "required": false
+    },
+    {
+      "id": "tfmg:heavy_plate",
+      "required": false
+    }
+  ]
+}

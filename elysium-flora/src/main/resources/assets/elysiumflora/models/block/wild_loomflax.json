@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "elysiumflora:block/wild_loomflax"
+  }
+}

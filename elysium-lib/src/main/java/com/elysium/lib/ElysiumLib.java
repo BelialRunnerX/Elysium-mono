@@ -95,10 +95,58 @@ public class ElysiumLib {
         ElysiumCommission.ATTACHMENTS.register(modEventBus);
         com.elysium.lib.standing.ElysiumFile.ATTACHMENTS.register(modEventBus);
         com.elysium.lib.event.ElysiumSquadHandler.ATTACHMENTS.register(modEventBus);
+        com.elysium.lib.social.ElysiumMemories.ATTACHMENTS.register(modEventBus);
+        com.elysium.lib.medical.ElysiumMedical.ATTACHMENTS.register(modEventBus);
+        com.elysium.lib.tier.ElysiumTiers.ATTACHMENTS.register(modEventBus);
+
+        // Touching the class runs its registrations; without this every
+        // handler looks up a kind that is not there and villagers remember
+        // nothing at all.
+        com.elysium.lib.social.ElysiumMemoryKinds.bootstrap();
         ElysiumComponents.COMPONENTS.register(modEventBus);
 
-        LOGGER.info("Elysium Library ready: {} elements, {} stats",
+        // The five hazard wards. Effects rather than items, so the library can
+        // ship the cheap counter to a hazard without shipping anything a player
+        // can hold — any mod's food, potion or machine may grant one, and the
+        // damage tick reads it without knowing which did.
+        com.elysium.lib.hazard.ElysiumWards.Effects.register(modEventBus);
+
+        // The combat attributes (crit, dodge, pierce, shred, lifesteal and the
+        // rest). In the library so gear and affixes share one holder each.
+        com.elysium.lib.attribute.ElysiumAttributes.register(modEventBus);
+        com.elysium.lib.combat.ElysiumEffects.register(modEventBus);
+        com.elysium.lib.combat.ElysiumPotions.register(modEventBus);
+
+        // §8.5's rooms. Registered rather than enumerated, so a content mod can
+        // declare a room of its own and have the hazard tick read it — the
+        // requirements are block tags, which is the one thing a content mod is
+        // certain to want to add to.
+        com.elysium.lib.room.ElysiumRooms.bootstrap();
+
+        // The affixes rolled onto an item, offered to the effect engine as one
+        // of the things that can be attached to it. Traits are what a piece is
+        // made of; affixes are what happened to it, and both are read by the
+        // same handlers because both speak the same vocabulary.
+        com.elysium.lib.affix.ElysiumAffixEffects.register();
+        com.elysium.lib.affix.ElysiumAffixHandler.register();
+        com.elysium.lib.loot.ElysiumLoot.register(modEventBus);
+        // Gear sets: a third attachment on the same engine. What makes a set
+        // bonus different is only where it looks — at the whole of what is
+        // worn rather than at the one stack in hand.
+        com.elysium.lib.set.ElysiumGearSets.register();
+
+        // "Uncap everything": vanilla's attribute ceilings, lifted once the
+        // game is set up. Guarded inside — a failure logs and leaves vanilla's.
+        modEventBus.addListener(
+                (net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent setup) ->
+                        setup.enqueueWork(() -> LOGGER.info(
+                                "Elysium: lifted {} vanilla attribute ceiling(s)",
+                                com.elysium.lib.stats.ElysiumAttributeLimits.raise())));
+
+        LOGGER.info("Elysium Library ready: {} elements, {} stats, {} hazard wards, {} rooms",
                 com.elysium.lib.element.ElysiumElement.REGISTRY.size(),
-                com.elysium.lib.stats.ElysiumStat.REGISTRY.size());
+                com.elysium.lib.stats.ElysiumStat.REGISTRY.size(),
+                com.elysium.lib.hazard.ElysiumWards.bound(),
+                com.elysium.lib.room.ElysiumRoom.REGISTRY.size());
     }
 }

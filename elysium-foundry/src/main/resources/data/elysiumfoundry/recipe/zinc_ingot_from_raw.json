@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:raw_zinc"
+  },
+  "result": {
+    "id": "elysiumfoundry:zinc_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

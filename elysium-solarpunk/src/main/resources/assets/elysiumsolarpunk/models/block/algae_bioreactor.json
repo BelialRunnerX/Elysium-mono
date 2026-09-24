@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "elysiumsolarpunk:block/algae_bioreactor_front",
+    "side": "elysiumsolarpunk:block/algae_bioreactor_side",
+    "top": "elysiumsolarpunk:block/algae_bioreactor_top"
+  }
+}

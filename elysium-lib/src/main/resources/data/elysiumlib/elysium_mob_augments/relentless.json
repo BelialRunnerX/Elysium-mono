@@ -1,0 +1,16 @@
+{
+  "weight": 3,
+  "min_tier": 4,
+  "attributes": {
+    "minecraft:generic.movement_speed": 1.5,
+    "minecraft:generic.follow_range": 3.0
+  },
+  "effects": [
+    {
+      "effect": "minecraft:speed"
+    },
+    {
+      "effect": "minecraft:regeneration"
+    }
+  ]
+}

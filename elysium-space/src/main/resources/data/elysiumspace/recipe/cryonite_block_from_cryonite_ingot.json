@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumspace:cryonite_ingot"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:cryonite_block"
+  }
+}

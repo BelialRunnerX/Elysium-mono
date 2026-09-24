@@ -1,0 +1,29 @@
+{
+  "type": "simple",
+  "crafting": {
+    "categories": [
+      "rock",
+      "dust",
+      "endgame"
+    ]
+  },
+  "display": {
+    "name": "Shulker Shell"
+  },
+  "properties": {
+    "main": {
+      "durability": 2500.0,
+      "armor_durability": 50.0,
+      "enchantment_value": 10.0,
+      "charging_value": -0.15,
+      "rarity": 91.0,
+      "additive": 1.0,
+      "traits": [
+        {
+          "trait": "eroded",
+          "level": 4
+        }
+      ]
+    }
+  }
+}

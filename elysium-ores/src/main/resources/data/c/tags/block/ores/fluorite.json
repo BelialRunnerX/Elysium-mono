@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "mekanism:deepslate_fluorite_ore",
+      "required": false
+    },
+    {
+      "id": "mekanism:fluorite_ore",
+      "required": false
+    },
+    "elysiumores:cinder_fluorite_ore",
+    "elysiumores:end_stone_fluorite_ore",
+    "elysiumores:frost_fluorite_ore",
+    "elysiumores:netherrack_fluorite_ore",
+    "elysiumores:pale_fluorite_ore"
+  ]
+}

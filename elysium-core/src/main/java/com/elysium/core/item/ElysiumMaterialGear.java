@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The gear every material gets: four tool shapes and four armour pieces.
+ * The gear every material gets: nine tool shapes and four armour pieces.
  *
  * <h2>Why this is a loop and the old gear is not</h2>
  *
@@ -45,8 +45,20 @@ public final class ElysiumMaterialGear {
     private ElysiumMaterialGear() {
     }
 
-    /** The four tool shapes, and the suffix each one's registry name takes. */
+    /**
+     * Every tool shape a material gets, and the suffix its registry name takes.
+     *
+     * The plain five come first, because that is the order a player meets them:
+     * a new metal makes a pickaxe before it makes a hammer. Registration order
+     * is creative-tab order, so the tab reads as a progression rather than as
+     * an alphabet.
+     */
     public enum Shape {
+        SWORD("sword"),
+        PICKAXE("pickaxe"),
+        AXE("axe"),
+        SHOVEL("shovel"),
+        HOE("hoe"),
         HAMMER("hammer"),
         BROADAXE("broadaxe"),
         SCYTHE("scythe"),
@@ -103,6 +115,11 @@ public final class ElysiumMaterialGear {
             String name = path + "_" + shape.getSuffix();
             DeferredHolder<Item, Item> holder = Elysium.ITEMS.register(name,
                     () -> switch (shape) {
+                        case SWORD -> new ElysiumTools.Sword(material);
+                        case PICKAXE -> new ElysiumTools.Pickaxe(material);
+                        case AXE -> new ElysiumTools.Axe(material);
+                        case SHOVEL -> new ElysiumTools.Shovel(material);
+                        case HOE -> new ElysiumTools.Hoe(material);
                         case HAMMER -> new ElysiumTools.Hammer(material);
                         case BROADAXE -> new ElysiumTools.Broadaxe(material);
                         case SCYTHE -> new ElysiumTools.Scythe(material);

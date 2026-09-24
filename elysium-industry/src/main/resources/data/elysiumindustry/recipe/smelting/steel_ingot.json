@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:smelting",
+  "input": {
+    "item": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "elysiumindustry:steel_ingot",
+    "count": 1
+  },
+  "ticks": 200
+}

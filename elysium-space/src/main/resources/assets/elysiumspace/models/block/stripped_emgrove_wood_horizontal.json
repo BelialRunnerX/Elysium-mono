@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column_horizontal",
+  "textures": {
+    "side": "elysiumspace:block/stripped_emgrove_log",
+    "end": "elysiumspace:block/stripped_emgrove_log"
+  }
+}

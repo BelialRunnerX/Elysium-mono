@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumspace:pale_stone_stairs",
+    "elysiumspace:polished_pale_stone_stairs",
+    "elysiumspace:pale_stone_brick_stairs",
+    "elysiumspace:frost_stone_stairs",
+    "elysiumspace:polished_frost_stone_stairs",
+    "elysiumspace:frost_stone_brick_stairs",
+    "elysiumspace:cinder_stone_stairs",
+    "elysiumspace:polished_cinder_stone_stairs",
+    "elysiumspace:cinder_stone_brick_stairs",
+    "elysiumspace:smooth_cinder_sandstone_stairs",
+    "elysiumspace:iron_plating_stairs",
+    "elysiumspace:steel_plating_stairs",
+    "elysiumspace:lunite_plating_stairs"
+  ]
+}

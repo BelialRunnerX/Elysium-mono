@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "elysiumflora:block/emberwood_slab"
+    },
+    "type=top": {
+      "model": "elysiumflora:block/emberwood_slab_top"
+    },
+    "type=double": {
+      "model": "elysiumflora:block/emberwood_planks"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:silver_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:silver_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

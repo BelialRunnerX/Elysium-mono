@@ -1,83 +1,19 @@
 """Item and block sprites for the Voidforged set."""
 import random
 
+import pixelart
 from canvas import Canvas, rect, union
 from style import METAL, GLOW
 
 
-# ==========================================================================
-# Materials
-# ==========================================================================
-
-# Sized against vanilla's own ingot rather than by eye.
-#
-# Vanilla's is sixteen pixels across at its widest and twelve tall, with a long
-# flat run through the middle and hard 45-degree ends. Ours was thirteen across
-# and eight tall with every edge rounded, which is the difference between "cast
-# bar" and "pebble" - and it was the most-seen sprite in the mod, drawn once per
-# material for twenty-six of them.
-#
-# Every shape here is drawn a pixel lean because outline() grows the silhouette
-# by one in each direction, so these numbers are two smaller than what a player
-# sees.
-INGOT = union(
-    rect(7, 3, 12, 3),
-    rect(5, 4, 13, 4),
-    rect(3, 5, 14, 5),
-    rect(1, 6, 14, 6),
-    rect(1, 7, 14, 7),
-    rect(1, 8, 13, 8),
-    rect(2, 9, 12, 9),
-    rect(4, 10, 10, 10),
-)
-
-
-# The three rows the light catches: a bar is a box seen from slightly above, and
-# the top face has to be its own value or the whole thing reads as a lozenge.
-INGOT_TOP = union(rect(7, 3, 12, 3), rect(5, 4, 13, 4), rect(3, 5, 14, 5))
-INGOT_BODY = INGOT - INGOT_TOP
-
-
 def ingot(metal, glow):
-    """
-    A cast bar. The top face is painted as its own plate a full two steps
-    lighter than the body — a smooth gradient across the whole silhouette
-    reads as a pebble, a hard value break reads as a folded edge.
-    """
-    ramp = METAL[metal]
-    c = Canvas()
-    for (x, y) in INGOT_BODY:
-        c.put(x, y, ramp[3] if y <= 8 else ramp[2])
-    for (x, y) in INGOT_TOP:
-        c.put(x, y, ramp[5] if y == 3 else ramp[4])
-    # Fold line where the top face meets the body, then the lit underside.
-    c.engrave([(x, 6) for x in range(2, 14)], ramp, shade=1)
-    c.engrave([(x, 9) for x in range(3, 12)], ramp, shade=1)
-    c.glow([(9, 3), (10, 3)], GLOW[glow], within=INGOT_TOP)
-    c.outline(ramp[0])
-    return c
-
-
-SHARD = union(
-    rect(7, 2, 8, 2),
-    rect(6, 3, 9, 3),
-    rect(5, 4, 10, 5),
-    rect(4, 6, 11, 9),
-    rect(5, 10, 10, 11),
-    rect(6, 12, 9, 12),
-    rect(7, 13, 8, 13),
-)
+    """A cast bar, recoloured for this material."""
+    return pixelart.render("ingot", METAL[metal], GLOW[glow])
 
 
 def shard(metal, glow):
     """Voidglass does not cast — it grows. An angular crystal instead of a bar."""
-    c = Canvas()
-    c.plate(SHARD, METAL[metal])
-    # Facet lines running out from the core.
-    c.engrave([(6, 5), (7, 4), (8, 4), (9, 5), (6, 10), (9, 10)], METAL[metal], shade=1)
-    c.glow([(7, 7), (8, 7), (7, 8), (8, 8)], GLOW[glow], within=SHARD)
-    c.outline(METAL[metal][0])
-    return c
+    return pixelart.render("shard", METAL[metal], GLOW[glow])
 
 
 # ==========================================================================
@@ -114,8 +50,6 @@ TABLET = union(
     rect(3, 2, 12, 13),
 ) - {(3, 2), (12, 2), (3, 13), (12, 13)}
 
-TABLET_INNER = rect(5, 4, 10, 11)
-
 SIGILS = {
     # Voidward — a warding shield
     "voidward": [(5, 4), (6, 4), (7, 4), (8, 4), (9, 4), (10, 4),
@@ -139,6 +73,90 @@ SIGILS = {
 }
 
 
+# ==========================================================================
+# Gem dust, sigils and the case — SPEC_CLONE P7
+#
+# Runes are Elysium's gems, so everything here is drawn as something that
+# happens *to* a rune rather than as a second family of stones. Dust is a
+# tablet ground down; a sigil is a tablet with a seal instead of a sigil; the
+# case is the box they are all kept in.
+# ==========================================================================
+
+# Four seals, drawn to be told apart at sixteen pixels rather than merely to
+# differ. Each is what its sigil does, as a shape: an opening, an upward mark,
+# a withdrawal, a turning.
+SEALS = {
+    # Socketing — an opening: a ring with a gap at the top, the socket itself.
+    "socketing": [(6, 4), (9, 4), (5, 5), (10, 5), (4, 6), (11, 6),
+                  (4, 7), (11, 7), (4, 8), (11, 8), (5, 9), (10, 9),
+                  (6, 10), (7, 10), (8, 10), (9, 10)],
+    # Enhancement — an upward mark over a bar: more of what is already there.
+    "enhancement": [(7, 3), (8, 3), (6, 4), (9, 4), (5, 5), (10, 5),
+                    (7, 5), (8, 5), (7, 6), (8, 6), (7, 7), (8, 7),
+                    (5, 10), (6, 10), (7, 10), (8, 10), (9, 10), (10, 10)],
+    # Withdrawal — a downward mark leaving a cup: something taken back out.
+    "withdrawal": [(7, 3), (8, 3), (7, 4), (8, 4), (7, 5), (8, 5),
+                   (5, 6), (10, 6), (6, 7), (9, 7), (7, 8), (8, 8),
+                   (5, 10), (10, 10), (6, 11), (7, 11), (8, 11), (9, 11)],
+    # Rebirth — a turning: an open circle with an arrowhead, the same thing
+    # come round again.
+    "rebirth": [(6, 4), (7, 4), (8, 4), (9, 4), (5, 5), (10, 5),
+                (4, 6), (4, 7), (4, 8), (11, 6), (11, 7),
+                (5, 9), (10, 9), (6, 10), (7, 10), (8, 10),
+                (9, 3), (10, 4), (9, 5)],
+}
+
+# A pile of ground tablet: wide at the bottom, thinning upward, with two motes
+# above it. Deliberately not a neat triangle — dust that reads as a pyramid
+# reads as a block, and this sits in the same inventory as ingots.
+DUST_PILE = [(4, 12), (5, 12), (6, 12), (7, 12), (8, 12), (9, 12), (10, 12), (11, 12),
+             (5, 11), (6, 11), (7, 11), (8, 11), (9, 11), (10, 11),
+             (6, 10), (7, 10), (8, 10), (9, 10),
+             (7, 9), (8, 9)]
+DUST_MOTES = [(5, 7), (10, 6), (7, 5)]
+
+# The case: a lidded box, the lid a shade proud of the body so it reads as
+# something that opens.
+CASE_BODY = union(rect(3, 7, 12, 13))
+CASE_LID = union(rect(2, 4, 13, 7))
+
+
+def gem_dust(glow):
+    """A rune ground down: what a tablet is worth once it is not one."""
+    c = Canvas()
+    c.plate(DUST_PILE, METAL["obsidian"])
+    c.carve([(6, 11), (9, 11), (7, 10)], GLOW[glow], within=union(DUST_PILE))
+    c.glow(DUST_MOTES, GLOW[glow])
+    c.outline(METAL["obsidian"][0])
+    return c
+
+
+def sigil(seal, glow):
+    """A tablet carrying a seal rather than a sigil: a use, not a bonus."""
+    c = Canvas()
+    c.plate(TABLET, METAL["voidsteel"])
+    border = set()
+    for x in range(4, 12):
+        border |= {(x, 3), (x, 12)}
+    for y in range(3, 13):
+        border |= {(4, y), (11, y)}
+    c.engrave(border, METAL["voidsteel"], shade=1)
+    c.carve(SEALS[seal], GLOW[glow], within=TABLET)
+    c.outline(METAL["voidsteel"][0])
+    return c
+
+
+def gem_case(metal, glow):
+    """The box the tablets are kept in."""
+    c = Canvas()
+    c.plate(CASE_BODY, METAL[metal])
+    c.plate(CASE_LID, METAL[metal], top=5, bottom=3)
+    c.engrave([(x, 7) for x in range(3, 13)], METAL[metal], shade=1)
+    c.glow([(7, 9), (8, 9)], GLOW[glow])
+    c.outline(METAL[metal][0])
+    return c
+
+
 def rune(sigil, glow):
     c = Canvas()
     c.plate(TABLET, METAL["obsidian"])
@@ -155,30 +173,198 @@ def rune(sigil, glow):
 
 
 # ==========================================================================
-# Armour icons
+# Spawner runes (SPEC_CLONE P11.6)
+# ==========================================================================
+#
+# The same obsidian tablet as the socket runes, with its own set of marks. Each
+# one has to be readable at sixteen pixels *and* tellable apart from the other
+# ten in a row in an inventory, which rules out anything with fine detail: the
+# marks below are all solid blocks, bars, rings and chevrons.
+#
+# The field inside the tablet's carved border is x 5..10, y 4..11 — six wide
+# and eight tall. Nothing here goes outside it.
+
+def _ring(x0, y0, x1, y1):
+    """The outline of a box, which is a shape that survives being small."""
+    points = set()
+    for x in range(x0, x1 + 1):
+        points |= {(x, y0), (x, y1)}
+    for y in range(y0, y1 + 1):
+        points |= {(x0, y), (x1, y)}
+    return points
+
+
+_EYE = ({(6, 6), (7, 6), (8, 6), (9, 6), (5, 7), (10, 7), (6, 8), (7, 8), (8, 8), (9, 8)}
+        | {(7, 7), (8, 7)})
+_STRIKE = {(5, 10), (6, 9), (7, 8), (8, 7), (9, 6), (10, 5)}
+
+SPAWNER_SIGILS = {
+    # Haste — two chevrons falling, which is the shape of a countdown.
+    "haste": {(5, 4), (6, 5), (7, 6), (8, 6), (9, 5), (10, 4),
+              (5, 7), (6, 8), (7, 9), (8, 9), (9, 8), (10, 7)},
+    # Swarming — three of something where there was one.
+    "swarming": {(5, 5), (6, 5), (5, 6), (6, 6),
+                 (9, 5), (10, 5), (9, 6), (10, 6),
+                 (7, 9), (8, 9), (7, 10), (8, 10)},
+    # Crowding — a pen with something in it.
+    "crowding": _ring(5, 5, 10, 10) | {(7, 7), (8, 7), (7, 8), (8, 8)},
+    # Vigilance — an open eye, looking further.
+    "vigilance": set(_EYE),
+    # Scattering — a centre and four corners leaving it.
+    "scattering": {(7, 7), (8, 7), (7, 8), (8, 8),
+                   (5, 4), (6, 4), (5, 5), (9, 4), (10, 4), (10, 5),
+                   (5, 10), (5, 11), (6, 11), (10, 10), (9, 11), (10, 11)},
+    # Indifference — the same eye, struck through.
+    "indifference": _EYE | _STRIKE,
+    # Darkness — a blot: the only solid mark in the set, so it reads as the
+    # absence of light rather than as a shape.
+    "darkness": {(7, 5), (8, 5),
+                 (6, 6), (7, 6), (8, 6), (9, 6),
+                 (5, 7), (6, 7), (7, 7), (8, 7), (9, 7), (10, 7),
+                 (5, 8), (6, 8), (7, 8), (8, 8), (9, 8), (10, 8),
+                 (6, 9), (7, 9), (8, 9), (9, 9),
+                 (7, 10), (8, 10)},
+    # Tethering — a stake with two ties.
+    "tethering": {(7, 4), (8, 4), (7, 5), (8, 5), (7, 6), (8, 6), (7, 7), (8, 7),
+                  (7, 8), (8, 8), (7, 9), (8, 9), (7, 10), (8, 10), (7, 11), (8, 11),
+                  (5, 6), (6, 6), (9, 6), (10, 6), (5, 9), (6, 9), (9, 9), (10, 9)},
+    # Stillness — a bar, and nothing else at all.
+    "stillness": {(5, 7), (6, 7), (7, 7), (8, 7), (9, 7), (10, 7),
+                  (5, 8), (6, 8), (7, 8), (8, 8), (9, 8), (10, 8)},
+    # Silence — a mouth, struck through.
+    "silence": {(5, 6), (6, 6), (7, 6), (5, 7), (6, 7), (7, 7),
+                (5, 8), (6, 8), (7, 8), (5, 9), (6, 9), (7, 9)} | _STRIKE,
+    # Obedience — a lever, waiting to be thrown.
+    "obedience": {(7, 4), (8, 4), (7, 5), (8, 5), (7, 6), (8, 6), (7, 7), (8, 7),
+                  (7, 8), (8, 8), (7, 9), (8, 9),
+                  (5, 10), (6, 10), (7, 10), (8, 10), (9, 10), (10, 10),
+                  (5, 11), (6, 11), (7, 11), (8, 11), (9, 11), (10, 11)},
+}
+
+
+def spawner_rune(sigil, glow):
+    """One of the spawner runes: the socket rune's tablet, with its own mark."""
+    c = Canvas()
+    c.plate(TABLET, METAL["obsidian"])
+    border = set()
+    for x in range(4, 12):
+        border |= {(x, 3), (x, 12)}
+    for y in range(3, 13):
+        border |= {(4, y), (11, y)}
+    c.engrave(border, METAL["obsidian"], shade=1)
+    c.carve(SPAWNER_SIGILS[sigil], GLOW[glow], within=TABLET)
+    c.outline(METAL["obsidian"][0])
+    return c
+
+
+# ==========================================================================
+# Convergence templates — the smithing plates that cross gear between systems
 # ==========================================================================
 
-HELM = union(
-    rect(6, 2, 9, 2),
-    rect(5, 3, 10, 3),
-    rect(4, 4, 11, 5),
-    rect(3, 6, 12, 11),
-    rect(4, 12, 11, 12),
-    rect(3, 12, 4, 13), rect(11, 12, 12, 13),   # cheek guards
-    rect(7, 0, 8, 1),                            # crest spike
-)
+# A smithing template's silhouette: a tall plate with the top two corners cut,
+# so it reads as a template beside vanilla's at a glance rather than as another
+# rune tablet. The notch is what a player recognises; the sigil is what tells
+# the two apart.
+TEMPLATE_PLATE = union(rect(4, 1, 11, 14)) - {
+    (4, 1), (11, 1), (4, 14), (11, 14), (4, 2), (11, 2),
+}
 
-HELM_VISOR = union(rect(4, 8, 6, 8), rect(9, 8, 11, 8))
+# Two marks, drawn to be distinguishable at sixteen pixels rather than merely
+# different: one is two halves meeting, the other is a ring closing. A pair of
+# similar glyphs in different colours is a pair a colourblind player cannot
+# tell apart, and these are used in the same slot of the same screen.
+CONVERGENCE_SIGILS = {
+    # Silent Gear — two halves meeting at a seam, because that conversion is a
+    # swap: the same gear, built the other mod's way.
+    # Two solid halves that interlock across a stepped seam. The first version
+    # was a scatter of pixels meant to suggest a join and read as noise — at
+    # sixteen pixels a shape has to be solid to be a shape at all.
+    "silent": [(6, 4), (7, 4), (6, 5), (7, 5), (8, 5),
+               (6, 6), (7, 6), (6, 7), (7, 7),
+               (8, 8), (9, 8), (8, 9), (9, 9),
+               (7, 10), (8, 10), (9, 10), (8, 11), (9, 11)],
+    # Apotheosis — a closed ring, because that conversion adds rather than
+    # swaps: nothing leaves the piece.
+    "affix": [(6, 4), (7, 4), (8, 4), (9, 4),
+              (5, 5), (10, 5), (5, 6), (10, 6), (5, 7), (10, 7),
+              (5, 8), (10, 8), (5, 9), (10, 9),
+              (6, 10), (7, 10), (8, 10), (9, 10),
+              (7, 7), (8, 7)],
+}
+
+
+def convergence_template(sigil, glow):
+    """A smithing template carrying one of the two convergence marks."""
+    c = Canvas()
+    c.plate(TEMPLATE_PLATE, METAL["voidsteel"])
+    # The recessed field the sigil sits in, one pixel inside the plate.
+    field = set()
+    for x in range(5, 11):
+        field |= {(x, 3), (x, 12)}
+    for y in range(3, 13):
+        field |= {(5, y), (10, y)}
+    c.engrave(field, METAL["voidsteel"], shade=1)
+    c.carve(CONVERGENCE_SIGILS[sigil], GLOW[glow], within=TEMPLATE_PLATE)
+    c.outline(METAL["voidsteel"][0])
+    return c
+
+
+def scanner(metal, glow):
+    """
+    The Field Scanner: a handheld lens with a lit aperture.
+
+    A ring is the one silhouette that reads as "an instrument that looks at
+    things" at sixteen pixels — a box with a dot on it is a box.
+    """
+    c = Canvas()
+    body = union(rect(4, 5, 11, 12)) - {(4, 5), (11, 5), (4, 12), (11, 12)}
+    grip = union(rect(6, 12, 9, 14))
+    c.plate(body | grip, METAL[metal])
+    # The aperture: a ring of housing with the lens inside it.
+    ring = set()
+    for x in range(6, 10):
+        ring |= {(x, 7), (x, 10)}
+    for y in range(7, 11):
+        ring |= {(6, y), (9, y)}
+    c.engrave(ring, METAL[metal], shade=1)
+    c.glow({(7, 8), (8, 8), (7, 9), (8, 9)}, GLOW[glow], within=body)
+    c.outline(METAL[metal][0])
+    return c
+
+
+def ration(metal, glow):
+    """
+    A field ration: a crimped foil pouch with a lit seal.
+
+    The silhouette has to read as *food in a packet* at sixteen pixels, next to
+    an inventory row of bread and steak, while still belonging to a set where
+    everything else is plate armour and blades. A pouch does that and a bowl
+    does not — a bowl reads as a cooked meal, and these are not cooked, they are
+    issued.
+
+    The seal is the only saturated thing on it, carrying the element the way
+    every other sprite in the set does, so five rations side by side are told
+    apart by colour alone. Which is the situation they are actually used in: a
+    player picking the right one out of a hotbar while something is hurting
+    them.
+    """
+    c = Canvas()
+    pouch = union(rect(4, 4, 11, 13)) - {(4, 13), (11, 13)}
+    crimp = union(rect(3, 2, 12, 3))
+    c.plate(pouch | crimp, METAL[metal])
+    # The crimp's teeth, and the fold below it. Engraved rather than drawn, so
+    # the packet reads as pressed metal foil instead of a painted rectangle.
+    c.engrave({(x, 2) for x in range(3, 13, 2)}, METAL[metal], shade=1)
+    c.engrave({(x, 4) for x in range(4, 12)}, METAL[metal], shade=1)
+    c.glow({(6, 8), (7, 8), (8, 8), (9, 8), (7, 7), (8, 9)},
+           GLOW[glow], within=pouch)
+    c.outline(METAL[metal][0])
+    return c
 
 
 def helmet(metal, glow):
-    c = Canvas()
-    c.plate(HELM, METAL[metal])
-    c.engrave([(7, 4), (8, 4), (7, 5), (8, 5), (7, 6), (8, 6)], METAL[metal], shade=1)
-    c.engrave([(x, 10) for x in range(4, 12)], METAL[metal], shade=1)
-    c.glow(HELM_VISOR, GLOW[glow], within=HELM)
-    c.outline(METAL[metal][0])
-    return c
+    """A domed helm with an open face."""
+    return pixelart.render("helmet", METAL[metal], GLOW[glow])
 
 
 CHEST = union(
@@ -191,51 +377,18 @@ CHEST = union(
 
 
 def chestplate(metal, glow):
-    c = Canvas()
-    c.plate(CHEST, METAL[metal])
-    c.engrave([(4, y) for y in range(4, 11)] + [(11, y) for y in range(4, 11)],
-              METAL[metal], shade=1)
-    c.engrave([(x, 10) for x in range(5, 11)], METAL[metal], shade=1)
-    c.highlight([(2, 3), (3, 3), (12, 3), (13, 3)], METAL[metal], shade=5)
-    c.glow([(7, 6), (8, 6), (7, 7), (8, 7)], GLOW[glow], within=CHEST)
-    c.outline(METAL[metal][0])
-    return c
-
-
-LEGS = union(
-    rect(3, 2, 12, 4),                           # belt
-    rect(3, 5, 6, 13), rect(9, 5, 12, 13),       # legs
-    rect(2, 2, 2, 3), rect(13, 2, 13, 3),        # hip plates
-)
+    """Shoulders, a neck opening and a centre seam."""
+    return pixelart.render("chestplate", METAL[metal], GLOW[glow])
 
 
 def leggings(metal, glow):
-    c = Canvas()
-    c.plate(LEGS, METAL[metal])
-    c.engrave([(x, 4) for x in range(3, 13)], METAL[metal], shade=1)
-    c.engrave([(3, y) for y in (10, 11)] + [(12, y) for y in (10, 11)], METAL[metal], shade=1)
-    c.glow([(3, 7), (3, 8), (12, 7), (12, 8)], GLOW[glow], within=LEGS)
-    c.outline(METAL[metal][0])
-    return c
-
-
-BOOTS = union(
-    rect(2, 4, 5, 9), rect(10, 4, 13, 9),        # shins
-    rect(1, 10, 6, 13), rect(9, 10, 14, 13),     # feet, with a gap between them
-    rect(2, 3, 3, 3), rect(12, 3, 13, 3),        # knee lip
-)
+    """A belt and two legs."""
+    return pixelart.render("leggings", METAL[metal], GLOW[glow])
 
 
 def boots(metal, glow):
-    c = Canvas()
-    c.plate(BOOTS, METAL[metal])
-    c.engrave([(x, 10) for x in range(1, 7)] + [(x, 10) for x in range(9, 15)],
-              METAL[metal], shade=1)
-    c.engrave([(x, 13) for x in range(1, 7)] + [(x, 13) for x in range(9, 15)],
-              METAL[metal], shade=1)
-    c.glow([(2, 7), (2, 8), (13, 7), (13, 8)], GLOW[glow], within=BOOTS)
-    c.outline(METAL[metal][0])
-    return c
+    """A pair, ankle above and foot forward."""
+    return pixelart.render("boots", METAL[metal], GLOW[glow])
 
 
 CROWN = union(
@@ -399,6 +552,61 @@ WORKSTATION_INLAY = {
                          (7, 10), (8, 10), (6, 11), (9, 11), (5, 12), (10, 12)],
                         [(7, 2), (8, 2)]),
 
+    # Gem Cutting Table — a facet: two chevrons meeting at a point, which is
+    # what cutting a stone does to it. Not a saw and not a wheel, both of which
+    # read as machinery at this size and this bench is a bench.
+    "gem_cutting_table": ([(7, 3), (8, 3), (6, 4), (9, 4), (5, 5), (10, 5),
+                           (4, 6), (11, 6), (4, 7), (11, 7),
+                           (5, 8), (10, 8), (6, 9), (9, 9), (7, 10), (8, 10),
+                           (6, 6), (9, 6), (6, 9), (9, 9)],
+                          [(7, 6), (8, 6), (7, 7), (8, 7)]),
+
+    # Augmenting Table — a seal pressed into a plate: a ring with a bar across
+    # it, because what this bench does is stamp something onto a piece that
+    # was already finished.
+    "augmenting_table": ([(6, 3), (7, 3), (8, 3), (9, 3),
+                          (5, 4), (10, 4), (4, 5), (11, 5),
+                          (4, 6), (11, 6), (4, 7), (11, 7), (4, 8), (11, 8),
+                          (5, 9), (10, 9), (6, 10), (7, 10), (8, 10), (9, 10),
+                          (6, 12), (7, 12), (8, 12), (9, 12)],
+                         [(6, 6), (7, 6), (8, 6), (9, 6)]),
+
+    # Brutal Spawner — a barred cage with something behind it: four heavy
+    # uprights and a shape that does not quite fit between them. Not a skull,
+    # which at this size reads as decoration on half the blocks in the game.
+    "brutal_spawner": ([(3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7), (3, 8),
+                        (3, 9), (3, 10), (3, 11), (3, 12), (3, 13), (3, 14),
+                        (7, 1), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6), (7, 7), (7, 8),
+                        (7, 9), (7, 10), (7, 11), (7, 12), (7, 13), (7, 14),
+                        (11, 1), (11, 2), (11, 3), (11, 4), (11, 5), (11, 6), (11, 7), (11, 8),
+                        (11, 9), (11, 10), (11, 11), (11, 12), (11, 13), (11, 14),
+                        (1, 1), (2, 1), (12, 1), (13, 1), (14, 1),
+                        (1, 14), (2, 14), (12, 14), (13, 14), (14, 14)],
+                       [(5, 6), (6, 6), (9, 6), (5, 9), (6, 9), (9, 9)]),
+
+    # Swarm Spawner — the same cage, packed: many small shapes rather than one
+    # large one, so the two are told apart by density at a glance.
+    "swarm_spawner": ([(3, 1), (3, 3), (3, 5), (3, 7), (3, 9), (3, 11), (3, 13),
+                       (7, 1), (7, 3), (7, 5), (7, 7), (7, 9), (7, 11), (7, 13),
+                       (11, 1), (11, 3), (11, 5), (11, 7), (11, 9), (11, 11), (11, 13),
+                       (5, 2), (9, 2), (5, 6), (9, 6), (5, 10), (9, 10), (5, 14), (9, 14),
+                       (1, 4), (13, 4), (1, 8), (13, 8), (1, 12), (13, 12)],
+                      [(5, 4), (9, 4), (5, 8), (9, 8), (5, 12), (9, 12)]),
+
+    # Caged Invader — a sealed box with one seam across it, because what makes
+    # this block interesting is that it is shut and a player has to open it.
+    "caged_invader": ([(2, 2), (3, 2), (4, 2), (5, 2), (6, 2), (7, 2), (8, 2), (9, 2),
+                       (10, 2), (11, 2), (12, 2), (13, 2),
+                       (2, 13), (3, 13), (4, 13), (5, 13), (6, 13), (7, 13), (8, 13),
+                       (9, 13), (10, 13), (11, 13), (12, 13), (13, 13),
+                       (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8), (2, 9), (2, 10),
+                       (2, 11), (2, 12),
+                       (13, 3), (13, 4), (13, 5), (13, 6), (13, 7), (13, 8), (13, 9),
+                       (13, 10), (13, 11), (13, 12),
+                       (4, 7), (5, 7), (6, 7), (7, 7), (8, 7), (9, 7), (10, 7), (11, 7),
+                       (4, 8), (5, 8), (6, 8), (7, 8), (8, 8), (9, 8), (10, 8), (11, 8)],
+                      [(7, 5), (8, 5), (7, 10), (8, 10)]),
+
     # Registry Beacon — a survey marker: a sealed ring with four bearings
     # running out to the block edge.
     #
@@ -450,7 +658,139 @@ WORKSTATION_INLAY = {
                          (1, 7), (1, 8), (2, 7), (2, 8),
                          (13, 7), (13, 8), (14, 7), (14, 8)],
                         [(7, 7), (8, 7), (7, 8), (8, 8)]),
+
+    # Arcane Table — four nodes feeding one core, because that is literally
+    # what the block does: eterna, quanta, arcana and rectification are read
+    # out of the room and meet in the middle. Deliberately not a book and not
+    # a pentagram: the first is the vanilla table's own sprite and the second
+    # is every wizard block in every mod.
+    "arcane_table": ([(3, 3), (4, 3), (3, 4), (12, 3), (11, 3), (12, 4),
+                      (3, 12), (4, 12), (3, 11), (12, 12), (11, 12), (12, 11),
+                      (5, 5), (10, 5), (5, 10), (10, 10),
+                      (6, 6), (9, 6), (6, 9), (9, 9),
+                      (7, 4), (8, 4), (7, 11), (8, 11),
+                      (4, 7), (4, 8), (11, 7), (11, 8)],
+                     [(7, 7), (8, 7), (7, 8), (8, 8)]),
+
+    # Elysium Spawner — a cage: four heavy uprights, two bands, and something
+    # lit behind them. Close enough to vanilla's spawner that a player knows
+    # what it is at a glance, and different enough that they can see it is not
+    # the one they walked past in the dungeon.
+    "owned_spawner": ([(2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8),
+                       (2, 9), (2, 10), (2, 11), (2, 12), (2, 13), (2, 14),
+                       (6, 1), (6, 2), (6, 3), (6, 4), (6, 5), (6, 6), (6, 7), (6, 8),
+                       (6, 9), (6, 10), (6, 11), (6, 12), (6, 13), (6, 14),
+                       (9, 1), (9, 2), (9, 3), (9, 4), (9, 5), (9, 6), (9, 7), (9, 8),
+                       (9, 9), (9, 10), (9, 11), (9, 12), (9, 13), (9, 14),
+                       (13, 1), (13, 2), (13, 3), (13, 4), (13, 5), (13, 6), (13, 7),
+                       (13, 8), (13, 9), (13, 10), (13, 11), (13, 12), (13, 13), (13, 14),
+                       (1, 2), (3, 2), (4, 2), (5, 2), (7, 2), (8, 2), (10, 2), (11, 2),
+                       (12, 2), (14, 2),
+                       (1, 13), (3, 13), (4, 13), (5, 13), (7, 13), (8, 13), (10, 13),
+                       (11, 13), (12, 13), (14, 13)],
+                      [(7, 7), (8, 7), (7, 8), (8, 8)]),
+
+    # Infusion Basin — a bowl seen from above: an open ring with a rim broken
+    # at two sides, and a full core rather than a spark. The Arcane Table's
+    # face is four things meeting; this is one thing held, which is the
+    # difference between the two benches said in a picture.
+    "infusion_basin": ([(6, 2), (7, 2), (8, 2), (9, 2),
+                        (4, 3), (5, 3), (10, 3), (11, 3),
+                        (3, 4), (12, 4), (3, 5), (12, 5),
+                        (2, 6), (13, 6), (2, 9), (13, 9),
+                        (3, 10), (12, 10), (3, 11), (12, 11),
+                        (4, 12), (5, 12), (10, 12), (11, 12),
+                        (6, 13), (7, 13), (8, 13), (9, 13),
+                        (5, 5), (10, 5), (5, 10), (10, 10)],
+                       [(6, 6), (7, 6), (8, 6), (9, 6),
+                        (6, 7), (7, 7), (8, 7), (9, 7),
+                        (6, 8), (7, 8), (8, 8), (9, 8),
+                        (6, 9), (7, 9), (8, 9), (9, 9)]),
+
+    # Scriptorium — shelves seen edge on: three runs of books with gaps where
+    # one has been taken out. The gaps are the point; a solid bar reads as a
+    # crate and this block is a thing you take from.
+    "scriptorium": ([(2, 2), (3, 2), (5, 2), (6, 2), (8, 2), (9, 2), (11, 2), (13, 2),
+                     (2, 3), (3, 3), (5, 3), (6, 3), (8, 3), (9, 3), (11, 3), (13, 3),
+                     (2, 7), (4, 7), (5, 7), (7, 7), (8, 7), (10, 7), (11, 7), (13, 7),
+                     (2, 8), (4, 8), (5, 8), (7, 8), (8, 8), (10, 8), (11, 8), (13, 8),
+                     (2, 12), (3, 12), (5, 12), (7, 12), (8, 12), (10, 12), (12, 12), (13, 12),
+                     (2, 13), (3, 13), (5, 13), (7, 13), (8, 13), (10, 13), (12, 13), (13, 13),
+                     (1, 5), (14, 5), (1, 10), (14, 10)],
+                    [(7, 5), (8, 5), (7, 10), (8, 10)]),
+
+    # Grand Scriptorium — the same shelves, with a frame around them and no
+    # gaps left. It holds sixty-four times as much, and the picture says so by
+    # being the full one.
+    "grand_scriptorium": ([(2, 2), (3, 2), (4, 2), (6, 2), (7, 2), (8, 2),
+                          (9, 2), (11, 2), (12, 2), (13, 2), (2, 3), (3, 3),
+                          (4, 3), (6, 3), (7, 3), (8, 3), (9, 3), (11, 3),
+                          (12, 3), (13, 3), (2, 7), (3, 7), (4, 7), (6, 7),
+                          (7, 7), (8, 7), (9, 7), (11, 7), (12, 7), (13, 7),
+                          (2, 8), (3, 8), (4, 8), (6, 8), (7, 8), (8, 8),
+                          (9, 8), (11, 8), (12, 8), (13, 8), (2, 12),
+                          (3, 12), (4, 12), (6, 12), (7, 12), (8, 12),
+                          (9, 12), (11, 12), (12, 12), (13, 12), (2, 13),
+                          (3, 13), (4, 13), (6, 13), (7, 13), (8, 13),
+                          (9, 13), (11, 13), (12, 13), (13, 13), (0, 0),
+                          (1, 0), (14, 0), (15, 0), (0, 15), (1, 15),
+                          (14, 15), (15, 15), (0, 5), (15, 5), (0, 10),
+                          (15, 10), (5, 5), (10, 5), (5, 10), (10, 10)],
+                          [(6, 5), (7, 5), (8, 5), (9, 5), (6, 10), (7, 10),
+                           (8, 10), (9, 10)]),
 }
+
+
+def shelf(metal, glow, seed=3):
+    """
+    A shelf of books: two rows of spines of different widths in a frame.
+
+    The widths are the whole trick. A row of equal bars reads as a grille, and
+    six of these blocks sit side by side in a room a player built — so each
+    one is seeded differently and the wall in front of them looks stacked
+    rather than tiled.
+    """
+    ramp = METAL[metal]
+    lit = GLOW[glow]
+    c = Canvas()
+    for y in range(16):
+        for x in range(16):
+            c.put(x, y, ramp[2])
+    rng = random.Random(seed)
+    for y in range(16):
+        for x in range(16):
+            if rng.random() < 0.18:
+                c.put(x, y, ramp[1])
+
+    # Two shelves, each a run of spines with a gap or two in it.
+    for (top, bottom) in ((2, 6), (9, 13)):
+        x = 2
+        while x < 14:
+            width = rng.choice((1, 1, 2, 2, 3))
+            if x + width > 14:
+                break
+            if rng.random() < 0.18:
+                x += width                      # a book somebody took out
+                continue
+            shade = rng.randint(1, 4)
+            for bx in range(x, x + width):
+                for by in range(top, bottom + 1):
+                    c.put(bx, by, lit[shade])
+            # A dark line down the near edge of each spine, so a run of them
+            # reads as several books rather than one painted board.
+            for by in range(top, bottom + 1):
+                c.put(x, by, lit[0])
+            x += width + 1
+
+    for x in range(16):
+        c.put(x, 7, ramp[4])
+        c.put(x, 8, ramp[0])
+        c.put(x, 0, ramp[5])
+        c.put(x, 15, ramp[0])
+    for y in range(16):
+        c.put(0, y, ramp[4])
+        c.put(15, y, ramp[0])
+    return c
 
 
 def workstation(name, metal, glow, seed=9):
@@ -530,24 +870,12 @@ def _crossbar(x0, y0, length, thickness=2):
     return {(x, y) for (x, y) in points if 0 <= x < 16 and 0 <= y < 16}
 
 
-# Measured against iron_sword, which fills 33% of its 16x16 and puts ten rows
-# into the blade. The old shape gave the blade eight rows and spent the rest on
-# a hilt that outlined into one brick; at inventory size that is a stick with a
-# lump, which is what "blobby" meant.
-SWORD_BLADE = _axis(5, 10, 9, width=3)
-SWORD_TIP = {(14, 1), (15, 1), (14, 0)}
 SWORD_GUARD = _crossbar(2, 8, 4)
 # Grip and pommel continue down the blade's own axis, one pixel of core each,
 # so the outline gives them three on screen — the same trick vanilla uses to
 # keep a hilt legible at this size.
 SWORD_GRIP = union(rect(3, 12, 4, 12), rect(2, 13, 3, 13))
 SWORD_POMMEL = union(rect(1, 14, 2, 15))
-SWORD = SWORD_BLADE | SWORD_TIP | SWORD_GUARD | SWORD_GRIP | SWORD_POMMEL
-
-# The fuller runs down the middle of the blade rather than along its lit edge.
-SWORD_FULLER = _axis(7, 9, 4, width=1)
-
-
 def _hilt(c, metal, guard, grip, pommel):
     """
     Guard, grip and pommel, in that order and each its own value.
@@ -568,29 +896,11 @@ def _hilt(c, metal, guard, grip, pommel):
 
 
 def sword(metal, glow):
-    """The baseline elemental weapon: a straight blade with a lit fuller."""
-    c = Canvas()
-    # light=5, mid=4, dark=2 rather than 5/3/1. Across a three-pixel core the
-    # old values ran bright to almost black, and a blade that is half shadow
-    # reads as a dark stick however well it is shaped.
-    c.band(SWORD_BLADE | SWORD_TIP, METAL[metal], light=5, mid=4, dark=2)
-    _hilt(c, metal, SWORD_GUARD, SWORD_GRIP, SWORD_POMMEL)
-    # No halo: on a three-pixel core the bleed reaches both edges and the
-    # blade stops reading as metal with a groove in it.
-    c.carve(SWORD_FULLER, GLOW[glow], within=SWORD_BLADE)
-    c.outline(METAL[metal][0])
-    return c
-
-
-# Two pixels of core against the sword's three, and cut into segments: the lash
-# is the fast weapon and has to read lighter than the sword beside it in the
-# same inventory row.
+    """A straight blade over a crossguard and a bound grip."""
+    return pixelart.render("sword", METAL[metal], GLOW[glow])
 LASH_BLADE = _axis(5, 10, 9, width=2)
 LASH_SEGMENTS = {(7, 8), (10, 5), (13, 2)}
 LASH_TIP = {(14, 1), (14, 0)}
-LASH = (LASH_BLADE | LASH_TIP | SWORD_GUARD | SWORD_GRIP | SWORD_POMMEL)
-
-
 def lash(metal, glow):
     """Neural Lash: a segmented blade, thinner and faster than a sword."""
     c = Canvas()
@@ -603,58 +913,12 @@ def lash(metal, glow):
     return c
 
 
-MAUL_HAFT = _axis(1, 14, 10, width=2)
-MAUL_HEAD = union(rect(9, 2, 14, 6), rect(10, 1, 13, 1))
-MAUL = MAUL_HAFT | MAUL_HEAD | union(rect(0, 14, 1, 15))
-
-
 def maul(metal, glow):
-    """Kinetic Maul: most of the mass at the far end of the swing."""
-    c = Canvas()
-    c.band(MAUL_HAFT | union(rect(0, 14, 1, 15)), METAL[metal])
-    c.plate(MAUL_HEAD, METAL[metal])
-    # Striking face on the far side, bound by two bands.
-    c.highlight([(14, y) for y in range(2, 7)], METAL[metal], shade=5)
-    c.engrave([(10, y) for y in range(1, 7)] + [(13, y) for y in range(1, 7)],
-              METAL[metal], shade=1)
-    c.glow([(11, 3), (12, 3), (11, 4), (12, 4)], GLOW[glow], within=MAUL_HEAD)
-    c.outline(METAL[metal][0])
-    return c
-
-
-# Rows, not diagonal bands. A head built by stepping a run perpendicular to the
-# blade touches the next step only at its corners, so the outline pass floods
-# straight through it and the head comes out as a checkerboard — the same trap
-# _axis() documents, reached from the other direction.
-#
-# The old head was three overlapping rectangles that plate() rounded off. At
-# inventory size that is a spoon, which is exactly what it looked like. This is
-# a long narrow spike with a fluted collar: one attack per turn and the highest
-# damage on the board should read as reach, not as a bowl on a stick.
-LANCE_SHAFT = _axis(0, 15, 9, width=2)
-LANCE_HEAD = union(rect(15, 0, 15, 0), rect(14, 1, 15, 1), rect(13, 2, 14, 2),
-                   rect(12, 3, 13, 3), rect(11, 4, 12, 4), rect(10, 5, 11, 5))
-LANCE_COLLAR = union(rect(9, 6, 11, 6), rect(8, 7, 10, 7))
-LANCE = LANCE_SHAFT | LANCE_HEAD | LANCE_COLLAR
-
-
+    """Most of the mass at the far end of the swing."""
+    return pixelart.render("maul", METAL[metal], GLOW[glow])
 def lance(metal, glow):
-    """
-    Singularity Lance: nearly all reach, with the weight in a long tapering
-    point rather than a bulb.
-    """
-    c = Canvas()
-    c.band(LANCE_SHAFT, METAL[metal], light=5, mid=4, dark=2)
-    c.band(LANCE_HEAD, METAL[metal], light=5, mid=4, dark=2)
-    # Fluting on the collar: alternating steps read as a wound ferrule and
-    # separate the head from the shaft, which is the join a polearm needs.
-    for (x, y) in sorted(LANCE_COLLAR):
-        c.put(x, y, METAL[metal][3 if (x + y) % 2 else 2])
-    c.highlight([(15, 0), (15, 1)], METAL[metal], shade=5)
-    c.carve([(13, 2), (12, 3), (11, 4)], GLOW[glow], within=LANCE_HEAD)
-    c.glow([(4, 11)], GLOW[glow], within=LANCE_SHAFT, halo=False)
-    c.outline(METAL[metal][0])
-    return c
+    """Nearly all reach, the weight in a long tapering point."""
+    return pixelart.render("lance", METAL[metal], GLOW[glow])
 
 
 def _slope(x0, y0, length, thickness=1):
@@ -682,10 +946,6 @@ RIFLE_MUZZLE = union(rect(15, 4, 15, 5))
 RIFLE_SIGHT = union(rect(6, 8, 7, 8), rect(10, 7, 10, 7))
 RIFLE_GRIP = union(rect(4, 13, 6, 15))
 RIFLE_MAG = union(rect(7, 13, 9, 14))
-RIFLE = (RIFLE_STOCK | RIFLE_BODY | RIFLE_BARREL | RIFLE_MUZZLE
-         | RIFLE_SIGHT | RIFLE_GRIP | RIFLE_MAG)
-
-
 def rifle(metal, glow):
     """
     Neural Cascade Rifle. Six readable parts — stock, receiver, magazine, grip,
@@ -766,163 +1026,40 @@ def aegis(metal, glow):
     return c
 
 
-# ==========================================================================
-# Area tools
-#
-# Four shapes, three materials each. They share one haft so the line reads as
-# a set, and are told apart entirely by the head — which is the part a player
-# actually sees at inventory size.
-# ==========================================================================
-
-# One pixel of core, not two.
-#
-# outline() adds a pixel all round, so a two-wide core is a four-wide handle on
-# screen. Every vanilla tool has a three-wide handle stepping one pixel a row,
-# and four is most of what made these read as heavy and soft next to them.
-# Measured off iron_pickaxe rather than judged by eye.
-TOOL_HAFT = _axis(2, 13, 8, width=1)
-TOOL_POMMEL = union(rect(2, 14, 2, 14))
-TOOL_GRIP = TOOL_HAFT | TOOL_POMMEL
+def pickaxe(metal, glow):
+    """A plain pickaxe: the head arcs over the haft, no 3x3 about it."""
+    return pixelart.render("pickaxe", METAL[metal], GLOW[glow])
 
 
-# Was a ten-by-seven brick on screen - wider than a vanilla axe head is tall,
-# and filling a third of the sprite on its own. Now eight by six, with the haft
-# socket cut in so the head sits *on* the handle rather than beside it.
-HAMMER_HEAD = union(
-    rect(9, 2, 14, 7),          # a straight-sided block: flat top, flat face
-    rect(8, 4, 8, 5),           # socket, where the haft passes through
-)
-HAMMER = TOOL_GRIP | HAMMER_HEAD
+def axe(metal, glow):
+    """One bit, on the right of the haft."""
+    return pixelart.render("axe", METAL[metal], GLOW[glow])
+
+
+def shovel(metal, glow):
+    """A spade blade on the end of the haft."""
+    return pixelart.render("shovel", METAL[metal], GLOW[glow])
+
+
+def hoe(metal, glow):
+    """A short blade turned across the haft."""
+    return pixelart.render("hoe", METAL[metal], GLOW[glow])
 
 
 def hammer(metal, glow):
-    """
-    A brick of a head with a striking face at each end. All the weight is out
-    past the haft, which is what a 3x3 swing should look like.
-    """
-    c = Canvas()
-    c.band(TOOL_GRIP, METAL[metal])
-    c.plate(HAMMER_HEAD, METAL[metal])
-    # Both faces bright, the bindings that hold them dark: reads as forged
-    # rather than cast.
-    c.highlight([(14, y) for y in range(2, 8)], METAL[metal], shade=5)
-    c.highlight([(9, y) for y in range(2, 8)], METAL[metal], shade=4)
-    c.engrave([(10, y) for y in range(2, 8)] + [(13, y) for y in range(2, 8)],
-              METAL[metal], shade=1)
-    # halo=False: on a head this size the bleed covers the whole block.
-    c.glow([(12, 4), (12, 5)], GLOW[glow], within=HAMMER_HEAD, halo=False)
-    c.outline(METAL[metal][0])
-    return c
-
-
-# The outline pass grows every silhouette by a pixel in each direction, so
-# these shapes are drawn a pixel lean and gaps are never left at 1px — see the
-# art rules in TEXTURES.md.
-
-# An axe bit, built the way vanilla builds one: a convex cutting arc on the
-# outside and a back that slopes in to meet the haft. The old shape was a flat
-# slab with a straight back, which is a wedge rather than an axe, and it ran
-# the full width of the sprite.
-BROADAXE_BIT = union(
-    rect(6, 1, 12, 1),          # flat top, which is what says "wedge"
-    rect(5, 2, 12, 2),
-    rect(4, 3, 12, 3),
-    rect(4, 4, 11, 4),
-    rect(5, 5, 10, 5),
-    rect(6, 6, 8, 6),
-)
-BROADAXE_BEARD = union(rect(12, 4, 12, 5))
-BROADAXE = TOOL_GRIP | BROADAXE_BIT | BROADAXE_BEARD
-
-
+    """A squared head with all the weight out past the haft."""
+    return pixelart.render("hammer", METAL[metal], GLOW[glow])
 def broadaxe(metal, glow):
-    """
-    A wedge sitting on top of the haft: flat along the back, edge along the
-    left, underside sloping into the handle. Asymmetry is what stops it
-    reading as a leaf.
-    """
-    c = Canvas()
-    c.band(TOOL_GRIP, METAL[metal])
-    c.plate(BROADAXE_BIT | BROADAXE_BEARD, METAL[metal])
-    # The edge, which is the left arc: lit hardest where it is thinnest.
-    # The cutting edge is the left arc; light it hardest where it is thinnest.
-    c.highlight([(4, 3), (4, 4), (5, 2), (5, 5), (6, 1), (6, 6)],
-                METAL[metal], shade=5)
-    c.engrave([(11, y) for y in range(2, 5)], METAL[metal], shade=1)
-    c.glow([(9, 3), (9, 4)], GLOW[glow], within=BROADAXE_BIT, halo=False)
-    c.outline(METAL[metal][0])
-    return c
-
-
-SCYTHE_SNATH = _axis(2, 13, 9, width=1)
-# Two rows of core through the body of the blade, tapering to one at the point,
-# rather than one row everywhere. A single-pixel arc becomes three on screen
-# once outlined, and three pixels of which two are outline is a wire — it read
-# as a bent stick rather than as something with an edge. Each run still
-# overlaps the next in x so the curve stays orthogonally connected and the
-# outline cannot flood it.
-SCYTHE_BLADE = union(
-    rect(8, 5, 11, 5),          # rooted at the snath, at full thickness
-    rect(7, 4, 11, 4),
-    rect(4, 3, 9, 3),           # sweeping left
-    rect(2, 2, 7, 2),
-    rect(0, 3, 3, 3),           # and hooking down to the point
-    rect(0, 4, 1, 4),
-)
-SCYTHE = SCYTHE_SNATH | TOOL_POMMEL | SCYTHE_BLADE
+    """A bearded blade, its cutting edge catching the light."""
+    return pixelart.render("broadaxe", METAL[metal], GLOW[glow])
 
 
 def scythe(metal, glow):
-    """A long arc sweeping off the snath, thick at the root and hooked at the
-    point."""
-    c = Canvas()
-    c.band(SCYTHE_SNATH | TOOL_POMMEL, METAL[metal], light=5, mid=4, dark=2)
-    c.plate(SCYTHE_BLADE, METAL[metal])
-    # The cutting edge is the outer arc; the back of the blade is cut in, which
-    # is what stops two rows of core reading as a slab.
-    c.highlight([(2, 2), (3, 2), (4, 2), (0, 3), (1, 3), (0, 4)],
-                METAL[metal], shade=5)
-    c.engrave([(x, 5) for x in range(8, 12)] + [(9, 4), (10, 4)],
-              METAL[metal], shade=1)
-    c.glow([(10, 5)], GLOW[glow], within=SCYTHE_BLADE, halo=False)
-    c.outline(METAL[metal][0])
-    return c
-
-
-# A one-pixel shaft, so the head reads as more than shaft.
-SPEAR_SHAFT = _axis(1, 14, 10, width=1)
-SPEAR_HEAD = union(
-    rect(14, 0, 15, 0),
-    rect(13, 1, 15, 1),
-    rect(12, 2, 14, 2),
-    rect(11, 3, 13, 3),
-    rect(11, 4, 12, 4),
-)
-# Wings, as on a boar spear.
-#
-# A narrow head on a thin shaft is a stick with a bump, and widening the head
-# until it stops being one turns it into a spoon — both were tried. What
-# actually separates a polearm from a stick at 16x16 is a second silhouette
-# crossing the first, and the wings are that at four pixels' cost. They also
-# tell the player which end is which, which the old sprite did not.
-SPEAR_WINGS = _crossbar(8, 4, 5, thickness=1)
-SPEAR = SPEAR_SHAFT | TOOL_POMMEL | SPEAR_HEAD | SPEAR_WINGS
-
-
+    """A long arc sweeping back over the snath."""
+    return pixelart.render("scythe", METAL[metal], GLOW[glow])
 def spear(metal, glow):
-    """A leaf head on a thin shaft, with wings at the socket."""
-    c = Canvas()
-    c.band(SPEAR_SHAFT | TOOL_POMMEL, METAL[metal], light=5, mid=4, dark=2)
-    c.plate(SPEAR_HEAD, METAL[metal])
-    for (x, y) in sorted(SPEAR_WINGS):
-        c.put(x, y, METAL[metal][3 if (x + y) % 2 else 2])
-    c.highlight([(14, 0), (15, 0), (15, 1)], METAL[metal], shade=5)
-    c.carve([(13, 2), (12, 3)], GLOW[glow], within=SPEAR_HEAD)
-    c.outline(METAL[metal][0])
-    return c
-
-
-# The material each tool variant is drawn in: metal ramp, then glow ramp.
+    """A leaf head on a shaft that runs corner to corner."""
+    return pixelart.render("spear", METAL[metal], GLOW[glow])
 TOOL_MATERIALS = {
     "voidglass": ("obsidian", "void"),
     "aetherium": ("aetherium", "dimensional"),
@@ -968,5 +1105,188 @@ def codex(metal, glow):
     c.highlight(sorted(CODEX_PAGES), METAL[metal], shade=5)
     c.carve(CODEX_SIGIL, GLOW[glow], within=CODEX_COVER)
     c.glow([(4, 7), (4, 8)], GLOW[glow], within=CODEX_SPINE, halo=False)
+    c.outline(METAL[metal][0])
+    return c
+
+
+# The tomes (SPEC_CLONE P10.11): the same board and spine as the codex, with a
+# different mark cut into the cover. One shape, four marks, because they are
+# four uses of one idea — a book you spend on an anvil — and four silhouettes
+# would say they were four unrelated things.
+TOME_MARKS = {
+    # Scrapping: an arrow pointing down, which is where the enchantments go.
+    # Not a cross — at sixteen pixels that reads as a medical symbol, which is
+    # the one thing this book is not.
+    "scrapping": union(rect(5, 4, 10, 5),
+                       {(4, 7), (5, 7), (10, 7), (11, 7),
+                        (5, 8), (6, 8), (9, 8), (10, 8),
+                        (6, 9), (7, 9), (8, 9), (9, 9),
+                        (7, 10), (8, 10)}),
+    # Transcription: two short lines, one above the other, moving right — a
+    # thing copied from one place to another.
+    "transcription": union(rect(5, 5, 9, 6), rect(6, 9, 10, 10)),
+    # Concentration: three lines narrowing to one.
+    "concentration": union(rect(5, 4, 10, 5), rect(6, 7, 9, 8), rect(7, 10, 8, 11)),
+    # Patience: an hourglass, which is the only thing the prior-work penalty
+    # has ever been about.
+    "patience": union(rect(5, 4, 10, 4), rect(6, 5, 9, 5), rect(7, 6, 8, 9),
+                      rect(6, 10, 9, 10), rect(5, 11, 10, 11)),
+}
+
+
+def tome(mark, metal, glow):
+    """One of the anvil tomes: the codex's board, with this tome's mark on it."""
+    c = Canvas()
+    c.plate(CODEX_COVER, METAL[metal])
+    c.engrave(sorted(CODEX_SPINE), METAL[metal], shade=1)
+    c.highlight(sorted(CODEX_PAGES), METAL[metal], shade=5)
+    c.carve(TOME_MARKS[mark], GLOW[glow], within=CODEX_COVER)
+    c.glow([(4, 7), (4, 8)], GLOW[glow], within=CODEX_SPINE, halo=False)
+    c.outline(METAL[metal][0])
+    return c
+
+
+# ---------------------------------------------------------------------------
+# Hazard ward effect icons
+# ---------------------------------------------------------------------------
+#
+# Eighteen pixels, which is what vanilla draws a mob effect at; a sixteen-pixel
+# icon is scaled and goes soft beside every vanilla one.
+#
+# An issued shield in aetherium, the same metal as the ration that grants the
+# ward, with the hazard's glyph lit in the same element colour as that ration's
+# seal. So the icon in the corner of the screen matches the packet the player
+# just ate, and the glyph tells the five apart for anyone who cannot rely on
+# the colour.
+
+WARD_SIZE = 18
+
+# The shield: flat shoulders, straight flanks, tapering to a point.
+_WARD_SHIELD = [
+    "..................",
+    "..##############..",
+    ".################.",
+    ".################.",
+    ".################.",
+    ".################.",
+    ".################.",
+    ".################.",
+    ".################.",
+    ".################.",
+    "..##############..",
+    "..##############..",
+    "...############...",
+    "....##########....",
+    ".....########.....",
+    "......######......",
+    ".......####.......",
+    "........##........",
+]
+
+# Glyphs, drawn on the shield's face. '#' is lit.
+WARD_GLYPHS = {
+    # A flame: a tongue with a notch in its base.
+    "flame": [
+        "........#.........",
+        ".......##.........",
+        ".......###........",
+        "......####........",
+        "......#####.......",
+        ".....######.......",
+        ".....###.##.......",
+        ".....##...#.......",
+        "......#...........",
+    ],
+    # A snowflake: six arms from a centre.
+    "snowflake": [
+        "........#.........",
+        "......#.#.#.......",
+        ".......###........",
+        "....#..###..#.....",
+        ".....#######......",
+        "....#..###..#.....",
+        ".......###........",
+        "......#.#.#.......",
+        "........#.........",
+    ],
+    # A falling drop.
+    "droplet": [
+        "........#.........",
+        "........#.........",
+        ".......###........",
+        ".......###........",
+        "......#####.......",
+        "......#####.......",
+        "......#####.......",
+        ".......###........",
+        "..................",
+    ],
+    # The trefoil: a hub and three blades, one up and two below.
+    "trefoil": [
+        ".......####.......",
+        "......######......",
+        ".......####.......",
+        "........##........",
+        "..................",
+        "...###......###...",
+        "..####..##..####..",
+        "...###......###...",
+        "..................",
+    ],
+    # Weight bearing down: two heavy chevrons. Two pixels thick, because this
+    # is the icon that was missing and it should be the clearest of the five.
+    "chevrons": [
+        "....##......##....",
+        ".....##....##.....",
+        "......##..##......",
+        ".......####.......",
+        "........##........",
+        "....##......##....",
+        ".....##....##.....",
+        "......##..##......",
+        ".......####.......",
+        "........##........",
+    ],
+}
+
+# Which glyph belongs to which ward.
+WARD_ICONS = {
+    "thermal_ward": "flame",
+    "cryogenic_ward": "snowflake",
+    "corrosive_ward": "droplet",
+    "radiological_ward": "trefoil",
+    "pressure_ward": "chevrons",
+}
+
+
+def _mask(rows, ox=0, oy=0):
+    return {(x + ox, y + oy) for y, row in enumerate(rows)
+            for x, ch in enumerate(row) if ch == "#"}
+
+
+def ward_icon(glyph, glow, metal="aetherium"):
+    """A hazard ward's status icon: an issued shield with the hazard lit on it."""
+    c = Canvas(WARD_SIZE, WARD_SIZE)
+    shield = _mask(_WARD_SHIELD)
+    c.plate(shield, METAL[metal])
+    # A rim engraved one pixel inside the edge, so the face reads as a plate
+    # set into a frame rather than a flat sticker.
+    rim = {(x, y) for (x, y) in shield
+           if any((x + dx, y + dy) not in shield
+                  for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
+    inner = shield - rim
+    c.engrave({(x, y) for (x, y) in inner
+               if any((x + dx, y + dy) in rim
+                      for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))},
+              METAL[metal], shade=1)
+    # The glyph sits on the shield's face, centred.
+    lit = _mask(WARD_GLYPHS[glyph], ox=0, oy=3) & inner
+    # A dark engraved bed around the glyph, so it stands off the plate even
+    # where the element colour is close to the metal's — dimensional blue on
+    # aetherium teal, which is the one that needed it.
+    bed = {(x + dx, y + dy) for (x, y) in lit
+           for dx in (-1, 0, 1) for dy in (-1, 0, 1)} & inner
+    c.engrave(bed - lit, METAL[metal], shade=0)
+    c.glow(lit, GLOW[glow], within=inner, halo=False)
     c.outline(METAL[metal][0])
     return c

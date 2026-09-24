@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:deepslate"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:deepslate_shelf",
+    "count": 4
+  }
+}

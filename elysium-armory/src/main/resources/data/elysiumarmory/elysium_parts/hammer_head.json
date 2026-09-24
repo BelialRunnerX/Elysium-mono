@@ -1,0 +1,31 @@
+{
+  "type": "core",
+  "gear_type": "hammer",
+  "part_type": "main",
+  "crafting": {
+    "materials": 6
+  },
+  "properties": {
+    "attack_damage": {
+      "op": "add",
+      "value": 4.0
+    },
+    "attack_speed": {
+      "op": "add",
+      "value": 0.8
+    },
+    "durability": {
+      "op": "multiply_base",
+      "value": 1.0
+    },
+    "enchantment_value": {
+      "op": "multiply_base",
+      "value": -0.5
+    },
+    "harvest_speed": {
+      "op": "multiply_base",
+      "value": -0.5
+    },
+    "repair_efficiency": 1.5
+  }
+}

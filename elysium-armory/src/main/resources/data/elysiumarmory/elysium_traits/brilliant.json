@@ -1,0 +1,10 @@
+{
+  "name": "Brilliant",
+  "max_level": 1,
+  "description": "Shiny! Piglin like.",
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

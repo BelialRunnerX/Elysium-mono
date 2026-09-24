@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "elysiumarmory:block/starlight_charger_top",
+    "side": "elysiumarmory:block/starlight_charger_side",
+    "bottom": "elysiumarmory:block/starlight_charger_side"
+  }
+}

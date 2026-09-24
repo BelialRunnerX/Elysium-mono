@@ -1,0 +1,12 @@
+{
+  "name": "Sturdy",
+  "max_level": 5,
+  "description": "Gear frequently takes less damage",
+  "effects": [
+    {
+      "type": "durability",
+      "chance_per_level": 0.175,
+      "amount": -1
+    }
+  ]
+}

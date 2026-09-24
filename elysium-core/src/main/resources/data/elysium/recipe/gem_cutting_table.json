@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "vvv",
+    "v#v",
+    "sss"
+  ],
+  "key": {
+    "v": {
+      "item": "elysium:voidglass_ingot"
+    },
+    "#": {
+      "item": "elysium:neutronium_ingot"
+    },
+    "s": {
+      "item": "minecraft:stone_bricks"
+    }
+  },
+  "result": {
+    "id": "elysium:gem_cutting_table",
+    "count": 1
+  }
+}

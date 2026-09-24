@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "elysiumsolarpunk:block/water_reclaimer_front",
+    "side": "elysiumsolarpunk:block/water_reclaimer_side",
+    "top": "elysiumsolarpunk:block/water_reclaimer_top"
+  }
+}

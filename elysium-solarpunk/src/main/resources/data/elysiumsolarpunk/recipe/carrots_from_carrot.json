@@ -1,0 +1,12 @@
+{
+  "type": "elysiumsolarpunk:farming",
+  "input": {
+    "item": "minecraft:carrot"
+  },
+  "result": {
+    "id": "minecraft:carrot",
+    "count": 2
+  },
+  "time": 240,
+  "energy": 720
+}

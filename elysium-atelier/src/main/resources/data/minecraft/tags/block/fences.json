@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumatelier:blackstone_fence",
+    "elysiumatelier:deepslate_fence",
+    "elysiumatelier:quartz_fence",
+    "elysiumatelier:stone_fence",
+    "elysiumatelier:tuff_fence"
+  ]
+}

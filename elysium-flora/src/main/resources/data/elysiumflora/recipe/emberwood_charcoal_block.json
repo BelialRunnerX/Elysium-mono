@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumflora:emberwood_charcoal"
+    }
+  },
+  "result": {
+    "id": "elysiumflora:emberwood_charcoal_block",
+    "count": 1
+  }
+}

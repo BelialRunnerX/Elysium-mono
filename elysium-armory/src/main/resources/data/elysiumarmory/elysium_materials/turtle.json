@@ -1,0 +1,33 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "minecraft:turtle_scute",
+    "categories": [
+      "organic",
+      "intermediate"
+    ]
+  },
+  "display": {
+    "name": "Turtle"
+  },
+  "properties": {
+    "main": {
+      "durability": 0.0,
+      "armor/helmet": 2.0,
+      "magic_armor": 4.0,
+      "enchantment_value": 9.0,
+      "charging_value": 0.5,
+      "rarity": 20.0,
+      "armor_durability/helmet": 25.0,
+      "traits": [
+        {
+          "trait": "turtle",
+          "level": 1,
+          "conditions": [
+            "count>=2"
+          ]
+        }
+      ]
+    }
+  }
+}

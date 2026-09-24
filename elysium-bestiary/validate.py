@@ -1,0 +1,726 @@
+#!/usr/bin/env python3
+"""
+Validate Elysium Bestiary against its sources.
+
+Run from anywhere:   python3 elysium-bestiary/validate.py
+
+Seven jars in this pack exist to put more things in the dark, and between them
+they bring three problems nobody files as bugs, because all three look like the
+game working: a mob that is harder and worth less, a mob that is far and away
+the best thing to farm, and a bestiary the base game outfarms. All three are
+ratios over the whole set, and nobody reads a list of mobs that way.
+
+So the rewards are not written down here at all. They are derived from the
+threat each beast's own stats come to, and this file proves that the derivation
+is monotonic, that the generator's second copy of it agrees with the first, that
+what the loot tables actually hand out is the number the bestiary says, and that
+every beast is exactly as big on screen as the box you are swinging at.
+
+  1. INDEPENDENCE. The library, the game, and nothing else.
+  2. PURITY, and the harness run rather than read.
+  3. THE TWO DERIVATIONS, compared line by line.
+  4. THE SHEET, and the six corners nothing may spill out of.
+  5. AS BIG AS IT LOOKS. The model measured against the hitbox.
+  6. WHAT IT LEAVES, counted out of the written loot tables.
+  7. WHAT YOU MEET, counted out of the written spawn rules.
+  8. THE WORDS, and the generated tree rebuilt and compared.
+  9. THE BEASTS IN THE WORLD, and the seam.
+"""
+import importlib.util
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+WORK = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(WORK)
+RES = os.path.join(WORK, "src/main/resources")
+SRC = os.path.join(WORK, "src/main/java/com/elysium/bestiary")
+PURE = os.path.join(SRC, "rules")
+HARNESS = os.path.join(WORK, "tools/BeastHarness.java")
+HARNESS_MAIN = "com.elysium.bestiary.rules.BeastHarness"
+GENERATOR = os.path.join(WORK, "tools/gen_bestiary.py")
+
+#: How long the arithmetic is allowed to take. Three million checks, a hundred
+#: thousand derived bestiaries and two million drawn spawns run in well under
+#: this; anything past it is a loop.
+HARNESS_SECONDS = 180
+NS = "elysiumbestiary"
+
+problems = []
+
+
+def fail(msg):
+    problems.append(msg)
+
+
+def strip_comments(text, keep_strings=False):
+    text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+    text = re.sub(r"//[^\n]*", " ", text)
+    if keep_strings:
+        return text
+    return re.sub(r'"(?:\\.|[^"\\])*"', '""', text)
+
+
+def read(*parts):
+    path = os.path.join(*parts)
+    return open(path, encoding="utf-8").read() if os.path.isfile(path) else ""
+
+
+def squashed(text):
+    """Every run of whitespace as one space, so a rule can name a whole statement.
+
+    Naming the whole statement is the point: a rule that looks for a token
+    which survives the very edit it was meant to catch is a rule that has never
+    failed, and this project has been bitten by that fifteen times.
+    """
+    return " ".join(text.split())
+
+
+def body_of(text, signature):
+    start = text.find(signature)
+    if start < 0:
+        return ""
+    opened = text.find("{", start)
+    if opened < 0:
+        return ""
+    depth = 0
+    for index in range(opened, len(text)):
+        if text[index] == "{":
+            depth += 1
+        elif text[index] == "}":
+            depth -= 1
+            if depth == 0:
+                return text[opened:index + 1]
+    return text[opened:]
+
+
+if not os.path.isdir(SRC):
+    print("This is not the elysium-bestiary tree.")
+    sys.exit(1)
+
+print("=" * 70)
+print("elysium-bestiary — nine things that hunt you, and the proof that none of them "
+      "is the only one worth killing")
+print("=" * 70)
+
+# ---------------------------------------------------------------------------
+# 1. Independence
+# ---------------------------------------------------------------------------
+
+FOREIGN = re.compile(
+    r"(?:mowziesmobs|alexsmobs|cataclysm|mutantmonsters|born_in_chaos|"
+    r"creeperoverhaul|goblintraders)", re.I)
+UPWARD = re.compile(r"com\.elysium\.(wilds|colonies)")
+
+java_files = []
+for dirpath, _, filenames in os.walk(SRC):
+    for name in filenames:
+        if name.endswith(".java"):
+            java_files.append(os.path.join(dirpath, name))
+
+for path in java_files:
+    src = strip_comments(read(path))
+    where = os.path.relpath(path, SRC)
+    for hit in FOREIGN.findall(src):
+        fail(f"{where} names {hit}; this module is a reimplementation of the mods it "
+             f"replaces and must not reach for any of them")
+    if UPWARD.search(src):
+        fail(f"{where} reaches up into a later module; the dependencies run one way")
+    for used in set(re.findall(r"com\.elysium\.(\w+)", src)):
+        if used not in ("bestiary", "lib"):
+            fail(f"{where} names com.elysium.{used}; every beast here is measured "
+                 f"against the game's own mobs and drops the game's own items, so the "
+                 f"module works in a pack with nothing else installed")
+
+toml = read(RES, "META-INF/neoforge.mods.toml")
+declared = set(re.findall(r'modId="([^"]+)"', toml))
+allowed = {"${mod_id}", "neoforge", "minecraft", "elysiumlib"}
+for mod in declared - allowed:
+    fail(f"the module declares a dependency on {mod}; nothing it adds needs anything "
+         f"beyond the game and the library")
+for needed in ("neoforge", "minecraft", "elysiumlib"):
+    if needed not in declared:
+        fail(f"the module does not declare {needed}")
+
+print(f"independence       : {len(java_files)} source file(s), nothing it replaces "
+      f"named, and not one dependency beyond the game and the library")
+
+# ---------------------------------------------------------------------------
+# 2. Purity, and the harness executed
+# ---------------------------------------------------------------------------
+
+for name in sorted(os.listdir(PURE)) if os.path.isdir(PURE) else []:
+    if not name.endswith(".java"):
+        continue
+    body = read(PURE, name)
+    without_package = re.sub(r"^\s*package [^;]+;", "", body, count=1, flags=re.M)
+    for forbidden in ("net.minecraft", "net.neoforged", "com.mojang"):
+        if forbidden in without_package:
+            fail(f"rules/{name} reaches for {forbidden}; the rules are the JDK alone, "
+                 f"so a harness can derive a hundred thousand bestiaries without a game")
+    for used in re.findall(r"import\s+(com\.elysium\.[\w.]+);", without_package):
+        fail(f"rules/{name} imports {used}; the rules are the JDK alone")
+
+harness_out = ""
+if not os.path.isfile(HARNESS):
+    fail("there is no harness, so whether a harder beast is worth more is an opinion")
+else:
+    with tempfile.TemporaryDirectory() as tmp:
+        staged = os.path.join(tmp, "src")
+        os.makedirs(staged)
+        sources = [os.path.join(PURE, n) for n in os.listdir(PURE) if n.endswith(".java")]
+        for source in sources + [HARNESS]:
+            open(os.path.join(staged, os.path.basename(source)), "w",
+                 encoding="utf-8").write(read(source))
+        compiled = subprocess.run(
+            ["javac", "-nowarn", "-d", os.path.join(tmp, "out")]
+            + [os.path.join(staged, n) for n in os.listdir(staged)],
+            capture_output=True, text=True)
+        if compiled.returncode != 0:
+            fail("the rules do not compile against the JDK alone:\n"
+                 + compiled.stderr.strip()[:1200])
+        else:
+            try:
+                ran = subprocess.run(
+                    ["java", "-cp", os.path.join(tmp, "out"), HARNESS_MAIN],
+                    capture_output=True, text=True, timeout=HARNESS_SECONDS)
+            except subprocess.TimeoutExpired:
+                ran = None
+                fail(f"the harness did not finish within {HARNESS_SECONDS} seconds, so "
+                     f"something in the rules can loop forever — which is a server that "
+                     f"stops responding, not a wrong number")
+            if ran is None:
+                pass
+            elif ran.returncode != 0:
+                fail("the bestiary harness failed:\n" + ran.stdout.strip()[:1600])
+            else:
+                harness_out = ran.stdout
+                said = [line for line in ran.stdout.strip().splitlines()
+                        if not line.startswith("EARNED")]
+                print("the arithmetic     : " + said[-1])
+
+rules = read(PURE, "BeastRules.java")
+plain = strip_comments(rules)
+squished = squashed(plain)
+
+# The three properties have to be the three properties. A module whose whole
+# reason for existing is a pair of ratios, with the ratios quietly deleted,
+# passes every other check in this file.
+for named in ("notWorthIt", "spread", "outfarmed", "offTheScale", "lopsided", "derive"):
+    if f"public static " not in plain or named not in plain:
+        fail(f"the rules no longer have {named}, which is one of the things this "
+             f"module exists to prove")
+
+derived = squashed(body_of(plain, "public static Map<String, Reward> derive("))
+if "order.sort((first, second) -> Double.compare(first.threat(), second.threat()));" \
+        not in derived:
+    fail("the reward is not worked out in order of danger, so 'one more than the thing "
+         "below' means one more than whichever beast happened to be written above it")
+if "long worth = Math.max(Math.max(Math.round(beast.threat() * rate), below + 1L), " \
+        "LEAST_WORTH);" not in derived:
+    fail("a reward is no longer forced past the reward of the beast below it; two "
+         "beasts of nearly equal danger will round onto the same number and one of "
+         "them becomes the mob nobody fights twice")
+if "int drops = (int) Math.max(LEAST_DROPS, Math.min(affordable, wanted));" not in derived:
+    fail("the number of items is no longer capped at what the reward can pay for and "
+         "still leave an orb, so a weak enough beast is handed a negative number of "
+         "experience orbs and the whole table throws on class load")
+
+worth_body = squashed(body_of(plain, "public double worth()"))
+if "return experience + (double) drops * WORTH_OF_A_DROP;" not in worth_body:
+    fail("what a kill is worth is no longer its orbs plus its items at the stated "
+         "price, so the arithmetic that derived the table and the arithmetic that "
+         "checks it are two different sums")
+
+rate_body = squashed(body_of(plain, "public static double rate(Beast beast, Reward"))
+if "return reward.worth() / beast.threat();" not in rate_body:
+    fail("reward per unit of danger is not reward over danger, so the spread the "
+         "harness measures is a spread of something else")
+
+# The whole record, header and body: a reward written back into the table is
+# the bug this module was rebuilt to remove, and it is just as much a bug when
+# it arrives as an accessor returning a literal as when it arrives as a field.
+start = plain.find("public record Beast(")
+beast_body = body_of(plain, "public record Beast(")
+declaration = ""
+if start >= 0 and beast_body:
+    declaration = squashed(plain[start:plain.find(beast_body, start)] + beast_body)
+elif start >= 0:
+    fail("the beast record has no body this file can read, so nothing checks what is "
+         "stored in it")
+for stored in ("experience", "drops"):
+    if re.search(r"\b" + stored + r"\b", declaration):
+        fail(f"{stored} is back in the beast record; a reward written beside the stats "
+             f"it is supposed to be derived from is a reward that disagrees with them, "
+             f"and this module has already shipped that bug once")
+
+climbing = squashed(body_of(plain, "public static List<String> noReasonToClimb()"))
+if "double bottom = averageRate(1);" not in climbing \
+        or "double top = averageRate(highest);" not in climbing:
+    fail("whether climbing a ladder pays is no longer the top of the ladders against "
+         "the bottom, so a bestiary where getting stronger buys nothing passes")
+if "if (top <= bottom) {" not in climbing:
+    fail("the top of the ladders is allowed to pay no better than the bottom, so every "
+         "player settles on the safest thing that drops anything and never looks up")
+
+print("purity             : the rules are the JDK alone, and the reward is derived in "
+      "order of danger rather than written down")
+
+# ---------------------------------------------------------------------------
+# 3. The two derivations
+# ---------------------------------------------------------------------------
+#
+# The generator has its own copy of derive(), because it writes loot tables and
+# cannot run a JVM to ask. Two copies of an arithmetic is a bug waiting for
+# somebody to edit one of them, so they are compared here rather than trusted.
+
+spec = importlib.util.spec_from_file_location("gen_bestiary", GENERATOR)
+generator = None
+if spec is None or not os.path.isfile(GENERATOR):
+    fail("there is no generator, so every sprite and loot table in this module is "
+         "hand-written and nothing checks them against the bestiary")
+else:
+    generator = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(generator)
+    except SystemExit as stop:
+        generator = None
+        fail(f"the generator cannot read the Java any more: {stop}")
+
+said_earned = {}
+for line in harness_out.splitlines():
+    parts = line.split()
+    if len(parts) == 4 and parts[0] == "EARNED":
+        said_earned[parts[1]] = (int(parts[2]), int(parts[3]))
+
+if generator is not None and harness_out:
+    if not said_earned:
+        fail("the harness no longer prints the table it derived, so the generator's "
+             "copy of the arithmetic is believed rather than checked")
+    mine = {name: tuple(value) for name, value in generator.REWARDS.items()}
+    if mine != said_earned:
+        for name in sorted(set(mine) | set(said_earned)):
+            if mine.get(name) != said_earned.get(name):
+                fail(f"{name} earns {said_earned.get(name)} in the rules and "
+                     f"{mine.get(name)} in the generator, so the loot table it writes "
+                     f"hands out a different amount than the bestiary is balanced on")
+    else:
+        print(f"the two derivations: {len(mine)} beast(s), and the generator's copy of "
+              f"the arithmetic agrees with the rules on every one")
+
+# ---------------------------------------------------------------------------
+# 4. The sheet
+# ---------------------------------------------------------------------------
+
+model = read(SRC, "client/BeastModel.java")
+model_plain = strip_comments(model)
+
+# Read here rather than borrowed off the generator. A generator that will not
+# start is one of the states these checks exist to describe, and a check that
+# falls silent exactly then is a check that only ever reports what does not
+# matter.
+FAMILY_NAMES = dict(re.findall(
+    r'public static final String (PROWLER|BRUTE|WIGHT) = "(\w+)";',
+    strip_comments(rules, keep_strings=True)))
+
+table = re.search(r"public static final List<Beast> BEASTS = List\.of\((.*?)\);",
+                  strip_comments(rules, keep_strings=True), re.S)
+beasts = []
+for row in re.finditer(
+        r'new Beast\("(\w+)", (PROWLER|BRUTE|WIGHT), (\d+), ([\d.]+)D, ([\d.]+)D, '
+        r'([\d.]+)D, ([\d.]+)D, (\d+), ([\d.]+)F, ([\d.]+)F\)',
+        table.group(1) if table else ""):
+    beasts.append({
+        "id": row.group(1),
+        "family": FAMILY_NAMES.get(row.group(2), row.group(2)),
+        "tier": int(row.group(3)),
+        "weight": int(row.group(8)),
+        "width": float(row.group(9)),
+        "height": float(row.group(10)),
+    })
+if not beasts:
+    fail("this file can no longer read the bestiary out of the rules, so everything "
+         "below is checking an empty list and passing")
+
+PART_NAMES = dict(re.findall(
+    r'public static final String (HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT)'
+    r' = "(\w+)";', strip_comments(model, keep_strings=True)))
+
+shapes = {}
+for block in re.finditer(
+        r"made\.put\(BeastRules\.(PROWLER|BRUTE|WIGHT), List\.of\((.*?)\)\);",
+        model_plain, re.S):
+    parts = []
+    for row in re.finditer(
+            r"new Part\((HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT), "
+            r"([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, "
+            r"([-\d.]+)F, (\d+), (\d+), (\d+)\)", block.group(2)):
+        parts.append({
+            "name": row.group(1),
+            "pivot": (float(row.group(2)), float(row.group(3)), float(row.group(4))),
+            "box": (float(row.group(5)), float(row.group(6)), float(row.group(7))),
+            "size": (int(row.group(8)), int(row.group(9)), int(row.group(10))),
+        })
+    shapes[FAMILY_NAMES.get(block.group(1), block.group(1))] = parts
+
+for family in sorted({beast["family"] for beast in beasts}):
+    if family not in shapes:
+        fail(f"nothing is shaped like a {family}, so every beast in that family is a "
+             f"crash the first time one is drawn")
+for family, parts in sorted(shapes.items()):
+    if len(parts) != 6:
+        fail(f"a {family} is made of {len(parts)} part(s) rather than six; the walk "
+             f"cycle reaches for all six by name and will not find them")
+
+slots = {}
+for name, x, y, wide, tall in re.findall(
+        r"(HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT), new int\[\]\{"
+        r"(\d+), (\d+), (\d+), (\d+)\}", model_plain):
+    slots[name] = (int(x), int(y), int(wide), int(tall))
+
+sheet = re.search(r"public static final int SHEET = (\d+);", model_plain)
+sheet = int(sheet.group(1)) if sheet else 0
+
+if len(slots) != 6:
+    fail(f"the sheet has {len(slots)} corners on it rather than six, so at least one "
+         f"part of every beast is drawn over another part")
+for name, (x, y, wide, tall) in sorted(slots.items()):
+    if x + wide > sheet or y + tall > sheet:
+        fail(f"{name}'s corner runs off a {sheet}-pixel sheet, so that part of every "
+             f"beast is transparent")
+    for other, (ox, oy, owide, otall) in sorted(slots.items()):
+        if other <= name:
+            continue
+        if x < ox + owide and ox < x + wide and y < oy + otall and oy < y + tall:
+            fail(f"{name} and {other} overlap on the sheet, so painting one repaints "
+                 f"the other and no beast can have both")
+
+for family, parts in sorted(shapes.items()):
+    for part in parts:
+        wide, tall, deep = part["size"]
+        slot = slots.get(part["name"])
+        if slot is None:
+            fail(f"a {family}'s {part['name']} has no corner of the sheet at all, so "
+                 f"it is drawn out of whatever happens to be at the origin")
+            continue
+        if 2 * deep + 2 * wide > slot[2] or deep + tall > slot[3]:
+            fail(f"a {family}'s {part['name']} unwraps to "
+                 f"{2 * deep + 2 * wide}x{deep + tall} and its corner of the sheet "
+                 f"is {slot[2]}x{slot[3]}, so one of its faces is drawn in another "
+                 f"part's corner")
+print(f"the sheet          : {len(slots)} corners on a {sheet}-pixel sheet, none "
+      f"overlapping, and every box in every family fits the corner it is drawn in")
+
+# ---------------------------------------------------------------------------
+# 5. As big as it looks
+# ---------------------------------------------------------------------------
+#
+# A modded mob whose model is not the size of its hitbox is the most common
+# visual bug in a big pack and is never filed as one: it reads as "I keep
+# missing it". The renderer squashes the shape onto the hitbox, so this checks
+# the squashing exists, is worked out from the hitbox, and lands inside it.
+
+renderer = strip_comments(read(SRC, "client/BeastRenderer.java"))
+scaling = squashed(body_of(renderer, "protected void scale(BeastEntity beast,"))
+if "float across = row.width() * PIXELS / Math.max(shape.wide(), shape.deep());" \
+        not in scaling:
+    fail("how wide a beast is drawn is no longer worked out from how wide it is, so a "
+         "beast whose row is edited keeps the size of whatever it was before")
+if "float up = row.height() * PIXELS / shape.tall();" not in scaling:
+    fail("how tall a beast is drawn is no longer worked out from how tall it is, which "
+         "is a head above its own hitbox and an arrow that goes through it")
+if "pose.scale(across, up, across);" not in scaling:
+    fail("the shape is not squashed onto the hitbox at all, so every beast is the size "
+         "of the shape it shares with two others")
+
+bounds_body = squashed(body_of(model_plain, "public static Bounds bounds(String family)"))
+if "return new Bounds(highX - lowX, highY - lowY, highZ - lowZ);" not in bounds_body:
+    fail("a shape's size is no longer measured across its own boxes, so the renderer "
+         "squashes onto a number somebody typed")
+
+if shapes and beasts:
+    PIXELS = 16.0
+    measured = {}
+    for family, parts in sorted(shapes.items()):
+        low = [float("inf")] * 3
+        high = [float("-inf")] * 3
+        for part in parts:
+            for axis in range(3):
+                start = part["pivot"][axis] + part["box"][axis]
+                low[axis] = min(low[axis], start)
+                high[axis] = max(high[axis], start + part["size"][axis])
+        measured[family] = (high[0] - low[0], high[1] - low[1], high[2] - low[2])
+        if min(measured[family]) <= 0.0:
+            fail(f"a {family} has no extent in one direction, so it is drawn as a "
+                 f"sheet of paper")
+    for beast in beasts:
+        if beast["family"] not in measured:
+            # Already reported above. Carrying on rather than throwing is the
+            # point: a validator that dies partway through prints none of the
+            # problems it had already found, which is how one broken thing
+            # hides five others.
+            continue
+        wide, tall, deep = measured[beast["family"]]
+        across = beast["width"] * PIXELS / max(wide, deep)
+        up = beast["height"] * PIXELS / tall
+        drawn = (wide * across, tall * up, deep * across)
+        box = (beast["width"] * PIXELS, beast["height"] * PIXELS,
+               beast["width"] * PIXELS)
+        for axis, side in enumerate(("wide", "tall", "deep")):
+            if drawn[axis] > box[axis] + 1e-6:
+                fail(f"{beast['id']} is drawn {drawn[axis] / PIXELS:.2f} blocks {side} "
+                     f"inside a hitbox {box[axis] / PIXELS:.2f} blocks {side}, so part "
+                     f"of it is outside the thing you are swinging at")
+        if abs(drawn[1] - box[1]) > 1e-6:
+            fail(f"{beast['id']} is drawn {drawn[1] / PIXELS:.2f} blocks tall in a "
+                 f"hitbox {box[1] / PIXELS:.2f} blocks tall, so its head is either "
+                 f"above the box or floating inside it")
+        if abs(max(drawn[0], drawn[2]) - box[0]) > 1e-6:
+            fail(f"{beast['id']} does not touch the sides of its own hitbox, so there "
+                 f"is a band around it that can be hit and cannot be seen")
+    print(f"as big as it looks : {len(beasts)} beasts, every one of them exactly as "
+          f"tall and as wide on screen as the box you swing at")
+
+# ---------------------------------------------------------------------------
+# 6. What it leaves
+# ---------------------------------------------------------------------------
+#
+# The loot tables are read back and their expected haul worked out from what
+# they say, rather than from what the generator meant. A uniform roll from
+# nothing to n averages n over two; looting is the player's and is left out of
+# the sum on purpose.
+
+if beasts and said_earned:
+    for beast in beasts:
+        path = os.path.join(RES, "data", NS, "loot_table/entities",
+                            beast["id"] + ".json")
+        if not os.path.isfile(path):
+            fail(f"{beast['id']} has no loot table, so it drops nothing at all")
+            continue
+        table = json.loads(read(path))
+        expected = 0.0
+        for pool in table.get("pools", []):
+            rolls = pool.get("rolls", 1)
+            for entry in pool.get("entries", []):
+                for function in entry.get("functions", []):
+                    if function.get("function") != "minecraft:set_count":
+                        continue
+                    count = function.get("count", {})
+                    if count.get("type") != "minecraft:uniform":
+                        fail(f"{beast['id']}'s loot uses a {count.get('type')} count, "
+                             f"which this file cannot work an expectation out of, so "
+                             f"what it drops has stopped being checked")
+                        continue
+                    expected += rolls * (count.get("min", 0.0)
+                                         + count.get("max", 0.0)) / 2.0
+        wanted = said_earned.get(beast["id"], (0, 0))[1]
+        if abs(expected - wanted) > 1e-9:
+            fail(f"{beast['id']}'s loot table hands out {expected} items on average "
+                 f"and the bestiary is balanced on it leaving {wanted}, so the reward "
+                 f"the harness proved rises with danger is not the reward a player gets")
+    print(f"what it leaves     : {len(beasts)} loot table(s) read back, and every one "
+          f"hands out exactly what the bestiary says it does")
+
+# ---------------------------------------------------------------------------
+# 7. What you meet
+# ---------------------------------------------------------------------------
+
+if beasts:
+    seen = {}
+    modifiers = os.path.join(RES, "data", NS, "neoforge/biome_modifier")
+    for name in sorted(os.listdir(modifiers)) if os.path.isdir(modifiers) else []:
+        rule = json.loads(read(modifiers, name))
+        if rule.get("type") != "neoforge:add_spawns":
+            continue
+        if rule.get("biomes") != "#minecraft:is_overworld":
+            fail(f"{name} puts beasts in {rule.get('biomes')}; a bestiary that only "
+                 f"appears in some biomes is a bestiary most players never meet")
+        for spawner in rule.get("spawners", []):
+            kind = spawner.get("type", "")
+            if kind in seen:
+                fail(f"{kind} is spawned by {name} and by {seen[kind]}; it appears "
+                     f"twice as often as its weight says and the shares the harness "
+                     f"proved are wrong")
+            seen[kind] = name
+            if spawner.get("minCount", 0) < 1:
+                fail(f"{kind} spawns in groups of {spawner.get('minCount')}, so the "
+                     f"game rolls it and puts nothing there")
+    for beast in beasts:
+        kind = f"{NS}:{beast['id']}"
+        if kind not in seen:
+            fail(f"{beast['id']} is registered and never spawns, so the only way to "
+                 f"meet one is a spawn egg")
+            continue
+        rule = json.loads(read(modifiers, seen[kind]))
+        for spawner in rule.get("spawners", []):
+            if spawner.get("type") == kind and spawner.get("weight") != beast["weight"]:
+                fail(f"{beast['id']} spawns at weight {spawner.get('weight')} and its "
+                     f"row says {beast['weight']}, so the share of the dark the harness "
+                     f"proved is not the share a player meets")
+    print(f"what you meet      : {len(seen)} beast(s) across "
+          f"{len(os.listdir(modifiers)) if os.path.isdir(modifiers) else 0} spawn "
+          f"rule(s), each named once, each at the weight its row declares")
+
+# ---------------------------------------------------------------------------
+# 8. The words, and the tree rebuilt
+# ---------------------------------------------------------------------------
+
+lang_path = os.path.join(RES, "assets", NS, "lang/en_us.json")
+lang = json.loads(read(lang_path)) if os.path.isfile(lang_path) else {}
+if beasts:
+    for beast in beasts:
+        for key in (f"entity.{NS}.{beast['id']}",
+                    f"item.{NS}.{beast['id']}_spawn_egg"):
+            if key not in lang:
+                fail(f"{key} has no name, so it reads as its own translation key in "
+                     f"the world")
+        why = lang.get(f"bestiary.{NS}.why.{beast['id']}", "")
+        if len(why) < 40:
+            fail(f"{beast['id']} is described in {len(why)} characters; a line that "
+                 f"short tells a player nothing they could not see, and this is the "
+                 f"only place the pack says what meeting one is like")
+
+if os.path.isfile(GENERATOR):
+    with tempfile.TemporaryDirectory() as tmp:
+        env = dict(os.environ, ELYSIUM_BESTIARY_OUT=tmp)
+        built = subprocess.run([sys.executable, GENERATOR], capture_output=True,
+                               text=True, env=env, cwd=WORK)
+        if built.returncode != 0:
+            fail("the generator does not run:\n" + built.stderr.strip()[:1200])
+        else:
+            drifted = []
+            for kind in ("assets", "data"):
+                here = os.path.join(RES, kind, NS)
+                there = os.path.join(tmp, "src/main/resources", kind, NS)
+                for base, _, names in os.walk(there):
+                    for name in names:
+                        fresh = os.path.join(base, name)
+                        shipped = os.path.join(here, os.path.relpath(fresh, there))
+                        if not os.path.isfile(shipped):
+                            drifted.append(os.path.relpath(fresh, there) + " (missing)")
+                        elif open(fresh, "rb").read() != open(shipped, "rb").read():
+                            drifted.append(os.path.relpath(fresh, there))
+            for name in drifted[:12]:
+                fail(f"{name} is not what the generator produces, so it was edited by "
+                     f"hand and the next person to run regen.sh will lose the edit")
+            if len(drifted) > 12:
+                fail(f"...and {len(drifted) - 12} more file(s) edited by hand")
+            if not drifted:
+                print("the words          : every sprite, model, loot table and spawn "
+                      "rule rebuilt and identical")
+
+# ---------------------------------------------------------------------------
+# 9. The beasts in the world, and the seam
+# ---------------------------------------------------------------------------
+
+entities = strip_comments(read(SRC, "registry/BeastEntities.java"))
+items = strip_comments(read(SRC, "registry/BeastItems.java"))
+client = strip_comments(read(SRC, "client/BestiaryClient.java"))
+entity = strip_comments(read(SRC, "entity/BeastEntity.java"))
+
+registering = squashed(body_of(entities, "for (BeastRules.Beast beast : BeastRules.BEASTS)"))
+if "for (BeastRules.Beast beast : BeastRules.BEASTS) {" not in squashed(entities):
+    fail("the beasts are not registered by walking the bestiary, so a tenth row is a "
+         "row nothing in the game has ever heard of")
+if ".sized(beast.width(), beast.height())" not in registering:
+    fail("an entity type is not built to the size in its own row, so the hitbox and "
+         "the table disagree and the renderer squashes onto the wrong box")
+
+# A loop that walks the bestiary and then decides is not a loop that registers
+# the bestiary. Eight of nine registered is a pack that works until somebody
+# meets the ninth, a month later, in somebody else's crash report.
+egg_loop = squashed(body_of(items, "for (BeastRules.Beast beast : BeastRules.BEASTS)"))
+for what, loop in (("entity type", registering), ("spawn egg", egg_loop)):
+    for escape in ("continue;", "break;", "if ("):
+        if escape in loop:
+            fail(f"the {what} loop decides whether to register each beast; a bestiary "
+                 f"registered in part is a mod that works until a player meets the one "
+                 f"that was skipped")
+
+# And the same thing said at load time, because a check in this file only runs
+# for whoever runs this file.
+for where, source, what in (("BeastEntities", entities, "entity type(s)"),
+                            ("BeastItems", items, "spawn egg(s)")):
+    counted = 'if (made.size() != BeastRules.BEASTS.size()) {'
+    if counted not in squashed(source):
+        fail(f"{where} does not count what it registered against the bestiary, so the "
+             f"game starts with {what} missing and says nothing")
+
+attributes = squashed(body_of(entities, "public static void onAttributes("))
+if "for (BeastRules.Beast beast : BeastRules.BEASTS) {" not in attributes:
+    fail("attributes are not given out by walking the bestiary, so a beast added later "
+         "spawns with a player's health and no attack at all")
+
+placements = squashed(body_of(entities, "public static void onSpawnPlacement("))
+if "for (BeastRules.Beast beast : BeastRules.BEASTS) {" not in placements:
+    fail("spawn placement is not registered by walking the bestiary, so a beast added "
+         "later spawns in daylight inside somebody's base")
+
+renderers = squashed(body_of(client, "public static void onRenderers("))
+if "for (BeastRules.Beast beast : BeastRules.BEASTS) {" not in renderers:
+    fail("renderers are registered one at a time, which is how a pack ends up with one "
+         "mob drawn as a black and magenta cube and nobody noticing for a month")
+
+layers = squashed(body_of(client, "public static void onLayers("))
+if "for (String family : BeastRules.FAMILIES) {" not in layers:
+    fail("model layers are registered one at a time, so a fourth family is a crash on "
+         "the first one a player meets")
+
+eggs = squashed(body_of(items, "register()"))
+if "for (BeastRules.Beast beast : BeastRules.BEASTS) {" not in eggs:
+    fail("spawn eggs are not made by walking the bestiary, so a beast added later "
+         "cannot be put in the world to look at")
+
+lookup = squashed(body_of(entity, "public BeastRules.Beast beast()"))
+if "String name = EntityType.getKey(getType()).getPath();" not in lookup:
+    fail("a beast no longer finds its own row by the name it was registered under, so "
+         "whatever it is storing instead can be stored wrong")
+
+reward = squashed(body_of(entity, "protected int getBaseExperienceReward()"))
+if "return BeastRules.earned(beast()).experience();" not in reward:
+    fail("what a kill gives is not what the bestiary derived, so the ladder the harness "
+         "proved rises is not the ladder a player climbs")
+
+burn = squashed(body_of(entity, "public void aiStep()"))
+if "setRemainingFireTicks(8 * 20);" not in burn:
+    fail("wights no longer burn at dawn, which is the one thing that makes a family "
+         "more than a set of numbers")
+
+dimensions = squashed(body_of(entity, "public net.minecraft.world.entity.EntityDimensions "
+                                      "getDefaultDimensions("))
+if "return net.minecraft.world.entity.EntityDimensions.scalable(beast.width(), " \
+        "beast.height());" not in dimensions:
+    fail("a beast's dimensions are not its row's, so it is the size of whichever beast "
+         "the game happened to build the type for")
+
+# Every register there is, put on the bus. Naming the class is not enough:
+# a module that registers two of a class's three registers has a third that
+# silently contains nothing.
+main = squashed(strip_comments(read(SRC, "ElysiumBestiary.java")))
+for where, source in (("BeastEntities", entities), ("BeastItems", items)):
+    found = re.findall(
+        r"public static final DeferredRegister[\w.<>?,\s]*?\s(\w+)\s*=", source)
+    if not found:
+        fail(f"{where} has no registers in it at all, so nothing it declares reaches "
+             f"the game")
+    for field in found:
+        wanted = f"com.elysium.bestiary.registry.{where}.{field}.register(modEventBus);"
+        if wanted not in main and f"{where}.{field}.register(modEventBus);" not in main:
+            fail(f"{where}.{field} is declared and never put on the bus, so everything "
+                 f"in it is written, compiled, and absent from the game")
+
+print("in the world       : every beast, attribute, spawn rule, renderer and egg "
+      "walked out of the one table")
+
+# ---------------------------------------------------------------------------
+
+print("-" * 70)
+if problems:
+    print(f"{len(problems)} problem(s):")
+    for problem in problems:
+        print(f"  - {problem}")
+    sys.exit(1)
+print("all bestiary checks passed")

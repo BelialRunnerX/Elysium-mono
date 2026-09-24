@@ -1,0 +1,49 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "top": "elysiumindustry:block/arc_furnace_top",
+    "side": "elysiumindustry:block/machine_side",
+    "bottom": "elysiumindustry:block/arc_furnace_top",
+    "particle": "elysiumindustry:block/machine_side"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#bottom",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#top",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#side",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#side",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#side",
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#side",
+          "cullface": "east"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumfoundry:nickel_ingot"
+    }
+  ],
+  "result": {
+    "id": "elysiumfoundry:nickel_nugget",
+    "count": 9
+  }
+}

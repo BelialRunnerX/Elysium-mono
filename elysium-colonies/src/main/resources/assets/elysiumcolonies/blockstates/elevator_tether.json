@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumcolonies:block/elevator_tether"
+    },
+    "axis=z": {
+      "model": "elysiumcolonies:block/elevator_tether",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "elysiumcolonies:block/elevator_tether",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

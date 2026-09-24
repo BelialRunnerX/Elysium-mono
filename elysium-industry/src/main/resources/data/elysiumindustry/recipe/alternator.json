@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CIC",
+    "CKC",
+    "CIC"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "K": {
+      "item": "elysiumkinetics:brass_shaft"
+    }
+  },
+  "result": {
+    "id": "elysiumindustry:alternator",
+    "count": 1
+  }
+}

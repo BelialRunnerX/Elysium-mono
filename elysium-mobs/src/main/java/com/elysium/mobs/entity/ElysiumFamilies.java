@@ -8,7 +8,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import com.elysium.lib.telegraph.ElysiumTelegraphedAttack;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
@@ -444,9 +444,19 @@ public final class ElysiumFamilies {
         mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, Player.class, true));
     }
 
+    /**
+     * Every mob in the set attacks the same way, and announces it.
+     *
+     * {@link ElysiumTelegraphedAttack} rather than vanilla's MeleeAttackGoal,
+     * so that a blow worth avoiding is shouted before it lands. Placed here
+     * rather than per family because it is not a family's decision: §13.2's
+     * readability rule is about the whole bestiary, and a single family written
+     * with the plain goal would be the one monster in the game a player cannot
+     * learn.
+     */
     private static void standardGoals(ElysiumMob mob, double chaseSpeed) {
         mob.goalSelector.addGoal(0, new FloatGoal(mob));
-        mob.goalSelector.addGoal(2, new MeleeAttackGoal(mob, chaseSpeed, false));
+        mob.goalSelector.addGoal(2, new ElysiumTelegraphedAttack(mob, chaseSpeed, false));
         mob.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(mob, 0.8D));
         mob.goalSelector.addGoal(8, new LookAtPlayerGoal(mob, Player.class, 12.0F));
         mob.goalSelector.addGoal(8, new RandomLookAroundGoal(mob));

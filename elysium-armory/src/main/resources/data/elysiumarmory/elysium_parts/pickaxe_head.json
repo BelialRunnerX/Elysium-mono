@@ -1,0 +1,19 @@
+{
+  "type": "core",
+  "gear_type": "pickaxe",
+  "part_type": "main",
+  "crafting": {
+    "materials": 3
+  },
+  "properties": {
+    "attack_damage": {
+      "op": "add",
+      "value": 1.0
+    },
+    "attack_speed": {
+      "op": "add",
+      "value": 1.2
+    },
+    "repair_efficiency": 1.0
+  }
+}

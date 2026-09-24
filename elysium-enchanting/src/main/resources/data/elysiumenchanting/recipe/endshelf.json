@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "pep",
+    "eBe",
+    "pep"
+  ],
+  "key": {
+    "p": {
+      "item": "minecraft:purpur_block"
+    },
+    "e": {
+      "item": "minecraft:ender_pearl"
+    },
+    "B": {
+      "item": "minecraft:bookshelf"
+    }
+  },
+  "result": {
+    "id": "elysiumenchanting:endshelf",
+    "count": 1
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:warped_bench"
+    }
+  ],
+  "result": {
+    "id": "minecraft:warped_planks",
+    "count": 1
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "type": "suffix",
+  "on": [
+    "harvest_tool"
+  ],
+  "min_tier": 1,
+  "weight": 7,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "wielder_effect",
+      "targets": [
+        {
+          "effect": "minecraft:night_vision",
+          "levels": [
+            0,
+            0,
+            0
+          ],
+          "duration": 220
+        }
+      ]
+    }
+  ]
+}

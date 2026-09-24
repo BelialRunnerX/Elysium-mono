@@ -108,6 +108,7 @@ public class ElysiumNpcs {
         ENTITIES.register(modEventBus);
         ITEMS.register(modEventBus);
         CREATIVE_TABS.register(modEventBus);
+        com.elysium.npcs.village.ElysiumStations.register(modEventBus);
 
         // The scheduler listens on the game bus, not the mod bus: it runs on
         // server ticks rather than during loading.
@@ -136,6 +137,14 @@ public class ElysiumNpcs {
                             output.accept(egg.get());
                         }
                         output.accept(WRIT_OF_AMNESTY.get());
+                        // The five workstations. Without this they are
+                        // registered, craftable and invisible in creative,
+                        // which is how a bench ends up being reported as
+                        // missing by somebody who only ever looks in the tab.
+                        for (com.elysium.npcs.village.ElysiumStations.Station station
+                                : com.elysium.npcs.village.ElysiumStations.all()) {
+                            output.accept(station.item().get());
+                        }
                     })
                     .build());
 }

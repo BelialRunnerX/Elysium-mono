@@ -1,0 +1,17 @@
+{
+  "name": "Cinderhold",
+  "icon": "icon.png",
+  "authors": [
+    "Elysium",
+    "re-themed from MineColonies' truedwarven"
+  ],
+  "desc": "Cinderveil's own: cinder stone cut deep, emberwood roofed, built by people who do not go outside more than they must.",
+  "mods": [
+    "structurize",
+    "minecolonies",
+    "elysiumspace",
+    "elysiumflora"
+  ],
+  "version": 1,
+  "pack-format": 1
+}

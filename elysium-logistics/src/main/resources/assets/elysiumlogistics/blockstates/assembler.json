@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "busy=false": {
+      "model": "elysiumlogistics:block/assembler"
+    },
+    "busy=true": {
+      "model": "elysiumlogistics:block/assembler_busy"
+    }
+  }
+}

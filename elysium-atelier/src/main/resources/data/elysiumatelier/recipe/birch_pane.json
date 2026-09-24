@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:birch_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:birch_pane",
+    "count": 16
+  }
+}

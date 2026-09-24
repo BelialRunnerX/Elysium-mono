@@ -4,6 +4,7 @@ import com.elysium.lib.element.ElysiumElement;
 import com.elysium.lib.item.ElysiumAscension;
 import com.elysium.lib.item.ElysiumGearData;
 import com.elysium.lib.item.ElysiumRarities;
+import com.elysium.lib.item.ElysiumGear;
 import com.elysium.lib.item.ElysiumSocketable;
 import com.elysium.lib.item.ElysiumSockets;
 import net.minecraft.world.item.ItemStack;
@@ -47,7 +48,8 @@ public final class ElysiumGearStats {
      *         gear
      */
     public static ElysiumStatBlock of(ItemStack stack) {
-        if (!(stack.getItem() instanceof ElysiumSocketable gear)) {
+        ElysiumSocketable gear = ElysiumGear.of(stack);
+        if (gear == null) {
             return ElysiumStatBlock.EMPTY;
         }
 
@@ -104,7 +106,8 @@ public final class ElysiumGearStats {
 
     /** Character level needed before a stack grants anything. */
     public static int requiredLevel(ItemStack stack) {
-        if (!(stack.getItem() instanceof ElysiumSocketable gear)) {
+        ElysiumSocketable gear = ElysiumGear.of(stack);
+        if (gear == null) {
             return 0;
         }
         return ElysiumRarities.getRequiredLevel(gear.getEffectiveTier(stack));

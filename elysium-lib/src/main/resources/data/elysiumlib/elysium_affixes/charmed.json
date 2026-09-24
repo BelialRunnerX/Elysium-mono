@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "curio"
+  ],
+  "min_tier": 2,
+  "weight": 6,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "elysiumlib:dodge_chance",
+          "operation": "add_value",
+          "slot": "any",
+          "min": 0.02,
+          "max": 0.06,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

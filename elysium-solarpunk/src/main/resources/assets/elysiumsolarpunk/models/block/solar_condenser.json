@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "elysiumsolarpunk:block/solar_condenser_front",
+    "side": "elysiumsolarpunk:block/solar_condenser_side",
+    "top": "elysiumsolarpunk:block/solar_condenser_top"
+  }
+}

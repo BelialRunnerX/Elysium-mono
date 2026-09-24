@@ -507,6 +507,100 @@ def bestiary(width=427, height=240):
 
 
 # ===========================================================================
+# 7. Chooser — the shared "pick one of these" screen
+# ===========================================================================
+#
+# The arithmetic below is ElysiumChooser.init() transcribed. That is the whole
+# point of drawing it: the Java shrinks its row count until the panel fits the
+# window, and whether it shrinks *enough* is a question no compiler can answer
+# and no amount of rereading the method reliably settles. Here it is drawn at
+# both shapes and check_fits() measures the panel.
+
+BUTTON_TALL = M.BUTTON_HEIGHT + 10
+CHOOSER_ROWS = 7
+
+
+def _chooser_row(c, label, detail, x, y, w, accent, state="normal"):
+    """ElysiumButton.row: a name at full contrast, its price faint beneath."""
+    h = BUTTON_TALL
+    if state == "disabled":
+        M.panel(c, x, y, w, h, C["SURFACE_SUNKEN"], C["LINE_SOFT"])
+    else:
+        M.panel(c, x, y, w, h, C["SURFACE_RAISED"],
+                C["ACCENT"] if state == "hover" else C["LINE"])
+        if state == "hover":
+            M.hover(c, x, y, w, h)
+    if accent:
+        c.fill(x + 1, y + 2, x + 2, y + h - 2,
+               accent if state != "disabled" else M.alpha(accent, 0.35))
+    room = w - GAP * 2
+    top = C["TEXT"] if state == "hover" else C["TEXT_MUTED"]
+    if state == "disabled":
+        top = C["TEXT_FAINT"]
+    c.text(M.truncate(c, label, room), x + GAP, y + 5, top)
+    c.text(M.truncate(c, detail, room), x + GAP, y + 5 + LINE_HEIGHT + 1,
+           C["TEXT_FAINT"])
+
+
+def chooser(width=427, height=240, total=12, status=True, footer=None,
+            detail=True, hover_row=1, disabled=(2,), panel_h=None):
+    c = Canvas(width, height)
+    M.scrim(c)
+    w = min(240, width - GAP_WIDE * 2)
+    row_h = (BUTTON_TALL if detail else M.BUTTON_HEIGHT) + M.UNIT
+    head = ROW + (ROW if status else 0) + GAP
+    foot = ((M.BUTTON_HEIGHT + M.UNIT) if footer else 0) \
+        + ((M.BUTTON_HEIGHT + M.UNIT) if total > CHOOSER_ROWS else 0)
+    room = height - GAP_WIDE * 2 - PANEL_PAD * 2 - head - foot
+    fits = max(1, room // row_h)
+    count = min(min(CHOOSER_ROWS, fits), total)
+
+    if panel_h is None:
+        panel_h = PANEL_PAD * 2 + head + count * row_h + foot
+    px = (width - w) // 2
+    py = (height - panel_h) // 2
+    M.panel(c, px, py, w, panel_h)
+
+    x = px + PANEL_PAD
+    inner = w - PANEL_PAD * 2
+    c.text(M.truncate(c, "CHOOSE A DESTINATION", inner), x, py + PANEL_PAD, C["TEXT"])
+    y = py + PANEL_PAD + ROW
+    if status:
+        c.text(M.truncate(c, "Fuel: 2,400 / 4,000 mB", inner), x, y, C["TEXT_MUTED"])
+        y += ROW
+    M.accent_rule(c, x, y, GAP_WIDE, C["ACCENT"])
+    M.rule_soft(c, x + GAP_WIDE, y, inner - GAP_WIDE)
+
+    names = ["The Overworld", "Cinderveil", "Frostfall", "The Pale Moon",
+             "High Orbit", "Emerald Bastion", "The Long Dark"]
+    y = py + PANEL_PAD + head
+    for row in range(count):
+        state = "hover" if row == hover_row else (
+            "disabled" if row in disabled else "normal")
+        _chooser_row(c, names[row % len(names)], "Burns %d mB" % (120 + row * 95),
+                     x, y, inner, C["PLASMA"], state)
+        y += row_h
+    if total > CHOOSER_ROWS:
+        M.button(c, "Showing 1-%d of %d, next" % (count, total), x, y, inner)
+        y += M.BUTTON_HEIGHT + M.UNIT
+    if footer:
+        M.button(c, footer, x, y, inner)
+    return c
+
+
+def chooser_empty(width=427, height=240):
+    """Nothing to choose: the state a screen is in the first time it opens."""
+    head = ROW + ROW + GAP
+    panel_h = PANEL_PAD * 2 + head + ROW_TALL
+    c = chooser(width, height, total=0, status=True, footer=None,
+                disabled=(), panel_h=panel_h)
+    py = (height - panel_h) // 2
+    c.text_centre("No other terminal yet.", width // 2,
+                  py + PANEL_PAD + head, C["TEXT_MUTED"])
+    return c
+
+
+# ===========================================================================
 
 SCREENS = {
     # Each tab is its own preview. A tabbed screen where only the default tab
@@ -523,6 +617,12 @@ SCREENS = {
     "rune_socket": rune_socket,
     "hud": hud,
     "bestiary": bestiary,
+    # The chooser at its three interesting sizes: a short list that needs no
+    # pager, a long one that does, and an empty one.
+    "chooser": lambda w, h: chooser(w, h, total=12, footer="Land here"),
+    "chooser_short": lambda w, h: chooser(w, h, total=3, footer=None,
+                                          hover_row=0, disabled=()),
+    "chooser_empty": chooser_empty,
 }
 
 

@@ -1,0 +1,8 @@
+{
+  "type": "core",
+  "gear_type": "projectile",
+  "part_type": "fletching",
+  "crafting": {
+    "materials": 1
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " s ",
+    "sms",
+    " s "
+  ],
+  "key": {
+    "s": {
+      "item": "elysiumsolarpunk:polished_white_marble"
+    },
+    "m": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:white_marble_copper_filigree",
+    "count": 4
+  }
+}

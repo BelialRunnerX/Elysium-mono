@@ -1,0 +1,13 @@
+{
+  "name": "Confetti!",
+  "max_level": 5,
+  "description": "I like big boom boom",
+  "conditions": [
+    "on:weapon"
+  ],
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

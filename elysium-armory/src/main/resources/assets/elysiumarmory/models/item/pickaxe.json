@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarmory:item/pickaxe",
+    "layer1": "elysiumarmory:item/pickaxe_grip"
+  }
+}

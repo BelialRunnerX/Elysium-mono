@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:blackstone"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:blackstone_beam",
+    "count": 12
+  }
+}

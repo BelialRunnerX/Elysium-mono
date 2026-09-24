@@ -1,0 +1,11 @@
+{
+  "type": "core",
+  "gear_type": "bracelet",
+  "part_type": "main",
+  "crafting": {
+    "materials": 3,
+    "categories": [
+      "metal"
+    ]
+  }
+}

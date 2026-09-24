@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumspace:emgrove_log",
+    "elysiumspace:emgrove_wood",
+    "elysiumspace:stripped_emgrove_log",
+    "elysiumspace:stripped_emgrove_wood"
+  ]
+}

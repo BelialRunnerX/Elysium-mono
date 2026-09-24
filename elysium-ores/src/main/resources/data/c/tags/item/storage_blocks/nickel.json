@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:storage_nickel",
+      "required": false
+    },
+    {
+      "id": "oritech:nickel_block",
+      "required": false
+    },
+    {
+      "id": "tfmg:nickel_block",
+      "required": false
+    }
+  ]
+}

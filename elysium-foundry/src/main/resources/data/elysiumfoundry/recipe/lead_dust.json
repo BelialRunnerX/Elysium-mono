@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:lead_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:lead_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

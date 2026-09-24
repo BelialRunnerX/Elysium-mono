@@ -1,0 +1,13 @@
+{
+  "name": "Wind Blast",
+  "max_level": 1,
+  "description": "Creates a blast of wind when attacking",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "wind_blast"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "bbb",
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "elysiumsolarpunk:rammed_earth"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:rammed_earth_wall",
+    "count": 6
+  }
+}

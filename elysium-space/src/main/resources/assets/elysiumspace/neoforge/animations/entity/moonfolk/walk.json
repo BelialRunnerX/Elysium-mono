@@ -1,0 +1,90 @@
+{
+ "length": 1.0,
+ "loop": true,
+ "animations": [
+  {
+   "bone": "leg0",
+   "target": "minecraft:rotation",
+   "keyframes": [
+    {
+     "timestamp": 0.0,
+     "target": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "interpolation": "minecraft:linear"
+    },
+    {
+     "timestamp": 0.25,
+     "target": [
+      22.5,
+      0.0,
+      0.0
+     ],
+     "interpolation": "minecraft:linear"
+    },
+    {
+     "timestamp": 0.75,
+     "target": [
+      -22.5,
+      0.0,
+      0.0
+     ],
+     "interpolation": "minecraft:linear"
+    },
+    {
+     "timestamp": 1.0,
+     "target": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "interpolation": "minecraft:linear"
+    }
+   ]
+  },
+  {
+   "bone": "leg1",
+   "target": "minecraft:rotation",
+   "keyframes": [
+    {
+     "timestamp": 0.0,
+     "target": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "interpolation": "minecraft:linear"
+    },
+    {
+     "timestamp": 0.25,
+     "target": [
+      -22.5,
+      0.0,
+      0.0
+     ],
+     "interpolation": "minecraft:linear"
+    },
+    {
+     "timestamp": 0.75,
+     "target": [
+      22.5,
+      0.0,
+      0.0
+     ],
+     "interpolation": "minecraft:linear"
+    },
+    {
+     "timestamp": 1.0,
+     "target": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "interpolation": "minecraft:linear"
+    }
+   ]
+  }
+ ]
+}

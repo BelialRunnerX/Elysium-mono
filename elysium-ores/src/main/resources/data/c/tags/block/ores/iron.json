@@ -1,0 +1,16 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:frost_iron_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_iron_ore",
+      "required": false
+    },
+    "elysiumores:cinder_iron_ore",
+    "elysiumores:end_stone_iron_ore",
+    "elysiumores:netherrack_iron_ore"
+  ]
+}

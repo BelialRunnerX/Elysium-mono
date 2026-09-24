@@ -1,0 +1,16 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumsolarpunk:rammed_earth_slab",
+    "elysiumsolarpunk:pale_plaster_slab",
+    "elysiumsolarpunk:verdigris_copper_slab",
+    "elysiumsolarpunk:woven_cane_block_slab",
+    "elysiumsolarpunk:mosaic_tile_slab",
+    "elysiumsolarpunk:white_marble_slab",
+    "elysiumsolarpunk:polished_white_marble_slab",
+    "elysiumsolarpunk:white_limestone_slab",
+    "elysiumsolarpunk:polished_white_limestone_slab",
+    "elysiumsolarpunk:alabaster_slab",
+    "elysiumsolarpunk:polished_alabaster_slab"
+  ]
+}

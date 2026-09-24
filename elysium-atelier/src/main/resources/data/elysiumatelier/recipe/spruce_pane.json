@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:spruce_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:spruce_pane",
+    "count": 16
+  }
+}

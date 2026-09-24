@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:crimson_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:crimson_shelf",
+    "count": 4
+  }
+}

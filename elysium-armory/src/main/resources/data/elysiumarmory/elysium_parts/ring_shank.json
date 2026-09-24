@@ -1,0 +1,11 @@
+{
+  "type": "core",
+  "gear_type": "ring",
+  "part_type": "main",
+  "crafting": {
+    "materials": 2,
+    "categories": [
+      "metal"
+    ]
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:gems/prismarine",
+    "categories": [
+      "gem",
+      "organic",
+      "advanced"
+    ]
+  },
+  "display": {
+    "name": "Prismarine"
+  },
+  "properties": {
+    "coating": {
+      "armor_durability": {
+        "op": "multiply_total",
+        "value": 0.125
+      },
+      "armor_toughness": {
+        "op": "add",
+        "value": 1.0
+      },
+      "durability": {
+        "op": "multiply_total",
+        "value": 0.075
+      },
+      "knockback_resistance": {
+        "op": "add",
+        "value": 0.25
+      },
+      "traits": [
+        {
+          "trait": "aquatic",
+          "level": 5,
+          "conditions": [
+            "ratio>=0.67"
+          ]
+        },
+        {
+          "trait": "aquatic",
+          "level": 3,
+          "conditions": [
+            "not:ratio>=0.67"
+          ]
+        }
+      ]
+    },
+    "setting": {
+      "traits": [
+        {
+          "trait": "swift_swim",
+          "level": 3,
+          "conditions": [
+            "ratio>=0.67"
+          ]
+        }
+      ]
+    }
+  }
+}

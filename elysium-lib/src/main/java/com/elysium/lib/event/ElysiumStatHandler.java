@@ -50,6 +50,8 @@ public final class ElysiumStatHandler {
             ResourceLocation.fromNamespaceAndPath(ElysiumLib.MODID, "stat/agility");
     private static final ResourceLocation HEALTH_ID =
             ResourceLocation.fromNamespaceAndPath(ElysiumLib.MODID, "stat/vitality");
+    private static final ResourceLocation TOUGHNESS_ID =
+            ResourceLocation.fromNamespaceAndPath(ElysiumLib.MODID, "stat/fortitude_toughness");
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -80,6 +82,12 @@ public final class ElysiumStatHandler {
 
         set(player, Attributes.MAX_HEALTH, HEALTH_ID,
                 ElysiumStats.bonusHealth(player), AttributeModifier.Operation.ADD_VALUE);
+
+        // Fortitude past the point where vanilla stops counting armour. Without
+        // this the stat has a hard ceiling nothing in the interface mentions,
+        // and a player who keeps investing in it is spending points on nothing.
+        set(player, Attributes.ARMOR_TOUGHNESS, TOUGHNESS_ID,
+                ElysiumStats.baseToughness(player), AttributeModifier.Operation.ADD_VALUE);
     }
 
     /**

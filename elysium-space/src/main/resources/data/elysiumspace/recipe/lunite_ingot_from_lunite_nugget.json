@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumspace:lunite_nugget"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:lunite_ingot"
+  }
+}

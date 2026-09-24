@@ -1,0 +1,19 @@
+{
+  "type": "suffix",
+  "on": [
+    "harvest_tool",
+    "melee_weapon",
+    "armor"
+  ],
+  "min_tier": 1,
+  "weight": 5,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "self_repair",
+      "interval": 200,
+      "chance_per_level": 0.25,
+      "amount_per_level": 1
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumspace:raw_lunite_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "id": "elysiumspace:raw_lunite"
+  }
+}

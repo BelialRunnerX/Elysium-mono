@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:raw_lithium"
+  },
+  "result": {
+    "id": "elysiumfoundry:lithium_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 100
+}

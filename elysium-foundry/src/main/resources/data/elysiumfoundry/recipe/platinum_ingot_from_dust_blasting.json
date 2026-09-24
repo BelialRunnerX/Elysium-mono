@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:platinum_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:platinum_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 100
+}

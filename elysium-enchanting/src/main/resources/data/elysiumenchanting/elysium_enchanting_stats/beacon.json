@@ -1,0 +1,7 @@
+{
+  "block": "minecraft:beacon",
+  "eterna": 1.0,
+  "rectification": 0.1,
+  "max_eterna": 60.0,
+  "_why": "a straight line, held, for as long as you feed it"
+}

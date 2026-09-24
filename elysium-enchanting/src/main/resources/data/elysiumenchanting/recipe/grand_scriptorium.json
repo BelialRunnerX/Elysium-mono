@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "gsg",
+    "sds",
+    "gsg"
+  ],
+  "key": {
+    "s": {
+      "item": "elysiumenchanting:scriptorium"
+    },
+    "g": {
+      "item": "minecraft:gold_block"
+    },
+    "d": {
+      "item": "minecraft:diamond_block"
+    }
+  },
+  "result": {
+    "id": "elysiumenchanting:grand_scriptorium",
+    "count": 1
+  }
+}

@@ -3,6 +3,11 @@ loaderVersion="${loader_version_range}"
 license="${mod_license}"
 issueTrackerURL="https://github.com/BelialRunnerX/elysium-lib/issues"
 
+# Makes RangedAttribute.maxValue writable, so vanilla's attribute ceilings can
+# be lifted. See META-INF/accesstransformer.cfg.
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"
+
 [[mods]]
 modId="${mod_id}"
 version="${mod_version}"

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:faint_essence"
+    },
+    {
+      "item": "elysiumagronomy:faint_essence"
+    },
+    {
+      "item": "elysiumagronomy:faint_essence"
+    },
+    {
+      "item": "elysiumagronomy:faint_essence"
+    },
+    {
+      "item": "minecraft:copper_ingot"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:copper_seed",
+    "count": 1
+  }
+}

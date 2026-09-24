@@ -1,0 +1,126 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:gems/diamond",
+    "categories": [
+      "gem",
+      "advanced"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/diamond"
+    }
+  },
+  "display": {
+    "name": "Diamond"
+  },
+  "properties": {
+    "main": {
+      "durability": 1561.0,
+      "armor_durability": 33.0,
+      "harvest_tier": "diamond",
+      "harvest_speed": 8.0,
+      "attack_damage": 3.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 2.0,
+      "draw_speed": -0.2,
+      "projectile_speed": 0.9,
+      "projectile_accuracy": 1.1,
+      "armor": 20.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 8.0,
+      "armor/leggings": 6.0,
+      "armor/boots": 3.0,
+      "armor_toughness": 8.0,
+      "magic_armor": 4.0,
+      "enchantment_value": 10.0,
+      "charging_value": 0.8,
+      "rarity": 70.0,
+      "attack_speed/hoe": 1.0,
+      "traits": [
+        {
+          "trait": "brittle",
+          "level": 2
+        },
+        {
+          "trait": "lustrous",
+          "level": 1,
+          "conditions": [
+            "(count>=3 OR ratio>=0.5)"
+          ]
+        }
+      ]
+    },
+    "rod": {
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "traits": [
+        {
+          "trait": "brittle",
+          "level": 5,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        },
+        {
+          "trait": "lustrous",
+          "level": 4,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    },
+    "setting": {
+      "traits": [
+        {
+          "trait": "bastion",
+          "level": 1
+        }
+      ]
+    },
+    "tip": {
+      "armor_durability": {
+        "op": "add",
+        "value": 9.0
+      },
+      "attack_damage": {
+        "op": "add",
+        "value": 2.0
+      },
+      "durability": {
+        "op": "add",
+        "value": 256.0
+      },
+      "harvest_speed": {
+        "op": "add",
+        "value": 2.0
+      },
+      "harvest_tier": "diamond",
+      "magic_damage": {
+        "op": "add",
+        "value": 1.0
+      },
+      "ranged_damage": {
+        "op": "add",
+        "value": 0.5
+      },
+      "rarity": {
+        "op": "add",
+        "value": 20.0
+      },
+      "traits": [
+        {
+          "trait": "brittle",
+          "level": 2
+        },
+        {
+          "trait": "lustrous",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

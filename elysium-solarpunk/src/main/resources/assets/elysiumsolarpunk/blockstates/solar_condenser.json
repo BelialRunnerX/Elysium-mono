@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumsolarpunk:block/solar_condenser"
+    },
+    "facing=east": {
+      "model": "elysiumsolarpunk:block/solar_condenser",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumsolarpunk:block/solar_condenser",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumsolarpunk:block/solar_condenser",
+      "y": 270
+    }
+  }
+}

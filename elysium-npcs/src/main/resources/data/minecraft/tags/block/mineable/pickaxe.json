@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumnpcs:signal_mast",
+    "elysiumnpcs:splicing_vat",
+    "elysiumnpcs:void_crucible",
+    "elysiumnpcs:hydroponics_rack",
+    "elysiumnpcs:salvage_rig"
+  ]
+}

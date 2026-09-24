@@ -1,0 +1,66 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:dusts/glowstone",
+    "categories": [
+      "gem",
+      "dust",
+      "intermediate"
+    ]
+  },
+  "display": {
+    "name": "Glowstone"
+  },
+  "properties": {
+    "main": {
+      "harvest_speed": 15.0,
+      "attack_damage": 3.0,
+      "attack_speed": 0.4,
+      "ranged_damage": 3.0,
+      "charging_value": {
+        "op": "multiply_base",
+        "value": 0.15
+      },
+      "rarity": 40.0,
+      "additive": 1.0,
+      "traits": [
+        {
+          "trait": "renew",
+          "level": 3
+        }
+      ]
+    },
+    "tip": {
+      "attack_damage": {
+        "op": "add",
+        "value": 2.0
+      },
+      "draw_speed": {
+        "op": "multiply_total",
+        "value": 0.3
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.4
+      },
+      "magic_damage": {
+        "op": "add",
+        "value": 2.0
+      },
+      "rarity": {
+        "op": "add",
+        "value": 15.0
+      },
+      "traits": [
+        {
+          "trait": "refractive",
+          "level": 1
+        },
+        {
+          "trait": "lustrous",
+          "level": 4
+        }
+      ]
+    }
+  }
+}

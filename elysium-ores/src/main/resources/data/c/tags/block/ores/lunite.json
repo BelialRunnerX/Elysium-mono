@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:lunite_ore",
+      "required": false
+    },
+    "elysiumores:cinder_lunite_ore",
+    "elysiumores:deepslate_lunite_ore",
+    "elysiumores:end_stone_lunite_ore",
+    "elysiumores:frost_lunite_ore",
+    "elysiumores:netherrack_lunite_ore",
+    "elysiumores:pale_lunite_ore"
+  ]
+}

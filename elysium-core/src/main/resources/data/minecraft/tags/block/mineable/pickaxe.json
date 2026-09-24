@@ -10,6 +10,11 @@
     "elysium:ascension_forge",
     "elysium:registry_beacon",
     "elysium:imperial_archive",
-    "elysium:inspection_beacon"
+    "elysium:inspection_beacon",
+    "elysium:gem_cutting_table",
+    "elysium:augmenting_table",
+    "elysium:brutal_spawner",
+    "elysium:swarm_spawner",
+    "elysium:caged_invader"
   ]
 }

@@ -1,0 +1,5 @@
+{
+  "from": "minecraft:slow_falling",
+  "ingredient": "minecraft:fermented_spider_eye",
+  "to": "elysiumlib:levitation"
+}

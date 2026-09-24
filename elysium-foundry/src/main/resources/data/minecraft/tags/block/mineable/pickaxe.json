@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumfoundry:alloy_smelter",
+    "elysiumfoundry:tier_1_casing",
+    "elysiumfoundry:tier_2_casing",
+    "elysiumfoundry:tier_3_casing",
+    "elysiumfoundry:tier_4_casing"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumfoundry:platinum_ingot"
+    }
+  ],
+  "result": {
+    "id": "elysiumfoundry:platinum_nugget",
+    "count": 9
+  }
+}

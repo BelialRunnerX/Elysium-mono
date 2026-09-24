@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:plate_lead",
+      "required": false
+    },
+    {
+      "id": "tfmg:lead_sheet",
+      "required": false
+    }
+  ]
+}

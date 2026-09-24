@@ -1,0 +1,28 @@
+{
+  "type": "upgrade",
+  "gear_type": "all",
+  "part_type": "misc_upgrade",
+  "properties": {
+    "durability": {
+      "op": "multiply_base",
+      "value": 0.1
+    },
+    "rarity": {
+      "op": "add",
+      "value": 10.0
+    },
+    "traits": [
+      {
+        "trait": "widen",
+        "level": 1
+      }
+    ]
+  },
+  "upgrade": {
+    "gear_types": [
+      "hammer",
+      "excavator"
+    ],
+    "match_children": false
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "side": "elysiumkinetics:block/timber_shaft",
+    "end": "elysiumkinetics:block/timber_shaft_end",
+    "particle": "elysiumkinetics:block/timber_shaft"
+  },
+  "elements": [
+    {
+      "from": [
+        5.0,
+        0,
+        5.0
+      ],
+      "to": [
+        11.0,
+        16,
+        11.0
+      ],
+      "faces": {
+        "down": {
+          "texture": "#end",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#end",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        }
+      }
+    }
+  ]
+}

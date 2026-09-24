@@ -1,0 +1,16 @@
+{
+  "name": "Floatstoner",
+  "max_level": 1,
+  "description": "Creates and places end stone at the cost of durability",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "block_placer",
+      "block": "minecraft:end_stone",
+      "cost": 3,
+      "cooldown": 0
+    }
+  ]
+}

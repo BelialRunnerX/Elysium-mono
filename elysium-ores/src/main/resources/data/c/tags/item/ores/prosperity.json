@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "mysticalagradditions:end_prosperity_ore",
+      "required": false
+    },
+    {
+      "id": "mysticalagradditions:nether_prosperity_ore",
+      "required": false
+    },
+    {
+      "id": "mysticalagriculture:deepslate_prosperity_ore",
+      "required": false
+    },
+    {
+      "id": "mysticalagriculture:prosperity_ore",
+      "required": false
+    }
+  ]
+}

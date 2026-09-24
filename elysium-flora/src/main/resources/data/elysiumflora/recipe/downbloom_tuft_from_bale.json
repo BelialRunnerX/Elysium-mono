@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "elysiumflora:downbloom_bale"
+    }
+  ],
+  "result": {
+    "id": "elysiumflora:downbloom_tuft",
+    "count": 9
+  }
+}

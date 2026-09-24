@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "b  ",
+    "bb ",
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "elysiumsolarpunk:rammed_earth"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:rammed_earth_stairs",
+    "count": 4
+  }
+}

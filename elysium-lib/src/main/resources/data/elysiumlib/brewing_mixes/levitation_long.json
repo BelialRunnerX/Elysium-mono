@@ -1,0 +1,5 @@
+{
+  "from": "elysiumlib:levitation",
+  "ingredient": "minecraft:redstone",
+  "to": "elysiumlib:long_levitation"
+}

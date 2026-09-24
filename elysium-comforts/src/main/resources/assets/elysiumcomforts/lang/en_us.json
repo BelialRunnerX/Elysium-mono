@@ -1,0 +1,12 @@
+{
+  "block.elysiumcomforts.grave": "Grave",
+  "elysiumcomforts.grave.made": "Your things are at %s, %s, %s \u2014 %s stack(s).",
+  "elysiumcomforts.grave.theirs": "%s's grave. Anybody may open it in about %s minute(s).",
+  "elysiumcomforts.loot.yours": "Yours",
+  "elysiumcomforts.trader.carrying": "Carrying a %s, level %s",
+  "elysiumcomforts.trader.empty": "Empty. Use it on a villager.",
+  "elysiumcomforts.trader.restocked": "Restocked %s time(s) today",
+  "item.elysiumcomforts.trader_crate": "Trader's Crate",
+  "item.elysiumcomforts.trader_crate_full": "Trader's Crate",
+  "itemGroup.elysiumcomforts": "Elysium Comforts"
+}

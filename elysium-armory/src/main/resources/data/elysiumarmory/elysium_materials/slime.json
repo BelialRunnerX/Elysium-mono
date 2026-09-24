@@ -1,0 +1,28 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "minecraft:slime_block",
+    "categories": [
+      "slime",
+      "organic",
+      "intermediate"
+    ]
+  },
+  "display": {
+    "name": "Slime"
+  },
+  "properties": {
+    "lining": {
+      "armor_toughness": {
+        "op": "add",
+        "value": 0.5
+      },
+      "traits": [
+        {
+          "trait": "bounce",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

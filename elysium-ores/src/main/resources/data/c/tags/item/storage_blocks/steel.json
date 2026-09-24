@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createbigcannons:steel_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:steel_block",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:storage_steel",
+      "required": false
+    },
+    {
+      "id": "mekanism:block_steel",
+      "required": false
+    },
+    {
+      "id": "oritech:steel_block",
+      "required": false
+    },
+    {
+      "id": "tfmg:steel_block",
+      "required": false
+    }
+  ]
+}

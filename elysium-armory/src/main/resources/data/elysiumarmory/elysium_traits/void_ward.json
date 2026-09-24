@@ -1,0 +1,13 @@
+{
+  "name": "Void Ward",
+  "max_level": 1,
+  "description": "Saves the wearer from falling out of the world",
+  "conditions": [
+    "on:armor"
+  ],
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

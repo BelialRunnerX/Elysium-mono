@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:deepslate_ore_silver",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:ore_silver",
+      "required": false
+    },
+    "elysiumores:cinder_silver_ore",
+    "elysiumores:end_stone_silver_ore",
+    "elysiumores:frost_silver_ore",
+    "elysiumores:netherrack_silver_ore",
+    "elysiumores:pale_silver_ore"
+  ]
+}

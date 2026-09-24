@@ -1,0 +1,16 @@
+{
+  "type": "suffix",
+  "on": [
+    "shield"
+  ],
+  "min_tier": 3,
+  "weight": 4,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "negate_damage",
+      "tag": "minecraft:is_explosion",
+      "scale_per_level": 0.2
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "block.elysiumarcana.transmuter": "Transmuter",
+  "elysiumarcana.condense.done": "%s x %s for %s motes. You have %s.",
+  "elysiumarcana.condense.gone": "Nothing installed makes that any more.",
+  "elysiumarcana.condense.poor": "That costs %s and you have %s.",
+  "elysiumarcana.condense.unknown": "You have never dissolved one of those.",
+  "elysiumarcana.dissolve.altered": "A worn or enchanted %s is not the same thing as a fresh one, and this only prices fresh ones.",
+  "elysiumarcana.dissolve.done": "%s x %s \u2192 %s motes. You have %s.",
+  "elysiumarcana.dissolve.learned": "%s x %s \u2192 %s motes, and you can make them now. You have %s.",
+  "elysiumarcana.dissolve.worthless": "Nothing here knows what a %s is worth.",
+  "elysiumarcana.row": "%s motes",
+  "elysiumarcana.row_short": "%s motes \u00b7 %s short",
+  "elysiumarcana.transmuter.alone": "You have dissolved nothing yet. Hold something up to it.",
+  "elysiumarcana.transmuter.empty": "Nothing dissolved yet. Hold something up to it \u2014 it knows the worth of things made from %s recipes.",
+  "elysiumarcana.transmuter.motes": "%s motes.",
+  "elysiumarcana.transmuter.title": "What you know",
+  "itemGroup.elysiumarcana": "Elysium Arcana"
+}

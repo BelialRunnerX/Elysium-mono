@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "extendedae:silicon_block",
+      "required": false
+    },
+    {
+      "id": "oritech:silicon_block",
+      "required": false
+    }
+  ]
+}

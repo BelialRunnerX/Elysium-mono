@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "elysiumnpcs:block/void_crucible_front",
+    "side": "elysiumnpcs:block/void_crucible_side",
+    "top": "elysiumnpcs:block/void_crucible_top"
+  }
+}

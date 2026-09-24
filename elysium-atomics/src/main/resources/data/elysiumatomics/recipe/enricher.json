@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PSP",
+    "SSS"
+  ],
+  "key": {
+    "P": {
+      "tag": "c:plates/steel"
+    },
+    "S": {
+      "item": "elysiumindustry:separator"
+    }
+  },
+  "result": {
+    "id": "elysiumatomics:enricher",
+    "count": 1
+  }
+}

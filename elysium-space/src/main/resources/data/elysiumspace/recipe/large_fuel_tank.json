@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "L L",
+    "LBL",
+    "LLL"
+  ],
+  "key": {
+    "L": {
+      "tag": "c:ingots/lunite"
+    },
+    "B": {
+      "item": "minecraft:bucket"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:large_fuel_tank"
+  }
+}

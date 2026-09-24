@@ -1,0 +1,12 @@
+{
+  "name": "Magnetic",
+  "max_level": 5,
+  "description": "Pulls in nearby items",
+  "effects": [
+    {
+      "type": "item_magnet",
+      "range": 3.0,
+      "pull": 0.06
+    }
+  ]
+}

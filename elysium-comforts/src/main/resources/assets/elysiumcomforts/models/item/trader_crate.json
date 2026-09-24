@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumcomforts:item/trader_crate"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "elysiumcomforts:occupied": 1
+      },
+      "model": "elysiumcomforts:item/trader_crate_full"
+    }
+  ]
+}

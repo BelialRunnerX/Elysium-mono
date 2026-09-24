@@ -1,0 +1,12 @@
+{
+  "name": "Malleable",
+  "max_level": 5,
+  "description": "Gear sometimes takes less damage",
+  "effects": [
+    {
+      "type": "durability",
+      "chance_per_level": 0.1,
+      "amount": -1
+    }
+  ]
+}

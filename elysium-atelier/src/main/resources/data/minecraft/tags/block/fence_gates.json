@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumatelier:blackstone_gate",
+    "elysiumatelier:deepslate_gate",
+    "elysiumatelier:quartz_gate",
+    "elysiumatelier:stone_gate",
+    "elysiumatelier:tuff_gate"
+  ]
+}

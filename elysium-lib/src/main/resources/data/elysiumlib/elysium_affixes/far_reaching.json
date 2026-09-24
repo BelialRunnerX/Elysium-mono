@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "harvest_tool"
+  ],
+  "min_tier": 1,
+  "weight": 7,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "minecraft:player.block_interaction_range",
+          "operation": "add_value",
+          "slot": "mainhand",
+          "min": 0.5,
+          "max": 1.5,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

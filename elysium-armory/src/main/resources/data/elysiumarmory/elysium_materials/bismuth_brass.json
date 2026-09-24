@@ -1,0 +1,70 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/bismuth_brass",
+    "categories": [
+      "metal",
+      "intermediate"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/bismuth_brass"
+    }
+  },
+  "display": {
+    "name": "Bismuth Brass"
+  },
+  "properties": {
+    "main": {
+      "durability": 580.0,
+      "armor_durability": 15.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 9.0,
+      "attack_damage": 3.0,
+      "attack_speed": 0.1,
+      "magic_damage": 2.0,
+      "ranged_damage": 2.0,
+      "draw_speed": 0.2,
+      "armor": 18.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 7.0,
+      "armor/leggings": 5.0,
+      "armor/boots": 3.0,
+      "armor_toughness": 2.0,
+      "magic_armor": 8.0,
+      "enchantment_value": 14.0,
+      "charging_value": 1.1,
+      "rarity": 50.0,
+      "repair_value": 0.15,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        },
+        {
+          "trait": "lustrous",
+          "level": 2,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    },
+    "rod": {
+      "durability": {
+        "op": "multiply_total",
+        "value": -0.1
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "rarity": 50.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

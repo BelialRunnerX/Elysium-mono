@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createaddition:biomass_pellet_block",
+      "required": false
+    },
+    {
+      "id": "oritech:biomass_block",
+      "required": false
+    }
+  ]
+}

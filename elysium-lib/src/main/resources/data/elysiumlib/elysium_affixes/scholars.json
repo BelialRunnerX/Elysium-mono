@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "curio"
+  ],
+  "min_tier": 1,
+  "weight": 8,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "elysiumlib:experience_gained",
+          "operation": "add_multiplied_base",
+          "slot": "any",
+          "min": 0.05,
+          "max": 0.25,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

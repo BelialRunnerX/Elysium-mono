@@ -61,7 +61,7 @@ public class UnswornRaider extends Husk {
                 Elysium.KINETIC_MAUL.get(),
         };
         setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(arms[random.nextInt(arms.length)]));
-        setDropChance(EquipmentSlot.MAINHAND, 0.05F);
+        setDropChance(EquipmentSlot.MAINHAND, 0.02F);
 
         if (band >= 2) {
             setItemSlot(EquipmentSlot.HEAD, new ItemStack(Elysium.ELYSIUM_HELMET.get()));

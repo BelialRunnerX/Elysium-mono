@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": {
+      "tag": "c:ingots/lunite"
+    }
+  },
+  "result": {
+    "count": 4,
+    "id": "elysiumspace:lunite_plating"
+  }
+}

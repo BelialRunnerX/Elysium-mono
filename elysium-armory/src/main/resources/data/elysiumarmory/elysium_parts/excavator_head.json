@@ -1,0 +1,31 @@
+{
+  "type": "core",
+  "gear_type": "excavator",
+  "part_type": "main",
+  "crafting": {
+    "materials": 5
+  },
+  "properties": {
+    "attack_damage": {
+      "op": "add",
+      "value": 2.0
+    },
+    "attack_speed": {
+      "op": "add",
+      "value": 1.0
+    },
+    "durability": {
+      "op": "multiply_base",
+      "value": 1.0
+    },
+    "enchantment_value": {
+      "op": "multiply_base",
+      "value": -0.5
+    },
+    "harvest_speed": {
+      "op": "multiply_base",
+      "value": -0.5
+    },
+    "repair_efficiency": 2.0
+  }
+}

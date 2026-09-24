@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:dust_coke",
+      "required": false
+    },
+    {
+      "id": "tfmg:coal_coke_dust",
+      "required": false
+    }
+  ]
+}

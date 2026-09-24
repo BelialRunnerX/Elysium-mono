@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumlib:bleeding",
+    "elysiumlib:detonation",
+    "elysiumlib:fire_damage",
+    "elysiumlib:cold_damage"
+  ]
+}

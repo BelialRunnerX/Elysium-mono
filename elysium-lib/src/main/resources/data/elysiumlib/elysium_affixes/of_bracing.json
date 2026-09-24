@@ -1,0 +1,16 @@
+{
+  "type": "suffix",
+  "on": [
+    "shield"
+  ],
+  "min_tier": 0,
+  "weight": 9,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "durability",
+      "chance_per_level": 0.1,
+      "amount": -1
+    }
+  ]
+}

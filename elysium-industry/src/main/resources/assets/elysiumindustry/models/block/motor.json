@@ -1,0 +1,44 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "side": "elysiumindustry:block/motor",
+    "end": "elysiumindustry:block/motor_end",
+    "particle": "elysiumindustry:block/motor"
+  },
+  "elements": [
+    {
+      "from": [
+        0.0,
+        0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        16,
+        16.0
+      ],
+      "faces": {
+        "down": {
+          "texture": "#end",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#end",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        }
+      }
+    }
+  ]
+}

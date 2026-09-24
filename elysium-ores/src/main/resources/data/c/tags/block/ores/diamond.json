@@ -1,0 +1,16 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:cinder_diamond_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frost_diamond_ore",
+      "required": false
+    },
+    "elysiumores:end_stone_diamond_ore",
+    "elysiumores:netherrack_diamond_ore",
+    "elysiumores:pale_diamond_ore"
+  ]
+}

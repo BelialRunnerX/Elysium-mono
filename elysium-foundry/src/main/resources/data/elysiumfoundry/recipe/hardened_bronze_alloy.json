@@ -1,0 +1,16 @@
+{
+  "type": "elysiumfoundry:alloying",
+  "first": {
+    "item": "elysiumfoundry:bronze_ingot"
+  },
+  "first_count": 2,
+  "second": {
+    "item": "elysiumfoundry:invar_ingot"
+  },
+  "second_count": 1,
+  "result": {
+    "id": "elysiumfoundry:hardened_bronze_ingot",
+    "count": 1
+  },
+  "ticks": 220
+}

@@ -128,6 +128,20 @@ def charm(metal, glow):
     return c
 
 
+def charm_fill():
+    """
+    The part of a potion charm that takes the potion's own colour.
+
+    Drawn white so that the game's tint multiplies cleanly: a coloured base
+    would come out muddy for every potion that is not the colour it was drawn
+    in, which is all of them but one.
+    """
+    c = Canvas()
+    for (x, y) in union(rect(6, 6, 9, 9)) - union(rect(7, 7, 8, 8)):
+        c.put(x, y, (255, 255, 255, 255))
+    return c
+
+
 # ==========================================================================
 # Hands — a gauntlet, fingers down
 # ==========================================================================

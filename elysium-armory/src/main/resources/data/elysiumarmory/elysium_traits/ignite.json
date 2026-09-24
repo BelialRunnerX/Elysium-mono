@@ -1,0 +1,16 @@
+{
+  "name": "Ignite",
+  "max_level": 1,
+  "description": "Lights blocks on fire at a small durability cost",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "block_placer",
+      "block": "minecraft:fire",
+      "cost": 1,
+      "cooldown": 0
+    }
+  ]
+}

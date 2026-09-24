@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:signal_alloy_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:signal_alloy_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

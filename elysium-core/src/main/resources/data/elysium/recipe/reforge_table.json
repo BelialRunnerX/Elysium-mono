@@ -3,15 +3,15 @@
   "category": "building",
   "pattern": [
     "###",
-    "iai",
-    "iii"
+    "pap",
+    "ppp"
   ],
   "key": {
     "#": {
       "item": "elysium:neutronium_ingot"
     },
-    "i": {
-      "item": "minecraft:iron_block"
+    "p": {
+      "tag": "minecraft:planks"
     },
     "a": {
       "item": "minecraft:anvil"

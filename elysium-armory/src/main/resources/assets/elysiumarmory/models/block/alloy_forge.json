@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "elysiumarmory:block/alloy_forge_top",
+    "side": "elysiumarmory:block/alloy_forge_side",
+    "bottom": "elysiumarmory:block/alloy_forge_side"
+  }
+}

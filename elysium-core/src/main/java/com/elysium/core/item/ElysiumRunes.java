@@ -4,6 +4,7 @@ import com.elysium.core.Elysium;
 import com.elysium.lib.affix.ElysiumAffix;
 import com.elysium.lib.element.ElysiumElements;
 import com.elysium.lib.item.ElysiumRune;
+import com.elysium.lib.item.ElysiumRuneTiers;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -74,10 +75,15 @@ public final class ElysiumRunes {
             .element(ElysiumElements.VOID)
             .affix(affix("rune_voidward", Attributes.ARMOR_TOUGHNESS,
                     AttributeModifier.Operation.ADD_VALUE, 2.0F))
-            .effect((player, gear, aligned) -> {
+            .effect((player, gear, aligned, scale) -> {
                 if (player.getHealth() < player.getMaxHealth() * 0.4F) {
+                    // Resistance is a percentage of damage, so it follows
+                    // stat / (stat + b): tier 1 is level I (II aligned), and
+                    // every tier climbs toward level V without reaching it.
                     player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE,
-                            DURATION, aligned ? 1 : 0, false, false));
+                            DURATION, ElysiumRuneTiers.percentileAmplifier(
+                                    baseLevel(aligned), tier(scale),
+                                    ElysiumRuneTiers.RESISTANCE_PER_LEVEL), false, false));
                 }
             })
             .register();
@@ -87,10 +93,11 @@ public final class ElysiumRunes {
             .element(ElysiumElements.PLASMA)
             .affix(affix("rune_plasmaforge", Attributes.ATTACK_DAMAGE,
                     AttributeModifier.Operation.ADD_VALUE, 1.5F))
-            .effect((player, gear, aligned) -> {
+            .effect((player, gear, aligned, scale) -> {
                 if (player.getHealth() > player.getMaxHealth() * 0.7F) {
                     player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST,
-                            DURATION, aligned ? 1 : 0, false, false));
+                            DURATION, ElysiumRuneTiers.amplifier(baseLevel(aligned),
+                                    tier(scale)), false, false));
                 }
             })
             .register();
@@ -100,8 +107,10 @@ public final class ElysiumRunes {
             .element(ElysiumElements.NEURAL)
             .affix(affix("rune_neuralspike", Attributes.ATTACK_SPEED,
                     AttributeModifier.Operation.ADD_MULTIPLIED_BASE, 0.15F))
-            .effect((player, gear, aligned) -> player.addEffect(new MobEffectInstance(
-                    MobEffects.DIG_SPEED, DURATION, aligned ? 1 : 0, false, false)))
+            .effect((player, gear, aligned, scale) -> player.addEffect(new MobEffectInstance(
+                    MobEffects.DIG_SPEED, DURATION,
+                    ElysiumRuneTiers.amplifier(baseLevel(aligned), tier(scale)),
+                    false, false)))
             .register();
 
     /** Dimensionalshift: movement, and a soft landing once a fall gets dangerous. */
@@ -109,10 +118,11 @@ public final class ElysiumRunes {
             .element(ElysiumElements.DIMENSIONAL)
             .affix(affix("rune_dimensionalshift", Attributes.MOVEMENT_SPEED,
                     AttributeModifier.Operation.ADD_MULTIPLIED_BASE, 0.08F))
-            .effect((player, gear, aligned) -> {
+            .effect((player, gear, aligned, scale) -> {
                 if (player.fallDistance > 2.5F) {
                     player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,
-                            DURATION, aligned ? 1 : 0, false, false));
+                            DURATION, ElysiumRuneTiers.amplifier(baseLevel(aligned),
+                                    tier(scale)), false, false));
                 }
             })
             .register();
@@ -122,8 +132,10 @@ public final class ElysiumRunes {
             .element(ElysiumElements.KINETIC)
             .affix(affix("rune_kineticsurge", Attributes.KNOCKBACK_RESISTANCE,
                     AttributeModifier.Operation.ADD_VALUE, 0.10F))
-            .effect((player, gear, aligned) -> player.addEffect(new MobEffectInstance(
-                    MobEffects.JUMP, DURATION, aligned ? 1 : 0, false, false)))
+            .effect((player, gear, aligned, scale) -> player.addEffect(new MobEffectInstance(
+                    MobEffects.JUMP, DURATION,
+                    ElysiumRuneTiers.amplifier(baseLevel(aligned), tier(scale)),
+                    false, false)))
             .register();
 
     // ------------------------------------------------------------------
@@ -138,9 +150,9 @@ public final class ElysiumRunes {
      * flat option you take when you cannot get a match.
      */
     public static final ElysiumRune STABILIZER = ElysiumRune.builder(id("stabilizer"))
-            .effect((player, gear, aligned) -> {
+            .effect((player, gear, aligned, scale) -> {
                 if (player.getHealth() < player.getMaxHealth()) {
-                    player.heal(STABILIZER_HEAL);
+                    player.heal(STABILIZER_HEAL * scale);
                 }
             })
             .register();
@@ -180,13 +192,24 @@ public final class ElysiumRunes {
      * tick up to sixteen.
      */
     private static void rechargeBarrier(Player player, net.minecraft.world.item.ItemStack gear,
-                                        boolean aligned) {
-        int copies = ElysiumRune.countSocketed(player, BARRIER);
-        float cap = BARRIER_CAPACITY * copies;
+                                        boolean aligned, float scale) {
+        // Capacity is four per tier across everything worn: a tier-1 and a
+        // tier-3 Barrier hold sixteen. Each copy recharges by its own tier.
+        float cap = BARRIER_CAPACITY * ElysiumRune.tierSum(player, BARRIER);
         float current = player.getAbsorptionAmount();
         if (current < cap) {
-            player.setAbsorptionAmount(Math.min(cap, current + BARRIER_RECHARGE));
+            player.setAbsorptionAmount(Math.min(cap, current + BARRIER_RECHARGE * scale));
         }
+    }
+
+    /** A rune's potion level at tier 1: II in gear of its own element, I otherwise. */
+    private static int baseLevel(boolean aligned) {
+        return aligned ? 2 : 1;
+    }
+
+    /** The tier a scale was made from. Scales are whole numbers by construction. */
+    private static int tier(float scale) {
+        return Math.round(scale);
     }
 
     /** Touching this class registers all nine. */

@@ -1,0 +1,10 @@
+{
+  "name": "Fireproof",
+  "max_level": 1,
+  "description": "Cannot be destroyed when dropped in fire or lava",
+  "effects": [
+    {
+      "type": "fireproof"
+    }
+  ]
+}

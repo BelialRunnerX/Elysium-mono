@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:gold_seed",
+    "count": 1
+  }
+}

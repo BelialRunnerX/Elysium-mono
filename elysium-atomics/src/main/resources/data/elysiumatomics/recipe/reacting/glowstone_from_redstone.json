@@ -1,0 +1,11 @@
+{
+  "type": "elysiumatomics:reacting",
+  "input": {
+    "item": "minecraft:redstone"
+  },
+  "result": {
+    "id": "minecraft:glowstone_dust",
+    "count": 1
+  },
+  "ticks": 260
+}

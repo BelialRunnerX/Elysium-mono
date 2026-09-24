@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumenchanting:hellshelf",
+    "elysiumenchanting:deepshelf",
+    "elysiumenchanting:sightshelf",
+    "elysiumenchanting:endshelf",
+    "elysiumenchanting:keepers_shelf",
+    "elysiumenchanting:archive_column"
+  ]
+}

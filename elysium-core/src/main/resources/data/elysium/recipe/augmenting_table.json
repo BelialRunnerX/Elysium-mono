@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "aaa",
+    "v#v",
+    "sss"
+  ],
+  "key": {
+    "a": {
+      "item": "elysium:aetherium_ingot"
+    },
+    "v": {
+      "item": "elysium:voidglass_ingot"
+    },
+    "#": {
+      "item": "elysium:neutronium_ingot"
+    },
+    "s": {
+      "item": "minecraft:stone_bricks"
+    }
+  },
+  "result": {
+    "id": "elysium:augmenting_table",
+    "count": 1
+  }
+}

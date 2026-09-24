@@ -1,0 +1,35 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:pig_spawn_egg",
+      "count": 1
+    },
+    "title": {
+      "translate": "advancements.elysiumspawners.captured.title"
+    },
+    "description": {
+      "translate": "advancements.elysiumspawners.captured.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "egg": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#minecraft:spawn_eggs"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "egg"
+    ]
+  ],
+  "parent": "elysiumspawners:root"
+}

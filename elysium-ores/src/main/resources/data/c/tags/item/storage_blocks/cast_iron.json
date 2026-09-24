@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createbigcannons:cast_iron_block",
+      "required": false
+    },
+    {
+      "id": "tfmg:cast_iron_block",
+      "required": false
+    }
+  ]
+}

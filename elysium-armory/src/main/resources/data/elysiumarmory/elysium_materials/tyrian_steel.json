@@ -1,0 +1,93 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/tyrian_steel",
+    "categories": [
+      "metal",
+      "endgame"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/tyrian_steel"
+    }
+  },
+  "display": {
+    "name": "Tyrian Steel"
+  },
+  "properties": {
+    "main": {
+      "durability": 3652.0,
+      "armor_durability": 81.0,
+      "harvest_tier": "tyrian_steel",
+      "harvest_speed": 18.0,
+      "attack_damage": 8.0,
+      "attack_speed": 0.0,
+      "magic_damage": 6.0,
+      "ranged_damage": 4.0,
+      "draw_speed": 0.0,
+      "projectile_speed": 1.1,
+      "projectile_accuracy": 1.1,
+      "armor": 25.0,
+      "armor/helmet": 5.0,
+      "armor/chestplate": 9.0,
+      "armor/leggings": 7.0,
+      "armor/boots": 4.0,
+      "armor_toughness": 12.0,
+      "magic_armor": 12.0,
+      "enchantment_value": 16.0,
+      "charging_value": 1.1,
+      "rarity": 100.0,
+      "traits": [
+        {
+          "trait": "sturdy",
+          "level": 3,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        },
+        {
+          "trait": "void_ward",
+          "level": 1,
+          "conditions": [
+            "(count>=3 OR ratio>=0.5)"
+          ]
+        }
+      ]
+    },
+    "rod": {
+      "harvest_speed": {
+        "op": "add",
+        "value": -2.0
+      },
+      "traits": [
+        {
+          "trait": "sturdy",
+          "level": 4,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    },
+    "tip": {
+      "durability": {
+        "op": "add",
+        "value": 251.0
+      },
+      "harvest_tier": "tyrian_steel",
+      "rarity": {
+        "op": "add",
+        "value": 30.0
+      },
+      "traits": [
+        {
+          "trait": "imperial",
+          "level": 3
+        },
+        {
+          "trait": "gold_digger",
+          "level": 3
+        }
+      ]
+    }
+  }
+}

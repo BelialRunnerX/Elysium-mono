@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumagronomy:pot",
+    "elysiumagronomy:accelerator",
+    "elysiumagronomy:rock_generator",
+    "elysiumagronomy:driven_rock_generator",
+    "elysiumagronomy:industrial_rock_generator"
+  ]
+}

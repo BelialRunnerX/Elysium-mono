@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:constantan_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:constantan_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

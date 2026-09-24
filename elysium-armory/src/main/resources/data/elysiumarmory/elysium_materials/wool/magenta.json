@@ -1,0 +1,10 @@
+{
+  "type": "simple",
+  "parent": "elysiumarmory:wool",
+  "crafting": {
+    "ingredient": "minecraft:magenta_wool"
+  },
+  "display": {
+    "name": "Magenta Wool"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "type": "core",
+  "gear_type": "tool",
+  "part_type": "rod",
+  "crafting": {
+    "materials": 2,
+    "count": 4
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Jabberwocky",
+  "max_level": 1,
+  "description": "\u2019Twas brillig, and the slithy toves / Did gyre and gimble in the wabe",
+  "conditions": [
+    "on:harvest_tool"
+  ],
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

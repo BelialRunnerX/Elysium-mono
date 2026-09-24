@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "create:copper_nugget",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:nugget_copper",
+      "required": false
+    },
+    {
+      "id": "oritech:copper_nugget",
+      "required": false
+    }
+  ]
+}

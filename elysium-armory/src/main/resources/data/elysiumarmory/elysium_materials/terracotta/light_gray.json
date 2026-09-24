@@ -1,0 +1,10 @@
+{
+  "type": "simple",
+  "parent": "elysiumarmory:terracotta",
+  "crafting": {
+    "ingredient": "minecraft:light_gray_terracotta"
+  },
+  "display": {
+    "name": "Light Gray Terracotta"
+  }
+}

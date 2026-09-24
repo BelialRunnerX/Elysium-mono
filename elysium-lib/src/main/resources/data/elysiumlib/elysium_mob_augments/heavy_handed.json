@@ -1,0 +1,8 @@
+{
+  "weight": 8,
+  "min_tier": 1,
+  "attributes": {
+    "minecraft:generic.attack_knockback": 3.0,
+    "minecraft:generic.attack_damage": 1.2
+  }
+}

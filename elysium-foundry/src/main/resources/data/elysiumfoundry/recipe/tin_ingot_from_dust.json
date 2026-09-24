@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:tin_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:tin_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

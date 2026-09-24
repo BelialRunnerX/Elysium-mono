@@ -1,0 +1,5 @@
+{
+  "from": "elysiumlib:vitality",
+  "ingredient": "minecraft:glowstone_dust",
+  "to": "elysiumlib:strong_vitality"
+}

@@ -66,6 +66,28 @@ public class ElysiumTrinkets {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS =
             DeferredRegister.create(BuiltInRegistries.CREATIVE_MODE_TAB, MODID);
 
+    public static final DeferredRegister<net.minecraft.world.item.crafting.RecipeSerializer<?>>
+            RECIPES = DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, MODID);
+
+    /**
+     * The charm itself, empty.
+     *
+     * One item for every potion there is: what is in a charm is a component,
+     * so a charm of Regeneration and a charm of Night Vision are the same item
+     * carrying different contents — which is how a bottle works, and means a
+     * mod that adds a potion gets a charm for it without knowing this exists.
+     */
+    public static final DeferredHolder<Item, Item> POTION_CHARM =
+            ITEMS.register("potion_charm",
+                    () -> new com.elysium.trinkets.item.PotionCharmItem(new Item.Properties()));
+
+    public static final DeferredHolder<net.minecraft.world.item.crafting.RecipeSerializer<?>,
+            net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer<
+                    com.elysium.trinkets.recipe.PotionCharmRecipe>> POTION_CHARM_RECIPE =
+            RECIPES.register("potion_charm",
+                    () -> new net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer<>(
+                            com.elysium.trinkets.recipe.PotionCharmRecipe::new));
+
     /**
      * Item per trinket, in registration order.
      *
@@ -90,9 +112,19 @@ public class ElysiumTrinkets {
 
         // The one line that needs Curios to exist.
         CuriosSlots.install();
+        // And the one that needs the items to exist, which is why it waits.
+        modEventBus.addListener((net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent event)
+                -> event.enqueueWork(() -> {
+                    CuriosSlots.registerCharm();
+                    // Everything any other Elysium module declared wearable.
+                    // Setup runs after every mod's constructor, so the list is
+                    // complete by the time it is read.
+                    CuriosSlots.registerWearables();
+                }));
 
         ITEMS.register(modEventBus);
         CREATIVE_TABS.register(modEventBus);
+        RECIPES.register(modEventBus);
 
         LOGGER.info("Elysium Trinkets ready: {} found, {} crafted, {} slots",
                 UniqueTrinkets.ALL.length, CraftedTrinkets.ALL.length, slotCount());
@@ -144,6 +176,7 @@ public class ElysiumTrinkets {
                         for (DeferredHolder<Item, Item> item : allItems()) {
                             output.accept(item.get());
                         }
+                        output.accept(POTION_CHARM.get());
                     })
                     .build());
 }

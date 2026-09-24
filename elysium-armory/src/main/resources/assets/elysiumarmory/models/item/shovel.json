@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarmory:item/shovel",
+    "layer1": "elysiumarmory:item/shovel_grip"
+  }
+}

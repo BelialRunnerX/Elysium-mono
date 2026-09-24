@@ -1,0 +1,42 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "side": "elysiumindustry:block/gold_wire",
+    "end": "elysiumindustry:block/gold_wire_end",
+    "particle": "elysiumindustry:block/gold_wire"
+  },
+  "elements": [
+    {
+      "from": [
+        6,
+        6,
+        6
+      ],
+      "to": [
+        10,
+        10,
+        10
+      ],
+      "faces": {
+        "down": {
+          "texture": "#end"
+        },
+        "up": {
+          "texture": "#end"
+        },
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        }
+      }
+    }
+  ]
+}

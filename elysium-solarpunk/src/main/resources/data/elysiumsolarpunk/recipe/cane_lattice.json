@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "wb",
+    "bw"
+  ],
+  "key": {
+    "w": {
+      "item": "elysiumsolarpunk:woven_cane"
+    },
+    "b": {
+      "item": "minecraft:bamboo"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:cane_lattice",
+    "count": 4
+  }
+}

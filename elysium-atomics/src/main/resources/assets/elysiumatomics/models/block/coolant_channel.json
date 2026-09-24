@@ -1,0 +1,44 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "side": "elysiumatomics:block/coolant_channel",
+    "end": "elysiumatomics:block/coolant_channel_end",
+    "particle": "elysiumatomics:block/coolant_channel"
+  },
+  "elements": [
+    {
+      "from": [
+        2.0,
+        0,
+        2.0
+      ],
+      "to": [
+        14.0,
+        16,
+        14.0
+      ],
+      "faces": {
+        "down": {
+          "texture": "#end",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#end",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        }
+      }
+    }
+  ]
+}

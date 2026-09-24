@@ -109,6 +109,30 @@ def preamble_values(preamble):
     return values
 
 
+def merged_license(licenses, mods_by_module):
+    """
+    One licence line for several modules.
+
+    All the same: that licence. Otherwise the most common one, then each
+    exception with the mod ids it covers, e.g.
+    "MIT; elysiumspace: CC BY-NC-SA 4.0 (...)". Every mod's licence is stated
+    and none is claimed for a mod it does not cover.
+    """
+    distinct = sorted(set(licenses.values()))
+    if len(distinct) == 1:
+        return distinct[0]
+    counts = {lic: sum(1 for v in licenses.values() if v == lic) for lic in distinct}
+    main = max(distinct, key=lambda lic: (counts[lic], lic))
+    parts = [main]
+    for lic in distinct:
+        if lic == main:
+            continue
+        ids = sorted(m for name, v in licenses.items() if v == lic
+                     for m in mods_by_module.get(name, [name]))
+        parts.append(", ".join(ids) + ": " + lic)
+    return "; ".join(parts).replace('"', "'")
+
+
 def combine(sources, issue_tracker_url, banner=None):
     """
     One mods.toml from several.
@@ -136,8 +160,12 @@ def combine(sources, issue_tracker_url, banner=None):
                     if match:
                         seen_mod_ids.append(match.group(1))
 
-    # Agreement on the things a merged file can only say once.
-    for key in ("modLoader", "loaderVersion", "license"):
+    # Agreement on the things a merged file can only say once. The licence is
+    # not one of them any more: elysium-space is CC BY-NC-SA (it is derived
+    # from Stellaris) while the rest are MIT. The merged file names every
+    # licence and which mods are under it (see merged_license), rather than
+    # declaring one and misdeclaring the others.
+    for key in ("modLoader", "loaderVersion"):
         answers = {name: values.get(key) for name, values in preambles.items()}
         distinct = set(answers.values())
         if len(distinct) > 1:
@@ -147,6 +175,18 @@ def combine(sources, issue_tracker_url, banner=None):
                 f"of the six mods")
         if not distinct or None in distinct:
             raise ValueError(f"no module declares {key}")
+
+    licenses = {name: values.get("license") for name, values in preambles.items()}
+    if None in licenses.values():
+        raise ValueError("a module declares no license: "
+                         f"{sorted(n for n, v in licenses.items() if v is None)}")
+    mods_by_module = {}
+    for name, lead, header, body in merged_blocks:
+        if header.strip() == "[[mods]]":
+            for line in body:
+                match = re.match(r'\s*modId\s*=\s*"([^"]+)"', line)
+                if match:
+                    mods_by_module.setdefault(name, []).append(match.group(1))
 
     shared = next(iter(preambles.values()))
     duplicates = sorted({m for m in seen_mod_ids if seen_mod_ids.count(m) > 1})
@@ -159,7 +199,7 @@ def combine(sources, issue_tracker_url, banner=None):
         out.append("")
     out.append(f'modLoader="{shared["modLoader"]}"')
     out.append(f'loaderVersion="{shared["loaderVersion"]}"')
-    out.append(f'license="{shared["license"]}"')
+    out.append(f'license="{merged_license(licenses, mods_by_module)}"')
     out.append(f'issueTrackerURL="{issue_tracker_url}"')
 
     # Mods first, then every dependency block. The loader does not care about

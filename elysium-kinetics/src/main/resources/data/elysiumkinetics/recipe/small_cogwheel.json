@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " P ",
+    "PSP",
+    " P "
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "S": {
+      "item": "elysiumkinetics:timber_shaft"
+    }
+  },
+  "result": {
+    "id": "elysiumkinetics:small_cogwheel",
+    "count": 1
+  }
+}

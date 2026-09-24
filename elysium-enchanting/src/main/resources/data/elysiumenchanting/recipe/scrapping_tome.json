@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "fbf"
+  ],
+  "key": {
+    "f": {
+      "item": "minecraft:flint"
+    },
+    "b": {
+      "item": "minecraft:book"
+    }
+  },
+  "result": {
+    "id": "elysiumenchanting:scrapping_tome",
+    "count": 1
+  }
+}

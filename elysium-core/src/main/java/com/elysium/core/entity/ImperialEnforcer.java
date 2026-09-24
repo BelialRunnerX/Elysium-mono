@@ -66,7 +66,7 @@ public class ImperialEnforcer extends Zombie {
             default -> Elysium.VOIDCUT_BLADE.get();
         };
         setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(weapon));
-        setDropChance(EquipmentSlot.MAINHAND, band >= 3 ? 0.08F : 0.04F);
+        setDropChance(EquipmentSlot.MAINHAND, band >= 3 ? 0.03F : 0.015F);
 
         // Higher bands arrive in more of the set, so an enforcer's silhouette
         // tells you how much trouble you are in before it reaches you.

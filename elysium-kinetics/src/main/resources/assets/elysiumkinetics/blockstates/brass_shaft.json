@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumkinetics:block/brass_shaft"
+    },
+    "axis=x": {
+      "model": "elysiumkinetics:block/brass_shaft",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/brass_shaft",
+      "x": 90
+    }
+  }
+}

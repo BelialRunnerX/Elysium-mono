@@ -1,0 +1,13 @@
+{
+  "name": "Turtle",
+  "max_level": 1,
+  "description": "Hold your breath for longer",
+  "conditions": [
+    "any:on:helmet,on:curio"
+  ],
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

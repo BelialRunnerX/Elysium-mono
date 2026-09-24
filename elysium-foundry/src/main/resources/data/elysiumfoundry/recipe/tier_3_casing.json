@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PPP",
+    "PGP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "item": "elysiumfoundry:stainless_plate"
+    },
+    "G": {
+      "item": "elysiumfoundry:stainless_gear"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:tier_3_casing",
+    "count": 2
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "structures": [
+    {
+      "structure": "elysiumenchanting:tome_tower",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 671194422,
+    "spacing": 44,
+    "separation": 16,
+    "frequency": 0.6
+  }
+}

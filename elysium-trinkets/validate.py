@@ -38,6 +38,29 @@ def load(rel):
         return json.load(handle)
 
 
+def load_maybe(rel):
+    """The file, or None. For checks that want to say why it is missing."""
+    return load(rel) if exists(rel) else None
+
+
+def read_java(rel, keep_comments=False):
+    """
+    One source file, or an empty string.
+
+    Comments are stripped by default. A rule that asks whether a file still
+    calls something passes for ever once the javadoc above it mentions the
+    name — which is exactly the failure this project keeps finding.
+    """
+    path = os.path.join(JAVA, rel)
+    if not os.path.isfile(path):
+        return ""
+    text = open(path, encoding="utf-8").read()
+    if keep_comments:
+        return text
+    text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+    return re.sub(r"//[^\n]*", " ", text)
+
+
 # ---------------------------------------------------------------------------
 # The table, read from the Java that registers it
 # ---------------------------------------------------------------------------
@@ -201,6 +224,92 @@ for path, _element, _slot, _level, is_crafted in trinkets:
              f"made; a craftable unique is neither")
 
 # ---------------------------------------------------------------------------
+# The potion charm (SPEC_CLONE P12.3)
+# ---------------------------------------------------------------------------
+#
+# One item holding any potion there is, which is a different shape from every
+# other trinket in this module: what it does is on the stack rather than in a
+# passive, so none of the checks above see it at all.
+
+
+def charm_file(path):
+    return os.path.join(RES, path)
+
+
+charm_item = read_java("item/PotionCharmItem.java")
+charm_handler = read_java("event/PotionCharmHandler.java")
+charm_recipe = read_java("recipe/PotionCharmRecipe.java")
+charm_client = read_java("client/TrinketsClient.java")
+curios_slots = read_java("CuriosSlots.java")
+
+if not charm_item or not charm_handler or not charm_recipe:
+    fail("the potion charm is missing one of its three parts: the item, the handler "
+         "that keeps its effect going, or the recipe that fills it")
+else:
+    if "isInstantenous()" not in charm_item or "isBeneficial()" not in charm_item:
+        fail("a charm will take any potion at all. An instant potion in one fires every "
+             "few seconds forever, and a harmful one is a charm whose only use is on "
+             "somebody else — which is not a thing a worn item can be")
+    if "durability(" not in charm_item:
+        fail("a charm never wears out, so one potion is every potion forever")
+    if "working(" not in charm_handler:
+        fail("the handler does not ask whether a charm is spent or empty before using it")
+    if "setDamageValue(" not in charm_handler:
+        fail("wearing a charm costs nothing")
+    if "hurtAndBreak" in charm_handler or "shrink(" in charm_handler:
+        fail("a spent charm is destroyed rather than going inert. A charm is an "
+             "investment, and an investment that vanishes is one nobody makes twice")
+    if "tickCount % PotionCharmItem.INTERVAL" not in charm_handler:
+        fail("the charm is looked at every tick rather than on an interval, which puts "
+             "an inventory scan into every tick of every player")
+    if "PotionCharmItem.allowed(" not in charm_handler:
+        fail("the handler applies whatever is in the charm rather than what a charm is "
+             "allowed to hold")
+    if "getEffect(" not in charm_handler or "REFRESH_AT" not in charm_handler:
+        fail("the charm re-applies its effect whether or not the wearer already has it, "
+             "so it costs durability for doing nothing")
+    if "PotionCharmItem.allowed(contents)" not in charm_recipe:
+        fail("the bench will fill a charm with something the charm cannot use, so a "
+             "player finds out by wearing an inert one")
+    if "GLASS_BOTTLE" not in charm_recipe:
+        fail("filling a charm eats the bottle, which no vanilla recipe that drinks one "
+             "does")
+    if "already.equals(contents)" not in charm_recipe:
+        fail("a charm holding one potion is refilled by a different one, which is a free "
+             "swap that throws away what was in it")
+    if "setDamageValue(0)" not in charm_recipe:
+        fail("refilling a charm does not restore it, so a spent charm stays spent")
+    if "CuriosApi.registerCurio(" not in curios_slots:
+        fail("nothing tells Curios the charm is wearable, so it cannot be put in a slot")
+    if "wornCharms(" not in curios_slots:
+        fail("nothing asks Curios where the charm is worn")
+    charm_model = load_maybe(f"assets/{MOD}/models/item/potion_charm.json")
+    if charm_model is None:
+        fail("the charm has no model")
+    else:
+        layers = charm_model.get("textures", {})
+        if "layer0" not in layers or "layer1" not in layers:
+            fail("the charm's model has one layer. A charm holds any potion there is, so "
+                 "its colour has to come from the potion — which needs a layer to paint")
+    for path in (f"assets/{MOD}/textures/item/potion_charm.png",
+                 f"assets/{MOD}/textures/item/potion_charm_fill.png"):
+        if not os.path.isfile(charm_file(path)):
+            fail(f"the charm is missing {path}")
+    if "TINTED_LAYER" not in charm_client or "getColor()" not in charm_client:
+        fail("nothing paints the charm with the colour of what is in it, so every charm "
+             "in a hotbar looks like every other")
+    charm_tag = load_maybe("data/curios/tags/item/charm.json") or {}
+    if f"{MOD}:potion_charm" not in charm_tag.get("values", []):
+        fail("the charm is not in the charm slot's tag, so it cannot be worn")
+    for key in (f"item.{MOD}.potion_charm", f"item.{MOD}.potion_charm.of",
+                f"item.{MOD}.potion_charm.worn", f"item.{MOD}.potion_charm.empty",
+                f"item.{MOD}.potion_charm.spent"):
+        if key not in lang:
+            fail(f"the charm shows {key} and nothing translates it")
+    print("potion charm       : fills, refills, wears out and goes inert rather than "
+          "breaking")
+
+# ---------------------------------------------------------------------------
 # Recipe shape
 # ---------------------------------------------------------------------------
 #
@@ -208,6 +317,18 @@ for path, _element, _slot, _level, is_crafted in trinkets:
 # this project to need the check and the first to have it before shipping: 229
 # recipes in elysium-core failed to load for exactly this, silently, and the
 # only trace was one line per recipe during a resource reload.
+
+# Everything this module registers that is not a trinket. Read out of the Java
+# rather than listed here, so an item added there cannot be missing from here.
+_mod_source = open(os.path.join(JAVA, "ElysiumTrinkets.java"), encoding="utf-8").read()
+OTHER_ITEMS = set(re.findall(r'ITEMS\.register\(\s*"(\w+)"', _mod_source))
+
+# Recipe types whose result is computed. The type is the serializer's id, and
+# the serializer has to be one this module registers.
+DYNAMIC_RECIPES = {f"{MOD}:{name}" for name
+                   in re.findall(r'RECIPES\.register\(\s*"(\w+)"', _mod_source)}
+if not DYNAMIC_RECIPES:
+    fail("no recipe serializer is registered, so the charm cannot be filled")
 
 _before = len(problems)
 recipe_dir = os.path.join(RES, f"data/{MOD}/recipe")
@@ -237,11 +358,21 @@ if os.path.isdir(recipe_dir):
             if declared - used:
                 fail(f"{where}: declares unused key(s) {declared - used}")
 
+        if recipe.get("type") in DYNAMIC_RECIPES:
+            # A recipe whose result is worked out in Java rather than written
+            # down. There is exactly one, it has hundreds of results — a charm
+            # of every potion there is — and its serializer is checked below
+            # instead: a file naming a serializer nobody registered is a recipe
+            # that silently does not exist.
+            continue
+
         result = recipe.get("result", {})
         if "item" in result and "id" not in result:
             fail(f"{where}: result uses the pre-1.21 \"item\" key; it is \"id\" now")
-        if result.get("id", "").split(":")[-1] not in names:
-            fail(f"{where}: result {result.get('id')} is not a registered trinket")
+        made = result.get("id", "").split(":")[-1]
+        if made not in names and made not in OTHER_ITEMS:
+            fail(f"{where}: result {result.get('id')} is neither a registered trinket nor "
+                 f"one of this module's other items")
 
 if len(problems) == _before:
     print(f"recipes            : {len(crafted)} crafted trinkets, all with a valid recipe")
@@ -281,6 +412,53 @@ for dirpath, _, filenames in os.walk(RES):
                 json.load(open(os.path.join(dirpath, filename), encoding="utf-8"))
             except Exception as exc:
                 fail(f"invalid JSON {os.path.join(dirpath, filename)}: {exc}")
+
+# ---------------------------------------------------------------------------
+# The accessory bridge, and the second question it now answers
+# ---------------------------------------------------------------------------
+#
+# This module owns the only file in the project that knows Curios exists, and
+# it now answers two questions rather than one: what trinkets is this player
+# wearing, and what *stacks* are in their accessory slots. The second is what
+# lets a modular ring, an affixed amulet or another mod's charm be asked what
+# effects it carries, exactly as a helmet is.
+
+_SRC = os.path.join(WORK, "src/main/java/com/elysium/trinkets")
+_slots = open(os.path.join(_SRC, "CuriosSlots.java"), encoding="utf-8").read()
+_trinkets_main = open(os.path.join(_SRC, "ElysiumTrinkets.java"), encoding="utf-8").read()
+
+if "setStackProvider(" not in _slots:
+    fail("the engine is never told what is in an accessory slot, so a worn ring's "
+         "effects do nothing and jewellery is an item you can make and not use")
+if "registerWearables" not in _slots:
+    fail("nothing registers the items other modules declared wearable, so a modular "
+         "ring cannot go in a slot at all")
+if "registerWearables" not in _trinkets_main:
+    fail("the wearables are registered by a method nobody calls")
+if "FMLCommonSetupEvent" not in _trinkets_main:
+    fail("the curio registration runs from the mod constructor, where the items do "
+         "not exist yet")
+if "ElysiumWearables.all()" not in _slots:
+    fail("the bridge keeps its own list of what is wearable instead of reading the "
+         "library's, so a module that adds jewellery has to edit this one")
+# The comparison itself, not the name: the javadoc above it says
+# "EquipmentSlotGroup.ANY" too, and a rule a comment can satisfy is no rule.
+if "entry.slot() == net.minecraft.world.entity.EquipmentSlotGroup.ANY" not in _slots:
+    fail("everything a stack grants is published when it is worn in an accessory "
+         "slot, so a sword in a charm slot hands over its attack damage")
+_granted = _slots[_slots.find("granted(ItemStack stack)"):]
+if "ATTRIBUTE_MODIFIERS" not in _granted[:2000]:
+    fail("a worn accessory's modifiers are invented here rather than read off the "
+         "stack, so the bridge has to know what every wearable item is made of")
+# The cache is not optional: this is read on the damage path.
+if "STACKS.remove(" not in _slots:
+    fail("the accessory cache is never emptied for a player who logs out, so a long "
+         "server grows a map forever")
+if "player.tickCount" not in _slots:
+    fail("the accessory scan is not cached against the tick, so an inventory walk "
+         "lands in the damage path several times a swing")
+
+print("accessory bridge   : two questions, one file, cached against the tick")
 
 print(f"json files parsed  : {count}")
 print()

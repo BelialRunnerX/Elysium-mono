@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " o ",
+    "oIo",
+    " o "
+  ],
+  "key": {
+    "o": {
+      "item": "minecraft:obsidian"
+    },
+    "I": {
+      "item": "minecraft:redstone_torch"
+    }
+  },
+  "result": {
+    "id": "elysiumspawners:rune_of_obedience",
+    "count": 2
+  }
+}

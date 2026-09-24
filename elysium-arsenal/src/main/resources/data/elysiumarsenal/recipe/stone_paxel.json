@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "ABC",
+    " S ",
+    " S "
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:stone_pickaxe"
+    },
+    "B": {
+      "item": "minecraft:stone_axe"
+    },
+    "C": {
+      "item": "minecraft:stone_shovel"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:stone_paxel",
+    "count": 1
+  }
+}

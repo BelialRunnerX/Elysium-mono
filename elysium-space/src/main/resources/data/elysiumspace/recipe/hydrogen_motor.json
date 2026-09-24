@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "DDD",
+    "EGG",
+    "DDD"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "E": {
+      "tag": "c:storage_blocks/lunite"
+    },
+    "G": {
+      "item": "elysiumspace:rime_shard"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:hydrogen_motor"
+  }
+}

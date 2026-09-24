@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "elysiumsolarpunk:alabaster"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:alabaster_slab",
+    "count": 6
+  }
+}

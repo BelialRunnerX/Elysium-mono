@@ -1,0 +1,13 @@
+{
+  "name": "Cure Poison",
+  "max_level": 1,
+  "description": "Removes poison effect when equipped",
+  "effects": [
+    {
+      "type": "cancel_effects",
+      "effects": [
+        "minecraft:poison"
+      ]
+    }
+  ]
+}

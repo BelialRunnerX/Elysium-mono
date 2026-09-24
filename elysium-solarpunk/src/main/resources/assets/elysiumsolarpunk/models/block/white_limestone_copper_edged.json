@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "elysiumsolarpunk:block/white_limestone_copper_edged"
+  }
+}

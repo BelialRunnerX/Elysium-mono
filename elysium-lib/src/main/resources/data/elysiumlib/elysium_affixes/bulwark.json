@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "shield"
+  ],
+  "min_tier": 0,
+  "weight": 12,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "minecraft:generic.knockback_resistance",
+          "operation": "add_value",
+          "slot": "any",
+          "min": 0.05,
+          "max": 0.2,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

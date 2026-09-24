@@ -1,0 +1,77 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/aluminum",
+    "categories": [
+      "metal",
+      "intermediate"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/aluminum"
+    }
+  },
+  "display": {
+    "name": "Aluminum"
+  },
+  "properties": {
+    "main": {
+      "durability": 365.0,
+      "armor_durability": 15.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 8.0,
+      "attack_damage": 2.0,
+      "attack_speed": 0.2,
+      "magic_damage": 2.0,
+      "ranged_damage": 2.0,
+      "draw_speed": 0.2,
+      "armor": 14.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 6.0,
+      "armor/leggings": 4.0,
+      "armor/boots": 2.0,
+      "armor_toughness": 0.5,
+      "magic_armor": 3.0,
+      "enchantment_value": 14.0,
+      "charging_value": 0.9,
+      "rarity": 25.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        },
+        {
+          "trait": "soft",
+          "level": 2,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        },
+        {
+          "trait": "synergistic",
+          "level": 1
+        }
+      ]
+    },
+    "rod": {
+      "durability": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "ranged_damage": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "rarity": 30.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        },
+        {
+          "trait": "synergistic",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

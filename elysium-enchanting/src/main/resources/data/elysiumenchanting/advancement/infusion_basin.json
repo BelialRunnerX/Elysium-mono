@@ -1,0 +1,35 @@
+{
+  "display": {
+    "icon": {
+      "id": "elysiumenchanting:infusion_basin",
+      "count": 1
+    },
+    "title": {
+      "translate": "advancements.elysiumenchanting.infusion_basin.title"
+    },
+    "description": {
+      "translate": "advancements.elysiumenchanting.infusion_basin.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "basin": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "elysiumenchanting:infusion_basin"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "basin"
+    ]
+  ],
+  "parent": "elysiumenchanting:enchanted"
+}

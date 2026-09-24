@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "create:golden_sheet",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:plate_gold",
+      "required": false
+    }
+  ]
+}

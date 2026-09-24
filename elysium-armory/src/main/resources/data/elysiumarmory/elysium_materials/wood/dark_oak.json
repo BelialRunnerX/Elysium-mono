@@ -1,0 +1,10 @@
+{
+  "type": "simple",
+  "parent": "elysiumarmory:wood",
+  "crafting": {
+    "ingredient": "minecraft:dark_oak_planks"
+  },
+  "display": {
+    "name": "Dark Oak Wood"
+  }
+}

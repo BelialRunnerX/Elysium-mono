@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "armor"
+  ],
+  "min_tier": 2,
+  "weight": 6,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "elysiumlib:healing_received",
+          "operation": "add_value",
+          "slot": "any",
+          "min": 0.05,
+          "max": 0.25,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

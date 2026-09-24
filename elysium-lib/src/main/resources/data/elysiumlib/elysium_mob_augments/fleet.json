@@ -1,0 +1,7 @@
+{
+  "weight": 12,
+  "min_tier": 1,
+  "attributes": {
+    "minecraft:generic.movement_speed": 1.35
+  }
+}

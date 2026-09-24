@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:deepslate_steel_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_steel_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:steel_ore",
+      "required": false
+    },
+    "elysiumores:cinder_steel_ore",
+    "elysiumores:end_stone_steel_ore",
+    "elysiumores:frost_steel_ore",
+    "elysiumores:netherrack_steel_ore"
+  ]
+}

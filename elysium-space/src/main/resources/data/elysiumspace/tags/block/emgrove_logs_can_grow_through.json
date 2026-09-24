@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:mud",
+    "minecraft:moss_carpet",
+    "minecraft:vine",
+    "elysiumspace:muddy_emgrove_roots",
+    "elysiumspace:emgrove_roots",
+    "elysiumspace:emgrove_leaves",
+    "elysiumspace:emgrove_log",
+    "elysiumspace:emgrove_propagule"
+  ]
+}

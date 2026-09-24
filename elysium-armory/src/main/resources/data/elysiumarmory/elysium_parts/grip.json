@@ -1,0 +1,8 @@
+{
+  "type": "core",
+  "gear_type": "tool",
+  "part_type": "grip",
+  "crafting": {
+    "materials": 1
+  }
+}

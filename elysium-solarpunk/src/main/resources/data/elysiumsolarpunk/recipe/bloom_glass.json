@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:glass"
+    },
+    {
+      "item": "elysiumsolarpunk:bloom_resin"
+    }
+  ],
+  "result": {
+    "id": "elysiumsolarpunk:bloom_glass",
+    "count": 1
+  }
+}

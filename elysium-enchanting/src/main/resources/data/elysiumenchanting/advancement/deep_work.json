@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:experience_bottle",
+      "count": 1
+    },
+    "title": {
+      "translate": "advancements.elysiumenchanting.deep_work.title"
+    },
+    "description": {
+      "translate": "advancements.elysiumenchanting.deep_work.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "expensive": {
+      "trigger": "minecraft:enchanted_item",
+      "conditions": {
+        "levels": {
+          "min": 30
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "expensive"
+    ]
+  ],
+  "parent": "elysiumenchanting:enchanted"
+}

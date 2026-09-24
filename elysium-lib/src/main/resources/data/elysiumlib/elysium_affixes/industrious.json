@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "harvest_tool"
+  ],
+  "min_tier": 0,
+  "weight": 12,
+  "max_level": 4,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "elysiumlib:mining_speed",
+          "operation": "add_value",
+          "slot": "mainhand",
+          "min": 0.5,
+          "max": 2.5,
+          "levels": 4
+        }
+      ]
+    }
+  ]
+}

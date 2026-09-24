@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumsolarpunk:block/wind_capstan"
+    },
+    "facing=east": {
+      "model": "elysiumsolarpunk:block/wind_capstan",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumsolarpunk:block/wind_capstan",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumsolarpunk:block/wind_capstan",
+      "y": 270
+    }
+  }
+}

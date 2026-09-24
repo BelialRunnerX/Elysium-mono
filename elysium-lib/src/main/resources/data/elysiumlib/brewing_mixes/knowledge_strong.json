@@ -1,0 +1,5 @@
+{
+  "from": "elysiumlib:knowledge",
+  "ingredient": "minecraft:glowstone_dust",
+  "to": "elysiumlib:strong_knowledge"
+}

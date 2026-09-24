@@ -1,0 +1,11 @@
+{
+  "type": "core",
+  "gear_type": "chestplate",
+  "part_type": "main",
+  "crafting": {
+    "materials": 8
+  },
+  "properties": {
+    "repair_efficiency": 1.0
+  }
+}

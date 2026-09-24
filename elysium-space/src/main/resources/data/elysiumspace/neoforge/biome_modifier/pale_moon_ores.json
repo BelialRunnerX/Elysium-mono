@@ -1,0 +1,14 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": [
+    "elysiumspace:pale_moon_desert",
+    "elysiumspace:pale_moon_caves"
+  ],
+  "features": [
+    "elysiumspace:lunite_ore",
+    "elysiumspace:pale_steel_ore",
+    "elysiumspace:pale_iron_ore",
+    "elysiumspace:pale_rime_shard_ore"
+  ],
+  "step": "underground_ores"
+}

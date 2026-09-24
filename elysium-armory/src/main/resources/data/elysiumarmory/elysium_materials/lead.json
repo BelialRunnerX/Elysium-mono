@@ -1,0 +1,68 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/lead",
+    "categories": [
+      "metal",
+      "intermediate"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/lead"
+    }
+  },
+  "display": {
+    "name": "Lead"
+  },
+  "properties": {
+    "main": {
+      "durability": 260.0,
+      "armor_durability": 14.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 4.0,
+      "attack_damage": 2.0,
+      "attack_speed": -0.4,
+      "magic_damage": 2.0,
+      "ranged_damage": 1.0,
+      "draw_speed": -0.3,
+      "armor": 13.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 5.0,
+      "armor/leggings": 4.0,
+      "armor/boots": 2.0,
+      "magic_armor": 4.0,
+      "enchantment_value": 15.0,
+      "charging_value": 0.8,
+      "rarity": 40.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        },
+        {
+          "trait": "aquatic",
+          "level": 2,
+          "conditions": [
+            "(count>=3 OR ratio>=0.35)"
+          ]
+        }
+      ]
+    },
+    "rod": {
+      "durability": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": -0.1
+      },
+      "rarity": 40.0,
+      "traits": [
+        {
+          "trait": "soft",
+          "level": 4
+        }
+      ]
+    }
+  }
+}

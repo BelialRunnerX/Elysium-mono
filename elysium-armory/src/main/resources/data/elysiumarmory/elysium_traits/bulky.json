@@ -1,0 +1,20 @@
+{
+  "name": "Bulky",
+  "max_level": 5,
+  "description": "TODO, not tested",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "property",
+      "modifiers": {
+        "attack_speed": {
+          "per_level": -0.075,
+          "damage_ratio": true,
+          "of_value": false
+        }
+      }
+    }
+  ]
+}

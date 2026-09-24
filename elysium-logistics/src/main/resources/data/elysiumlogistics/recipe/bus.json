@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PWP"
+  ],
+  "key": {
+    "P": {
+      "tag": "c:plates/iron"
+    },
+    "W": {
+      "item": "elysiumindustry:copper_wire"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:bus",
+    "count": 4
+  }
+}

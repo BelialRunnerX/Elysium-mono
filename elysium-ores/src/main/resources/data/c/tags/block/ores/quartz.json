@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_quartz_ore",
+    "elysiumores:deepslate_quartz_ore",
+    "elysiumores:end_stone_quartz_ore",
+    "elysiumores:frost_quartz_ore",
+    "elysiumores:pale_quartz_ore",
+    "elysiumores:stone_quartz_ore"
+  ]
+}

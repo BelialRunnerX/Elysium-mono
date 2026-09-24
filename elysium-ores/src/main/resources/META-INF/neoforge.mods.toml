@@ -1,0 +1,52 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+issueTrackerURL="https://github.com/BelialRunnerX/elysium-ores/issues"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description='''
+${mod_description}
+'''
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+# The engine. Ore yield reads the world tier, and nothing else here needs a
+# sibling module.
+[[dependencies.${mod_id}]]
+    modId="elysiumlib"
+    type="required"
+    versionRange="[1.0.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+# Every mod this module unifies is optional and named nowhere in Java. A
+# material is a tag; a tag with nothing in it is a family that does not exist
+# in this pack, and a family that does not exist generates no ore and gets no
+# conversion recipe. Loading this module next to vanilla alone is a supported
+# configuration and its validator enforces that: no import, no ModList check,
+# no hard-coded item id belonging to another mod.
+#
+# Ordered AFTER the stone that Elysium's own worlds are made of, so an ore
+# hosted in cinder stone finds its host registered.
+[[dependencies.${mod_id}]]
+    modId="elysiumspace"
+    type="optional"
+    versionRange="[1.0.0,)"
+    ordering="AFTER"
+    side="BOTH"

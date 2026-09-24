@@ -1,0 +1,10 @@
+{
+  "type": "simple",
+  "parent": "elysiumarmory:wood",
+  "crafting": {
+    "ingredient": "minecraft:spruce_planks"
+  },
+  "display": {
+    "name": "Spruce Wood"
+  }
+}

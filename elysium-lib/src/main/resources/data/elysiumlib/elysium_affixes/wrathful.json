@@ -1,0 +1,32 @@
+{
+  "type": "prefix",
+  "on": [
+    "melee_weapon"
+  ],
+  "min_tier": 3,
+  "weight": 3,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "elysiumlib:crit_damage",
+          "operation": "add_value",
+          "slot": "mainhand",
+          "min": 0.15,
+          "max": 0.45,
+          "levels": 3
+        },
+        {
+          "attribute": "elysiumlib:life_steal",
+          "operation": "add_value",
+          "slot": "mainhand",
+          "min": 0.02,
+          "max": 0.06,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Racker",
+  "max_level": 1,
+  "description": "Places netherrack at the cost of durability",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "block_placer",
+      "block": "minecraft:netherrack",
+      "cost": 3,
+      "cooldown": 0
+    }
+  ]
+}

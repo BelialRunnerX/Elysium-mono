@@ -1,0 +1,16 @@
+{
+  "type": "prefix",
+  "on": [
+    "harvest_tool"
+  ],
+  "min_tier": 0,
+  "weight": 12,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "durability",
+      "chance_per_level": 0.05,
+      "amount": -1
+    }
+  ]
+}

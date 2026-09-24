@@ -1,0 +1,14 @@
+{
+  "dimension": "minecraft:the_nether",
+  "natives": [
+    "quartz",
+    "gold",
+    "lead",
+    "zinc",
+    "nickel"
+  ],
+  "hazard": 0.0,
+  "air": "breathable",
+  "reach": 1,
+  "style": ""
+}

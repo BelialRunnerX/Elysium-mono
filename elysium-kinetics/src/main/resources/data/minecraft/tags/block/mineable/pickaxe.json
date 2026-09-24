@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumkinetics:brass_shaft",
+    "elysiumkinetics:millstone",
+    "elysiumkinetics:gearbox",
+    "elysiumkinetics:windmill_bearing",
+    "elysiumkinetics:press",
+    "elysiumkinetics:mixer"
+  ]
+}

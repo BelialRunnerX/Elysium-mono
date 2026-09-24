@@ -1,0 +1,85 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/refined_glowstone",
+    "categories": [
+      "metal",
+      "advanced"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/refined_glowstone"
+    }
+  },
+  "display": {
+    "name": "Refined Glowstone"
+  },
+  "properties": {
+    "main": {
+      "durability": 300.0,
+      "armor_durability": 18.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 14.0,
+      "attack_damage": 5.0,
+      "attack_speed": 0.0,
+      "magic_damage": 3.0,
+      "ranged_damage": 3.0,
+      "draw_speed": 0.0,
+      "armor": 19.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 7.0,
+      "armor/leggings": 6.0,
+      "armor/boots": 3.0,
+      "magic_armor": 8.0,
+      "enchantment_value": 18.0,
+      "charging_value": 0.8,
+      "rarity": 45.0,
+      "repair_value": 0.15,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        },
+        {
+          "trait": "lustrous",
+          "level": 4
+        }
+      ]
+    },
+    "rod": {
+      "durability": {
+        "op": "multiply_total",
+        "value": -0.1
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "rarity": 45.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 4
+        },
+        {
+          "trait": "lustrous",
+          "level": 1,
+          "conditions": [
+            "ratio>=0.75"
+          ]
+        }
+      ]
+    },
+    "tip": {
+      "harvest_speed": {
+        "op": "add",
+        "value": 5.0
+      },
+      "traits": [
+        {
+          "trait": "refractive",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

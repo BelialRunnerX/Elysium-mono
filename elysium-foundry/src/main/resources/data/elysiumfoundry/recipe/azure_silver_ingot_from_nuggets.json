@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "NNN",
+    "NNN",
+    "NNN"
+  ],
+  "key": {
+    "N": {
+      "item": "elysiumfoundry:azure_silver_nugget"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:azure_silver_ingot",
+    "count": 1
+  }
+}

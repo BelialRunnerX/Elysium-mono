@@ -57,6 +57,13 @@ public class RiftPortalBlock extends Block {
         if (level.isClientSide() || !(entity instanceof ServerPlayer player)) {
             return;
         }
+        // Going through is how Rift Science is learned — the field has no
+        // grind behind it and no bench to sit at, only the act of stepping
+        // into one. Novel per portal position, so a player commuting through
+        // their own rift is not still being taught by it.
+        com.elysium.lib.research.ElysiumResearch.credit(
+                player, com.elysium.lib.research.ElysiumDeed.ENTERED_A_RIFT,
+                pos.asLong() + "@" + level.dimension().location());
         DungeonTravel.use(player, pos);
     }
 }

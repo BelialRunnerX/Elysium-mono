@@ -1,0 +1,16 @@
+{
+  "type": "elysiumfoundry:alloying",
+  "first": {
+    "tag": "c:ingots/steel"
+  },
+  "first_count": 3,
+  "second": {
+    "item": "elysiumfoundry:nickel_ingot"
+  },
+  "second_count": 1,
+  "result": {
+    "id": "elysiumfoundry:stainless_ingot",
+    "count": 1
+  },
+  "ticks": 220
+}

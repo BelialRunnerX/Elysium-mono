@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "NNN",
+    "NNN",
+    "NNN"
+  ],
+  "key": {
+    "N": {
+      "item": "elysiumfoundry:electrum_nugget"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:electrum_ingot",
+    "count": 1
+  }
+}

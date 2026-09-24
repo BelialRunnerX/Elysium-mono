@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "curio"
+  ],
+  "min_tier": 2,
+  "weight": 6,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "elysiumlib:cooldown_reduction",
+          "operation": "add_value",
+          "slot": "any",
+          "min": 0.03,
+          "max": 0.12,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

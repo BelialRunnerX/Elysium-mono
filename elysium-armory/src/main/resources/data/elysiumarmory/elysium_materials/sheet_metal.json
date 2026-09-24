@@ -1,0 +1,31 @@
+{
+  "type": "processed",
+  "crafting": {
+    "categories": [
+      "sheet"
+    ]
+  },
+  "display": {
+    "name": "Sheet Metal"
+  },
+  "properties": {
+    "main": {
+      "durability": {
+        "op": "multiply_total",
+        "value": -1.0
+      },
+      "armor_durability": {
+        "op": "multiply_total",
+        "value": -0.4
+      },
+      "armor": {
+        "op": "multiply_total",
+        "value": -0.5
+      },
+      "armor_toughness": {
+        "op": "multiply_total",
+        "value": -0.5
+      }
+    }
+  }
+}

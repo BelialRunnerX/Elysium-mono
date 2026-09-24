@@ -35,30 +35,61 @@ import sys
 HERE = pathlib.Path(__file__).resolve().parent
 
 MODULES = ["elysium-lib", "elysium-core", "elysium-dungeons", "elysium-mobs",
-           "elysium-npcs", "elysium-trinkets"]
+           "elysium-npcs", "elysium-trinkets", "elysium-solarpunk",
+           "elysium-armory", "elysium-ascendancy", "elysium-enchanting",
+           "elysium-spawners",
+           "elysium-space", "elysium-ores", "elysium-flora", "elysium-kinetics", "elysium-industry", "elysium-atomics", "elysium-logistics", "elysium-agronomy", "elysium-foundry",
+           "elysium-almanac",
+           "elysium-transit",
+           "elysium-arcana",
+           "elysium-comforts",
+           "elysium-atelier",
+           "elysium-arsenal",
+           "elysium-bestiary",
+           "elysium-wilds",
+           "elysium-colonies"]
 
-# The report block, matched loosely enough to survive rewording.
-REPORT = re.compile(r"^if problems:", re.M)
+# The cross-cutting checks at the root are built the same way and can fail the
+# same way. They were not covered here at first, which is the same oversight in
+# miniature: the file that exists to catch unreportable checks had its own
+# blind spot.
+ROOT_CHECKS = ["check_gear.py", "check_ui.py", "check_buses.py",
+               "check_recursion.py", "check_datapack.py",
+               "check_nullable.py", "check_loadtest.py", "check_rules.py",
+               "check_worldgen.py",
+               "check_construct.py"]
+
+# The report block, matched loosely enough to survive rewording and to find one
+# written inside a main() — a check whose report is indented is still a report,
+# and a pattern anchored to column zero silently skipped the file that had one.
+REPORT = re.compile(r"^[ \t]*if problems:", re.M)
+
+
+def sources():
+    for module in MODULES:
+        yield module, HERE / module / "validate.py"
+    for check in ROOT_CHECKS:
+        yield check, HERE / check
 
 
 def main():
     problems = []
     checked = 0
 
-    for module in MODULES:
-        path = HERE / module / "validate.py"
+    for module, path in sources():
         if not path.is_file():
-            problems.append(f"{module} has no validate.py")
+            problems.append(f"{module} has no validate.py"
+                            if path.name == "validate.py" else f"{module} is missing")
             continue
 
         text = path.read_text(encoding="utf-8")
         reports = list(REPORT.finditer(text))
         if not reports:
-            problems.append(f"{module}/validate.py has no 'if problems:' report "
+            problems.append(f"{module} has no 'if problems:' report "
                             f"— it can never fail")
             continue
         if len(reports) > 1:
-            problems.append(f"{module}/validate.py reports {len(reports)} times; "
+            problems.append(f"{module} reports {len(reports)} times; "
                             f"the first exits, so everything after it is dead")
             continue
 
@@ -66,11 +97,11 @@ def main():
         # fail() calls after the report are recorded into an already-printed
         # list. Comments and docstrings mentioning fail() are not calls.
         stripped = re.sub(r"#[^\n]*", "", after)
-        dead = re.findall(r"\bfail\s*\(", stripped)
+        dead = re.findall(r"\bfail\s*\(|\bproblems\.append\s*\(", stripped)
         if dead:
             line = text[:reports[0].start()].count("\n") + 1
             problems.append(
-                f"{module}/validate.py calls fail() {len(dead)} time(s) after "
+                f"{module} calls fail() {len(dead)} time(s) after "
                 f"its report at line {line}. Those checks run, record nothing "
                 f"anybody sees, and the file still prints success — move the "
                 f"report to the end of the file")
@@ -82,8 +113,8 @@ def main():
             print("  - " + problem)
         return 1
 
-    print(f"validators          : {checked} module validators, each reports "
-          f"once and reports last")
+    print(f"validators          : {checked} validators — {len(MODULES)} module and "
+          f"{len(ROOT_CHECKS)} cross-cutting — each reports once and reports last")
     return 0
 
 

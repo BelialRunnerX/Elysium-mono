@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "mekanism:deepslate_tin_ore",
+      "required": false
+    },
+    {
+      "id": "mekanism:tin_ore",
+      "required": false
+    },
+    "elysiumores:cinder_tin_ore",
+    "elysiumores:end_stone_tin_ore",
+    "elysiumores:frost_tin_ore",
+    "elysiumores:netherrack_tin_ore",
+    "elysiumores:pale_tin_ore"
+  ]
+}

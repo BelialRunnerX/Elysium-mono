@@ -1,0 +1,10 @@
+{
+  "name": "Indestructible",
+  "max_level": 1,
+  "description": "Prevents durability loss",
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

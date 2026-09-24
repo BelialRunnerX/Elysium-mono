@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:milling",
+  "input": {
+    "item": "minecraft:sandstone"
+  },
+  "result": {
+    "id": "minecraft:sand",
+    "count": 2
+  },
+  "ticks": 140,
+  "pace": "slow"
+}

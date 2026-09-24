@@ -1,0 +1,43 @@
+{
+  "type": "simple",
+  "crafting": {
+    "categories": [
+      "organic",
+      "fiber",
+      "basic"
+    ]
+  },
+  "display": {
+    "name": "Fine Silk"
+  },
+  "properties": {
+    "binding": {
+      "magic_armor": {
+        "op": "add",
+        "value": 2.0
+      },
+      "traits": [
+        {
+          "trait": "lucky",
+          "level": 1
+        },
+        {
+          "trait": "flexible",
+          "level": 4
+        }
+      ]
+    },
+    "cord": {
+      "ranged_damage": {
+        "op": "multiply_base",
+        "value": 0.07
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

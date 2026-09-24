@@ -1,0 +1,16 @@
+{
+  "name": "Gold Digger",
+  "max_level": 5,
+  "description": "Sometimes increases nugget drops when mining",
+  "conditions": [
+    "on:harvest_tool"
+  ],
+  "effects": [
+    {
+      "type": "bonus_drops",
+      "ingredient": "elysiumarmory:gold_digger_drops",
+      "chance_per_level": 0.15,
+      "multiplier": 0.5
+    }
+  ]
+}

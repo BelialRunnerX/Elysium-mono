@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createaddition:electrum_sheet",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:plate_electrum",
+      "required": false
+    }
+  ]
+}

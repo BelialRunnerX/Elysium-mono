@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumtrinkets:item/potion_charm",
+    "layer1": "elysiumtrinkets:item/potion_charm_fill"
+  }
+}

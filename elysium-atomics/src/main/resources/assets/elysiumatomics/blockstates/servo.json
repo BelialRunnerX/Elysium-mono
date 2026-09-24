@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumatomics:block/servo"
+    },
+    "axis=x": {
+      "model": "elysiumatomics:block/servo",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumatomics:block/servo",
+      "x": 90
+    }
+  }
+}

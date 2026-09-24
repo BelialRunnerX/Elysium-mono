@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "item": "elysiumfoundry:nickel_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:nickel_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

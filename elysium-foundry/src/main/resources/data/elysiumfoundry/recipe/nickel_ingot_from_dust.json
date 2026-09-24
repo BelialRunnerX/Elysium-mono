@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:nickel_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:nickel_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

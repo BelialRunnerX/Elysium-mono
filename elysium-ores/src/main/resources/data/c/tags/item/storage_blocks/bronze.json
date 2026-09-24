@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createbigcannons:bronze_block",
+      "required": false
+    },
+    {
+      "id": "mekanism:block_bronze",
+      "required": false
+    }
+  ]
+}

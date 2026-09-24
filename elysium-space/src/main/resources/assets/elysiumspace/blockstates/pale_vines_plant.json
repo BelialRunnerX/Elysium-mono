@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "berries=false": {
+      "model": "elysiumspace:block/pale_vines_plant"
+    },
+    "berries=true": {
+      "model": "elysiumspace:block/pale_vines_plant_lit"
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/uranium",
+    "categories": [
+      "metal",
+      "advanced"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/uranium"
+    }
+  },
+  "display": {
+    "name": "Uranium"
+  },
+  "properties": {
+    "main": {
+      "durability": 800.0,
+      "armor_durability": 20.0,
+      "harvest_tier": "diamond",
+      "harvest_speed": 6.0,
+      "attack_damage": 2.0,
+      "attack_speed": 0.1,
+      "magic_damage": 2.0,
+      "ranged_damage": 0.5,
+      "draw_speed": 0.1,
+      "armor": 13.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 5.0,
+      "armor/leggings": 4.0,
+      "armor/boots": 2.0,
+      "armor_toughness": 1.0,
+      "magic_armor": 3.0,
+      "enchantment_value": 17.0,
+      "charging_value": 1.5,
+      "rarity": 50.0,
+      "repair_value": -0.15,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        }
+      ]
+    },
+    "rod": {
+      "draw_speed": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "rarity": 40.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

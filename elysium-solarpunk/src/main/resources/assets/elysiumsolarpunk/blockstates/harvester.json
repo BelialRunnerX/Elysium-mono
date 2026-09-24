@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumsolarpunk:block/harvester"
+    },
+    "facing=east": {
+      "model": "elysiumsolarpunk:block/harvester",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumsolarpunk:block/harvester",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumsolarpunk:block/harvester",
+      "y": 270
+    }
+  }
+}

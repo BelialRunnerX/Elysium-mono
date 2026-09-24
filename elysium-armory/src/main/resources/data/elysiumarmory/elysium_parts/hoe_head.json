@@ -1,0 +1,19 @@
+{
+  "type": "core",
+  "gear_type": "hoe",
+  "part_type": "main",
+  "crafting": {
+    "materials": 2
+  },
+  "properties": {
+    "attack_damage": {
+      "op": "multiply_base",
+      "value": -1.0
+    },
+    "attack_speed": {
+      "op": "add",
+      "value": 3.0
+    },
+    "repair_efficiency": 1.0
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "block": "minecraft:sculk_sensor",
+  "quanta": 1.0,
+  "_why": "it listens, and a table that is listened to is not a private one"
+}

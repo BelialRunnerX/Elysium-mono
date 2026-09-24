@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:smelting",
+  "input": {
+    "item": "minecraft:sand"
+  },
+  "result": {
+    "id": "minecraft:glass",
+    "count": 1
+  },
+  "ticks": 60
+}

@@ -1,0 +1,60 @@
+{
+  "name": "flutter",
+  "max_level": 5,
+  "description": "",
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "slot": "chest",
+          "attribute": "minecraft:generic.safe_fall_distance",
+          "operation": "add_value",
+          "values": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ]
+        },
+        {
+          "slot": "feet",
+          "attribute": "minecraft:generic.safe_fall_distance",
+          "operation": "add_value",
+          "values": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ]
+        },
+        {
+          "slot": "head",
+          "attribute": "minecraft:generic.safe_fall_distance",
+          "operation": "add_value",
+          "values": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ]
+        },
+        {
+          "slot": "legs",
+          "attribute": "minecraft:generic.safe_fall_distance",
+          "operation": "add_value",
+          "values": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ]
+        }
+      ]
+    }
+  ]
+}

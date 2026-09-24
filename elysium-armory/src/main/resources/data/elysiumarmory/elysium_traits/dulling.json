@@ -1,0 +1,22 @@
+{
+  "name": "dulling",
+  "max_level": 5,
+  "description": "",
+  "effects": [
+    {
+      "type": "property",
+      "modifiers": {
+        "attack_damage": {
+          "per_level": -1.0,
+          "damage_ratio": true,
+          "of_value": false
+        },
+        "harvest_speed": {
+          "per_level": -1.0,
+          "damage_ratio": true,
+          "of_value": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "bbb",
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "elysiumsolarpunk:white_limestone"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:white_limestone_wall",
+    "count": 6
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "from": "elysiumlib:haste",
+  "ingredient": "minecraft:fermented_spider_eye",
+  "to": "elysiumlib:fatigue"
+}

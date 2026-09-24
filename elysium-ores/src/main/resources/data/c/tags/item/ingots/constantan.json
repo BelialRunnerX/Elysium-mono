@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:ingot_constantan",
+      "required": false
+    },
+    {
+      "id": "tfmg:constantan_ingot",
+      "required": false
+    }
+  ]
+}

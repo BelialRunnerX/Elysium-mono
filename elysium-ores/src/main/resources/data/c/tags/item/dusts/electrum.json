@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:dust_electrum",
+      "required": false
+    },
+    {
+      "id": "oritech:electrum_dust",
+      "required": false
+    }
+  ]
+}

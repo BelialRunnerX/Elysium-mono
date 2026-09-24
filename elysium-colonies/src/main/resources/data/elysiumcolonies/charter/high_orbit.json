@@ -1,0 +1,8 @@
+{
+  "dimension": "elysiumspace:high_orbit",
+  "natives": [],
+  "hazard": 1.5,
+  "air": "none",
+  "reach": 3,
+  "style": "High Orbit"
+}

@@ -1,0 +1,16 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": [
+    "elysiumspace:frostfall_desert",
+    "elysiumspace:frostfall_ice_spikes",
+    "elysiumspace:frostfall_rocky_plains"
+  ],
+  "features": [
+    "elysiumspace:frostite_ore",
+    "elysiumspace:cryonite_ore",
+    "elysiumspace:frost_iron_ore",
+    "elysiumspace:frost_diamond_ore",
+    "elysiumspace:frost_rime_shard_ore"
+  ],
+  "step": "underground_ores"
+}

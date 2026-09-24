@@ -1,0 +1,24 @@
+{
+  "name": "Flame Ward",
+  "max_level": 1,
+  "description": "Gives fire resistance on armor (full set only)",
+  "effects": [
+    {
+      "type": "fireproof"
+    },
+    {
+      "type": "wielder_effect",
+      "targets": [
+        {
+          "gear": "armor",
+          "effect": "minecraft:fire_resistance",
+          "mode": "full_set_only",
+          "levels": [
+            1
+          ],
+          "duration": 38
+        }
+      ]
+    }
+  ]
+}

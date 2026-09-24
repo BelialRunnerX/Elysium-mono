@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumenchanting:ambush",
+    "elysiumenchanting:charge",
+    "elysiumenchanting:bulwark",
+    "elysiumenchanting:nightward",
+    "elysiumenchanting:sundering",
+    "elysiumenchanting:venom",
+    "elysiumenchanting:siphon",
+    "elysiumenchanting:hoarfrost",
+    "elysiumenchanting:kindling",
+    "elysiumenchanting:vitality",
+    "elysiumenchanting:ironhide",
+    "elysiumenchanting:long_arm",
+    "elysiumenchanting:volley",
+    "elysiumenchanting:steady_aim",
+    "elysiumenchanting:thrift",
+    "elysiumenchanting:maelstrom",
+    "elysiumenchanting:scholar",
+    "elysiumenchanting:prospector",
+    "elysiumenchanting:grave_robber",
+    "elysiumenchanting:emberwalk"
+  ]
+}

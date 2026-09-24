@@ -19,6 +19,8 @@
 #
 #   ./compile.sh            type-check everything, in dependency order
 #   ./compile.sh --jars      also package each module, then merge them into one
+#   ./compile.sh --bundle    as --jars, and put Curios inside the merged jar so
+#                            that one download works with nothing else installed
 #
 # Exits non-zero if any module fails. With --jars the six module jars and the
 # merged jar land in dist/, which is the same directory the Gradle build uses —
@@ -37,7 +39,19 @@ OUT="${ELYSIUM_OUT:-/tmp/elysium-classes}"
 DIST="${ELYSIUM_DIST:-dist}"
 
 JARS=0
-[ "${1:-}" = "--jars" ] && JARS=1
+BUNDLE=0
+for argument in "$@"; do
+    case "$argument" in
+        --jars)   JARS=1 ;;
+        # Opt-in, and deliberately not the default. Bundling Curios makes one
+        # jar that works on its own, which is what somebody downloading Elysium
+        # for the first time wants; it also means every dev build carries a
+        # second copy of a mod the dev instance already has installed. The
+        # release build passes it, the working loop does not.
+        --bundle) BUNDLE=1; JARS=1 ;;
+        *) echo "unknown option: $argument"; exit 2 ;;
+    esac
+done
 
 if [ ! -f "$MC/cp.txt" ]; then
     echo "no Minecraft classpath at $MC/cp.txt — set ELYSIUM_MC_LIBS to a"
@@ -48,10 +62,49 @@ fi
 CP="$(cat "$MC/cp.txt")"
 [ -f "$ANNOTATIONS" ] && CP="$CP:$ANNOTATIONS"
 
+# ---------------------------------------------------------------------------
+# The optional mods Elysium converts gear to and from
+# ---------------------------------------------------------------------------
+#
+# Silent Gear and Apotheosis are compile-only. Their classes are on the
+# classpath here so com/elysium/core/compat/ can be written against the real
+# API and checked by javac; at runtime nothing in that package is ever loaded
+# unless ModList says the mod is present, so the shipped jar runs with neither.
+#
+# This build FAILS rather than skipping when they are absent, and that is
+# deliberate. Quietly dropping a package produces a jar that is missing a
+# feature, with nothing in the output saying so — and the last person to notice
+# is the one who installs it. An earlier version of this repository had exactly
+# that failure in the other direction: gear code that imported
+# shadows.apotheosis.* and could not build at all.
+COMPAT="${ELYSIUM_COMPAT_LIBS:-/tmp/mods}"
+COMPAT_JARS=""
+missing_compat=""
+for glob in "silent-gear-*.jar" "silent-lib-*.jar" "Apotheosis-*.jar" "Placebo-*.jar" "minecolonies-*.jar" "structurize-*.jar" "blockui-*.jar"; do
+    found="$(ls "$COMPAT"/$glob 2>/dev/null | head -1)"
+    if [ -n "$found" ]; then
+        COMPAT_JARS="$COMPAT_JARS:$found"
+    else
+        missing_compat="$missing_compat $glob"
+    fi
+done
+
+if [ -n "$missing_compat" ] && ls elysium-core/src/main/java/com/elysium/core/compat/*.java >/dev/null 2>&1; then
+    echo "compat sources are present and these jars are not, in $COMPAT:"
+    for glob in $missing_compat; do echo "    $glob"; done
+    echo
+    echo "com/elysium/core/compat/ is compiled against Silent Gear and Apotheosis."
+    echo "Neither is needed to *run* Elysium — every entry point is behind a"
+    echo "ModList check — but both are needed to type-check the bridge."
+    echo "Point ELYSIUM_COMPAT_LIBS at a directory holding them."
+    exit 2
+fi
+CP="$CP$COMPAT_JARS"
+
 # Dependency order. Each module is added to the classpath for the ones after
 # it, which is the same graph settings.gradle declares — so a dependency
 # pointing the wrong way fails here rather than at build time.
-MODULES="elysium-lib elysium-core elysium-dungeons elysium-mobs elysium-npcs elysium-trinkets"
+MODULES="elysium-lib elysium-core elysium-dungeons elysium-mobs elysium-npcs elysium-trinkets elysium-solarpunk elysium-armory elysium-ascendancy elysium-enchanting elysium-spawners elysium-space elysium-ores elysium-flora elysium-kinetics elysium-industry elysium-atomics elysium-logistics elysium-agronomy elysium-foundry elysium-almanac elysium-transit elysium-arcana elysium-comforts elysium-atelier elysium-arsenal elysium-bestiary elysium-wilds elysium-colonies"
 
 rm -rf "$OUT"
 failed=0
@@ -98,15 +151,64 @@ echo "all modules compile against NeoForge"
 echo
 echo "packaging:"
 mkdir -p "$DIST"
+# Modules that are add-ons to a mod this repository does not own. They are
+# built and shipped, and they are NOT merged into elysium-all: their host is a
+# required dependency, and folding one into the combined jar would mean the
+# whole of Elysium refuses to load for anybody who has not installed that host.
+# An add-on ships beside the thing it adds to.
+STANDALONE="elysium-colonies"
+
 MERGE_INPUTS=""
 for module in $MODULES; do
     id=$(grep '^mod_id=' "$module/gradle.properties" | cut -d= -f2)
     version=$(grep '^mod_version=' "$module/gradle.properties" | cut -d= -f2)
     jar="$DIST/$id-$version.jar"
     python3 tools/packjar.py "$module" "$OUT/$module" "$jar" || exit 1
-    MERGE_INPUTS="$MERGE_INPUTS $jar"
+    case " $STANDALONE " in
+        *" $module "*)
+            echo "  (standalone: $id is an add-on and is not merged)" ;;
+        *)
+            MERGE_INPUTS="$MERGE_INPUTS $jar" ;;
+    esac
 done
 
 echo
-python3 tools/mergejar.py "$DIST/elysium-all-$(grep '^mod_version=' \
-    elysium-lib/gradle.properties | cut -d= -f2).jar" $MERGE_INPUTS || exit 1
+MERGED="$DIST/elysium-all-$(grep '^mod_version=' \
+    elysium-lib/gradle.properties | cut -d= -f2).jar"
+python3 tools/mergejar.py "$MERGED" $MERGE_INPUTS || exit 1
+
+# The only check in this repo that looks at the product rather than the source.
+# Everything the mod ships for a player to use without installing anything else
+# — the skill tree above all — has to actually be inside the jar, and that is a
+# claim about packaging that no source validator can make.
+echo
+python3 tools/checkship.py "$MERGED" "$DIST/elysium-$(grep '^mod_version=' \
+    elysium-core/gradle.properties | cut -d= -f2).jar" || exit 1
+
+# --- the dependencies that travel with us ---------------------------------
+#
+# elysium-trinkets requires Curios, so a player who downloads one jar and drops
+# it in their mods folder gets a load error rather than a game. NeoForge's
+# answer is jar-in-jar, and the rule it follows is the one that makes this
+# safe: an installed copy of the same mod wins over an embedded one, so
+# bundling can add a dependency and can never override somebody's own.
+if [ "$BUNDLE" -eq 1 ]; then
+    BUNDLED=""
+    for glob in "curios-neoforge-*.jar"; do
+        found="$(ls "$COMPAT"/$glob 2>/dev/null | head -1)"
+        if [ -z "$found" ]; then
+            echo "--bundle was asked for and $glob is not in $COMPAT."
+            echo "Bundling silently without it would produce a jar that claims to"
+            echo "stand alone and does not, which is worse than not bundling."
+            exit 2
+        fi
+        BUNDLED="$BUNDLED $found"
+    done
+    echo
+    python3 tools/jarjar.py "$MERGED" $BUNDLED || exit 1
+fi
+
+# Always, bundle or no bundle: the check that nothing is carried unindexed is
+# as important as the check that what is indexed is there.
+echo
+python3 tools/checkbundle.py "$MERGED" || exit 1

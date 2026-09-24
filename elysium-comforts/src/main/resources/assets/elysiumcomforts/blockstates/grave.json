@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumcomforts:block/grave"
+    },
+    "facing=east": {
+      "model": "elysiumcomforts:block/grave",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumcomforts:block/grave",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumcomforts:block/grave",
+      "y": 270
+    }
+  }
+}

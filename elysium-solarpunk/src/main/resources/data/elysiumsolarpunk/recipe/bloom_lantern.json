@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " b ",
+    "brb",
+    " b "
+  ],
+  "key": {
+    "b": {
+      "item": "elysiumsolarpunk:solar_brass_ingot"
+    },
+    "r": {
+      "item": "elysiumsolarpunk:bloom_resin"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:bloom_lantern",
+    "count": 2
+  }
+}

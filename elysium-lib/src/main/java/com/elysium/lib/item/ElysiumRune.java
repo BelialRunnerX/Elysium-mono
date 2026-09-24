@@ -74,16 +74,34 @@ public final class ElysiumRune {
         void apply(Player player, ItemStack gear, boolean aligned);
     }
 
+    /**
+     * An effect that knows its rune's tier.
+     *
+     * {@code scale} is N for a tier-N rune ({@link ElysiumRuneTiers}), and an
+     * effect is expected to do N times what it does at tier 1. Elysium's own
+     * runes are written this way.
+     *
+     * The three-argument {@link RuneEffect} still works, so an add-on written
+     * before tiers keeps compiling and keeps working — its effect runs as it
+     * always did, and only its effect: the rune's attribute bonus, dodge and
+     * heat reduction still scale with tier, because those are numbers this
+     * library holds rather than code the add-on wrote.
+     */
+    @FunctionalInterface
+    public interface TieredRuneEffect {
+        void apply(Player player, ItemStack gear, boolean aligned, float scale);
+    }
+
     private final String translationKey;
     private final ElysiumElement element;
     private final ElysiumAffix affix;
-    private final RuneEffect effect;
+    private final TieredRuneEffect effect;
     private final float dodgeBonus;
     private final float heatReduction;
     private final boolean utility;
 
     private ElysiumRune(String translationKey, ElysiumElement element, ElysiumAffix affix,
-                        RuneEffect effect, float dodgeBonus, float heatReduction,
+                        TieredRuneEffect effect, float dodgeBonus, float heatReduction,
                         boolean utility) {
         this.translationKey = translationKey;
         this.element = element;
@@ -102,7 +120,7 @@ public final class ElysiumRune {
         private final ResourceLocation id;
         private ElysiumElement element = ElysiumElement.NONE;
         private ElysiumAffix affix;
-        private RuneEffect effect;
+        private TieredRuneEffect effect;
         private float dodgeBonus;
         private float heatReduction;
 
@@ -124,6 +142,13 @@ public final class ElysiumRune {
 
         /** Behaviour run per equipped copy, on the server tick. */
         public Builder effect(RuneEffect effect) {
+            this.effect = effect == null ? null
+                    : (player, gear, aligned, scale) -> effect.apply(player, gear, aligned);
+            return this;
+        }
+
+        /** An effect that scales with the rune's tier. */
+        public Builder effect(TieredRuneEffect effect) {
             this.effect = effect;
             return this;
         }
@@ -170,7 +195,7 @@ public final class ElysiumRune {
     }
 
     @Nullable
-    public RuneEffect getEffect() {
+    public TieredRuneEffect getEffect() {
         return effect;
     }
 
@@ -202,31 +227,77 @@ public final class ElysiumRune {
         return count;
     }
 
-    /** Sums a per-copy value across every rune socketed into worn gear. */
+    /** The old name for {@link #shareAcross}, which every percentage now goes through. */
     public static float sumAcross(LivingEntity entity,
                                   java.util.function.Function<ElysiumRune, Float> value) {
-        float total = 0.0F;
-        for (ItemStack stack : entity.getArmorSlots()) {
-            total += sumOn(stack, value);
-        }
-        return total + sumOn(entity.getMainHandItem(), value);
+        return shareAcross(entity, value);
     }
 
-    private static float sumOn(ItemStack stack,
-                               java.util.function.Function<ElysiumRune, Float> value) {
-        if (!(stack.getItem() instanceof ElysiumSocketable gear)) {
+    /**
+     * A percentage every rune worn contributes to — dodge, heat reduction —
+     * as one share: each rune's stat times its tier, added, then
+     * stat / (stat + b). See {@link com.elysium.lib.stats.ElysiumShares}.
+     *
+     * One tier-1 rune is exactly its base; a tier-N rune is N times its stat;
+     * and no number of them reaches 100%. This used to be a straight sum of
+     * percentages, clamped at 60% where it was used.
+     */
+    public static float shareAcross(LivingEntity entity,
+                                    java.util.function.Function<ElysiumRune, Float> value) {
+        double odds = 0.0D;
+        for (ItemStack stack : entity.getArmorSlots()) {
+            odds += sumOn(stack, value);
+        }
+        odds += sumOn(entity.getMainHandItem(), value);
+        return com.elysium.lib.stats.ElysiumShares.fromOdds(odds);
+    }
+
+    /** The stat, in odds units, one piece's runes contribute. Tier N counts N times. */
+    private static double sumOn(ItemStack stack,
+                                java.util.function.Function<ElysiumRune, Float> value) {
+        ElysiumSocketable gear = ElysiumGear.of(stack);
+        if (gear == null) {
+            return 0.0F;
+        }
+        // Tier N counts N times: a tier-3 Reflex is three Reflexes' dodge
+        // stat. Nothing on the far side caps it.
+        double odds = 0.0D;
+        for (ElysiumSockets.Socketed socketed : ElysiumSockets.socketed(stack)) {
+            odds += com.elysium.lib.stats.ElysiumShares.odds(value.apply(socketed.rune()))
+                    * socketed.scale() * com.elysium.lib.stats.ElysiumShares.PACE;
+        }
+        return odds;
+    }
+
+    /**
+     * How much of one rune an entity is carrying, tier-weighted: a tier-1 and
+     * a tier-3 copy are four. What a rune that stacks across pieces — the
+     * Barrier — scales its capacity by.
+     */
+    public static float tierSum(LivingEntity entity, ElysiumRune rune) {
+        float total = 0.0F;
+        for (ItemStack stack : entity.getArmorSlots()) {
+            total += tierSumOn(stack, rune);
+        }
+        return total + tierSumOn(entity.getMainHandItem(), rune);
+    }
+
+    private static float tierSumOn(ItemStack stack, ElysiumRune rune) {
+        if (ElysiumGear.of(stack) == null) {
             return 0.0F;
         }
         float total = 0.0F;
-        for (ElysiumRune rune : gear.getSocketedRunes(stack)) {
-            total += value.apply(rune);
+        for (ElysiumSockets.Socketed socketed : ElysiumSockets.socketed(stack)) {
+            if (socketed.rune() == rune) {
+                total += socketed.scale();
+            }
         }
         return total;
     }
 
     private static boolean carries(ItemStack stack, ElysiumRune rune) {
-        return stack.getItem() instanceof ElysiumSocketable gear
-                && gear.getSocketedRunes(stack).contains(rune);
+        ElysiumSocketable gear = ElysiumGear.of(stack);
+        return gear != null && gear.getSocketedRunes(stack).contains(rune);
     }
 
     /** A rune with no element: never aligned, never penalised. */

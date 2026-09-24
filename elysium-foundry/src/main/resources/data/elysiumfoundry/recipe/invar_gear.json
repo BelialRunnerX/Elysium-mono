@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " R ",
+    "RPR",
+    " R "
+  ],
+  "key": {
+    "R": {
+      "item": "elysiumfoundry:invar_rod"
+    },
+    "P": {
+      "item": "elysiumfoundry:invar_plate"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:invar_gear",
+    "count": 1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "elysiumfoundry:alloying",
+  "first": {
+    "tag": "c:ingots/gold"
+  },
+  "first_count": 1,
+  "second": {
+    "item": "elysiumfoundry:silver_ingot"
+  },
+  "second_count": 1,
+  "result": {
+    "id": "elysiumfoundry:electrum_ingot",
+    "count": 1
+  },
+  "ticks": 160
+}

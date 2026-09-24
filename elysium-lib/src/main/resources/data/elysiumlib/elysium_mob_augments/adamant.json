@@ -1,0 +1,13 @@
+{
+  "weight": 4,
+  "min_tier": 4,
+  "attributes": {
+    "minecraft:generic.armor": 4.0,
+    "minecraft:generic.max_health": 2.0
+  },
+  "effects": [
+    {
+      "effect": "minecraft:resistance"
+    }
+  ]
+}

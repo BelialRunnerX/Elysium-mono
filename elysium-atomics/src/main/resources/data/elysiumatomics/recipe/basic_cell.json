@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PRP",
+    "PCP",
+    "PRP"
+  ],
+  "key": {
+    "P": {
+      "tag": "c:plates/steel"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    },
+    "C": {
+      "item": "elysiumindustry:copper_wire"
+    }
+  },
+  "result": {
+    "id": "elysiumatomics:basic_cell",
+    "count": 1
+  }
+}

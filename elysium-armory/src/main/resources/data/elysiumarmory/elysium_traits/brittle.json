@@ -1,0 +1,12 @@
+{
+  "name": "Brittle",
+  "max_level": 5,
+  "description": "Gear sometimes takes extra damage",
+  "effects": [
+    {
+      "type": "durability",
+      "chance_per_level": 0.1,
+      "amount": 1
+    }
+  ]
+}

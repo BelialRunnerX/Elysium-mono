@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "elysiumsolarpunk:block/woven_cane_block"
+  }
+}

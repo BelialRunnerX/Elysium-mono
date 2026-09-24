@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:hardened_bronze_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:hardened_bronze_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 100
+}

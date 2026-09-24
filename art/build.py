@@ -52,17 +52,71 @@ def out(rel):
     return path
 
 
+def out_lib(rel):
+    """
+    The library's texture tree. The hazard wards are the library's effects —
+    elysiumlib:pressure_ward, not elysium:pressure_ward — and the game looks
+    for an effect's icon under the effect's own namespace. Written into
+    elysium-core's tree they were a set of textures nothing ever read, and every
+    ward showed the missing-texture square.
+    """
+    repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # Keyed on the library's Java source, like _locate(): out() creates
+    # directories, so testing for a directory would let one bad run make a
+    # wrong path permanently "exist".
+    marker = os.path.join(repo, "elysium-lib/src/main/java/com/elysium/lib/ElysiumLib.java")
+    if not os.path.isfile(marker):
+        raise SystemExit("cannot find elysium-lib from " + repo)
+    lib = os.path.join(repo, "elysium-lib/src/main/resources/assets/elysiumlib/textures")
+    path = os.path.join(lib, rel)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    return path
+
+
 def main():
     # -- materials ---------------------------------------------------------
     sprites.ingot("neutronium", "inert").save(out("item/neutronium_ingot.png"))
     sprites.ingot("voidsteel", "aetherium").save(out("item/aetherium_ingot.png"))
     sprites.shard("obsidian", "voidglass").save(out("item/voidglass_ingot.png"))
 
+    # -- convergence templates --------------------------------------------
+    sprites.convergence_template("silent", "aetherium").save(
+        out("item/silent_convergence_template.png"))
+    sprites.convergence_template("affix", "void").save(
+        out("item/affix_convergence_template.png"))
+
+    # -- the field scanner -------------------------------------------------
+    sprites.scanner("aetherium", "aetherium").save(out("item/field_scanner.png"))
+
     # -- the character sheet, in the hand ----------------------------------
     sprites.codex("voidsteel", "aetherium").save(out("item/imperial_codex.png"))
 
     # -- reforge catalyst --------------------------------------------------
     sprites.catalyst("aetherium").save(out("item/elysium_reforge.png"))
+
+    # -- field rations: one per hazard, coloured by the element that answers it
+    #
+    # The colour is the hazard's own element rather than anything about the
+    # food, because that is the association the whole hazard layer is built on:
+    # a player who has been sorting armour by element since their first blade
+    # can pick the right ration out of a hotbar without reading a word.
+    for ration, glow in [("thermal_ration", "plasma"),
+                         ("cryogenic_ration", "kinetic"),
+                         ("corrosive_ration", "neural"),
+                         ("radiological_ration", "void"),
+                         ("pressure_ration", "dimensional")]:
+        sprites.ration("aetherium", glow).save(out(f"item/{ration}.png"))
+
+    # -- hazard ward effect icons, in the library's namespace ---------------
+    #
+    # The same element colour as the ration that grants each one, so the icon
+    # matches the packet. See sprites.ward_icon.
+    ward_glow = {"thermal_ward": "plasma", "cryogenic_ward": "kinetic",
+                 "corrosive_ward": "neural", "radiological_ward": "void",
+                 "pressure_ward": "dimensional"}
+    for ward, glyph in sprites.WARD_ICONS.items():
+        sprites.ward_icon(glyph, ward_glow[ward]).save(
+            out_lib(f"mob_effect/{ward}.png"))
 
     # -- runes -------------------------------------------------------------
     for sigil, glow in [("voidward", "void"),
@@ -78,6 +132,20 @@ def main():
                         ("barrier", "aetherium"),
                         ("plasma_core", "plasma")]:
         sprites.rune(sigil, glow).save(out(f"item/{sigil}_rune.png"))
+
+    # -- gems, sigils and the case (SPEC_CLONE P7) -------------------------
+    #
+    # Runes are Elysium's gems, so these are things that happen to a rune
+    # rather than a second family of stones. Dust takes aetherium, the colour
+    # of the utility runes it is usually ground from; each sigil takes the
+    # colour of what it does to a piece.
+    sprites.gem_dust("aetherium").save(out("item/gem_dust.png"))
+    for seal, glow in [("socketing", "void"),
+                       ("enhancement", "plasma"),
+                       ("withdrawal", "kinetic"),
+                       ("rebirth", "dimensional")]:
+        sprites.sigil(seal, glow).save(out(f"item/sigil_of_{seal}.png"))
+    sprites.gem_case("voidsteel", "aetherium").save(out("item/gem_case.png"))
 
     # -- weapons -----------------------------------------------------------
     sprites.sword("voidsteel", "void").save(out("item/voidcut_blade.png"))
@@ -121,6 +189,19 @@ def main():
     # Kinetic gold rather than any of the arcane glows: the Empire's colour is
     # the one the Praetor and the court regalia already use, and a Registry
     # Beacon is a piece of Imperial paperwork, not a piece of Elysium's magic.
+    # The two rogue spawners and the cage (SPEC_CLONE P9.5, P9.6). Red for the
+    # one that sends a few things worth fearing, green for the one that sends
+    # many; the cage takes the void colour, because what is in it is worse.
+    sprites.workstation("brutal_spawner", "obsidian", "plasma").save(
+        out("block/brutal_spawner.png"))
+    sprites.workstation("swarm_spawner", "obsidian", "neural").save(
+        out("block/swarm_spawner.png"))
+    sprites.workstation("caged_invader", "voidsteel", "void").save(
+        out("block/caged_invader.png"))
+    sprites.workstation("gem_cutting_table", "obsidian", "aetherium").save(
+        out("block/gem_cutting_table.png"))
+    sprites.workstation("augmenting_table", "voidsteel", "void").save(
+        out("block/augmenting_table.png"))
     sprites.workstation("registry_beacon", "voidsteel", "kinetic").save(
         out("block/registry_beacon.png"))
     # Obsidian and the same kinetic gold: the archive is the beacon's paperwork,

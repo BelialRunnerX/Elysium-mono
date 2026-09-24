@@ -1,0 +1,38 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "bigreactors:deepslate_yellorite_ore",
+      "required": false
+    },
+    {
+      "id": "bigreactors:yellorite_ore",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:deepslate_ore_uranium",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:ore_uranium",
+      "required": false
+    },
+    {
+      "id": "mekanism:deepslate_uranium_ore",
+      "required": false
+    },
+    {
+      "id": "mekanism:uranium_ore",
+      "required": false
+    },
+    {
+      "id": "oritech:deepslate_uranium_ore",
+      "required": false
+    },
+    "elysiumores:cinder_uranium_ore",
+    "elysiumores:end_stone_uranium_ore",
+    "elysiumores:frost_uranium_ore",
+    "elysiumores:netherrack_uranium_ore",
+    "elysiumores:pale_uranium_ore"
+  ]
+}

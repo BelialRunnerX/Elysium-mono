@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "elysiumnpcs:block/splicing_vat_front",
+    "side": "elysiumnpcs:block/splicing_vat_side",
+    "top": "elysiumnpcs:block/splicing_vat_top"
+  }
+}

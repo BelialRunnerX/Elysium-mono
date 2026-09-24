@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:enchanted_book",
+      "count": 1
+    },
+    "title": {
+      "translate": "advancements.elysiumenchanting.enchanted.title"
+    },
+    "description": {
+      "translate": "advancements.elysiumenchanting.enchanted.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "enchanted": {
+      "trigger": "minecraft:enchanted_item"
+    }
+  },
+  "requirements": [
+    [
+      "enchanted"
+    ]
+  ],
+  "parent": "elysiumenchanting:arcane_table"
+}

@@ -1,0 +1,25 @@
+{
+  "type": "suffix",
+  "on": [
+    "armor"
+  ],
+  "min_tier": 2,
+  "weight": 5,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "wielder_effect",
+      "targets": [
+        {
+          "effect": "minecraft:resistance",
+          "levels": [
+            0,
+            0,
+            0
+          ],
+          "duration": 60
+        }
+      ]
+    }
+  ]
+}

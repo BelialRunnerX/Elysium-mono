@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "elysiumflora:block/downbloom_bale_top",
+    "side": "elysiumflora:block/downbloom_bale_side"
+  }
+}

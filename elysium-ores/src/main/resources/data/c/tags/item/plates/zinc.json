@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createaddition:zinc_sheet",
+      "required": false
+    },
+    {
+      "id": "createdeco:zinc_sheet",
+      "required": false
+    },
+    {
+      "id": "powergrid:zinc_sheet",
+      "required": false
+    }
+  ]
+}

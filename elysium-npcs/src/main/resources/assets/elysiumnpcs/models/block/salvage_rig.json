@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "elysiumnpcs:block/salvage_rig_front",
+    "side": "elysiumnpcs:block/salvage_rig_side",
+    "top": "elysiumnpcs:block/salvage_rig_top"
+  }
+}

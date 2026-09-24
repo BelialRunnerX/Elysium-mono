@@ -1,0 +1,65 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:end_stones",
+    "categories": [
+      "rock",
+      "basic"
+    ]
+  },
+  "display": {
+    "name": "End Stone"
+  },
+  "properties": {
+    "main": {
+      "durability": 1164.0,
+      "armor_durability": 15.0,
+      "harvest_tier": "end_stone",
+      "harvest_speed": 7.0,
+      "attack_damage": 2.0,
+      "attack_speed": 0.1,
+      "magic_damage": 3.0,
+      "ranged_damage": 0.0,
+      "draw_speed": 0.0,
+      "projectile_speed": 1.0,
+      "projectile_accuracy": 0.8,
+      "armor": 15.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 5.0,
+      "armor/leggings": 4.0,
+      "armor/boots": 3.0,
+      "armor_toughness": 1.0,
+      "magic_armor": 6.0,
+      "enchantment_value": 10.0,
+      "charging_value": 0.9,
+      "rarity": 32.0,
+      "repair_value": -0.2,
+      "traits": [
+        {
+          "trait": "jagged",
+          "level": 3
+        },
+        {
+          "trait": "ancient",
+          "level": 2
+        }
+      ]
+    },
+    "rod": {
+      "attack_damage": {
+        "op": "add",
+        "value": 1.0
+      },
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 1
+        },
+        {
+          "trait": "ancient",
+          "level": 4
+        }
+      ]
+    }
+  }
+}

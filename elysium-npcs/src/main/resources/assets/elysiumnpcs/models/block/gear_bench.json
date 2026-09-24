@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "elysiumnpcs:block/gear_bench_front",
+    "side": "elysiumnpcs:block/gear_bench_side",
+    "top": "elysiumnpcs:block/gear_bench_top"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:leathers",
+    "categories": [
+      "organic",
+      "cloth",
+      "basic"
+    ]
+  },
+  "display": {
+    "name": "Leather"
+  },
+  "properties": {
+    "main": {
+      "durability": 0.0,
+      "armor_durability": 5.0,
+      "armor": 7.0,
+      "armor/helmet": 1.0,
+      "armor/chestplate": 3.0,
+      "armor/leggings": 2.0,
+      "armor/boots": 1.0,
+      "magic_armor": 8.0,
+      "enchantment_value": 15.0,
+      "charging_value": 0.8,
+      "rarity": 11.0,
+      "traits": [
+        {
+          "trait": "snow_walker",
+          "level": 1,
+          "conditions": [
+            "on:boots"
+          ]
+        }
+      ]
+    },
+    "grip": {
+      "attack_speed": {
+        "op": "add",
+        "value": 0.15
+      },
+      "harvest_speed": {
+        "op": "multiply_base",
+        "value": 0.15
+      },
+      "repair_efficiency": {
+        "op": "multiply_base",
+        "value": 0.1
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 3
+        }
+      ]
+    },
+    "lining": {
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 4
+        }
+      ]
+    }
+  }
+}

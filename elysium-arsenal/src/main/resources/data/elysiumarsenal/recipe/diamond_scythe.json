@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " MM",
+    "MT ",
+    "S  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:diamond"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "T": {
+      "item": "minecraft:diamond_hoe"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:diamond_scythe",
+    "count": 1
+  }
+}

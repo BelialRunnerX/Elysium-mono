@@ -1,0 +1,66 @@
+{
+  "type": "simple",
+  "crafting": {
+    "categories": [
+      "organic",
+      "cloth",
+      "intermediate"
+    ]
+  },
+  "display": {
+    "name": "Fine Silk Cloth"
+  },
+  "properties": {
+    "main": {
+      "durability": 0.0,
+      "armor_durability": 14.0,
+      "armor": 6.0,
+      "armor/helmet": 1.0,
+      "armor/chestplate": 2.0,
+      "armor/leggings": 2.0,
+      "armor/boots": 1.0,
+      "magic_armor": 14.0,
+      "enchantment_value": 14.0,
+      "charging_value": 0.9,
+      "rarity": 40.0,
+      "armor_durability/elytra": 18.0,
+      "traits": [
+        {
+          "trait": "snow_walker",
+          "level": 1,
+          "conditions": [
+            "on:boots"
+          ]
+        }
+      ]
+    },
+    "grip": {
+      "harvest_speed": {
+        "op": "multiply_base",
+        "value": 0.15
+      },
+      "repair_efficiency": {
+        "op": "multiply_base",
+        "value": 0.1
+      },
+      "traits": [
+        {
+          "trait": "accelerate",
+          "level": 1
+        }
+      ]
+    },
+    "lining": {
+      "magic_armor": {
+        "op": "add",
+        "value": 2.0
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 4
+        }
+      ]
+    }
+  }
+}

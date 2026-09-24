@@ -43,7 +43,31 @@ BLOCKS = [
     "reforge_table",
     "rune_socket_table",
     "ascension_forge",
+    "registry_beacon",
+    "imperial_archive",
+    "inspection_beacon",
+    # SPEC_CLONE P7: the two benches that act on runes rather than on gear.
+    "gem_cutting_table",
+    "augmenting_table",
+    # SPEC_CLONE P9.5 and P9.6: things underground that a player did not put
+    # there.
+    "brutal_spawner",
+    "swarm_spawner",
+    "caged_invader",
 ]
+
+# Blocks with no block item, and why.
+#
+# A block item needs an item model; a block with no item must not get one, or
+# the creative tab search turns up an entry that cannot be placed.
+ITEMLESS_BLOCKS = {
+    "inspection_beacon": "planted by the Empire, never held by a player",
+}
+
+# Blocks that drop nothing when broken. Everything else self-drops.
+NO_DROP_BLOCKS = {
+    "inspection_beacon": "breaking it is the point; keeping it would be a free beacon",
+}
 
 ELEMENTAL_RUNES = [
     "voidward_rune",
@@ -80,13 +104,39 @@ TEMPLATE_ITEMS = {
     "unsworn_raider_spawn_egg": "minecraft:item/template_spawn_egg",
 }
 
+# §15.5's food that answers a hazard: one ration per hazard, each granting that
+# hazard's ward. Listed here so the model, the sprite reference and the language
+# entry are generated with everything else — a ration that shipped with no model
+# would be a purple cube in the one situation where a player is reading their
+# hotbar in a hurry.
+RATIONS = {
+    # ration -> (display name, the two vanilla ingredients that make it)
+    "thermal_ration": ("Coolant Ration", "minecraft:snowball"),
+    "cryogenic_ration": ("Emberbread", "minecraft:charcoal"),
+    "corrosive_ration": ("Filtered Mash", "minecraft:honeycomb"),
+    "radiological_ration": ("Chelating Paste", "minecraft:dried_kelp"),
+    "pressure_ration": ("Ballast Ration", "minecraft:clay_ball"),
+}
+
 SIMPLE_ITEMS = [
     "neutronium_ingot",
     "aetherium_ingot",
     "voidglass_ingot",
     "elysium_reforge",
     "imperial_codex",
-] + ELEMENTAL_RUNES + UTILITY_RUNES + WEAPONS + TOOLS + [
+    "field_scanner",
+    "silent_convergence_template",
+    "affix_convergence_template",
+    # SPEC_CLONE P7. Dust is what a rune is worth once it is not one; a sigil
+    # is a single use spent on a piece already worth keeping; the case is
+    # where all of it is kept.
+    "gem_dust",
+    "gem_case",
+    "sigil_of_socketing",
+    "sigil_of_enhancement",
+    "sigil_of_withdrawal",
+    "sigil_of_rebirth",
+] + list(RATIONS) + ELEMENTAL_RUNES + UTILITY_RUNES + WEAPONS + TOOLS + [
     "elysium_helmet",
     "plasma_chestplate",
     "voidweave_aegis",
@@ -107,12 +157,13 @@ ORE_DROPS = {
     "voidglass_ore": "voidglass_ingot",
 }
 
-SELF_DROPS = [
-    "neutronium_block",
-    "reforge_table",
-    "rune_socket_table",
-    "ascension_forge",
-]
+# Derived rather than listed. A block added to BLOCKS and forgotten here is a
+# block that drops nothing when mined, which is the same class of silent loss
+# this file's "clean slate" note is about — and it is exactly what happened to
+# the three Imperial blocks, which were registered in Java, shipped resources
+# written by hand, and then had them deleted by the next run of this script.
+SELF_DROPS = [block for block in BLOCKS
+              if block not in ORE_DROPS and block not in NO_DROP_BLOCKS]
 
 
 def write(path, obj):
@@ -129,7 +180,7 @@ def write(path, obj):
 # "Own" is doing work in that sentence, and it is why this script could not
 # simply be repointed at the live tree when the drift was first noticed.
 # gen_material_gear.py also writes into data/elysium/recipe and
-# assets/elysium/models/item, so wiping them here deletes 196 files it wrote.
+# assets/elysium/models/item, so wiping them here deletes every file it wrote.
 #
 # The answer is ordering rather than cleverness: this runs first and clears,
 # then gen_material_gear.py runs and refills, and regen.sh is the one place that
@@ -150,8 +201,9 @@ for block in BLOCKS:
     write(f"assets/{NS}/models/block/{block}.json",
           {"parent": "minecraft:block/cube_all",
            "textures": {"all": f"{NS}:block/{block}"}})
-    write(f"assets/{NS}/models/item/{block}.json",
-          {"parent": f"{NS}:block/{block}"})
+    if block not in ITEMLESS_BLOCKS:
+        write(f"assets/{NS}/models/item/{block}.json",
+              {"parent": f"{NS}:block/{block}"})
 
 for item in SIMPLE_ITEMS:
     if item in TEMPLATE_ITEMS:
@@ -179,6 +231,9 @@ for block in BLOCKS:
 for item in SIMPLE_ITEMS:
     lang[f"item.{NS}.{item}"] = title(item)
 
+for ration, (display, _ingredient) in RATIONS.items():
+    lang[f"item.{NS}.{ration}"] = display
+
 lang.update({
     # --- items, named as the Sleeping Empire archive names them ------------
     "item.elysium.elysium_helmet": "Elysium Helm",
@@ -188,6 +243,15 @@ lang.update({
     "item.elysium.dimensional_boots": "Dimensional Boots",
     "item.elysium.emperor_crown": "Emperor's Crown",
     "item.elysium.elysium_reforge": "Elysium Reforge Catalyst",
+
+    # --- field rations -----------------------------------------------------
+    #
+    # Named for what they do to a body rather than for the hazard, because the
+    # hazard is already on the tooltip and a shelf of "Thermal Ration,
+    # Cryogenic Ration, Corrosive Ration" is a menu nobody reads twice.
+    "elysium.tooltip.ration": "Immune to %s \u00b7 %s",
+    "elysium.tooltip.ration.whole": "Nothing of it lands while the meal lasts. "
+                                    "Eat again to reset the clock.",
 
     "item.elysium.voidward_rune": "Voidward Rune",
     "item.elysium.plasmaforge_rune": "Plasmaforge Rune",
@@ -241,6 +305,9 @@ lang.update({
     # --- tooltips ----------------------------------------------------------
     "elysium.gui.reforge": "Forge",
     "elysium.tooltip.rune_hint": "Socket at a Rune Socket Table",
+    "elysium.tooltip.rune_tier_item": "Tier %s: %sx the base rune",
+    "elysium.tooltip.rune_merge_hint": "Two of tier %s merge into tier %s at the Ascension Forge",
+    "elysium.rune.tiered_name": "%s %s",
     "elysium.tooltip.reforge_hint": "Consumed at a Reforge Table to reroll stats",
     "elysium.tooltip.advantage": "+%s%% against %s and %s",
     "elysium.tooltip.resists": "Answers %s and %s",
@@ -295,6 +362,56 @@ lang.update({
     "elysium.suspicion.hunted": "Suspicion: Hunted",
 
     "elysium.standing.report": "Favor %s \u00b7 %s    Suspicion %s \u00b7 %s",
+
+    # --- claims, the archive and inspection posts --------------------------
+    #
+    # These nineteen were hand-added to the shipped language file and were not
+    # in this table, so the first run of this script that cleared assets/lang
+    # deleted every one of them — the same loss the note above the materials
+    # report is about, repeated because the table was not brought along when
+    # the feature was. Anything added to BLOCKS has to be added here too.
+    "elysium.claim.staked": "You claim this ground. The Empire opens a file: "
+                            "%s blocks in every direction, Suspicion held at "
+                            "%s. You will respawn here.",
+    "elysium.claim.report": "Filed: %s structures, Suspicion floor %s, "
+                            "radius %s.",
+    "elysium.claim.struck": "Your beacon is destroyed. The claim is struck \u2014 "
+                            "what you built remains, and is nobody's.",
+    "elysium.claim.not_yours": "This ground is filed to %s.",
+
+    "elysium.archive.header": "\u2014 Imperial Archive \u2014",
+    "elysium.archive.empty": "The file is empty. Nothing recent is recorded.",
+    "elysium.archive.floor": "Structural floor: Suspicion will not fall below "
+                             "%s. %s",
+    "elysium.archive.holdings": "(%s claim(s) filed here, largest %s "
+                                "structures)",
+    "elysium.archive.no_claim": "No claim filed. Nothing holds your Suspicion "
+                                "up.",
+
+    "elysium.inspection.reporting": "Imperial inspection post. Reporting "
+                                    "extraction within %s blocks at %sx for "
+                                    "another %s minute(s).",
+    "elysium.inspection.lapsed": "This post has lapsed. It is reporting "
+                                 "nothing.",
+    "elysium.inspection.resisted": "The post is destroyed. +%s Suspicion "
+                                   "\u2014 and the Empire has sent someone to "
+                                   "ask about it.",
+    "elysium.inspection.resisted_quiet": "The post is destroyed. +%s "
+                                         "Suspicion. Nobody was free to "
+                                         "answer it.",
+
+    "elysium.tooltip.registry_beacon": "Place and use it to claim the ground "
+                                       "around it. You respawn here, and the "
+                                       "claim is what an Imperial siege comes "
+                                       "for.",
+    "elysium.tooltip.registry_beacon.cost": "Sets a permanent floor under your "
+                                            "Suspicion, rising with what you "
+                                            "build inside the claim. Breaking "
+                                            "the beacon strikes the claim; "
+                                            "nothing you built is lost.",
+    "elysium.tooltip.imperial_archive": "Use it to read your file: both "
+                                        "meters, your bands, your structural "
+                                        "floor, and what recently moved them.",
 })
 
 
@@ -385,6 +502,92 @@ for _id, (_name, _desc) in CLASSES.items():
 for _id, (_name, _desc) in PASSIVES.items():
     lang[f"elysium.passive.{_id}"] = _name
     lang[f"elysium.passive.{_id}.desc"] = _desc
+
+# --- SPEC_CLONE P7: what the sigils and the two benches say -----------------
+#
+# A sigil's description is the whole of its interface: the item does one thing
+# once, and a player deciding whether to spend it is reading this line.
+for _augment, _says in (
+        ("socketing", "Adds one socket to a piece of gear"),
+        ("enhancement", "Raises one of a piece's affixes by a level"),
+        ("withdrawal", "Takes the last socketed rune back out, intact"),
+        ("rebirth", "Rolls a piece's affixes again, keeping their levels")):
+    lang[f"elysium.sigil.{_augment}.desc"] = _says
+lang["elysium.gem_case.desc"] = "Holds runes, dust and sigils"
+lang["elysium.cutting.cost"] = "Costs %s dust"
+lang["elysium.cutting.no_rune"] = "Put a rune in to cut it"
+lang["elysium.augmenting.no_sigil"] = "Put a sigil in to use it"
+
+# --- gear sets (SPEC_CLONE P9.1, P9.2) --------------------------------------
+#
+# Two sets, and they are the two the mod already has four pieces of. A set
+# bonus is stated in the shared effect vocabulary, so it is read by the same
+# handlers as a trait or an affix; the only thing new about it is the counting.
+#
+# Cumulative on purpose: four pieces gives the two-piece bonus and the
+# four-piece one, because the alternative is a fourth piece that takes
+# something away.
+GEAR_SETS = {
+    "elysium_regalia": {
+        "name": "Elysium Regalia",
+        "items": [f"{NS}:elysium_helmet", f"{NS}:plasma_chestplate",
+                  f"{NS}:neural_leggings", f"{NS}:dimensional_boots"],
+        "bonuses": [
+            {"pieces": 2, "effects": [
+                {"type": "attribute", "modifiers": [
+                    {"attribute": "minecraft:generic.max_health", "operation": "add_value",
+                     "slot": "any", "value": 2.0}]}]},
+            {"pieces": 4, "effects": [
+                {"type": "attribute", "modifiers": [
+                    {"attribute": "elysiumlib:dodge_chance", "operation": "add_value",
+                     "slot": "any", "value": 0.06}]},
+                {"type": "wielder_effect", "targets": [
+                    {"effect": "minecraft:speed", "levels": [0], "duration": 60}]}]},
+        ],
+    },
+    "neutronium_plate": {
+        "name": "Neutronium Plate",
+        "items": [f"{NS}:neutronium_helmet", f"{NS}:neutronium_chestplate",
+                  f"{NS}:neutronium_leggings", f"{NS}:neutronium_boots"],
+        "bonuses": [
+            {"pieces": 2, "effects": [
+                {"type": "attribute", "modifiers": [
+                    {"attribute": "minecraft:generic.knockback_resistance",
+                     "operation": "add_value", "slot": "any", "value": 0.1}]}]},
+            {"pieces": 4, "effects": [
+                {"type": "negate_damage", "tag": "minecraft:is_explosion",
+                 "scale_per_level": 0.05},
+                {"type": "attribute", "modifiers": [
+                    {"attribute": "minecraft:generic.armor_toughness",
+                     "operation": "add_value", "slot": "any", "value": 2.0}]}]},
+        ],
+    },
+}
+for _set, _body in GEAR_SETS.items():
+    write(f"data/{NS}/elysium_gear_sets/{_set}.json",
+          {"items": _body["items"], "bonuses": _body["bonuses"]})
+    lang[f"elysium.gear_set.{NS}.{_set}"] = _body["name"]
+
+# --- lines the code has always sent and nobody had written ------------------
+#
+# Found by the check added with P7: a Component.translatable with no entry
+# behind it shows the player a raw key, and thirteen of these had been shipping
+# that way. The words are written from what each call site passes, in the order
+# it passes them.
+lang["elysium.archive.detail"] = (
+    "Favor %s, Suspicion %s. %s to the next band; the file forgets %s every %s seconds.")
+lang["elysium.claim.ascend.price"] = "That costs %s beacons to raise to ascension %s."
+lang["elysium.claim.ascend.unclaimed"] = "Claim this ground before raising it."
+lang["elysium.claim.ascended"] = "Ascension %s. The claim runs to %s blocks; floor %s."
+lang["elysium.scanner.nothing"] = "Nothing here worth filing."
+lang["elysium.scanner.known"] = "%s is already on the record."
+lang["elysium.scanner.found"] = "%s recorded as %s."
+lang["elysium.scanner.filed"] = "Filed to %s: %s paid, Suspicion %s, Favor %s."
+lang["elysium.scanner.filing_set"] = "Reporting to %s."
+lang["elysium.scanner.survey"] = "Depth: y %s."
+lang["elysium.scanner.taxonomy"] = "%s, %s health."
+lang["elysium.scanner.reports_to"] = "Reports to: %s"
+lang["elysium.scanner.cycle"] = "Use in the air to change office"
 
 lang.update({
     "item.elysium.imperial_codex": "Imperial Codex",
@@ -528,6 +731,12 @@ for block, drop in ORE_DROPS.items():
     write(f"data/{NS}/loot_table/blocks/{block}.json", ore_loot(block, drop))
 for block in SELF_DROPS:
     write(f"data/{NS}/loot_table/blocks/{block}.json", self_loot(block))
+# An explicit empty table rather than no file. A block with no loot table at
+# all logs a missing-table warning every time one is broken; an empty one says
+# "drops nothing" on purpose and is silent.
+for block in NO_DROP_BLOCKS:
+    write(f"data/{NS}/loot_table/blocks/{block}.json",
+          {"type": "minecraft:block", "pools": []})
 
 # ---------------------------------------------------------------------------
 # Recipes  (1.21 folder is singular: recipe. Result key is "id", not "item".)
@@ -602,19 +811,155 @@ write(f"data/{NS}/recipe/neutronium_boots.json",
 write(f"data/{NS}/recipe/elysium_reforge.json",
       shaped([" a ", "ava", " a "], {"a": AET, "v": VOID}, f"{NS}:elysium_reforge"))
 
+# --- field rations ----------------------------------------------------------
+#
+# The category is "misc" and not "food": CraftingBookCategory has exactly four
+# values — building, redstone, equipment, misc — and the recipe book has no food
+# tab. An unknown one is not an error anybody sees, it is a DataResult failure
+# during recipe loading that drops the whole file, so the five rations shipped,
+# had art and language, and simply could not be crafted.
+#
+# Bread plus two of one ordinary thing, shapeless, for two rations. Cheap on
+# purpose: this is §10.2's *cheap* counter, and a counter that costs an Elysium
+# ingot is not cheap — it is the engineered answer wearing a smaller price.
+#
+# Each pairing is the one a player can reason about backwards. Snow against
+# heat, charcoal against cold, honeycomb sealing against corrosion, kelp's
+# iodine against fallout, clay as ballast against pressure. None of it needs a
+# wiki, which matters more here than anywhere else in the mod: this is the
+# recipe somebody looks for while they are on fire.
+for ration, (_display, ingredient) in RATIONS.items():
+    write(f"data/{NS}/recipe/{ration}.json",
+          shapeless(["minecraft:bread", ingredient, ingredient],
+                    f"{NS}:{ration}", count=2, category="misc"))
+
+# --- Imperial infrastructure ------------------------------------------------
+#
+# Both are deliberately buildable without any Elysium material except the one
+# Aetherium ingot in the beacon: filing a claim is paperwork, and the Empire
+# does not make paperwork expensive. What it costs is the permanent Suspicion
+# floor the tooltip warns about.
+# ---------------------------------------------------------------------------
+# Gear convergence: the templates, and the smithing recipe that reads them
+# ---------------------------------------------------------------------------
+#
+# One recipe file, not four. The direction is read off what is in the table's
+# slots — see ConvergenceSmithingRecipe — so a second file would be a second
+# place for the same question to be answered differently.
+#
+# The recipe ships unconditionally and does nothing without Silent Gear or
+# Apotheosis installed: GearConvergence.directionFor asks ModList before it
+# answers anything, so on a game with neither mod the output slot simply stays
+# empty. A datapack condition would have been the other way to do this and
+# would have meant the mod's own behaviour depending on load order.
+write(f"data/{NS}/recipe/convergence.json", {"type": f"{NS}:convergence"})
+
+# Both templates cost the same, because neither crossing is meant to be the
+# advanced one. Voidglass is the lens, the ingot is what the piece is keyed to,
+# and an amethyst shard is spent per conversion at the table.
+# The Field Scanner: a lens, a brain and the metal to hold them.
+write(f"data/{NS}/recipe/field_scanner.json",
+      shaped([" v ", "vav", " n "],
+             {"v": VOID, "a": f"{NS}:neuralspike_rune", "n": ING},
+             f"{NS}:field_scanner", count=1))
+
+write(f"data/{NS}/recipe/silent_convergence_template.json",
+      shaped([" v ", "vav", " n "],
+             {"v": VOID, "a": AET, "n": ING},
+             f"{NS}:silent_convergence_template", count=2))
+
+write(f"data/{NS}/recipe/affix_convergence_template.json",
+      shaped([" v ", "vgv", " n "],
+             {"v": VOID, "g": "minecraft:amethyst_shard", "n": ING},
+             f"{NS}:affix_convergence_template", count=2))
+
+write(f"data/{NS}/recipe/registry_beacon.json", {
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "pattern": ["iai", "i#i", "ooo"],
+    "key": {
+        "a": {"item": f"{NS}:aetherium_ingot"},
+        "#": {"item": "minecraft:redstone_block"},
+        "i": {"item": "minecraft:iron_ingot"},
+        "o": {"item": "minecraft:obsidian"},
+    },
+    "result": {"id": f"{NS}:registry_beacon", "count": 1},
+})
+write(f"data/{NS}/recipe/imperial_archive.json", {
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "pattern": ["ooo", "b#b", "ooo"],
+    "key": {
+        "#": {"item": "minecraft:amethyst_shard"},
+        "b": {"item": "minecraft:book"},
+        "o": {"item": "minecraft:obsidian"},
+    },
+    "result": {"id": f"{NS}:imperial_archive", "count": 1},
+})
+
+# --- the three workstations -------------------------------------------------
+#
+# Their bases are wood, stone and iron, not obsidian and iron blocks. Obsidian
+# is a diamond pickaxe and a trip to lava, and five iron blocks is forty-five
+# ingots: either one put the bench a player needs *first* behind the resources
+# they would need it to make sense of. The mod's own ingots stay on the top
+# row — that is the gate that is actually meant to be there — and the body of
+# each bench is what a player has on hand the day they find their first ore.
+#
+# Each of the two gear benches carries exactly one vanilla station in its
+# middle, and never more than one: the Reforge Table an anvil, because
+# reforging is rehammering a piece that already exists, and the Ascension
+# Forge a smithing table, because ascending is the same verb vanilla spends
+# that block on. One station apiece is the ceiling the owner set, so the
+# validator counts them rather than trusting the pattern to stay honest.
 write(f"data/{NS}/recipe/reforge_table.json",
-      shaped(["###", "iai", "iii"],
-             {"#": ING, "i": "minecraft:iron_block", "a": "minecraft:anvil"},
+      shaped(["###", "pap", "ppp"],
+             {"#": ING, "p": "#minecraft:planks", "a": "minecraft:anvil"},
              f"{NS}:reforge_table", category="building"))
 
 write(f"data/{NS}/recipe/rune_socket_table.json",
-      shaped(["vvv", "i#i", "iii"],
-             {"v": VOID, "#": ING, "i": "minecraft:obsidian"},
+      shaped(["vvv", "s#s", "sss"],
+             {"v": VOID, "#": ING, "s": "minecraft:stone_bricks"},
              f"{NS}:rune_socket_table", category="building"))
 
+# --- the P7 benches and what they spend ------------------------------------
+write(f"data/{NS}/recipe/gem_cutting_table.json",
+      shaped(["vvv", "v#v", "sss"],
+             {"v": VOID, "#": ING, "s": "minecraft:stone_bricks"},
+             f"{NS}:gem_cutting_table", category="building"))
+
+write(f"data/{NS}/recipe/augmenting_table.json",
+      shaped(["aaa", "v#v", "sss"],
+             {"a": AET, "v": VOID, "#": ING, "s": "minecraft:stone_bricks"},
+             f"{NS}:augmenting_table", category="building"))
+
+# The case: voidglass around a chest, which is what it is.
+write(f"data/{NS}/recipe/gem_case.json",
+      shaped(["vvv", "vcv", "vvv"],
+             {"v": VOID, "c": "minecraft:chest"},
+             f"{NS}:gem_case", category="equipment"))
+
+# The four sigils. Each is a plate of the metal that suits what it does, with
+# the catalyst that names it. Dust is in all four: a sigil is made of ground
+# runes, which is what ties them to the rest of P7.
+for _sigil, _catalyst in (("socketing", "minecraft:ender_pearl"),
+                          ("enhancement", "minecraft:blaze_powder"),
+                          ("withdrawal", "minecraft:ghast_tear"),
+                          ("rebirth", "minecraft:echo_shard")):
+    write(f"data/{NS}/recipe/sigil_of_{_sigil}.json",
+          shaped([" d ", "dcd", " d "],
+                 {"d": f"{NS}:gem_dust", "c": _catalyst},
+                 f"{NS}:sigil_of_{_sigil}", category="equipment"))
+
+# Dust has no shaped recipe of its own: it is what grinding a rune produces.
+# The grinding is a recipe with no fixed result — what comes out depends on the
+# purity of what went in — so it is a serializer rather than a shape.
+write(f"data/{NS}/recipe/gem_grinding.json", {"type": f"{NS}:gem_grinding", "category": "misc"})
+
 write(f"data/{NS}/recipe/ascension_forge.json",
-      shaped(["aaa", "i#i", "iii"],
-             {"a": AET, "#": ING, "i": "minecraft:obsidian"},
+      shaped(["aaa", "i#i", "iti"],
+             {"a": AET, "#": ING, "i": "minecraft:iron_ingot",
+              "t": "minecraft:smithing_table"},
              f"{NS}:ascension_forge", category="building"))
 
 # --- runes -----------------------------------------------------------------
@@ -727,7 +1072,8 @@ write("data/minecraft/tags/block/needs_iron_tool.json",
 
 write("data/minecraft/tags/block/needs_diamond_tool.json",
       {"replace": False,
-       "values": [f"{NS}:reforge_table", f"{NS}:rune_socket_table", f"{NS}:ascension_forge"]})
+       "values": [f"{NS}:reforge_table", f"{NS}:rune_socket_table", f"{NS}:ascension_forge",
+                  f"{NS}:gem_cutting_table", f"{NS}:augmenting_table"]})
 
 write("data/minecraft/tags/block/needs_netherite_tool.json",
       {"replace": False, "values": [f"{NS}:neutronium_ore", f"{NS}:neutronium_block"]})
@@ -735,6 +1081,30 @@ write("data/minecraft/tags/block/needs_netherite_tool.json",
 # NeoForge reads this tag to decide what a netherite pickaxe can harvest.
 write("data/neoforge/tags/block/needs_netherite_tool.json",
       {"replace": False, "values": [f"{NS}:neutronium_ore", f"{NS}:neutronium_block"]})
+
+# ---------------------------------------------------------------------------
+# Item tags: the Empire's ingots, by their common names
+# ---------------------------------------------------------------------------
+#
+# Every generated recipe for an Elysium material names its ingot by the common
+# tag — c:ingots/voidglass — so that another mod's voidglass, if one ever
+# exists, crafts the same gear. That only works if the tag exists, and for the
+# Empire's three it did not: NeoForge defines the common tags for vanilla
+# metals and nobody defines them for ours. So every voidglass, aetherium and
+# neutronium tool recipe pointed at an empty tag and none of them could be
+# crafted, with nothing in the game or the log to say so. Neutronium armour
+# was the exception only because its recipe names the item directly.
+EMPIRE_INGOTS = {
+    "voidglass": f"{NS}:voidglass_ingot",
+    "aetherium": f"{NS}:aetherium_ingot",
+    "neutronium": f"{NS}:neutronium_ingot",
+}
+for material, ingot in EMPIRE_INGOTS.items():
+    write(f"data/c/tags/item/ingots/{material}.json",
+          {"replace": False, "values": [ingot]})
+# And the umbrella tag, which is what "any ingot" means to every other mod.
+write("data/c/tags/item/ingots.json",
+      {"replace": False, "values": [f"#c:ingots/{m}" for m in EMPIRE_INGOTS]})
 
 # ---------------------------------------------------------------------------
 # Worldgen
@@ -798,6 +1168,70 @@ for name, (size, count, min_y, max_y) in ORE_SETTINGS.items():
         "biomes": "#minecraft:is_overworld",
         "features": f"{NS}:{name}",
         "step": "underground_ores"
+    })
+
+# --- rogue spawners and the cage in the world (SPEC_CLONE P9.5, P9.6) -------
+#
+# Rare, underground, and on the floor: a spawner in the ceiling is a spawner a
+# player walks under without ever seeing. The block predicate is what puts it
+# on a floor — air where it goes, something solid beneath it — and without it
+# `simple_block` would happily place them inside stone where nothing can reach
+# them and nothing can be reached by them.
+ROGUE_SETTINGS = {
+    # name: (tries per chunk, min y, max y)
+    "brutal_spawner": (1, -48, 32),
+    "swarm_spawner": (1, -40, 48),
+    "caged_invader": (1, -56, 8),
+}
+
+for name, (tries, min_y, max_y) in ROGUE_SETTINGS.items():
+    write(f"data/{NS}/worldgen/configured_feature/{name}.json", {
+        "type": "minecraft:simple_block",
+        "config": {
+            "to_place": {"type": "minecraft:simple_state_provider",
+                         "state": {"Name": f"{NS}:{name}"}}
+        }
+    })
+    write(f"data/{NS}/worldgen/placed_feature/{name}.json", {
+        "feature": f"{NS}:{name}",
+        "placement": [
+            # Rare: one attempt in a good few chunks, not one per chunk.
+            {"type": "minecraft:rarity_filter", "chance": 26},
+            {"type": "minecraft:in_square"},
+            {
+                "type": "minecraft:height_range",
+                "height": {
+                    "type": "minecraft:uniform",
+                    "min_inclusive": {"absolute": min_y},
+                    "max_inclusive": {"absolute": max_y}
+                }
+            },
+            {
+                "type": "minecraft:block_predicate_filter",
+                "predicate": {
+                    "type": "minecraft:matching_blocks",
+                    "blocks": "minecraft:air"
+                }
+            },
+            {
+                "type": "minecraft:environment_scan",
+                "direction_of_search": "down",
+                "max_steps": 8,
+                "target_condition": {
+                    "type": "minecraft:solid"
+                }
+            },
+            {"type": "minecraft:random_offset",
+             "xz_spread": {"type": "minecraft:constant", "value": 0},
+             "y_spread": {"type": "minecraft:constant", "value": 1}},
+            {"type": "minecraft:biome"}
+        ]
+    })
+    write(f"data/{NS}/neoforge/biome_modifier/add_{name}.json", {
+        "type": "neoforge:add_features",
+        "biomes": "#minecraft:is_overworld",
+        "features": f"{NS}:{name}",
+        "step": "underground_structures"
     })
 
 # ---------------------------------------------------------------------------

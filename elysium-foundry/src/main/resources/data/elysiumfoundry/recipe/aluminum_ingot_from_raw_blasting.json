@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:raw_aluminum"
+  },
+  "result": {
+    "id": "elysiumfoundry:aluminum_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 100
+}

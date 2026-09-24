@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "elysiumspace:block/waygate_anchor"
+    }
+  }
+}

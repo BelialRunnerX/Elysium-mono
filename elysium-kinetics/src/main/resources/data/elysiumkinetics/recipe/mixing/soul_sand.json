@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:mixing",
+  "input": {
+    "item": "minecraft:soul_soil"
+  },
+  "result": {
+    "id": "minecraft:soul_sand",
+    "count": 1
+  },
+  "ticks": 180,
+  "pace": "steady"
+}

@@ -71,6 +71,11 @@ public final class ElysiumMaterials {
             .tier(0)
             .toolTier(Tiers.DIAMOND)
             .damageBonus(0.0F)
+            // Diamond's protection, cut rather than cast: a little less
+            // durable, a good deal more enchantable. The Empire's first
+            // armour is a sidegrade to diamond that carries the Void element,
+            // not a step past it — tier 0, the same as the vanilla ramp.
+            .armour(new ArmourProfile(3, 6, 8, 3, 18, 2.0F, 0.0F, 30))
             .vanilla()   // Elysium ships the ingot itself, so it is always there.
             .register();
 
@@ -81,6 +86,11 @@ public final class ElysiumMaterials {
             .tier(1)
             .toolTier(Tiers.DIAMOND)
             .damageBonus(1.0F)
+            // A step past netherite and short of the two hand-written sets:
+            // 24 armour against netherite's 20, the Elysium set's 28 and
+            // neutronium's 32. Light and planar, so enchantability over
+            // knockback resistance.
+            .armour(new ArmourProfile(4, 7, 9, 4, 22, 3.0F, 0.05F, 38))
             .vanilla()
             .register();
 

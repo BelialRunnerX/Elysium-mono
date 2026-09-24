@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "elysiumspace:block/polished_pale_stone",
+    "top": "elysiumspace:block/polished_pale_stone",
+    "side": "elysiumspace:block/polished_pale_stone"
+  }
+}

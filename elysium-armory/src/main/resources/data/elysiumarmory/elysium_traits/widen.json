@@ -1,0 +1,13 @@
+{
+  "name": "Widen",
+  "max_level": 3,
+  "description": "Increases the effect radius of hammers and excavators",
+  "conditions": [
+    "on:harvest_tool"
+  ],
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

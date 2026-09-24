@@ -234,6 +234,13 @@ public final class ElysiumStandingHandler {
         // level track is meant to follow.
         ElysiumCharacter.addXp(player, named ? 14 : 4);
 
+        // Credited before the meters move, and credited for every kill rather
+        // than the sampled subset below: a cull contract asked for a number,
+        // and a number that only counted sometimes would be a contract nobody
+        // could tell was progressing.
+        com.elysium.lib.contract.ElysiumContracts.killed(
+                player, ElysiumFaction.of(victim));
+
         switch (ElysiumFaction.of(victim)) {
             case EMPIRE ->
                 // Killing the Empire's own is the one thing it cannot overlook.
@@ -411,6 +418,20 @@ public final class ElysiumStandingHandler {
                             .reporting(event.getPos(), level.getGameTime()) != null;
             if (watched) {
                 suspicion *= ElysiumInspection.MULTIPLIER;
+            }
+
+            // How loud this player has chosen to be. Applied after the
+            // beacon's repricing and before the meter moves, so a licensed
+            // miner under a beacon is still under a beacon — a doctrine
+            // changes how much noise you make, not what the Empire watches.
+            //
+            // Rounded up while it is still above zero: a multiplier that could
+            // round two down to nothing would make quiet extraction free, and
+            // free extraction is the one thing §14 cannot allow.
+            float scale = com.elysium.lib.doctrine.ElysiumDoctrines
+                    .suspicionMultiplier(player);
+            if (scale != 1.0F) {
+                suspicion = Math.max(1, Math.round(suspicion * scale));
             }
 
             ElysiumStanding.addSuspicion(player, suspicion,

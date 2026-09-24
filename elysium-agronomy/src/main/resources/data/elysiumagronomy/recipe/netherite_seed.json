@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:ascendant_essence"
+    },
+    {
+      "item": "elysiumagronomy:ascendant_essence"
+    },
+    {
+      "item": "elysiumagronomy:ascendant_essence"
+    },
+    {
+      "item": "elysiumagronomy:ascendant_essence"
+    },
+    {
+      "item": "minecraft:netherite_scrap"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:netherite_seed",
+    "count": 1
+  }
+}

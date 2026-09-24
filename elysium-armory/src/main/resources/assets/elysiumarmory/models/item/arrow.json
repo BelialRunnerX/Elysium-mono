@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarmory:item/arrow",
+    "layer1": "elysiumarmory:item/arrow_grip"
+  }
+}

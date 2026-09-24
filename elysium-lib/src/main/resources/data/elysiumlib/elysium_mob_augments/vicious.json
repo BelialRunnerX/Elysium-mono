@@ -1,0 +1,12 @@
+{
+  "weight": 5,
+  "min_tier": 3,
+  "attributes": {
+    "minecraft:generic.attack_damage": 2.0
+  },
+  "effects": [
+    {
+      "effect": "minecraft:strength"
+    }
+  ]
+}

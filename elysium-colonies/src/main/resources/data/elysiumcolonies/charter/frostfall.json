@@ -1,0 +1,13 @@
+{
+  "dimension": "elysiumspace:frostfall",
+  "natives": [
+    "iron",
+    "diamond",
+    "tin",
+    "nickel"
+  ],
+  "hazard": 2.5,
+  "air": "poor",
+  "reach": 5,
+  "style": "Frostfall"
+}

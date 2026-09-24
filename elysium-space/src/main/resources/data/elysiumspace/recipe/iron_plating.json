@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": {
+      "tag": "c:ingots/iron"
+    }
+  },
+  "result": {
+    "count": 4,
+    "id": "elysiumspace:iron_plating"
+  }
+}

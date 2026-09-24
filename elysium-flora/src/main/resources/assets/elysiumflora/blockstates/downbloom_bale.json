@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumflora:block/downbloom_bale"
+    },
+    "axis=z": {
+      "model": "elysiumflora:block/downbloom_bale",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "elysiumflora:block/downbloom_bale",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "Accelerate",
+  "max_level": 5,
+  "description": "Gains harvest speed, attack speed, and ranged speed as damaged",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "property",
+      "modifiers": {
+        "attack_speed": {
+          "per_level": 0.01,
+          "damage_ratio": true,
+          "of_value": false
+        },
+        "draw_speed": {
+          "per_level": 0.01,
+          "damage_ratio": true,
+          "of_value": false
+        },
+        "harvest_speed": {
+          "per_level": 2.0,
+          "damage_ratio": true,
+          "of_value": false
+        }
+      }
+    }
+  ]
+}

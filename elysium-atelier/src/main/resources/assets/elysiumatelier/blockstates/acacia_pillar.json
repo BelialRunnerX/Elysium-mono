@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumatelier:block/acacia_pillar"
+    },
+    "axis=x": {
+      "model": "elysiumatelier:block/acacia_pillar",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumatelier:block/acacia_pillar",
+      "x": 90
+    }
+  }
+}

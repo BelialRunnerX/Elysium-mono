@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarmory:item/excavator",
+    "layer1": "elysiumarmory:item/excavator_grip"
+  }
+}

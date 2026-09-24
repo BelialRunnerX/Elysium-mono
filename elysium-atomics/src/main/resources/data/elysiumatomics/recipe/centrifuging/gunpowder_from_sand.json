@@ -1,0 +1,11 @@
+{
+  "type": "elysiumatomics:centrifuging",
+  "input": {
+    "item": "minecraft:soul_sand"
+  },
+  "result": {
+    "id": "minecraft:gunpowder",
+    "count": 2
+  },
+  "ticks": 240
+}

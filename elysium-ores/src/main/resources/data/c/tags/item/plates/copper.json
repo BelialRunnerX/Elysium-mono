@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "create:copper_sheet",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:plate_copper",
+      "required": false
+    }
+  ]
+}

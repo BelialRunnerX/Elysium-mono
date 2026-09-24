@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumlogistics:brass_drawer",
+    "elysiumlogistics:steel_drawer",
+    "elysiumlogistics:bus",
+    "elysiumlogistics:controller",
+    "elysiumlogistics:assembly_core",
+    "elysiumlogistics:assembler",
+    "elysiumlogistics:terminal"
+  ]
+}

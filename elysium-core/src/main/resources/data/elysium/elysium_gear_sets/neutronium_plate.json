@@ -1,0 +1,47 @@
+{
+  "items": [
+    "elysium:neutronium_helmet",
+    "elysium:neutronium_chestplate",
+    "elysium:neutronium_leggings",
+    "elysium:neutronium_boots"
+  ],
+  "bonuses": [
+    {
+      "pieces": 2,
+      "effects": [
+        {
+          "type": "attribute",
+          "modifiers": [
+            {
+              "attribute": "minecraft:generic.knockback_resistance",
+              "operation": "add_value",
+              "slot": "any",
+              "value": 0.1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "pieces": 4,
+      "effects": [
+        {
+          "type": "negate_damage",
+          "tag": "minecraft:is_explosion",
+          "scale_per_level": 0.05
+        },
+        {
+          "type": "attribute",
+          "modifiers": [
+            {
+              "attribute": "minecraft:generic.armor_toughness",
+              "operation": "add_value",
+              "slot": "any",
+              "value": 2.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

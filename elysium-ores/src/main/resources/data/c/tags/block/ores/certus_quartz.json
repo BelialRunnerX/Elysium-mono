@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_certus_quartz_ore",
+    "elysiumores:deepslate_certus_quartz_ore",
+    "elysiumores:end_stone_certus_quartz_ore",
+    "elysiumores:frost_certus_quartz_ore",
+    "elysiumores:netherrack_certus_quartz_ore",
+    "elysiumores:pale_certus_quartz_ore",
+    "elysiumores:stone_certus_quartz_ore"
+  ]
+}

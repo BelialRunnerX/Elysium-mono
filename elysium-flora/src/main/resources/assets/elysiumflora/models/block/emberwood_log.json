@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "elysiumflora:block/emberwood_log_top",
+    "side": "elysiumflora:block/emberwood_log"
+  }
+}

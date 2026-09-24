@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createdieselgenerators:wood_chip",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:dust_wood",
+      "required": false
+    },
+    {
+      "id": "mekanism:sawdust",
+      "required": false
+    }
+  ]
+}

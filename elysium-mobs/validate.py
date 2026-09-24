@@ -17,6 +17,7 @@ nothing else can check it.
 """
 import json
 import os
+import pathlib
 import re
 import sys
 
@@ -557,6 +558,79 @@ print(f"register actions   : 14.3 table matches, {len(empire_families)} Empire "
 # check that looks present, prints a reassuring line, and is structurally
 # incapable of reporting anything. The root validator now refuses any module
 # whose file calls fail() after this block.
+# ---------------------------------------------------------------------------
+# Value structure: a mob has to be visible from across a room
+# ---------------------------------------------------------------------------
+#
+# The bestiary shipped twice as a set of silhouettes, and neither time was it
+# a bug anybody could see in a diff. The palette was three to four times darker
+# than vanilla's entity textures the first time; the second time the mean was
+# right and the *range* was a fifth of a cow's, which is the same thing — one
+# flat value over a hundred parts is a shape with an outline and nothing
+# inside it.
+#
+# Both are measurements, so both are checkable. The numbers are vanilla's own,
+# taken from cow.png and iron_golem.png through this same arithmetic:
+#
+#     cow     mean  64.9   p5  20.6   p95 172.0   std 48.6
+#     golem   mean 145.4   p5  88.2   p95 180.9   std 32.0
+#
+# The bands below are wide enough to hold both and to leave a family its own
+# character; what they do not hold is a texture with no light in it, or one
+# with no dark.
+
+try:
+    import numpy as _np
+    from PIL import Image as _Image
+except ImportError:
+    print("mob value range     : not measured, Pillow or numpy missing")
+else:
+    MEAN_FLOOR, MEAN_CEILING = 55.0, 165.0
+    SPREAD_FLOOR = 24.0
+    HIGHLIGHT_FLOOR = 130.0
+
+    _measured = []
+    _flattest = None
+    _darkest = None
+    for _texture in sorted((pathlib.Path(RES) / "textures/entity").rglob("*.png")):
+        _pixels = _np.array(_Image.open(_texture).convert("RGBA"), dtype=float)
+        _opaque = _pixels[_pixels[..., 3] > 0][:, :3]
+        if _opaque.size == 0:
+            fail(f"{_texture.name} is entirely transparent")
+            continue
+        _lum = (0.2126 * _opaque[:, 0] + 0.7152 * _opaque[:, 1]
+                + 0.0722 * _opaque[:, 2])
+        _mean, _std = float(_lum.mean()), float(_lum.std())
+        _p95 = float(_np.percentile(_lum, 95))
+        _measured.append((_texture.name, _mean, _std, _p95))
+
+        _where = f"{_texture.parent.name}/{_texture.name}"
+        if _mean < MEAN_FLOOR:
+            fail(f"{_where} averages {_mean:.1f} luminance against vanilla's "
+                 f"65-145. It renders as a silhouette with a coloured dot on it")
+        if _mean > MEAN_CEILING:
+            fail(f"{_where} averages {_mean:.1f} luminance, brighter than any "
+                 f"vanilla entity — it will glow against every world it is in")
+        if _std < SPREAD_FLOOR:
+            fail(f"{_where} strays only {_std:.1f} from its own mean against a "
+                 f"cow's 48.6. One flat value over every part is a shape with "
+                 f"an outline and nothing inside it, however bright the value")
+        if _p95 < HIGHLIGHT_FLOOR:
+            fail(f"{_where} has no highlight: its brightest twentieth reaches "
+                 f"{_p95:.1f}. A texture whose lightest pixel is a midtone has "
+                 f"no value structure and reads as a silhouette")
+
+        if _flattest is None or _std < _flattest[1]:
+            _flattest = (_where, _std)
+        if _darkest is None or _mean < _darkest[1]:
+            _darkest = (_where, _mean)
+
+    if _measured and _flattest and _darkest:
+        print(f"mob value range     : {len(_measured)} textures, flattest "
+              f"{_flattest[0]} at std {_flattest[1]:.1f} (floor {SPREAD_FLOOR}), "
+              f"darkest {_darkest[0]} at mean {_darkest[1]:.1f} "
+              f"(floor {MEAN_FLOOR})")
+
 if problems:
     print(f"{len(problems)} PROBLEM(S):")
     for problem in problems:

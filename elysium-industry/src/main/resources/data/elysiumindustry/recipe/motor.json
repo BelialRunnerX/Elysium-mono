@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "GIG",
+    "GKG",
+    "GIG"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "K": {
+      "item": "elysiumkinetics:brass_shaft"
+    }
+  },
+  "result": {
+    "id": "elysiumindustry:motor",
+    "count": 1
+  }
+}

@@ -89,6 +89,19 @@ PALETTE = {
     "FAVOR":            0xFF63B7E0,
     "SUSPICION":        0xFFD1553F,
 
+    # The HUD's own three. A bar drawn over the world has no panel behind it,
+    # so it needs a backing plate of its own, and low health wants a warmer
+    # red than BAD — BAD is a state a screen reports, low health is a thing
+    # flashing at the edge of vision and it should not read as a text colour.
+    "GAUGE_PLATE":      0xFF12171D,
+    "HEALTH_LOW":       0xFFFF8A72,
+    "SATURATION":       0xFFE8C96A,
+
+    # Pure white, only ever used at low alpha as the leading edge of a filling
+    # bar. Named because a literal in the middle of a draw call is a colour
+    # nobody can find again.
+    "HIGHLIGHT":        0xFFFFFFFF,
+
     # Slots, for the container screens.
     "SLOT":             0xFF07060B,
     "SLOT_EDGE":        0xFF322B4A,

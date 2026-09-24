@@ -1,0 +1,28 @@
+{
+  "type": "simple",
+  "parent": "elysiumarmory:wood",
+  "crafting": {
+    "ingredient": "minecraft:warped_planks"
+  },
+  "display": {
+    "name": "Warped Wood"
+  },
+  "properties": {
+    "main": {
+      "traits": [
+        {
+          "trait": "jagged",
+          "level": 1
+        }
+      ]
+    },
+    "rod": {
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

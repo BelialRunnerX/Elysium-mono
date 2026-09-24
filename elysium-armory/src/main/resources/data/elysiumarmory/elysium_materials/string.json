@@ -1,0 +1,34 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "minecraft:string",
+    "categories": [
+      "organic",
+      "fiber",
+      "basic"
+    ]
+  },
+  "display": {
+    "name": "String"
+  },
+  "properties": {
+    "binding": {
+      "repair_efficiency": {
+        "op": "multiply_base",
+        "value": 0.05
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 1
+        }
+      ]
+    },
+    "cord": {
+      "draw_speed": {
+        "op": "multiply_base",
+        "value": 0.1
+      }
+    }
+  }
+}

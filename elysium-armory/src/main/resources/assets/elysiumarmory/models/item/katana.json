@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarmory:item/katana",
+    "layer1": "elysiumarmory:item/katana_grip"
+  }
+}

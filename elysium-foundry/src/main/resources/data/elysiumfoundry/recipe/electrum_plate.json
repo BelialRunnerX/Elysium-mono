@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "item": "elysiumfoundry:electrum_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:electrum_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

@@ -1,0 +1,11 @@
+{
+  "type": "elysiumatomics:reacting",
+  "input": {
+    "item": "minecraft:clay_ball"
+  },
+  "result": {
+    "id": "minecraft:slime_ball",
+    "count": 1
+  },
+  "ticks": 240
+}

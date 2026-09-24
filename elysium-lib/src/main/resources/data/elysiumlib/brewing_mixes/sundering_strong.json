@@ -1,0 +1,5 @@
+{
+  "from": "elysiumlib:sundering",
+  "ingredient": "minecraft:glowstone_dust",
+  "to": "elysiumlib:strong_sundering"
+}

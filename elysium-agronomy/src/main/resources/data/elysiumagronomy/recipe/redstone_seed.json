@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "minecraft:redstone"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:redstone_seed",
+    "count": 1
+  }
+}

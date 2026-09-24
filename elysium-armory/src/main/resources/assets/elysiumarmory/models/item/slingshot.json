@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarmory:item/slingshot",
+    "layer1": "elysiumarmory:item/slingshot_grip"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " I ",
+    " I "
+  ],
+  "key": {
+    "I": {
+      "item": "elysiumfoundry:stainless_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:stainless_rod",
+    "count": 2
+  }
+}

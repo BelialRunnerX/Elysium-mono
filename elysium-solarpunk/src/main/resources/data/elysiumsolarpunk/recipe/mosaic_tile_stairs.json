@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "b  ",
+    "bb ",
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "elysiumsolarpunk:mosaic_tile"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:mosaic_tile_stairs",
+    "count": 4
+  }
+}

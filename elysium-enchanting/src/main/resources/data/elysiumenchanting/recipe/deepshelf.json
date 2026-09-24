@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "sds",
+    "dBd",
+    "sds"
+  ],
+  "key": {
+    "s": {
+      "item": "minecraft:deepslate"
+    },
+    "d": {
+      "item": "minecraft:sculk"
+    },
+    "B": {
+      "item": "minecraft:bookshelf"
+    }
+  },
+  "result": {
+    "id": "elysiumenchanting:deepshelf",
+    "count": 1
+  }
+}

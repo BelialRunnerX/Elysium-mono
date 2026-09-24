@@ -1,0 +1,43 @@
+{
+  "sun": {
+    "texture": "minecraft:textures/environment/sun.png",
+    "size": 135.0,
+    "height": 450.0
+  },
+  "stars": {
+    "count": 1500,
+    "scale": 0.1,
+    "color": [
+      255,
+      255,
+      255
+    ],
+    "always": false,
+    "moving": true
+  },
+  "objects": [
+    {
+      "texture": "elysiumspace:textures/environment/overworld.png",
+      "size": 40.0,
+      "height": 100,
+      "rotation": [
+        180.0,
+        0.0,
+        0.0
+      ],
+      "static": true
+    }
+  ],
+  "sunset": 0,
+  "clouds": false,
+  "cloudHeight": 300,
+  "weather": false,
+  "brightLightmap": false,
+  "ambientLight": false,
+  "moon": {
+    "texture": "minecraft:textures/environment/moon_phases.png",
+    "size": 75.0,
+    "height": 75.0,
+    "phases": true
+  }
+}

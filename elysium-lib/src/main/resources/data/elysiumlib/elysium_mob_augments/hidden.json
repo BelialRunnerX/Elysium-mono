@@ -1,0 +1,9 @@
+{
+  "weight": 4,
+  "min_tier": 3,
+  "effects": [
+    {
+      "effect": "minecraft:invisibility"
+    }
+  ]
+}

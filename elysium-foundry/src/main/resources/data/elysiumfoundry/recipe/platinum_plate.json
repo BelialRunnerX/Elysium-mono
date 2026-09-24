@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "item": "elysiumfoundry:platinum_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:platinum_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

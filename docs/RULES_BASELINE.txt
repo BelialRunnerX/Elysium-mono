@@ -1,0 +1,103 @@
+# Validator rules that name a call where they should name a statement.
+#
+# Written by check_rules.py --bless. Every line is a rule that can be
+# defeated by an edit that leaves the call exactly where it is — an
+# `if (false)` in front of it, an assignment nobody reads — and goes on
+# passing. This file is a ratchet: a new one fails the build, and these
+# come out as the modules they are in are next touched.
+#
+# Fewer lines here is the only direction this file may move.
+elysium-agronomy	AgronomyRules.potSpeed(
+elysium-agronomy	Math.min(1.0F,
+elysium-almanac	was.add(
+elysium-atomics	IndustryRules.settle(
+elysium-atomics	Math.max(AMBIENT,
+elysium-colonies	CharterRules.weighted(
+elysium-colonies	Charters.needs().contains(
+elysium-colonies	Colonies.clearOf(
+elysium-colonies	Colonies.deliver(
+elysium-colonies	Colonies.inside(
+elysium-colonies	Colonies.owed(
+elysium-colonies	Colonies.owns(
+elysium-colonies	Colonies.repair(
+elysium-colonies	Colonies.take(
+elysium-colonies	ColonyRules.promotes(
+elysium-colonies	ColonyRules.raiderTier(
+elysium-colonies	ColonyRules.worldFloor(
+elysium-colonies	ElevatorBase.legs(
+elysium-colonies	ElysiumElites.decided(
+elysium-colonies	ElysiumElites.promote(
+elysium-colonies	ElysiumTiers.lift(
+elysium-colonies	GrowthRules.affords(
+elysium-colonies	GrowthRules.patient(
+elysium-colonies	GrowthRules.willRaise(
+elysium-colonies	Market.priceOf(
+elysium-colonies	MarketRules.buys(
+elysium-colonies	MarketRules.priceOf(
+elysium-colonies	MarketRules.purseFrom(
+elysium-colonies	PortRules.banked(
+elysium-colonies	ReliefRules.alsoReport(
+elysium-colonies	ReliefRules.dueToReport(
+elysium-colonies	ReliefRules.granting(
+elysium-colonies	ReliefRules.progressed(
+elysium-colonies	ReliefRules.reliefFor(
+elysium-colonies	Spaceport.run(level, town,
+elysium-colonies	StewardRules.dueToSuggest(
+elysium-colonies	StewardRules.maySite(
+elysium-colonies	blueprintFor(
+elysium-colonies	forgetAt(
+elysium-colonies	getModifier(
+elysium-colonies	hasChunkAt(
+elysium-colonies	injectModifier(
+elysium-colonies	isColonyMember(
+elysium-colonies	levelEnough(
+elysium-colonies	openAbove(
+elysium-colonies	overruleRequest(
+elysium-colonies	ownerIsHere(
+elysium-colonies	report(level, town,
+elysium-colonies	seenOn(
+elysium-colonies	setItemInHand(
+elysium-colonies	setPlacedBy(
+elysium-colonies	withTreasury(
+elysium-core	ElysiumTiers.lift(player,
+elysium-core	ElysiumWorldTier.tierForAscension(
+elysium-flora	FloraRules.fortuned(amount,
+elysium-flora	FloraRules.harvest(
+elysium-flora	FloraRules.ripe(
+elysium-flora	bonusChance(
+elysium-industry	Math.max(0.0F,
+elysium-industry	new Reading(supply + lent, demand,
+elysium-kinetics	Math.max(0.0F,
+elysium-lib	.placed(
+elysium-lib	.plant(
+elysium-lib	.wounded(
+elysium-lib	ElysiumCover.scar(
+elysium-lib	ElysiumMedical.apply(
+elysium-lib	ElysiumShares.add(
+elysium-lib	ElysiumTelegraph.allowed(
+elysium-lib	ElysiumWarnings.begin(
+elysium-lib	ElysiumWarnings.spend(
+elysium-lib	canSeeSky(
+elysium-lib	effective(
+elysium-lib	expired(
+elysium-lib	isLoaded(
+elysium-lib	lift(player,
+elysium-lib	punish(
+elysium-lib	roomShare(
+elysium-lib	setHealth(
+elysium-lib	socketed(
+elysium-lib	suspicionMultiplier(
+elysium-lib	wornShares(
+elysium-logistics	LogisticRules.accepted(
+elysium-logistics	LogisticRules.leftOver(
+elysium-logistics	Math.min(
+elysium-ores	OreRules.fortuned(
+elysium-ores	OreRules.yield(
+elysium-ores	UnifyRules.worthUnifying(
+elysium-ores	ambiguousIds.contains(
+elysium-ores	silked(
+elysium-space	SpaceRoute.fuelFor(
+elysium-space	level.getChunk(
+elysium-space	nearestAnchor(
+elysium-space	network.forget(
+elysium-space	replace(

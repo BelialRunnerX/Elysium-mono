@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createbigcannons:steel_scrap",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:steel_nugget",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:nugget_steel",
+      "required": false
+    },
+    {
+      "id": "mekanism:nugget_steel",
+      "required": false
+    },
+    {
+      "id": "tfmg:steel_nugget",
+      "required": false
+    }
+  ]
+}

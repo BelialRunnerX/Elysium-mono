@@ -1,0 +1,12 @@
+{
+  "name": "Bending",
+  "max_level": 5,
+  "description": "Gear sometimes takes extra damage",
+  "effects": [
+    {
+      "type": "durability",
+      "chance_per_level": 0.075,
+      "amount": 1
+    }
+  ]
+}

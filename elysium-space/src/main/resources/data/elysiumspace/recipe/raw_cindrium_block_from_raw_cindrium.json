@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumspace:raw_cindrium"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:raw_cindrium_block"
+  }
+}

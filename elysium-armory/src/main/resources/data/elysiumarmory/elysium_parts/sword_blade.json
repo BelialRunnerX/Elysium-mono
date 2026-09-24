@@ -1,0 +1,19 @@
+{
+  "type": "core",
+  "gear_type": "sword",
+  "part_type": "main",
+  "crafting": {
+    "materials": 2
+  },
+  "properties": {
+    "attack_damage": {
+      "op": "add",
+      "value": 3.0
+    },
+    "attack_speed": {
+      "op": "add",
+      "value": 1.6
+    },
+    "repair_efficiency": 1.0
+  }
+}

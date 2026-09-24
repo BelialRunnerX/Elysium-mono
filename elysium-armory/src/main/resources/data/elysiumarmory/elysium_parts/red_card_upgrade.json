@@ -1,0 +1,20 @@
+{
+  "type": "upgrade",
+  "gear_type": "all",
+  "part_type": "misc_upgrade",
+  "properties": {
+    "rarity": -5.0,
+    "traits": [
+      {
+        "trait": "red_card",
+        "level": 1
+      }
+    ]
+  },
+  "upgrade": {
+    "gear_types": [
+      "all"
+    ],
+    "match_children": true
+  }
+}

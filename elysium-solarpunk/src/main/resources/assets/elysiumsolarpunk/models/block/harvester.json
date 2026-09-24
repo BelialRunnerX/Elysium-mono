@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "elysiumsolarpunk:block/harvester_front",
+    "side": "elysiumsolarpunk:block/harvester_side",
+    "top": "elysiumsolarpunk:block/harvester_top"
+  }
+}

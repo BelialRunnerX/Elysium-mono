@@ -1,0 +1,13 @@
+{
+  "name": "Rustic",
+  "max_level": 5,
+  "description": "Increases synergy if it's 100% or less",
+  "effects": [
+    {
+      "type": "synergy",
+      "per_level": 0.05,
+      "min": 0.749,
+      "max": 1.001
+    }
+  ]
+}

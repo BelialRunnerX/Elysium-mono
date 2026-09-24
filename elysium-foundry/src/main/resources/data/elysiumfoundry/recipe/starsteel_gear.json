@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " R ",
+    "RPR",
+    " R "
+  ],
+  "key": {
+    "R": {
+      "item": "elysiumfoundry:starsteel_rod"
+    },
+    "P": {
+      "item": "elysiumfoundry:starsteel_plate"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:starsteel_gear",
+    "count": 1
+  }
+}

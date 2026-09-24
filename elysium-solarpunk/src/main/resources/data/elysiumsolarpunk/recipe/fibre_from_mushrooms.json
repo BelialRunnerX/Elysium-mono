@@ -1,0 +1,13 @@
+{
+  "type": "elysiumsolarpunk:pressing",
+  "input": {
+    "tag": "elysiumsolarpunk:pressable_fungus"
+  },
+  "result": {
+    "id": "elysiumsolarpunk:woven_cane",
+    "count": 2
+  },
+  "time": 220,
+  "energy": 880,
+  "input_count": 4
+}

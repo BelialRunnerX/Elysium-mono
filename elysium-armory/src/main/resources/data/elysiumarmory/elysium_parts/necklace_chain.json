@@ -1,0 +1,11 @@
+{
+  "type": "core",
+  "gear_type": "necklace",
+  "part_type": "main",
+  "crafting": {
+    "materials": 3,
+    "categories": [
+      "metal"
+    ]
+  }
+}

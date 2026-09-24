@@ -3,6 +3,8 @@
   "values": [
     "elysium:reforge_table",
     "elysium:rune_socket_table",
-    "elysium:ascension_forge"
+    "elysium:ascension_forge",
+    "elysium:gem_cutting_table",
+    "elysium:augmenting_table"
   ]
 }

@@ -1,0 +1,29 @@
+{
+  "type": "core",
+  "gear_type": "knife",
+  "part_type": "main",
+  "crafting": {
+    "materials": 1
+  },
+  "properties": {
+    "attack_damage": [
+      {
+        "op": "add",
+        "value": 1.0
+      },
+      {
+        "op": "multiply_base",
+        "value": -0.5
+      }
+    ],
+    "attack_speed": {
+      "op": "add",
+      "value": 2.4
+    },
+    "durability": {
+      "op": "multiply_base",
+      "value": 0.25
+    },
+    "repair_efficiency": 2.0
+  }
+}

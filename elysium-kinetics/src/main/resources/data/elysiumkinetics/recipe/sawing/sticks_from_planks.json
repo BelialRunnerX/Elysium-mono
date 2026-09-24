@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:sawing",
+  "input": {
+    "tag": "minecraft:planks"
+  },
+  "result": {
+    "id": "minecraft:stick",
+    "count": 2
+  },
+  "ticks": 80,
+  "pace": "steady"
+}

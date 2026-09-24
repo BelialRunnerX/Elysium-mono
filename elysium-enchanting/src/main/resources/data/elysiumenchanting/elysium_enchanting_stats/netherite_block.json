@@ -1,0 +1,7 @@
+{
+  "block": "minecraft:netherite_block",
+  "eterna": 1.0,
+  "rectification": 0.05,
+  "max_eterna": 50.0,
+  "_why": "it does not burn and it does not move"
+}

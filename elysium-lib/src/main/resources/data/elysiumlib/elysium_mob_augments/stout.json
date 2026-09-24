@@ -1,0 +1,7 @@
+{
+  "weight": 12,
+  "min_tier": 1,
+  "attributes": {
+    "minecraft:generic.max_health": 2.0
+  }
+}

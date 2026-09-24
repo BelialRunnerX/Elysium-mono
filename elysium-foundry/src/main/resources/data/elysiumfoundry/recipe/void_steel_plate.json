@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "item": "elysiumfoundry:void_steel_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:void_steel_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Terminus",
+  "max_level": 1,
+  "description": "Creates and places stone blocks when used",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "block_placer",
+      "block": "minecraft:stone",
+      "cost": 3,
+      "cooldown": 0
+    }
+  ]
+}

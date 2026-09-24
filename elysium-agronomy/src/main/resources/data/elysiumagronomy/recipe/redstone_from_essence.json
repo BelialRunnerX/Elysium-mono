@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    }
+  ],
+  "result": {
+    "id": "minecraft:redstone",
+    "count": 1
+  }
+}

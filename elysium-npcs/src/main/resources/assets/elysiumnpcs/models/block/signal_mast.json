@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "elysiumnpcs:block/signal_mast_front",
+    "side": "elysiumnpcs:block/signal_mast_side",
+    "top": "elysiumnpcs:block/signal_mast_top"
+  }
+}

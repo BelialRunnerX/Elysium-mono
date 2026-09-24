@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:sawing",
+  "input": {
+    "tag": "minecraft:logs"
+  },
+  "result": {
+    "id": "minecraft:oak_planks",
+    "count": 6
+  },
+  "ticks": 140,
+  "pace": "steady"
+}

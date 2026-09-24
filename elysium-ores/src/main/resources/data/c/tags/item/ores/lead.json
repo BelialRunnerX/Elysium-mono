@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:deepslate_ore_lead",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:ore_lead",
+      "required": false
+    },
+    {
+      "id": "mekanism:deepslate_lead_ore",
+      "required": false
+    },
+    {
+      "id": "mekanism:lead_ore",
+      "required": false
+    },
+    {
+      "id": "tfmg:deepslate_lead_ore",
+      "required": false
+    },
+    {
+      "id": "tfmg:lead_ore",
+      "required": false
+    }
+  ]
+}

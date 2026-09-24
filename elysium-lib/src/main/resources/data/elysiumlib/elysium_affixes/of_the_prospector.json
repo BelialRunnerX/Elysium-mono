@@ -1,0 +1,17 @@
+{
+  "type": "suffix",
+  "on": [
+    "harvest_tool"
+  ],
+  "min_tier": 2,
+  "weight": 5,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "bonus_drops",
+      "ingredient": "c:raw_materials",
+      "chance_per_level": 0.12,
+      "multiplier": 1.0
+    }
+  ]
+}

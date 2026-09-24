@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "side": "elysiumsolarpunk:block/white_limestone",
+    "top": "elysiumsolarpunk:block/white_limestone",
+    "bottom": "elysiumsolarpunk:block/white_limestone"
+  }
+}

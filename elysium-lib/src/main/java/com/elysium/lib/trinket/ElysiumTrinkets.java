@@ -72,7 +72,26 @@ public final class ElysiumTrinkets {
         List<Equipped> equipped(Player player);
     }
 
+    /**
+     * Answers what stacks a player has in accessory slots.
+     *
+     * The other half of the same question, and deliberately a second seam: the
+     * first one hands back {@link ElysiumTrinket}s, which only this mod's own
+     * trinkets are, and the engine needs the stacks themselves so that
+     * <em>anything</em> worn in an accessory slot — a modular ring, an
+     * affixed amulet, another mod's charm — can be asked what effects it
+     * carries, exactly as a helmet is.
+     *
+     * <p>The caching note on {@link Provider} applies here too and for the
+     * same reason: this is read on the damage path.
+     */
+    @FunctionalInterface
+    public interface StackProvider {
+        List<net.minecraft.world.item.ItemStack> worn(Player player);
+    }
+
     private static volatile Provider provider;
+    private static volatile StackProvider stacks;
 
     /**
      * Installs the accessory adapter.
@@ -87,6 +106,27 @@ public final class ElysiumTrinkets {
 
     public static boolean hasProvider() {
         return provider != null;
+    }
+
+    /** Installs the adapter that hands back the stacks themselves. */
+    public static void setStackProvider(StackProvider newProvider) {
+        stacks = newProvider;
+    }
+
+    /**
+     * Every stack this player has in an accessory slot.
+     *
+     * Empty when no accessory mod is installed, which is the correct answer
+     * rather than a missing one: the engine then sees exactly the vanilla
+     * slots, and nothing else changes.
+     */
+    public static List<net.minecraft.world.item.ItemStack> wornStacks(Player player) {
+        StackProvider current = stacks;
+        if (current == null || player == null) {
+            return List.of();
+        }
+        List<net.minecraft.world.item.ItemStack> worn = current.worn(player);
+        return worn == null ? List.of() : worn;
     }
 
     /**

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "elysiumsolarpunk:block/mosaic_tile_slab"
+    },
+    "type=top": {
+      "model": "elysiumsolarpunk:block/mosaic_tile_slab_top"
+    },
+    "type=double": {
+      "model": "elysiumsolarpunk:block/mosaic_tile"
+    }
+  }
+}

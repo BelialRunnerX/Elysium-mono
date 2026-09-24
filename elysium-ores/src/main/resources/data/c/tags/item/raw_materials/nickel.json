@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:raw_nickel",
+      "required": false
+    },
+    {
+      "id": "oritech:raw_nickel",
+      "required": false
+    },
+    {
+      "id": "tfmg:raw_nickel",
+      "required": false
+    }
+  ]
+}

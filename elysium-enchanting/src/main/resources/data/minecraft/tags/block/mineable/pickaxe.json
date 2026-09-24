@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumenchanting:arcane_table",
+    "elysiumenchanting:infusion_basin",
+    "elysiumenchanting:scriptorium",
+    "elysiumenchanting:grand_scriptorium"
+  ]
+}

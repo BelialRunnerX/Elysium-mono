@@ -1,0 +1,10 @@
+{
+  "type": "simple",
+  "parent": "elysiumarmory:wool",
+  "crafting": {
+    "ingredient": "minecraft:white_wool"
+  },
+  "display": {
+    "name": "White Wool"
+  }
+}

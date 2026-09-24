@@ -65,6 +65,137 @@ public final class CuriosSlots {
 
     private static final Map<UUID, Snapshot> CACHE = new ConcurrentHashMap<>();
 
+    /**
+     * Everything worn in a charm slot that is a potion charm.
+     *
+     * Uncached, unlike {@link #install}'s answer: this is asked once a second
+     * by one handler rather than several times a swing by the damage path, and
+     * a second cache keyed on the same tick would cost more to keep honest
+     * than the scan it saves.
+     */
+    public static List<ItemStack> wornCharms(Player player) {
+        return CuriosApi.getCuriosInventory(player)
+                .map(inventory -> inventory.findCurios(
+                        stack -> stack.getItem()
+                                instanceof com.elysium.trinkets.item.PotionCharmItem))
+                .orElse(List.of())
+                .stream()
+                .map(SlotResult::stack)
+                .toList();
+    }
+
+    /**
+     * Tells Curios the potion charm is wearable.
+     *
+     * Run at common setup rather than from the mod constructor, because it
+     * needs the item to exist — and {@code DeferredHolder.get()} in a
+     * constructor is what killed two earlier launches of this project.
+     *
+     * <p>The charm itself implements nothing: this is the whole of what makes
+     * it a curio, which keeps this module's knowledge of Curios in one file.
+     */
+    public static void registerCharm() {
+        CuriosApi.registerCurio(ElysiumTrinkets.POTION_CHARM.get(),
+                new top.theillusivec4.curios.api.type.capability.ICurioItem() {
+                });
+    }
+
+    /**
+     * Tells Curios about everything any Elysium module declared wearable.
+     *
+     * The armoury builds modular rings, bracelets and necklaces and is not
+     * allowed to know Curios exists; this file is the only one that does. The
+     * library holds the list in the middle, and this reads it — so a module
+     * that adds a new kind of jewellery tomorrow becomes wearable without a
+     * line changing here.
+     *
+     * <p>What a worn piece grants comes off the stack's own attribute
+     * modifiers, the ones written with {@code EquipmentSlotGroup.ANY}. That is
+     * the group vanilla means by "wherever this is", and reading it means the
+     * bridge never has to know what a ring is made of or what its material
+     * decided it should be worth.
+     *
+     * <p>Run at common setup rather than from the mod constructor, for the
+     * same reason {@link #registerCharm} is: the items have to exist.
+     */
+    public static void registerWearables() {
+        for (com.elysium.lib.trinket.ElysiumWearables.Wearable wearable
+                : com.elysium.lib.trinket.ElysiumWearables.all()) {
+            CuriosApi.registerCurio(wearable.item(),
+                    new top.theillusivec4.curios.api.type.capability.ICurioItem() {
+                        @Override
+                        public com.google.common.collect.Multimap<
+                                net.minecraft.core.Holder<
+                                        net.minecraft.world.entity.ai.attributes.Attribute>,
+                                net.minecraft.world.entity.ai.attributes.AttributeModifier>
+                                getAttributeModifiers(
+                                        top.theillusivec4.curios.api.SlotContext context,
+                                        net.minecraft.resources.ResourceLocation id,
+                                        ItemStack stack) {
+                            return granted(stack);
+                        }
+                    });
+        }
+    }
+
+    /**
+     * The attribute modifiers a worn stack grants, read off the stack itself.
+     *
+     * Only the ones written for {@code ANY}: a modular ring's are, and a
+     * sword's attack damage is written for the main hand and must not follow
+     * it into a necklace slot.
+     */
+    private static com.google.common.collect.Multimap<
+            net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>,
+            net.minecraft.world.entity.ai.attributes.AttributeModifier> granted(ItemStack stack) {
+        com.google.common.collect.ImmutableMultimap.Builder<
+                net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>,
+                net.minecraft.world.entity.ai.attributes.AttributeModifier> out =
+                com.google.common.collect.ImmutableMultimap.builder();
+        net.minecraft.world.item.component.ItemAttributeModifiers modifiers =
+                stack.getOrDefault(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS,
+                        net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY);
+        for (net.minecraft.world.item.component.ItemAttributeModifiers.Entry entry
+                : modifiers.modifiers()) {
+            if (entry.slot() == net.minecraft.world.entity.EquipmentSlotGroup.ANY) {
+                out.put(entry.attribute(), entry.modifier());
+            }
+        }
+        return out.build();
+    }
+
+    /**
+     * Everything this player has in an accessory slot, whatever it is.
+     *
+     * The second seam: the first hands the engine this mod's own trinkets, and
+     * this hands it the stacks, so that anything worn — a modular ring, an
+     * affixed amulet, another mod's charm — is asked what effects it carries
+     * exactly as a helmet is. Cached on the same tick key and for the same
+     * reason.
+     */
+    private static final Map<UUID, StackSnapshot> STACKS = new ConcurrentHashMap<>();
+
+    private record StackSnapshot(int tick, List<ItemStack> worn) {
+    }
+
+    private static List<ItemStack> wornStacks(Player player) {
+        if (player == null) {
+            return List.of();
+        }
+        StackSnapshot cached = STACKS.get(player.getUUID());
+        if (cached != null && cached.tick() == player.tickCount) {
+            return cached.worn();
+        }
+        List<ItemStack> worn = CuriosApi.getCuriosInventory(player)
+                .map(inventory -> inventory.findCurios(stack -> !stack.isEmpty()))
+                .orElse(List.of())
+                .stream()
+                .map(SlotResult::stack)
+                .toList();
+        STACKS.put(player.getUUID(), new StackSnapshot(player.tickCount, worn));
+        return worn;
+    }
+
     /** Installs the adapter. Called once, from the mod constructor. */
     public static void install() {
         // Fully qualified: the library's ElysiumTrinkets and this mod's own
@@ -72,11 +203,13 @@ public final class CuriosSlots {
         // renaming either would be worse - the library class is the extension
         // point add-ons read about, and the mod class has to match its mod id.
         com.elysium.lib.trinket.ElysiumTrinkets.setProvider(CuriosSlots::equipped);
+        com.elysium.lib.trinket.ElysiumTrinkets.setStackProvider(CuriosSlots::wornStacks);
     }
 
     /** Forgets a player. Called on logout; purely to bound the map. */
     public static void forget(UUID player) {
         CACHE.remove(player);
+        STACKS.remove(player);
     }
 
     private static List<com.elysium.lib.trinket.ElysiumTrinkets.Equipped> equipped(Player player) {

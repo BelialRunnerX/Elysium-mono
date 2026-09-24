@@ -1,0 +1,16 @@
+{
+  "type": "suffix",
+  "on": [
+    "curio"
+  ],
+  "min_tier": 1,
+  "weight": 7,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "item_magnet",
+      "range": 4.0,
+      "pull": 0.06
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PMP",
+    "PTP",
+    "PMP"
+  ],
+  "key": {
+    "P": {
+      "tag": "c:plates/steel"
+    },
+    "M": {
+      "item": "elysiumindustry:motor"
+    },
+    "T": {
+      "item": "elysiumtransit:truck"
+    }
+  },
+  "result": {
+    "id": "elysiumtransit:hauler",
+    "count": 1
+  }
+}

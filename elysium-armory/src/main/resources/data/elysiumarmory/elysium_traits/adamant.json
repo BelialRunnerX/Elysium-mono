@@ -1,0 +1,29 @@
+{
+  "name": "Adamant",
+  "max_level": 5,
+  "description": "Armor increases damage resistance, tools deal more damage to mobs with a base health of more than 10 hearts",
+  "effects": [
+    {
+      "type": "wielder_effect",
+      "targets": [
+        {
+          "gear": "armor",
+          "effect": "minecraft:resistance",
+          "mode": "piece_count",
+          "levels": [
+            1,
+            1,
+            1,
+            2
+          ],
+          "duration": 38
+        }
+      ]
+    },
+    {
+      "type": "extra_damage",
+      "against": "high_health",
+      "per_level": 2.0
+    }
+  ]
+}

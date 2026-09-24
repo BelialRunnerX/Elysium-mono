@@ -3,6 +3,11 @@ package com.elysium.core.block;
 import com.elysium.lib.claim.ElysiumClaim;
 import com.elysium.lib.claim.ElysiumClaims;
 import com.elysium.lib.standing.ElysiumFile;
+import com.elysium.lib.contract.ElysiumContract;
+import com.elysium.lib.contract.ElysiumContracts;
+import com.elysium.lib.event.ElysiumPassives;
+import com.elysium.lib.research.ElysiumResearch;
+import com.elysium.lib.research.ElysiumUnlock;
 import com.elysium.lib.standing.ElysiumStanding;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -76,12 +81,45 @@ public class ImperialArchiveBlock extends Block {
             return InteractionResult.SUCCESS;
         }
 
+        // Sneaking at the counter is business rather than paperwork: settle
+        // anything that is done, and take one if there is room. Chosen as the
+        // gesture for the same reason the villager readout uses it — it is the
+        // one action that cannot be confused with wanting to read your file.
+        if (player.isShiftKeyDown()) {
+            contracts(server, pos, player);
+            return InteractionResult.CONSUME;
+        }
+
         int favor = ElysiumStanding.getFavor(player);
         int suspicion = ElysiumStanding.getSuspicion(player);
+
+        // Reading your own file teaches you how the filing works. Once, ever:
+        // the second reading teaches nothing, and a field that paid for
+        // right-clicking would be a field farmed by right-clicking.
+        com.elysium.lib.research.ElysiumResearch.credit(
+                player, com.elysium.lib.research.ElysiumDeed.READ_THE_ARCHIVE,
+                "archive");
 
         say(player, Component.translatable("elysium.archive.header")
                 .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
         say(player, ElysiumStanding.report(player));
+
+        // What Imperial Systems research buys: the edges of the bands.
+        //
+        // A player without it is told which band they are in, which is what the
+        // Empire would tell them. A player who has studied the filing knows
+        // where the next line is and how fast the file forgets — the two facts
+        // that turn Suspicion from weather into something you can plan around,
+        // and the two the game had no way of stating before.
+        if (ElysiumResearch.has(player, ElysiumUnlock.LEDGER_DETAIL)) {
+            int toBand = ElysiumStanding.toNextBand(suspicion);
+            say(player, Component.translatable("elysium.archive.detail",
+                    favor, suspicion,
+                    toBand > 0 ? toBand : 0,
+                    ElysiumPassives.decayRate(player),
+                    ElysiumStanding.DECAY_INTERVAL / 20)
+                    .withStyle(ChatFormatting.AQUA));
+        }
 
         // The floor, and the claim it comes from. Reported as a separate line
         // rather than folded into the Suspicion line because it answers a
@@ -115,6 +153,53 @@ public class ImperialArchiveBlock extends Block {
         level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_CHIME,
                 SoundSource.BLOCKS, 0.6F, 1.4F);
         return InteractionResult.CONSUME;
+    }
+
+    /**
+     * The counter: settle what is finished, then offer new work.
+     *
+     * Settling first, always. A player who walks in with a finished delivery
+     * and no room for another contract must be able to hand it over — doing it
+     * the other way round would mean a full board could never be emptied, and
+     * the only way out would be to let something lapse.
+     */
+    private static void contracts(ServerLevel level, BlockPos pos, Player player) {
+        int settled = ElysiumContracts.settle(player, true);
+        java.util.List<ElysiumContract> holding = ElysiumContracts.held(player);
+
+        if (settled > 0) {
+            level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_CHIME,
+                    SoundSource.BLOCKS, 0.7F, 1.8F);
+        }
+
+        if (ElysiumContracts.hasRoom(player)) {
+            ElysiumContract offered = ElysiumContracts.offer(
+                    player, true, level.getRandom());
+            if (ElysiumContracts.take(player, offered)) {
+                say(player, Component.translatable("elysium.contract.issued",
+                                ElysiumContracts.describe(offered),
+                                offered.pay(), offered.standing(),
+                                offered.deadline() / 20 / 60)
+                        .withStyle(ChatFormatting.AQUA));
+                holding = ElysiumContracts.held(player);
+            }
+        } else if (settled == 0) {
+            say(player, Component.translatable("elysium.contract.full")
+                    .withStyle(ChatFormatting.DARK_GRAY));
+        }
+
+        // The whole board, every time. A contract a player cannot see the
+        // progress of is one they will assume is broken, and the deadline is
+        // the half that decides whether it is worth going back for.
+        long now = level.getGameTime();
+        for (ElysiumContract contract : holding) {
+            say(player, Component.translatable("elysium.contract.line",
+                            ElysiumContracts.describe(contract),
+                            contract.done(), contract.quantity(),
+                            contract.remaining(now) / 20 / 60)
+                    .withStyle(contract.complete() ? ChatFormatting.GREEN
+                            : ChatFormatting.GRAY));
+        }
     }
 
     /**

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "elysiumspace:block/iron_plating_slab"
+    },
+    "type=double": {
+      "model": "elysiumspace:block/iron_plating"
+    },
+    "type=top": {
+      "model": "elysiumspace:block/iron_plating_slab_top"
+    }
+  }
+}

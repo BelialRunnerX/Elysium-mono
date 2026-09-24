@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "elysiumflora:emberwood_charcoal_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumflora:emberwood_charcoal",
+    "count": 9
+  }
+}

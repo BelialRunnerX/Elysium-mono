@@ -73,7 +73,7 @@ import java.util.UUID;
  * to play — most worlds are expedition targets.
  */
 public record ElysiumClaim(UUID owner, String ownerName, BlockPos anchor,
-                           int radius, int structures) {
+                           int radius, int structures, int ascension) {
 
     public static final Codec<ElysiumClaim> CODEC =
             RecordCodecBuilder.create(instance -> instance.group(
@@ -81,8 +81,29 @@ public record ElysiumClaim(UUID owner, String ownerName, BlockPos anchor,
                     Codec.STRING.fieldOf("owner_name").forGetter(ElysiumClaim::ownerName),
                     BlockPos.CODEC.fieldOf("anchor").forGetter(ElysiumClaim::anchor),
                     Codec.INT.fieldOf("radius").forGetter(ElysiumClaim::radius),
-                    Codec.INT.fieldOf("structures").forGetter(ElysiumClaim::structures)
+                    Codec.INT.fieldOf("structures").forGetter(ElysiumClaim::structures),
+                    // Optional, defaulting to zero, because every claim written
+                    // before beacons could be ascended has no such field. A
+                    // required field here would make those saves fail to parse
+                    // and silently drop every existing claim in the world —
+                    // which is the one bug in this file nobody would recover
+                    // from.
+                    Codec.INT.optionalFieldOf("ascension", 0)
+                            .forGetter(ElysiumClaim::ascension)
             ).apply(instance, ElysiumClaim::new));
+
+    /**
+     * A claim at its starting size, with no ascension.
+     *
+     * The five-argument shape this record used to have. Kept as a factory
+     * rather than a second constructor so that every call site is a place
+     * somebody decided the ascension is zero, rather than a place the compiler
+     * filled it in.
+     */
+    public static ElysiumClaim staked(UUID owner, String ownerName, BlockPos anchor,
+                                      int radius, int structures) {
+        return new ElysiumClaim(owner, ownerName, anchor, radius, structures, 0);
+    }
 
     /**
      * How far a claim reaches, in blocks.
@@ -93,6 +114,41 @@ public record ElysiumClaim(UUID owner, String ownerName, BlockPos anchor,
      * own claim, which no player would read as anything but a bug.
      */
     public static final int DEFAULT_RADIUS = 64;
+
+    /**
+     * What one ascension tier adds to the radius.
+     *
+     * The same sixty-four the claim starts at, so a tier is always worth
+     * exactly one more claim's worth of ground and a player can count tiers by
+     * looking at the number. The reward is larger than it reads: radius is
+     * linear and area is not, so the second tier triples the ground the first
+     * one covered.
+     */
+    public static final int RADIUS_PER_ASCENSION = 64;
+
+    /**
+     * What one ascension tier adds to the Suspicion floor.
+     *
+     * A bigger claim is a louder statement, and §14.2's floor is the Empire
+     * noticing. Without this, ascension would be the one consequential act in
+     * the mod that costs materials and nothing else.
+     *
+     * Still clamped by {@link #MAX_FLOOR}, so no amount of ascending can push a
+     * player into the Hunted band — see that constant's note, where the gap is
+     * deliberate.
+     */
+    public static final int FLOOR_PER_ASCENSION = 4;
+
+    /** The radius a claim of this ascension reaches. */
+    public static int radiusFor(int ascension) {
+        int tiers = Math.max(0, ascension);
+        // Long arithmetic and a clamp: a hand-edited save with a huge ascension
+        // would otherwise overflow into a negative radius, and a negative
+        // radius contains nothing, so a player's whole base would silently
+        // stop being theirs.
+        long radius = (long) DEFAULT_RADIUS + (long) RADIUS_PER_ASCENSION * tiers;
+        return (int) Math.min(Integer.MAX_VALUE / 2, radius);
+    }
 
     /** §A.2's floor of the floor: what an empty claim is already worth. */
     public static final int BASE_FLOOR = 8;
@@ -118,7 +174,17 @@ public record ElysiumClaim(UUID owner, String ownerName, BlockPos anchor,
 
     /** The Suspicion this claim holds its owner at. */
     public int floor() {
-        return floorFor(structures);
+        int built = floorFor(structures);
+        long withAscension = (long) built
+                + (long) FLOOR_PER_ASCENSION * Math.max(0, ascension);
+        return (int) Math.min(MAX_FLOOR, withAscension);
+    }
+
+    /** The same claim, one tier larger. */
+    public ElysiumClaim ascended() {
+        int next = ascension + 1;
+        return new ElysiumClaim(owner, ownerName, anchor, radiusFor(next),
+                structures, next);
     }
 
     /**
@@ -144,6 +210,6 @@ public record ElysiumClaim(UUID owner, String ownerName, BlockPos anchor,
         // negative structure counts get into save files.
         long total = (long) structures + by;
         return new ElysiumClaim(owner, ownerName, anchor, radius,
-                (int) Math.min(Integer.MAX_VALUE, total));
+                (int) Math.min(Integer.MAX_VALUE, total), ascension);
     }
 }

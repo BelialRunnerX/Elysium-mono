@@ -1,0 +1,22 @@
+{
+  "name": "Chipping",
+  "max_level": 5,
+  "description": "Reduces armor or increases harvest speed as gear is damaged",
+  "effects": [
+    {
+      "type": "property",
+      "modifiers": {
+        "armor": {
+          "per_level": -0.075,
+          "damage_ratio": true,
+          "of_value": true
+        },
+        "harvest_speed": {
+          "per_level": 0.25,
+          "damage_ratio": true,
+          "of_value": true
+        }
+      }
+    }
+  ]
+}

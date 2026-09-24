@@ -1,0 +1,16 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumsolarpunk:rammed_earth_stairs",
+    "elysiumsolarpunk:pale_plaster_stairs",
+    "elysiumsolarpunk:verdigris_copper_stairs",
+    "elysiumsolarpunk:woven_cane_block_stairs",
+    "elysiumsolarpunk:mosaic_tile_stairs",
+    "elysiumsolarpunk:white_marble_stairs",
+    "elysiumsolarpunk:polished_white_marble_stairs",
+    "elysiumsolarpunk:white_limestone_stairs",
+    "elysiumsolarpunk:polished_white_limestone_stairs",
+    "elysiumsolarpunk:alabaster_stairs",
+    "elysiumsolarpunk:polished_alabaster_stairs"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "needs": [
+    "coal",
+    "copper",
+    "iron",
+    "gold",
+    "redstone",
+    "lapis",
+    "diamond",
+    "emerald",
+    "quartz",
+    "tin",
+    "zinc",
+    "lead",
+    "nickel",
+    "aluminum",
+    "silver",
+    "steel",
+    "lithium",
+    "platinum"
+  ]
+}

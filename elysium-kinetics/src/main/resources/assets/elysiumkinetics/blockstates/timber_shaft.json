@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumkinetics:block/timber_shaft"
+    },
+    "axis=x": {
+      "model": "elysiumkinetics:block/timber_shaft",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/timber_shaft",
+      "x": 90
+    }
+  }
+}

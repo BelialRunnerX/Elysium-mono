@@ -4,7 +4,7 @@
   "pattern": [
     "aaa",
     "i#i",
-    "iii"
+    "iti"
   ],
   "key": {
     "a": {
@@ -14,7 +14,10 @@
       "item": "elysium:neutronium_ingot"
     },
     "i": {
-      "item": "minecraft:obsidian"
+      "item": "minecraft:iron_ingot"
+    },
+    "t": {
+      "item": "minecraft:smithing_table"
     }
   },
   "result": {

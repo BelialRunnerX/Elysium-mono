@@ -1,0 +1,13 @@
+{
+  "type": "elysiumsolarpunk:pressing",
+  "input": {
+    "item": "minecraft:dried_kelp"
+  },
+  "result": {
+    "id": "elysiumsolarpunk:plant_fibre",
+    "count": 1
+  },
+  "time": 180,
+  "energy": 720,
+  "input_count": 6
+}

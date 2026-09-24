@@ -1,0 +1,76 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/titanium",
+    "categories": [
+      "metal",
+      "endgame"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/titanium"
+    }
+  },
+  "display": {
+    "name": "Titanium"
+  },
+  "properties": {
+    "main": {
+      "durability": 1600.0,
+      "armor_durability": 37.0,
+      "harvest_tier": "netherite",
+      "harvest_speed": 8.0,
+      "attack_damage": 6.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 1.0,
+      "draw_speed": -0.2,
+      "armor": 24.0,
+      "armor/helmet": 4.0,
+      "armor/chestplate": 9.0,
+      "armor/leggings": 7.0,
+      "armor/boots": 4.0,
+      "armor_toughness": 8.0,
+      "magic_armor": 4.0,
+      "enchantment_value": 12.0,
+      "charging_value": 1.0,
+      "rarity": 80.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        },
+        {
+          "trait": "hard",
+          "level": 4
+        }
+      ]
+    },
+    "rod": {
+      "attack_damage": [
+        {
+          "op": "multiply_total",
+          "value": 0.2
+        },
+        {
+          "op": "add",
+          "value": 2.0
+        }
+      ],
+      "durability": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "rarity": 80.0,
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 2
+        },
+        {
+          "trait": "hard",
+          "level": 4
+        }
+      ]
+    }
+  }
+}

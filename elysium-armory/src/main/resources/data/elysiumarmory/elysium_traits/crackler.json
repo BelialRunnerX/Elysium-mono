@@ -1,0 +1,16 @@
+{
+  "name": "Crackler",
+  "max_level": 1,
+  "description": "Creates and places basalt at the cost of durability",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "block_placer",
+      "block": "minecraft:basalt",
+      "cost": 3,
+      "cooldown": 0
+    }
+  ]
+}

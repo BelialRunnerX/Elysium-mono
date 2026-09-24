@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "elysiumatomics:block/coolant_channel"
+    }
+  }
+}

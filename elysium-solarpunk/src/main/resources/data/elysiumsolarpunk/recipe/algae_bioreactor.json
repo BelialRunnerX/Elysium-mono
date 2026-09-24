@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "bwb",
+    "bcb",
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "elysiumsolarpunk:solar_brass_ingot"
+    },
+    "w": {
+      "item": "minecraft:glass"
+    },
+    "c": {
+      "item": "minecraft:kelp"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:algae_bioreactor",
+    "count": 1
+  }
+}

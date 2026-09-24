@@ -1,0 +1,10 @@
+{
+  "type": "simple",
+  "parent": "elysiumarmory:sandstone",
+  "crafting": {
+    "ingredient": "#c:sandstone/red_blocks"
+  },
+  "display": {
+    "name": "Red Sandstone"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:azure_silver_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:azure_silver_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 100
+}

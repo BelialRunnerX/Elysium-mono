@@ -1,0 +1,25 @@
+{
+  "sun": {
+    "texture": "minecraft:textures/environment/sun.png",
+    "size": 400.0,
+    "height": 450.0
+  },
+  "stars": {
+    "count": 40000,
+    "scale": 0.05,
+    "color": [
+      255,
+      255,
+      255
+    ],
+    "always": false,
+    "moving": false
+  },
+  "objects": [],
+  "sunset": 0,
+  "clouds": true,
+  "cloudHeight": 300,
+  "weather": false,
+  "brightLightmap": false,
+  "ambientLight": false
+}

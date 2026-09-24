@@ -1,0 +1,9 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": [
+    "elysiumspace:steel_ore",
+    "elysiumspace:deepslate_steel_ore"
+  ],
+  "step": "underground_ores"
+}

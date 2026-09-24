@@ -1,0 +1,15 @@
+{
+  "name": "Bounce",
+  "max_level": 1,
+  "description": "Boots negate fall damage, armor knocks back attackers",
+  "conditions": [
+    "on:armor"
+  ],
+  "effects": [
+    {
+      "type": "negate_damage",
+      "tag": "elysiumarmory:bounce_protects",
+      "scale_per_level": 0.2
+    }
+  ]
+}

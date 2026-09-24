@@ -11,6 +11,7 @@ any biome modifier, or a data pack folder is still using its pre-1.21 name.
 """ 
 import json
 import os
+import pathlib
 import re
 import sys
 
@@ -84,7 +85,8 @@ blocks = re.findall(r'BLOCKS\.register\("([a-z_]+)"', source)
 # so match the name literal wherever it is handed to one of them.
 # The leading (?<!\.) keeps qualified calls out - CREATIVE_TABS.register and
 # BLOCKS.register are not item registrations.
-ITEM_HELPERS = r'(?<!\.)\b(?:register|item|simpleItem|armour|neutroniumArmour|weapon|tool)'
+ITEM_HELPERS = (r'(?<!\.)\b(?:register|item|simpleItem|armour|neutroniumArmour|weapon|tool'
+                r'|ration|sigil)')
 items = re.findall(ITEM_HELPERS + r'\(\s*"([a-z_]+)"', source)
 
 # blockItem() derives the item name from the block's registry name — but not
@@ -174,7 +176,24 @@ MATERIALS_JAVA = os.path.join(
     WORK, "src/main/java/com/elysium/core/item/ElysiumMaterials.java")
 material_source = open(MATERIALS_JAVA, encoding="utf-8").read()
 
-SHAPES = ["hammer", "broadaxe", "scythe", "spear"]
+# The shapes, read out of the enum the game registers from rather than listed
+# here.
+#
+# This was a literal list, and the moment five shapes were added to the Java it
+# was a stale second copy of the truth: the validator went on checking four
+# shapes per material and reported every new recipe as referencing an item that
+# does not exist — which is exactly backwards, since the items existed and the
+# validator did not know about them. A list that has to be kept in step with
+# code is a list that will not be.
+GEAR_JAVA = os.path.join(
+    WORK, "src/main/java/com/elysium/core/item/ElysiumMaterialGear.java")
+_gear_source = open(GEAR_JAVA, encoding="utf-8").read()
+_enum = re.search(r"public enum Shape \{(.*?)\}", _gear_source, re.S)
+SHAPES = re.findall(r'\w+\("(\w+)"\)', _enum.group(1)) if _enum else []
+if not SHAPES:
+    fail("cannot read the Shape enum out of ElysiumMaterialGear.java, so every "
+         "material gear check below would pass by checking nothing")
+
 ARMOUR_PIECES = ["helmet", "chestplate", "leggings", "boots"]
 
 gear_materials = []          # (name, has_armour, ingredient tag, is_vanilla)
@@ -243,6 +262,26 @@ if len(items) < EXPECTED_MIN_ITEMS:
 print(f"blocks registered : {len(blocks)}")
 print(f"items registered  : {len(items)}")
 
+def body_of(src, signature):
+    """The text between the braces of the method whose declaration starts with
+    `signature`. A rule scoped to one method cannot pass because its token
+    survives in an import, a comment or a different branch."""
+    start = src.find(signature)
+    if start < 0:
+        return ""
+    open_at = src.find("{", start)
+    if open_at < 0:
+        return ""
+    depth = 0
+    for i in range(open_at, len(src)):
+        if src[i] == "{":
+            depth += 1
+        elif src[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return src[open_at + 1:i]
+    return src[open_at + 1:]
+
 lang = json.load(open(os.path.join(RES, "assets/elysium/lang/en_us.json"), encoding="utf-8"))
 
 # --- models, textures, lang -------------------------------------------------
@@ -264,6 +303,32 @@ for item in items:
     key = f"block.elysium.{item}" if item in blocks else f"item.elysium.{item}"
     if key not in lang:
         fail(f"missing lang key: {key}")
+
+# --- every key the code names has something to say --------------------------
+#
+# A Component.translatable with no entry behind it shows the player a raw key.
+# The library has checked this for a long time; this module did not, and a
+# deliberate test walked straight through the gap — a sigil whose entire
+# interface is one line of description read as "elysium.sigil.unknown" and
+# every check here passed.
+_literal_keys = set()
+for _dirpath, _, _filenames in os.walk(os.path.join(WORK, "src/main/java")):
+    for _filename in _filenames:
+        if not _filename.endswith(".java"):
+            continue
+        _text = open(os.path.join(_dirpath, _filename), encoding="utf-8").read()
+        _literal_keys |= set(re.findall(r'"(elysium\.[a-z_.]+)"', _text))
+# The library's entries count too: both language files ship in the same jar and
+# the game merges them, so a key this module names and the library translates
+# is a key the player can read.
+_lib_lang_path = os.path.join(WORK, "..",
+                              "elysium-lib/src/main/resources/assets/elysiumlib/lang/en_us.json")
+_shipped_keys = set(lang)
+if os.path.isfile(_lib_lang_path):
+    _shipped_keys |= set(json.load(open(_lib_lang_path, encoding="utf-8")))
+for _key in sorted(_literal_keys):
+    if _key not in _shipped_keys and not _key.endswith("."):
+        fail(f"missing lang key: {_key} (referenced literally in the sources)")
 
 # --- every model's texture reference resolves -------------------------------
 model_root = os.path.join(RES, "assets/elysium/models")
@@ -535,7 +600,7 @@ for _path, _why in CODE_GIVERS:
     handler += open(_full, encoding="utf-8").read()
 holders = dict(re.findall(
     r'public static final DeferredHolder<Item, Item> ([A-Z0-9_]+)\s*=\s*\n?\s*'
-    r'(?:register|item|simpleItem|armour|neutroniumArmour|weapon|tool)\(\s*"([a-z_]+)"',
+    r'(?:register|item|simpleItem|armour|neutroniumArmour|weapon|tool|ration)\(\s*"([a-z_]+)"',
     source_java := open(JAVA, encoding="utf-8").read()))
 for holder in re.findall(r'Elysium\.([A-Z0-9_]+)\.get\(\)', handler):
     if holder in holders:
@@ -547,8 +612,15 @@ if not any(why == "standing loot" for why in sources.values()):
 #    Elysium ingredients is. Repeat until nothing new appears, which is also
 #    what catches a circular recipe - it simply never becomes reachable.
 recipes = []
+dynamic_recipes = {}
 for filename in os.listdir(os.path.join(RES, "data/elysium/recipe")):
     recipe = json.load(open(os.path.join(RES, "data/elysium/recipe", filename), encoding="utf-8"))
+    if "result" not in recipe:
+        # A recipe whose output is computed from its inputs — the convergence
+        # smithing recipe. It has no fixed result to reach, so it plays no part
+        # in the reachability walk below and is checked in its own section.
+        dynamic_recipes[filename] = recipe
+        continue
     result = recipe["result"]["id"].split(":", 1)[1]
     ingredients = set()
     for value in list((recipe.get("key") or {}).values()) + list(recipe.get("ingredients") or []):
@@ -556,6 +628,30 @@ for filename in os.listdir(os.path.join(RES, "data/elysium/recipe")):
             if identifier.startswith("elysium:"):
                 ingredients.add(identifier.split(":", 1)[1])
     recipes.append((filename, result, ingredients))
+
+# A recipe whose result is computed rather than written down still produces
+# something, and the walk above cannot see what. Naming them here is not a
+# second copy of the truth: each entry says which class computes the result and
+# what expression in it names the item, and both are checked — so an entry that
+# stops being true fails rather than quietly keeping an item "reachable".
+DYNAMIC_PRODUCES = {
+    "gem_grinding.json": ("gem_dust",
+                          "src/main/java/com/elysium/core/recipe/GemGrindingRecipe.java",
+                          "Elysium.GEM_DUST.get()"),
+}
+for _file, (_makes, _class, _expression) in DYNAMIC_PRODUCES.items():
+    if _file not in dynamic_recipes:
+        fail(f"{_file} is listed as a recipe with a computed result and is not one; "
+             f"whatever it makes is being counted as reachable for no reason")
+        continue
+    _path = os.path.join(WORK, _class)
+    if not os.path.isfile(_path):
+        fail(f"{_class} is gone, so nothing computes {_file}'s result")
+    elif _expression not in open(_path, encoding="utf-8").read():
+        fail(f"{_class} no longer names {_expression}, so {_makes} is counted as "
+             f"reachable by a recipe that does not make it")
+    else:
+        source(_makes, f"computed ({_file[:-5]})")
 
 changed = True
 while changed:
@@ -818,6 +914,38 @@ else:
              "row does not care who broke the beacon")
     if "strike(" not in beacon:
         fail("RegistryBeaconBlock never strikes a claim")
+
+    # C6: planting or growing a claim absorbs the unregistered works it
+    # covers. Checked in each method's own body — a file-wide search would
+    # pass with the call removed from one path so long as the other kept it.
+    def _beacon_body(signature):
+        start = beacon.find(signature)
+        if start < 0:
+            return None
+        depth = 0
+        for index in range(beacon.find("{", start), len(beacon)):
+            if beacon[index] == "{":
+                depth += 1
+            elif beacon[index] == "}":
+                depth -= 1
+                if depth == 0:
+                    return beacon[start:index + 1]
+        return None
+
+    for _signature, _what in (("private void stake(", "planting"),
+                              ("private InteractionResult ascend(", "ascending")):
+        _body = _beacon_body(_signature)
+        if _body is None:
+            fail(f"RegistryBeaconBlock has no {_signature.strip('(')}; the "
+                 f"works check cannot find the {_what} path")
+        elif "absorbWorks(" not in _body:
+            fail(f"{_what} a Registry Beacon no longer absorbs the "
+                 f"unregistered works it covers. The survey keeps watching a "
+                 f"base its owner has put on the record, and registering buys "
+                 f"nothing but the floor")
+    _absorb = _beacon_body("private static void absorbWorks(")
+    if _absorb is not None and ".registered(" not in _absorb:
+        fail("absorbWorks no longer asks ElysiumWorks to register anything")
     # §E.1: "beacon destruction releases claim but does not erase constructed
     # world". Nothing in this block may remove or replace blocks.
     for forbidden in ("destroyBlock", "removeBlock", "setBlockAndUpdate"):
@@ -837,8 +965,32 @@ else:
         fail("RegistryBeaconBlock does not anchor respawn, so a claim is all "
              "cost and no benefit - see F.1, and note that nobody would plant "
              "one")
+    # Ascending the base is the third road to a world tier, alongside levelling
+    # and the journey. The beacon is where a player pays for it, so the beacon
+    # is where the tier is recorded - and it has to be recorded, not computed,
+    # because computing it means walking every dimension's claim map on every
+    # loot roll.
+    _ascend = body_of(beacon, "private InteractionResult ascend")
+    if "noticed(player, grown)" not in _ascend:
+        fail("ascending a base no longer raises the owner's world tier, so the "
+             "most expensive deliberate act in the mod buys ground and "
+             "attention and nothing the worlds answer to")
+    _noticed = body_of(beacon, "private void noticed")
+    if "ElysiumTiers.lift(player," not in _noticed:
+        fail("the base's ascension is written to the world floor by some route "
+             "other than lift(), which is the one place that refuses to let a "
+             "floor fall")
+    if "ElysiumWorldTier.tierForAscension(" not in _noticed:
+        fail("the beacon converts ascensions to tiers with arithmetic of its "
+             "own instead of the library's, so the two would drift")
+    if "noticed(player, claim)" not in body_of(beacon, "private void report"):
+        fail("only a fresh ascension raises the tier, so a world already "
+             "ascended before this existed can never catch up")
+    if "elysium.claim.world_tier" not in lang:
+        fail("elysium.claim.world_tier has no translation; the moment a base "
+             "raises the world tier would announce itself as a raw key")
     print("registry beacon   : strikes on destruction by any hand, erases "
-          "nothing, anchors respawn")
+          "nothing, anchors respawn, and its ascension is a world tier")
 
 # ---------------------------------------------------------------------------
 # §14.5's inspection beacon: planted automatically, into somebody's world
@@ -912,7 +1064,1671 @@ else:
     print("inspection beacon : never overwrites, resisting is filed, "
           "unobtainable by design")
 
+# ---------------------------------------------------------------------------
+# The gear art
+# ---------------------------------------------------------------------------
+#
+# Everything below is about sprites, and every failure it looks for is silent:
+# nothing crashes, nothing logs, and the item is simply in the player's hand
+# looking wrong. Three of these four checks exist because the thing they check
+# for had already happened and nobody had noticed.
+
+def _art_package():
+    here = os.path.dirname(os.path.abspath(__file__))
+    for base in (here, os.path.dirname(here)):
+        if os.path.isfile(os.path.join(base, "art", "style.py")):
+            return os.path.join(base, "art")
+    return None
+
+
+art_path = _art_package()
+pixelart = material_art = None
+art_error = None
+
+if art_path is None:
+    fail("cannot find the art package, so none of the gear art is checked")
+else:
+    sys.path.insert(0, art_path)
+    try:
+        # Importing this validates every shade map: sixteen rows of sixteen
+        # known characters, with an element accent landing on a pixel the
+        # sprite actually fills. A map one character short does not raise on
+        # its own — it shifts every row below it by one and looks like bad
+        # drawing rather than a typo.
+        import pixelart
+        import sprites
+        import materials as material_art
+    except Exception as exc:
+        art_error = exc
+        fail(f"the art package will not import ({exc}), so no sprite in this "
+             f"mod can be regenerated")
+
+if pixelart is not None and art_error is None:
+    print(f"shade maps         : {len(pixelart.MAPS)} sprites at "
+          f"{pixelart.SIZE}x{pixelart.SIZE}, each accent on the sprite")
+
+    # -- are the materials actually distinguishable? -----------------------
+    #
+    # This is the check that found brass and gold rendering byte-identical.
+    # The ramp kept nothing from its base but hue, those two bases share one,
+    # and so every brass item in the mod was the same file as its gold
+    # counterpart: twenty-six materials wearing twenty-five faces. Not visible
+    # in the palette code, not visible in a screenshot of any one item, and
+    # perfectly visible the moment somebody asks.
+    #
+    # The threshold is in CIELAB, where 2.3 is the textbook just-noticeable
+    # difference between two large flat patches. Eight is the working number
+    # for a tint spread over a sixteen-pixel sprite seen among others in an
+    # inventory row.
+    MIN_SEPARATION = 8.0
+
+    def _to_lab(value):
+        value = value.lstrip("#")
+        channels = [int(value[i:i + 2], 16) / 255.0 for i in (0, 2, 4)]
+        red, green, blue = [c / 12.92 if c <= 0.04045
+                            else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
+        x = red * 0.4124 + green * 0.3576 + blue * 0.1805
+        y = red * 0.2126 + green * 0.7152 + blue * 0.0722
+        z = red * 0.0193 + green * 0.1192 + blue * 0.9505
+
+        def f(t):
+            return t ** (1 / 3.0) if t > 0.008856 else 7.787 * t + 16 / 116.0
+
+        fx, fy, fz = f(x / 0.95047), f(y), f(z / 1.08883)
+        return (116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz))
+
+    midtones = {name: _to_lab(material_art.ramp(base)[3])
+                for name, base in material_art.BASES.items()}
+    closest = None
+    for first in sorted(midtones):
+        for second in sorted(midtones):
+            if first >= second:
+                continue
+            distance = sum((a - b) ** 2 for a, b in
+                           zip(midtones[first], midtones[second])) ** 0.5
+            if closest is None or distance < closest[0]:
+                closest = (distance, first, second)
+            if distance < MIN_SEPARATION:
+                fail(f"{first} and {second} sit {distance:.1f} apart in CIELAB. "
+                     f"Below {MIN_SEPARATION} two materials tell the player "
+                     f"nothing apart — move one of their base colours in "
+                     f"art/materials.py")
+    if closest:
+        print(f"material palette   : {len(midtones)} materials, closest pair "
+              f"{closest[1]}/{closest[2]} at {closest[0]:.1f} CIELAB "
+              f"(floor {MIN_SEPARATION})")
+
+    # -- the sprites actually on disk --------------------------------------
+    try:
+        from PIL import Image
+    except ImportError:
+        Image = None
+        notes.append("Pillow is not installed, so the shipped sprites were not "
+                     "opened — only the palette they are drawn from was checked")
+
+    # Every shape the Java registers has to have something to draw it with.
+    #
+    # Adding a shape to the Shape enum and forgetting the art does not fail at
+    # build time — it fails inside the generator with an AttributeError about a
+    # missing attribute on a module, which says nothing about what to do. This
+    # names the shape and the two places it needs to exist.
+    missing_art = [shape for shape in SHAPES
+                   if shape not in pixelart.MAPS and not hasattr(sprites, shape)]
+    for shape in missing_art:
+        fail(f"ElysiumMaterialGear registers a {shape!r} for every material and "
+             f"nothing can draw one: there is no shade map for it in "
+             f"art/pixelart.py and no {shape}() in art/sprites.py")
+    if not missing_art:
+        print(f"tool shapes        : {len(SHAPES)} in the Shape enum, "
+              f"every one of them drawable")
+
+    if Image is not None:
+        ITEM_TEXTURES = os.path.join(RES, "assets/elysium/textures/item")
+        GEAR_SHAPES = tuple(SHAPES)
+        ARMOUR_SHAPES = ("helmet", "chestplate", "leggings", "boots")
+
+        # Two materials must not produce the same file. The palette check above
+        # asks this of the numbers; this asks it of the artefact, which is what
+        # a player sees, and would still catch it if the sprites stopped being
+        # derived from the palette at all.
+        seen = {}
+        for material in sorted(material_art.BASES):
+            path = os.path.join(ITEM_TEXTURES, f"{material}_helmet.png")
+            if not os.path.exists(path):
+                fail(f"{material} has no helmet sprite, so the material is "
+                     f"registered with nothing to show for it")
+                continue
+            with open(path, "rb") as handle:
+                payload = handle.read()
+            if payload in seen:
+                fail(f"{material} and {seen[payload]} ship the identical helmet "
+                     f"sprite — two materials the player cannot tell apart")
+            seen[payload] = material
+
+        # The same question turned ninety degrees: within one material, no two
+        # *shapes* may look the same either.
+        #
+        # The check above compares materials for a fixed shape and would pass
+        # cheerfully while every shape was the same picture. That is not
+        # hypothetical — the first drafts of the plain axe, shovel and hoe were
+        # three variations on a blob on a stick, and telling them apart in a
+        # hotbar was guesswork. Iron stands for all of them: it is always
+        # present, and the maps do not vary by material.
+        # Not byte-identity: near-identity. Two shapes drawn from the same map
+        # still differ in their element accent, which is two or three pixels —
+        # so an exact comparison passes while the two sprites are the same
+        # picture with a dot moved. Sixteen pixels out of 256 is the floor for
+        # "these are different drawings".
+        #
+        # What this cannot do is judge whether two genuinely different drawings
+        # *look* alike. That needs eyes, and it needed them here: the first
+        # drafts of the axe, shovel and hoe were three variations on a blob and
+        # every one of them cleared this check comfortably.
+        DISTINCT_PIXELS = 16
+        drawn = {}
+        for shape in SHAPES:
+            path = os.path.join(ITEM_TEXTURES, f"iron_{shape}.png")
+            if not os.path.exists(path):
+                continue
+            pixels = list(Image.open(path).convert("RGBA").getdata())
+            for other, other_pixels in drawn.items():
+                differing = sum(1 for a, b in zip(pixels, other_pixels) if a != b)
+                if differing < DISTINCT_PIXELS:
+                    fail(f"the {shape} and the {other} differ by only "
+                         f"{differing} pixel(s). They are two different tools "
+                         f"and a player has to tell them apart in a hotbar")
+            drawn[shape] = pixels
+
+        # A sprite with no value structure reads as a silhouette however well
+        # it is drawn, which this art package has already learned once: see the
+        # note on _STEPS in art/materials.py. Vanilla's own metal items span
+        # roughly 200 units of luminance.
+        MIN_RANGE = 120
+
+        def luminance(pixel):
+            return 0.2126 * pixel[0] + 0.7152 * pixel[1] + 0.0722 * pixel[2]
+
+        # The metal is measured on its own, with the handle and the element
+        # accent taken out first.
+        #
+        # The first version of this check measured every opaque pixel, and a
+        # deliberate test proved it useless: flattening the material ramp to
+        # five nearly identical tones — exactly the regression the check exists
+        # for — still passed, because the wooden handle runs dark-to-light and
+        # the accent is near-white, and between them they carried the range on
+        # their own. A check that cannot fail on the thing it was written for
+        # is worse than no check, because it reads as coverage.
+        import style as art_style
+        wood_tones = {material_art._hex_to_rgb(tone) for tone in pixelart.WOOD}
+        glow_tones = {material_art._hex_to_rgb(tone)
+                      for ramp in art_style.GLOW.values() for tone in ramp}
+        not_metal = wood_tones | glow_tones
+
+        checked = wooden = 0
+        flattest = None
+        for name in sorted(os.listdir(ITEM_TEXTURES)):
+            if not name.endswith(".png"):
+                continue
+            shape = name[:-4].rsplit("_", 1)[-1]
+            if shape not in GEAR_SHAPES + ARMOUR_SHAPES:
+                continue
+            image = Image.open(os.path.join(ITEM_TEXTURES, name)).convert("RGBA")
+            if image.size != (16, 16):
+                fail(f"{name} is {image.size[0]}x{image.size[1]}; every item "
+                     f"sprite here is a 16x16")
+                continue
+            opaque = [p for p in image.getdata() if p[3] > 0]
+            if not opaque:
+                fail(f"{name} is entirely transparent")
+                continue
+
+            metal = [luminance(p) for p in opaque if p[:3] not in not_metal]
+            if not metal:
+                fail(f"{name} has no metal pixels at all — it is drawn entirely "
+                     f"in handle and accent colours")
+                continue
+            spread = max(metal) - min(metal)
+            if flattest is None or spread < flattest[0]:
+                flattest = (spread, name)
+            if spread < MIN_RANGE:
+                fail(f"{name}'s metal spans only {spread:.0f} units of "
+                     f"luminance. Below {MIN_RANGE} there is no light and shade "
+                     f"left in it and it reads as a coloured silhouette")
+
+            if shape in GEAR_SHAPES:
+                # The wooden haft is what makes a tool read as a tool rather
+                # than as a casting of one, and it is also the constant the
+                # recolour is judged against — with nothing fixed to compare
+                # to, copper and iron are just two greys. Losing it would look
+                # like a styling choice rather than a regression.
+                if any(p[:3] in wood_tones for p in opaque):
+                    wooden += 1
+                else:
+                    fail(f"{name} has no handle pixels left — a tool drawn end "
+                         f"to end in one material gives the eye nothing to read "
+                         f"the material against")
+            checked += 1
+
+        if checked:
+            print(f"gear sprites       : {checked} checked, all 16x16, flattest "
+                  f"is {flattest[1]} at {flattest[0]:.0f} luminance "
+                  f"(floor {MIN_RANGE})")
+            print(f"tool handles       : {wooden} tools keep a wooden haft")
+        else:
+            fail("no generated gear sprites were found at all — the naming "
+                 "scheme must have changed, and this entire section just "
+                 "passed by checking nothing")
+
+# The generator has to be able to regenerate.
+#
+# It spent its whole life reporting "sprites written: 0", because it skipped
+# every file that already existed and after the first run that is all of them.
+# Editing a shape changed nothing, and the only way to see an edit was to
+# delete 196 files first — which nobody would guess and nothing said.
+gear_tool = os.path.join(WORK, "tools/gen_material_gear.py")
+if os.path.isfile(gear_tool):
+    gear_source = open(gear_tool, encoding="utf-8").read()
+    # Scoped to write_sprites, because the rule is not general: write_models and
+    # write_recipes skip files that exist on purpose, so that a hand-written
+    # recipe wins over a generated one. It is only the *sprites* where "already
+    # there" means "drawn by an older version of the code".
+    body = re.search(r"\ndef write_sprites\(.*?\n(?=\ndef |\n# ---)",
+                     gear_source, re.S)
+    if not body:
+        fail("cannot find write_sprites in tools/gen_material_gear.py, so "
+             "whether the gear art can still be regenerated is unchecked")
+    elif re.search(r"if os\.path\.exists\(", body.group(0)):
+        fail("write_sprites in tools/gen_material_gear.py is skipping sprites "
+             "that already exist again. After one run every generated sprite "
+             "exists, so that turns the generator into a no-op and pins the art "
+             "at whatever happened to be drawn first")
+    elif "hand_drawn()" not in body.group(0):
+        fail("write_sprites no longer consults hand_drawn(), so it will "
+             "overwrite the sprites art/build.py draws by name")
+    else:
+        print("gear generator     : rewrites what it owns, reserves what "
+              "art/build.py draws by name")
+
 print()
+
+
+# ---------------------------------------------------------------------------
+# Gear convergence: the crossing to Silent Gear and Apotheosis
+# ---------------------------------------------------------------------------
+#
+# The whole feature rests on one property: Elysium must build and run with
+# neither of those mods installed. That property is invisible in this
+# environment — both jars are on the compile classpath and every file type-
+# checks — so it has to be checked structurally, here.
+#
+# This is not hypothetical. An earlier version of this repository imported
+# shadows.apotheosis.* onto classes that were loaded unconditionally; the mod
+# could then neither build without Apotheosis nor run without it, and FIXES.md
+# still carries the entry. The rule that prevents it is simple and mechanical:
+# foreign imports live only in the bridge files, and the bridges are only ever
+# named inside a method that has asked ModList first.
+
+JAVA_DIR = os.path.join(WORK, "src/main/java/com/elysium/core")
+
+
+def strip_java_comments(text):
+    """Java source with comments removed.
+
+    A check of mine once passed on deliberately broken code because the
+    phrase it searched for appeared in the javadoc explaining the rule.
+    Prose about a guard is not a guard.
+    """
+    text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+    return re.sub(r"//[^\n]*", " ", text)
+
+
+COMPAT = os.path.join(JAVA_DIR, "compat")
+FOREIGN = ("net.silentchaos512", "dev.shadowsoffire")
+
+# The only two files allowed to import either mod.
+BRIDGES = {"SilentGearBridge.java", "ApotheosisBridge.java"}
+
+if not os.path.isdir(COMPAT):
+    fail("com/elysium/core/compat/ is missing — the gear conversion is gone")
+else:
+    compat_files = sorted(f for f in os.listdir(COMPAT) if f.endswith(".java"))
+
+    # 1. Foreign imports, only in the bridges.
+    for filename in compat_files:
+        text = open(os.path.join(COMPAT, filename), encoding="utf-8").read()
+        imports = [line for line in text.split("\n")
+                   if line.startswith("import ") and any(f in line for f in FOREIGN)]
+        if imports and filename not in BRIDGES:
+            fail(f"compat/{filename} imports {imports[0].strip()}. Only "
+                 f"{sorted(BRIDGES)} may name another mod's classes — anything "
+                 f"else is loaded unconditionally and takes the whole mod down "
+                 f"with it when that mod is absent")
+
+    # ...and nowhere else in the module at all.
+    for root, _, files in os.walk(JAVA_DIR):
+        if os.path.basename(root) == "compat":
+            continue
+        for filename in files:
+            if not filename.endswith(".java"):
+                continue
+            text = open(os.path.join(root, filename), encoding="utf-8").read()
+            for line in text.split("\n"):
+                if line.startswith("import ") and any(f in line for f in FOREIGN):
+                    where = os.path.relpath(os.path.join(root, filename), JAVA_DIR)
+                    fail(f"{where} imports {line.strip()} outside compat/. That "
+                         f"class loads whether or not the mod is installed")
+
+    # 2. The dispatcher must be clean, because it is the class that is always
+    #    loaded. If GearConvergence itself named a foreign type in a field, a
+    #    parameter or a supertype, the guard inside its methods would never run.
+    dispatcher = os.path.join(COMPAT, "GearConvergence.java")
+    if not os.path.isfile(dispatcher):
+        fail("compat/GearConvergence.java is missing — nothing dispatches")
+    else:
+        text = open(dispatcher, encoding="utf-8").read()
+        stripped = strip_java_comments(text)
+        for foreign in FOREIGN:
+            if foreign in stripped:
+                fail(f"GearConvergence names {foreign} in its code. It is the "
+                     f"class that is always loaded, so a foreign type anywhere "
+                     f"in its signature defeats every ModList check inside it")
+
+        # 3. Every mention of a bridge must sit downstream of a ModList check.
+        #    Checked per method, which is the scope the JVM actually resolves
+        #    at: a bridge named in a method that never asks is a class load on
+        #    a game that does not have the mod.
+        for method in re.split(r"\n    (?=[a-zA-Z@].*\()", stripped):
+            named = [b for b in ("SilentGearBridge", "ApotheosisBridge")
+                     if b in method]
+            if not named:
+                continue
+            if "ModList" not in method and "available()" not in method:
+                fail(f"a method in GearConvergence names {named[0]} without "
+                     f"asking ModList first:\n      "
+                     + method.strip().split("\n")[0])
+
+    # 3b. The same rule, checked in the bytecode rather than the source.
+    #
+    # The import scan above reads what a person wrote. This reads what javac
+    # emitted, which is the thing the JVM will actually resolve — and the two
+    # can differ. A foreign type can reach a class file through an inferred
+    # `var`, a generic signature, a lambda's synthetic method or a compiler
+    # bridge method, none of which appear as an import line. Every one of those
+    # would put a NoClassDefFoundError in front of a player who does not have
+    # the mod, and none of them is visible in the source.
+    #
+    # Runs only where the module has been compiled, which is the same condition
+    # the machine harness uses. Skipping is reported, not silent.
+    classes_dir = os.environ.get("ELYSIUM_OUT", "/tmp/elysium-classes")
+    compiled = os.path.join(classes_dir, "elysium-core")
+    if not os.path.isdir(compiled):
+        print(f"gear convergence  : bytecode not scanned, no compiled classes "
+              f"at {compiled} (run ./compile.sh first)")
+    else:
+        # Read the class bytes directly rather than shelling out to javap.
+        # A class file stores every type it references as a UTF8 constant in
+        # the internal form ("net/silentchaos512/..."), so a byte search finds
+        # exactly what the constant pool holds — and finds it about a thousand
+        # times faster than 85 javap processes, which mattered the moment the
+        # negative tests started running this eleven times in a row.
+        bridge_classes = {os.path.splitext(b)[0] for b in BRIDGES}
+        foreign_bytes = (b"net/silentchaos512", b"dev/shadowsoffire")
+        leaked = []
+        scanned = 0
+        for root, _, files in os.walk(os.path.join(compiled, "com/elysium/core")):
+            for filename in files:
+                if not filename.endswith(".class"):
+                    continue
+                scanned += 1
+                # The bridges are allowed to, and must, reference them. So are
+                # their nested and synthetic classes, which carry the outer
+                # name before a $.
+                stem = filename[:-len(".class")].split("$")[0]
+                if stem in bridge_classes:
+                    continue
+                blob = open(os.path.join(root, filename), "rb").read()
+                for foreign in foreign_bytes:
+                    if foreign in blob:
+                        name = os.path.relpath(os.path.join(root, filename),
+                                               compiled)[:-len(".class")]
+                        leaked.append((name.replace(os.sep, "."),
+                                       foreign.decode()))
+                        break
+        for name, foreign in leaked:
+            fail(f"{name} carries a reference to {foreign} in its bytecode. "
+                 f"That class is loaded whether or not the mod is installed, "
+                 f"so every player without it gets a NoClassDefFoundError — "
+                 f"and no import line in the source says so")
+        if not leaked:
+            print(f"convergence guard : {scanned} compiled classes scanned, "
+                  f"foreign references confined to the {len(bridge_classes)} "
+                  f"bridge class(es) in the bytecode as well as the source")
+
+    # 4. Both mods must be declared optional in the manifest, or NeoForge will
+    #    not know to load Elysium after them — and a bridge that runs before
+    #    the mod it bridges to sees an empty registry.
+    #
+    # Parsed per block, not searched for in a window. The first version read
+    # 400 characters either side of the mod id and found the word "optional" in
+    # the *comment* above the section and in the neighbouring dependency — so a
+    # dependency deliberately switched to required still passed. A check that
+    # can be satisfied by prose nearby is not checking the setting.
+    toml = open(os.path.join(RES, "META-INF/neoforge.mods.toml"),
+                encoding="utf-8").read()
+    declared = {}
+    current = None
+    for raw in toml.split("\n"):
+        line = raw.split("#", 1)[0].strip()
+        if line.startswith("[["):
+            current = {}
+        elif current is not None and "=" in line:
+            key, _, value = line.partition("=")
+            current[key.strip()] = value.strip().strip('"')
+            if key.strip() == "modId":
+                declared[current["modId"]] = current
+    for mod_id in ("silentgear", "apotheosis"):
+        entry = declared.get(mod_id)
+        if entry is None:
+            fail(f"neoforge.mods.toml declares no dependency on {mod_id}, so "
+                 f"nothing tells NeoForge to load Elysium after it — and a "
+                 f"bridge that runs first sees an empty registry")
+        elif entry.get("type") != "optional":
+            fail(f"the {mod_id} dependency in neoforge.mods.toml is "
+                 f"type={entry.get('type')!r}, not optional — Elysium would "
+                 f"refuse to start without a mod it is supposed to run fine "
+                 f"without")
+        elif entry.get("ordering") != "AFTER":
+            fail(f"the {mod_id} dependency does not order Elysium AFTER it, so "
+                 f"the bridge may build gear before that mod has registered "
+                 f"anything to build it from")
+
+    # 5. The smithing recipe has to be readable by the serializer that ships.
+    convergence = os.path.join(RES, "data/elysium/recipe/convergence.json")
+    if not os.path.isfile(convergence):
+        fail("no convergence recipe ships, so the smithing table does nothing")
+    else:
+        recipe = json.load(open(convergence, encoding="utf-8"))
+        registered = re.findall(r'SERIALIZERS\.register\("([a-z_]+)"',
+                                open(os.path.join(COMPAT,
+                                     "ConvergenceSmithingRecipe.java"),
+                                     encoding="utf-8").read())
+        wanted = recipe["type"].split(":", 1)[1]
+        if wanted not in registered:
+            fail(f"convergence.json is a {recipe['type']} and the mod registers "
+                 f"{registered} — the recipe fails to load and the table does "
+                 f"nothing, silently")
+
+    # 6. Both templates have to be real items a player can get.
+    for template in ("silent_convergence_template", "affix_convergence_template"):
+        if template not in items:
+            fail(f"{template} is not registered, so the conversion has no "
+                 f"template and cannot be performed at all")
+        if not os.path.isfile(os.path.join(
+                RES, f"assets/elysium/textures/item/{template}.png")):
+            fail(f"{template} has no texture")
+        if not os.path.isfile(os.path.join(
+                RES, f"data/elysium/recipe/{template}.json")):
+            fail(f"{template} has no recipe, so it is uncraftable and the "
+                 f"conversion is unreachable in survival")
+
+    # 7. Every gear shape must have somewhere to go. A shape added to the enum
+    #    later and forgotten here is a piece a player cannot convert, with
+    #    nothing saying why.
+    bridge = open(os.path.join(COMPAT, "SilentGearBridge.java"),
+                  encoding="utf-8").read()
+    for shape in SHAPES:
+        if f"Shape.{shape.upper()}" not in bridge:
+            fail(f"Shape.{shape.upper()} has no Silent Gear counterpart in "
+                 f"SilentGearBridge. A player holding one gets an empty output "
+                 f"slot and no reason")
+    for slot in ("HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS"):
+        if f"ArmorItem.Type.{slot}" not in bridge:
+            fail(f"{slot} has no Silent Gear counterpart in SilentGearBridge")
+
+    # Report what was found, not what was hoped for. The first version of this
+    # line ended "both mods optional" and printed it unchanged in a run that had
+    # just failed on a required dependency — a summary that states the
+    # conclusion rather than the measurement will eventually state a false one.
+    _types = ", ".join(f"{m}={declared.get(m, {}).get('type', 'absent')}"
+                       for m in ("silentgear", "apotheosis"))
+    print(f"gear convergence  : {len(compat_files)} compat file(s), foreign "
+          f"imports in {len(BRIDGES)} of them, {len(SHAPES)} shapes and 4 slots "
+          f"mapped, {_types}")
+
+# ---------------------------------------------------------------------------
+# Field rations: §15.5's food that answers a hazard
+# ---------------------------------------------------------------------------
+#
+# HazardHarness checks what a ward is worth and elysium-lib's validator checks
+# that the effects exist and that the damage tick reads them. Neither can see
+# the half of the feature that lives here: whether the five items a player
+# actually crafts are edible, whether each one grants the ward it claims, and
+# whether all five hazards are covered rather than three of them twice.
+
+ration_item = os.path.join(WORK,
+    "src/main/java/com/elysium/core/item/ElysiumRationItem.java")
+ration_names = re.findall(r'ration\(\s*"([a-z_]+)",\s*'
+                          r'com\.elysium\.lib\.hazard\.ElysiumHazards\.([A-Z]+)\)',
+                          open(JAVA, encoding="utf-8").read())
+HAZARDS = ("THERMAL", "CRYOGENIC", "CORROSIVE", "RADIOLOGICAL", "PRESSURE")
+
+if not ration_names:
+    fail("no field rations are registered, so §10.2's cheap counter cannot be "
+         "crafted and the only answers to a hazard are two projects")
+else:
+    covered = [hazard for _name, hazard in ration_names]
+    for hazard in HAZARDS:
+        if hazard not in covered:
+            fail(f"no ration wards {hazard.lower()}, so that hazard has no "
+                 f"cheap counter and a player who meets it early can only "
+                 f"leave")
+    for hazard in set(covered):
+        if covered.count(hazard) > 1:
+            fail(f"{covered.count(hazard)} rations ward {hazard.lower()}; one "
+                 f"of the five hazards is being answered twice while another "
+                 f"is answered not at all")
+
+    lang_file = json.load(open(os.path.join(
+        RES, "assets/elysium/lang/en_us.json"), encoding="utf-8"))
+    for key in ("elysium.tooltip.ration", "elysium.tooltip.ration.whole"):
+        if key not in lang_file:
+            fail(f"{key} is not translated, so the line that tells a player how "
+                 f"long the immunity lasts renders as a raw key")
+
+    for name, _hazard in ration_names:
+        if not os.path.isfile(os.path.join(
+                RES, f"data/elysium/recipe/{name}.json")):
+            fail(f"{name} has no recipe, so the cheap counter is uncraftable "
+                 f"and is therefore not cheap, it is impossible")
+
+if not os.path.isfile(ration_item):
+    fail("ElysiumRationItem is missing, so the ration items have no behaviour")
+else:
+    ration_src = re.sub(r"/\*.*?\*/", " ",
+                        open(ration_item, encoding="utf-8").read(), flags=re.S)
+    ration_src = re.sub(r"//[^\n]*", " ", ration_src)
+    if ".food(" not in ration_src:
+        fail("ElysiumRationItem is not food, so a ration cannot be eaten and "
+             "nothing it does can ever happen")
+    if "addEffect(" not in ration_src:
+        fail("ElysiumRationItem never applies an effect, so eating a ration "
+             "feeds a player and wards them against nothing")
+    if "ElysiumWards.wardFor(" not in ration_src:
+        fail("ElysiumRationItem does not ask ElysiumWards which effect wards "
+             "its hazard, so whatever it grants is not what the damage tick "
+             "looks for")
+    # Scoped to the method that applies it. The loose form — "is the constant
+    # mentioned anywhere in the file" — passed a deliberate test that replaced
+    # the applied duration with a literal, because the tooltip also names the
+    # constant and the tooltip is not what a player gets. Same failure as the
+    # three declaration-instead-of-call checks before it.
+    applying = ration_src.split("finishUsingItem", 1)
+    if len(applying) < 2:
+        fail("ElysiumRationItem no longer applies anything when it is eaten")
+    elif "ElysiumWards.DURATION" not in applying[1].split("appendHoverText")[0]:
+        fail("ElysiumRationItem applies its ward for a duration of its own "
+             "rather than the library's, so the number HazardHarness checks "
+             "is not the number a player gets")
+
+    print(f"field rations     : {len(ration_names)} edible, one per hazard, "
+          f"each granting the library's own ward for its full duration")
+
+# ---------------------------------------------------------------------------
+# Unit codecs: what a datapack reads must be what the server can send
+# ---------------------------------------------------------------------------
+#
+# A recipe carrying no data has both codecs written as units, and the obvious
+# spelling of that disconnected every client that joined a server:
+#
+#   MapCodec.unit(ConvergenceSmithingRecipe::new)
+#   StreamCodec.unit(new ConvergenceSmithingRecipe())
+#
+# The map codec's method reference builds a new object when the recipe file
+# loads; StreamCodec.unit refuses to encode anything not equals() to the object
+# it captured. Nothing about it is visible at compile time or in a single-player
+# world that never reaches the recipe sync.
+#
+# The round trip itself cannot run here — touching the recipe class loads
+# net.minecraft...Recipe, which needs a bootstrapped game, which needs FML. So
+# RecipeCodecHarness pins what `unit` compares, and this enforces the shape.
+
+for _java in pathlib.Path(os.path.join(WORK, "src/main/java")).rglob("*.java"):
+    _text = _java.read_text(encoding="utf-8")
+    _code = re.sub(r"//[^\n]*", " ", re.sub(r"/\*.*?\*/", " ", _text, flags=re.S))
+    if "StreamCodec.unit(" not in _code:
+        continue
+    _where = os.path.relpath(str(_java), WORK)
+
+    # 1. A fresh instance handed straight to the stream codec can never be the
+    #    one anything else produces.
+    if re.search(r"StreamCodec\.unit\(\s*new\s", _code):
+        fail(f"{_where}: StreamCodec.unit is given a freshly constructed value. "
+             f"Nothing else in the game will ever be equal to it, so the first "
+             f"client to join is disconnected while the packet is written")
+
+    # 2. A supplier on the map side and a value on the stream side is the same
+    #    disagreement spelled two ways.
+    if re.search(r"MapCodec\.unit\(\s*\w+::new", _code):
+        fail(f"{_where}: MapCodec.unit is given a ::new supplier while a "
+             f"StreamCodec.unit exists in the same file. Every load makes a new "
+             f"object and the stream codec captured a different one")
+
+    # 3. Both units must name the same thing.
+    _map_args = re.findall(r"MapCodec\.unit\(\s*([A-Za-z_][\w.]*)\s*\)", _code)
+    _stream_args = re.findall(r"StreamCodec\.unit\(\s*([A-Za-z_][\w.]*)\s*\)", _code)
+    if _map_args and _stream_args and set(_map_args) != set(_stream_args):
+        fail(f"{_where}: the map codec is a unit of {sorted(set(_map_args))} and "
+             f"the stream codec a unit of {sorted(set(_stream_args))}. They have "
+             f"to be the same value or the recipe sync refuses it")
+
+    # 4. ...and the type answers equals, because that is what unit asks.
+    if "public boolean equals(" not in _code:
+        fail(f"{_where}: uses StreamCodec.unit but does not override equals, so "
+             f"any second instance that ever exists cannot be encoded")
+
+# Crafting categories are an enum with four values and no error a player sees:
+# an unknown one fails the whole recipe file during loading, so the item ships
+# with art, a name and no way to make it. "food" cost five rations exactly that.
+CRAFTING_CATEGORIES = {"building", "redstone", "equipment", "misc"}
+_bad_category = []
+for _recipe in pathlib.Path(os.path.join(RES, "data")).rglob("recipe/*.json"):
+    try:
+        _data = json.load(open(_recipe, encoding="utf-8"))
+    except Exception:
+        continue                      # the JSON parse pass above reports these
+    if not str(_data.get("type", "")).startswith("minecraft:crafting"):
+        continue
+    _category = _data.get("category")
+    if _category is not None and _category not in CRAFTING_CATEGORIES:
+        _bad_category.append((os.path.relpath(str(_recipe), RES), _category))
+for _path, _category in _bad_category:
+    fail(f"{_path}: crafting category {_category!r} is not one of "
+         f"{sorted(CRAFTING_CATEGORIES)}. The recipe fails to parse and is "
+         f"dropped, so the item exists and cannot be crafted")
+
+if not _bad_category:
+    print("recipe codecs     : unit codecs share one value that answers equals; "
+          "every crafting category is one the game has")
+
+# ---------------------------------------------------------------------------
+# What a kill pays, and what a bench costs
+# ---------------------------------------------------------------------------
+#
+# Balance numbers with no harness behind them, because the reward provider
+# needs registered items and a bench recipe is data. Three owner decisions,
+# each written as the bound it has to stay inside:
+#
+#   * weapons are rare drops — a dropped blade ends the decision to build one;
+#   * material comes in handfuls — one ingot off a kill reads as a rounding
+#     error;
+#   * the benches are built from what a player has on their first day, not
+#     from obsidian or forty-five ingots of iron.
+
+_content = re.sub(r"//[^\n]*", " ", re.sub(r"/\*.*?\*/", " ", open(os.path.join(
+    WORK, "src/main/java/com/elysium/core/ElysiumContent.java"),
+    encoding="utf-8").read(), flags=re.S))
+
+_weapon = re.search(r"WEAPON_CHANCE\s*=\s*([\d.]+)F", _content)
+if _weapon is None:
+    fail("ElysiumContent has no WEAPON_CHANCE, so the weapon drop rate is a "
+         "literal buried in a switch again")
+elif float(_weapon.group(1)) > 0.05:
+    fail(f"a top-shelf reward is a weapon {float(_weapon.group(1)):.0%} of the "
+         f"time. The owner asked for fewer: a dropped blade is the end of the "
+         f"decision to forge one, and at that rate the forge loses")
+
+_minimum = re.search(r"MATERIAL_MIN\s*=\s*(\d+)", _content)
+if _minimum is None:
+    fail("ElysiumContent has no MATERIAL_MIN, so material drops are single "
+         "ingots again")
+elif int(_minimum.group(1)) < 2:
+    fail("a material drop can be a single ingot, which reads as a rounding "
+         "error rather than a reason to have fought")
+
+for _entity, _cap in (("ImperialEnforcer", 0.03), ("UnswornRaider", 0.03)):
+    _src = open(os.path.join(WORK, "src/main/java/com/elysium/core/entity",
+                             _entity + ".java"), encoding="utf-8").read()
+    for _chance in re.findall(r"MAINHAND,[^;]*?([\d.]+)F", _src):
+        if float(_chance) > _cap:
+            fail(f"{_entity} drops its weapon {float(_chance):.1%} of the time, "
+                 f"above the {_cap:.0%} the owner's decision allows")
+
+_first_benches = ("reforge_table", "rune_socket_table", "ascension_forge")
+_too_dear = {"minecraft:obsidian", "minecraft:crying_obsidian",
+             "minecraft:iron_block", "minecraft:diamond", "minecraft:netherite_ingot"}
+for _bench in _first_benches:
+    _path = os.path.join(RES, f"data/elysium/recipe/{_bench}.json")
+    if not os.path.isfile(_path):
+        continue                       # reported by the obtainability audit
+    _recipe = json.load(open(_path, encoding="utf-8"))
+    _used = {v.get("item") for v in _recipe.get("key", {}).values()
+             if isinstance(v, dict)}
+    for _item in sorted(_used & _too_dear):
+        fail(f"{_bench} is built from {_item}. The first benches are stone, "
+             f"wood and iron — obsidian is a diamond pickaxe and a trip to "
+             f"lava, and it put the bench a player needs first behind the "
+             f"things they would need it for")
+
+# A bench may lean on exactly one vanilla station — an anvil for the Reforge
+# Table, a smithing table for the Ascension Forge — and never on two, and never
+# on two of the same. An anvil is thirty-one iron; a second one is a second
+# iron mine, which is the same mistake as the obsidian in a cheaper costume.
+# The count is taken off the *pattern*, not the key: a key entry says an anvil
+# is involved, the pattern says how many.
+_stations = {"minecraft:anvil", "minecraft:chipped_anvil",
+             "minecraft:damaged_anvil", "minecraft:smithing_table",
+             "minecraft:grindstone"}
+for _bench in _first_benches:
+    _path = os.path.join(RES, f"data/elysium/recipe/{_bench}.json")
+    if not os.path.isfile(_path):
+        continue
+    _recipe = json.load(open(_path, encoding="utf-8"))
+    _symbols = {sym for sym, v in _recipe.get("key", {}).items()
+                if isinstance(v, dict) and v.get("item") in _stations}
+    _count = sum(row.count(_sym)
+                 for row in _recipe.get("pattern", []) for _sym in _symbols)
+    if _count > 1:
+        _named = ", ".join(sorted(
+            _recipe["key"][_sym]["item"] for _sym in _symbols))
+        fail(f"{_bench} wants {_count} vanilla stations ({_named}). The owner "
+             f"set the ceiling at one per bench: every extra anvil is another "
+             f"thirty-one iron in front of the bench that teaches the mod")
+
+# ---------------------------------------------------------------------------
+# Rune tiers: every Elysium rune scales, and the forge merges honestly
+# ---------------------------------------------------------------------------
+_runes_path = os.path.join(WORK, "src/main/java/com/elysium/core/item/ElysiumRunes.java")
+_runes_code = strip_java_comments(open(_runes_path, encoding="utf-8").read())
+if re.search(r"\.effect\(\s*\(\s*\w+\s*,\s*\w+\s*,\s*\w+\s*\)\s*->", _runes_code):
+    fail("an Elysium rune still has a three-argument effect, which never sees "
+         "its tier: merged to V it does what it did at I")
+if re.search(r"aligned\s*\?\s*1\s*:\s*0", _runes_code):
+    fail("a rune picks its potion level with aligned ? 1 : 0, ignoring its "
+         "tier. Use ElysiumRuneTiers.amplifier")
+# Rune stats are uncapped, by the owner's instruction ("don't cap stats").
+# Every potion level goes through the one uncapped rule, and nothing clamps it
+# on the way.
+_potion_levels = re.findall(r"MobEffects\.\w+,\s*DURATION,\s*([^,]+?\(.*?\)|[^,]+),",
+                            _runes_code, re.S)
+for _lvl in _potion_levels:
+    if not re.search(r"ElysiumRuneTiers\.(amplifier|percentileAmplifier)\(", _lvl) \
+            or "Math.min" in _lvl:
+        fail(f"a rune's potion level is {_lvl.strip()[:60]!r} rather than one of "
+             f"the tier rules in ElysiumRuneTiers. Rune stats are not capped")
+        break
+if "resistanceAmplifier" in _runes_code:
+    fail("a rune still caps Resistance. Rune stats are not capped")
+# Resistance is a percentage of damage, so it takes the stat / (stat + b) rule
+# (the owner's ruling for percentile effects), not the linear one — which
+# would reach level V, all damage, at tier 3 aligned.
+_res = re.search(r"MobEffects\.DAMAGE_RESISTANCE,\s*DURATION,\s*(.*?)\)\s*,\s*false",
+                 _runes_code, re.S)
+if _res is None or "percentileAmplifier(" not in _res.group(1):
+    fail("Resistance is granted by the linear tier rule; it is a percentage of "
+         "damage and must follow stat / (stat + b) via percentileAmplifier")
+
+_menu_path = os.path.join(WORK, "src/main/java/com/elysium/core/menu/ReforgeTableMenu.java")
+_menu_code = strip_java_comments(open(_menu_path, encoding="utf-8").read())
+
+
+def _menu_body(sig):
+    start = _menu_code.find(sig)
+    if start < 0:
+        return None
+    depth = 0
+    for i in range(_menu_code.find("{", start), len(_menu_code)):
+        if _menu_code[i] == "{":
+            depth += 1
+        elif _menu_code[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return _menu_code[start:i + 1]
+    return None
+
+
+_perform = _menu_body("public void performAction(")
+_merge = _menu_body("private void mergeRunes(")
+if _perform is None or _merge is None:
+    fail("the forge menu has lost performAction or mergeRunes; runes cannot "
+         "be merged")
+else:
+    _m = _perform.find("mergeRunes(")
+    _g = _perform.find("ElysiumGear.of(armor)")
+    if _m < 0 or "armor.isEmpty()" not in _perform[:_m] or (0 <= _g < _m):
+        fail("rune merging is not reached with the gear slot empty, before any "
+             "gear logic; either it never runs or a rune meant for socketing "
+             "gets merged instead")
+    if "tierOf(rune)" not in _perform:
+        fail("socketing ignores the rune's tier: a merged rune goes into gear "
+             "as tier 1 and the runes spent merging it are simply lost")
+    if "canMerge(" not in _merge or "tierOf(material) == tier" not in _merge:
+        fail("mergeRunes does not insist on two of the same tier; a tier-1 "
+             "and a tier-4 would make a tier 5")
+    if "player.drop(" not in _merge:
+        fail("a merged rune that does not fit anywhere is not dropped, so it "
+             "is destroyed")
+
+# ---------------------------------------------------------------------------
+# Tooltip code is never called from anywhere but a tooltip
+# ---------------------------------------------------------------------------
+#
+# A dedicated server crashed here (crash-2026-09-21_13.17.10-server): the
+# Reforge Table's teardown readout called Item.appendHoverText on the server,
+# which runs every mod's hook into tooltips, and Relics' hook calls a method
+# that only exists in client builds. NoSuchMethodError, server down. It passed
+# every singleplayer test, because an integrated server runs inside a client.
+#
+# So, across all seven modules: the only call to appendHoverText is super's,
+# inside an appendHoverText override, and nothing calls getTooltipLines. Server
+# code that needs an item's description uses ElysiumSocketable.describe.
+_mods_root = os.path.dirname(WORK)
+_tooltip_calls = []
+for _mod in sorted(os.listdir(_mods_root)):
+    _src = os.path.join(_mods_root, _mod, "src/main/java")
+    if not _mod.startswith("elysium") or not os.path.isdir(_src):
+        continue
+    for _dp, _dn, _fn in os.walk(_src):
+        for _f in _fn:
+            if not _f.endswith(".java"):
+                continue
+            _code = strip_java_comments(open(os.path.join(_dp, _f), encoding="utf-8").read())
+            for _m in re.finditer(r"(\w+(?:\(\))?)\s*\.\s*(appendHoverText|getTooltipLines)\s*\(", _code):
+                if _m.group(1) == "super" and _m.group(2) == "appendHoverText":
+                    continue
+                _tooltip_calls.append(f"{_mod}/{_f}: {_m.group(0).strip()}")
+if _tooltip_calls:
+    fail(f"tooltip code is called directly at {_tooltip_calls[0]}. On a dedicated "
+         f"server that runs every other mod's tooltip hooks, and one of them "
+         f"(Relics) crashed the server this way. Use ElysiumSocketable.describe")
+
+_teardown = _menu_body("private void teardown(")
+if _teardown is None or ".describe(" not in _teardown \
+        or not re.search(r"catch\s*\(\s*RuntimeException\s*\|\s*LinkageError", _teardown):
+    fail("the bench's teardown readout is not built with describe() inside a guard "
+         "that catches LinkageError; a readout must never be able to take a "
+         "server down")
+
+# ---------------------------------------------------------------------------
+# Every tag a recipe names resolves to something
+# ---------------------------------------------------------------------------
+#
+# A recipe keyed on a tag nobody defines is not an error to Minecraft. It
+# loads, it shows nothing, and it can never be crafted. Every voidglass,
+# aetherium and neutronium tool shipped like that — c:ingots/voidglass was
+# named by twenty-three recipes and defined by no one.
+#
+# A tag is accounted for when one of three things is true:
+#   * we ship it;
+#   * NeoForge ships it (transcribed from data/c/tags/item in the
+#     21.1.248 jar — the list is short, and a copy here cannot agree with the
+#     code under test by construction);
+#   * it belongs to a modded material, which ElysiumMaterials registers
+#     unconditionally and gates at runtime on another mod supplying the tag.
+_NEOFORGE_ITEM_TAGS = {
+    "c:ingots/copper", "c:ingots/gold", "c:ingots/iron", "c:ingots/netherite",
+    "c:gems/amethyst", "c:gems/diamond", "c:gems/emerald", "c:gems/lapis",
+    "c:gems/prismarine", "c:gems/quartz",
+}
+_mat_src = open(os.path.join(
+    WORK, "src/main/java/com/elysium/core/item/ElysiumMaterials.java"),
+    encoding="utf-8").read()
+_modded_names = set(re.findall(r'\{"(\w+)",\s*ElysiumElements\.', _mat_src))
+_shipped_tags = set()
+_modules_root = os.path.dirname(WORK)
+for _mod in os.listdir(_modules_root):
+    _data = os.path.join(_modules_root, _mod, "src/main/resources/data")
+    if not os.path.isdir(_data):
+        continue
+    for _ns in os.listdir(_data):
+        _tagdir = os.path.join(_data, _ns, "tags/item")
+        for _dp, _dn, _fn in os.walk(_tagdir):
+            for _f in _fn:
+                if _f.endswith(".json"):
+                    _rel = os.path.relpath(os.path.join(_dp, _f), _tagdir)[:-5]
+                    _shipped_tags.add(f"{_ns}:{_rel}")
+_unresolved = {}
+_recipe_dir = os.path.join(RES, "data/elysium/recipe")
+for _f in sorted(os.listdir(_recipe_dir)) if os.path.isdir(_recipe_dir) else []:
+    if not _f.endswith(".json"):
+        continue
+    _text = open(os.path.join(_recipe_dir, _f), encoding="utf-8").read()
+    for _tag in re.findall(r'"tag"\s*:\s*"([a-z0-9_.-]+:[a-z0-9_./-]+)"', _text):
+        if _tag in _shipped_tags or _tag in _NEOFORGE_ITEM_TAGS:
+            continue
+        if _tag.startswith("minecraft:"):
+            continue                    # vanilla's own item tags
+        _leaf = _tag.rsplit("/", 1)[-1]
+        if _tag.startswith("c:ingots/") and _leaf in _modded_names:
+            continue                    # gated at runtime on another mod
+        _unresolved.setdefault(_tag, []).append(_f)
+if _unresolved:
+    _worst = max(_unresolved, key=lambda t: len(_unresolved[t]))
+    fail(f"{sum(len(v) for v in _unresolved.values())} recipe(s) name a tag "
+         f"nothing defines, starting with {_worst} in "
+         f"{len(_unresolved[_worst])} recipe(s) such as "
+         f"{_unresolved[_worst][0]}. A recipe on an empty tag loads cleanly and "
+         f"can never be crafted")
+else:
+    print(f"recipe tags        : every tag a recipe names resolves — "
+          f"{len(_shipped_tags)} shipped, NeoForge's own, or a gated modded metal")
+
+# ---------------------------------------------------------------------------
+# The Extraction Ledger: a skill tree and the mod it is about
+# ---------------------------------------------------------------------------
+#
+# The tree is a datapack that sets scoreboard tags; Elysium is a mod that reads
+# them. Nothing in Minecraft connects the two, which means every failure here
+# is silent: a tag the tree sets and nothing reads is a skill that does
+# nothing, and a tag Elysium reads and nothing sets is dead code. Both look
+# exactly like working software.
+#
+# So the two halves are checked against each other, in both directions.
+
+_TREE = os.path.join(RES, "data/elysium/puffish_skills/categories/extraction_ledger")
+_DOCTRINE = os.path.join(
+    WORK, "..", "elysium-lib/src/main/java/com/elysium/lib/doctrine")
+
+if not os.path.isdir(_TREE):
+    fail("the Extraction Ledger is gone. Run tools/gen_skilltree.py")
+else:
+    # The config that names the category. Without it the tree never loads;
+    # with a broken category it takes the whole pack down.
+    _config_path = os.path.join(
+        RES, "data/elysium/puffish_skills/config.json")
+    if not os.path.isfile(_config_path):
+        fail("data/elysium/puffish_skills/config.json is missing. Pufferfish's "
+             "Skills loads the categories that file names — without it the "
+             "Extraction Ledger is forty-five correct JSON files the game "
+             "never opens")
+    else:
+        _config = json.load(open(_config_path, encoding="utf-8"))
+        if "extraction_ledger" not in _config.get("categories", []):
+            fail(f"config.json names {_config.get('categories')} and not "
+                 f"extraction_ledger")
+        # The mod accepts 1 to 3 and ignores a config outside that range.
+        if _config.get("version") not in (1, 2, 3):
+            fail(f"config.json declares version {_config.get('version')!r}; "
+                 f"the mod accepts 1 to 3")
+
+    _files = {}
+    for _name in ("category", "definitions", "skills", "connections"):
+        _path = os.path.join(_TREE, _name + ".json")
+        if not os.path.isfile(_path):
+            fail(f"the skill tree has no {_name}.json; Pufferfish's Skills "
+                 f"requires all four and refuses the category without them")
+        else:
+            _files[_name] = json.load(open(_path, encoding="utf-8"))
+
+if len(_files) == 4:
+    _defs = _files["definitions"]
+    _skills = _files["skills"]
+    _conns = _files["connections"]
+
+    # 1. Every placed skill names a definition, and every definition is placed.
+    _missing_def = sorted(nid for nid, placed in _skills.items()
+                          if placed.get("definition") not in _defs)
+    if _missing_def:
+        fail(f"{len(_missing_def)} skill(s) name a definition that does not "
+             f"exist, starting with {_missing_def[0]} — the node simply does "
+             f"not appear in game")
+    _unplaced = sorted(set(_defs) - {placed.get("definition")
+                                     for placed in _skills.values()})
+    if _unplaced:
+        fail(f"{len(_unplaced)} definition(s) are never placed, starting with "
+             f"{_unplaced[0]}. A skill written and not put on the tree is one "
+             f"nobody can take")
+
+    # 1b. The three shapes the mod complained about, by name.
+    #
+    # These are not guesses. Pufferfish's Skills refused the pack with three
+    # sentences, and each one is a rule here:
+    #
+    #   Expected `background` to exist at .../category.json
+    #   Expected `normal` to be an object at .../connections.json
+    #   Expected `exclusive` to be an object at .../connections.json
+    #
+    # Every one of them failed the category, and a failed category takes the
+    # whole pack down — including other packs' trees, as the player found out
+    # twice. A schema the mod states out loud is a schema worth writing down.
+    if "background" not in _files["category"]:
+        fail("category.json has no background. The mod requires it — "
+             "\"Expected `background` to exist\" — and without it the category "
+             "fails, which takes every tree in the pack with it")
+    else:
+        _bg = _files["category"]["background"]
+        if not isinstance(_bg, (str, dict)):
+            fail(f"category.json's background is {type(_bg).__name__}; the mod "
+                 f"accepts a texture path or an object with texture, width "
+                 f"and height")
+        if isinstance(_bg, dict) and not {"texture", "width", "height"} <= set(_bg):
+            fail("category.json's background is an object missing one of "
+                 "texture, width or height")
+
+    if not isinstance(_conns, dict):
+        fail("connections.json is a bare array. The mod expects an object with "
+             "normal and exclusive groups")
+    else:
+        for _group in ("normal", "exclusive"):
+            _value = _conns.get(_group)
+            if _value is None:
+                continue                # a category may legitimately have none
+            if not isinstance(_value, dict):
+                fail(f"connections.json's {_group} is a list. The mod says "
+                     f"\"Expected `{_group}` to be an object\": a group holds "
+                     f"unidirectional and bidirectional arrays, it is not one")
+            elif not {"unidirectional", "bidirectional"} & set(_value):
+                fail(f"connections.json's {_group} object holds "
+                     f"{sorted(_value)} and neither unidirectional nor "
+                     f"bidirectional, so it connects nothing")
+        # Exclusion is mutual: a one-way exclusion lets a player hold both
+        # halves of a commitment by taking them in the right order.
+        _excl = _conns.get("exclusive")
+        if isinstance(_excl, dict) and _excl.get("unidirectional"):
+            fail("an exclusive connection is unidirectional. Exclusion has to "
+                 "be mutual, or a player takes Sanctioned then Clandestine and "
+                 "holds both")
+
+    # 2. Every connection names skills that exist.
+    def _pairs(group):
+        """The pairs in a connection group, whichever direction they are in."""
+        if isinstance(group, list):
+            return group                # the legacy flat form
+        if not isinstance(group, dict):
+            return []
+        return (list(group.get("unidirectional", []))
+                + list(group.get("bidirectional", [])))
+
+    if isinstance(_conns, dict):
+        _normal = _pairs(_conns.get("normal"))
+        _exclusive = _pairs(_conns.get("exclusive"))
+    else:
+        _normal = list(_conns)
+        _exclusive = []
+    for _pair in list(_normal) + list(_exclusive):
+        for _end in _pair:
+            if _end not in _skills:
+                fail(f"a connection names {_end}, which is not a skill")
+
+    # 3. Exactly one root, and everything reachable from it.
+    _roots = [nid for nid, placed in _skills.items() if placed.get("root")]
+    if len(_roots) != 1:
+        fail(f"the tree has {len(_roots)} root(s). One is the design: the "
+             f"ledger opens once")
+    else:
+        _reached = {_roots[0]}
+        _changed = True
+        while _changed:
+            _changed = False
+            for _from, _to in _normal:
+                if _from in _reached and _to not in _reached:
+                    _reached.add(_to)
+                    _changed = True
+        _stranded = sorted(set(_skills) - _reached)
+        if _stranded:
+            fail(f"{len(_stranded)} skill(s) cannot be reached from the root, "
+                 f"starting with {_stranded[0]}. They are drawn and can never "
+                 f"be taken")
+
+    # 4. Every doctrine tag the tree sets is one Elysium reads, and vice versa.
+    #
+    # The check this whole section exists for.
+    _tree_tags = set()
+    for _definition in _defs.values():
+        for _reward in _definition.get("rewards", []):
+            if _reward.get("type") != "puffish_skills:command":
+                continue
+            _unlock = _reward.get("data", {}).get("unlock_command", "")
+            _lock = _reward.get("data", {}).get("lock_command", "")
+            _found = re.search(r"tag @s add (\S+)", _unlock)
+            if _found:
+                _tree_tags.add(_found.group(1))
+                if f"tag @s remove {_found.group(1)}" not in _lock:
+                    fail(f"the node granting {_found.group(1)} has no matching "
+                         f"lock command, so refunding it leaves the player "
+                         f"permanently committed")
+
+    _doctrine_src = open(os.path.join(_DOCTRINE, "ElysiumDoctrine.java"),
+                         encoding="utf-8").read()
+    _prefix = re.search(r'PREFIX = "([a-z.]+)"', _doctrine_src)
+    _ids = re.findall(r'^\s+[A-Z_]+\("([a-z_]+)",', _doctrine_src, re.M)
+    if _prefix is None or not _ids:
+        fail("ElysiumDoctrine could not be read, so the tree is being checked "
+             "against nothing")
+    else:
+        _mod_tags = {_prefix.group(1) + one for one in _ids}
+        if _tree_tags != _mod_tags:
+            fail(f"the skill tree and ElysiumDoctrine disagree about the tags: "
+                 f"the tree sets {sorted(_tree_tags - _mod_tags)} that nothing "
+                 f"reads, and the mod reads {sorted(_mod_tags - _tree_tags)} "
+                 f"that nothing sets. Either one is a feature that does "
+                 f"nothing and looks exactly like a working one")
+
+        # 5. The pairs the tree makes exclusive are the pairs the mod opposes.
+        _tree_pairs = {tuple(sorted(pair)) for pair in _exclusive}
+        _mod_pairs = {tuple(sorted(pair)) for pair in re.findall(
+            r'\{"([a-z_]+)", "([a-z_]+)"\}', _doctrine_src)}
+        _doctrine_only = {tuple(sorted(
+            (one.rsplit(".", 1)[1] for one in pair))) for pair in _tree_pairs
+            if all(one in _tree_tags for one in pair)}
+        _named = {tuple(sorted(pair)) for pair in _exclusive}
+        _by_tag = {}
+        for nid, _definition in _defs.items():
+            for _reward in _definition.get("rewards", []):
+                _found = re.search(r"tag @s add \S+\.([a-z_]+)",
+                                   _reward.get("data", {}).get("unlock_command", ""))
+                if _found:
+                    _by_tag[nid] = _found.group(1)
+        _as_doctrines = {tuple(sorted((_by_tag[a], _by_tag[b])))
+                         for a, b in _named if a in _by_tag and b in _by_tag}
+        if _as_doctrines != _mod_pairs:
+            fail(f"the tree makes {sorted(_as_doctrines)} mutually exclusive "
+                 f"and ElysiumDoctrine.OPPOSED says {sorted(_mod_pairs)}. A "
+                 f"pair the tree lets a player hold together is one the mod "
+                 f"resolves silently, which is the combination nobody designed")
+
+    # 6. Every line of text the tree shows exists in the language file.
+    _tree_keys = set()
+    for _definition in _defs.values():
+        for _field in ("title", "description", "extra_description"):
+            _value = _definition.get(_field)
+            if isinstance(_value, dict) and "translate" in _value:
+                _tree_keys.add(_value["translate"])
+    for _field in ("title", "description"):
+        _value = _files["category"].get(_field)
+        if isinstance(_value, dict) and "translate" in _value:
+            _tree_keys.add(_value["translate"])
+    _absent = sorted(key for key in _tree_keys if key not in lang)
+    if _absent:
+        fail(f"the skill tree shows {len(_absent)} line(s) with no translation, "
+             f"starting with {_absent[0]} — it renders as the raw key, on a "
+             f"node that otherwise looks finished")
+
+    # 6b. Every icon names an item that exists.
+    #
+    # The check that would have saved a day. An icon naming an item nobody
+    # registered fails its definition, a failed definition fails the category,
+    # and a failed category takes the whole pack with it — so two invented
+    # ration ids emptied the skills screen of forty-five skills and two
+    # unrelated trees, with nothing on screen to say why.
+    #
+    # Only this mod's own items can be checked here; a vanilla or third-party
+    # id is somebody else's registry. That is fine, because this mod's own ids
+    # are the ones written from memory.
+    _icons = {_definition["icon"]["data"]["item"]
+              for _definition in _defs.values()
+              if _definition.get("icon", {}).get("type") == "item"}
+    _icons.add(_files["category"].get("icon", {}).get("data", {}).get("item"))
+    _registered = set()
+    for _key in lang:
+        _found = re.match(r"^(?:item|block)\.(elysium)\.([a-z0-9_]+)$", _key)
+        if _found:
+            _registered.add(f"{_found.group(1)}:{_found.group(2)}")
+    _invented = sorted(one for one in _icons
+                       if one and one.startswith("elysium:")
+                       and one not in _registered)
+    if _invented:
+        fail(f"the skill tree uses {len(_invented)} icon(s) naming items this "
+             f"mod does not register: {_invented}. A bad icon fails its "
+             f"definition, a failed definition fails the category, and a "
+             f"failed category takes every tree in the pack down with it")
+
+    # 6c. Every reward is non-fatal.
+    #
+    # One unparseable reward must never again be able to empty somebody's
+    # skills screen. With required:false it is a warning and the node simply
+    # does nothing, which is a bug that can be seen.
+    _fatal = sorted(nid for nid, _definition in _defs.items()
+                    for _reward in _definition.get("rewards", [])
+                    if _reward.get("required") is not False)
+    if _fatal:
+        fail(f"{len(_fatal)} skill(s) carry a reward that is fatal if it will "
+             f"not parse, starting with {_fatal[0]}. Set required:false: a "
+             f"reward the mod cannot read should cost one bonus, not the whole "
+             f"category and every other pack's trees with it")
+
+    # 6d. Every attribute bonus names an attribute the game has, and an
+    #     operation the mod accepts.
+    #
+    # The failure this catches is the quietest one in the file. With
+    # required:false a misspelled attribute is a warning, and the mod only
+    # prints warnings when the player has set "show_warnings": true in its
+    # config. So the default experience of getting this wrong is a tree that
+    # opens, draws every node, spends every point — and applies nothing. It
+    # was wrong on all fifty-four bonuses for one build, and looked fine.
+    #
+    # Two separate spellings have to be right:
+    #
+    #   The attribute. Minecraft flattened these to "minecraft:max_health" in
+    #   1.21.2. Elysium targets 1.21.1, one version below that, where they are
+    #   still "generic.max_health" and "player.block_break_speed" — and which
+    #   of the two prefixes a name takes is not derivable from the name.
+    #
+    #   The operation. These are the mod's vocabulary, not Minecraft's, and
+    #   they did not move with it. In particular "add_value" — Minecraft's own
+    #   1.21 name — is not one of them.
+    #
+    # The list below is written out here rather than imported from the
+    # generator on purpose. A check that reads the same table the code under
+    # test was built from agrees with it by construction and can never fail.
+    # These are transcribed from the game:
+    #   javap -c net.minecraft.world.entity.ai.attributes.Attributes
+    _ATTRIBUTES_1_21_1 = {
+        "minecraft:generic.armor",
+        "minecraft:generic.armor_toughness",
+        "minecraft:generic.attack_damage",
+        "minecraft:generic.attack_knockback",
+        "minecraft:generic.attack_speed",
+        "minecraft:generic.burning_time",
+        "minecraft:generic.explosion_knockback_resistance",
+        "minecraft:generic.fall_damage_multiplier",
+        "minecraft:generic.flying_speed",
+        "minecraft:generic.follow_range",
+        "minecraft:generic.gravity",
+        "minecraft:generic.jump_strength",
+        "minecraft:generic.knockback_resistance",
+        "minecraft:generic.luck",
+        "minecraft:generic.max_absorption",
+        "minecraft:generic.max_health",
+        "minecraft:generic.movement_efficiency",
+        "minecraft:generic.movement_speed",
+        "minecraft:generic.oxygen_bonus",
+        "minecraft:generic.safe_fall_distance",
+        "minecraft:generic.scale",
+        "minecraft:generic.step_height",
+        "minecraft:generic.water_movement_efficiency",
+        "minecraft:player.block_break_speed",
+        "minecraft:player.block_interaction_range",
+        "minecraft:player.entity_interaction_range",
+        "minecraft:player.mining_efficiency",
+        "minecraft:player.sneaking_speed",
+        "minecraft:player.submerged_mining_speed",
+        "minecraft:player.sweeping_damage_ratio",
+        "minecraft:zombie.spawn_reinforcements",
+    }
+    # Read out of the strings in net.puffish.skillsmod.api.json.BuiltinJson,
+    # version 0.18.3.
+    _OPERATIONS_0_18_3 = {
+        "addition", "multiply_base", "add_multiplied_base",
+        "multiply_total", "add_multiplied_total",
+    }
+
+    _bad_attribute = []
+    _bad_operation = []
+    for _nid, _definition in sorted(_defs.items()):
+        for _reward in _definition.get("rewards", []):
+            if _reward.get("type") != "puffish_skills:attribute":
+                continue
+            _data = _reward.get("data", {})
+            _name = _data.get("attribute")
+            # Another mod's attribute is another mod's registry; only vanilla
+            # ones can be judged here. Anything with no namespace or the
+            # minecraft one is claiming to be vanilla.
+            if _name is None or ":" not in _name:
+                _bad_attribute.append((_nid, _name))
+            elif (_name.startswith("minecraft:")
+                  and _name not in _ATTRIBUTES_1_21_1):
+                _bad_attribute.append((_nid, _name))
+            if _data.get("operation") not in _OPERATIONS_0_18_3:
+                _bad_operation.append((_nid, _data.get("operation")))
+
+    if _bad_attribute:
+        fail(f"{len(_bad_attribute)} attribute bonus(es) name an attribute "
+             f"Minecraft 1.21.1 does not have, starting with "
+             f"{_bad_attribute[0][1]!r} on {_bad_attribute[0][0]}. The mod "
+             f"answers this with a warning nobody sees by default, so the "
+             f"symptom is a tree that opens, costs points and does nothing. "
+             f"In 1.21.1 the ids still carry generic. or player.; the "
+             f"unprefixed spelling is 1.21.2 and later")
+    if _bad_operation:
+        fail(f"{len(_bad_operation)} attribute bonus(es) use an operation the "
+             f"mod does not accept, starting with {_bad_operation[0][1]!r} on "
+             f"{_bad_operation[0][0]}. It takes "
+             f"{sorted(_OPERATIONS_0_18_3)} — note that add_value, "
+             f"Minecraft's own name, is not among them")
+
+    # 6e. Points can be earned, from mining and from combat.
+    #
+    # The tree shipped without this file once, and the symptom was a screen
+    # with one point on it forever. Nothing else in the pack complains: an
+    # experience file is optional as far as the mod is concerned, and a
+    # category with none loads cleanly.
+    _xp_path = os.path.join(_TREE, "experience.json")
+    if not os.path.isfile(_xp_path):
+        fail("the skill tree has no experience.json, so it opens with its one "
+             "starting point and nothing a player does ever earns another")
+    else:
+        _xp = json.load(open(_xp_path, encoding="utf-8"))
+        _sources = {src.get("type"): src.get("data", {})
+                    for src in _xp.get("sources", [])}
+        if "experience_per_level" not in _xp:
+            fail("experience.json has no experience_per_level; the mod cannot "
+                 "tell what a level costs")
+        for _wanted, _what in (("puffish_skills:mine_block", "mining"),
+                               ("puffish_skills:kill_entity", "combat")):
+            if _wanted not in _sources:
+                fail(f"experience.json has no {_wanted} source: {_what} earns "
+                     f"nothing on a tree that is about extraction and combat")
+
+        _mine = _sources.get("puffish_skills:mine_block", {})
+        _conds = [row.get("condition", "") for row in _mine.get("experience", [])
+                  if isinstance(row, dict)]
+        _loops = [c for c in _conds if "!silk_touch" not in c]
+        if _loops:
+            fail(f"a mining reward does not exclude silk touch ({_loops[0]!r}). "
+                 f"A silk-touched block can be placed and mined again, which is "
+                 f"an experience loop")
+        _silk = json.dumps(_mine.get("variables", {}).get("silk_touch", {}))
+        if '"nbt"' in _silk or "minecraft:enchantments" not in _silk:
+            fail("silk touch is not tested with the minecraft:enchantments "
+                 "item predicate. On 1.21 enchantments are a component, not "
+                 "NBT, so an NBT test never matches and silk touch is paid "
+                 "for without anyone noticing")
+
+        _kill = _sources.get("puffish_skills:kill_entity", {})
+        _farm = _kill.get("anti_farming", {})
+        if not _farm.get("limit_per_chunk") or not _farm.get("reset_after_seconds"):
+            fail("combat experience has no anti_farming limit, so a mob grinder "
+                 "fills the whole tree overnight")
+
+        # Every block tag the file tests must exist somewhere we ship or that
+        # the game ships. Ours are checked for; vanilla and c: are taken as
+        # given because they are somebody else's.
+        for _tag in re.findall(r'"#(elysium:[a-z0-9_/]+)"', json.dumps(_xp)):
+            _ns, _tpath = _tag.split(":", 1)
+            if not os.path.isfile(os.path.join(
+                    RES, f"data/{_ns}/tags/block/{_tpath}.json")):
+                fail(f"experience.json tests #{_tag}, which no file defines; "
+                     f"every block reads as not in it and pays nothing")
+
+        # The Empire ores tag names exactly the ores the mod registers.
+        _eo = os.path.join(RES, "data/elysium/tags/block/empire_ores.json")
+        if os.path.isfile(_eo):
+            _eo_vals = set(json.load(open(_eo, encoding="utf-8")).get("values", []))
+            _elysium_src = open(os.path.join(
+                WORK, "src/main/java/com/elysium/core/Elysium.java"),
+                encoding="utf-8").read()
+            _registered = {f"elysium:{m}" for m in
+                           re.findall(r'"([a-z_]+_ore)"', _elysium_src)}
+            if _eo_vals != _registered:
+                fail(f"empire_ores.json lists {sorted(_eo_vals)} but the mod "
+                     f"registers {sorted(_registered)}; an ore missing from the "
+                     f"tag pays as an ordinary one, an extra one pays for nothing")
+
+    # 7. Every node does something.
+    _idle = sorted(nid for nid, _definition in _defs.items()
+                   if not _definition.get("rewards"))
+    if _idle:
+        fail(f"{len(_idle)} skill(s) grant nothing, starting with {_idle[0]}. "
+             f"A node that costs a point and does nothing is the one thing a "
+             f"skill tree must not contain")
+
+    _attrs_used = {_reward["data"]["attribute"]
+                   for _definition in _defs.values()
+                   for _reward in _definition.get("rewards", [])
+                   if _reward.get("type") == "puffish_skills:attribute"}
+    print(f"skill tree         : {len(_skills)} skills, {len(_normal)} "
+          f"connections, {len(_exclusive)} exclusive pair(s), all reachable "
+          f"from one root; {len(_tree_tags)} doctrine tag(s) matched to the "
+          f"mod; {len(_attrs_used)} attribute(s), all real in 1.21.1")
+
+print(f"kills and benches : weapons at most 5% of a top-shelf drop, material "
+      f"in handfuls, and the three benches built without obsidian, one "
+      f"vanilla station apiece")
+
+# ---------------------------------------------------------------------------
+# The two humanoids: their own skins, on vanilla's model
+# ---------------------------------------------------------------------------
+#
+# An Imperial Enforcer is a Zombie, which is what gives it its AI, its armour
+# rendering and its immunity to the sunlight that would otherwise delete the
+# Empire's soldiers at dawn. It also meant it rendered as a zombie: the mod's
+# own soldier, in a green shirt, beside ten families of purpose-built mobs.
+#
+# Fixed by subclassing the renderer for one method. What that cannot survive is
+# somebody deleting the texture, or the generator writing it somewhere the
+# renderer does not look — both of which are a silent fall back to vanilla's
+# zombie, because a missing texture renders as the missing-texture checkerboard
+# only if the path is wrong in a way the game notices.
+
+_humanoids = ("imperial_enforcer", "unsworn_raider")
+_client = os.path.join(WORK, "src/main/java/com/elysium/core/client/ElysiumClient.java")
+if not os.path.isfile(_client):
+    fail("ElysiumClient is missing, so nothing registers a renderer and the "
+         "first enforcer to spawn crashes the client")
+else:
+    _client_src = re.sub(r"//[^\n]*", " ",
+                         re.sub(r"/\*.*?\*/", " ",
+                                open(_client, encoding="utf-8").read(), flags=re.S))
+    if "getTextureLocation" not in _client_src:
+        fail("no renderer overrides getTextureLocation, so both combatants "
+             "render in vanilla's zombie skin again")
+    for _name in _humanoids:
+        if f'"{_name}"' not in _client_src:
+            fail(f"{_name} has no skin named in ElysiumClient, so it renders "
+                 f"as a plain zombie")
+        _skin = os.path.join(RES, f"assets/elysium/textures/entity/{_name}.png")
+        if not os.path.isfile(_skin):
+            fail(f"{_name}.png is not in the resources — run regen.sh")
+            continue
+        from PIL import Image as _Image
+        with _Image.open(_skin) as _img:
+            if _img.size != (64, 64):
+                fail(f"{_name}.png is {_img.size}; a humanoid skin is 64x64 "
+                     f"and the model reads fixed offsets into it")
+            _opaque = [p for p in _img.convert("RGBA").getdata() if p[3] > 0]
+            if not _opaque:
+                fail(f"{_name}.png is entirely transparent")
+            elif len(_opaque) < 1000:
+                fail(f"{_name}.png has only {len(_opaque)} opaque pixels, so "
+                     f"most of the model is see-through")
+
+    print(f"humanoid skins    : {len(_humanoids)} at 64x64, each named by the "
+          f"renderer that draws it")
+
+# ---------------------------------------------------------------------------
+# Gems, sockets and augmenting (SPEC_CLONE P7)
+# ---------------------------------------------------------------------------
+#
+# Elysium's runes are its gems, so everything here is something that happens to
+# a rune rather than a second family of stones. What is checked is that the
+# loop stays closed: dust comes only from grinding, cutting costs what merging
+# costs, a sigil is never spent on a piece it would not change, and a withdrawn
+# rune comes back as an item rather than as nothing.
+
+_P7_ITEMS = ["gem_dust", "gem_case", "sigil_of_socketing", "sigil_of_enhancement",
+             "sigil_of_withdrawal", "sigil_of_rebirth"]
+_P7_BLOCKS = ["gem_cutting_table", "augmenting_table"]
+for _name in _P7_ITEMS:
+    if _name not in items:
+        fail(f"{_name} is drawn and never registered")
+    if not os.path.isfile(os.path.join(RES, f"assets/elysium/textures/item/{_name}.png")):
+        fail(f"{_name} has no sprite")
+for _name in _P7_BLOCKS:
+    if _name not in blocks:
+        fail(f"the {_name} is drawn and never registered")
+    if not os.path.isfile(os.path.join(RES, f"assets/elysium/textures/block/{_name}.png")):
+        fail(f"the {_name} has no texture")
+
+if os.path.isfile(os.path.join(RES, "data/elysium/recipe/gem_dust.json")):
+    fail("gem dust has a crafting recipe, which is a way around grinding a rune for it")
+
+_augments = os.path.join(WORK, "..",
+                         "elysium-lib/src/main/java/com/elysium/lib/item/ElysiumAugments.java")
+_cutting = os.path.join(WORK, "src/main/java/com/elysium/core/menu/GemCuttingMenu.java")
+_augmenting = os.path.join(WORK, "src/main/java/com/elysium/core/menu/AugmentingMenu.java")
+_drops = os.path.join(WORK, "src/main/java/com/elysium/core/event/RuneDropHandler.java")
+for _path, _what in ((_augments, "what a sigil does"), (_cutting, "the cutting bench"),
+                     (_augmenting, "the augmenting bench"), (_drops, "where runes come from")):
+    if not os.path.isfile(_path):
+        fail(f"{_what} is gone")
+if all(os.path.isfile(_p) for _p in (_augments, _cutting, _augmenting, _drops)):
+    _aug_src = open(_augments, encoding="utf-8").read()
+    _cut_src = open(_cutting, encoding="utf-8").read()
+    _augm_src = open(_augmenting, encoding="utf-8").read()
+    _drop_src = open(_drops, encoding="utf-8").read()
+    for _sigil in ("socketing", "enhancement", "withdrawal", "rebirth"):
+        if f'"{_sigil}"' not in _aug_src:
+            fail(f"the sigil of {_sigil} is an item and nothing knows what it does")
+        if f"elysium.sigil.{_sigil}.desc" not in json.load(open(
+                os.path.join(RES, "assets/elysium/lang/en_us.json"), encoding="utf-8")):
+            fail(f"the sigil of {_sigil} has no description, which is the whole of its "
+                 f"interface — a player deciding whether to spend it reads that line")
+    if "ElysiumAugments.applies(" not in _augm_src:
+        fail("the augmenting bench never asks whether the sigil would change the piece, so "
+             "a player could spend one on a piece it does nothing to")
+    if "result.changed()" not in _augm_src:
+        fail("the bench offers a result whether or not anything happened")
+    if "result.hasRune()" not in _augm_src:
+        fail("a withdrawn rune is never handed back, so the Sigil of Withdrawal destroys "
+             "exactly what it exists to save")
+    if "ElysiumPurity.cutCost(" not in _cut_src:
+        fail("cutting does not cost what the rules say it costs")
+    if "ElysiumPurity.canCut(" not in _cut_src:
+        fail("the cutting bench does not ask whether a rune can be cut at all, so a rune at "
+             "the top of the arithmetic would overflow rather than refuse")
+    if "ElysiumTiers.of(" not in _drop_src:
+        fail("rune drops are not gated by world tier, so the Frontier would rain runes")
+    if "ElysiumPurity.dropChance(" not in _drop_src or "ElysiumPurity.foundPurity(" not in _drop_src:
+        fail("rune drops do not read the rules for how often and how good, so both would be "
+             "decided somewhere nobody can execute")
+    if "instanceof ElysiumRuneItem" not in _drop_src:
+        fail("the drop pool is a list rather than the registry, so a rune another mod adds "
+             "would never fall")
+print(f"gems and sigils   : {len(_P7_ITEMS)} items and {len(_P7_BLOCKS)} benches; dust only from "
+      f"grinding, cutting priced like merging, no sigil spent on nothing")
+
+# ---------------------------------------------------------------------------
+# What is waiting underground (SPEC_CLONE P9.5, P9.6)
+# ---------------------------------------------------------------------------
+#
+# Two rogue spawners and a cage. Each one has a way of being wrong that the
+# compiler has no opinion about: a spawner with no end to it is a chore rather
+# than a fight, a spawner placed inside stone is one nobody ever meets, and a
+# cage that can be opened from safety is not a decision.
+_ROGUE = ["brutal_spawner", "swarm_spawner", "caged_invader"]
+for _name in _ROGUE:
+    if _name not in blocks:
+        fail(f"the {_name} is drawn and never registered")
+    if not exists(f"data/elysium/worldgen/placed_feature/{_name}.json"):
+        fail(f"the {_name} is never placed in the world, so the only one a player would "
+             f"ever see is one they placed themselves")
+    else:
+        _placed = json.load(open(os.path.join(
+            RES, f"data/elysium/worldgen/placed_feature/{_name}.json"), encoding="utf-8"))
+        _kinds = {_step.get("type") for _step in _placed.get("placement", [])}
+        if "minecraft:rarity_filter" not in _kinds:
+            fail(f"the {_name} is placed without a rarity filter, so there would be one in "
+                 f"every chunk and meeting one would stop meaning anything")
+        if "minecraft:block_predicate_filter" not in _kinds:
+            fail(f"the {_name} is placed without asking what is there, so it would appear "
+                 f"inside stone where nothing can reach it and nothing it sends can reach out")
+    if not exists(f"data/elysium/neoforge/biome_modifier/add_{_name}.json"):
+        fail(f"the {_name} has a placed feature and no biome modifier, which is the one "
+             f"thing that puts a feature into a world")
+_spawner_src = open(os.path.join(
+    WORK, "src/main/java/com/elysium/core/block/RogueSpawnerBlockEntity.java"),
+    encoding="utf-8").read()
+_cage_src = open(os.path.join(
+    WORK, "src/main/java/com/elysium/core/block/CagedInvaderBlock.java"), encoding="utf-8").read()
+if "wavesLeft" not in _spawner_src or "level.destroyBlock(" not in _spawner_src:
+    fail("a rogue spawner never runs out, so clearing one is a chore to suppress rather "
+         "than a thing that finishes")
+if "getNearestPlayer(" not in _spawner_src:
+    fail("a rogue spawner sends creatures at nobody, filling a cave nobody is standing in")
+if "ElysiumElites.promote(" not in _spawner_src:
+    fail("the brutal spawner sends ordinary creatures, which is what the swarm one is for")
+# The override itself, not the word: the method calls its own super, so a bare
+# search for the name passes on a cage that no longer overrides anything.
+if "public BlockState playerWillDestroy(" not in _cage_src:
+    fail("the cage opens by some means other than breaking it, so it could be opened by "
+         "accident or from safety — and the whole of what makes it interesting is that a "
+         "player has to decide")
+if "ElysiumElites.release(" not in _cage_src:
+    fail("the cage lets out an ordinary creature, which is a disappointment rather than a "
+         "decision")
+print(f"underground       : {len(_ROGUE)} things waiting, each rare, each on a floor, and "
+      f"the spawners run out")
+
+# ---------------------------------------------------------------------------
+# The starting kit (SPEC_CLONE P12.18)
+# ---------------------------------------------------------------------------
+#
+# A loot table rather than a config, because the game already has a format for
+# "a list of items, possibly with counts, possibly with conditions" and a pack
+# already knows how to edit one.
+
+KIT_SOURCE = os.path.join(JAVA_DIR, "event/ElysiumStartingKit.java")
+KIT_TABLE = os.path.join(RES, "data/elysium/loot_table/gameplay/starting_kit.json")
+if not os.path.isfile(KIT_SOURCE):
+    fail("there is no starting kit: a new player arrives with nothing and no way to "
+         "find out what this mod is")
+else:
+    kit = re.sub(r"//[^\n]*|/\*.*?\*/", " ",
+                 open(KIT_SOURCE, encoding="utf-8").read(), flags=re.S)
+    if not os.path.isfile(KIT_TABLE):
+        fail("the starting kit's loot table does not ship, so the kit is a table id "
+             "that resolves to nothing")
+    else:
+        table = json.load(open(KIT_TABLE, encoding="utf-8"))
+        if table.get("type") != "minecraft:gift":
+            fail("the starting kit's table is not a gift table, so the parameters the "
+                 "kit passes and the ones the table expects are different sets")
+        if not table.get("pools"):
+            fail("the starting kit's table has no pools, so a new player is given "
+                 "nothing and the code runs anyway")
+        for pool in table.get("pools", []):
+            for entry in pool.get("entries", []):
+                name = entry.get("name", "")
+                if name.startswith("elysium:") and name.split(":", 1)[1] not in items:
+                    fail(f"the starting kit hands out {name}, which this mod does not "
+                         f"register")
+    if "PlayerLoggedInEvent" not in kit:
+        fail("the starting kit is never given: nothing listens for a player arriving")
+    if "player.getData(GIVEN.get())" not in kit or "player.setData(GIVEN.get(), true)" not in kit:
+        fail("the starting kit is not remembered, so a player is handed one every time "
+             "they log in")
+    if "copyOnDeath()" not in kit:
+        fail("the record of having been given a kit is lost on death, so dying is how "
+             "you get another one")
+    if "getLootTable(KIT)" not in kit:
+        fail("the kit's contents are decided in Java rather than by the table, so a "
+             "pack cannot change or empty it")
+    if "player.drop(" not in kit:
+        fail("a kit handed to a player with a full inventory is silently destroyed")
+    print("starting kit       : one gift table, given once, remembered through death")
+
+# ---------------------------------------------------------------------------
+# /elysium tier (SPEC_CLONE P12.15)
+# ---------------------------------------------------------------------------
+#
+# World tier is the one number every other system scales against — mobs, loot,
+# enchanting ceilings — and until this it was the one number a player could not
+# see anywhere.
+
+COMMAND = os.path.join(JAVA_DIR, "command/ElysiumCommand.java")
+if not os.path.isfile(COMMAND):
+    fail("the /elysium command is missing")
+else:
+    command = re.sub(r"//[^\n]*|/\*.*?\*/", " ",
+                     open(COMMAND, encoding="utf-8").read(), flags=re.S)
+    if 'Commands.literal("tier")' not in command:
+        fail("there is no way to see your own world tier, which is the number every "
+             "other system in this mod is multiplied by")
+    tier_block = command[command.find('Commands.literal("tier")'):]
+    if "ElysiumTiers.of(player)" not in tier_block:
+        fail("the tier command works the tier out itself rather than asking the library, "
+             "so it can disagree with every system that uses it")
+    if "floorOf(player)" not in tier_block:
+        fail("the tier command reports a tier and not where it came from — a player "
+             "whose tier is held up by a world floor cannot tell")
+    if "ElysiumWorldTier.share(" not in tier_block:
+        fail("the tier command does not say what the tier is worth, which is the only "
+             "part a player can act on")
+    for key in ("elysium.command.tier.header", "elysium.command.tier.from",
+                "elysium.command.tier.share"):
+        if key not in lang:
+            fail(f"the tier command prints {key} and nothing translates it")
+    print("the tier command   : the tier, where it came from, and what it is worth")
 
 if problems:
     print(f"{len(problems)} PROBLEM(S):")

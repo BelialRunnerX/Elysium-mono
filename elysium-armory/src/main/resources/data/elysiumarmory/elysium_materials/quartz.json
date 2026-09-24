@@ -1,0 +1,113 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:gems/quartz",
+    "categories": [
+      "gem",
+      "intermediate"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/quartz"
+    }
+  },
+  "display": {
+    "name": "Quartz"
+  },
+  "properties": {
+    "main": {
+      "durability": 330.0,
+      "armor_durability": 13.0,
+      "harvest_tier": "quartz",
+      "harvest_speed": 7.0,
+      "attack_damage": 2.0,
+      "attack_speed": 0.1,
+      "ranged_damage": 0.0,
+      "draw_speed": 0.1,
+      "projectile_speed": 1.0,
+      "projectile_accuracy": 1.0,
+      "armor": 14.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 5.0,
+      "armor/leggings": 4.0,
+      "armor/boots": 2.0,
+      "magic_armor": 4.0,
+      "enchantment_value": 10.0,
+      "charging_value": 1.2,
+      "rarity": 40.0,
+      "traits": [
+        {
+          "trait": "crushing",
+          "level": 3
+        },
+        {
+          "trait": "jagged",
+          "level": 2
+        }
+      ]
+    },
+    "rod": {
+      "attack_damage": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "traits": [
+        {
+          "trait": "brittle",
+          "level": 3
+        }
+      ]
+    },
+    "setting": {
+      "traits": [
+        {
+          "trait": "mighty",
+          "level": 2,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    },
+    "tip": {
+      "armor_durability": {
+        "op": "add",
+        "value": 4.0
+      },
+      "attack_damage": {
+        "op": "add",
+        "value": 4.0
+      },
+      "durability": {
+        "op": "add",
+        "value": 64.0
+      },
+      "harvest_speed": {
+        "op": "add",
+        "value": 2.0
+      },
+      "harvest_tier": "quartz",
+      "ranged_damage": {
+        "op": "add",
+        "value": 1.5
+      },
+      "rarity": {
+        "op": "add",
+        "value": 20.0
+      },
+      "traits": [
+        {
+          "trait": "chipping",
+          "level": 1
+        },
+        {
+          "trait": "jagged",
+          "level": 3
+        }
+      ]
+    }
+  }
+}

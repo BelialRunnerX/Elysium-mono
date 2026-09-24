@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "elysiumsolarpunk:block/rammed_earth_slab"
+    },
+    "type=top": {
+      "model": "elysiumsolarpunk:block/rammed_earth_slab_top"
+    },
+    "type=double": {
+      "model": "elysiumsolarpunk:block/rammed_earth"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarmory:item/fishing_rod",
+    "layer1": "elysiumarmory:item/fishing_rod_grip"
+  }
+}

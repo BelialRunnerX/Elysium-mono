@@ -1,0 +1,11 @@
+{
+  "type": "core",
+  "gear_type": "leggings",
+  "part_type": "main",
+  "crafting": {
+    "materials": 7
+  },
+  "properties": {
+    "repair_efficiency": 1.0
+  }
+}

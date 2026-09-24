@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "elysiumatomics:block/reactor_core"
+    },
+    "lit=true": {
+      "model": "elysiumatomics:block/reactor_core_on"
+    }
+  }
+}

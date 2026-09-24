@@ -1,0 +1,91 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/bronze",
+    "categories": [
+      "metal",
+      "intermediate"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/bronze"
+    }
+  },
+  "display": {
+    "name": "Bronze"
+  },
+  "properties": {
+    "main": {
+      "durability": 300.0,
+      "armor_durability": 13.0,
+      "harvest_tier": "bronze",
+      "harvest_speed": 6.0,
+      "attack_damage": 2.5,
+      "attack_speed": 0.2,
+      "magic_damage": 1.0,
+      "ranged_damage": 2.0,
+      "draw_speed": -0.2,
+      "armor": 15.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 6.0,
+      "armor/leggings": 4.0,
+      "armor/boots": 2.0,
+      "armor_toughness": 1.0,
+      "magic_armor": 6.0,
+      "enchantment_value": 12.0,
+      "charging_value": 1.1,
+      "rarity": 15.0,
+      "repair_value": 0.15,
+      "traits": [
+        {
+          "trait": "sharp",
+          "level": 1
+        }
+      ]
+    },
+    "rod": {
+      "attack_damage": {
+        "op": "multiply_total",
+        "value": 0.05
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 1
+        }
+      ]
+    },
+    "tip": {
+      "armor_durability": {
+        "op": "add",
+        "value": 2.0
+      },
+      "attack_damage": {
+        "op": "add",
+        "value": 0.75
+      },
+      "attack_speed": {
+        "op": "add",
+        "value": 0.1
+      },
+      "durability": {
+        "op": "add",
+        "value": 96.0
+      },
+      "harvest_speed": {
+        "op": "add",
+        "value": 0.75
+      },
+      "harvest_tier": "bronze",
+      "rarity": {
+        "op": "add",
+        "value": 6.0
+      },
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

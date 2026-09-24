@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumfoundry:bronze_ingot"
+    }
+  ],
+  "result": {
+    "id": "elysiumfoundry:bronze_nugget",
+    "count": 9
+  }
+}

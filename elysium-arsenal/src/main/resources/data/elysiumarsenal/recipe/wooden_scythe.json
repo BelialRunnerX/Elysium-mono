@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " MM",
+    "MT ",
+    "S  "
+  ],
+  "key": {
+    "M": {
+      "tag": "minecraft:planks"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "T": {
+      "item": "minecraft:wooden_hoe"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:wooden_scythe",
+    "count": 1
+  }
+}

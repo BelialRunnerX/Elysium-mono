@@ -1,0 +1,16 @@
+{
+  "type": "suffix",
+  "on": [
+    "armor"
+  ],
+  "min_tier": 2,
+  "weight": 6,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "negate_damage",
+      "tag": "minecraft:is_explosion",
+      "scale_per_level": 0.15
+    }
+  ]
+}

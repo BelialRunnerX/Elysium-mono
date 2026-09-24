@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "side": "elysiumsolarpunk:block/polished_alabaster",
+    "top": "elysiumsolarpunk:block/polished_alabaster",
+    "bottom": "elysiumsolarpunk:block/polished_alabaster"
+  }
+}

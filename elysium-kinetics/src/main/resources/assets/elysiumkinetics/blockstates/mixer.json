@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "elysiumkinetics:block/mixer"
+    },
+    "axis=y": {
+      "model": "elysiumkinetics:block/mixer"
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/mixer"
+    }
+  }
+}

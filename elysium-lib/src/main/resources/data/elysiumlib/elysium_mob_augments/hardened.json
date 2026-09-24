@@ -1,0 +1,7 @@
+{
+  "weight": 10,
+  "min_tier": 1,
+  "attributes": {
+    "minecraft:generic.armor": 2.5
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " v ",
+    "vav",
+    " n "
+  ],
+  "key": {
+    "v": {
+      "item": "elysium:voidglass_ingot"
+    },
+    "a": {
+      "item": "elysium:neuralspike_rune"
+    },
+    "n": {
+      "item": "elysium:neutronium_ingot"
+    }
+  },
+  "result": {
+    "id": "elysium:field_scanner",
+    "count": 1
+  }
+}

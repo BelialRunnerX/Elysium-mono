@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumsolarpunk:block/algae_bioreactor"
+    },
+    "facing=east": {
+      "model": "elysiumsolarpunk:block/algae_bioreactor",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumsolarpunk:block/algae_bioreactor",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumsolarpunk:block/algae_bioreactor",
+      "y": 270
+    }
+  }
+}

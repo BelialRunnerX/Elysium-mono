@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumkinetics:block/saw"
+    },
+    "axis=x": {
+      "model": "elysiumkinetics:block/saw",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/saw",
+      "x": 90
+    }
+  }
+}

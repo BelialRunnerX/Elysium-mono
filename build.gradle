@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 //
 // This project has no sources, no plugins and no NeoGradle. All it does is
-// give the six included builds a single entry point, so that one push to one
+// give the included builds a single entry point, so that one push to one
 // repository builds every mod.
 //
 // Every task here is a fan-out to the included builds. None of them changes how
@@ -12,15 +12,24 @@
 
 // The library is listed first for readability only. The build *order* is not
 // decided here and must not be: Gradle derives it from the dependency
-// substitution in settings.gradle, which is the single place that knows the
-// five content mods need the library's classes. Pinning an order here as well
-// would be a second, silently divergent answer to the same question.
+// substitution in settings.gradle, which is the single place that knows which
+// content mods need the library's classes. Pinning an order here as well would
+// be a second, silently divergent answer to the same question — and it would
+// be wrong today, because elysium-solarpunk is a content mod that depends on
+// nothing but NeoForge and can build before the library or after it.
 def MODS = ['elysium-lib', 'elysium-core', 'elysium-dungeons', 'elysium-mobs',
-            'elysium-trinkets', 'elysium-npcs']
+            'elysium-trinkets', 'elysium-npcs', 'elysium-solarpunk',
+            'elysium-armory', 'elysium-ascendancy', 'elysium-space']
+
+// Every count in this file comes from here rather than being typed out. The
+// descriptions used to say "all six", which stopped being true the moment a
+// seventh module was added and was wrong in six places at once — and a task
+// description that lies is read by everybody running `./gradlew tasks`.
+def modCount = MODS.size()
 
 tasks.register('buildAll') {
     group = 'elysium'
-    description = 'Builds all six mods. The jars land in each mod\'s build/libs.'
+    description = "Builds all ${modCount} mods. The jars land in each mod's build/libs."
     dependsOn MODS.collect { gradle.includedBuild(it).task(':build') }
 }
 
@@ -46,7 +55,7 @@ tasks.register('build') {
 
 tasks.register('cleanAll') {
     group = 'elysium'
-    description = 'Cleans all six builds.'
+    description = "Cleans all ${modCount} builds."
     dependsOn MODS.collect { gradle.includedBuild(it).task(':clean') }
 }
 
@@ -58,14 +67,14 @@ tasks.register('clean') {
 
 tasks.register('publishAll') {
     group = 'elysium'
-    description = 'Publishes all six to ~/.m2, for consumers outside this repo.'
+    description = "Publishes all ${modCount} to ~/.m2, for consumers outside this repo."
     dependsOn MODS.collect { gradle.includedBuild(it).task(':publishToMavenLocal') }
 }
 
 /**
  * Every jar, gathered into one directory.
  *
- * Without this, "where are my mods" is four separate build/libs directories,
+ * Without this, "where are my mods" is one build/libs directory per module,
  * and the answer to "which files do I drop in my mods folder" is a scavenger
  * hunt across the repo. This is also what CI uploads, so the workflow artifact
  * is exactly the set of files a player installs.
@@ -80,7 +89,7 @@ tasks.register('publishAll') {
 // script itself, which the configuration cache refuses — "Cannot reference a
 // Gradle script object from a Groovy closure". Found by running it.
 def distDir = layout.projectDirectory.dir('dist').asFile
-def expectedJars = MODS.size()
+def expectedJars = modCount
 
 tasks.register('collectJars', Copy) {
     group = 'elysium'
@@ -97,10 +106,10 @@ tasks.register('collectJars', Copy) {
     into distDir
 
     doLast {
-        // The merged jar also lives in dist/ and is not one of the six this
+        // The merged jar also lives in dist/ and is not one of the jars this
         // task produces, so it is excluded from the count. Without this the
-        // second run of collectJars after a mergeJar finds seven jars and
-        // fails with a message about a mod that did not build.
+        // second run of collectJars after a mergeJar finds one jar too many
+        // and fails with a message about a mod that did not build.
         def jars = (distDir.listFiles() ?: new File[0])
                 .findAll { it.name.endsWith('.jar') && !it.name.startsWith('elysium-all') }
                 .sort { it.name }
@@ -118,22 +127,23 @@ tasks.register('collectJars', Copy) {
  * Every mod in one installable jar.
  *
  * NeoForge reads every `[[mods]]` block in META-INF/neoforge.mods.toml and
- * finds each mod's @Mod class by scanning the jar, so one file can carry all
- * six. The mod ids are deliberately unchanged: renaming them would rename every
- * registry entry, attachment, lang key, texture path, recipe and loot table
- * with them, and every existing world would lose its Elysium items, blocks,
- * standing and claims. A jar is what a player installs; a mod id is not.
+ * finds each mod's @Mod class by scanning the jar, so one file can carry every
+ * one of them. The mod ids are deliberately unchanged: renaming them would
+ * rename every registry entry, attachment, lang key, texture path, recipe and
+ * loot table with them, and every existing world would lose its Elysium items,
+ * blocks, standing and claims. A jar is what a player installs; a mod id is
+ * not.
  *
- * This takes the six real jars from dist/ as input rather than reaching into
- * each module's build directory, so what is merged is exactly what would have
+ * This takes the real jars from dist/ as input rather than reaching into each
+ * module's build directory, so what is merged is exactly what would have
  * shipped.
  *
- * The merge is not concatenation. Six jars are six resource packs and the game
- * merges data packs across them; one jar is one pack, and a path holds one
+ * The merge is not concatenation. Many jars are many resource packs and the
+ * game merges data packs across them; one jar is one pack, and a path holds one
  * file. tools/mergejar.py unions additive tag files — today
- * data/minecraft/tags/block/mineable/pickaxe.json, written by both core and
- * dungeons — and fails on any other collision rather than letting a last writer
- * win. The failure being avoided is not a crash: it is nine Elysium blocks
+ * data/minecraft/tags/block/mineable/pickaxe.json, written by core, dungeons
+ * and solarpunk — and fails on any other collision rather than letting a last
+ * writer win. The failure being avoided is not a crash: it is Elysium blocks
  * quietly no longer dropping anything when mined.
  */
 def libProperties = new Properties()
@@ -145,7 +155,7 @@ def checkTool = layout.projectDirectory.file('tools/checkjar.py').asFile
 
 tasks.register('mergeJar', Exec) {
     group = 'elysium'
-    description = 'Merges the six mod jars in dist/ into one installable jar.'
+    description = "Merges the ${modCount} mod jars in dist/ into one installable jar."
     dependsOn 'collectJars'
 
     // Captured as plain values at configuration time. A closure that reaches
@@ -181,7 +191,7 @@ tasks.register('mergeJar', Exec) {
  */
 tasks.register('checkMergedJar', Exec) {
     group = 'elysium'
-    description = 'Verifies the merged jar declares and contains all six mods.'
+    description = "Verifies the merged jar declares and contains all ${modCount} mods."
     dependsOn 'mergeJar'
 
     def dist = distDir

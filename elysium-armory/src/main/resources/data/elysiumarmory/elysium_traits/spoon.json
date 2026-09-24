@@ -1,0 +1,13 @@
+{
+  "name": "Spoon",
+  "max_level": 1,
+  "description": "Pickaxes can mine soil",
+  "conditions": [
+    "on:pickaxe"
+  ],
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

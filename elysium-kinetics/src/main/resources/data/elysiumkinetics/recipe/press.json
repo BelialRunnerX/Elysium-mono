@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "III",
+    "BSB",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "elysiumkinetics:brass_shaft"
+    },
+    "S": {
+      "item": "elysiumkinetics:gearbox"
+    }
+  },
+  "result": {
+    "id": "elysiumkinetics:press",
+    "count": 1
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "type": "simple",
+  "crafting": {
+    "categories": [
+      "organic",
+      "fiber",
+      "basic"
+    ]
+  },
+  "display": {
+    "name": "Sinew"
+  },
+  "properties": {
+    "binding": {
+      "repair_efficiency": {
+        "op": "multiply_base",
+        "value": -0.05
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 4
+        }
+      ]
+    },
+    "cord": {
+      "ranged_damage": {
+        "op": "multiply_base",
+        "value": 0.2
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

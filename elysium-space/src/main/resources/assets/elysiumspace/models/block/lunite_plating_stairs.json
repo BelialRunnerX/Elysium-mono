@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "elysiumspace:block/lunite_plating",
+    "top": "elysiumspace:block/lunite_plating",
+    "side": "elysiumspace:block/lunite_plating"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "elysiumfoundry:alloying",
+  "first": {
+    "item": "elysiumfoundry:electrum_ingot"
+  },
+  "first_count": 1,
+  "second": {
+    "item": "minecraft:redstone"
+  },
+  "second_count": 2,
+  "result": {
+    "id": "elysiumfoundry:signal_alloy_ingot",
+    "count": 1
+  },
+  "ticks": 220
+}

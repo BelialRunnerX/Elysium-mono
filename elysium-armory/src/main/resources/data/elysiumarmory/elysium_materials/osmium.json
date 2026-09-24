@@ -1,0 +1,61 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/osmium",
+    "categories": [
+      "metal",
+      "intermediate"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/osmium"
+    }
+  },
+  "display": {
+    "name": "Osmium"
+  },
+  "properties": {
+    "main": {
+      "durability": 500.0,
+      "armor_durability": 30.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 10.0,
+      "attack_damage": 4.0,
+      "attack_speed": 0.1,
+      "magic_damage": 2.0,
+      "ranged_damage": 1.0,
+      "draw_speed": 0.0,
+      "armor": 17.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 6.0,
+      "armor/leggings": 5.0,
+      "armor/boots": 3.0,
+      "magic_armor": 4.0,
+      "enchantment_value": 12.0,
+      "charging_value": 1.1,
+      "rarity": 35.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        }
+      ]
+    },
+    "rod": {
+      "durability": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "rarity": 35.0,
+      "repair_efficiency": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

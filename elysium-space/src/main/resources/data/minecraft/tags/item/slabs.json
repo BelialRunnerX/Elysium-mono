@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumspace:pale_stone_slab",
+    "elysiumspace:polished_pale_stone_slab",
+    "elysiumspace:pale_stone_brick_slab",
+    "elysiumspace:frost_stone_slab",
+    "elysiumspace:polished_frost_stone_slab",
+    "elysiumspace:frost_stone_brick_slab",
+    "elysiumspace:cinder_stone_slab",
+    "elysiumspace:polished_cinder_stone_slab",
+    "elysiumspace:cinder_stone_brick_slab",
+    "elysiumspace:smooth_cinder_sandstone_slab",
+    "elysiumspace:iron_plating_slab",
+    "elysiumspace:steel_plating_slab",
+    "elysiumspace:lunite_plating_slab"
+  ]
+}

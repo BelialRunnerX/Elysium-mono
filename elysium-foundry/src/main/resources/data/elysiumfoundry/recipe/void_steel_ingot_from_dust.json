@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:void_steel_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:void_steel_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

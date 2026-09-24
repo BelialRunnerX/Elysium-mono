@@ -1,0 +1,70 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/platinum",
+    "categories": [
+      "metal",
+      "advanced"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/platinum"
+    }
+  },
+  "display": {
+    "name": "Platinum"
+  },
+  "properties": {
+    "main": {
+      "durability": 900.0,
+      "armor_durability": 21.0,
+      "harvest_tier": "diamond",
+      "harvest_speed": 12.0,
+      "attack_damage": 4.0,
+      "attack_speed": 0.0,
+      "magic_damage": 4.0,
+      "ranged_damage": 1.0,
+      "draw_speed": 0.0,
+      "armor": 18.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 8.0,
+      "armor/leggings": 6.0,
+      "armor/boots": 2.0,
+      "armor_toughness": 2.0,
+      "magic_armor": 12.0,
+      "enchantment_value": 14.0,
+      "charging_value": 1.2,
+      "rarity": 80.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        },
+        {
+          "trait": "soft",
+          "level": 2
+        }
+      ]
+    },
+    "rod": {
+      "durability": {
+        "op": "multiply_total",
+        "value": -0.1
+      },
+      "rarity": 70.0,
+      "repair_efficiency": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        },
+        {
+          "trait": "soft",
+          "level": 4
+        }
+      ]
+    }
+  }
+}

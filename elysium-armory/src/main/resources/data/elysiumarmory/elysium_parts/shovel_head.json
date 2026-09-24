@@ -1,0 +1,19 @@
+{
+  "type": "core",
+  "gear_type": "shovel",
+  "part_type": "main",
+  "crafting": {
+    "materials": 1
+  },
+  "properties": {
+    "attack_damage": {
+      "op": "add",
+      "value": 1.5
+    },
+    "attack_speed": {
+      "op": "add",
+      "value": 1.0
+    },
+    "repair_efficiency": 2.0
+  }
+}

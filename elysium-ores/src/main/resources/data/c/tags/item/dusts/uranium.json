@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:dust_uranium",
+      "required": false
+    },
+    {
+      "id": "mekanism:dust_uranium",
+      "required": false
+    },
+    {
+      "id": "oritech:uranium_dust",
+      "required": false
+    }
+  ]
+}

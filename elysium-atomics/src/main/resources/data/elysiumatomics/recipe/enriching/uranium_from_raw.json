@@ -1,0 +1,11 @@
+{
+  "type": "elysiumatomics:enriching",
+  "input": {
+    "tag": "c:raw_materials/uranium"
+  },
+  "result": {
+    "id": "elysiumatomics:uranium_ingot",
+    "count": 1
+  },
+  "ticks": 400
+}

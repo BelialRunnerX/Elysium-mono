@@ -52,7 +52,8 @@ from PIL import Image
 # art/boxmodel.py, shared with elysium-npcs. They were here until there was a
 # second caller; copying them would have meant two packers that had to agree
 # about Minecraft's cross layout forever.
-from boxmodel import hex_to_rgb, part_lines, smallest_sheet, write_texture
+from boxmodel import Skin, hex_to_rgb, part_lines, smallest_sheet, write_texture
+import organic as org
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 JAVA = ROOT / "src/main/java/com/elysium/mobs"
@@ -337,19 +338,563 @@ BOSSES = {
 }
 
 # ---------------------------------------------------------------------------
+# The organic anatomy
+# ---------------------------------------------------------------------------
+#
+# Every family is built from one body plan and its own row of proportions —
+# long tapering limbs with the length in the forearm and shin, broad shoulders
+# over a pinched waist, a swept cranium, layered plate shells over a darker
+# under-body, curved claws, digitigrade legs. The primitives are art/organic.py;
+# the plan is organic_body() below; the numbers are PROPORTIONS.
+#
+# This was built, measured, judged worse than the hand-authored boxes and left
+# unwired, with its reasons written down in art/organic.py. The project owner
+# looked at the renders and asked for it anyway — the body shape is the thing
+# they wanted changed — and an owner's decision on how their mobs look is not
+# one this file gets to overrule. So it is wired in, the reasons stay in the
+# archive header where they were, and the hand-authored tables below it remain
+# the fallback for any family that has no row here.
+
+PROPORTIONS = {
+    # skull_sweep  how far back each cranium slab tips (the domed helmet)
+    # waist        waist radius as a fraction of chest width - the taper
+    # elbow/knee   the joint angles that make a limb read as jointed
+    # claw_len     length of one claw segment; four of them make a blade
+    "scavenger": dict(seed=1, head_y=11, skull_w=6, skull_h=6, skull_d=1.15,
+        skull_sweep=0.20, chest_w=8, chest_h=13, chest_d=0.62, waist=0.30,
+        plates=6, plate_lean=0.22, back_name="scrap",
+        shoulder_x=4.6, shoulder_y=12, arm_w=3.0, arm_len=17, elbow=0.30,
+        fingers=4, claw_len=2.2, claw_curl=0.22,
+        hip_x=2.2, hip_y=19, leg_w=3.2, leg_len=11, hip_pitch=0.26,
+        knee=-0.52, ankle=0.42, wobble=0.05),
+    "reaver": dict(seed=2, head_y=6, skull_w=5.5, skull_h=5, skull_d=1.25,
+        skull_sweep=0.24, chest_w=13, chest_h=15, chest_d=0.60, waist=0.30,
+        plates=7, plate_lean=0.24, back_name="spine_plate",
+        shoulder_x=7, shoulder_y=7, arm_w=4.6, arm_len=22, elbow=0.22,
+        fingers=4, claw_len=3.0, claw_curl=0.20,
+        hip_x=3.6, hip_y=18, leg_w=5.0, leg_len=12, hip_pitch=0.22,
+        knee=-0.46, ankle=0.36, wobble=0.04),
+    "whisper": dict(seed=3, head_y=5, skull_w=5, skull_h=6, skull_d=1.30,
+        skull_sweep=0.26, chest_w=6.5, chest_h=15, chest_d=0.52, waist=0.24,
+        plates=6, plate_lean=0.16, back_name="shroud",
+        shoulder_x=3.2, shoulder_y=6, arm_w=2.2, arm_len=24, elbow=0.18,
+        fingers=4, claw_len=3.4, claw_curl=0.16,
+        hip_x=1.9, hip_y=18, leg_w=2.6, leg_len=15, hip_pitch=0.20,
+        knee=-0.44, ankle=0.32, wobble=0.03),
+    "drone": dict(seed=4, head_y=13, skull_w=7, skull_h=5.5, skull_d=1.20,
+        skull_sweep=0.16, chest_w=6, chest_h=8, chest_d=0.85, waist=0.34,
+        plates=4, plate_lean=0.26, back_name="vane",
+        shoulder_x=3.0, shoulder_y=14, arm_w=2.2, arm_len=12, elbow=0.14,
+        fingers=3, claw_len=1.6, claw_curl=0.12,
+        hip_x=1.8, hip_y=19, leg_w=2.0, leg_len=7, hip_pitch=0.30,
+        knee=-0.60, ankle=0.48, wobble=0.02, fins=2),
+    "lictor": dict(seed=5, head_y=5, skull_w=7, skull_h=6.5, skull_d=1.20,
+        skull_sweep=0.22, chest_w=11.5, chest_h=15, chest_d=0.60, waist=0.30,
+        plates=7, plate_lean=0.20, back_name="carapace",
+        shoulder_x=6.2, shoulder_y=6, arm_w=4.2, arm_len=20, elbow=0.24,
+        fingers=4, claw_len=2.6, claw_curl=0.18,
+        hip_x=3.2, hip_y=18, leg_w=4.6, leg_len=13, hip_pitch=0.22,
+        knee=-0.46, ankle=0.36, wobble=0.04),
+    "adept": dict(seed=6, head_y=6, skull_w=7.5, skull_h=7, skull_d=1.25,
+        skull_sweep=0.20, chest_w=8.5, chest_h=15, chest_d=0.62, waist=0.32,
+        plates=8, plate_lean=0.18, back_name="mantle",
+        shoulder_x=4.4, shoulder_y=7, arm_w=3.0, arm_len=19, elbow=0.26,
+        fingers=4, claw_len=2.4, claw_curl=0.24,
+        hip_x=2.2, hip_y=19, leg_w=3.4, leg_len=10, hip_pitch=0.24,
+        knee=-0.48, ankle=0.38, wobble=0.04),
+    "choir": dict(seed=7, head_y=10, skull_w=7.5, skull_h=6.5, skull_d=1.15,
+        skull_sweep=0.24, chest_w=10, chest_h=15, chest_d=0.62, waist=0.28,
+        plates=7, plate_lean=0.26, back_name="scrap",
+        shoulder_x=5.6, shoulder_y=11, arm_w=3.6, arm_len=21, elbow=0.32,
+        fingers=4, claw_len=2.8, claw_curl=0.26,
+        hip_x=2.4, hip_y=19, leg_w=3.6, leg_len=11, hip_pitch=0.28,
+        knee=-0.54, ankle=0.44, wobble=0.06, extra_arms=2),
+    "praetor": dict(seed=8, head_y=5, skull_w=8, skull_h=7, skull_d=1.20,
+        skull_sweep=0.22, chest_w=13, chest_h=17, chest_d=0.60, waist=0.30,
+        plates=9, plate_lean=0.20, back_name="mantle",
+        shoulder_x=7, shoulder_y=6, arm_w=4.8, arm_len=22, elbow=0.22,
+        fingers=4, claw_len=3.0, claw_curl=0.18,
+        hip_x=3.6, hip_y=18, leg_w=5.2, leg_len=14, hip_pitch=0.22,
+        knee=-0.46, ankle=0.36, wobble=0.04),
+    # Fast and lean: the Whisper's reach on a lower, forward-pitched frame,
+    # with the longest claws in the set — this family fights on the wing.
+    "harrier": dict(seed=9, head_y=8, skull_w=5.5, skull_h=5.5, skull_d=1.35,
+        skull_sweep=0.30, chest_w=7, chest_h=13, chest_d=0.55, waist=0.26,
+        plates=5, plate_lean=0.30, back_name="fin",
+        shoulder_x=3.8, shoulder_y=9, arm_w=2.6, arm_len=22, elbow=0.34,
+        fingers=3, claw_len=3.8, claw_curl=0.30,
+        hip_x=2.0, hip_y=18, leg_w=2.8, leg_len=14, hip_pitch=0.34,
+        knee=-0.62, ankle=0.50, wobble=0.05),
+    # Squat and wide: the Lictor's plate on a frame a head shorter and a
+    # shoulder wider, arms short because they carry a shield, not a blade.
+    "bulwark": dict(seed=10, head_y=8, skull_w=7, skull_h=5.5, skull_d=1.10,
+        skull_sweep=0.14, chest_w=15, chest_h=14, chest_d=0.66, waist=0.42,
+        plates=9, plate_lean=0.16, back_name="bastion",
+        shoulder_x=8, shoulder_y=9, arm_w=5.0, arm_len=16, elbow=0.16,
+        fingers=3, claw_len=1.8, claw_curl=0.10,
+        hip_x=4.2, hip_y=18, leg_w=5.6, leg_len=11, hip_pitch=0.16,
+        knee=-0.36, ankle=0.28, wobble=0.03),
+}
+
+
+GAITS = {
+    # Hunched over its own salvage: short quick steps, arms low and busy,
+    # already leaning towards whatever it is about to pick up.
+    "scavenger": dict(stride=0.85, rate=1.35, arm=0.45, arm_phase=0.5,
+                      arm_out=0.10, lean=0.22, bob=0.6, roll=0.04, hover=0.0,
+                      doc="A quick, stooped shuffle."),
+    # Top-heavy and committed to the direction it is already going. Long steps,
+    # heavy roll, arms swinging wide because there is a lot of shoulder behind
+    # them.
+    "reaver": dict(stride=1.15, rate=0.9, arm=0.58, arm_phase=0.0,
+                   arm_out=0.18, lean=0.09, bob=1.1, roll=0.10, hover=0.0,
+                   doc="A long, rolling lope."),
+    # Tall, thin and not quite committed to the floor. Slow stride, almost no
+    # arm movement, and a drift that continues when it stops.
+    "whisper": dict(stride=0.55, rate=0.55, arm=0.12, arm_phase=1.2,
+                    arm_out=0.0, lean=-0.05, bob=0.15, roll=0.03, hover=0.8,
+                    doc="A slow drift that never quite becomes a walk."),
+    # Does not walk. The legs are landing gear, the arms are thrusters, and the
+    # whole thing floats whether or not it is going anywhere.
+    "drone": dict(stride=0.0, rate=1.0, arm=0.25, arm_phase=0.0,
+                  arm_out=0.55, lean=0.0, bob=0.0, roll=0.06, hover=1.4,
+                  legs="tuck", tuck=-0.45,
+                  doc="A hover. This one has no gait at all."),
+    # Two and a half metres of plate that has somewhere to be. Short steps for
+    # its size, which is what makes something read as heavy, and a hard bounce
+    # on each one.
+    "lictor": dict(stride=0.62, rate=0.8, arm=0.28, arm_phase=0.0,
+                   arm_out=0.22, lean=-0.06, bob=1.3, roll=0.05, hover=0.0,
+                   doc="A short, heavy march."),
+    # Robed, so the legs barely show and the walk has to happen above the hem.
+    # Hands kept together in front.
+    "adept": dict(stride=0.35, rate=0.8, arm=0.18, arm_phase=2.6,
+                  arm_out=-0.12, lean=0.08, bob=0.3, roll=0.02, hover=0.25,
+                  doc="A glide, with the robe doing most of the work."),
+    # Bosses. Their family's movement, slowed and made deliberate — a boss that
+    # scurries is not frightening, and one that moves like its escort is not a
+    # boss.
+    "choir": dict(stride=0.75, rate=0.95, arm=0.40, arm_phase=0.5,
+                  arm_out=0.14, lean=0.14, bob=0.7, roll=0.06, hover=0.0,
+                  doc="The Scavenger's stoop, slowed to something deliberate."),
+    "praetor": dict(stride=0.55, rate=0.65, arm=0.22, arm_phase=0.0,
+                    arm_out=0.26, lean=-0.08, bob=1.5, roll=0.04, hover=0.0,
+                    doc="The Lictor's march, at half speed and twice the weight."),
+    # Fast, low, and never quite upright: long stride at a high rate, arms
+    # swept back out of the way, the whole frame pitched into the run.
+    "harrier": dict(stride=1.05, rate=1.5, arm=0.30, arm_phase=0.4,
+                    arm_out=-0.20, lean=0.30, bob=0.5, roll=0.08, hover=0.0,
+                    doc="A low, driving sprint."),
+    # Everything the Lictor does, shorter and wider. Almost no roll — a wall
+    # does not sway — and the arms held out where the shield is.
+    "bulwark": dict(stride=0.50, rate=0.7, arm=0.12, arm_phase=0.0,
+                    arm_out=0.34, lean=-0.02, bob=1.0, roll=0.02, hover=0.0,
+                    doc="A squat, planted advance."),
+}
+
+
+def accent_for(family, boxes):
+    """
+    Which generated parts carry the accent band.
+
+    Matched by role, because the names are produced by the builders and a hand
+    list cannot track them - which it proved by silently going empty when the
+    v2 anatomy renamed every part, so the whole bestiary rendered as
+    featureless black.
+
+    The marks are chosen the way the reference sheet does it: a lit visor
+    across the face, the leading chest shell, the shoulder caps, the tips of
+    the claws. Everything else stays dark, which is what makes those few read.
+    """
+    marks = set()
+    for row in boxes:
+        name = row[0]
+        if (name.startswith("visor_")
+                or name.startswith("crest_")
+                or name in ("cuirass_0", "cuirass_1")
+                or (name.startswith("pauldron_") and name.endswith("_0"))
+                or (name.startswith("claw_") and name.endswith("_3"))
+                or (name.startswith("cranium_") and name.endswith(("_0", "_1")))):
+            marks.add(name)
+    return marks
+
+
+def organic_body(p):
+    """
+    One body, built to the reference sheet rather than to an anatomy textbook.
+
+    The four references agree on more than they disagree, and the agreements
+    are what this builds:
+
+      * long tapering limbs, with the *forearm and shin* carrying the length
+      * broad shoulders over a narrow waist - the taper is the silhouette
+      * a smooth cranium swept backwards, no face
+      * layered plate shells over a darker under-body
+      * long curving claws
+      * digitigrade legs
+      * few big masses; detail lives inside the outline instead of breaking it
+
+    They also agree on something absent: **none of them has an exposed
+    ribcage.** The first attempt at this (§32) built a skeleton - ribs, spine,
+    pelvis - and got a stack of slabs, because a ribcage is anatomy and these
+    creatures are armour. The cage is gone; `plates()` over a solid core does
+    the work instead.
+
+    Built outside-in, which is the other lesson from §32: the masses that make
+    the outline are placed first and everything else is hung inside them.
+    """
+    rows = []
+    seed = p["seed"]
+
+    # -- cranium: flat slabs swept back, so the head reads as a helmet -------
+    hw, hh = p["skull_w"], p["skull_h"]
+    rows.append(("head", -hw * 0.30, -hh * 0.45, -hw * 0.30, hw * 0.60,
+                 hh * 0.45, hw * 0.60, 0, p["head_y"], 0))
+    # A dome, then a short crest sweeping off the back of it. The first
+    # version made the whole cranium a chain with a -1.35 lead, which tips it
+    # 77 degrees - the head came out as a stack of horizontal shelves. The
+    # mass wants to be a mass; only the crest wants to be a chain.
+    rows += org.ovoid("cranium", "head", 6, hh * 0.90, hw * 0.44,
+                      (0, -hh * 0.88, 0), p["skull_d"], 0.44)
+    # The crest runs *backwards from the base of the skull*, not upwards from
+    # the top of it. Sitting it on top gave every mob a mortarboard.
+    rows += org.chain("crest", "head", 4,
+                      (hw * 0.34, hh * 0.24, hw * 0.30),
+                      (p["skull_sweep"], 0, 0),
+                      (0, -hh * 0.30, hw * 0.34), taper=0.84,
+                      lead=(-1.25, 0, 0))
+    rows += org.plates("visor", "head", 3,
+                       (hw * 0.72, hh * 0.22, hw * 0.30),
+                       (0, -hh * 0.34, -hw * p["skull_d"] * 0.45),
+                       spacing=hh * 0.16, lean=-0.10, shrink=0.86)
+
+    # -- torso: broad thorax, pinched waist, and shells over both -----------
+    bw, bh = p["chest_w"], p["chest_h"]
+    rows.append(("body", -bw * 0.22, 0, -bw * 0.18, bw * 0.44, bh * 0.30,
+                 bw * 0.36, 0, p["head_y"], 0))
+    rows += org.ovoid("thorax", "body", 5, bh * 0.46, bw * 0.60,
+                      (0, -bh * 0.04, 0), p["chest_d"], 0.28)
+    # Narrow across, but not shallow front-to-back: pinching both axes reads
+    # as the model coming apart at the waist rather than as a taper.
+    rows += org.ovoid("waist", "body", 3, bh * 0.26, bw * p["waist"],
+                      (0, bh * 0.42, 0), p["chest_d"] * 1.9, 0.55)
+    rows += org.ovoid("hips", "body", 2, bh * 0.22, bw * 0.42,
+                      (0, bh * 0.66, 0), p["chest_d"] * 1.1, 0.4)
+    # Four or five thick shells, not eight thin ones. Thin stacked plates read
+    # as a rib ladder - which is the shape the references pointedly do not have.
+    rows += org.plates("cuirass", "body", max(4, p["plates"] - 3),
+                       (bw * 0.72, bh * 0.15, bw * 0.16),
+                       (0, bh * 0.00, -bw * p["chest_d"] * 0.40),
+                       spacing=bh * 0.12, lean=p["plate_lean"], shrink=0.90)
+    rows += org.plates(p["back_name"], "body", max(3, p["plates"] - 2),
+                       (bw * 0.44, bh * 0.12, bw * 0.10),
+                       (0, bh * 0.04, bw * p["chest_d"] * 0.42),
+                       spacing=bh * 0.10, lean=-p["plate_lean"] * 0.7,
+                       shrink=0.88)
+
+    for side, sign in (("left", 1), ("right", -1)):
+        # -- arm: shoulder mass, short upper, LONG forearm, long claws ------
+        aw = p["arm_w"]
+        rows.append(("arm_%s" % side, -aw * 0.5, 0, -aw * 0.5, aw, aw, aw,
+                     sign * p["shoulder_x"], p["shoulder_y"], 0))
+        rows += org.ovoid("pauldron_%s" % side, "arm_%s" % side, 3,
+                          aw * 1.25, aw * 0.78, (0, -aw * 0.45, 0), 0.95, 0.35)
+        rows += org.chain("upper_%s" % side, "arm_%s" % side, 3,
+                          (aw * 0.80, p["arm_len"] * 0.16, aw * 0.80),
+                          (0.03, 0, 0), (0, aw * 0.55, 0), taper=0.93)
+        # The forearm is where the length lives in every one of the four
+        # references - a long thin run below a short thick upper arm.
+        rows += org.chain("fore_%s" % side, "upper_%s_2" % side, 4,
+                          (aw * 0.60, p["arm_len"] * 0.15, aw * 0.60),
+                          (0.04, 0, 0), (0, p["arm_len"] * 0.16, 0),
+                          taper=0.94, lead=(p["elbow"], 0, 0))
+        rows += org.digits("claw_%s" % side, "fore_%s_3" % side,
+                           p["fingers"], 4,
+                           (aw * 0.22, p["claw_len"], aw * 0.22), aw * 0.34,
+                           (0, p["arm_len"] * 0.14, 0),
+                           curl=p["claw_curl"], sign=sign, fan=0.10)
+
+        # -- leg: digitigrade. thigh forward, shin back, foot forward -------
+        lw = p["leg_w"]
+        rows.append(("leg_%s" % side, -lw * 0.5, 0, -lw * 0.5, lw, lw, lw,
+                     sign * p["hip_x"], p["hip_y"], 0))
+        rows += org.chain("thigh_%s" % side, "leg_%s" % side, 3,
+                          (lw * 0.92, p["leg_len"] * 0.17, lw * 0.92),
+                          (0.02, 0, 0), (0, lw * 0.4, 0), taper=0.94,
+                          lead=(p["hip_pitch"], 0, 0))
+        rows += org.chain("shin_%s" % side, "thigh_%s_2" % side, 3,
+                          (lw * 0.76, p["leg_len"] * 0.17, lw * 0.76),
+                          (0.02, 0, 0), (0, p["leg_len"] * 0.17, 0),
+                          taper=0.93, lead=(p["knee"], 0, 0))
+        rows += org.chain("meta_%s" % side, "shin_%s_2" % side, 2,
+                          (lw * 0.52, p["leg_len"] * 0.10, lw * 0.52),
+                          (0.0, 0, 0), (0, p["leg_len"] * 0.17, 0),
+                          taper=0.92, lead=(p["ankle"], 0, 0))
+        rows += org.digits("toe_%s" % side, "meta_%s_1" % side, 3, 2,
+                           (lw * 0.26, lw * 0.60, lw * 0.26), lw * 0.40,
+                           (0, p["leg_len"] * 0.10, 0), curl=0.14, sign=sign,
+                           fan=0.12)
+
+    # -- what the shared anatomy would otherwise flatten out ----------------
+    #
+    # One body plan for eight families is what makes them a set; it is also
+    # what makes them the same. These two put back the things that were a
+    # family's whole identity before the rewrite.
+    for i in range(p.get("extra_arms", 0)):
+        # The Choir wears more arms than it was issued. They hang off the ribs
+        # rather than the shoulders, which is what reads as taken rather than
+        # grown, and each pair is smaller and set at its own angle.
+        scale = 0.72 - i * 0.16
+        for side, sign in (("left", 1), ("right", -1)):
+            base = "extra%d_%s" % (i, side)
+            rows += org.chain(base, "body", 3,
+                              (p["arm_w"] * scale * 0.7,
+                               p["arm_len"] * 0.14 * scale,
+                               p["arm_w"] * scale * 0.7),
+                              (0.10, 0, 0),
+                              (sign * p["chest_w"] * 0.30,
+                               p["chest_h"] * (0.16 + i * 0.14), 0),
+                              taper=0.88,
+                              lead=(0.18 + i * 0.12, 0,
+                                    -sign * (0.55 + i * 0.18)))
+            rows += org.digits("xclaw%d_%s" % (i, side), "%s_2" % base, 3, 3,
+                               (p["arm_w"] * 0.16, p["claw_len"] * 0.7,
+                                p["arm_w"] * 0.16),
+                               p["arm_w"] * 0.26,
+                               (0, p["arm_len"] * 0.12 * scale, 0),
+                               curl=p["claw_curl"], sign=sign, fan=0.10)
+
+    for i in range(p.get("fins", 0)):
+        # The Drone is a machine and stopped looking like one the moment it got
+        # the same skeleton as everything else. Fins off the core, angled out.
+        for side, sign in (("left", 1), ("right", -1)):
+            rows += org.chain("fin%d_%s" % (i, side), "body", 3,
+                              (p["chest_w"] * 0.18, p["chest_h"] * 0.16,
+                               p["chest_w"] * 0.30),
+                              (0.0, 0, -sign * 0.16),
+                              (sign * p["chest_w"] * 0.34,
+                               p["chest_h"] * (0.10 + i * 0.26), 0),
+                              taper=0.80,
+                              lead=(0.20, sign * 0.30, -sign * 1.15))
+
+    return org.asymmetry(rows, seed, p.get("wobble", 0.03))
+
+
+def gait_java(name):
+    """The setupAnim substitutions for one family, from its GAITS row."""
+    gait = dict(GAITS[name])
+    if gait.get("legs") == "tuck":
+        tuck = gait.get("tuck", 0.0)
+        legs = ("        // Landing gear, not legs: held, never swung.\n"
+                "        this.legLeft.xRot = %.2fF;\n"
+                "        this.legRight.xRot = %.2fF;" % (tuck, tuck))
+    else:
+        legs = ("        this.legLeft.xRot = stride;\n"
+                "        this.legRight.xRot = -stride;")
+    return {
+        "gait_doc": gait["doc"],
+        "stride": "%.2f" % gait["stride"],
+        "rate": "%.2f" % gait["rate"],
+        "arm": "%.2f" % gait["arm"],
+        "arm_phase": "%.2f" % gait["arm_phase"],
+        "arm_out": "%.2f" % gait["arm_out"],
+        # Emitted rather than negated in the template: a negative value there
+        # produced "--0.12F", which javac reads as a pre-decrement of a literal.
+        "arm_out_neg": "%.2f" % -gait["arm_out"],
+        "lean": "%.2f" % gait["lean"],
+        "bob": "%.2f" % gait["bob"],
+        "roll": "%.2f" % gait["roll"],
+        "hover": "%.2f" % gait["hover"],
+        "legs": legs,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Palettes: base metal, accent, and the glow each variant carries
 # ---------------------------------------------------------------------------
 
+# These were three to four times too dark. Vanilla entity textures average
+# 73-97 luminance (measured off cow.png and iron_golem.png); ours averaged
+# 11-37, so every mob in the game rendered as a silhouette with a coloured dot
+# on it. Raised to land in vanilla's range while keeping each family's hue —
+# the Empire is black and emerald, but "black" in a texture still has to have
+# a value or there is nothing to see.
+#
+# The six that were measured are verbatim; harrier and bulwark arrived later
+# and are their own dark hues carried to the same luminance band by the same
+# arithmetic, so the eight sit together.
 FAMILY_BASE = {
-    "scavenger": ("#3a352c", "#5c5344"),
-    "reaver":    ("#2e2a26", "#4a4038"),
-    "whisper":   ("#1e2028", "#333a48"),
-    "drone":     ("#2a3040", "#455066"),
-    "lictor":    ("#181430", "#2b2450"),
-    "adept":     ("#241d38", "#3a2f56"),
-    "harrier":   ("#2b2118", "#4a3728"),
-    "bulwark":   ("#1c1f2a", "#333a4e"),
+    "scavenger": ("#888175", "#c5bbab"),
+    "reaver":    ("#7f7973", "#bcaea3"),
+    "whisper":   ("#6c6f7f", "#99a3b7"),
+    "drone":     ("#757e95", "#abb8d1"),
+    "lictor":    ("#7167af", "#a89ad6"),
+    "adept":     ("#796c9f", "#b1a0d6"),
+    "harrier":   ("#8a7461", "#c6ac92"),
+    "bulwark":   ("#707791", "#a3abc9"),
 }
+
+# ---------------------------------------------------------------------------
+# What each part is made of
+# ---------------------------------------------------------------------------
+#
+# Brightening the base was half the fix, and the half that was not visible.
+# Measured through the previewer against vanilla run through the same code, the
+# mobs came out at a cow's *mean* and a fifth of its *range*: std 7.6-13.5
+# against the cow's 48.6, p95 of 73-105 against its 172. A cow is not a
+# mid-brown animal — it is near-black patches against near-white ones — and the
+# eye reads that contrast, not the average. One flat colour over a hundred
+# parts is a silhouette however bright it is, which is what "they are all
+# black" was describing.
+#
+# So a part is made of something. The under-body stays dark, which is what
+# keeps the outline; the armour plate is genuinely light, which is what gives
+# the eye somewhere to land; the claws are paler still, because bone is not
+# painted metal; cloth sits just under the base, because a hanging rag does not
+# catch the light a shoulder does. The second number pulls a material towards
+# neutral as it brightens — scaling a saturated hue up turns it into a poster
+# colour, which is a mistake the lictor's purple has already made once.
+MATERIALS = {
+    "deep":  (0.62, 0.85),   # under-body, joints, the masses inside the outline
+    "cloth": (0.82, 0.95),   # shrouds, tatters, stoles, banners
+    "base":  (1.00, 1.00),   # the default: hide, the bulk of a limb
+    "plate": (1.52, 0.55),   # helm, cuirass, pauldrons, greaves — the shell
+    "bone":  (1.86, 0.28),   # claw, tusk, horn, jaw
+}
+
+
+def material_palette(base):
+    """One family base colour, as the five materials it is built from."""
+    red, green, blue = hex_to_rgb(base)
+    lum = 0.2126 * red + 0.7152 * green + 0.0722 * blue
+    out = {}
+    for name, (scale, keep) in MATERIALS.items():
+        target = lum * scale
+        out[name] = "#%02x%02x%02x" % tuple(
+            max(0, min(255, int(channel * scale * keep + target * (1 - keep))))
+            for channel in (red, green, blue))
+    return out
+
+
+# Which of art/grain.py's surfaces each material wears. Read off the reference
+# images rather than off the material table: the shells are hard and streaked
+# and pitted, which is metal; the body under them is a fine even mottle, which
+# is stone; claws are smooth, which is bone; and a rag is a weave.
+MATERIAL_GRAIN = {
+    "deep": "stone",
+    "base": "stone",
+    "cloth": "cloth",
+    "plate": "metal",
+    "bone": "smooth",
+}
+
+# Named rather than matched by prefix, because this table's part names are
+# written by hand — "visor", "gorget", "scrap_horn" — and a prefix rule over
+# hand-written names is a rule that silently stops matching the first time
+# somebody renames one. A part not listed here is "base", so a part added later
+# looks like the rest of the body rather than like a hole.
+PLATE_PARTS = {
+    "helm", "visor", "lens", "cuirass", "plate", "gorget", "collar", "harness",
+    "pauldron_left", "pauldron_right", "bracer_right", "greave_left",
+    "greave_right", "boot_left", "boot_right", "knee_left", "knee_right",
+    "shield", "mask", "mitre", "halo", "crest", "blade_left", "blade_right",
+    "mace", "censer", "thruster", "antenna", "vane_left", "vane_right",
+    "fin_left", "fin_right", "belt",
+}
+CLOTH_PARTS = {
+    "shroud", "hood", "cowl", "mantle", "skirt", "banner", "standard",
+    "satchel", "tatter_left", "tatter_right", "stole_left", "stole_right",
+}
+BONE_PARTS = {
+    "claw_left", "claw_right", "tusk_left", "tusk_right", "horn_left",
+    "horn_right", "scrap_horn", "jaw", "spine", "fist_left", "fist_right",
+}
+DEEP_PARTS = {
+    "body", "head", "arm_left", "arm_right", "arm_second_left",
+    "arm_second_right", "arm_third_left", "arm_third_right", "leg_left",
+    "leg_right", "muzzle_left", "muzzle_right", "cheek_left", "cheek_right",
+    "snout", "slag_left", "slag_right",
+}
+
+
+# The generated anatomy names its parts by role — "cuirass_3", "fore_left_2",
+# "claw_right_1_3" — so those are matched by prefix. The hand-authored names
+# above stay for any family still built from its table.
+PLATE_PREFIXES = ("carapace_", "cuirass_", "pauldron_", "cranium_", "crest_",
+                  "meta_", "visor_", "scrap_", "spine_plate_", "shroud_",
+                  "vane_", "mantle_", "fin", "bastion_")
+DEEP_PREFIXES = ("thorax_", "waist_", "hips", "upper_", "fore_", "thigh_",
+                 "shin_", "extra")
+
+
+def material_for(boxes):
+    """part name -> material key."""
+    out = {}
+    for row in boxes:
+        name = row[0]
+        if ((name.startswith("claw_") and name.endswith(("_2", "_3")))
+                or (name.startswith("toe_") and name.endswith(("_1", "_2")))
+                or (name.startswith("xclaw") and name.endswith(("_1", "_2")))):
+            out[name] = "bone"
+        elif name.startswith(PLATE_PREFIXES):
+            out[name] = "plate"
+        elif name.startswith(DEEP_PREFIXES):
+            out[name] = "deep"
+        elif name in BONE_PARTS:
+            out[name] = "bone"
+        elif name in PLATE_PARTS:
+            out[name] = "plate"
+        elif name in CLOTH_PARTS:
+            out[name] = "cloth"
+        elif name in DEEP_PARTS:
+            out[name] = "deep"
+    return out
+
+
+# Which parts carry the emissive band.
+#
+# A few, and not every box. Every box was what it used to be — write_texture
+# with no skin accents all of them — and a mob with sixty lit stripes on it has
+# no lit parts at all, only a pattern. The reference sheet lights a visor, the
+# leading chest shell, the shoulder caps and the tips: everything else stays
+# dark, which is what makes those few read across a room.
+ACCENT_PARTS = {
+    "visor", "lens", "crest", "cuirass", "gorget", "halo", "censer",
+    "thruster", "pauldron_left", "pauldron_right", "mask", "antenna",
+}
+
+
+# One entity at a time, where the general rule gives the wrong answer.
+#
+# Empty now. The Choir needed a pale face while it was six arms, a body and a
+# hood from the hand table — not one hard surface, and it measured exactly like
+# the flat sheets this system replaced. The generated anatomy gives it a
+# cranium and a cuirass like everything else, so the override is gone; the
+# validator's value-range check is what would notice if it were needed again.
+MATERIAL_OVERRIDES = {}
+
+
+def skin_for(name, boxes, family=None):
+    """
+    The whole of what an entity is made of, for one texture sheet.
+
+    @param name   the entity, for its overrides
+    @param family whose base colour it wears — a boss shares its escort's
+    """
+    base, _highlight = FAMILY_BASE[family or name]
+    materials = material_for(boxes)
+    materials.update({part: material
+                      for part, material in MATERIAL_OVERRIDES.get(name, {}).items()
+                      if part in {row[0] for row in boxes}})
+    # Marks by role for the generated anatomy, by name for a hand table.
+    marks = accent_for(name, boxes) if name in PROPORTIONS else \
+        {row[0] for row in boxes if row[0] in ACCENT_PARTS}
+    return Skin(material_palette(base), materials, marks, MATERIAL_GRAIN)
+
+
+def boxes_for(name, spec):
+    """The generated body where there is a row for it; the table otherwise."""
+    return organic_body(PROPORTIONS[name]) if name in PROPORTIONS else spec["boxes"]
 
 # id -> accent, taken from the ChatFormatting each variant declares in Java.
 VARIANT_ACCENT = {
@@ -441,24 +986,39 @@ public class {Cls}Model<T extends ElysiumMob> extends EntityModel<T> {{
     }}
 
     /**
-     * Walk and look, and nothing else.
+     * {gait_doc}
      *
-     * Deliberately the same animation for every family. A distinctive walk is
-     * worth having and is not worth guessing at without being able to watch it
-     * - the silhouettes carry the difference, and an animation written blind is
-     * more likely to look broken than characterful.
+     * Generated from this family's row in GAITS. Every number below was set by
+     * looking at it — mobs/tools/walk.sh renders the cycle through the real
+     * pipeline — rather than by reasoning about what it ought to be. The
+     * previous version of this method was identical for all eight families and
+     * said so, on the grounds that a walk written blind is more likely to look
+     * broken than characterful. That was true; the answer was to stop being
+     * blind rather than to keep sharing one walk.
      */
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount,
                           float ageInTicks, float netHeadYaw, float headPitch) {{
         this.head.yRot = netHeadYaw * ((float) Math.PI / 180F);
-        this.head.xRot = headPitch * ((float) Math.PI / 180F);
+        this.head.xRot = headPitch * ((float) Math.PI / 180F) + {lean}F;
+        this.body.xRot = {lean}F;
 
-        float swing = (float) Math.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
-        this.legLeft.xRot = swing;
-        this.legRight.xRot = -swing;
-        this.armLeft.xRot = -swing * 0.8F;
-        this.armRight.xRot = swing * 0.8F;
+        // One phase for the whole body, so nothing can drift out of step.
+        float cycle = limbSwing * 0.6662F * {rate}F;
+        float stride = (float) Math.cos(cycle) * {stride}F * limbSwingAmount;
+        float reach = (float) Math.cos(cycle + {arm_phase}F) * {arm}F * limbSwingAmount;
+
+{legs}
+        this.armLeft.xRot = -reach;
+        this.armRight.xRot = reach;
+        this.armLeft.zRot = {arm_out}F;
+        this.armRight.zRot = {arm_out_neg}F;
+
+        // Vertical: a bounce twice per stride (both feet land), plus an idle
+        // float that does not care whether the mob is moving.
+        this.root.y = (float) Math.abs(Math.sin(cycle)) * {bob}F * limbSwingAmount
+                + (float) Math.sin(ageInTicks * 0.08F) * {hover}F;
+        this.root.zRot = (float) Math.sin(cycle) * {roll}F * limbSwingAmount;
     }}
 
     @Override
@@ -627,11 +1187,16 @@ def main():
 
     for family, spec in FAMILIES.items():
         cls = camel(family)
-        family_sheet = smallest_sheet(spec["boxes"])
+        boxes = boxes_for(family, spec)
+        # The skin is built before the sheet is measured: a part's material is
+        # part of its patch identity, so two same-sized boxes made of different
+        # things need two patches and the sheet has to be sized knowing that.
+        skin = skin_for(family, boxes)
+        family_sheet = smallest_sheet(boxes, skin=skin)
         (model_dir / ("%sModel.java" % cls)).write_text(
             MODEL_TEMPLATE.format(Cls=cls,
-                                  parts=part_lines(spec["boxes"], family_sheet),
-                                  sheet=family_sheet))
+                                  parts=part_lines(boxes, family_sheet, skin),
+                                  sheet=family_sheet, **gait_java(family)))
         written["models"] += 1
 
         (JAVA / "client" / ("%sRenderer.java" % cls)).write_text(
@@ -647,8 +1212,8 @@ def main():
             # what made the texture and the model disagree the first time —
             # write_texture fell back to 64 while the model said 96.
             write_texture(RES / "textures/entity" / family / ("%s.png" % variant),
-                          spec["boxes"], base, VARIANT_ACCENT[variant],
-                          family_sheet)
+                          boxes, base, VARIANT_ACCENT[variant],
+                          family_sheet, skin)
             written["textures"] += 1
 
     # Bosses: their own geometry, built from their family's silhouette.
@@ -659,10 +1224,15 @@ def main():
         # A boss carries more boxes and bigger ones, so it gets its own sheet
         # size - measured, and only as large as it has to be. The families are
         # untouched at 64.
-        sheet = smallest_sheet(spec["boxes"])
+        # The family's own materials, so a boss is made of what its escort is
+        # made of and only its shape says which one it is.
+        boxes = boxes_for(boss, spec)
+        skin = skin_for(boss, boxes, family)
+        sheet = smallest_sheet(boxes, skin=skin)
         (model_dir / ("%sModel.java" % cls)).write_text(
-            MODEL_TEMPLATE.format(Cls=cls, parts=part_lines(spec["boxes"], sheet),
-                                  sheet=sheet))
+            MODEL_TEMPLATE.format(Cls=cls,
+                                  parts=part_lines(boxes, sheet, skin),
+                                  sheet=sheet, **gait_java(boss)))
         written["models"] += 1
         (JAVA / "client" / ("%sRenderer.java" % cls)).write_text(
             RENDERER_TEMPLATE.format(Cls=cls, family=boss, fallback=boss,
@@ -673,7 +1243,7 @@ def main():
         # and only its shape says which one it is.
         base, _highlight = FAMILY_BASE[family]
         write_texture(RES / "textures/entity" / boss / ("%s.png" % boss),
-                      spec["boxes"], base, VARIANT_ACCENT[boss], sheet)
+                      boxes, base, VARIANT_ACCENT[boss], sheet, skin)
         written["textures"] += 1
 
     written["client"] = write_client_files(

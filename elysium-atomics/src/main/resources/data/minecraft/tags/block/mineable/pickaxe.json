@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumatomics:basic_cell",
+    "elysiumatomics:advanced_cell",
+    "elysiumatomics:quantum_cell",
+    "elysiumatomics:enricher",
+    "elysiumatomics:reaction_chamber",
+    "elysiumatomics:centrifuge",
+    "elysiumatomics:servo",
+    "elysiumatomics:coolant_channel",
+    "elysiumatomics:reactor_core",
+    "elysiumatomics:solar_panel"
+  ]
+}

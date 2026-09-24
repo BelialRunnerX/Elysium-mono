@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:frostite_ore",
+      "required": false
+    },
+    "elysiumores:cinder_frostite_ore",
+    "elysiumores:deepslate_frostite_ore",
+    "elysiumores:end_stone_frostite_ore",
+    "elysiumores:frost_frostite_ore",
+    "elysiumores:netherrack_frostite_ore",
+    "elysiumores:pale_frostite_ore"
+  ]
+}

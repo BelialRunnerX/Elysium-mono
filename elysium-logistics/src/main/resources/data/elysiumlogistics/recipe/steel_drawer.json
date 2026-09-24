@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " S ",
+    "SDS",
+    " S "
+  ],
+  "key": {
+    "S": {
+      "tag": "c:ingots/steel"
+    },
+    "D": {
+      "item": "elysiumlogistics:brass_drawer"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:steel_drawer",
+    "count": 1
+  }
+}

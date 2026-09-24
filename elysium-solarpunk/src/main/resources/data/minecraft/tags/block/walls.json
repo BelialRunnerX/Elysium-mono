@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumsolarpunk:rammed_earth_wall",
+    "elysiumsolarpunk:pale_plaster_wall",
+    "elysiumsolarpunk:white_marble_wall",
+    "elysiumsolarpunk:polished_white_marble_wall",
+    "elysiumsolarpunk:white_limestone_wall",
+    "elysiumsolarpunk:polished_white_limestone_wall",
+    "elysiumsolarpunk:alabaster_wall",
+    "elysiumsolarpunk:polished_alabaster_wall"
+  ]
+}

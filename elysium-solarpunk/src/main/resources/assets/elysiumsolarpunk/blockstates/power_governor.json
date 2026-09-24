@@ -1,0 +1,9 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "elysiumsolarpunk:block/power_governor"
+      }
+    }
+  ]
+}

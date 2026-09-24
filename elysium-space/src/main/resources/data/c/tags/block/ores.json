@@ -1,0 +1,20 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumspace:lunite_ore",
+    "elysiumspace:pale_steel_ore",
+    "elysiumspace:pale_iron_ore",
+    "elysiumspace:pale_rime_shard_ore",
+    "elysiumspace:frostite_ore",
+    "elysiumspace:cryonite_ore",
+    "elysiumspace:frost_iron_ore",
+    "elysiumspace:frost_diamond_ore",
+    "elysiumspace:frost_rime_shard_ore",
+    "elysiumspace:cindrium_ore",
+    "elysiumspace:cinder_coal_ore",
+    "elysiumspace:cinder_gold_ore",
+    "elysiumspace:cinder_diamond_ore",
+    "elysiumspace:steel_ore",
+    "elysiumspace:deepslate_steel_ore"
+  ]
+}

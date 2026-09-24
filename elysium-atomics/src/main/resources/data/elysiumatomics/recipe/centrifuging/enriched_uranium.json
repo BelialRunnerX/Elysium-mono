@@ -1,0 +1,11 @@
+{
+  "type": "elysiumatomics:centrifuging",
+  "input": {
+    "item": "elysiumatomics:uranium_ingot"
+  },
+  "result": {
+    "id": "elysiumatomics:enriched_uranium",
+    "count": 1
+  },
+  "ticks": 900
+}

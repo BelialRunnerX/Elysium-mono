@@ -1,0 +1,14 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": [
+    "elysiumspace:cinderveil_desert",
+    "elysiumspace:cinderveil_infernal_barrens"
+  ],
+  "features": [
+    "elysiumspace:cindrium_ore",
+    "elysiumspace:cinder_coal_ore",
+    "elysiumspace:cinder_gold_ore",
+    "elysiumspace:cinder_diamond_ore"
+  ],
+  "step": "underground_ores"
+}

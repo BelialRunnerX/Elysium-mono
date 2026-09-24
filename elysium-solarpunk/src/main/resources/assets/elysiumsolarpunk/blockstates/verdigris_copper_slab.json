@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "elysiumsolarpunk:block/verdigris_copper_slab"
+    },
+    "type=top": {
+      "model": "elysiumsolarpunk:block/verdigris_copper_slab_top"
+    },
+    "type=double": {
+      "model": "elysiumsolarpunk:block/verdigris_copper"
+    }
+  }
+}

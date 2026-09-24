@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "bgb",
+    "gbg",
+    "bgb"
+  ],
+  "key": {
+    "b": {
+      "item": "elysiumsolarpunk:solar_brass_ingot"
+    },
+    "g": {
+      "item": "minecraft:glass"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:greenhouse_frame",
+    "count": 6
+  }
+}

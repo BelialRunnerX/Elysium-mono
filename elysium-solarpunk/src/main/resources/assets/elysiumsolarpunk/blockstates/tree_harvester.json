@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumsolarpunk:block/tree_harvester"
+    },
+    "facing=east": {
+      "model": "elysiumsolarpunk:block/tree_harvester",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumsolarpunk:block/tree_harvester",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumsolarpunk:block/tree_harvester",
+      "y": 270
+    }
+  }
+}

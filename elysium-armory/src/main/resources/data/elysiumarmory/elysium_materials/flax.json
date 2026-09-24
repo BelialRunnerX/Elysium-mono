@@ -1,0 +1,41 @@
+{
+  "type": "simple",
+  "crafting": {
+    "categories": [
+      "organic",
+      "fiber",
+      "basic"
+    ]
+  },
+  "display": {
+    "name": "Flax"
+  },
+  "properties": {
+    "binding": {
+      "armor_durability": {
+        "op": "multiply_base",
+        "value": 0.05
+      },
+      "harvest_speed": {
+        "op": "multiply_base",
+        "value": 0.05
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 3
+        }
+      ]
+    },
+    "cord": {
+      "draw_speed": {
+        "op": "multiply_base",
+        "value": 0.2
+      },
+      "ranged_damage": {
+        "op": "multiply_base",
+        "value": -0.1
+      }
+    }
+  }
+}

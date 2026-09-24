@@ -1,0 +1,27 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "minecraft:vine",
+    "categories": [
+      "organic",
+      "basic"
+    ]
+  },
+  "display": {
+    "name": "Vine"
+  },
+  "properties": {
+    "binding": {
+      "repair_efficiency": {
+        "op": "multiply_base",
+        "value": 0.03
+      }
+    },
+    "cord": {
+      "ranged_damage": {
+        "op": "multiply_base",
+        "value": -0.1
+      }
+    }
+  }
+}

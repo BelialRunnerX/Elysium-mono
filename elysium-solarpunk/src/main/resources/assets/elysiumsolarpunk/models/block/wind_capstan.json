@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "elysiumsolarpunk:block/wind_capstan_front",
+    "side": "elysiumsolarpunk:block/wind_capstan_side",
+    "top": "elysiumsolarpunk:block/wind_capstan_top"
+  }
+}

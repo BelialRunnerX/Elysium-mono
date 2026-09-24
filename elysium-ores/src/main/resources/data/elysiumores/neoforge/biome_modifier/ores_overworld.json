@@ -1,0 +1,20 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": [
+    "elysiumores:deepslate_azure_silver_ore",
+    "elysiumores:deepslate_certus_quartz_ore",
+    "elysiumores:deepslate_cindrium_ore",
+    "elysiumores:deepslate_crimson_iron_ore",
+    "elysiumores:deepslate_cryonite_ore",
+    "elysiumores:deepslate_frostite_ore",
+    "elysiumores:deepslate_lunite_ore",
+    "elysiumores:deepslate_quartz_ore",
+    "elysiumores:deepslate_rime_shard_ore",
+    "elysiumores:stone_certus_quartz_ore",
+    "elysiumores:stone_platinum_ore",
+    "elysiumores:stone_quartz_ore",
+    "elysiumores:stone_rime_shard_ore"
+  ],
+  "step": "underground_ores"
+}

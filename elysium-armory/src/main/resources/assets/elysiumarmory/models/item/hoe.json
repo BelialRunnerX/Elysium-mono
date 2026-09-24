@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarmory:item/hoe",
+    "layer1": "elysiumarmory:item/hoe_grip"
+  }
+}

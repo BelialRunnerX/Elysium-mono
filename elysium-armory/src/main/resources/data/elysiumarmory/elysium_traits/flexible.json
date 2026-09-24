@@ -1,0 +1,12 @@
+{
+  "name": "Flexible",
+  "max_level": 5,
+  "description": "Gear occasionally takes less damage",
+  "effects": [
+    {
+      "type": "durability",
+      "chance_per_level": 0.075,
+      "amount": -1
+    }
+  ]
+}

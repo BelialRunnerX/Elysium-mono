@@ -1,0 +1,5 @@
+{
+  "from": "elysiumlib:haste",
+  "ingredient": "minecraft:glowstone_dust",
+  "to": "elysiumlib:strong_haste"
+}

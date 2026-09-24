@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "silentgear:azure_silver_ore",
+      "required": false
+    },
+    "elysiumores:cinder_azure_silver_ore",
+    "elysiumores:deepslate_azure_silver_ore",
+    "elysiumores:end_stone_azure_silver_ore",
+    "elysiumores:frost_azure_silver_ore",
+    "elysiumores:netherrack_azure_silver_ore",
+    "elysiumores:pale_azure_silver_ore"
+  ]
+}

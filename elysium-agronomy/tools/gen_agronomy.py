@@ -1,0 +1,478 @@
+#!/usr/bin/env python3
+"""
+Every file that grows something and is not Java.
+
+    python3 tools/gen_agronomy.py
+
+The essence ladder is five tiers, eight seeds and sixteen recipes that all have
+to agree with each other about which rung a material sits on. That is exactly
+the shape of thing nobody keeps straight by hand, so the table is here and
+everything else is read off it — and validate.py regenerates the whole set into
+a temporary tree and compares it byte for byte.
+"""
+import json
+import os
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+MOD = os.path.dirname(HERE)
+NS = "elysiumagronomy"
+IND = "elysiumindustry"
+
+OUT = os.environ.get("ELYSIUM_AGRONOMY_OUT", MOD)
+ASSETS = os.path.join(OUT, "src/main/resources/assets", NS)
+DATA = os.path.join(OUT, "src/main/resources/data", NS)
+
+try:
+    from PIL import Image, ImageDraw
+except ImportError:
+    print("Pillow is needed to draw the sprites: pip install pillow")
+    sys.exit(1)
+
+
+def write(path, obj):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(obj, handle, indent=2)
+        handle.write("\n")
+
+
+# ---------------------------------------------------------------------------
+# The ladder, which everything else is read off
+# ---------------------------------------------------------------------------
+#
+# Kept in step with AgronomyItems.SEEDS by the validator, because a seed whose
+# tier differs between the Java and the recipes is a seed that takes one length
+# of time to grow and costs another to make.
+
+TIERS = 5
+ESSENCE_PER_STEP = 4
+ESSENCE_PER_INGOT = 8
+
+ESSENCES = ["faint_essence", "bright_essence", "keen_essence",
+            "radiant_essence", "ascendant_essence"]
+
+#: material -> (tier, what one makes when you have enough essence)
+SEEDS = {
+    "coal": (1, "minecraft:coal"),
+    "copper": (1, "minecraft:copper_ingot"),
+    "iron": (2, "minecraft:iron_ingot"),
+    "redstone": (2, "minecraft:redstone"),
+    "lapis": (3, "minecraft:lapis_lazuli"),
+    "gold": (3, "minecraft:gold_ingot"),
+    "diamond": (4, "minecraft:diamond"),
+    "netherite": (5, "minecraft:netherite_scrap"),
+}
+
+BLOCKS = ["pot", "accelerator", "hive",
+          "rock_generator", "driven_rock_generator", "industrial_rock_generator"]
+
+#: How many steps of growth a pot's blockstate carries.
+AGES = 4
+
+
+# ---------------------------------------------------------------------------
+# The palette
+# ---------------------------------------------------------------------------
+
+CLAY = [(78, 52, 38), (116, 78, 56), (150, 104, 74), (184, 138, 104)]
+STEEL = [(38, 41, 46), (72, 78, 86), (112, 120, 130), (156, 164, 174)]
+TIMBER = [(58, 40, 26), (86, 60, 38), (120, 86, 54), (152, 114, 74)]
+STONE = [(52, 52, 56), (84, 84, 90), (118, 118, 126), (150, 150, 158)]
+LEAF = [(30, 62, 28), (48, 100, 42), (78, 146, 60), (128, 192, 96)]
+HONEY = [(122, 78, 14), (176, 122, 26), (222, 168, 48), (248, 214, 114)]
+
+#: One colour per rung, so an essence's tier is its colour and a player never
+#: has to read a tooltip to know which pile is which.
+RUNGS = [
+    [(58, 60, 66), (96, 100, 108), (140, 146, 156), (186, 192, 202)],
+    [(28, 72, 96), (42, 112, 148), (70, 162, 200), (140, 214, 236)],
+    [(30, 86, 46), (46, 130, 68), (76, 182, 100), (146, 224, 162)],
+    [(98, 62, 16), (150, 100, 28), (206, 148, 50), (244, 200, 108)],
+    [(84, 30, 96), (128, 48, 146), (176, 84, 196), (222, 154, 238)],
+]
+CLEAR = (0, 0, 0, 0)
+
+
+def rgba(colour, alpha=255):
+    return (colour[0], colour[1], colour[2], alpha)
+
+
+def slab(ramp):
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 15], fill=rgba(ramp[1]))
+    draw.line([(0, 0), (15, 0)], fill=rgba(ramp[2]))
+    draw.line([(0, 15), (15, 15)], fill=rgba(ramp[0]))
+    return image
+
+
+def pot_side():
+    image = slab(CLAY)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([1, 3, 14, 5], fill=rgba(CLAY[2]), outline=rgba(CLAY[0]))
+    draw.rectangle([2, 7, 13, 14], fill=rgba(CLAY[1]), outline=rgba(CLAY[0]))
+    return image
+
+
+def pot_top(step):
+    """Soil, and how far through the growth it is."""
+    image = slab(CLAY)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([2, 2, 13, 13], fill=rgba((58, 42, 30)), outline=rgba(CLAY[0]))
+    if step > 0:
+        reach = 1 + step
+        for x in (5, 8, 11):
+            draw.line([(x, 12), (x, 12 - reach * 2)], fill=rgba(LEAF[1 + step % 3]))
+            draw.point((x, 12 - reach * 2), fill=rgba(LEAF[3]))
+    return image
+
+
+def machine_side(ramp, accent):
+    image = slab(ramp)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([2, 2, 13, 13], fill=rgba(ramp[0]), outline=rgba(ramp[2]))
+    draw.rectangle([4, 5, 11, 10], fill=rgba(accent[1]), outline=rgba(accent[0]))
+    draw.line([(5, 7), (10, 7)], fill=rgba(accent[3]))
+    return image
+
+
+def machine_top(ramp, accent):
+    image = slab(ramp)
+    draw = ImageDraw.Draw(image)
+    draw.ellipse([4, 4, 11, 11], fill=rgba(accent[1]), outline=rgba(accent[0]))
+    draw.ellipse([6, 6, 9, 9], fill=rgba(accent[3]))
+    return image
+
+
+def hive_side():
+    image = slab(TIMBER)
+    draw = ImageDraw.Draw(image)
+    for y in (3, 7, 11):
+        draw.rectangle([2, y, 13, y + 2], fill=rgba(HONEY[1]), outline=rgba(TIMBER[0]))
+    return image
+
+
+def hive_top():
+    image = slab(TIMBER)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([3, 3, 12, 12], fill=rgba(HONEY[2]), outline=rgba(TIMBER[0]))
+    for x, y in ((6, 6), (9, 6), (6, 9), (9, 9)):
+        draw.point((x, y), fill=rgba(HONEY[0]))
+    return image
+
+
+def rock_side(rung):
+    ramp = STONE if rung == 0 else STEEL
+    image = slab(ramp)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([2, 2, 13, 13], fill=rgba(ramp[0]), outline=rgba(ramp[2]))
+    for index in range(rung + 1):
+        draw.rectangle([4, 4 + index * 3, 11, 5 + index * 3], fill=rgba(STONE[2]))
+    return image
+
+
+def essence(rung):
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    ramp = RUNGS[rung]
+    draw.polygon([(8, 2), (13, 8), (8, 14), (3, 8)], fill=rgba(ramp[1]),
+                 outline=rgba(ramp[0]))
+    draw.polygon([(8, 4), (11, 8), (8, 12), (5, 8)], fill=rgba(ramp[2]))
+    draw.point((8, 7), fill=rgba(ramp[3]))
+    return image
+
+
+def seed(rung):
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    ramp = RUNGS[rung]
+    draw.polygon([(5, 11), (4, 7), (8, 4), (12, 7), (11, 11)], fill=rgba((104, 84, 44)),
+                 outline=rgba((62, 48, 24)))
+    draw.polygon([(7, 9), (8, 6), (9, 9)], fill=rgba(ramp[2]))
+    draw.point((8, 8), fill=rgba(ramp[3]))
+    return image
+
+
+def bee():
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    draw.ellipse([4, 6, 11, 11], fill=rgba(HONEY[2]), outline=rgba((40, 32, 12)))
+    for x in (6, 9):
+        draw.line([(x, 6), (x, 11)], fill=rgba((40, 32, 12)))
+    draw.polygon([(4, 5), (7, 3), (7, 6)], fill=rgba((214, 230, 238)))
+    draw.polygon([(11, 5), (8, 3), (8, 6)], fill=rgba((214, 230, 238)))
+    return image
+
+
+def comb():
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([3, 4, 12, 12], fill=rgba(HONEY[1]), outline=rgba(HONEY[0]))
+    for y in (6, 9):
+        for x in (5, 8, 11):
+            draw.point((x, y), fill=rgba(HONEY[3]))
+    return image
+
+
+def wax():
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([4, 5, 11, 11], fill=rgba(HONEY[3]), outline=rgba(HONEY[1]))
+    draw.line([(5, 7), (10, 7)], fill=rgba(HONEY[2]))
+    return image
+
+
+BLOCK_SPRITES = {
+    "pot_side": pot_side,
+    "accelerator_side": lambda: machine_side(STEEL, RUNGS[1]),
+    "accelerator_top": lambda: machine_top(STEEL, RUNGS[1]),
+    "hive_side": hive_side,
+    "hive_top": hive_top,
+}
+for step in range(AGES):
+    BLOCK_SPRITES[f"pot_top_{step}"] = (lambda s=step: pot_top(s))
+for rung in range(3):
+    BLOCK_SPRITES[f"rock_side_{rung}"] = (lambda r=rung: rock_side(r))
+BLOCK_SPRITES["rock_top"] = lambda: machine_top(STONE, STONE)
+
+ITEM_SPRITES = {"bee": bee, "comb": comb, "wax": wax}
+for rung, name in enumerate(ESSENCES):
+    ITEM_SPRITES[name] = (lambda r=rung: essence(r))
+for material, (tier, _) in SEEDS.items():
+    ITEM_SPRITES[material + "_seed"] = (lambda t=tier: seed(t - 1))
+
+
+def draw_all():
+    blocks = os.path.join(ASSETS, "textures/block")
+    items = os.path.join(ASSETS, "textures/item")
+    os.makedirs(blocks, exist_ok=True)
+    os.makedirs(items, exist_ok=True)
+    for name, make in BLOCK_SPRITES.items():
+        make().save(os.path.join(blocks, name + ".png"))
+    for name, make in ITEM_SPRITES.items():
+        make().save(os.path.join(items, name + ".png"))
+    return len(BLOCK_SPRITES) + len(ITEM_SPRITES)
+
+
+# ---------------------------------------------------------------------------
+# Models and blockstates
+# ---------------------------------------------------------------------------
+
+#: The pot's shape, which has to match PotBlock's collision box exactly.
+POT_BOX = (2, 0, 2, 14, 12, 14)
+
+
+def box_model(box, top, side, bottom=None):
+    return {
+        "parent": "block/block",
+        "textures": {"top": f"{NS}:block/{top}", "side": f"{NS}:block/{side}",
+                     "bottom": f"{NS}:block/{bottom or side}",
+                     "particle": f"{NS}:block/{side}"},
+        "elements": [{
+            "from": [box[0], box[1], box[2]],
+            "to": [box[3], box[4], box[5]],
+            "faces": {
+                "down": {"texture": "#bottom"},
+                "up": {"texture": "#top"},
+                "north": {"texture": "#side"},
+                "south": {"texture": "#side"},
+                "west": {"texture": "#side"},
+                "east": {"texture": "#side"},
+            },
+        }],
+    }
+
+
+FULL = (0, 0, 0, 16, 16, 16)
+
+
+def models_and_states():
+    written = 0
+    for step in range(AGES):
+        write(os.path.join(ASSETS, "models/block", f"pot_{step}.json"),
+              box_model(POT_BOX, f"pot_top_{step}", "pot_side", "pot_side"))
+    write(os.path.join(ASSETS, "blockstates", "pot.json"), {"variants": {
+        f"age={step}": {"model": f"{NS}:block/pot_{step}"} for step in range(AGES)}})
+    write(os.path.join(ASSETS, "models/item", "pot.json"), {"parent": f"{NS}:block/pot_0"})
+    written += 1
+
+    simple = {
+        "accelerator": ("accelerator_top", "accelerator_side"),
+        "hive": ("hive_top", "hive_side"),
+        "rock_generator": ("rock_top", "rock_side_0"),
+        "driven_rock_generator": ("rock_top", "rock_side_1"),
+        "industrial_rock_generator": ("rock_top", "rock_side_2"),
+    }
+    for name, (top, side) in simple.items():
+        write(os.path.join(ASSETS, "models/block", name + ".json"),
+              box_model(FULL, top, side))
+        write(os.path.join(ASSETS, "blockstates", name + ".json"),
+              {"variants": {"": {"model": f"{NS}:block/{name}"}}})
+        write(os.path.join(ASSETS, "models/item", name + ".json"),
+              {"parent": f"{NS}:block/{name}"})
+        written += 1
+
+    for name in ITEM_SPRITES:
+        write(os.path.join(ASSETS, "models/item", name + ".json"),
+              {"parent": "item/generated", "textures": {"layer0": f"{NS}:item/{name}"}})
+        written += 1
+    return written
+
+
+# ---------------------------------------------------------------------------
+# Loot, tags and crafting
+# ---------------------------------------------------------------------------
+
+def drop_itself(name):
+    return {
+        "type": "minecraft:block",
+        "pools": [{
+            "rolls": 1,
+            "bonus_rolls": 0,
+            "entries": [{"type": "minecraft:item", "name": f"{NS}:{name}"}],
+            "conditions": [{"condition": "minecraft:survives_explosion"}],
+        }],
+    }
+
+
+def shaped(pattern, key, result, count=1):
+    return {"type": "minecraft:crafting_shaped", "category": "building",
+            "pattern": pattern, "key": key,
+            "result": {"id": result, "count": count}}
+
+
+def shapeless(ingredients, result, count=1):
+    return {"type": "minecraft:crafting_shapeless", "category": "misc",
+            "ingredients": ingredients, "result": {"id": result, "count": count}}
+
+
+ITEM = lambda name: {"item": name}
+TAG = lambda name: {"tag": name}
+
+RECIPES = {
+    "pot": shaped(["C C", "CPC", "CCC"], {
+        "C": ITEM("minecraft:clay_ball"), "P": TAG("minecraft:planks")},
+        f"{NS}:pot", 2),
+    "accelerator": shaped(["PRP", "RTR", "PRP"], {
+        "P": TAG("c:plates/iron"), "R": ITEM("minecraft:redstone"),
+        "T": ITEM(f"{NS}:pot")}, f"{NS}:accelerator"),
+    "hive": shaped(["PPP", "PHP", "PPP"], {
+        "P": TAG("minecraft:planks"), "H": ITEM("minecraft:honeycomb")},
+        f"{NS}:hive"),
+    "rock_generator": shaped(["CCC", "CPC", "CCC"], {
+        "C": ITEM("minecraft:cobblestone"), "P": ITEM("minecraft:piston")},
+        f"{NS}:rock_generator"),
+    "driven_rock_generator": shaped(["PPP", "PGP", "PWP"], {
+        "P": TAG("c:plates/iron"), "G": ITEM(f"{NS}:rock_generator"),
+        "W": ITEM(f"{IND}:copper_wire")}, f"{NS}:driven_rock_generator"),
+    "industrial_rock_generator": shaped(["PPP", "PGP", "PWP"], {
+        "P": TAG("c:plates/steel"), "G": ITEM(f"{NS}:driven_rock_generator"),
+        "W": ITEM(f"{IND}:gold_wire")}, f"{NS}:industrial_rock_generator"),
+    "bee": shapeless([ITEM("minecraft:honeycomb"), TAG("minecraft:small_flowers"),
+                      ITEM("minecraft:sugar")], f"{NS}:bee"),
+    "wax": shapeless([ITEM(f"{NS}:comb"), ITEM(f"{NS}:comb")], f"{NS}:wax"),
+}
+
+
+def ladder_recipes():
+    """Climbing a rung, planting a seed, and cashing essence in for metal."""
+    made = {}
+    for rung in range(1, TIERS):
+        made[f"{ESSENCES[rung]}_from_{ESSENCES[rung - 1]}"] = shapeless(
+            [ITEM(f"{NS}:{ESSENCES[rung - 1]}")] * ESSENCE_PER_STEP,
+            f"{NS}:{ESSENCES[rung]}")
+    for material, (tier, gives) in SEEDS.items():
+        made[f"{material}_seed"] = shapeless(
+            [ITEM(f"{NS}:{ESSENCES[tier - 1]}")] * ESSENCE_PER_STEP + [ITEM(gives)],
+            f"{NS}:{material}_seed")
+        made[f"{material}_from_essence"] = shapeless(
+            [ITEM(f"{NS}:{ESSENCES[tier - 1]}")] * ESSENCE_PER_INGOT, gives)
+    return made
+
+
+def data_files():
+    written = 0
+    for name in BLOCKS:
+        write(os.path.join(DATA, "loot_table/blocks", name + ".json"), drop_itself(name))
+        written += 1
+    for name, recipe in dict(RECIPES, **ladder_recipes()).items():
+        write(os.path.join(DATA, "recipe", name + ".json"), recipe)
+        written += 1
+
+    # What a hive will take. Vanilla has no bee item, so the tag is ours and
+    # this is what fills it.
+    write(os.path.join(DATA, "tags/item/bees.json"),
+          {"replace": False, "values": [f"{NS}:bee"]})
+    written += 1
+
+    tags = os.path.join(OUT, "src/main/resources/data/minecraft/tags/block")
+    write(os.path.join(tags, "mineable/pickaxe.json"),
+          {"replace": False, "values": [f"{NS}:{name}" for name in BLOCKS
+                                        if name != "hive"]})
+    write(os.path.join(tags, "mineable/axe.json"),
+          {"replace": False, "values": [f"{NS}:hive"]})
+    written += 2
+    return written
+
+
+# ---------------------------------------------------------------------------
+# Language
+# ---------------------------------------------------------------------------
+
+NAMES = {
+    "pot": "Pot",
+    "accelerator": "Accelerator",
+    "hive": "Hive",
+    "rock_generator": "Rock Generator",
+    "driven_rock_generator": "Driven Rock Generator",
+    "industrial_rock_generator": "Industrial Rock Generator",
+}
+
+ITEM_NAMES = {
+    "bee": "Bee",
+    "comb": "Comb",
+    "wax": "Wax",
+    "faint_essence": "Faint Essence",
+    "bright_essence": "Bright Essence",
+    "keen_essence": "Keen Essence",
+    "radiant_essence": "Radiant Essence",
+    "ascendant_essence": "Ascendant Essence",
+}
+for material in SEEDS:
+    ITEM_NAMES[material + "_seed"] = material.replace("_", " ").title() + " Seed"
+
+LINES = {
+    "itemGroup.elysiumagronomy": "Elysium Agronomy",
+    "elysiumagronomy.pot.bare": "Nothing planted in it.",
+    "elysiumagronomy.pot.dark": "Too dark: light %s, and it wants %s.",
+    "elysiumagronomy.pot.growing": "%s, growing at %sx. About %ss to go.",
+    "elysiumagronomy.accelerator.alone": "No pot beside it.",
+    "elysiumagronomy.accelerator.dark": "%s pot(s) beside it, and no power reaching it.",
+    "elysiumagronomy.accelerator.running": "%s pot(s) at %sx, on %s of what it wants.",
+    "elysiumagronomy.hive.empty": "No bees in it.",
+    "elysiumagronomy.hive.crowded": "%s bees and %s flowers, and they want %s. "
+                                    "%s combs an hour.",
+    "elysiumagronomy.hive.working": "%s bees, %s combs an hour.",
+    "elysiumagronomy.rock.dark": "No power reaching it.",
+    "elysiumagronomy.rock.running": "%s blocks an hour.",
+}
+
+
+def language():
+    entries = dict(LINES)
+    for name, shown in NAMES.items():
+        entries[f"block.{NS}.{name}"] = shown
+    for name, shown in ITEM_NAMES.items():
+        entries[f"item.{NS}.{name}"] = shown
+    write(os.path.join(ASSETS, "lang/en_us.json"), dict(sorted(entries.items())))
+    return len(entries)
+
+
+if __name__ == "__main__":
+    sprites = draw_all()
+    models = models_and_states()
+    data = data_files()
+    keys = language()
+    print(f"agronomy: {sprites} sprite(s), {models} thing(s) modelled and stated, "
+          f"{data} data file(s), {keys} language key(s)")

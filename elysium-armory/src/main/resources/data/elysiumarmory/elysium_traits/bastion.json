@@ -1,0 +1,27 @@
+{
+  "name": "Bastion",
+  "max_level": 5,
+  "description": "Provides bonus armor",
+  "conditions": [
+    "any:on:armor,on:curio"
+  ],
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "slot": "any",
+          "attribute": "minecraft:generic.armor",
+          "operation": "add_value",
+          "values": [
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            5.0
+          ]
+        }
+      ]
+    }
+  ]
+}

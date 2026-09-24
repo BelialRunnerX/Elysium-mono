@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "iii",
+    "iii",
+    "iii"
+  ],
+  "key": {
+    "i": {
+      "item": "elysiumsolarpunk:solar_brass_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:solar_brass_block",
+    "count": 1
+  }
+}

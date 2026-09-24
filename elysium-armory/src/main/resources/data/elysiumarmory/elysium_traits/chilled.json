@@ -1,0 +1,15 @@
+{
+  "name": "Chilled",
+  "max_level": 5,
+  "description": "Deals more damage to Nether and fire-immune mobs",
+  "conditions": [
+    "on:weapon"
+  ],
+  "effects": [
+    {
+      "type": "extra_damage",
+      "against": "fire_immune",
+      "per_level": 2.0
+    }
+  ]
+}

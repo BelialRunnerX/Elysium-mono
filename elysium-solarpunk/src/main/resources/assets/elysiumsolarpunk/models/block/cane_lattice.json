@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "elysiumsolarpunk:block/cane_lattice"
+  },
+  "render_type": "minecraft:cutout"
+}

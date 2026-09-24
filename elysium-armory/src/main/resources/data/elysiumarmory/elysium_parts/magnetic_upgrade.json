@@ -1,0 +1,19 @@
+{
+  "type": "upgrade",
+  "gear_type": "all",
+  "part_type": "misc_upgrade",
+  "properties": {
+    "traits": [
+      {
+        "trait": "magnetic",
+        "level": 5
+      }
+    ]
+  },
+  "upgrade": {
+    "gear_types": [
+      "all"
+    ],
+    "match_children": true
+  }
+}

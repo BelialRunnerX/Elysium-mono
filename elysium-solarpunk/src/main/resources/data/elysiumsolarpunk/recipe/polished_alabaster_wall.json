@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "bbb",
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "elysiumsolarpunk:polished_alabaster"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:polished_alabaster_wall",
+    "count": 6
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/fence_post",
+  "textures": {
+    "texture": "elysiumflora:block/emberwood_planks"
+  }
+}

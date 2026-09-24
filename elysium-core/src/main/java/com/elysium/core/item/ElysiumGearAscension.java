@@ -1,6 +1,7 @@
 package com.elysium.core.item;
 
 import com.elysium.lib.item.ElysiumRarities;
+import com.elysium.lib.item.ElysiumGear;
 import com.elysium.lib.item.ElysiumSocketable;
 import com.elysium.lib.item.ElysiumSockets;
 import net.minecraft.core.component.DataComponents;
@@ -55,7 +56,8 @@ public final class ElysiumGearAscension {
         if (first.getItem() != second.getItem()) {
             return false;
         }
-        if (!(first.getItem() instanceof ElysiumSocketable gear)) {
+        ElysiumSocketable gear = ElysiumGear.of(first);
+        if (gear == null) {
             return false;
         }
         // Same tier both sides: the doubling price, and the whole of what keeps
@@ -75,7 +77,7 @@ public final class ElysiumGearAscension {
             return ItemStack.EMPTY;
         }
 
-        ElysiumSocketable gear = (ElysiumSocketable) first.getItem();
+        ElysiumSocketable gear = ElysiumGear.of(first);
         int nextTier = gear.getNextTier(first);
 
         // copy() carries every component across, so runes and reforge rolls

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumspace:frostite_ingot"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:frostite_block"
+  }
+}

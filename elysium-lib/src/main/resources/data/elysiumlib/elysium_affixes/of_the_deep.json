@@ -1,0 +1,16 @@
+{
+  "type": "suffix",
+  "on": [
+    "weapon"
+  ],
+  "min_tier": 1,
+  "weight": 5,
+  "max_level": 4,
+  "effects": [
+    {
+      "type": "extra_damage",
+      "against": "aquatic",
+      "per_level": 2.0
+    }
+  ]
+}

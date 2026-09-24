@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:dark_oak_cabinet"
+    }
+  ],
+  "result": {
+    "id": "minecraft:dark_oak_planks",
+    "count": 1
+  }
+}

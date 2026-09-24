@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:nugget_nickel",
+      "required": false
+    },
+    {
+      "id": "oritech:nickel_nugget",
+      "required": false
+    },
+    {
+      "id": "tfmg:nickel_nugget",
+      "required": false
+    }
+  ]
+}

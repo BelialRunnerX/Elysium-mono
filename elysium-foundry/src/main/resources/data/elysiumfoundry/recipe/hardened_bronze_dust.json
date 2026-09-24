@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:hardened_bronze_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:hardened_bronze_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

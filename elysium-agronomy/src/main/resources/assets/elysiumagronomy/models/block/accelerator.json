@@ -1,0 +1,43 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "top": "elysiumagronomy:block/accelerator_top",
+    "side": "elysiumagronomy:block/accelerator_side",
+    "bottom": "elysiumagronomy:block/accelerator_side",
+    "particle": "elysiumagronomy:block/accelerator_side"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#bottom"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        }
+      }
+    }
+  ]
+}

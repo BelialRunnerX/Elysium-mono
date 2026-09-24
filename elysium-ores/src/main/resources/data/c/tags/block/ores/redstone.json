@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_redstone_ore",
+    "elysiumores:end_stone_redstone_ore",
+    "elysiumores:frost_redstone_ore",
+    "elysiumores:netherrack_redstone_ore",
+    "elysiumores:pale_redstone_ore"
+  ]
+}

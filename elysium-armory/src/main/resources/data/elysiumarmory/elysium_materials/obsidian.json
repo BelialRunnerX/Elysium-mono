@@ -1,0 +1,65 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:obsidians",
+    "categories": [
+      "rock",
+      "advanced"
+    ]
+  },
+  "display": {
+    "name": "Obsidian"
+  },
+  "properties": {
+    "main": {
+      "durability": 1024.0,
+      "armor_durability": 13.0,
+      "harvest_tier": "obsidian",
+      "harvest_speed": 6.0,
+      "attack_damage": 3.0,
+      "attack_speed": -0.4,
+      "magic_damage": 2.0,
+      "ranged_damage": 0.0,
+      "draw_speed": -0.4,
+      "projectile_speed": 0.7,
+      "projectile_accuracy": 0.7,
+      "armor": 20.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 8.0,
+      "armor/leggings": 6.0,
+      "armor/boots": 3.0,
+      "armor_toughness": 4.0,
+      "magic_armor": 8.0,
+      "enchantment_value": 7.0,
+      "charging_value": 0.6,
+      "rarity": 10.0,
+      "repair_value": -0.25,
+      "traits": [
+        {
+          "trait": "jagged",
+          "level": 3
+        },
+        {
+          "trait": "crushing",
+          "level": 2
+        }
+      ]
+    },
+    "rod": {
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": -0.1
+      },
+      "traits": [
+        {
+          "trait": "brittle",
+          "level": 2
+        },
+        {
+          "trait": "chipping",
+          "level": 3
+        }
+      ]
+    }
+  }
+}

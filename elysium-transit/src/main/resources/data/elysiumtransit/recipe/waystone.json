@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SSS",
+    "SES",
+    "SWS"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:deepslate_tiles"
+    },
+    "E": {
+      "item": "minecraft:ender_pearl"
+    },
+    "W": {
+      "item": "elysiumindustry:copper_wire"
+    }
+  },
+  "result": {
+    "id": "elysiumtransit:waystone",
+    "count": 1
+  }
+}

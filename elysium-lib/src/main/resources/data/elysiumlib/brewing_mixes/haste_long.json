@@ -1,0 +1,5 @@
+{
+  "from": "elysiumlib:haste",
+  "ingredient": "minecraft:redstone",
+  "to": "elysiumlib:long_haste"
+}

@@ -1,0 +1,42 @@
+{
+  "name": "Stellar",
+  "max_level": 5,
+  "description": "Armor gives speed and jump boost, items slowly repair themselves",
+  "effects": [
+    {
+      "type": "self_repair",
+      "interval": 20,
+      "chance_per_level": 0.02,
+      "amount_per_level": 1
+    },
+    {
+      "type": "wielder_effect",
+      "targets": [
+        {
+          "gear": "armor",
+          "effect": "minecraft:speed",
+          "mode": "piece_count",
+          "levels": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "duration": 38
+        },
+        {
+          "gear": "armor",
+          "effect": "minecraft:jump_boost",
+          "mode": "piece_count",
+          "levels": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "duration": 38
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "minecraft:phantom_membrane",
+    "categories": [
+      "organic",
+      "cloth",
+      "intermediate"
+    ]
+  },
+  "display": {
+    "name": "Phantom Membrane"
+  },
+  "properties": {
+    "main": {
+      "durability": 0.0,
+      "armor_durability": 12.0,
+      "armor": 6.0,
+      "armor/helmet": 1.0,
+      "armor/chestplate": 2.0,
+      "armor/leggings": 2.0,
+      "armor/boots": 1.0,
+      "magic_armor": 8.0,
+      "enchantment_value": 10.0,
+      "charging_value": 0.7,
+      "rarity": 35.0,
+      "armor_durability/elytra": 17.0,
+      "traits": [
+        {
+          "trait": "renew",
+          "level": 2,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    },
+    "grip": {
+      "attack_speed": {
+        "op": "add",
+        "value": 0.2
+      },
+      "harvest_speed": {
+        "op": "multiply_base",
+        "value": 0.1
+      },
+      "repair_efficiency": {
+        "op": "multiply_base",
+        "value": 0.15
+      },
+      "traits": [
+        {
+          "trait": "ancient",
+          "level": 2
+        }
+      ]
+    },
+    "lining": {
+      "traits": [
+        {
+          "trait": "light",
+          "level": 2
+        },
+        {
+          "trait": "flexible",
+          "level": 3
+        }
+      ]
+    }
+  }
+}

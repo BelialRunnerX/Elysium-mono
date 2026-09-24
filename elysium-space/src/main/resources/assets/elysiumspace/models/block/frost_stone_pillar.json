@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "elysiumspace:block/frost_stone_pillar",
+    "end": "elysiumspace:block/frost_stone_pillar_top"
+  }
+}

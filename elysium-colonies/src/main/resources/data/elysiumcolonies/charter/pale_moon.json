@@ -1,0 +1,14 @@
+{
+  "dimension": "elysiumspace:pale_moon",
+  "natives": [
+    "iron",
+    "steel",
+    "silver",
+    "lead",
+    "tin"
+  ],
+  "hazard": 1.6,
+  "air": "none",
+  "reach": 2,
+  "style": "Pale Reach"
+}

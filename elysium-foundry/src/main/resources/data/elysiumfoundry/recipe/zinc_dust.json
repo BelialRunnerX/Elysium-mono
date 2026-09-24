@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:zinc_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:zinc_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumspace:pale_steel_ore",
+    "elysiumspace:steel_ore",
+    "elysiumspace:deepslate_steel_ore"
+  ]
+}

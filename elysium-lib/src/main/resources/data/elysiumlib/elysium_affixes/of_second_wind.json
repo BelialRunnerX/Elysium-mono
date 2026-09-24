@@ -1,0 +1,24 @@
+{
+  "type": "suffix",
+  "on": [
+    "armor"
+  ],
+  "min_tier": 3,
+  "weight": 4,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "elysiumlib:overheal",
+          "operation": "add_value",
+          "slot": "any",
+          "min": 0.05,
+          "max": 0.2,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

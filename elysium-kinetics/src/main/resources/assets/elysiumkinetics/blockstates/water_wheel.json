@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumkinetics:block/water_wheel"
+    },
+    "axis=x": {
+      "model": "elysiumkinetics:block/water_wheel",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/water_wheel",
+      "x": 90
+    }
+  }
+}

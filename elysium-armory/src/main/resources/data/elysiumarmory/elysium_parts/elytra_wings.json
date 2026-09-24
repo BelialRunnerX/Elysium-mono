@@ -1,0 +1,22 @@
+{
+  "type": "core",
+  "gear_type": "elytra",
+  "part_type": "main",
+  "crafting": {
+    "materials": 6,
+    "categories": [
+      "cloth",
+      "sheet"
+    ]
+  },
+  "properties": {
+    "armor": [
+      {
+        "op": "multiply_base",
+        "value": -0.65
+      },
+      -3.5
+    ],
+    "repair_efficiency": 1.0
+  }
+}

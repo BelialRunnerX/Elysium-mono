@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createaddition:electrum_ingot",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:ingot_electrum",
+      "required": false
+    },
+    {
+      "id": "oritech:electrum_ingot",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "type": "simple",
+  "parent": "elysiumarmory:wool",
+  "crafting": {
+    "ingredient": "minecraft:green_wool"
+  },
+  "display": {
+    "name": "Green Wool"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "item": "elysiumfoundry:constantan_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:constantan_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

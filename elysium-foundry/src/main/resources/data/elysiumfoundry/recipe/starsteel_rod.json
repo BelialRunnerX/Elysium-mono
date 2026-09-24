@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " I ",
+    " I "
+  ],
+  "key": {
+    "I": {
+      "item": "elysiumfoundry:starsteel_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:starsteel_rod",
+    "count": 2
+  }
+}

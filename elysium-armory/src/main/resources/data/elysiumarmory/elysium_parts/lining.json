@@ -1,0 +1,8 @@
+{
+  "type": "core",
+  "gear_type": "armor",
+  "part_type": "lining",
+  "crafting": {
+    "materials": 1
+  }
+}

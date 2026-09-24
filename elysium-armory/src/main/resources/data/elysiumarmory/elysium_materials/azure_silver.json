@@ -1,0 +1,111 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/azure_silver",
+    "categories": [
+      "metal",
+      "advanced"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/azure_silver"
+    }
+  },
+  "display": {
+    "name": "Azure Silver"
+  },
+  "properties": {
+    "main": {
+      "durability": 197.0,
+      "armor_durability": 17.0,
+      "harvest_tier": "azure_silver",
+      "harvest_speed": 19.0,
+      "attack_damage": 5.0,
+      "attack_speed": 0.0,
+      "magic_damage": 7.0,
+      "ranged_damage": 2.0,
+      "draw_speed": 0.0,
+      "projectile_speed": 1.2,
+      "projectile_accuracy": 1.1,
+      "armor": 13.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 5.0,
+      "armor/leggings": 4.0,
+      "armor/boots": 2.0,
+      "magic_armor": 13.0,
+      "enchantment_value": 29.0,
+      "charging_value": 1.4,
+      "rarity": 83.0,
+      "repair_value": 0.5,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        },
+        {
+          "trait": "soft",
+          "level": 2
+        },
+        {
+          "trait": "moonwalker",
+          "level": 4,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    },
+    "rod": {
+      "durability": {
+        "op": "multiply_total",
+        "value": -0.2
+      },
+      "harvest_speed": {
+        "op": "add",
+        "value": 3.0
+      },
+      "traits": [
+        {
+          "trait": "bending",
+          "level": 2
+        }
+      ]
+    },
+    "tip": {
+      "armor_durability": {
+        "op": "add",
+        "value": 3.0
+      },
+      "attack_speed": {
+        "op": "add",
+        "value": 0.2
+      },
+      "durability": {
+        "op": "add",
+        "value": 83.0
+      },
+      "harvest_speed": {
+        "op": "add",
+        "value": 3.0
+      },
+      "harvest_tier": "azure_silver",
+      "magic_damage": {
+        "op": "add",
+        "value": 2.0
+      },
+      "rarity": {
+        "op": "add",
+        "value": 31.0
+      },
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        },
+        {
+          "trait": "fortunate",
+          "level": 3
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:osmium_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:osmium_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

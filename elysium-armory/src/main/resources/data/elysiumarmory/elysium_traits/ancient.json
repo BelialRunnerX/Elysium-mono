@@ -1,0 +1,13 @@
+{
+  "name": "Ancient",
+  "max_level": 5,
+  "description": "Increases XP dropped by blocks and mobs",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

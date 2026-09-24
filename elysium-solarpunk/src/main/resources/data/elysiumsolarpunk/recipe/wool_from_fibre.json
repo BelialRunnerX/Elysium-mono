@@ -1,0 +1,13 @@
+{
+  "type": "elysiumsolarpunk:weaving",
+  "input": {
+    "item": "elysiumsolarpunk:plant_fibre"
+  },
+  "result": {
+    "id": "minecraft:white_wool",
+    "count": 2
+  },
+  "time": 240,
+  "energy": 480,
+  "input_count": 4
+}

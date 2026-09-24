@@ -1,0 +1,16 @@
+{
+  "type": "prefix",
+  "on": [
+    "melee_weapon"
+  ],
+  "min_tier": 2,
+  "weight": 4,
+  "max_level": 2,
+  "effects": [
+    {
+      "type": "wind_blast",
+      "radius_per_level": 2.0,
+      "strength_per_level": 0.4
+    }
+  ]
+}

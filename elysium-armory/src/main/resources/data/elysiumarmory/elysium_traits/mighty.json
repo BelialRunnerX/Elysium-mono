@@ -1,0 +1,54 @@
+{
+  "name": "Mighty",
+  "max_level": 5,
+  "description": "Gives strength and/or haste on tools based on trait level",
+  "conditions": [
+    "any:on:tool,on:curio"
+  ],
+  "effects": [
+    {
+      "type": "wielder_effect",
+      "targets": [
+        {
+          "gear": "curio",
+          "effect": "minecraft:haste",
+          "mode": "trait_level",
+          "levels": [
+            1,
+            1,
+            2,
+            2,
+            3
+          ],
+          "duration": 38
+        },
+        {
+          "gear": "tool",
+          "effect": "minecraft:strength",
+          "mode": "trait_level",
+          "levels": [
+            0,
+            0,
+            1,
+            1,
+            2
+          ],
+          "duration": 38
+        },
+        {
+          "gear": "tool",
+          "effect": "minecraft:haste",
+          "mode": "trait_level",
+          "levels": [
+            1,
+            1,
+            1,
+            2,
+            3
+          ],
+          "duration": 38
+        }
+      ]
+    }
+  ]
+}

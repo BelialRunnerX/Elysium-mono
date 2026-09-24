@@ -1,0 +1,5 @@
+{
+  "from": "elysiumlib:grievous",
+  "ingredient": "minecraft:redstone",
+  "to": "elysiumlib:long_grievous"
+}

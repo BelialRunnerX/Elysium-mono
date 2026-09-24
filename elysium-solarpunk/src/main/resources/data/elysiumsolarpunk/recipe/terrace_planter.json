@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "w w",
+    "wdw",
+    "www"
+  ],
+  "key": {
+    "w": {
+      "item": "elysiumsolarpunk:woven_cane"
+    },
+    "d": {
+      "item": "minecraft:dirt"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:terrace_planter",
+    "count": 2
+  }
+}

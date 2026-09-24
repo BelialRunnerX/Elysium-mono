@@ -1,0 +1,35 @@
+{
+  "display": {
+    "icon": {
+      "id": "elysiumspawners:rune_of_haste",
+      "count": 1
+    },
+    "title": {
+      "translate": "advancements.elysiumspawners.root.title"
+    },
+    "description": {
+      "translate": "advancements.elysiumspawners.root.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "background": "minecraft:textures/block/spawner.png"
+  },
+  "criteria": {
+    "rune": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "elysiumspawners:rune_of_haste"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "rune"
+    ]
+  ]
+}

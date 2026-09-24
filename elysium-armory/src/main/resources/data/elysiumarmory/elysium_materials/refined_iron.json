@@ -1,0 +1,67 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/refined_iron",
+    "categories": [
+      "metal",
+      "intermediate"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/refined_iron"
+    }
+  },
+  "display": {
+    "name": "Refined Iron"
+  },
+  "properties": {
+    "main": {
+      "durability": 512.0,
+      "armor_durability": 20.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 7.0,
+      "attack_damage": 3.0,
+      "attack_speed": 0.0,
+      "magic_damage": 2.0,
+      "ranged_damage": 2.0,
+      "draw_speed": 0.0,
+      "armor": 18.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 7.0,
+      "armor/leggings": 5.0,
+      "armor/boots": 3.0,
+      "armor_toughness": 2.0,
+      "magic_armor": 6.0,
+      "enchantment_value": 15.0,
+      "charging_value": 0.8,
+      "rarity": 25.0,
+      "repair_value": -0.15,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 4
+        },
+        {
+          "trait": "stellar",
+          "level": 1
+        }
+      ]
+    },
+    "rod": {
+      "durability": {
+        "op": "multiply_total",
+        "value": 0.15
+      },
+      "ranged_damage": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "rarity": 25.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 4
+        }
+      ]
+    }
+  }
+}

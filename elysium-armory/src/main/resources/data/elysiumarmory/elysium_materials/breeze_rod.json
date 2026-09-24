@@ -1,0 +1,40 @@
+{
+  "type": "simple",
+  "crafting": {
+    "categories": [
+      "metal"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/breeze"
+    }
+  },
+  "display": {
+    "name": "Breeze Rod"
+  },
+  "properties": {
+    "rod": {
+      "attack_damage": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "ranged_damage": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 4
+        },
+        {
+          "trait": "wind_blast",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

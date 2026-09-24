@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:storage_constantan",
+      "required": false
+    },
+    {
+      "id": "tfmg:constantan_block",
+      "required": false
+    }
+  ]
+}

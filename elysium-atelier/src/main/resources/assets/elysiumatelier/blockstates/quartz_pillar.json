@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumatelier:block/quartz_pillar"
+    },
+    "axis=x": {
+      "model": "elysiumatelier:block/quartz_pillar",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumatelier:block/quartz_pillar",
+      "x": 90
+    }
+  }
+}

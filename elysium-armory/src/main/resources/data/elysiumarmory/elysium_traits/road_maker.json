@@ -1,0 +1,17 @@
+{
+  "name": "Road Maker",
+  "max_level": 1,
+  "description": "Turns dirt-like blocks into grass paths",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "block_filler",
+      "from": "minecraft:grass_block",
+      "to": "minecraft:dirt_path",
+      "range": 1,
+      "cost": 0.5
+    }
+  ]
+}

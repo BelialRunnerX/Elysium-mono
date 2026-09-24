@@ -1,0 +1,25 @@
+{
+  "name": "Hard",
+  "max_level": 5,
+  "description": "Increases harvest speed or decreases ranged damage as item is damaged",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "property",
+      "modifiers": {
+        "harvest_speed": {
+          "per_level": 0.05,
+          "damage_ratio": true,
+          "of_value": true
+        },
+        "ranged_damage": {
+          "per_level": -0.1,
+          "damage_ratio": true,
+          "of_value": true
+        }
+      }
+    }
+  ]
+}

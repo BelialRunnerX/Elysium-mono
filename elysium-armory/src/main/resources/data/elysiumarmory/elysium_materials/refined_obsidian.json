@@ -1,0 +1,79 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/refined_obsidian",
+    "categories": [
+      "metal",
+      "endgame"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/refined_obsidian"
+    }
+  },
+  "display": {
+    "name": "Refined Obsidian"
+  },
+  "properties": {
+    "main": {
+      "durability": 2500.0,
+      "armor_durability": 50.0,
+      "harvest_tier": "diamond",
+      "harvest_speed": 20.0,
+      "attack_damage": 10.0,
+      "attack_speed": 0.3,
+      "magic_damage": 4.0,
+      "ranged_damage": 4.0,
+      "draw_speed": 0.2,
+      "armor": 30.0,
+      "armor/helmet": 5.0,
+      "armor/chestplate": 12.0,
+      "armor/leggings": 8.0,
+      "armor/boots": 5.0,
+      "armor_toughness": 16.0,
+      "magic_armor": 6.0,
+      "enchantment_value": 40.0,
+      "charging_value": 0.8,
+      "rarity": 70.0,
+      "repair_value": -0.3,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        },
+        {
+          "trait": "hard",
+          "level": 4
+        }
+      ]
+    },
+    "rod": {
+      "durability": {
+        "op": "multiply_total",
+        "value": 0.25
+      },
+      "rarity": 70.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 4
+        },
+        {
+          "trait": "hard",
+          "level": 3
+        }
+      ]
+    },
+    "tip": {
+      "durability": {
+        "op": "add",
+        "value": 600.0
+      },
+      "traits": [
+        {
+          "trait": "vulcan",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

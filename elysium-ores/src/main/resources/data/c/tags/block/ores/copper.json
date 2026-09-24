@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_copper_ore",
+    "elysiumores:end_stone_copper_ore",
+    "elysiumores:frost_copper_ore",
+    "elysiumores:netherrack_copper_ore",
+    "elysiumores:pale_copper_ore"
+  ]
+}

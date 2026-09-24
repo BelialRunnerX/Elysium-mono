@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "item": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "elysiumindustry:iron_plate",
+    "count": 1
+  },
+  "ticks": 100
+}

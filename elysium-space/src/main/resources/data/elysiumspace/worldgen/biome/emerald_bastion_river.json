@@ -1,0 +1,101 @@
+{
+  "has_precipitation": true,
+  "temperature": 0.8,
+  "downfall": 0.6,
+  "effects": {
+    "sky_color": 7323534,
+    "fog_color": 10475698,
+    "water_color": 2062938,
+    "water_fog_color": 733990,
+    "grass_color": 3968078,
+    "foliage_color": 3050314,
+    "mood_sound": {
+      "block_search_extent": 8,
+      "offset": 2.0,
+      "sound": "minecraft:ambient.cave",
+      "tick_delay": 6000
+    }
+  },
+  "spawners": {
+    "monster": [],
+    "creature": [
+      {
+        "type": "minecraft:sheep",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 12
+      },
+      {
+        "type": "minecraft:pig",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 10
+      },
+      {
+        "type": "minecraft:chicken",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 10
+      },
+      {
+        "type": "minecraft:cow",
+        "maxCount": 4,
+        "minCount": 4,
+        "weight": 8
+      },
+      {
+        "type": "minecraft:horse",
+        "maxCount": 6,
+        "minCount": 2,
+        "weight": 5
+      },
+      {
+        "type": "minecraft:donkey",
+        "maxCount": 3,
+        "minCount": 1,
+        "weight": 1
+      }
+    ],
+    "ambient": [],
+    "water_creature": [],
+    "water_ambient": [],
+    "underground_water_creature": [],
+    "axolotls": [],
+    "misc": []
+  },
+  "spawn_costs": {},
+  "carvers": {
+    "air": [
+      "minecraft:cave",
+      "minecraft:cave_extra_underground",
+      "minecraft:canyon"
+    ]
+  },
+  "features": [
+    [],
+    [
+      "elysiumspace:emerald_bastion_lake"
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+      "elysiumspace:emerald_bastion_ore_coal",
+      "elysiumspace:emerald_bastion_ore_iron",
+      "elysiumspace:emerald_bastion_ore_copper",
+      "elysiumspace:emerald_bastion_ore_gold",
+      "elysiumspace:emerald_bastion_ore_redstone",
+      "elysiumspace:emerald_bastion_ore_lapis",
+      "elysiumspace:emerald_bastion_ore_diamond",
+      "elysiumspace:emerald_bastion_ore_emerald"
+    ],
+    [],
+    [],
+    [
+      "minecraft:patch_grass_plain",
+      "minecraft:flower_plains"
+    ],
+    []
+  ]
+}

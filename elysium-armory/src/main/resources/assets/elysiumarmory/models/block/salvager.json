@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "elysiumarmory:block/salvager_top",
+    "side": "elysiumarmory:block/salvager_side",
+    "bottom": "elysiumarmory:block/salvager_side"
+  }
+}

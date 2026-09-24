@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " N ",
+    "FBF",
+    "FEF"
+  ],
+  "key": {
+    "N": {
+      "item": "elysiumspace:rocket_nose_cone"
+    },
+    "F": {
+      "item": "elysiumspace:rocket_fin"
+    },
+    "B": {
+      "tag": "c:storage_blocks/steel"
+    },
+    "E": {
+      "item": "elysiumspace:rocket_engine"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:rocket"
+  }
+}

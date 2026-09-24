@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumfoundry:aluminum_ingot"
+    }
+  ],
+  "result": {
+    "id": "elysiumfoundry:aluminum_nugget",
+    "count": 9
+  }
+}

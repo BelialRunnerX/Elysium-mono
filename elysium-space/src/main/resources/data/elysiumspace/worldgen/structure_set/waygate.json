@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "elysiumspace:waygate",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 1783551617,
+    "spacing": 40,
+    "separation": 15
+  }
+}

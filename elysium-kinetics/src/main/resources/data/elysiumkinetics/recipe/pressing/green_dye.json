@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:pressing",
+  "input": {
+    "item": "minecraft:cactus"
+  },
+  "result": {
+    "id": "minecraft:green_dye",
+    "count": 2
+  },
+  "ticks": 160,
+  "pace": "steady"
+}

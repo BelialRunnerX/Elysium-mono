@@ -151,6 +151,14 @@ public final class ElysiumStanding {
     /** Planting a Registry Beacon, or building inside a claim. §14.2. */
     public static final String CAUSE_CLAIM = "claim";
     /** Time passing. The only cause that is always negative. */
+    /**
+     * An unregistered works, found. {@code ElysiumWorksHandler}.
+     *
+     * Its own cause rather than {@link #CAUSE_CLAIM}: a claim is a file you
+     * opened, and this is one the Empire opened for you. The archive should
+     * say which.
+     */
+    public static final String CAUSE_WORKS = "works";
     public static final String CAUSE_DECAY = "decay";
     /** Clearing a register action. §14.3's success row. */
     public static final String CAUSE_CLEARED = "cleared";
@@ -255,6 +263,27 @@ public final class ElysiumStanding {
         }
         if (value >= NOTICE) {
             return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * The thresholds {@link #bandOf} switches on, lowest first.
+     *
+     * Exposed so that a readout can say "nineteen from Marked" rather than
+     * leaving a player to work out where the edges are by crossing them. The
+     * array is the same set of numbers bandOf uses and there is a check that
+     * says so — two copies of a threshold is two chances for a readout to
+     * promise something the meter does not do.
+     */
+    public static final int[] BAND_THRESHOLDS = {NOTICE, 50, 75};
+
+    /** How far to the next band, or 0 at the top. */
+    public static int toNextBand(int value) {
+        for (int threshold : BAND_THRESHOLDS) {
+            if (value < threshold) {
+                return threshold - value;
+            }
         }
         return 0;
     }
@@ -415,7 +444,50 @@ public final class ElysiumStanding {
      * plant a beacon and every world where no mod supplies one.
      */
     public static int floorFor(Player player) {
-        return com.elysium.lib.claim.ElysiumClaims.floorFor(player);
+        int floor = com.elysium.lib.claim.ElysiumClaims.floorFor(player);
+        for (FloorSource source : FLOOR_SOURCES) {
+            floor = Math.max(floor, Math.max(0, source.floorFor(player)));
+        }
+        return floor;
+    }
+
+    /**
+     * Something other than a claim that the Empire has noticed.
+     *
+     * A claim is this library's own answer to "you cannot be quietly forgotten
+     * while standing on something with your name on it", and it is the only
+     * one the library ships. But a beacon is not the only way to put your name
+     * on a place: a mod that adds settlements, towns or territory has exactly
+     * the same fact to state, and no way to state it without this.
+     *
+     * <p>The highest floor wins rather than the sum. Two names on one place is
+     * still one place, and a player with a beacon inside their own town should
+     * not be noticed twice for it.
+     */
+    @FunctionalInterface
+    public interface FloorSource {
+        int floorFor(Player player);
+    }
+
+    private static final java.util.List<FloorSource> FLOOR_SOURCES =
+            new java.util.concurrent.CopyOnWriteArrayList<>();
+
+    /**
+     * Adds a source of Suspicion floor.
+     *
+     * Called during startup by whatever mod owns the thing being noticed.
+     * Copy-on-write because registration happens on the mod thread and the
+     * floor is read on the decay tick.
+     */
+    public static void addFloorSource(FloorSource source) {
+        if (source != null) {
+            FLOOR_SOURCES.add(source);
+        }
+    }
+
+    /** How many sources are installed, for a validator or a debug command. */
+    public static int floorSourceCount() {
+        return FLOOR_SOURCES.size();
     }
 
     /**

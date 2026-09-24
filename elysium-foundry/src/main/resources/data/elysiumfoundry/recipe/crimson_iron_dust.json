@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:crimson_iron_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:crimson_iron_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

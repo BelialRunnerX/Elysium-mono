@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MM",
+    "MM",
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:deepslate"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:deepslate_door",
+    "count": 3
+  }
+}

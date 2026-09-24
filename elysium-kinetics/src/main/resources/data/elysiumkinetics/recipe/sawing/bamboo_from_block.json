@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:sawing",
+  "input": {
+    "item": "minecraft:bamboo_block"
+  },
+  "result": {
+    "id": "minecraft:bamboo",
+    "count": 9
+  },
+  "ticks": 100,
+  "pace": "steady"
+}

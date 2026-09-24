@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumspace:cindrium_nugget"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:cindrium_ingot"
+  }
+}

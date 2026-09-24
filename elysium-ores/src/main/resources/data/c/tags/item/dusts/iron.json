@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:dust_iron",
+      "required": false
+    },
+    {
+      "id": "mekanism:dust_iron",
+      "required": false
+    },
+    {
+      "id": "oritech:iron_dust",
+      "required": false
+    }
+  ]
+}

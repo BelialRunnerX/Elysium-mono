@@ -1,0 +1,70 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/invar",
+    "categories": [
+      "metal",
+      "intermediate"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/invar"
+    }
+  },
+  "display": {
+    "name": "Invar"
+  },
+  "properties": {
+    "main": {
+      "durability": 640.0,
+      "armor_durability": 20.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 7.0,
+      "attack_damage": 3.5,
+      "attack_speed": 0.0,
+      "magic_damage": 3.0,
+      "ranged_damage": 2.0,
+      "draw_speed": 0.0,
+      "armor": 18.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 8.0,
+      "armor/leggings": 6.0,
+      "armor/boots": 2.0,
+      "armor_toughness": 2.0,
+      "magic_armor": 6.0,
+      "enchantment_value": 13.0,
+      "charging_value": 1.2,
+      "rarity": 50.0,
+      "repair_value": 0.15,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        },
+        {
+          "trait": "adamant",
+          "level": 2,
+          "conditions": [
+            "(count>=3 OR ratio>=0.35)"
+          ]
+        }
+      ]
+    },
+    "rod": {
+      "attack_damage": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "durability": {
+        "op": "multiply_total",
+        "value": 0.3
+      },
+      "rarity": 50.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        }
+      ]
+    }
+  }
+}

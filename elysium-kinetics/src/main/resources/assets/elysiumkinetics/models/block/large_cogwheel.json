@@ -1,0 +1,42 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "face": "elysiumkinetics:block/large_cogwheel",
+    "rim": "elysiumkinetics:block/cogwheel_side",
+    "particle": "elysiumkinetics:block/large_cogwheel"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        4.0,
+        0
+      ],
+      "to": [
+        16,
+        12.0,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#face"
+        },
+        "up": {
+          "texture": "#face"
+        },
+        "north": {
+          "texture": "#rim"
+        },
+        "south": {
+          "texture": "#rim"
+        },
+        "west": {
+          "texture": "#rim"
+        },
+        "east": {
+          "texture": "#rim"
+        }
+      }
+    }
+  ]
+}

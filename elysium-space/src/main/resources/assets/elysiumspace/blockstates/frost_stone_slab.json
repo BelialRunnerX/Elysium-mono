@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "elysiumspace:block/frost_stone_slab"
+    },
+    "type=double": {
+      "model": "elysiumspace:block/frost_stone"
+    },
+    "type=top": {
+      "model": "elysiumspace:block/frost_stone_slab_top"
+    }
+  }
+}

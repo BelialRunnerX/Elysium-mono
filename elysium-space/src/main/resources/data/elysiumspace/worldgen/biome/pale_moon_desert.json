@@ -1,0 +1,61 @@
+{
+  "temperature": 0.5,
+  "downfall": 0,
+  "has_precipitation": false,
+  "effects": {
+    "sky_color": 2105376,
+    "fog_color": 1447444,
+    "water_color": 4159204,
+    "water_fog_color": 329011,
+    "grass_color": 9551193,
+    "foliage_color": 7842607
+  },
+  "creature_spawn_probability": 0.2,
+  "spawners": {
+    "monster": [
+      {
+        "type": "elysiumspace:hollow_moonfolk",
+        "weight": 55,
+        "minCount": 1,
+        "maxCount": 1
+      },
+      {
+        "type": "elysiumspace:void_crawler",
+        "weight": 45,
+        "minCount": 1,
+        "maxCount": 3
+      }
+    ]
+  },
+  "spawn_costs": {
+    "elysiumspace:hollow_moonfolk": {
+      "energy_budget": 0.015,
+      "charge": 0.2
+    },
+    "elysiumspace:void_crawler": {
+      "energy_budget": 0.015,
+      "charge": 0.4
+    }
+  },
+  "carvers": {
+    "air": [
+      "minecraft:cave",
+      "minecraft:cave_extra_underground",
+      "minecraft:canyon"
+    ]
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "minecraft:large_dripstone",
+      "elysiumspace:pale_moon_dripstone_cluster",
+      "minecraft:pointed_dripstone"
+    ]
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "elysiumsolarpunk:block/mycelium_press_front",
+    "side": "elysiumsolarpunk:block/mycelium_press_side",
+    "top": "elysiumsolarpunk:block/mycelium_press_top"
+  }
+}

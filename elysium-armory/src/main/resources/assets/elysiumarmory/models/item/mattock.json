@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarmory:item/mattock",
+    "layer1": "elysiumarmory:item/mattock_grip"
+  }
+}

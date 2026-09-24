@@ -1,0 +1,7 @@
+{
+  "block": "minecraft:conduit",
+  "quanta": 1.0,
+  "rectification": 0.08,
+  "max_eterna": 55.0,
+  "_why": "it keeps its own weather"
+}

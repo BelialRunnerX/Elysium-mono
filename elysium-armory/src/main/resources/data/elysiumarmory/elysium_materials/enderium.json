@@ -1,0 +1,63 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/enderium",
+    "categories": [
+      "metal",
+      "endgame"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/enderium"
+    }
+  },
+  "display": {
+    "name": "Enderium"
+  },
+  "properties": {
+    "main": {
+      "durability": 1200.0,
+      "armor_durability": 34.0,
+      "harvest_tier": "netherite",
+      "harvest_speed": 18.0,
+      "attack_damage": 6.0,
+      "attack_speed": 0.0,
+      "magic_damage": 4.0,
+      "ranged_damage": 3.0,
+      "draw_speed": 0.0,
+      "armor": 22.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 9.0,
+      "armor/leggings": 7.0,
+      "armor/boots": 3.0,
+      "armor_toughness": 8.0,
+      "magic_armor": 10.0,
+      "enchantment_value": 13.0,
+      "charging_value": 1.2,
+      "rarity": 80.0,
+      "repair_value": 0.15,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        }
+      ]
+    },
+    "rod": {
+      "durability": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "rarity": 60.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

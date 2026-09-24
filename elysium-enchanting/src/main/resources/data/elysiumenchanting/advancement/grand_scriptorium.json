@@ -1,0 +1,35 @@
+{
+  "display": {
+    "icon": {
+      "id": "elysiumenchanting:grand_scriptorium",
+      "count": 1
+    },
+    "title": {
+      "translate": "advancements.elysiumenchanting.grand_scriptorium.title"
+    },
+    "description": {
+      "translate": "advancements.elysiumenchanting.grand_scriptorium.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "shelf": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "elysiumenchanting:grand_scriptorium"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "shelf"
+    ]
+  ],
+  "parent": "elysiumenchanting:scriptorium"
+}

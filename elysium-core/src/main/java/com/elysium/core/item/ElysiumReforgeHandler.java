@@ -5,6 +5,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import com.elysium.lib.item.ElysiumGearData;
+import com.elysium.lib.item.ElysiumGear;
 import com.elysium.lib.item.ElysiumSocketable;
 import com.elysium.lib.item.ElysiumSockets;
 import com.elysium.lib.item.ElysiumRarities;
@@ -52,7 +53,8 @@ public final class ElysiumReforgeHandler {
         // effective tier and the gear data component, both of which live on
         // ElysiumSocketable - the armour-only check was the sole reason a
         // weapon or tool could not be reforged.
-        if (!(gearStack.getItem() instanceof ElysiumSocketable gear)) {
+        ElysiumSocketable gear = ElysiumGear.of(gearStack);
+        if (gear == null) {
             return ItemStack.EMPTY;
         }
 

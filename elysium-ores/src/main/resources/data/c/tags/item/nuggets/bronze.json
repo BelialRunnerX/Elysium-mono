@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createbigcannons:bronze_scrap",
+      "required": false
+    },
+    {
+      "id": "mekanism:nugget_bronze",
+      "required": false
+    }
+  ]
+}

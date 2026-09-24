@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "NNN",
+    "NNN",
+    "NNN"
+  ],
+  "key": {
+    "N": {
+      "item": "elysiumfoundry:cast_iron_nugget"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:cast_iron_ingot",
+    "count": 1
+  }
+}

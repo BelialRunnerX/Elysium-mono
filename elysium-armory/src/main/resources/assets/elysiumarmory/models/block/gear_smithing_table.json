@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "elysiumarmory:block/gear_smithing_table_top",
+    "side": "elysiumarmory:block/gear_smithing_table_side",
+    "bottom": "elysiumarmory:block/gear_smithing_table_side"
+  }
+}

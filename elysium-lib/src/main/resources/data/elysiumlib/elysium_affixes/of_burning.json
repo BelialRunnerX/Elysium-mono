@@ -1,0 +1,17 @@
+{
+  "type": "suffix",
+  "on": [
+    "weapon",
+    "not:ranged_weapon"
+  ],
+  "min_tier": 0,
+  "weight": 10,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "target_effect",
+      "effect": "minecraft:instant_damage",
+      "ticks_per_level": 1
+    }
+  ]
+}

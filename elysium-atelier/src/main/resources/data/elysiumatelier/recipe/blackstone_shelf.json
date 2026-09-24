@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:blackstone"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:blackstone_shelf",
+    "count": 4
+  }
+}

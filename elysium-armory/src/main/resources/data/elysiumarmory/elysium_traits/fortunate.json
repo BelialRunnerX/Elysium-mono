@@ -1,0 +1,20 @@
+{
+  "name": "Fortunate",
+  "max_level": 3,
+  "description": "Adds Fortune to tools",
+  "conditions": [
+    "on:harvest_tool"
+  ],
+  "effects": [
+    {
+      "type": "enchantment",
+      "enchantments": {
+        "minecraft:fortune": [
+          1,
+          2,
+          3
+        ]
+      }
+    }
+  ]
+}

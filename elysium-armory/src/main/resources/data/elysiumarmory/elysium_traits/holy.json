@@ -1,0 +1,16 @@
+{
+  "name": "Holy",
+  "max_level": 5,
+  "description": "Deals extra damage to the undead",
+  "conditions": [
+    "on:weapon"
+  ],
+  "effects": [
+    {
+      "type": "extra_damage",
+      "against": "tagged",
+      "per_level": 2.0,
+      "tag": "minecraft:undead"
+    }
+  ]
+}

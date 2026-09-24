@@ -1,0 +1,25 @@
+{
+  "type": "suffix",
+  "on": [
+    "armor"
+  ],
+  "min_tier": 1,
+  "weight": 7,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "wielder_effect",
+      "targets": [
+        {
+          "effect": "minecraft:speed",
+          "levels": [
+            0,
+            0,
+            1
+          ],
+          "duration": 60
+        }
+      ]
+    }
+  ]
+}

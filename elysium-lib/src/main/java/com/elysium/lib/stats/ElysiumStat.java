@@ -107,19 +107,82 @@ public final class ElysiumStat {
     // ------------------------------------------------------------------
 
     /**
-     * This stat's value as a proportion, for a raw point total.
+     * How much a raw point total is actually worth: linear, plus a square.
      *
-     * Flat stats return their raw value — the caller decides what a point is
-     * worth. Curved stats return a fraction below {@link #getCeiling()}.
+     * <pre>{@code   effective = stat + stat² / DIVISOR   }</pre>
+     *
+     * <h3>Why two terms</h3>
+     *
+     * A purely linear stat has the same slope at point one and at point five
+     * hundred, so a level in the late game is worth exactly what a level in the
+     * first hour was worth — which is the moment levelling stops being
+     * interesting. The square term is the opposite failure on its own: it makes
+     * the first few points worthless and the last few absurd.
+     *
+     * Together they are the shape that works. Below {@link #SCALING_DIVISOR}
+     * the linear term dominates and the stat behaves exactly as it always did;
+     * above it the square takes over and investment starts compounding. The
+     * divisor <em>is</em> the handover point — at a stat of {@code DIVISOR} the
+     * two terms are equal — so raising it delays the takeover and lowering it
+     * brings it forward. That is the one number to tune here.
+     *
+     * <h3>Why this is not the soft cap</h3>
+     *
+     * It is the opposite of one: unbounded and accelerating. The soft cap is
+     * the curve below, which this feeds. A proportional stat takes the
+     * accelerating value and puts it through {@code v / (v + halfway)}, so the
+     * compounding is real and still arrives nowhere — and because the values
+     * going in are now in the thousands, the halfway points are too, which is
+     * what makes the cap a distant thing rather than a wall.
      */
-    public float proportionOf(int points) {
-        if (shape == Shape.FLAT) {
-            return points;
-        }
+    // Was 512. Halved by the owner's ruling — "we want the player to scale
+    // really hard" — so the square term arrives twice as early and a late-game
+    // flat stat is roughly doubled. No ceiling either way.
+    public static final float SCALING_DIVISOR = 256.0F;
+
+    /** The linear-plus-square value a point total is really worth. */
+    public static float effective(int points) {
         if (points <= 0) {
             return 0.0F;
         }
-        return points / (points + halfway) * ceiling;
+        float raw = points;
+        return raw + raw * raw / SCALING_DIVISOR;
+    }
+
+    /**
+     * This stat's value as a proportion, for a raw point total.
+     *
+     * The point total is passed through {@link #effective} first, so every
+     * caller — this library's handlers, the character sheet, an add-on reading
+     * its own stat — sees the same scaling, and there is exactly one place the
+     * two-term function is applied.
+     *
+     * Flat stats return that value straight: the caller decides what a point is
+     * worth. Curved stats return a fraction below {@link #getCeiling()}.
+     */
+    public float proportionOf(int points) {
+        return curveOf(effective(points));
+    }
+
+    /**
+     * The curve itself, for a value that has already been scaled.
+     *
+     * Separated so the halfway point can be checked against the curve rather
+     * than against a point total — {@code proportionOf(halfway)} has not meant
+     * "half the ceiling" since the square term arrived, because the number
+     * reaching the curve is no longer the number that was passed in.
+     */
+    public float curveOf(float value) {
+        if (shape == Shape.FLAT) {
+            return value;
+        }
+        if (!(value > 0.0F)) {
+            return 0.0F;
+        }
+        // The one rule, ElysiumShares.share, so a curve stat cannot round to
+        // 100% in a float either. Elysium's own stats pass a ceiling of 1
+        // (ElysiumStats.UNCAPPED); the parameter stays for add-ons.
+        return ElysiumShares.share(value, halfway) * ceiling;
     }
 
     public Shape getShape() {

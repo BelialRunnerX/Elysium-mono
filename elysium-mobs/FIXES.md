@@ -685,3 +685,28 @@ Rendering. Everything else in five projects is compiled and validated; the
 models and textures are correct by construction and have never been drawn on a
 screen. That limit is worth stating plainly rather than letting a green
 validator imply more than it checked.
+
+## The bestiary's value range, and the anatomy that was not shipped
+
+Two things arrived together and only one of them is in the game.
+
+**Shipped.** A part is made of a material now — deep under-body, cloth, base,
+plate, bone — each with its own value and its own grain from `art/grain.py`,
+whose four surfaces are statistics measured off Mojang's own tiles rather than
+copies of them. The sheets had been failing twice over: three to four times
+darker than a vanilla entity, and then, once the mean was fixed, at a fifth of
+vanilla's *range*. A cow is near-black against near-white and the eye reads the
+contrast, not the average; one flat colour over a hundred parts is a shape with
+an outline and nothing inside it. The textures now measure mean 97, p5 44,
+p95 184, std 48.6 against a cow's 64.9 / 20.6 / 172.0 / 48.6.
+
+`elysium-mobs/validate.py` measures all forty-two sheets on every run, because
+both failures were invisible in a diff and obvious on a screen.
+
+**Not shipped.** `art/organic.py` generates a body from proportions — curved
+spines, ribs, articulated digits — and it is finished, correct and deliberately
+unwired. Measured against the hand-authored boxes it would replace, it was
+worse: a torso that read as stacked slabs, limbs that read as spider legs at
+the sixteen pixels these are actually seen at, and a lean that was never fully
+accounted for. The file's own header carries the detail. Shipping it would have
+been a regression dressed as an upgrade.

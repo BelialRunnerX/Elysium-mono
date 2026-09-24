@@ -1,0 +1,13 @@
+{
+  "type": "elysiumsolarpunk:pressing",
+  "input": {
+    "tag": "minecraft:leaves"
+  },
+  "result": {
+    "id": "elysiumsolarpunk:plant_fibre",
+    "count": 1
+  },
+  "time": 200,
+  "energy": 800,
+  "input_count": 8
+}

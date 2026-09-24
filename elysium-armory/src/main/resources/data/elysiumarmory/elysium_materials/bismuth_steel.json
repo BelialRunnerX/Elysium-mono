@@ -1,0 +1,70 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/bismuth_steel",
+    "categories": [
+      "metal",
+      "advanced"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/bismuth_steel"
+    }
+  },
+  "display": {
+    "name": "Bismuth Steel"
+  },
+  "properties": {
+    "main": {
+      "durability": 1050.0,
+      "armor_durability": 25.0,
+      "harvest_tier": "diamond",
+      "harvest_speed": 10.0,
+      "attack_damage": 4.0,
+      "attack_speed": -0.1,
+      "magic_damage": 5.0,
+      "ranged_damage": 3.0,
+      "draw_speed": 0.1,
+      "armor": 20.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 8.0,
+      "armor/leggings": 6.0,
+      "armor/boots": 3.0,
+      "armor_toughness": 4.0,
+      "magic_armor": 8.0,
+      "enchantment_value": 14.0,
+      "charging_value": 1.0,
+      "rarity": 60.0,
+      "repair_value": -0.15,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        },
+        {
+          "trait": "lustrous",
+          "level": 2,
+          "conditions": [
+            "ratio>=0.5"
+          ]
+        }
+      ]
+    },
+    "rod": {
+      "durability": {
+        "op": "multiply_total",
+        "value": 0.25
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.15
+      },
+      "rarity": 60.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        }
+      ]
+    }
+  }
+}

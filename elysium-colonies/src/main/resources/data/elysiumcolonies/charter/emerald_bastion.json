@@ -1,0 +1,17 @@
+{
+  "dimension": "elysiumspace:emerald_bastion",
+  "natives": [
+    "coal",
+    "copper",
+    "iron",
+    "gold",
+    "redstone",
+    "lapis",
+    "diamond",
+    "emerald"
+  ],
+  "hazard": 0,
+  "air": "breathable",
+  "reach": 6,
+  "style": "Bastion"
+}

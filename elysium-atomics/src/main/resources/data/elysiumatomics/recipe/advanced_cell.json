@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PGP",
+    "GBG",
+    "PGP"
+  ],
+  "key": {
+    "P": {
+      "tag": "c:plates/steel"
+    },
+    "G": {
+      "tag": "c:plates/gold"
+    },
+    "B": {
+      "item": "elysiumatomics:basic_cell"
+    }
+  },
+  "result": {
+    "id": "elysiumatomics:advanced_cell",
+    "count": 1
+  }
+}

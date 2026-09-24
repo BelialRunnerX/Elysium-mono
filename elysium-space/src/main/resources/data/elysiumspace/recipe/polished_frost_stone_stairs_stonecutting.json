@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "elysiumspace:frost_stone"
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:polished_frost_stone_stairs"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "dimension": "elysiumspace:cinderveil",
+  "natives": [
+    "coal",
+    "gold",
+    "diamond",
+    "copper",
+    "iron",
+    "zinc"
+  ],
+  "hazard": 2.5,
+  "air": "poor",
+  "reach": 4,
+  "style": "Cinderhold"
+}

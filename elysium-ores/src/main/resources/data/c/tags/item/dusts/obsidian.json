@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "create:powdered_obsidian",
+      "required": false
+    },
+    {
+      "id": "mekanism:dust_obsidian",
+      "required": false
+    }
+  ]
+}

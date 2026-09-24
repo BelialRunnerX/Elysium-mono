@@ -55,6 +55,10 @@ public final class ElysiumPalette {
     public static final int KINETIC = 0xFFE6B23C;
     public static final int FAVOR = 0xFF63B7E0;
     public static final int SUSPICION = 0xFFD1553F;
+    public static final int GAUGE_PLATE = 0xFF12171D;
+    public static final int HEALTH_LOW = 0xFFFF8A72;
+    public static final int SATURATION = 0xFFE8C96A;
+    public static final int HIGHLIGHT = 0xFFFFFFFF;
     public static final int SLOT = 0xFF07060B;
     public static final int SLOT_EDGE = 0xFF322B4A;
     public static final int SLOT_HOVER = 0x40A99BE8;

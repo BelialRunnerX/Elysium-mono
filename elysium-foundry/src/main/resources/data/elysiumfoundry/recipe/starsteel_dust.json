@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:starsteel_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:starsteel_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "minecraft:honeycomb_block",
+      "required": false
+    },
+    {
+      "id": "productivebees:comb_ghostly",
+      "required": false
+    },
+    {
+      "id": "productivebees:comb_milky",
+      "required": false
+    },
+    {
+      "id": "productivebees:comb_powdery",
+      "required": false
+    },
+    {
+      "id": "productivebees:configurable_comb",
+      "required": false
+    }
+  ]
+}

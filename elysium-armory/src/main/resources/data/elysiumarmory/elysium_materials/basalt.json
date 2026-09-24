@@ -1,0 +1,67 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "minecraft:basalt",
+    "categories": [
+      "rock",
+      "basic"
+    ]
+  },
+  "display": {
+    "name": "Basalt"
+  },
+  "properties": {
+    "main": {
+      "durability": 137.0,
+      "armor_durability": 4.0,
+      "harvest_tier": "basalt",
+      "harvest_speed": 4.0,
+      "attack_damage": 1.0,
+      "attack_speed": 0.0,
+      "ranged_damage": 0.0,
+      "draw_speed": -0.1,
+      "projectile_speed": 1.0,
+      "projectile_accuracy": 0.8,
+      "armor": 6.0,
+      "armor/helmet": 1.0,
+      "armor/chestplate": 3.0,
+      "armor/leggings": 1.0,
+      "armor/boots": 1.0,
+      "enchantment_value": 6.0,
+      "charging_value": 0.7,
+      "rarity": 7.0,
+      "attack_speed/axe": -0.2,
+      "attack_speed/hoe": -1.0,
+      "traits": [
+        {
+          "trait": "brittle",
+          "level": 2
+        },
+        {
+          "trait": "chipping",
+          "level": 3
+        }
+      ]
+    },
+    "rod": {
+      "attack_damage": {
+        "op": "multiply_total",
+        "value": -0.1
+      },
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "traits": [
+        {
+          "trait": "brittle",
+          "level": 3
+        },
+        {
+          "trait": "chipping",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

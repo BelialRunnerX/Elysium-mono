@@ -1,0 +1,10 @@
+{
+  "name": "Red Card",
+  "max_level": 1,
+  "description": "",
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

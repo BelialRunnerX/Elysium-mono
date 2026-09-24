@@ -1,0 +1,10 @@
+{
+  "name": "Flammable",
+  "max_level": 1,
+  "description": "Takes damage when on fire and can be used as fuel",
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

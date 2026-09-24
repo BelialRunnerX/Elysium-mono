@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumsolarpunk:solar_brass_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumsolarpunk:solar_brass_ingot",
+    "count": 9
+  }
+}

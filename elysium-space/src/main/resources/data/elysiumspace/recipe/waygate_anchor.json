@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "FLF",
+    "LEL",
+    "FLF"
+  ],
+  "key": {
+    "F": {
+      "item": "elysiumspace:waygate_frame"
+    },
+    "L": {
+      "item": "elysiumspace:lunite_ingot"
+    },
+    "E": {
+      "item": "minecraft:ender_eye"
+    }
+  },
+  "result": {
+    "id": "elysiumspace:waygate_anchor"
+  }
+}

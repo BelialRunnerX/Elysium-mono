@@ -1,0 +1,54 @@
+{
+  "items": [
+    "elysium:elysium_helmet",
+    "elysium:plasma_chestplate",
+    "elysium:neural_leggings",
+    "elysium:dimensional_boots"
+  ],
+  "bonuses": [
+    {
+      "pieces": 2,
+      "effects": [
+        {
+          "type": "attribute",
+          "modifiers": [
+            {
+              "attribute": "minecraft:generic.max_health",
+              "operation": "add_value",
+              "slot": "any",
+              "value": 2.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "pieces": 4,
+      "effects": [
+        {
+          "type": "attribute",
+          "modifiers": [
+            {
+              "attribute": "elysiumlib:dodge_chance",
+              "operation": "add_value",
+              "slot": "any",
+              "value": 0.06
+            }
+          ]
+        },
+        {
+          "type": "wielder_effect",
+          "targets": [
+            {
+              "effect": "minecraft:speed",
+              "levels": [
+                0
+              ],
+              "duration": 60
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

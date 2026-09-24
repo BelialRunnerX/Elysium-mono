@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PWP",
+    "RCR",
+    "PWP"
+  ],
+  "key": {
+    "P": {
+      "tag": "c:plates/steel"
+    },
+    "W": {
+      "item": "elysiumindustry:gold_wire"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    },
+    "C": {
+      "item": "elysiumlogistics:controller"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:assembly_core",
+    "count": 1
+  }
+}

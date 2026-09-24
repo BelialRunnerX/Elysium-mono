@@ -3,8 +3,8 @@
   "category": "building",
   "pattern": [
     "vvv",
-    "i#i",
-    "iii"
+    "s#s",
+    "sss"
   ],
   "key": {
     "v": {
@@ -13,8 +13,8 @@
     "#": {
       "item": "elysium:neutronium_ingot"
     },
-    "i": {
-      "item": "minecraft:obsidian"
+    "s": {
+      "item": "minecraft:stone_bricks"
     }
   },
   "result": {

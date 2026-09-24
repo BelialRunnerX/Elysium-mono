@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PGP",
+    "PMP",
+    "PGP"
+  ],
+  "key": {
+    "P": {
+      "tag": "c:plates/steel"
+    },
+    "G": {
+      "item": "elysiumindustry:gold_wire"
+    },
+    "M": {
+      "item": "elysiumindustry:motor"
+    }
+  },
+  "result": {
+    "id": "elysiumatomics:servo",
+    "count": 1
+  }
+}

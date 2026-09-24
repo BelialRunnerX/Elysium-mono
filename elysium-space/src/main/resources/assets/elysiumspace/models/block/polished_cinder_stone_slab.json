@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "elysiumspace:block/polished_cinder_stone",
+    "top": "elysiumspace:block/polished_cinder_stone",
+    "side": "elysiumspace:block/polished_cinder_stone"
+  }
+}

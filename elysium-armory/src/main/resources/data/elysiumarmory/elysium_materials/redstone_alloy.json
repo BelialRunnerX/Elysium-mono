@@ -1,0 +1,63 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/redstone_alloy",
+    "categories": [
+      "metal",
+      "intermediate"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/redstone_alloy"
+    }
+  },
+  "display": {
+    "name": "Redstone Alloy"
+  },
+  "properties": {
+    "main": {
+      "durability": 840.0,
+      "armor_durability": 20.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 11.0,
+      "attack_damage": 2.0,
+      "attack_speed": 0.2,
+      "magic_damage": 4.0,
+      "ranged_damage": 1.0,
+      "draw_speed": 0.2,
+      "armor": 17.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 7.0,
+      "armor/leggings": 5.0,
+      "armor/boots": 2.0,
+      "armor_toughness": 1.0,
+      "magic_armor": 8.0,
+      "enchantment_value": 18.0,
+      "charging_value": 0.9,
+      "rarity": 45.0,
+      "repair_value": -0.15,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        },
+        {
+          "trait": "eroded",
+          "level": 3
+        }
+      ]
+    },
+    "rod": {
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "rarity": 45.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        }
+      ]
+    }
+  }
+}

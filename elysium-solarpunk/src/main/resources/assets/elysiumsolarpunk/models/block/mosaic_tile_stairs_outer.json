@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "side": "elysiumsolarpunk:block/mosaic_tile",
+    "top": "elysiumsolarpunk:block/mosaic_tile",
+    "bottom": "elysiumsolarpunk:block/mosaic_tile"
+  }
+}

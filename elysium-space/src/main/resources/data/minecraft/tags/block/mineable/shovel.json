@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumspace:pale_regolith",
+    "elysiumspace:frost_regolith",
+    "elysiumspace:cinder_sand",
+    "elysiumspace:muddy_emgrove_roots"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "weight": 5,
+  "min_tier": 3,
+  "attributes": {
+    "minecraft:generic.max_health": 3.0,
+    "minecraft:generic.attack_knockback": 2.0
+  }
+}

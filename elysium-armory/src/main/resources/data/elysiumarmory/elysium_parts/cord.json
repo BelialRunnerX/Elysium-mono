@@ -1,0 +1,8 @@
+{
+  "type": "core",
+  "gear_type": "ranged_weapon",
+  "part_type": "cord",
+  "crafting": {
+    "materials": 3
+  }
+}

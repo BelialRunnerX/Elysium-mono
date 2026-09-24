@@ -1,0 +1,11 @@
+{
+  "type": "elysiumatomics:reacting",
+  "input": {
+    "item": "minecraft:charcoal"
+  },
+  "result": {
+    "id": "minecraft:coal",
+    "count": 1
+  },
+  "ticks": 300
+}

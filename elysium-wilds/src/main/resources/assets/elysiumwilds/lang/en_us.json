@@ -1,0 +1,11 @@
+{
+  "itemGroup.elysiumwilds": "Elysium Wilds",
+  "item.elysiumwilds.biome_compass": "Surveyor's Compass",
+  "elysiumwilds.compass.title": "Look for somewhere",
+  "elysiumwilds.compass.count": "%s place(s) this world knows about",
+  "elysiumwilds.compass.idle": "Pointing at nothing yet",
+  "elysiumwilds.compass.holding": "Pointing at %s, around %s, %s",
+  "elysiumwilds.compass.found": "%s: around %s, %s \u2014 about %s blocks away",
+  "elysiumwilds.compass.nowhere": "No %s anywhere the compass can see from here",
+  "elysiumwilds.compass.nomatch": "Nothing here matches what you have typed"
+}

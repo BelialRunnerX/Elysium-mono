@@ -1,0 +1,15 @@
+{
+  "structures": [
+    {
+      "structure": "elysiumspace:cinderveil_outpost",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 243033212,
+    "spacing": 80,
+    "separation": 30,
+    "frequency": 0.7
+  }
+}

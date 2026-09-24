@@ -1,0 +1,8 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#elysiumflora:emberwood_grows",
+  "features": [
+    "elysiumflora:emberwood"
+  ],
+  "step": "vegetal_decoration"
+}

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumkinetics:block/windmill_bearing"
+    },
+    "axis=x": {
+      "model": "elysiumkinetics:block/windmill_bearing",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/windmill_bearing",
+      "x": 90
+    }
+  }
+}

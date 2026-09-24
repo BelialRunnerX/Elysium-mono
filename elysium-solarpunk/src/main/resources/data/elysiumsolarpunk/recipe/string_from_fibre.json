@@ -1,0 +1,13 @@
+{
+  "type": "elysiumsolarpunk:weaving",
+  "input": {
+    "item": "elysiumsolarpunk:plant_fibre"
+  },
+  "result": {
+    "id": "minecraft:string",
+    "count": 3
+  },
+  "time": 160,
+  "energy": 320,
+  "input_count": 2
+}

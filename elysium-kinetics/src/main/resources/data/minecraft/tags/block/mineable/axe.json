@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumkinetics:timber_shaft",
+    "elysiumkinetics:small_cogwheel",
+    "elysiumkinetics:large_cogwheel",
+    "elysiumkinetics:hand_crank",
+    "elysiumkinetics:water_wheel",
+    "elysiumkinetics:sail",
+    "elysiumkinetics:saw"
+  ]
+}

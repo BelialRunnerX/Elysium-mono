@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createbigcannons:bronze_ingot",
+      "required": false
+    },
+    {
+      "id": "mekanism:ingot_bronze",
+      "required": false
+    },
+    {
+      "id": "silentgear:bronze_ingot",
+      "required": false
+    }
+  ]
+}

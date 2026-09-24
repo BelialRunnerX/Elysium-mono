@@ -1,0 +1,10 @@
+{
+  "name": "Multi-break",
+  "max_level": 5,
+  "description": "TODO, not coded",
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

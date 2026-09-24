@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumsolarpunk:block/ceramic_kiln"
+    },
+    "facing=east": {
+      "model": "elysiumsolarpunk:block/ceramic_kiln",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumsolarpunk:block/ceramic_kiln",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumsolarpunk:block/ceramic_kiln",
+      "y": 270
+    }
+  }
+}

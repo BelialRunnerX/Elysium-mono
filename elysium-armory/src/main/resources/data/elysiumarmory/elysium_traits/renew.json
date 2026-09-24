@@ -1,0 +1,13 @@
+{
+  "name": "Renew",
+  "max_level": 5,
+  "description": "Slowly repairs the item over time",
+  "effects": [
+    {
+      "type": "self_repair",
+      "interval": 20,
+      "chance_per_level": 0.018,
+      "amount_per_level": 1
+    }
+  ]
+}

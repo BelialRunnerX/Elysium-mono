@@ -1,0 +1,16 @@
+{
+  "name": "High Orbit",
+  "icon": "icon.png",
+  "authors": [
+    "Elysium",
+    "re-themed from MineColonies' lostcity"
+  ],
+  "desc": "For the station: nothing grows, nothing weathers, and every wall is the hull.",
+  "mods": [
+    "structurize",
+    "minecolonies",
+    "elysiumspace"
+  ],
+  "version": 1,
+  "pack-format": 1
+}

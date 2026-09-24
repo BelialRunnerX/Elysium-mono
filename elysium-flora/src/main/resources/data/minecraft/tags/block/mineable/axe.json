@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumflora:emberwood_planks",
+    "elysiumflora:emberwood_slab",
+    "elysiumflora:emberwood_stairs",
+    "elysiumflora:emberwood_fence",
+    "elysiumflora:emberwood_fence_gate",
+    "elysiumflora:emberwood_door",
+    "elysiumflora:emberwood_trapdoor",
+    "elysiumflora:emberwood_button",
+    "elysiumflora:emberwood_pressure_plate",
+    "elysiumflora:emberwood_log",
+    "elysiumflora:emberwood_wood",
+    "elysiumflora:stripped_emberwood_log",
+    "elysiumflora:stripped_emberwood_wood"
+  ]
+}

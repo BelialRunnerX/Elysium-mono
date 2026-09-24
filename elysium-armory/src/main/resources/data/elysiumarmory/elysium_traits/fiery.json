@@ -1,0 +1,22 @@
+{
+  "name": "Fiery",
+  "max_level": 2,
+  "description": "Adds Fire Aspect or Flame to weapons",
+  "conditions": [
+    "on:weapon"
+  ],
+  "effects": [
+    {
+      "type": "enchantment",
+      "enchantments": {
+        "minecraft:fire_aspect": [
+          1,
+          2
+        ],
+        "minecraft:flame": [
+          1
+        ]
+      }
+    }
+  ]
+}

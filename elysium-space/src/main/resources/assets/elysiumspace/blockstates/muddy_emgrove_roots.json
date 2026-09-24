@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "elysiumspace:block/muddy_emgrove_roots_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "elysiumspace:block/muddy_emgrove_roots"
+    },
+    "axis=z": {
+      "model": "elysiumspace:block/muddy_emgrove_roots_horizontal",
+      "x": 90
+    }
+  }
+}

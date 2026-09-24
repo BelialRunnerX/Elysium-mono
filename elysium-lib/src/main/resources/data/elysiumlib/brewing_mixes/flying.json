@@ -1,0 +1,5 @@
+{
+  "from": "elysiumlib:levitation",
+  "ingredient": "minecraft:popped_chorus_fruit",
+  "to": "elysiumlib:flying"
+}

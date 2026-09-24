@@ -1,0 +1,17 @@
+{
+  "type": "suffix",
+  "on": [
+    "shield"
+  ],
+  "min_tier": 2,
+  "weight": 5,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "self_repair",
+      "interval": 240,
+      "chance_per_level": 0.2,
+      "amount_per_level": 1
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/blaze_gold",
+    "categories": [
+      "metal",
+      "advanced"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/blaze_gold"
+    }
+  },
+  "display": {
+    "name": "Blaze Gold"
+  },
+  "properties": {
+    "main": {
+      "durability": 69.0,
+      "armor_durability": 9.0,
+      "harvest_tier": "blaze_gold",
+      "harvest_speed": 15.0,
+      "attack_damage": 2.0,
+      "attack_speed": 0.1,
+      "magic_damage": 5.0,
+      "ranged_damage": 1.0,
+      "draw_speed": 0.2,
+      "projectile_speed": 1.2,
+      "projectile_accuracy": 0.9,
+      "armor": 13.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 5.0,
+      "armor/leggings": 4.0,
+      "armor/boots": 2.0,
+      "armor_toughness": 1.0,
+      "magic_armor": 10.0,
+      "enchantment_value": 24.0,
+      "charging_value": 1.2,
+      "rarity": 45.0,
+      "traits": [
+        {
+          "trait": "brilliant",
+          "level": 1,
+          "conditions": [
+            "ratio>=0.7"
+          ]
+        },
+        {
+          "trait": "greedy",
+          "level": 3
+        },
+        {
+          "trait": "malleable",
+          "level": 3
+        }
+      ]
+    },
+    "coating": {
+      "armor_durability": {
+        "op": "multiply_total",
+        "value": -0.05
+      },
+      "durability": {
+        "op": "multiply_total",
+        "value": -0.05
+      },
+      "rarity": {
+        "op": "add",
+        "value": 20.0
+      },
+      "traits": [
+        {
+          "trait": "brilliant",
+          "level": 1
+        },
+        {
+          "trait": "soft",
+          "level": 2
+        }
+      ]
+    },
+    "rod": {
+      "harvest_speed": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 3
+        }
+      ]
+    },
+    "tip": {
+      "armor_durability": {
+        "op": "add",
+        "value": 3.0
+      },
+      "attack_damage": {
+        "op": "add",
+        "value": 1.0
+      },
+      "durability": {
+        "op": "add",
+        "value": 32.0
+      },
+      "harvest_speed": {
+        "op": "add",
+        "value": 4.0
+      },
+      "harvest_tier": "blaze_gold",
+      "magic_damage": {
+        "op": "add",
+        "value": 1.0
+      },
+      "rarity": {
+        "op": "add",
+        "value": 14.0
+      },
+      "traits": [
+        {
+          "trait": "soft",
+          "level": 2
+        },
+        {
+          "trait": "fiery",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "display": {
+    "icon": {
+      "id": "elysiumspawners:rune_of_stillness",
+      "count": 1
+    },
+    "title": {
+      "translate": "advancements.elysiumspawners.behaviours.title"
+    },
+    "description": {
+      "translate": "advancements.elysiumspawners.behaviours.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "indifference": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "elysiumspawners:rune_of_indifference"
+          }
+        ]
+      }
+    },
+    "darkness": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "elysiumspawners:rune_of_darkness"
+          }
+        ]
+      }
+    },
+    "tethering": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "elysiumspawners:rune_of_tethering"
+          }
+        ]
+      }
+    },
+    "stillness": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "elysiumspawners:rune_of_stillness"
+          }
+        ]
+      }
+    },
+    "silence": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "elysiumspawners:rune_of_silence"
+          }
+        ]
+      }
+    },
+    "obedience": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "elysiumspawners:rune_of_obedience"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "indifference"
+    ],
+    [
+      "darkness"
+    ],
+    [
+      "tethering"
+    ],
+    [
+      "stillness"
+    ],
+    [
+      "silence"
+    ],
+    [
+      "obedience"
+    ]
+  ],
+  "parent": "elysiumspawners:tuned"
+}

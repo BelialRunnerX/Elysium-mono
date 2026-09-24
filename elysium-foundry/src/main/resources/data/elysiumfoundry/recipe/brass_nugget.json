@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumfoundry:brass_ingot"
+    }
+  ],
+  "result": {
+    "id": "elysiumfoundry:brass_nugget",
+    "count": 9
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "elysiumfoundry:alloying",
+  "first": {
+    "item": "elysiumfoundry:stainless_ingot"
+  },
+  "first_count": 2,
+  "second": {
+    "item": "elysiumfoundry:platinum_ingot"
+  },
+  "second_count": 1,
+  "result": {
+    "id": "elysiumfoundry:starsteel_ingot",
+    "count": 1
+  },
+  "ticks": 280
+}

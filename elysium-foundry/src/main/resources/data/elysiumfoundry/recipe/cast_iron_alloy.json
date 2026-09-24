@@ -1,0 +1,16 @@
+{
+  "type": "elysiumfoundry:alloying",
+  "first": {
+    "tag": "c:ingots/iron"
+  },
+  "first_count": 4,
+  "second": {
+    "item": "elysiumfoundry:coal_dust"
+  },
+  "second_count": 1,
+  "result": {
+    "id": "elysiumfoundry:cast_iron_ingot",
+    "count": 1
+  },
+  "ticks": 160
+}

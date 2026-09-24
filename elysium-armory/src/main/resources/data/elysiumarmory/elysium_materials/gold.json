@@ -1,0 +1,130 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/gold",
+    "categories": [
+      "metal",
+      "intermediate"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/gold"
+    }
+  },
+  "display": {
+    "name": "Golden"
+  },
+  "properties": {
+    "main": {
+      "durability": 32.0,
+      "armor_durability": 7.0,
+      "harvest_tier": "gold",
+      "harvest_speed": 12.0,
+      "attack_damage": 0.0,
+      "attack_speed": 0.0,
+      "magic_damage": 4.0,
+      "ranged_damage": 0.0,
+      "draw_speed": 0.3,
+      "projectile_speed": 1.1,
+      "projectile_accuracy": 1.0,
+      "armor": 11.0,
+      "armor/helmet": 2.0,
+      "armor/chestplate": 5.0,
+      "armor/leggings": 3.0,
+      "armor/boots": 1.0,
+      "magic_armor": 8.0,
+      "enchantment_value": 22.0,
+      "charging_value": 1.2,
+      "rarity": 50.0,
+      "attack_speed/hoe": -2.0,
+      "traits": [
+        {
+          "trait": "brilliant",
+          "level": 1,
+          "conditions": [
+            "ratio>=0.7"
+          ]
+        },
+        {
+          "trait": "malleable",
+          "level": 1
+        },
+        {
+          "trait": "soft",
+          "level": 3
+        }
+      ]
+    },
+    "coating": {
+      "armor_durability": {
+        "op": "multiply_total",
+        "value": -0.1
+      },
+      "durability": {
+        "op": "multiply_total",
+        "value": -0.1
+      },
+      "rarity": {
+        "op": "add",
+        "value": 10.0
+      },
+      "traits": [
+        {
+          "trait": "brilliant",
+          "level": 1
+        },
+        {
+          "trait": "soft",
+          "level": 3
+        }
+      ]
+    },
+    "rod": {
+      "harvest_speed": {
+        "op": "add",
+        "value": 3.0
+      },
+      "traits": [
+        {
+          "trait": "bending",
+          "level": 4
+        }
+      ]
+    },
+    "tip": {
+      "armor_durability": {
+        "op": "add",
+        "value": 1.0
+      },
+      "draw_speed": {
+        "op": "add",
+        "value": 0.2
+      },
+      "durability": {
+        "op": "add",
+        "value": 16.0
+      },
+      "harvest_speed": {
+        "op": "add",
+        "value": 6.0
+      },
+      "magic_damage": {
+        "op": "add",
+        "value": 2.0
+      },
+      "rarity": {
+        "op": "add",
+        "value": 30.0
+      },
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 1
+        },
+        {
+          "trait": "soft",
+          "level": 3
+        }
+      ]
+    }
+  }
+}

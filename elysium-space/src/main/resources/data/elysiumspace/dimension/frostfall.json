@@ -1,0 +1,48 @@
+{
+  "type": "elysiumspace:frostfall",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "elysiumspace:frostfall",
+    "biome_source": {
+      "type": "minecraft:multi_noise",
+      "biomes": [
+        {
+          "biome": "elysiumspace:frostfall_desert",
+          "parameters": {
+            "temperature": 0,
+            "humidity": 0,
+            "continentalness": 0,
+            "erosion": 0.4,
+            "weirdness": 0,
+            "depth": 0,
+            "offset": 0
+          }
+        },
+        {
+          "biome": "elysiumspace:frostfall_rocky_plains",
+          "parameters": {
+            "temperature": 0,
+            "humidity": 0,
+            "continentalness": 0.4,
+            "erosion": 0.5,
+            "weirdness": 0.5,
+            "depth": 0,
+            "offset": 0
+          }
+        },
+        {
+          "biome": "elysiumspace:frostfall_ice_spikes",
+          "parameters": {
+            "temperature": 0,
+            "humidity": 0,
+            "continentalness": 0.4,
+            "erosion": 0.6,
+            "weirdness": 0.6,
+            "depth": 0,
+            "offset": 0
+          }
+        }
+      ]
+    }
+  }
+}

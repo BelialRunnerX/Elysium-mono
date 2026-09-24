@@ -7,6 +7,9 @@ import com.elysium.lib.client.ElysiumUI;
 import com.elysium.lib.network.CharacterSheet;
 import com.elysium.lib.network.ElysiumPayloads;
 import com.elysium.lib.standing.ElysiumStanding;
+import com.elysium.lib.research.ElysiumResearchField;
+import com.elysium.lib.research.ElysiumResearchRank;
+import com.elysium.lib.research.ElysiumUnlock;
 import com.elysium.lib.stats.ElysiumStat;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -62,15 +65,24 @@ public class ElysiumCharacterScreen extends Screen {
     private static final int TAB_CHARACTER = 0;
     private static final int TAB_STATS = 1;
     private static final int TAB_STANDING = 2;
+    private static final int TAB_RESEARCH = 3;
 
     private static final Component[] TAB_LABELS = {
             Component.translatable("elysium.screen.tab.character"),
             Component.translatable("elysium.screen.tab.stats"),
             Component.translatable("elysium.screen.tab.standing"),
+            Component.translatable("elysium.screen.tab.research"),
     };
 
-    private final CharacterSheet.Parsed sheet;
-    private final int unspent;
+    /**
+     * The sheet this screen is drawing, and the points left to spend.
+     *
+     * Not final, because the server pushes a fresh sheet every time a point is
+     * spent and this screen has to take the new numbers <em>without being
+     * rebuilt</em>. See {@link #refresh}.
+     */
+    private CharacterSheet.Parsed sheet;
+    private int unspent;
 
     private final List<Hit> hits = new ArrayList<>();
 
@@ -101,6 +113,60 @@ public class ElysiumCharacterScreen extends Screen {
         this.unspent = unspent;
         this.pickedRace = sheet.race();
         this.pickedClass = sheet.job();
+    }
+
+    /**
+     * Take a newer sheet without losing where the player is.
+     *
+     * <h3>The bug this exists for</h3>
+     *
+     * Spending a point sends a packet to the server, the server spends it and
+     * pushes the sheet back, and the client used to answer that by constructing
+     * a new screen. Every field on a new screen starts at its initial value —
+     * including {@link #tab}, which starts on the character page. So clicking a
+     * stepper on the Stats tab spent the point correctly and then threw the
+     * player back to the first page, every time. The numbers were never wrong;
+     * the screen just stopped being the one they were looking at.
+     *
+     * Refreshing in place replaces only what the server owns. Everything that
+     * belongs to the player's current session with the screen — which tab they
+     * are on, what the description pane is showing, a selection they have made
+     * but not confirmed — is left exactly where it was.
+     *
+     * <h3>Why the picker's selection is treated differently</h3>
+     *
+     * Once a character is chosen, the sheet's race and class are the truth and
+     * are adopted. Before that, the player is mid-choice and those two fields
+     * hold a tentative pick that the server has never heard of — so a refresh
+     * arriving then (a Codex click, a HUD-driven resend) must not overwrite it.
+     * Clobbering a half-made choice would be the same class of bug in a quieter
+     * place.
+     */
+    public void refresh(CharacterSheet.Parsed newSheet, int newUnspent) {
+        this.sheet = newSheet;
+        this.unspent = newUnspent;
+
+        if (newSheet.chosen()) {
+            // Confirmed: the server's answer is the truth, for both.
+            this.pickedRace = newSheet.race();
+            this.pickedClass = newSheet.job();
+            return;
+        }
+        // Mid-choice: fill in only what the player has not picked yet, and each
+        // half independently.
+        //
+        // The first version asked "chosen, or either half still empty?" and
+        // adopted both together — so a player who had clicked a race and not
+        // yet a class had their race cleared by the next refresh, because the
+        // empty class half made the condition true for the race as well. Two
+        // selections are two pieces of state; a condition that reads one to
+        // decide the other will always be wrong for somebody halfway through.
+        if (this.pickedRace == null) {
+            this.pickedRace = newSheet.race();
+        }
+        if (this.pickedClass == null) {
+            this.pickedClass = newSheet.job();
+        }
     }
 
     /**
@@ -215,6 +281,7 @@ public class ElysiumCharacterScreen extends Screen {
         switch (tab) {
             case TAB_STATS -> renderStatsTab(g, x, y, inner, bodyBottom, mouseX, mouseY);
             case TAB_STANDING -> renderStandingTab(g, x, y, inner, bodyBottom, mouseX, mouseY);
+            case TAB_RESEARCH -> renderResearchTab(g, x, y, inner, bodyBottom, mouseX, mouseY);
             default -> renderCharacterTab(g, x, y, inner, bodyBottom);
         }
 
@@ -243,8 +310,24 @@ public class ElysiumCharacterScreen extends Screen {
      * row is.
      */
     private int bodyHeight() {
+        int line = ElysiumUI.lineHeight();
         int rows = Math.max(1, (ElysiumStat.REGISTRY.all().size() + 1) / 2);
-        return ElysiumUI.lineHeight() + ElysiumPalette.GAP + rows * ElysiumUI.statRowHeight();
+        int stats = line + ElysiumPalette.GAP + rows * ElysiumUI.statRowHeight();
+        // The research page is six tracks of two lines and a bar, plus a
+        // catalogue line. Measured rather than assumed, and taken into the max,
+        // because the panel is sized once against the tallest tab — a fourth
+        // tab that did not declare its height would simply be clipped, and
+        // clipped by exactly the amount nobody notices until the sixth field
+        // is the one they wanted to read.
+        int research = line + ElysiumPalette.GAP
+                + ElysiumResearchField.values().length * researchRowHeight()
+                + ElysiumPalette.GAP + line;
+        return Math.max(stats, research);
+    }
+
+    /** One field: a name and rank line, a bar, and the next unlock beneath. */
+    private static int researchRowHeight() {
+        return ElysiumUI.lineHeight() * 2 + ElysiumPalette.BAR_HEIGHT + 5;
     }
 
     /**
@@ -291,10 +374,90 @@ public class ElysiumCharacterScreen extends Screen {
     }
 
     /** The twelve stats in two columns, with a stepper each while points remain. */
+    /**
+     * The six research tracks, and what each one is about to open.
+     *
+     * <h2>Why the next unlock is on the page and not in a tooltip</h2>
+     *
+     * Every reward in this system is quiet by design — a readout gets one line
+     * longer; a number appears where there was a colour. A player who has never
+     * been told what Geology is <em>for</em> has no reason to raise it, and no
+     * way to find out, because the thing it gives them is invisible until they
+     * already have it. Naming the next unlock under each bar is the only place
+     * the offer is ever made.
+     *
+     * <h2>Drawn from the sheet, never from the client's own state</h2>
+     *
+     * Research lives in a server-side attachment. A client asking the local
+     * player for its own research gets the default — six zeroes — and would
+     * draw a confident empty page for somebody who had filled three tracks.
+     * The numbers arrive in the synced sheet; see {@code CharacterSheet}.
+     */
+    private void renderResearchTab(GuiGraphics g, int x, int y, int w, int bottom,
+                                   int mouseX, int mouseY) {
+        int line = ElysiumUI.lineHeight();
+        ElysiumUI.faint(g, Component.translatable(
+                "elysium.screen.research.hint"), x, y);
+        y += line + ElysiumPalette.GAP;
+
+        for (ElysiumResearchField field : ElysiumResearchField.values()) {
+            if (y + researchRowHeight() > bottom) {
+                break;               // the panel is measured for six; be safe
+            }
+            int points = sheet.points(field);
+            ElysiumResearchRank rank = sheet.rank(field);
+            boolean started = points > 0;
+
+            ElysiumUI.label(g, Component.translatable(field.translationKey()), x, y);
+            ElysiumUI.valueRight(g, Component.translatable(rank.translationKey()),
+                    x + w, y, started ? ElysiumPalette.ACCENT
+                            : ElysiumPalette.TEXT_FAINT);
+            y += line + 1;
+
+            ElysiumUI.bar(g, x, y, w, ElysiumResearchRank.progress(points),
+                    started ? ElysiumPalette.ACCENT : ElysiumPalette.TEXT_FAINT);
+            y += ElysiumPalette.BAR_HEIGHT + 2;
+
+            ElysiumUI.faint(g, nextOffer(field, points), x, y);
+            y += line + 2;
+        }
+
+        y += ElysiumPalette.GAP;
+        ElysiumUI.faint(g, Component.translatable(
+                "elysium.screen.research.catalogued", sheet.catalogued()), x, y);
+    }
+
+    /**
+     * The line under a track's bar: what it opens next, or what it opened last.
+     *
+     * A field with everything earned says so rather than going blank. Blank is
+     * what a bug looks like, and this is the one page whose entire job is to
+     * tell a player what they have.
+     */
+    private Component nextOffer(ElysiumResearchField field, int points) {
+        ElysiumUnlock earned = null;
+        for (ElysiumUnlock unlock : ElysiumUnlock.of(field)) {
+            if (unlock.metBy(points)) {
+                earned = unlock;
+                continue;
+            }
+            return Component.translatable("elysium.screen.research.next",
+                    Component.translatable(unlock.rank().translationKey()),
+                    Component.translatable(unlock.translationKey()));
+        }
+        if (earned == null) {
+            return Component.translatable("elysium.screen.research.nothing");
+        }
+        return Component.translatable("elysium.screen.research.complete",
+                Component.translatable(earned.translationKey()));
+    }
+
     private void renderStatsTab(GuiGraphics g, int x, int y, int w, int bottom,
                                 int mouseX, int mouseY) {
         int line = ElysiumUI.lineHeight();
         boolean canSpend = unspent > 0;
+        // Once for the whole column, not once per row: it walks every stat.
+        int scale = barScale();
 
         ElysiumUI.value(g, canSpend
                         ? Component.translatable("elysium.screen.points", unspent)
@@ -329,7 +492,7 @@ public class ElysiumCharacterScreen extends Screen {
 
             int value = sheet.get(stat);
             ElysiumUI.statRow(g, stat.getDisplayName(), Component.literal(Integer.toString(value)),
-                    cx, cy, valueWidth, barFor(value), ElysiumPalette.TEXT);
+                    cx, cy, valueWidth, barFor(value, scale), ElysiumPalette.TEXT);
 
             // The whole row, not just the name. A player reaching for an
             // explanation moves the cursor at the number or the bar as often as
@@ -361,16 +524,45 @@ public class ElysiumCharacterScreen extends Screen {
     }
 
     /**
+     * The scale every stat bar on this sheet is drawn against.
+     *
+     * <h3>Why it is not a constant</h3>
+     *
+     * It was: 50, "roughly where a heavily invested stat sits". At two points a
+     * level that held for most of a game. At ten it is passed before level
+     * seven, after which every bar on the sheet is full and the whole column
+     * says nothing — a display that stops distinguishing is worse than no
+     * display, because it still looks like information.
+     *
+     * Measured against the character's own largest stat instead. The bars then
+     * answer the question they were always for — <em>what is this character
+     * good at</em> — at any point total, forever. {@link #BAR_FLOOR} keeps a
+     * freshly made character whose best stat is 6 from showing a full bar
+     * beside five nearly empty ones.
+     */
+    private static final int BAR_FLOOR = 40;
+
+    private int barScale() {
+        int largest = BAR_FLOOR;
+        for (ElysiumStat stat : ElysiumStat.REGISTRY.all()) {
+            largest = Math.max(largest, sheet.get(stat));
+        }
+        return largest;
+    }
+
+    /**
      * A stat's bar, which is a comparison and not a measurement.
      *
-     * Stats have no ceiling — reforge and ascension keep raising them — so
-     * there is nothing to be a fraction of. The bar is against 50, which is
-     * roughly where a heavily invested stat sits, and it is clamped: a bar that
-     * is full says "very high", not "maximum", and nothing in the interface
+     * Stats have no ceiling — reforge, ascension and ten points a level keep
+     * raising them — so there is nothing to be a fraction of. A full bar means
+     * "this character's best", not "maximum", and nothing in the interface
      * claims otherwise.
      */
-    private static float barFor(int value) {
-        return Math.min(1.0F, value / 50.0F);
+    private static float barFor(int value, int scale) {
+        if (scale <= 0) {
+            return 0.0F;
+        }
+        return Math.max(0.0F, Math.min(1.0F, (float) value / (float) scale));
     }
 
     /** The two meters, with their band names and the notice threshold marked. */

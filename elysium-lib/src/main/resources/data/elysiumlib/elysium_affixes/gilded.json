@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "curio"
+  ],
+  "min_tier": 0,
+  "weight": 10,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "minecraft:generic.luck",
+          "operation": "add_value",
+          "slot": "any",
+          "min": 0.5,
+          "max": 2.0,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

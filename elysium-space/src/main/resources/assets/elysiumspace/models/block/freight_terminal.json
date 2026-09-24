@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_top",
+  "textures": {
+    "top": "elysiumspace:block/freight_terminal_top",
+    "side": "elysiumspace:block/freight_terminal"
+  }
+}

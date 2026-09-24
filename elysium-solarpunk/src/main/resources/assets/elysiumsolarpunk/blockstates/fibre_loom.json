@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumsolarpunk:block/fibre_loom"
+    },
+    "facing=east": {
+      "model": "elysiumsolarpunk:block/fibre_loom",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumsolarpunk:block/fibre_loom",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumsolarpunk:block/fibre_loom",
+      "y": 270
+    }
+  }
+}

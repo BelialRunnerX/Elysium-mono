@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "minecraft:heavy_core"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "elysiumarmory:wide_plate_upgrade"
+  }
+}

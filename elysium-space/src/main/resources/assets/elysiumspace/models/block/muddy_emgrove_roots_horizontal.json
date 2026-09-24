@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column_horizontal",
+  "textures": {
+    "side": "elysiumspace:block/muddy_emgrove_roots_side",
+    "end": "elysiumspace:block/muddy_emgrove_roots_top"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "bigreactors:raw_yellorium",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:raw_uranium",
+      "required": false
+    },
+    {
+      "id": "mekanism:raw_uranium",
+      "required": false
+    },
+    {
+      "id": "oritech:raw_uranium",
+      "required": false
+    }
+  ]
+}

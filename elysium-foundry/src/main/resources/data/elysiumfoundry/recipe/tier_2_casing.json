@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PPP",
+    "PGP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "item": "elysiumfoundry:invar_plate"
+    },
+    "G": {
+      "item": "elysiumfoundry:invar_gear"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:tier_2_casing",
+    "count": 2
+  }
+}

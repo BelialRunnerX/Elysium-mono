@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:frost_rime_shard_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_rime_shard_ore",
+      "required": false
+    },
+    "elysiumores:cinder_rime_shard_ore",
+    "elysiumores:deepslate_rime_shard_ore",
+    "elysiumores:end_stone_rime_shard_ore",
+    "elysiumores:netherrack_rime_shard_ore",
+    "elysiumores:stone_rime_shard_ore"
+  ]
+}

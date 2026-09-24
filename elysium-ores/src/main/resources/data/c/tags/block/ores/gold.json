@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:cinder_gold_ore",
+      "required": false
+    },
+    "elysiumores:end_stone_gold_ore",
+    "elysiumores:frost_gold_ore",
+    "elysiumores:netherrack_gold_ore",
+    "elysiumores:pale_gold_ore"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "createdeco:netherite_nugget",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:nugget_netherite",
+      "required": false
+    }
+  ]
+}

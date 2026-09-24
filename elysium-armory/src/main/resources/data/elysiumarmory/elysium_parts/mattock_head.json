@@ -1,0 +1,31 @@
+{
+  "type": "core",
+  "gear_type": "mattock",
+  "part_type": "main",
+  "crafting": {
+    "materials": 4
+  },
+  "properties": {
+    "attack_damage": {
+      "op": "add",
+      "value": 1.0
+    },
+    "attack_speed": {
+      "op": "add",
+      "value": 1.4
+    },
+    "durability": {
+      "op": "multiply_base",
+      "value": 0.25
+    },
+    "enchantment_value": {
+      "op": "multiply_base",
+      "value": -0.25
+    },
+    "harvest_speed": {
+      "op": "multiply_base",
+      "value": -0.25
+    },
+    "repair_efficiency": 1.25
+  }
+}

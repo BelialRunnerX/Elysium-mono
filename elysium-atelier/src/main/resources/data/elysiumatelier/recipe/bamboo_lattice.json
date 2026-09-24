@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:bamboo_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:bamboo_lattice",
+    "count": 8
+  }
+}

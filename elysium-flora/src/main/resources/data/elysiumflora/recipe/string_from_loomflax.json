@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "elysiumflora:loomflax_fibre"
+    },
+    {
+      "item": "elysiumflora:loomflax_fibre"
+    },
+    {
+      "item": "elysiumflora:loomflax_fibre"
+    }
+  ],
+  "result": {
+    "id": "minecraft:string",
+    "count": 1
+  }
+}

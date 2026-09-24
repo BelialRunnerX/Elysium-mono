@@ -1,0 +1,26 @@
+{
+  "type": "core",
+  "gear_type": "mace",
+  "part_type": "main",
+  "crafting": {
+    "materials": 3,
+    "extra": [
+      "minecraft:heavy_core"
+    ]
+  },
+  "properties": {
+    "attack_damage": {
+      "op": "add",
+      "value": 3.0
+    },
+    "attack_speed": {
+      "op": "add",
+      "value": 0.6
+    },
+    "durability": {
+      "op": "multiply_base",
+      "value": 1.0
+    },
+    "repair_efficiency": 1.0
+  }
+}

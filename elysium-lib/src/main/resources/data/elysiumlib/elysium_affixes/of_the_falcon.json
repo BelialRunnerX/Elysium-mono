@@ -1,0 +1,24 @@
+{
+  "type": "suffix",
+  "on": [
+    "ranged_weapon"
+  ],
+  "min_tier": 1,
+  "weight": 6,
+  "max_level": 3,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "elysiumlib:crit_chance",
+          "operation": "add_value",
+          "slot": "mainhand",
+          "min": 0.03,
+          "max": 0.15,
+          "levels": 3
+        }
+      ]
+    }
+  ]
+}

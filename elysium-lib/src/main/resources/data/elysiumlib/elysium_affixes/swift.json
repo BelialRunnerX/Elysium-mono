@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "ranged_weapon"
+  ],
+  "min_tier": 0,
+  "weight": 12,
+  "max_level": 4,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "elysiumlib:draw_speed",
+          "operation": "add_value",
+          "slot": "mainhand",
+          "min": 0.1,
+          "max": 0.5,
+          "levels": 4
+        }
+      ]
+    }
+  ]
+}

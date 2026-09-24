@@ -1,0 +1,97 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/crimson_iron",
+    "categories": [
+      "metal",
+      "advanced"
+    ],
+    "part_substitutes": {
+      "rod": "#c:rods/crimson_iron"
+    }
+  },
+  "display": {
+    "name": "Crimson Iron"
+  },
+  "properties": {
+    "main": {
+      "durability": 420.0,
+      "armor_durability": 27.0,
+      "harvest_tier": "crimson_iron",
+      "harvest_speed": 10.0,
+      "attack_damage": 3.0,
+      "attack_speed": -0.1,
+      "magic_damage": 3.0,
+      "ranged_damage": 2.0,
+      "draw_speed": -0.1,
+      "projectile_speed": 1.0,
+      "projectile_accuracy": 1.1,
+      "armor": 18.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 7.0,
+      "armor/leggings": 5.0,
+      "armor/boots": 3.0,
+      "armor_toughness": 2.0,
+      "magic_armor": 6.0,
+      "enchantment_value": 14.0,
+      "charging_value": 0.7,
+      "rarity": 31.0,
+      "repair_value": 0.5,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        },
+        {
+          "trait": "hard",
+          "level": 2
+        },
+        {
+          "trait": "heat_resistant",
+          "level": 4
+        }
+      ]
+    },
+    "rod": {
+      "attack_damage": {
+        "op": "multiply_total",
+        "value": 0.1
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 3
+        }
+      ]
+    },
+    "tip": {
+      "armor_durability": {
+        "op": "add",
+        "value": 8.0
+      },
+      "attack_damage": {
+        "op": "add",
+        "value": 2.0
+      },
+      "durability": {
+        "op": "add",
+        "value": 224.0
+      },
+      "harvest_speed": {
+        "op": "add",
+        "value": 2.0
+      },
+      "harvest_tier": "crimson_iron",
+      "rarity": {
+        "op": "add",
+        "value": 10.0
+      },
+      "traits": [
+        {
+          "trait": "fiery",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

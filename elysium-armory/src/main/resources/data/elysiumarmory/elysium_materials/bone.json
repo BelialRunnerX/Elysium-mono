@@ -1,0 +1,58 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "minecraft:bone_block",
+    "categories": [
+      "organic",
+      "basic"
+    ],
+    "part_substitutes": {
+      "rod": "minecraft:bone"
+    }
+  },
+  "display": {
+    "name": "Bone"
+  },
+  "properties": {
+    "main": {
+      "durability": 108.0,
+      "armor_durability": 4.0,
+      "harvest_tier": "bone",
+      "harvest_speed": 4.0,
+      "attack_damage": 2.0,
+      "attack_speed": 0.1,
+      "magic_damage": 1.0,
+      "ranged_damage": 1.0,
+      "draw_speed": 0.0,
+      "projectile_speed": 0.9,
+      "projectile_accuracy": 1.0,
+      "armor": 5.0,
+      "armor/helmet": 1.0,
+      "armor/chestplate": 2.0,
+      "armor/leggings": 1.0,
+      "armor/boots": 1.0,
+      "magic_armor": 1.0,
+      "enchantment_value": 5.0,
+      "charging_value": 0.9,
+      "rarity": 8.0,
+      "traits": [
+        {
+          "trait": "chipping",
+          "level": 2
+        }
+      ]
+    },
+    "rod": {
+      "attack_damage": {
+        "op": "multiply_total",
+        "value": 0.2
+      },
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 2
+        }
+      ]
+    }
+  }
+}

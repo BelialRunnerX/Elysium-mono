@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_emerald_ore",
+    "elysiumores:end_stone_emerald_ore",
+    "elysiumores:frost_emerald_ore",
+    "elysiumores:netherrack_emerald_ore",
+    "elysiumores:pale_emerald_ore"
+  ]
+}

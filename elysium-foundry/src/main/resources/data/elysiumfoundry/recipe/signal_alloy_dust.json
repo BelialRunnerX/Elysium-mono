@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:signal_alloy_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:signal_alloy_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

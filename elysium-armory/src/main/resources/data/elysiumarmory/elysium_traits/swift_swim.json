@@ -1,0 +1,24 @@
+{
+  "name": "Swift Swim",
+  "max_level": 5,
+  "description": "Increases swim speed",
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "slot": "any",
+          "attribute": "neoforge:swim_speed",
+          "operation": "add_value",
+          "values": [
+            0.2,
+            0.4,
+            0.6,
+            0.8,
+            1.0
+          ]
+        }
+      ]
+    }
+  ]
+}

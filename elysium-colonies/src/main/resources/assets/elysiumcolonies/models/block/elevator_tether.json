@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "elysiumcolonies:block/elevator_tether_top",
+    "side": "elysiumcolonies:block/elevator_tether"
+  }
+}

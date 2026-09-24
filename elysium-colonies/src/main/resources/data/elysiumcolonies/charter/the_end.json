@@ -1,0 +1,12 @@
+{
+  "dimension": "minecraft:the_end",
+  "natives": [
+    "platinum",
+    "diamond",
+    "emerald"
+  ],
+  "hazard": 0.0,
+  "air": "breathable",
+  "reach": 2,
+  "style": ""
+}

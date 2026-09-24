@@ -189,32 +189,68 @@ public final class ElysiumContent {
 
     /**
      * The reward shelves — raw material at the bottom, a rune in the middle, a
-     * catalyst or a weapon at the top.
+     * catalyst or, rarely, a weapon at the top, and ingots on every shelf.
      *
      * Favor picked the tier and Suspicion picked the amount before this is
      * called; all a provider decides is what the item is. Each tier keeps a
      * chance of the tier below it, so the reward still varies once a player is
      * parked at the top — a fixed table stops being a reward and becomes a
      * rate.
+     *
+     * Material comes in handfuls. A single ingot off a kill is a reward that
+     * reads as a rounding error; three to five is a reason to have fought.
      */
+    /**
+     * The chance a top-shelf reward is a finished weapon.
+     *
+     * Was 0.12. A weapon is the one reward that is also the end of a decision —
+     * a player holding a dropped Rift Edge has no reason to build, socket or
+     * ascend one — so at one in eight the forge was competing with the loot
+     * and losing. One in twenty-five keeps the weapon as the thing a top-tier
+     * kill can *occasionally* be, and the ingots below as what it usually is.
+     */
+    public static final float WEAPON_CHANCE = 0.04F;
+
+    /** How many of a raw material a drop is, at least. */
+    public static final int MATERIAL_MIN = 2;
+    /** ...and at most. Three to five raw, two to three refined. */
+    public static final int MATERIAL_SPREAD = 3;
+
     private static void registerRewards() {
         ElysiumRewards.register((tier, random) -> switch (tier) {
             case 3 -> {
-                if (random.nextFloat() < 0.12F) {
+                if (random.nextFloat() < WEAPON_CHANCE) {
                     yield new ItemStack(randomWeapon(random));
                 }
-                yield random.nextFloat() < 0.55F
-                        ? new ItemStack(Elysium.ELYSIUM_REFORGE.get())
-                        : new ItemStack(randomRune(random));
+                float roll = random.nextFloat();
+                if (roll < 0.35F) {
+                    yield new ItemStack(Elysium.ELYSIUM_REFORGE.get());
+                }
+                if (roll < 0.60F) {
+                    yield new ItemStack(randomRune(random));
+                }
+                yield refined(random);
             }
-            case 2 -> random.nextFloat() < 0.60F
+            case 2 -> random.nextFloat() < 0.40F
                     ? new ItemStack(randomRune(random))
-                    : new ItemStack(Elysium.NEUTRONIUM_INGOT.get());
-            case 1 -> random.nextFloat() < 0.60F
-                    ? new ItemStack(Elysium.NEUTRONIUM_INGOT.get())
-                    : new ItemStack(rawMaterial(random));
-            default -> new ItemStack(rawMaterial(random));
+                    : refined(random);
+            case 1 -> random.nextFloat() < 0.50F
+                    ? refined(random)
+                    : raw(random);
+            default -> raw(random);
         });
+    }
+
+    /** A handful of the raw materials, never a single ingot. */
+    private static ItemStack raw(RandomSource random) {
+        return new ItemStack(rawMaterial(random),
+                MATERIAL_MIN + 1 + random.nextInt(MATERIAL_SPREAD));
+    }
+
+    /** A couple of the refined one — worth more each, so fewer of them. */
+    private static ItemStack refined(RandomSource random) {
+        return new ItemStack(Elysium.NEUTRONIUM_INGOT.get(),
+                MATERIAL_MIN + random.nextInt(2));
     }
 
     /**

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarmory:item/machete",
+    "layer1": "elysiumarmory:item/machete_grip"
+  }
+}

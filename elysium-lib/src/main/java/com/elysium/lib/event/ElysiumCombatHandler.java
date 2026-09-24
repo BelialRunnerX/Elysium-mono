@@ -4,8 +4,11 @@ import com.elysium.lib.ElysiumLib;
 import com.elysium.lib.element.ElysiumElement;
 import com.elysium.lib.item.ElysiumRarities;
 import com.elysium.lib.item.ElysiumRune;
+import com.elysium.lib.item.ElysiumGear;
 import com.elysium.lib.item.ElysiumSocketable;
 import com.elysium.lib.stats.ElysiumStats;
+import com.elysium.lib.telegraph.ElysiumTelegraph;
+import com.elysium.lib.telegraph.ElysiumWarnings;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -14,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import com.elysium.lib.combat.ElysiumCombatRules;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 
 import java.util.HashMap;
@@ -87,14 +91,6 @@ public final class ElysiumCombatHandler {
      * Imperial holding a blade would have killed anything that touched them,
      * from a 0.3-damage reflection.
      */
-    /**
-     * No stack of runes may take a reduction or a dodge chance past this.
-     *
-     * A cap on what runes alone can do, kept separate from the stat curves —
-     * those are bounded by their own shape, whereas rune bonuses are flat and
-     * would otherwise add without limit as socket counts rise.
-     */
-    private static final float MAX_RUNE_REDUCTION = 0.60F;
 
     private static final ThreadLocal<Boolean> REFLECTING = ThreadLocal.withInitial(() -> false);
 
@@ -110,19 +106,26 @@ public final class ElysiumCombatHandler {
         // cares which rune that is. A rune added by another mod that declares a
         // dodge bonus is counted here for free.
         float dodge = ElysiumRune.sumAcross(victim, ElysiumRune::getDodgeBonus);
+        // The dodge_chance attribute (AA-6) is one more stat behind the same
+        // single chance, and it is read off anything that carries it, not only
+        // players: gear and affixes can give it to a mob.
+        if (com.elysium.lib.attribute.ElysiumAttributeValues.has(victim, "dodge_chance")) {
+            dodge = com.elysium.lib.stats.ElysiumShares.add(dodge,
+                    (float) com.elysium.lib.attribute.ElysiumAttributeValues.chance(victim, "dodge_chance"));
+        }
         if (victim instanceof Player defender) {
-            dodge += ElysiumStats.dodgeChance(defender);
-            // Passives — and therefore trinkets — fold in here rather than
-            // rolling separately. Two independent dodge rolls would mean a
-            // second chance to avoid the same blow, which is both stronger than
-            // it reads and impossible to describe in a tooltip. Combined
-            // proportionally rather than added, so a passive contributes to the
-            // same single chance and is bounded by the same cap below.
-            dodge = ElysiumStats.combine(dodge,
+            // Runes, Reflexes and passives are three stats behind one chance:
+            // added as stats, then stat / (stat + b) once — ElysiumShares.
+            // One roll, not three, so a trinket raises the same chance a
+            // tooltip can describe rather than granting a second dodge.
+            dodge = com.elysium.lib.stats.ElysiumShares.add(dodge,
+                    ElysiumStats.dodgeChance(defender),
                     ElysiumPassives.dodgeChance(defender, event.getSource()));
         }
         if (dodge > 0.0F && !event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            if (victim.getRandom().nextFloat() < Math.min(MAX_RUNE_REDUCTION, dodge)) {
+            // No cap: the chance comes off stat / (stat + b), which climbs
+            // toward every blow missed without arriving.
+            if (victim.getRandom().nextFloat() < dodge) {
                 event.setCanceled(true);
                 // "Something swung at you and missed" is a moment some effects
                 // want, so it is reported — with a zero, because nothing landed.
@@ -135,19 +138,49 @@ public final class ElysiumCombatHandler {
 
         float amount = event.getAmount();
 
+        // --- 1b. The telegraph rule ---------------------------------------
+        //
+        // Nothing hits a player hard without warning them first. Enforced here
+        // rather than in each mob's attack, and enforced for *every* attacker
+        // rather than this mod's own, because a promise that only holds for
+        // content this mod shipped is not a promise a player can rely on — the
+        // whole value of "you will always see it coming" is that it is true of
+        // the mob you have never met.
+        //
+        // Before the elemental matrix and before armour, so that what is capped
+        // is the blow as it was swung. Capping afterwards would mean a player
+        // in good armour could be hit unannounced for far more than one in
+        // none, which is the wrong way round: armour should make a fair hit
+        // survivable, not make an unfair one legal.
+        if (victim instanceof Player && event.getSource().getEntity()
+                instanceof LivingEntity swinging) {
+            int announced = ElysiumWarnings.showingFor(swinging);
+            float permitted = ElysiumTelegraph.allowed(amount, announced);
+            if (permitted < amount) {
+                amount = permitted;
+            }
+            // Spent either way. A mob that lands a blow has finished the swing
+            // it announced, and a second hit has to be announced again —
+            // otherwise one wind-up would licence every blow that followed it.
+            ElysiumWarnings.spend(swinging);
+        }
+
         // --- 2. Rune resistance to heat -----------------------------------
         if (isHeat(event.getSource())) {
-            float reduction = ElysiumRune.sumAcross(victim, ElysiumRune::getHeatReduction);
+            float reduction = ElysiumRune.shareAcross(victim, ElysiumRune::getHeatReduction);
             if (reduction > 0.0F) {
-                amount *= (1.0F - Math.min(MAX_RUNE_REDUCTION, reduction));
+                // A share off stat / (stat + b), so below one by construction.
+                // The floor stays anyway: it is not a cap on the stat but on
+                // the arithmetic, and a negative factor here would be a hit
+                // that heals.
+                amount *= Math.max(0.0F, 1.0F - reduction);
             }
         }
 
         // --- 3. The elemental matrix --------------------------------------
         Player attacker = attackerOf(event.getSource());
         ItemStack held = heldWeapon(event.getSource());
-        ElysiumSocketable weapon = held.getItem() instanceof ElysiumSocketable gear
-                && !gear.isArmour() ? gear : null;
+        ElysiumSocketable weapon = ElysiumGear.weapon(held);
         ElysiumElement attacking = weapon != null ? weapon.getElement() : ElysiumElement.NONE;
         // Effective tier, not registered tier: an ascended weapon has to be
         // read the same way an ascended chestplate is, or the defensive side
@@ -167,8 +200,12 @@ public final class ElysiumCombatHandler {
             // Wearing the answer to what is hitting you blunts it. Worth half
             // of what the attacker's advantage would have been, so offence
             // still beats defence on an even matchup.
+            //
+            // The advantage is a stat, uncapped; what it removes is
+            // stat / (stat + 1). This was the stat itself, clamped at 90%.
             float blunt = ElysiumRarities.getAdvantage(defence.tier()) * 0.5F * defendPsi;
-            amount *= (1.0F - Math.min(0.90F, blunt));
+            amount *= (1.0F - com.elysium.lib.stats.ElysiumShares.fromOdds(
+                    blunt * com.elysium.lib.stats.ElysiumShares.PACE));
         }
 
         // --- 4. Strength, multiplied by whatever is in hand ----------------
@@ -177,10 +214,40 @@ public final class ElysiumCombatHandler {
             amount *= ElysiumPassives.attackScale(attacker, victim);
         }
 
-        // --- 5. Accuracy ---------------------------------------------------
-        if (attacker != null && isMelee(event.getSource(), attacker)
-                && attacker.getRandom().nextFloat() < ElysiumStats.critChance(attacker)) {
-            amount *= ElysiumPassives.critMultiplier(attacker);
+        // --- 4b. Whose side you are on -------------------------------------
+        //
+        // A warrant sharpens a player against the Unsworn; a writ from the
+        // other side against the Empire's own. Applied against the victim's
+        // faction rather than flatly, so neither is a damage upgrade wearing a
+        // faction's name — a warranted player fighting a creeper is an
+        // ordinary player fighting a creeper.
+        if (attacker != null) {
+            amount *= com.elysium.lib.doctrine.ElysiumDoctrines
+                    .damageMultiplier(attacker, victim);
+        }
+
+        // --- 5. Accuracy and the crit attributes ---------------------------
+        //
+        // One roll set, not two: Accuracy's chance, the passives' chance and
+        // the crit_chance attribute are added as odds (ElysiumShares.add) and
+        // rolled once through ElysiumCombatRules, which keeps rolling while the
+        // stat buys more crits — each rarer and 15% softer than the last. The
+        // crit multiplier is the larger of the passives' and the attribute's,
+        // so a build that has both is not paid twice for the same hit.
+        LivingEntity living = event.getSource().getEntity() instanceof LivingEntity hitter ? hitter : null;
+        if (living != null && !event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+            double odds = 0.0D;
+            double critDamage = 1.0D;
+            if (com.elysium.lib.attribute.ElysiumAttributeValues.has(living, "crit_chance")) {
+                odds += com.elysium.lib.attribute.ElysiumAttributeValues.raw(living, "crit_chance");
+                critDamage = com.elysium.lib.attribute.ElysiumAttributeValues.multiplier(living, "crit_damage");
+            }
+            if (attacker != null && isMelee(event.getSource(), attacker)) {
+                odds += com.elysium.lib.stats.ElysiumShares.odds(ElysiumStats.critChance(attacker));
+                critDamage = Math.max(critDamage, ElysiumPassives.critMultiplier(attacker));
+            }
+            amount *= ElysiumCombatRules.critMultiplier(odds, critDamage,
+                    () -> living.getRandom().nextDouble());
         }
 
         // --- 6. Resilience -------------------------------------------------
@@ -194,6 +261,19 @@ public final class ElysiumCombatHandler {
         }
 
         float landed = Math.max(0.0F, amount);
+
+        // --- 6b. What the blow did to the scenery --------------------------
+        //
+        // Measured on the swing rather than on what landed, and that is the
+        // whole distinction: a blow that a player's armour turned aside was
+        // still a blow that size, and the wall behind them does not have their
+        // armour. Using the landed figure would mean the better equipped a
+        // player was, the more solid the world became around them.
+        //
+        // Everything that stops this happening lives in ElysiumCover, which is
+        // written as a list of reasons to do nothing.
+        com.elysium.lib.scar.ElysiumCover.scar(
+                victim.level(), victim, event.getAmount());
 
         // --- 7. Retribution ------------------------------------------------
         if (victim instanceof Player defender) {
@@ -211,10 +291,24 @@ public final class ElysiumCombatHandler {
         // A reflected blow cannot feed a heal: REFLECTING is checked at the top
         // of this method and the reflection is dealt inside that guard, so this
         // line is never reached for one.
-        if (attacker != null && landed > 0.0F) {
-            float share = ElysiumPassives.lifestealShare(attacker, victim);
-            if (share > 0.0F) {
-                attacker.heal(landed * share);
+        LivingEntity thief = event.getSource().getEntity() instanceof LivingEntity hitter ? hitter : null;
+        if (landed > 0.0F && thief != null) {
+            float share = attacker != null ? ElysiumPassives.lifestealShare(attacker, victim) : 0.0F;
+            if (com.elysium.lib.attribute.ElysiumAttributeValues.has(thief, "life_steal")) {
+                share = com.elysium.lib.stats.ElysiumShares.add(share,
+                        (float) com.elysium.lib.attribute.ElysiumAttributeValues.chance(thief, "life_steal"));
+            }
+            float healed = ElysiumCombatRules.lifeSteal(landed, share);
+            if (healed > 0.0F) {
+                thief.heal(healed);
+            }
+            // Overheal (AA-5): what the heal could not use becomes absorption,
+            // filling toward the overheal share of max health and no further.
+            double overheal = com.elysium.lib.attribute.ElysiumAttributeValues.has(thief, "overheal")
+                    ? com.elysium.lib.attribute.ElysiumAttributeValues.chance(thief, "overheal") : 0.0D;
+            if (overheal > 0.0D) {
+                thief.setAbsorptionAmount(ElysiumCombatRules.overhealAbsorption(thief.getAbsorptionAmount(),
+                        landed, thief.getMaxHealth(), overheal));
             }
         }
 
@@ -290,7 +384,8 @@ public final class ElysiumCombatHandler {
      */
     private static float multiplierOf(Player attacker) {
         ItemStack held = attacker.getMainHandItem();
-        if (held.getItem() instanceof ElysiumSocketable gear) {
+        ElysiumSocketable gear = ElysiumGear.of(held);
+        if (gear != null) {
             return gear.getDamageMultiplier();
         }
         return held.isEmpty() ? 0.5F : 1.0F;
@@ -336,7 +431,8 @@ public final class ElysiumCombatHandler {
         Map<ElysiumElement, Integer> tiers = new HashMap<>();
 
         for (ItemStack stack : entity.getArmorSlots()) {
-            if (!(stack.getItem() instanceof ElysiumSocketable armor) || !armor.isArmour()) {
+            ElysiumSocketable armor = ElysiumGear.armour(stack);
+            if (armor == null) {
                 continue;
             }
             ElysiumElement element = armor.getElement();

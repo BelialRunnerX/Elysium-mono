@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "silentgear:blackstone_crimson_iron_ore",
+      "required": false
+    },
+    {
+      "id": "silentgear:crimson_iron_ore",
+      "required": false
+    },
+    "elysiumores:cinder_crimson_iron_ore",
+    "elysiumores:deepslate_crimson_iron_ore",
+    "elysiumores:end_stone_crimson_iron_ore",
+    "elysiumores:frost_crimson_iron_ore",
+    "elysiumores:pale_crimson_iron_ore"
+  ]
+}

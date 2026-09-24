@@ -1,0 +1,13 @@
+{
+  "name": "Synergistic",
+  "max_level": 5,
+  "description": "Gear gets a synergy bonus (if base value is more than 100%)",
+  "effects": [
+    {
+      "type": "synergy",
+      "per_level": 0.04,
+      "min": 1.0,
+      "max": 1000000000.0
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " v ",
+    "vgv",
+    " n "
+  ],
+  "key": {
+    "v": {
+      "item": "elysium:voidglass_ingot"
+    },
+    "g": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "n": {
+      "item": "elysium:neutronium_ingot"
+    }
+  },
+  "result": {
+    "id": "elysium:affix_convergence_template",
+    "count": 2
+  }
+}

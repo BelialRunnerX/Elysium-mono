@@ -1,6 +1,8 @@
 package com.elysium.core.item;
 
 import com.elysium.lib.item.ElysiumRune;
+import com.elysium.lib.item.ElysiumRuneStacks;
+import com.elysium.lib.item.ElysiumRuneTiers;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -40,6 +42,16 @@ public class ElysiumRuneItem extends Item {
         return rune;
     }
 
+    /** "Voidward Rune III". The base tier keeps its plain name. */
+    @Override
+    public Component getName(ItemStack stack) {
+        int tier = ElysiumRuneStacks.tierOf(stack);
+        Component base = super.getName(stack);
+        return tier <= ElysiumRuneTiers.BASE ? base
+                : Component.translatable("elysium.rune.tiered_name", base,
+                        ElysiumRuneTiers.numeral(tier));
+    }
+
     @Override
     public void appendHoverText(ItemStack stack,
                                 Item.TooltipContext context,
@@ -47,6 +59,18 @@ public class ElysiumRuneItem extends Item {
                                 TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
         tooltip.add(rune.getEffectLine());
+        // The tier and what it is worth, stated as the rule: tier N, N times.
+        int tier = ElysiumRuneStacks.tierOf(stack);
+        tooltip.add(Component.translatable("elysium.tooltip.rune_tier_item",
+                        ElysiumRuneTiers.numeral(tier), tier)
+                .withStyle(tier > ElysiumRuneTiers.BASE
+                        ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.DARK_GRAY));
+        if (tier < ElysiumRuneTiers.MAX_TIER) {
+            tooltip.add(Component.translatable("elysium.tooltip.rune_merge_hint",
+                            ElysiumRuneTiers.numeral(tier),
+                            ElysiumRuneTiers.numeral(ElysiumRuneTiers.merged(tier)))
+                    .withStyle(ChatFormatting.DARK_GRAY));
+        }
         tooltip.add(Component.translatable("elysium.tooltip.rune_hint")
                 .withStyle(ChatFormatting.DARK_GRAY));
     }

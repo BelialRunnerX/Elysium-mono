@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:deepslate_ore_aluminum",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:ore_aluminum",
+      "required": false
+    },
+    "elysiumores:cinder_aluminum_ore",
+    "elysiumores:end_stone_aluminum_ore",
+    "elysiumores:frost_aluminum_ore",
+    "elysiumores:netherrack_aluminum_ore",
+    "elysiumores:pale_aluminum_ore"
+  ]
+}

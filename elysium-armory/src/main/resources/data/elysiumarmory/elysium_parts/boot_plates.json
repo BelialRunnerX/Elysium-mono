@@ -1,0 +1,11 @@
+{
+  "type": "core",
+  "gear_type": "boots",
+  "part_type": "main",
+  "crafting": {
+    "materials": 4
+  },
+  "properties": {
+    "repair_efficiency": 1.0
+  }
+}

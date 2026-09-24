@@ -1,0 +1,13 @@
+{
+  "type": "elysiumsolarpunk:pressing",
+  "input": {
+    "item": "minecraft:bamboo"
+  },
+  "result": {
+    "id": "elysiumsolarpunk:plant_fibre",
+    "count": 1
+  },
+  "time": 160,
+  "energy": 640,
+  "input_count": 4
+}

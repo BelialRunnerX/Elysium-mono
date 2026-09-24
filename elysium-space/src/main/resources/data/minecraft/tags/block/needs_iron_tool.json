@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumspace:lunite_ore",
+    "elysiumspace:pale_rime_shard_ore",
+    "elysiumspace:frost_diamond_ore",
+    "elysiumspace:frost_rime_shard_ore",
+    "elysiumspace:cinder_gold_ore",
+    "elysiumspace:cinder_diamond_ore",
+    "elysiumspace:lunite_block",
+    "elysiumspace:raw_lunite_block"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "#neoforge:is_magic",
+    "#neoforge:is_poison",
+    "#neoforge:is_wither",
+    "#minecraft:is_fire",
+    "#minecraft:is_explosion",
+    "#minecraft:is_lightning",
+    "#minecraft:is_freezing"
+  ]
+}

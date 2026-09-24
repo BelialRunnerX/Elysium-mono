@@ -1,0 +1,5 @@
+{
+  "from": "minecraft:awkward",
+  "ingredient": "minecraft:experience_bottle",
+  "to": "elysiumlib:knowledge"
+}

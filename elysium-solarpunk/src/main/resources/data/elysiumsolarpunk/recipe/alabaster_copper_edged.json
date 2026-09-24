@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "mmm",
+    "msm",
+    "mmm"
+  ],
+  "key": {
+    "s": {
+      "item": "elysiumsolarpunk:polished_alabaster"
+    },
+    "m": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:alabaster_copper_edged",
+    "count": 4
+  }
+}

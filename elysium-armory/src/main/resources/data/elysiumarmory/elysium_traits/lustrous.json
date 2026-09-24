@@ -1,0 +1,13 @@
+{
+  "name": "Lustrous",
+  "max_level": 5,
+  "description": "Tools gain a large harvest speed boost when in light",
+  "conditions": [
+    "on:harvest_tool"
+  ],
+  "effects": [
+    {
+      "type": "code"
+    }
+  ]
+}

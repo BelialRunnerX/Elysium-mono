@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:pressing",
+  "input": {
+    "item": "minecraft:sugar_cane"
+  },
+  "result": {
+    "id": "minecraft:paper",
+    "count": 1
+  },
+  "ticks": 100,
+  "pace": "slow"
+}

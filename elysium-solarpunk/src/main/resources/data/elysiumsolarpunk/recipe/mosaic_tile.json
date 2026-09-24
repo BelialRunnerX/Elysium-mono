@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "tv",
+    "vt"
+  ],
+  "key": {
+    "t": {
+      "item": "minecraft:terracotta"
+    },
+    "v": {
+      "item": "elysiumsolarpunk:verdigris"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:mosaic_tile",
+    "count": 4
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "prefix",
+  "on": [
+    "armor"
+  ],
+  "min_tier": 0,
+  "weight": 14,
+  "max_level": 4,
+  "effects": [
+    {
+      "type": "attribute",
+      "modifiers": [
+        {
+          "attribute": "minecraft:generic.armor",
+          "operation": "add_value",
+          "slot": "any",
+          "min": 0.5,
+          "max": 3.0,
+          "levels": 4
+        }
+      ]
+    }
+  ]
+}

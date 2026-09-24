@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/crop",
+  "textures": {
+    "crop": "elysiumflora:block/downbloom_stage2"
+  }
+}

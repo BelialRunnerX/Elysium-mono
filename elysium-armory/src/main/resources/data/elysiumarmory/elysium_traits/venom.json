@@ -1,0 +1,15 @@
+{
+  "name": "Venom",
+  "max_level": 5,
+  "description": "Poisons the target when attacked",
+  "conditions": [
+    "on:tool"
+  ],
+  "effects": [
+    {
+      "type": "target_effect",
+      "effect": "minecraft:poison",
+      "ticks_per_level": 80
+    }
+  ]
+}

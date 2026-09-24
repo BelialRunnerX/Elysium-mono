@@ -1,0 +1,5 @@
+{
+  "from": "elysiumlib:knowledge",
+  "ingredient": "minecraft:redstone",
+  "to": "elysiumlib:long_knowledge"
+}

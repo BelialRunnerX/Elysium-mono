@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "ww",
+    "ww"
+  ],
+  "key": {
+    "w": {
+      "item": "elysiumsolarpunk:woven_cane"
+    }
+  },
+  "result": {
+    "id": "elysiumsolarpunk:woven_cane_block",
+    "count": 4
+  }
+}

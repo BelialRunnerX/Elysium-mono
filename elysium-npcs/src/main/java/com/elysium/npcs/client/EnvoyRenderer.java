@@ -1,7 +1,10 @@
 package com.elysium.npcs.client;
 
 import com.elysium.npcs.client.model.EnvoyModel;
+import com.elysium.npcs.entity.EnvoyKind;
 import com.elysium.npcs.entity.ImperialEnvoy;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -17,6 +20,19 @@ public class EnvoyRenderer extends MobRenderer<ImperialEnvoy, EnvoyModel<Imperia
     public EnvoyRenderer(EntityRendererProvider.Context context) {
         super(context, new EnvoyModel<>(context.bakeLayer(
                 ElysiumNpcsClient.ENVOY_LAYER)), 0.5F);
+    }
+
+    /**
+     * The wardrobe is set here, once per frame per envoy, rather than inside
+     * setupAnim - see the note on EnvoyModel.wardrobe. The renderer is the
+     * thing that knows both the model and the entity, which makes it the place
+     * where "this model is now that person" belongs.
+     */
+    @Override
+    public void render(ImperialEnvoy entity, float yaw, float partialTick,
+                       PoseStack pose, MultiBufferSource buffers, int light) {
+        this.getModel().wardrobe(entity.getKind());
+        super.render(entity, yaw, partialTick, pose, buffers, light);
     }
 
     @Override

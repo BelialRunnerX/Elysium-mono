@@ -1,0 +1,42 @@
+{
+  "type": "custom_compound",
+  "crafting": {
+    "categories": [
+      "metal",
+      "advanced"
+    ]
+  },
+  "display": {
+    "name": "High-Carbon Steel"
+  },
+  "properties": {
+    "main": {
+      "durability": 420.0,
+      "armor_durability": 24.0,
+      "harvest_tier": "high_carbon_steel",
+      "harvest_speed": 6.0,
+      "attack_damage": 4.0,
+      "attack_speed": -0.2,
+      "magic_damage": 1.0,
+      "ranged_damage": 2.0,
+      "draw_speed": -0.2,
+      "armor": 20.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 8.0,
+      "armor/leggings": 6.0,
+      "armor/boots": 3.0,
+      "armor_toughness": 2.0,
+      "magic_armor": 6.0,
+      "enchantment_value": 11.0,
+      "charging_value": 0.8,
+      "rarity": 40.0,
+      "repair_value": 0.05,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 3
+        }
+      ]
+    }
+  }
+}

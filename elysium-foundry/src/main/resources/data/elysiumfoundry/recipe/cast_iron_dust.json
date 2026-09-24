@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:cast_iron_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:cast_iron_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

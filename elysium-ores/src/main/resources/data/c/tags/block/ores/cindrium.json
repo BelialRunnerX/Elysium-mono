@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:cindrium_ore",
+      "required": false
+    },
+    "elysiumores:cinder_cindrium_ore",
+    "elysiumores:deepslate_cindrium_ore",
+    "elysiumores:end_stone_cindrium_ore",
+    "elysiumores:frost_cindrium_ore",
+    "elysiumores:netherrack_cindrium_ore",
+    "elysiumores:pale_cindrium_ore"
+  ]
+}

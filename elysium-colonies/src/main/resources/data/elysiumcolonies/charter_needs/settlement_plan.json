@@ -1,0 +1,68 @@
+{
+  "wants": [
+    {
+      "building": "minecolonies:builder",
+      "from": 0
+    },
+    {
+      "building": "minecolonies:home",
+      "from": 0
+    },
+    {
+      "building": "minecolonies:warehouse",
+      "from": 3
+    },
+    {
+      "building": "minecolonies:deliveryman",
+      "from": 3
+    },
+    {
+      "building": "minecolonies:farmer",
+      "from": 4
+    },
+    {
+      "building": "minecolonies:cook",
+      "from": 5
+    },
+    {
+      "building": "minecolonies:lumberjack",
+      "from": 6
+    },
+    {
+      "building": "minecolonies:miner",
+      "from": 7
+    },
+    {
+      "building": "minecolonies:forester",
+      "from": 8
+    },
+    {
+      "building": "minecolonies:guardtower",
+      "from": 9
+    },
+    {
+      "building": "minecolonies:sawmill",
+      "from": 10
+    },
+    {
+      "building": "minecolonies:stonemason",
+      "from": 12
+    },
+    {
+      "building": "minecolonies:blacksmith",
+      "from": 14
+    },
+    {
+      "building": "minecolonies:hospital",
+      "from": 16
+    },
+    {
+      "building": "minecolonies:library",
+      "from": 18
+    },
+    {
+      "building": "minecolonies:barracks",
+      "from": 20
+    }
+  ]
+}

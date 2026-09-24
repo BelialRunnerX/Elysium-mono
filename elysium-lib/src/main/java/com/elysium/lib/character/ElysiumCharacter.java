@@ -50,8 +50,30 @@ public final class ElysiumCharacter {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
             DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, ElysiumLib.MODID);
 
-    /** Free points granted per level, on top of race and class growth. */
-    public static final int POINTS_PER_LEVEL = 2;
+    /**
+     * Free points granted per level, on top of race and class growth.
+     *
+     * <h3>Ten, and nothing caps the total</h3>
+     *
+     * Two was a number for a game where a point was a large thing and a level
+     * was rare. It is the wrong number for this one: levels here come on a
+     * quadratic curve that a player crosses steadily for the whole game, and
+     * two points is a decision so small that the level-up message was the only
+     * part of it anybody noticed.
+     *
+     * Ten makes a level an event. It also means a player at level fifty has
+     * assigned five hundred points by hand, which is why nothing in this class,
+     * in {@link #spendPoint} or in {@link ElysiumStatBlock} clamps a stat: the
+     * shape of every proportional effect is {@code value / (value + halfway)},
+     * which cannot reach its ceiling however large the value gets. A cap would
+     * be a second, blunter answer to a problem the curve already solves — and
+     * it would be the one a player runs into.
+     *
+     * The character screen's bars are measured against the character's own
+     * largest stat for the same reason. A bar drawn against a fixed 50 pegs at
+     * level six and tells a player nothing for the rest of the game.
+     */
+    public static final int POINTS_PER_LEVEL = 10;
 
     // ------------------------------------------------------------------
     // Attachments
@@ -147,12 +169,9 @@ public final class ElysiumCharacter {
         return player.getData(UNSPENT.get());
     }
 
-    /**
-     * Experience needed to leave the given level. Linear in level, so the
-     * cumulative cost is quadratic.
-     */
+    /** Experience needed to leave the given level. See {@link ElysiumLevelling}. */
     public static int xpToNext(int level) {
-        return 60 + 40 * level;
+        return ElysiumLevelling.xpToNext(level);
     }
 
     /**

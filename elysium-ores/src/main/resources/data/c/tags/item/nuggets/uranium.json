@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersiveengineering:nugget_uranium",
+      "required": false
+    },
+    {
+      "id": "mekanism:nugget_uranium",
+      "required": false
+    }
+  ]
+}
