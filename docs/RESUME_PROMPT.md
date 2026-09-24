@@ -19,8 +19,10 @@ enough on its own:
 - `elysium-mono.bundle` — a complete git repo in one file
 
 Stage one of them, put the tree at `/tmp/Elysium-mono`, and check it arrived:
-`git log --oneline -2` should show the conversion commit on top of `72cb0ed`,
-`ls -d elysium-*` should count 29, and `docs/TODO.md` should exist.
+`ls -d elysium-*` should count 29, `ls tools/negtest/*.sh` should count 127,
+and `docs/TODO.md` should exist. From the bundle, `git log --oneline` should
+show the conversion commits sitting on top of `72cb0ed` on a branch called
+`elysium-conversion`.
 
 **Then read `/tmp/Elysium-mono/docs/TODO.md` before doing anything else.** It
 is the handover: where this stands, what is honestly still missing, the
@@ -38,8 +40,11 @@ done. Keep each piece as modular but as extensible as you can.
 Every rule lives in a pure JDK class under `rules/` — no `net.minecraft`, no
 `net.neoforged` — so a harness can sweep millions of cases without a game.
 Every check must be negative-tested: break it deliberately, one way at a time,
-and prove it reports. `docs/TODO.md` §5 has the rest, and every protocol in it
-is there because something went wrong without it.
+and prove it reports. `tools/negtest/` has 127 scripts doing exactly that, and
+`tools/dryrun.py` checks a script's anchors without touching the tree — read
+`tools/negtest/README.md` before writing a new one. `docs/TODO.md` §5 has the
+rest, and every protocol in it is there because something went wrong without
+it.
 
 Type-check and build with `./compile.sh` (add `--jars --bundle` for the merged
 jar). Validate with `python3 validate.py` at the root — 29 module validators
