@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+# Elysium Colonies, part three: running with nobody there.
+set -uo pipefail
+ROOT=/tmp/Elysium-mono
+M=$ROOT/elysium-colonies
+S=$M/src/main/java/com/elysium/colonies
+R=$M/src/main/resources
+D=$R/data/elysiumcolonies
+SNAP=/tmp/colonies3_snap.tar
+pass=0; fail=0
+(cd $ROOT && tar cf $SNAP elysium-colonies)
+restore() { rm -rf $ROOT/elysium-colonies && (cd $ROOT && tar xf $SNAP); }
+out() { (cd $M && python3 validate.py 2>&1); }
+expect() { local w="$2" g; g="$(out)"
+  if [[ "$g" == *"$w"* ]]; then echo "  caught : $1"; pass=$((pass+1));
+  else echo "  MISSED : $1"; fail=$((fail+1)); fi; restore; }
+edit() { python3 -c "
+import sys
+p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
+s = open(p, encoding='utf-8').read()
+assert old in s, 'anchor not found in ' + p
+open(p,'w',encoding='utf-8').write(s.replace(old, new, 1))
+" "$@"; }
+
+echo "waiting for a player"
+edit $S/event/ColonyLife.java 'private static boolean found(ServerLevel level, Colonies.Settlement town,
+                                 String kind) {
+        BlockPos hall = town.centre();' \
+'private static boolean found(ServerLevel level, Colonies.Settlement town,
+                                 String kind) {
+        if (level.getServer().getPlayerList().getPlayer(town.owner()) == null) return false;
+        BlockPos hall = town.centre();'
+expect "a town that only grows while somebody is logged in" "only grows while somebody is logged in"
+
+edit $S/colony/Colonies.java 'return order(colony, building, WorkOrderType.UPGRADE);' \
+                             'building.requestUpgrade(null, BlockPos.ZERO); return true;'
+expect "a town one refusal away from a crash" "no null check"
+
+edit $S/colony/Colonies.java 'public static boolean raise(Level level, int colonyId, BlockPos where) {' \
+'public static net.minecraft.world.entity.player.Player fake(ServerLevel l) {
+        return net.neoforged.neoforge.common.util.FakePlayerFactory.getMinecraft(l);
+    }
+
+    public static boolean raise(Level level, int colonyId, BlockPos where) {'
+expect "a fake player conjured into somebody else's colony" "conjures a fake player"
+
+echo "founding"
+edit $S/event/ColonyLife.java 'if (!Colonies.inside(level, town.id(), ground)) {
+                    continue;
+                }' ''
+expect "a town building outside its own ground" "outside its own ground"
+
+edit $S/event/ColonyLife.java 'if (!Colonies.clearOf(level, town.id(), ground, SiteRules.SPACING - 1)) {
+                    continue;
+                }' ''
+expect "a town building on top of itself" "on top of what it has already built"
+
+edit $S/event/ColonyLife.java 'if (!SiteRules.levelEnough(hall.getY(), ground.getY())) {
+                    continue;
+                }' ''
+expect "a town building up a cliff face" "cliff face"
+
+edit $S/event/ColonyLife.java 'String wanted = Charters.plan().next(town.citizens(),
+                    kind -> Colonies.has(level, town.id(), kind));' \
+                              'String wanted = "minecolonies:builder";'
+expect "a build order nobody wrote down" "a pack cannot"
+
+edit $S/colony/Colonies.java 'hut.setPlacedBy(level, where, state, null, ItemStack.EMPTY);' ''
+expect "a hut the colony never hears about" "nothing owns"
+
+edit $S/colony/Colonies.java 'String blueprint = blueprintFor(pack, entry);' 'String blueprint = "";'
+expect "a hut the builder can never raise" "find and break the block"
+
+edit $S/colony/Colonies.java 'level.removeBlock(where, false);' ''
+expect "a failed founding leaving litter" "litters the town"
+
+python3 -c "
+import json
+p='$D/charter_needs/settlement_plan.json'
+d=json.load(open(p)); d['wants']=d['wants'][1:]
+json.dump(d,open(p,'w'),indent=2)"
+expect "a plan that does not start with a builder" "including the builder"
+
+python3 -c "
+import json
+p='$D/charter_needs/settlement_plan.json'
+d=json.load(open(p)); d['wants'].append(d['wants'][0])
+json.dump(d,open(p,'w'),indent=2)"
+expect "a plan asking for one thing twice" "the second is unreachable"
+
+rm -f $D/charter_needs/settlement_plan.json
+expect "no plan at all" "autonomy stops at upgrades"
+
+echo "the caretaker"
+edit $S/event/ColonyLife.java 'Colonies.repair(level, town.id(), turn.at());' ''
+expect "damage nobody ever goes over" "no player is coming to notice"
+
+edit $S/event/ColonyLife.java 'if (built.isEmpty() || town.day() % CARETAKING != 0) {
+            return;
+        }' 'if (built.isEmpty()) {
+            return;
+        }'
+expect "a caretaker on no schedule" "no schedule at all"
+
+echo "the exchange"
+edit $S/exchange/FrontierExchange.java 'List<Colonies.Owed> owed = Colonies.owed(level, town.id());' \
+                                       'List<Colonies.Owed> owed = List.of();'
+expect "the one list that stops a town, unread" "stops it dead"
+
+edit $S/exchange/FrontierExchange.java 'if (Colonies.deliver(level, town.id(), want, bought)) {' 'if (false) {'
+expect "a town that works out what it needs and never gets it" "never hands it over"
+
+edit $S/exchange/FrontierExchange.java 'int taken = Colonies.take(level, town.id(), offer.getKey(), cost);' \
+                                       'int taken = cost;'
+expect "an exchange that charges nothing" "has not paid for"
+
+edit $S/exchange/FrontierExchange.java 'if (ItemStack.isSameItem(offer.getKey(), want.wanted())) {
+                    continue;
+                }' ''
+expect "a town grinding a thing into itself" "into one of the same item"
+
+edit $S/exchange/FrontierExchange.java 'if (spent >= ExchangeRules.MOST_SPENT_PER_DAY) {
+                break;
+            }' 'if (spent >= Integer.MAX_VALUE) {
+                break;
+            }'
+expect "an exchange with no daily limit in the code" "rather than a lifeline"
+
+edit $S/colony/Colonies.java 'requests.getPlayerResolver().getAllAssignedRequests()' \
+                             'java.util.List.<IToken<?>>of()'
+expect "the outstanding list read from the wrong place" "everything else has failed"
+
+edit $S/colony/Colonies.java 'colony.getRequestManager().overruleRequest(token, giving);' \
+                             'if (giving.isEmpty()) return false;'
+expect "a delivery the host does not know about" "bookkeeping"
+
+echo "the arithmetic"
+edit $S/rules/ExchangeRules.java 'public static final int BASE_RATE = 8;' \
+                                 'public static final int BASE_RATE = 1;'
+expect "an exchange that trades one for one" "nothing is ever worth producing"
+
+edit $S/rules/ExchangeRules.java 'int budget = Math.max(0, MOST_SPENT_PER_DAY - Math.max(0, spent));' \
+                                 'int budget = Integer.MAX_VALUE;'
+expect "a day of trading with no cap" "than a lifeline"
+
+edit $S/rules/ExchangeRules.java 'return Math.min(MOST_NOTICE_PER_DAY,
+                Math.max(0, trades) * NOTICE_PER_TRADE);' \
+                                 'return Math.max(0, trades) * NOTICE_PER_TRADE;'
+expect "notice that scales without limit" "bring the Empire down"
+
+edit $S/rules/ExchangeRules.java 'int rate = Math.round(BASE_RATE / worldFactor);' \
+                                 'int rate = BASE_RATE;'
+expect "a charter that stops mattering once a town trades" "stops meaning anything"
+
+edit $S/rules/SiteRules.java 'if (at < side) {
+            return -ring + at;               // north edge, west to east
+        }' 'if (at < side) {
+            return -ring;
+        }'
+expect "a ring search that visits a square twice" "twice"
+
+echo
+echo "restoring and re-checking"
+restore
+if (cd $M && python3 validate.py >/dev/null 2>&1); then
+  echo "  tree restored clean"
+else
+  echo "  RESTORE FAILED — the tree is still broken"; fail=$((fail+1))
+fi
+echo "colonies (autonomy): $pass caught, $fail missed"
+[ "$fail" -eq 0 ]

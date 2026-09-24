@@ -61,9 +61,13 @@ unreachable from the container, and pushing is yours to do.
 
 `docs/RESUME_PROMPT.md` in this tree is the prompt to paste into the new
 session. It restates the working method and the standing constraints, and it
-points back here. There is also `~/curseforge/CLAUDE-NOTES.md`, the running
-narrative of what was built and why, and `~/curseforge/pack-inventory.json`,
-the machine-readable scan every number below comes from.
+points back here.
+
+Every number in this document can be recomputed rather than believed. The two
+scans it rests on travel with the tree: `docs/pack-inventory.json` is the scan
+of all 181 jars in the live instance, and `docs/ours-inventory.json` is what
+our own modules register. `~/curseforge/CLAUDE-NOTES.md`, on your machine, is
+the running narrative of what was built and why.
 
 ---
 
@@ -82,9 +86,14 @@ every one of them has been negative-tested — deliberately broken to prove it
 can report what it claims to check. That discipline is not decoration; it has
 caught real bugs roughly every other time it has been applied.
 
-Twenty-four jars have been retired. Three of them this session, each after the
-same three pre-checks, each **moved** to `mods/_superseded/` rather than
-deleted.
+Twenty-four jars have been retired — that is, replaced by one of our modules
+and taken out of the pack. Three of them this session, each after the same
+three pre-checks, each **moved** to `mods/_superseded/` rather than deleted.
+
+`_superseded/` holds 65 jars, which is the larger and easier-to-misread
+number: the other forty-one are DROP rows, removed as redundant or unwanted
+rather than replaced by anything of ours. 181 jars are still live in
+`Claude-dev-build`. Nothing has ever been deleted.
 
 ---
 
@@ -283,6 +292,14 @@ once. **Do that before trusting any of this in a world you care about.**
 perfectly and fails the first time somebody holds one. Anything of that shape
 is unchecked.
 
+**Five cross-cutting checks have never been negative-tested.**
+`check_gear.py`, `check_lifecycle.py`, `check_loadtest.py`,
+`check_manifest.py` and `check_retexture.py` have a report block and it is
+last — `check_validators.py` proves that much — but nobody has ever broken
+them and watched one fail, which is the only evidence that actually counts.
+`elysium-dungeons` likewise has no negative-test script of its own. Six gaps;
+`tools/negtest/README.md` lists them.
+
 **94 validator rules are on the ratchet.** `docs/RULES_BASELINE.txt` lists rules
 that name a *call* rather than a whole statement, and so would survive
 `if (false) theCall();`. `check_rules.py` stops new ones being added but the 94
@@ -323,10 +340,14 @@ looks for `Foo.bar(` still matches `if (false) x = Foo.bar(...)`. This has been
 got wrong fifteen times. `check_rules.py` now catches the class.
 
 **Every check must be negative-tested.** Break it deliberately, one way at a
-time, and prove it reports. Use `/tmp/dryrun.py` to verify a negative-test
-script's anchors without touching the tree — and note that it neuters *every*
+time, and prove it reports. The corpus is `tools/negtest/` — 127 scripts, one
+per feature — and `tools/dryrun.py` verifies a script's anchors without
+touching the tree. Both used to live in `/tmp` and would have died with the
+container; they are in the repository now. `dryrun.py` neuters *every*
 mutation, not only the ones that go through `edit()`, because an earlier
-hand-rolled version left a bare `rm` in place and deleted a real file.
+hand-rolled version left a bare `rm` in place and deleted a real file, and a
+later one let a heredoc through because it was tagged `PYZ` rather than `PYX`.
+`tools/negtest/README.md` has the rest.
 
 **Prefer copying the game to deriving it.** Three of five blockstates I derived
 by hand were right; two were wrong in ways that look almost correct. They are

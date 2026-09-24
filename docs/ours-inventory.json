@@ -1,0 +1,154 @@
+{
+  "_what": "What Elysium's own modules register, counted from the tree. This is the 'ours so far' column in docs/TODO.md section 2 and the per-module figures in section 1.",
+  "_counted": "2026-09-24",
+  "_note": "elysium-colonies is absent: it is deliberately outside the merged jar and needs MineColonies to compile.",
+  "totals": {
+    "items": 936,
+    "blocks": 706,
+    "mobs": 45,
+    "things": 1687,
+    "modules_counted": 28
+  },
+  "modules": {
+    "elysium-agronomy": {
+      "items": 16,
+      "blocks": 6,
+      "mobs": 0
+    },
+    "elysium-almanac": {
+      "items": 1,
+      "blocks": 0,
+      "mobs": 0
+    },
+    "elysium-arcana": {
+      "items": 0,
+      "blocks": 1,
+      "mobs": 0
+    },
+    "elysium-armory": {
+      "items": 89,
+      "blocks": 8,
+      "mobs": 0
+    },
+    "elysium-arsenal": {
+      "items": 60,
+      "blocks": 0,
+      "mobs": 0
+    },
+    "elysium-atelier": {
+      "items": 0,
+      "blocks": 228,
+      "mobs": 0
+    },
+    "elysium-atomics": {
+      "items": 3,
+      "blocks": 10,
+      "mobs": 0
+    },
+    "elysium-bestiary": {
+      "items": 9,
+      "blocks": 0,
+      "mobs": 9
+    },
+    "elysium-colonies": {
+      "items": 0,
+      "blocks": 6,
+      "mobs": 0
+    },
+    "elysium-comforts": {
+      "items": 2,
+      "blocks": 1,
+      "mobs": 0
+    },
+    "elysium-core": {
+      "items": 381,
+      "blocks": 15,
+      "mobs": 2
+    },
+    "elysium-dungeons": {
+      "items": 2,
+      "blocks": 2,
+      "mobs": 0
+    },
+    "elysium-enchanting": {
+      "items": 4,
+      "blocks": 10,
+      "mobs": 0
+    },
+    "elysium-flora": {
+      "items": 6,
+      "blocks": 21,
+      "mobs": 0
+    },
+    "elysium-foundry": {
+      "items": 113,
+      "blocks": 5,
+      "mobs": 0
+    },
+    "elysium-industry": {
+      "items": 5,
+      "blocks": 12,
+      "mobs": 0
+    },
+    "elysium-kinetics": {
+      "items": 0,
+      "blocks": 13,
+      "mobs": 0
+    },
+    "elysium-lib": {
+      "items": 120,
+      "blocks": 0,
+      "mobs": 0
+    },
+    "elysium-logistics": {
+      "items": 0,
+      "blocks": 8,
+      "mobs": 0
+    },
+    "elysium-mobs": {
+      "items": 10,
+      "blocks": 0,
+      "mobs": 10
+    },
+    "elysium-npcs": {
+      "items": 6,
+      "blocks": 6,
+      "mobs": 12
+    },
+    "elysium-ores": {
+      "items": 0,
+      "blocks": 156,
+      "mobs": 0
+    },
+    "elysium-solarpunk": {
+      "items": 6,
+      "blocks": 85,
+      "mobs": 0
+    },
+    "elysium-space": {
+      "items": 43,
+      "blocks": 109,
+      "mobs": 9
+    },
+    "elysium-spawners": {
+      "items": 11,
+      "blocks": 1,
+      "mobs": 0
+    },
+    "elysium-transit": {
+      "items": 3,
+      "blocks": 3,
+      "mobs": 3
+    },
+    "elysium-trinkets": {
+      "items": 45,
+      "blocks": 0,
+      "mobs": 0
+    },
+    "elysium-wilds": {
+      "items": 1,
+      "blocks": 0,
+      "mobs": 0
+    }
+  }
+}

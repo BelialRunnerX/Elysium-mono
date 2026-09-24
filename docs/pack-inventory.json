@@ -1,0 +1,2472 @@
+{
+"Almanac-1.21.1-2-neoforge-1.5.2.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"Applied-Mekanistics-1.6.3.jar": {
+"items": 12,
+"blocks": 0,
+"entities": 0,
+"other": 3,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 52,
+"nbt": 0,
+"ns": [
+"appmek"
+]
+},
+"Aquaculture-1.21.1-2.7.21.jar": {
+"items": 124,
+"blocks": 5,
+"entities": 40,
+"other": 122,
+"features": 0,
+"structures": 0,
+"biomes": 1,
+"recipes": 123,
+"nbt": 0,
+"ns": [
+"aquaculture"
+]
+},
+"Chimes-v2.1.1-1.21.1-NeoForge.jar": {
+"items": 1,
+"blocks": 38,
+"entities": 0,
+"other": 10,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 11,
+"nbt": 0,
+"ns": [
+"chimes"
+]
+},
+"Clothing_Of_The_Lowlands-1.0.8-neoforge-1.21.1.jar": {
+"items": 112,
+"blocks": 2,
+"entities": 1,
+"other": 1,
+"features": 0,
+"structures": 4,
+"biomes": 0,
+"recipes": 106,
+"nbt": 4,
+"ns": [
+"lowlands_clothing"
+]
+},
+"CreateDragonsPlus-1.11.7b.jar": {
+"items": 57,
+"blocks": 61,
+"entities": 0,
+"other": 233,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 123,
+"nbt": 9,
+"ns": [
+"create_dragons_plus"
+]
+},
+"Cucumber-1.21.1-8.0.16.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 16,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"cucumber"
+]
+},
+"Design-n-Decor-1.21.1-2.2b.jar": {
+"items": 1,
+"blocks": 903,
+"entities": 0,
+"other": 1,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 2202,
+"nbt": 0,
+"ns": [
+"dndecor"
+]
+},
+"DiagonalFences-v21.1.1-1.21.1-NeoForge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"DiagonalWalls-v21.1.2-1.21.1-NeoForge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"DiagonalWindows-v21.1.1-1.21.1-NeoForge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"DnDesires-1.21.1-2.3a-BETA.jar": {
+"items": 20,
+"blocks": 85,
+"entities": 0,
+"other": 25,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 319,
+"nbt": 0,
+"ns": [
+"dndesires"
+]
+},
+"DustyDecorations_1.21.1Neoforge_V1.13.jar": {
+"items": 17,
+"blocks": 679,
+"entities": 2,
+"other": 23,
+"features": 6,
+"structures": 0,
+"biomes": 0,
+"recipes": 423,
+"nbt": 0,
+"ns": [
+"dustydecorations"
+]
+},
+"ExtendedAE-1.21-2.2.35-neoforge.jar": {
+"items": 45,
+"blocks": 35,
+"entities": 0,
+"other": 173,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 169,
+"nbt": 0,
+"ns": [
+"extendedae"
+]
+},
+"ExtremeReactors2-1.21.1-2.4.28.jar": {
+"items": 35,
+"blocks": 90,
+"entities": 0,
+"other": 397,
+"features": 4,
+"structures": 0,
+"biomes": 0,
+"recipes": 318,
+"nbt": 0,
+"ns": [
+"bigreactors"
+]
+},
+"FarmersDelight-1.21.1-1.3.3.jar": {
+"items": 97,
+"blocks": 139,
+"entities": 1,
+"other": 242,
+"features": 10,
+"structures": 0,
+"biomes": 0,
+"recipes": 531,
+"nbt": 5,
+"ns": [
+"farmersdelight"
+]
+},
+"FluxNetworks-1.21.1-8.0.0.jar": {
+"items": 4,
+"blocks": 7,
+"entities": 0,
+"other": 112,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 15,
+"nbt": 0,
+"ns": [
+"fluxnetworks"
+]
+},
+"GeOre-1.21.1-6.2.2.jar": {
+"items": 58,
+"blocks": 203,
+"entities": 0,
+"other": 72,
+"features": 29,
+"structures": 0,
+"biomes": 1,
+"recipes": 286,
+"nbt": 0,
+"ns": [
+"geore"
+]
+},
+"Glodium-1.21-2.2-neoforge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"Iceberg-1.21.1-neoforge-1.3.2.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"ImmediatelyFast-NeoForge-1.6.13+1.21.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"ImmersiveEngineering-1.21.1-12.4.2-194.jar": {
+"items": 314,
+"blocks": 846,
+"entities": 32,
+"other": 760,
+"features": 7,
+"structures": 0,
+"biomes": 3,
+"recipes": 1934,
+"nbt": 72,
+"ns": [
+"immersiveengineering"
+]
+},
+"Jade-1.21.1-NeoForge-15.10.6.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 2,
+"other": 408,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"jade"
+]
+},
+"LegendaryTooltips-1.21.1-neoforge-1.5.5.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 1,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"legendarytooltips"
+]
+},
+"Mekanism-1.21.1-10.7.19.85.jar": {
+"items": 168,
+"blocks": 200,
+"entities": 2,
+"other": 2869,
+"features": 21,
+"structures": 0,
+"biomes": 1,
+"recipes": 2216,
+"nbt": 0,
+"ns": [
+"mekanism"
+]
+},
+"MekanismGenerators-1.21.1-10.7.19.85.jar": {
+"items": 7,
+"blocks": 28,
+"entities": 0,
+"other": 329,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 36,
+"nbt": 0,
+"ns": [
+"mekanismgenerators"
+]
+},
+"MekanismTools-1.21.1-10.7.19.85.jar": {
+"items": 168,
+"blocks": 0,
+"entities": 0,
+"other": 632,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 88,
+"nbt": 0,
+"ns": [
+"mekanismtools"
+]
+},
+"MouseTweaks-neoforge-mc1.21-2.26.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"MysticalAgradditions-1.21.1-8.0.14.jar": {
+"items": 33,
+"blocks": 20,
+"entities": 0,
+"other": 51,
+"features": 4,
+"structures": 0,
+"biomes": 0,
+"recipes": 157,
+"nbt": 0,
+"ns": [
+"mysticalagradditions"
+]
+},
+"MysticalAgriculture-1.21.1-8.0.27.jar": {
+"items": 175,
+"blocks": 73,
+"entities": 0,
+"other": 497,
+"features": 3,
+"structures": 0,
+"biomes": 0,
+"recipes": 1176,
+"nbt": 0,
+"ns": [
+"mysticalagriculture"
+]
+},
+"OctoLib-NEOFORGE-0.6.2+1.21.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"Patchouli-1.21.1-93-NEOFORGE.jar": {
+"items": 16,
+"blocks": 0,
+"entities": 0,
+"other": 76,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"patchouli"
+]
+},
+"Powah-6.2.10.jar": {
+"items": 42,
+"blocks": 106,
+"entities": 0,
+"other": 92,
+"features": 4,
+"structures": 0,
+"biomes": 1,
+"recipes": 328,
+"nbt": 0,
+"ns": [
+"lollipop",
+"powah"
+]
+},
+"Prism-1.21.1-neoforge-1.0.11.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"PuzzlesLib-v21.1.52-1.21.1-NeoForge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"Quark-4.1-482.jar": {
+"items": 106,
+"blocks": 815,
+"entities": 16,
+"other": 580,
+"features": 9,
+"structures": 16,
+"biomes": 23,
+"recipes": 2497,
+"nbt": 0,
+"ns": [
+"quark"
+]
+},
+"Reforged-1.21.1-1.1.0-NeoForge.jar": {
+"items": 3,
+"blocks": 0,
+"entities": 0,
+"other": 55,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"reforged"
+]
+},
+"SimplyBows-neoforge-0.1.4.jar": {
+"items": 38,
+"blocks": 0,
+"entities": 0,
+"other": 686,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"simplybows"
+]
+},
+"SimplyTooltips-neoforge-0.1.5.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 31,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"simplytooltips"
+]
+},
+"SmartBrainLib-neoforge-1.21.1-1.16.11.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"Tridot-1.21.1-1.0.169.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 60,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"tridot"
+]
+},
+"UnionLib-1.21.1-13.1-NeoForge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 1,
+"nbt": 0,
+"ns": []
+},
+"Valoria-1.21.1-1.0.4.2.jar": {
+"items": 498,
+"blocks": 447,
+"entities": 52,
+"other": 668,
+"features": 81,
+"structures": 22,
+"biomes": 29,
+"recipes": 1459,
+"nbt": 42,
+"ns": [
+"valoria"
+]
+},
+"ZeroCore2-1.21.1-2.4.21.jar": {
+"items": 1,
+"blocks": 0,
+"entities": 0,
+"other": 49,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"zerocore"
+]
+},
+"Zeta-1.1-40.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 11,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"zeta"
+]
+},
+"[Neoforge]ctov-3.6.3.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 74,
+"features": 0,
+"structures": 106,
+"biomes": 0,
+"recipes": 0,
+"nbt": 2118,
+"ns": [
+"ctov"
+]
+},
+"allthecompressed-1.21.1-4.4.0.jar": {
+"items": 0,
+"blocks": 1794,
+"entities": 0,
+"other": 2,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 7192,
+"nbt": 0,
+"ns": [
+"allthecompressed"
+]
+},
+"amendments-1.21-2.1.9-neoforge.jar": {
+"items": 52,
+"blocks": 13,
+"entities": 0,
+"other": 43,
+"features": 0,
+"structures": 3,
+"biomes": 0,
+"recipes": 2,
+"nbt": 0,
+"ns": [
+"amendments"
+]
+},
+"appliedenergistics2-19.2.17.jar": {
+"items": 262,
+"blocks": 102,
+"entities": 2,
+"other": 655,
+"features": 0,
+"structures": 1,
+"biomes": 2,
+"recipes": 937,
+"nbt": 0,
+"ns": [
+"ae2"
+]
+},
+"architectury-13.0.11-neoforge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"athena-neoforge-1.21.1-4.0.6.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"azurelib-neo-1.21.1-3.1.11.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 52,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"azurelib"
+]
+},
+"balm-neoforge-1.21.1-21.0.65.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 36,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"balm"
+]
+},
+"beautify-neoforge-1.21.1-2.0.2.jar": {
+"items": 0,
+"blocks": 53,
+"entities": 1,
+"other": 39,
+"features": 0,
+"structures": 5,
+"biomes": 10,
+"recipes": 108,
+"nbt": 10,
+"ns": [
+"beautify"
+]
+},
+"bellsandwhistles-0.4.7-1.21.1.jar": {
+"items": 0,
+"blocks": 36,
+"entities": 0,
+"other": 3,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 53,
+"nbt": 0,
+"ns": [
+"bellsandwhistles"
+]
+},
+"betterarcheology-neoforge-1.21.1-1.3.8.jar": {
+"items": 14,
+"blocks": 78,
+"entities": 3,
+"other": 59,
+"features": 0,
+"structures": 27,
+"biomes": 31,
+"recipes": 55,
+"nbt": 52,
+"ns": [
+"betterarcheology"
+]
+},
+"bf_blockpack-neoforge-1.21.1-1.1.2.jar": {
+"items": 5,
+"blocks": 1200,
+"entities": 1,
+"other": 258,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 2342,
+"nbt": 0,
+"ns": [
+"bf_blockpack"
+]
+},
+"blockui-1.0.209-1.21.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 8,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"blockui"
+]
+},
+"blueprint-1.21.1-8.1.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 3,
+"other": 16,
+"features": 0,
+"structures": 0,
+"biomes": 1,
+"recipes": 6,
+"nbt": 0,
+"ns": [
+"blueprint"
+]
+},
+"bookshelf-neoforge-1.21.1-21.1.81.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 208,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"bookshelf"
+]
+},
+"born_in_chaos_[Neoforge]_1.21.1_1.7.6.jar": {
+"items": 362,
+"blocks": 133,
+"entities": 86,
+"other": 440,
+"features": 5,
+"structures": 31,
+"biomes": 1,
+"recipes": 160,
+"nbt": 27,
+"ns": [
+"born_in_chaos_v1"
+]
+},
+"botanypots-neoforge-1.21.1-21.1.44.jar": {
+"items": 0,
+"blocks": 183,
+"entities": 0,
+"other": 55,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 1301,
+"nbt": 3,
+"ns": [
+"botanypots"
+]
+},
+"chipped-neoforge-1.21.1-4.0.2.jar": {
+"items": 6,
+"blocks": 6967,
+"entities": 0,
+"other": 292,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 41,
+"nbt": 0,
+"ns": [
+"chipped"
+]
+},
+"cloth-config-15.0.140-neoforge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 49,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"cloth-config2"
+]
+},
+"cluttered-[NeoForge]-3.0.3-1.21.1.jar": {
+"items": 1,
+"blocks": 1002,
+"entities": 0,
+"other": 59,
+"features": 7,
+"structures": 0,
+"biomes": 0,
+"recipes": 1888,
+"nbt": 0,
+"ns": [
+"cluttered"
+]
+},
+"cobblegengalore-1.21.1-0.2.9.jar": {
+"items": 0,
+"blocks": 7,
+"entities": 0,
+"other": 3,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 30,
+"nbt": 0,
+"ns": [
+"cobblegengalore"
+]
+},
+"comforts-neoforge-9.0.5+1.21.1.jar": {
+"items": 4,
+"blocks": 44,
+"entities": 0,
+"other": 35,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 132,
+"nbt": 0,
+"ns": [
+"comforts"
+]
+},
+"commoncapabilities-1.21.1-neoforge-2.11.5.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 10,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 1,
+"ns": [
+"commoncapabilities"
+]
+},
+"configuration-neoforge-1.21.1-3.1.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 40,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"configuration"
+]
+},
+"copycats-3.0.8+mc.1.21.1-neoforge.jar": {
+"items": 2,
+"blocks": 46,
+"entities": 0,
+"other": 19,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 136,
+"nbt": 0,
+"ns": [
+"copycats"
+]
+},
+"create-1.21.1-6.0.10.jar": {
+"items": 204,
+"blocks": 701,
+"entities": 9,
+"other": 2725,
+"features": 3,
+"structures": 0,
+"biomes": 0,
+"recipes": 2933,
+"nbt": 245,
+"ns": [
+"create"
+]
+},
+"create-aeronautics-bundled-1.21.1-1.3.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"create-central-kitchen-2.6.0.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 58,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 13,
+"ns": [
+"create_central_kitchen"
+]
+},
+"create-enchantment-industry-2.5.3.jar": {
+"items": 18,
+"blocks": 20,
+"entities": 0,
+"other": 555,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 62,
+"nbt": 25,
+"ns": [
+"create_dragons_plus",
+"create_enchantment_industry"
+]
+},
+"create-integrated-farming-1.3.3b.jar": {
+"items": 0,
+"blocks": 18,
+"entities": 0,
+"other": 58,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 12,
+"nbt": 13,
+"ns": [
+"create_integrated_farming"
+]
+},
+"create-new-age-1.2.0+neoforge-mc1.21.1.jar": {
+"items": 23,
+"blocks": 36,
+"entities": 0,
+"other": 104,
+"features": 2,
+"structures": 0,
+"biomes": 0,
+"recipes": 122,
+"nbt": 8,
+"ns": [
+"create_new_age"
+]
+},
+"create-stuff-additions1.21.1_v2.1.4b.jar": {
+"items": 124,
+"blocks": 2,
+"entities": 7,
+"other": 70,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 91,
+"nbt": 0,
+"ns": [
+"create_sa"
+]
+},
+"create_aquatic_ambitions-1.21.1-2.0.4.jar": {
+"items": 6,
+"blocks": 2,
+"entities": 0,
+"other": 31,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 108,
+"nbt": 4,
+"ns": [
+"create_aquatic_ambitions"
+]
+},
+"create_connected-1.3.2-mc1.21.1.jar": {
+"items": 24,
+"blocks": 172,
+"entities": 0,
+"other": 226,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 396,
+"nbt": 15,
+"ns": [
+"create_connected"
+]
+},
+"create_power_loader-2.0.5-mc1.21.1.jar": {
+"items": 0,
+"blocks": 4,
+"entities": 0,
+"other": 36,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 3,
+"nbt": 7,
+"ns": [
+"create_power_loader"
+]
+},
+"create_ultimate_factory-2.2.4-neoforge-1.21.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 37,
+"nbt": 0,
+"ns": [
+"create_ultimate_factory"
+]
+},
+"createaddition-1.6.0.jar": {
+"items": 78,
+"blocks": 65,
+"entities": 0,
+"other": 118,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 177,
+"nbt": 12,
+"ns": [
+"createaddition"
+]
+},
+"createbigcannons-5.11.7+mc.1.21.1.jar": {
+"items": 168,
+"blocks": 226,
+"entities": 23,
+"other": 321,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 223,
+"nbt": 29,
+"ns": [
+"createbigcannons"
+]
+},
+"createdeco-2.1.3.jar": {
+"items": 20,
+"blocks": 389,
+"entities": 0,
+"other": 2,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 3427,
+"nbt": 0,
+"ns": [
+"createdeco"
+]
+},
+"createdieselgenerators-1.21.1-1.3.15.jar": {
+"items": 83,
+"blocks": 65,
+"entities": 1,
+"other": 144,
+"features": 0,
+"structures": 0,
+"biomes": 1,
+"recipes": 138,
+"nbt": 10,
+"ns": [
+"createdieselgenerators"
+]
+},
+"cristellib-neoforge-1.21.1-3.1.7.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 4,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"cristellib"
+]
+},
+"curios-neoforge-9.5.1+1.21.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 48,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"curios"
+]
+},
+"cyclopscore-1.21.1-neoforge-1.29.3.jar": {
+"items": 0,
+"blocks": 1,
+"entities": 0,
+"other": 41,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 1,
+"ns": [
+"cyclopscore"
+]
+},
+"domum-ornamentum-1.0.231-main.jar": {
+"items": 0,
+"blocks": 29,
+"entities": 0,
+"other": 185,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 194,
+"nbt": 0,
+"ns": [
+"domum_ornamentum"
+]
+},
+"easy-villagers-neoforge-1.21.1-1.1.42.jar": {
+"items": 2,
+"blocks": 8,
+"entities": 0,
+"other": 22,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 7,
+"nbt": 0,
+"ns": [
+"easy_villagers"
+]
+},
+"elysium-all-1.0.0.jar": {
+"items": 936,
+"blocks": 700,
+"entities": 45,
+"other": 1881,
+"features": 199,
+"structures": 27,
+"biomes": 19,
+"recipes": 1358,
+"nbt": 70,
+"ns": [
+"elysium",
+"elysiumagronomy",
+"elysiumalmanac"
+]
+},
+"elysiumcolonies-1.0.0.jar": {
+"items": 0,
+"blocks": 6,
+"entities": 0,
+"other": 39,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 6,
+"nbt": 0,
+"ns": [
+"elysiumcolonies"
+]
+},
+"enderchests-neoforge-1.21.1-1.0.jar": {
+"items": 4,
+"blocks": 3,
+"entities": 0,
+"other": 88,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 3,
+"nbt": 0,
+"ns": [
+"enderchests"
+]
+},
+"entity_model_features-3.2.4-1.21-neoforge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 291,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"entity_model_features"
+]
+},
+"entity_texture_features_1.21-neoforge-7.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 309,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"entity_texture_features"
+]
+},
+"entityculling-neoforge-1.10.5-mc1.21.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 27,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"entityculling"
+]
+},
+"envelope-neoforge-1.21.1-0.7.5.jar": {
+"items": 26,
+"blocks": 16,
+"entities": 2,
+"other": 281,
+"features": 0,
+"structures": 7,
+"biomes": 8,
+"recipes": 58,
+"nbt": 27,
+"ns": [
+"envelope"
+]
+},
+"everycomp-1.21-2.11.50-neoforge.jar": {
+"items": 0,
+"blocks": 47,
+"entities": 0,
+"other": 1132,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"everycomp"
+]
+},
+"fangs_n_claws-1.2.4.jar": {
+"items": 114,
+"blocks": 3,
+"entities": 34,
+"other": 271,
+"features": 0,
+"structures": 0,
+"biomes": 1,
+"recipes": 35,
+"nbt": 0,
+"ns": [
+"fangs_n_claws"
+]
+},
+"fastleafdecay-35.jar": {
+"items": 1,
+"blocks": 1,
+"entities": 0,
+"other": 1,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"examplemod"
+]
+},
+"ferritecore-7.0.3-neoforge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"friendsandfoes-neoforge-4.0.27+mc1.21.1.jar": {
+"items": 49,
+"blocks": 30,
+"entities": 14,
+"other": 188,
+"features": 1,
+"structures": 4,
+"biomes": 20,
+"recipes": 23,
+"nbt": 60,
+"ns": [
+"friendsandfoes"
+]
+},
+"ftb-library-neoforge-2101.1.35.jar": {
+"items": 3,
+"blocks": 0,
+"entities": 0,
+"other": 110,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"ftblibrary"
+]
+},
+"ftb-ultimine-neoforge-2101.1.15.jar": {
+"items": 2,
+"blocks": 0,
+"entities": 0,
+"other": 87,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"ftbultimine"
+]
+},
+"fusion-1.3.14a-neoforge-mc1.21.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 8,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"fusion"
+]
+},
+"fzzy_config-0.7.6+1.21+neoforge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 287,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"fzzy_config"
+]
+},
+"geckolib-neoforge-1.21.1-4.9.2.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"guideme-21.1.17.jar": {
+"items": 1,
+"blocks": 0,
+"entities": 0,
+"other": 35,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"guideme"
+]
+},
+"handcrafted-neoforge-1.21.1-4.0.3.jar": {
+"items": 34,
+"blocks": 267,
+"entities": 2,
+"other": 89,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 634,
+"nbt": 0,
+"ns": [
+"handcrafted"
+]
+},
+"industrialforegoing-1.21-3.6.39.jar": {
+"items": 53,
+"blocks": 108,
+"entities": 3,
+"other": 519,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 315,
+"nbt": 0,
+"ns": [
+"industrialforegoing"
+]
+},
+"integrateddynamics-1.21.1-neoforge-1.35.0.jar": {
+"items": 46,
+"blocks": 54,
+"entities": 0,
+"other": 1889,
+"features": 2,
+"structures": 0,
+"biomes": 9,
+"recipes": 316,
+"nbt": 3,
+"ns": [
+"integrateddynamics",
+"integrateddynamicscompat"
+]
+},
+"interiors-1.21.1-neoforge-0.6.1.jar": {
+"items": 0,
+"blocks": 63,
+"entities": 1,
+"other": 1,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 264,
+"nbt": 0,
+"ns": [
+"interiors"
+]
+},
+"invtweaks-1.21.1-1.3.2.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 4,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"invtweaks"
+]
+},
+"iris-neoforge-1.8.14-beta.1+mc1.21.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 73,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"iris"
+]
+},
+"jei-1.21.1-neoforge-19.44.0.413.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 306,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"jei"
+]
+},
+"knightlib-neoforge-1.21.1-1.6.1.jar": {
+"items": 5,
+"blocks": 1,
+"entities": 0,
+"other": 32,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 8,
+"nbt": 0,
+"ns": [
+"knightlib"
+]
+},
+"knightquest-neoforge-1.21.1-1.9.3.jar": {
+"items": 200,
+"blocks": 1,
+"entities": 13,
+"other": 75,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 175,
+"nbt": 0,
+"ns": [
+"knightquest"
+]
+},
+"kotlinforforge-5.12.0-all.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"larion-neoforge-1.21.1-4.3.0.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"ldlib2-neoforge-1.21.1-2.2.37-all.jar": {
+"items": 2,
+"blocks": 2,
+"entities": 0,
+"other": 640,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 3,
+"ns": [
+"ldlib2"
+]
+},
+"letmedespawn-1.21.x-neoforge-1.5.0.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"lithium-neoforge-0.15.4+mc1.21.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"lithostitched-1.8.0+beta4-neoforge-21.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 7,
+"recipes": 0,
+"nbt": 20,
+"ns": []
+},
+"mcw-bridges-3.1.2-mc1.21.1neoforge.jar": {
+"items": 1,
+"blocks": 151,
+"entities": 0,
+"other": 4,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 400,
+"nbt": 0,
+"ns": [
+"mcwbridges"
+]
+},
+"mcw-doors-1.1.5-mc1.21.1neoforge.jar": {
+"items": 13,
+"blocks": 269,
+"entities": 0,
+"other": 6,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 269,
+"nbt": 0,
+"ns": [
+"mcwdoors"
+]
+},
+"mcw-furniture-3.4.1-mc1.21.1neoforge.jar": {
+"items": 2,
+"blocks": 652,
+"entities": 0,
+"other": 7,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 665,
+"nbt": 0,
+"ns": [
+"mcwfurnitures"
+]
+},
+"mcw-lights-1.1.5-mc1.21.1neoforge.jar": {
+"items": 0,
+"blocks": 140,
+"entities": 0,
+"other": 6,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 154,
+"nbt": 0,
+"ns": [
+"mcwlights"
+]
+},
+"mcw-mcwfences-1.2.1-mc1.21.1neoforge.jar": {
+"items": 0,
+"blocks": 180,
+"entities": 0,
+"other": 4,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 244,
+"nbt": 0,
+"ns": [
+"mcwfences"
+]
+},
+"mcw-mcwpaths-1.1.1-mc1.21.1neoforge.jar": {
+"items": 0,
+"blocks": 315,
+"entities": 0,
+"other": 3,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 340,
+"nbt": 0,
+"ns": [
+"mcwpaths"
+]
+},
+"mcw-mcwstairs-1.0.2-mc1.21.1neoforge.jar": {
+"items": 0,
+"blocks": 224,
+"entities": 0,
+"other": 4,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 247,
+"nbt": 0,
+"ns": [
+"mcwstairs"
+]
+},
+"mcw-mcwwindows-2.4.2-mc1.21.1neoforge.jar": {
+"items": 5,
+"blocks": 310,
+"entities": 0,
+"other": 11,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 349,
+"nbt": 0,
+"ns": [
+"mcwwindows"
+]
+},
+"mcw-roofs-2.3.2-mc1.21.1neoforge.jar": {
+"items": 2,
+"blocks": 605,
+"entities": 0,
+"other": 3,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 649,
+"nbt": 0,
+"ns": [
+"mcwroofs"
+]
+},
+"mcw-trapdoors-1.1.5-mc1.21.1neoforge.jar": {
+"items": 12,
+"blocks": 187,
+"entities": 0,
+"other": 2,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 371,
+"nbt": 0,
+"ns": [
+"mcwtrpdoors"
+]
+},
+"minecolonies-1.1.1374-1.21.1-snapshot.jar": {
+"items": 193,
+"blocks": 161,
+"entities": 98,
+"other": 3446,
+"features": 0,
+"structures": 16,
+"biomes": 20,
+"recipes": 343,
+"nbt": 349,
+"ns": [
+"minecolonies"
+]
+},
+"mob_grinding_utils-1.1.10+mc1.21.1.jar": {
+"items": 26,
+"blocks": 82,
+"entities": 0,
+"other": 38,
+"features": 0,
+"structures": 0,
+"biomes": 2,
+"recipes": 56,
+"nbt": 0,
+"ns": [
+"mob_grinding_utils"
+]
+},
+"mobs_of_mythology-neoforge-1.21.1-3.0.0.jar": {
+"items": 16,
+"blocks": 2,
+"entities": 8,
+"other": 32,
+"features": 0,
+"structures": 1,
+"biomes": 5,
+"recipes": 7,
+"nbt": 1,
+"ns": [
+"mobs_of_mythology"
+]
+},
+"modernfix-neoforge-5.27.20+mc1.21.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 155,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"modernfix"
+]
+},
+"modular_backpacks-0.2.11.jar": {
+"items": 30,
+"blocks": 0,
+"entities": 0,
+"other": 174,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 172,
+"nbt": 0,
+"ns": [
+"modular_backpacks"
+]
+},
+"moonlight-1.21.1-3.5.2-neoforge.jar": {
+"items": 2,
+"blocks": 1,
+"entities": 0,
+"other": 133,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"moonlight"
+]
+},
+"multipiston-1.2.58-1.21.1.jar": {
+"items": 0,
+"blocks": 1,
+"entities": 0,
+"other": 1,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 1,
+"nbt": 0,
+"ns": [
+"multipiston"
+]
+},
+"mythsandlegends-0.0.8.6.jar": {
+"items": 62,
+"blocks": 13,
+"entities": 21,
+"other": 179,
+"features": 0,
+"structures": 5,
+"biomes": 4,
+"recipes": 62,
+"nbt": 25,
+"ns": [
+"mythsandlegends"
+]
+},
+"naturalist-2.0.3-neoforge-1.21.1.jar": {
+"items": 122,
+"blocks": 36,
+"entities": 50,
+"other": 327,
+"features": 2,
+"structures": 0,
+"biomes": 111,
+"recipes": 142,
+"nbt": 0,
+"ns": [
+"naturalist"
+]
+},
+"oritech-neoforge-1.21.1-1.2.11.jar": {
+"items": 134,
+"blocks": 203,
+"entities": 0,
+"other": 919,
+"features": 7,
+"structures": 0,
+"biomes": 0,
+"recipes": 1262,
+"nbt": 0,
+"ns": [
+"oritech"
+]
+},
+"player-animation-lib-forge-2.0.4+1.21.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"polyeng-0.4.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"polymorph-neoforge-1.1.0+1.21.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 3,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"polymorph"
+]
+},
+"potentials-neoforge-1.21-0.7.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"prickle-neoforge-1.21.1-21.1.11.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"productivebees-1.21.1-13.13.5.jar": {
+"items": 69,
+"blocks": 303,
+"entities": 464,
+"other": 282,
+"features": 27,
+"structures": 0,
+"biomes": 4,
+"recipes": 1966,
+"nbt": 0,
+"ns": [
+"productivebees"
+]
+},
+"puffish_attributes-0.8.3-1.21-neoforge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 42,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"puffish_attributes"
+]
+},
+"puffish_skills-0.18.3-1.21-neoforge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 42,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"puffish_skills"
+]
+},
+"refinedstorage-neoforge-2.0.9.jar": {
+"items": 122,
+"blocks": 38,
+"entities": 0,
+"other": 628,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 420,
+"nbt": 0,
+"ns": [
+"refinedstorage"
+]
+},
+"relics-1.21.1-0.12.8.jar": {
+"items": 25,
+"blocks": 1,
+"entities": 17,
+"other": 504,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 5,
+"nbt": 0,
+"ns": [
+"relics"
+]
+},
+"resourcefulconfig-neoforge-1.21-3.0.11.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 28,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"resourcefulconfig"
+]
+},
+"resourcefullib-neoforge-1.21-3.0.12.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"ritchiesprojectilelib-2.1.2-mc.1.21.1-neoforge.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"sable-neoforge-1.21.1-2.0.5.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 128,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 7,
+"ns": [
+"sable"
+]
+},
+"shetiphiancore-neoforge-1.21.1-1.1.jar": {
+"items": 3,
+"blocks": 0,
+"entities": 0,
+"other": 115,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 1,
+"nbt": 0,
+"ns": [
+"shetiphiancore"
+]
+},
+"simplyswords-neoforge-1.70.2-1.21.1.jar": {
+"items": 863,
+"blocks": 2,
+"entities": 29,
+"other": 1373,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 371,
+"nbt": 0,
+"ns": [
+"simplyswords"
+]
+},
+"sliceanddice-4.3.3-neoforge.jar": {
+"items": 1,
+"blocks": 3,
+"entities": 0,
+"other": 12,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 15,
+"nbt": 3,
+"ns": [
+"sliceanddice"
+]
+},
+"sodium-neoforge-0.8.13+mc1.21.1.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"solcarrot-1.21.1-1.16.6.jar": {
+"items": 1,
+"blocks": 0,
+"entities": 0,
+"other": 59,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 2,
+"nbt": 0,
+"ns": [
+"solcarrot"
+]
+},
+"sophisticatedbackpacks-1.21.1-3.25.78.2107.jar": {
+"items": 141,
+"blocks": 6,
+"entities": 0,
+"other": 259,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 169,
+"nbt": 0,
+"ns": [
+"sophisticatedbackpacks"
+]
+},
+"sophisticatedbackpackscreateintegration-1.21.1-0.1.8.134.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"sophisticatedcore-1.21.1-1.4.90.2299.jar": {
+"items": 12,
+"blocks": 0,
+"entities": 0,
+"other": 291,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 1,
+"nbt": 0,
+"ns": [
+"sophisticatedcore"
+]
+},
+"sophisticatedstorage-1.21.1-1.5.91.2127.jar": {
+"items": 171,
+"blocks": 58,
+"entities": 0,
+"other": 191,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 683,
+"nbt": 0,
+"ns": [
+"sophisticatedstorage"
+]
+},
+"sophisticatedstoragecreateintegration-1.21.1-0.1.21.209.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"stonezone-1.21-2.11.17-neoforge.jar": {
+"items": 1,
+"blocks": 0,
+"entities": 0,
+"other": 410,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"stonezone"
+]
+},
+"structurize-1.0.832-1.21.1.jar": {
+"items": 22,
+"blocks": 6,
+"entities": 0,
+"other": 208,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 6,
+"nbt": 0,
+"ns": [
+"structurize"
+]
+},
+"supplementaries-1.21.1-3.9.5-neoforge.jar": {
+"items": 44,
+"blocks": 258,
+"entities": 14,
+"other": 1039,
+"features": 6,
+"structures": 13,
+"biomes": 0,
+"recipes": 624,
+"nbt": 18,
+"ns": [
+"supplementaries"
+]
+},
+"tfmg-1.2.2.jar": {
+"items": 294,
+"blocks": 520,
+"entities": 11,
+"other": 358,
+"features": 7,
+"structures": 0,
+"biomes": 0,
+"recipes": 1125,
+"nbt": 8,
+"ns": [
+"tfmg"
+]
+},
+"tide-neoforge-1.21.1-2.1.1.jar": {
+"items": 417,
+"blocks": 8,
+"entities": 105,
+"other": 335,
+"features": 0,
+"structures": 0,
+"biomes": 30,
+"recipes": 196,
+"nbt": 0,
+"ns": [
+"tide"
+]
+},
+"titanium-1.21-4.0.43.jar": {
+"items": 0,
+"blocks": 4,
+"entities": 0,
+"other": 49,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 3,
+"nbt": 0,
+"ns": [
+"titanium"
+]
+},
+"towntalk-1.2.0.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"trmt-0.5.1-1.21.1-neoforge.jar": {
+"items": 4,
+"blocks": 4,
+"entities": 0,
+"other": 3,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"trmt"
+]
+},
+"valhelsia_core-neoforge-1.21.1-1.1.5.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"valhelsia_furniture-neoforge-1.21.1-1.1.1.jar": {
+"items": 0,
+"blocks": 92,
+"entities": 0,
+"other": 35,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 1464,
+"nbt": 0,
+"ns": [
+"valhelsia_furniture"
+]
+},
+"woodworks-1.21.1-4.0.2.jar": {
+"items": 0,
+"blocks": 87,
+"entities": 0,
+"other": 7,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 615,
+"nbt": 0,
+"ns": [
+"woodworks"
+]
+},
+"wwoo-neoforge-2.6.7.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 0,
+"features": 367,
+"structures": 0,
+"biomes": 110,
+"recipes": 0,
+"nbt": 0,
+"ns": []
+},
+"xaerominimap-neoforge-1.21.1-26.4.2.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 724,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"xaerobetterpvp",
+"xaerominimap"
+]
+},
+"xaeroworldmap-neoforge-1.21.1-1.45.0.jar": {
+"items": 0,
+"blocks": 0,
+"entities": 0,
+"other": 322,
+"features": 0,
+"structures": 0,
+"biomes": 0,
+"recipes": 0,
+"nbt": 0,
+"ns": [
+"xaeroworldmap"
+]
+}
+}

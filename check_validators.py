@@ -34,35 +34,49 @@ import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
 
-MODULES = ["elysium-lib", "elysium-core", "elysium-dungeons", "elysium-mobs",
-           "elysium-npcs", "elysium-trinkets", "elysium-solarpunk",
-           "elysium-armory", "elysium-ascendancy", "elysium-enchanting",
-           "elysium-spawners",
-           "elysium-space", "elysium-ores", "elysium-flora", "elysium-kinetics", "elysium-industry", "elysium-atomics", "elysium-logistics", "elysium-agronomy", "elysium-foundry",
-           "elysium-almanac",
-           "elysium-transit",
-           "elysium-arcana",
-           "elysium-comforts",
-           "elysium-atelier",
-           "elysium-arsenal",
-           "elysium-bestiary",
-           "elysium-wilds",
-           "elysium-colonies"]
+# Neither of the two lists below is written here. Both were, and both drifted.
+# The module list was a second copy of compile.sh's; the cross-cutting list
+# said ten while validate.py had grown to sixteen, so six checkers — lang,
+# lifecycle, manifest, merge, retexture, and this file itself — were never
+# checked at all by the file whose whole job is checking checkers. A list
+# copied by hand is a list that goes stale silently, which is the same failure
+# this file exists to catch, one level up. So they are read out of the files
+# that decide them.
+COMPILE = (HERE / "compile.sh").read_text(encoding="utf-8")
+VALIDATE = (HERE / "validate.py").read_text(encoding="utf-8")
 
-# The cross-cutting checks at the root are built the same way and can fail the
-# same way. They were not covered here at first, which is the same oversight in
-# miniature: the file that exists to catch unreportable checks had its own
-# blind spot.
-ROOT_CHECKS = ["check_gear.py", "check_ui.py", "check_buses.py",
-               "check_recursion.py", "check_datapack.py",
-               "check_nullable.py", "check_loadtest.py", "check_rules.py",
-               "check_worldgen.py",
-               "check_construct.py"]
+_built = re.search(r'^MODULES="([^"]*)"', COMPILE, re.M)
+if _built is None:
+    sys.exit("check_validators: compile.sh has no MODULES= line to read")
+MODULES = _built.group(1).split()
+
+ROOT_CHECKS = sorted(set(re.findall(
+    r'subprocess\.run\(\[sys\.executable, "(check_[a-z_]+\.py)"\]', VALIDATE)))
+if not ROOT_CHECKS:
+    sys.exit("check_validators: validate.py runs no check_*.py this can find")
 
 # The report block, matched loosely enough to survive rewording and to find one
 # written inside a main() — a check whose report is indented is still a report,
 # and a pattern anchored to column zero silently skipped the file that had one.
 REPORT = re.compile(r"^[ \t]*if problems:", re.M)
+
+
+def code_only(text):
+    """The file with its comments and docstrings blanked out.
+
+    This file shows the report block inside its own docstring, as an example of
+    the shape it is looking for, and read naively that makes it a file which
+    reports twice. Every other validator is free to do the same. So comments
+    and triple-quoted strings are blanked before anything is searched for —
+    blanked rather than removed, so that the line numbers in a report still
+    point at the real line.
+    """
+    out = list(text)
+    for match in re.finditer(r'"""(?:.|\n)*?"""|\'\'\'(?:.|\n)*?\'\'\'|#[^\n]*', text):
+        for index in range(match.start(), match.end()):
+            if out[index] != "\n":
+                out[index] = " "
+    return "".join(out)
 
 
 def sources():
@@ -82,7 +96,7 @@ def main():
                             if path.name == "validate.py" else f"{module} is missing")
             continue
 
-        text = path.read_text(encoding="utf-8")
+        text = code_only(path.read_text(encoding="utf-8"))
         reports = list(REPORT.finditer(text))
         if not reports:
             problems.append(f"{module} has no 'if problems:' report "
@@ -93,11 +107,11 @@ def main():
                             f"the first exits, so everything after it is dead")
             continue
 
-        after = text[reports[0].start():]
         # fail() calls after the report are recorded into an already-printed
-        # list. Comments and docstrings mentioning fail() are not calls.
-        stripped = re.sub(r"#[^\n]*", "", after)
-        dead = re.findall(r"\bfail\s*\(|\bproblems\.append\s*\(", stripped)
+        # list. Comments and docstrings mentioning fail() are not calls, and
+        # code_only has already taken both out of `text`.
+        after = text[reports[0].start():]
+        dead = re.findall(r"\bfail\s*\(|\bproblems\.append\s*\(", after)
         if dead:
             line = text[:reports[0].start()].count("\n") + 1
             problems.append(
@@ -106,6 +120,23 @@ def main():
                 f"anybody sees, and the file still prints success — move the "
                 f"report to the end of the file")
         checked += 1
+
+    # A validator nobody runs is a validator that does not exist, and it is
+    # worse than none at all because the count at the end of the run goes on
+    # reassuring you. Two ways in: a check written at the root and never wired
+    # into validate.py, and a module that compile.sh builds and validate.py
+    # never asks about.
+    asked_about = set(re.findall(r'"(elysium-[a-z]+)"', VALIDATE))
+    for module in MODULES:
+        if module not in asked_about:
+            problems.append(f"{module} is built by compile.sh but validate.py "
+                            f"never runs its validator — it is checked by nothing")
+
+    for path in sorted(HERE.glob("check_*.py")):
+        if path.name not in ROOT_CHECKS:
+            problems.append(f"{path.name} sits at the root and validate.py "
+                            f"never runs it — a check that passes by never "
+                            f"being asked")
 
     if problems:
         print(f"{len(problems)} PROBLEM(S):")
