@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "tag": "c:ores/uraninite"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:uraninite_seed",
+    "count": 1
+  }
+}

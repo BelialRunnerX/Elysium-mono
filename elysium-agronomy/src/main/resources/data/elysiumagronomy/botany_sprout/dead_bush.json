@@ -1,0 +1,6 @@
+{
+  "needs": "desert",
+  "ticks": 1800,
+  "drop": "stick",
+  "amount": 2
+}

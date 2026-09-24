@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "tag": "c:ores/crimson_iron"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:crimson_iron_seed",
+    "count": 1
+  }
+}

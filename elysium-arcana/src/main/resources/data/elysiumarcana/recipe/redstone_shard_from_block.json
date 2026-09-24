@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:redstone_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:redstone_shard",
+    "count": 4
+  }
+}

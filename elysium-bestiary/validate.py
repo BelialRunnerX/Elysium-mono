@@ -75,8 +75,30 @@ def squashed(text):
     Naming the whole statement is the point: a rule that looks for a token
     which survives the very edit it was meant to catch is a rule that has never
     failed, and this project has been bitten by that fifteen times.
+    
+    Comments go first, and that is not cosmetic. Without it every rule that
+    uses this could be defeated by putting // in front of the line it names:
+    the statement is still there, character for character, and the rule goes
+    on passing. A negative test found that in one validator by commenting out
+    one line, and it was true of every validator that had this function.
     """
-    return " ".join(text.split())
+    return " ".join(strip_comments(text, True).split())
+
+
+def harness_trouble(output):
+    """The lines of a harness run that say what went wrong.
+
+    A failing harness prints its sections as it goes and its failures among
+    them, and this used to be handed the first sixteen hundred characters of
+    that. Where the failing check was near the end — which it is whenever the
+    newest feature is the broken one — the failures fell off the end entirely
+    and the validator reported a wall of successful section headings. Two
+    negative tests were written against phrases that were never going to be
+    printed before anybody noticed.
+    """
+    lines = [line for line in output.splitlines()
+             if line.strip().startswith("FAIL:") or "failure(s)" in line]
+    return "\n".join(lines or output.strip().splitlines()[-12:])[:2000]
 
 
 def body_of(text, signature):
@@ -195,7 +217,7 @@ else:
             if ran is None:
                 pass
             elif ran.returncode != 0:
-                fail("the bestiary harness failed:\n" + ran.stdout.strip()[:1600])
+                fail("the bestiary harness failed:\n" + harness_trouble(ran.stdout))
             else:
                 harness_out = ran.stdout
                 said = [line for line in ran.stdout.strip().splitlines()

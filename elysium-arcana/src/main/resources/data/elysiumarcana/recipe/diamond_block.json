@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SS",
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:diamond_shard"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:diamond_block",
+    "count": 1
+  }
+}

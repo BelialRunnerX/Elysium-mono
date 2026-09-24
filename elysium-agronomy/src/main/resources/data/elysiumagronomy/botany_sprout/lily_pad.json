@@ -1,0 +1,6 @@
+{
+  "needs": "aquatic",
+  "ticks": 2000,
+  "drop": "lily_pad",
+  "amount": 2
+}

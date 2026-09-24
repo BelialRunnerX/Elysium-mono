@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SS",
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:amethyst_shard"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:amethyst_block",
+    "count": 1
+  }
+}

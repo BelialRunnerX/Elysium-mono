@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SS",
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:silver_shard"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:silver_block",
+    "count": 1
+  }
+}

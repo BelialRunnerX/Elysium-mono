@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SS",
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:crimson_iron_shard"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:crimson_iron_block",
+    "count": 1
+  }
+}

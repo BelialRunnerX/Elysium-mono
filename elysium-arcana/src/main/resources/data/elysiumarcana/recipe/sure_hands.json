@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SGS",
+    "G G",
+    "SGS"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:iron_shard"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:sure_hands",
+    "count": 1
+  }
+}

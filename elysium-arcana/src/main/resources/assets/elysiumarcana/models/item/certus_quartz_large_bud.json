@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "elysiumarcana:block/certus_quartz_large_bud"
+  }
+}

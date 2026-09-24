@@ -1,0 +1,12 @@
+{
+  "station": "skillet",
+  "ingredients": [
+    "elysiumagronomy:minced_beef",
+    "minecraft:potato",
+    "elysiumagronomy:butter"
+  ],
+  "ticks": 300,
+  "servings": 1,
+  "effect": "resistance",
+  "result": "elysiumagronomy:steak_and_potatoes"
+}

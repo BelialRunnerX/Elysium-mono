@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "S",
+    "C",
+    "C"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:fluorite_shard"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:fluorite_spyglass",
+    "count": 1
+  }
+}

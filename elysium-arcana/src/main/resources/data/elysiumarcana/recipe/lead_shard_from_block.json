@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:lead_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:lead_shard",
+    "count": 4
+  }
+}

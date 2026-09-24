@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "elysiumagronomy:block/light_blue_concrete_botany_pot_top",
+    "side": "elysiumagronomy:block/light_blue_concrete_hopper_botany_pot",
+    "bottom": "elysiumagronomy:block/light_blue_concrete_hopper_botany_pot"
+  }
+}

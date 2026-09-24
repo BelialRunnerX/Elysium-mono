@@ -1,0 +1,11 @@
+{
+  "station": "skillet",
+  "ingredients": [
+    "elysiumagronomy:bacon",
+    "minecraft:egg"
+  ],
+  "ticks": 240,
+  "servings": 1,
+  "effect": "strength",
+  "result": "elysiumagronomy:bacon_and_eggs"
+}

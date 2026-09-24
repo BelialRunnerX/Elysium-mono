@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:azure_silver_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:azure_silver_comb",
+    "count": 9
+  }
+}

@@ -34,7 +34,12 @@ ROOT = os.path.dirname(WORK)
 RES = os.path.join(WORK, "src/main/resources")
 SRC = os.path.join(WORK, "src/main/java/com/elysium/arcana")
 PURE = os.path.join(SRC, "rules")
-BELOW = []
+# The library's ability roster, which the relics are built on. It is the only
+# thing outside this module the rules reach for, it is a pure-JDK class like
+# they are, and elysium-lib sits below everything — so it is staged with them
+# and the harness compiles against it the way the game will.
+BELOW = [os.path.join(os.path.dirname(WORK),
+                      "elysium-lib/src/main/java/com/elysium/lib/ability")]
 HARNESS = os.path.join(WORK, "tools/ArcanaHarness.java")
 HARNESS_MAIN = "com.elysium.arcana.rules.ArcanaHarness"
 GENERATOR = os.path.join(WORK, "tools/gen_arcana.py")
@@ -70,8 +75,30 @@ def squashed(text):
     Naming the whole statement is the point: a rule that looks for a token
     which survives the very edit it was meant to catch is a rule that has never
     failed, and this project has been bitten by that a dozen times.
+    
+    Comments go first, and that is not cosmetic. Without it every rule that
+    uses this could be defeated by putting // in front of the line it names:
+    the statement is still there, character for character, and the rule goes
+    on passing. A negative test found that in one validator by commenting out
+    one line, and it was true of every validator that had this function.
     """
-    return " ".join(text.split())
+    return " ".join(strip_comments(text, True).split())
+
+
+def harness_trouble(output):
+    """The lines of a harness run that say what went wrong.
+
+    A failing harness prints its sections as it goes and its failures among
+    them, and this used to be handed the first sixteen hundred characters of
+    that. Where the failing check was near the end — which it is whenever the
+    newest feature is the broken one — the failures fell off the end entirely
+    and the validator reported a wall of successful section headings. Two
+    negative tests were written against phrases that were never going to be
+    printed before anybody noticed.
+    """
+    lines = [line for line in output.splitlines()
+             if line.strip().startswith("FAIL:") or "failure(s)" in line]
+    return "\n".join(lines or output.strip().splitlines()[-12:])[:2000]
 
 
 def body_of(text, signature):
@@ -105,8 +132,14 @@ print("=" * 70)
 # 1. Independence
 # ---------------------------------------------------------------------------
 
+# The mods this module replaces, as their Java packages and as their
+# namespaces. The bare word "relics" used to be in the first group and had to
+# come out: this module now has relics of its own, and a case-insensitive
+# match on it flagged RelicRules, RelicItems and the RELICS constant three
+# times each. The mod's own package is what identifies the mod, and it is
+# still here.
 FOREIGN = re.compile(
-    r"(?:moze_intel|projecte|projectexpansion|it\.hurts\.sskirillss|relics)"
+    r"(?:moze_intel|projecte|projectexpansion|it\.hurts\.sskirillss)"
     r"|\b(?:projecte|projectexpansion|relics|geore)\s*:", re.I)
 UPWARD = re.compile(r"com\.elysium\.(arsenal|bestiary|atelier|wilds|comforts|colonies)")
 
@@ -156,7 +189,14 @@ for name in sorted(os.listdir(PURE)) if os.path.isdir(PURE) else []:
             fail(f"rules/{name} reaches for {forbidden}; the rules are the JDK alone, "
                  f"so a harness can price ten thousand recipes without a game")
     for used in re.findall(r"import\s+(com\.elysium\.[\w.]+);", without_package):
-        fail(f"rules/{name} imports {used}; the table is the JDK alone")
+        # The library is below everything and its rules are pure JDK too, so a
+        # table here may be built on one there. That is what stops the relics
+        # and the arsenal's uniques growing two sets of cooldowns that drift
+        # apart. Anything else is a table reaching sideways.
+        if used.startswith("com.elysium.lib."):
+            continue
+        fail(f"rules/{name} imports {used}; a table here is the JDK and the "
+             f"library, and nothing else")
 
 if not os.path.isfile(HARNESS):
     fail("there is no harness, so the one property this module rests on is checked by "
@@ -165,7 +205,18 @@ else:
     with tempfile.TemporaryDirectory() as tmp:
         staged = os.path.join(tmp, "src")
         os.makedirs(staged)
-        sources = [os.path.join(PURE, n) for n in os.listdir(PURE) if n.endswith(".java")]
+        sources = [os.path.join(PURE, n) for n in os.listdir(PURE)
+                   if n.endswith(".java")]
+        # And whatever sits below and is pure JDK too. The relics are built on
+        # the library's ability roster, and a harness that cannot see it is a
+        # harness that cannot check the one thing the relics are made of.
+        for folder in BELOW:
+            if not os.path.isdir(folder):
+                fail(f"{folder} is not where this expects it, so the rules below "
+                     f"this module cannot be compiled against")
+                continue
+            sources += [os.path.join(folder, n) for n in os.listdir(folder)
+                        if n.endswith(".java")]
         for source in sources + [HARNESS]:
             open(os.path.join(staged, os.path.basename(source)), "w",
                  encoding="utf-8").write(read(source))
@@ -189,7 +240,7 @@ else:
             if ran is None:
                 pass
             elif ran.returncode != 0:
-                fail("the arcana harness failed:\n" + ran.stdout.strip()[:1600])
+                fail("the arcana harness failed:\n" + harness_trouble(ran.stdout))
             else:
                 print("the arithmetic     : " + ran.stdout.strip().splitlines()[-1])
 
@@ -409,17 +460,30 @@ print("who decides        : the catalogue, the price, the balance and what a wor
 # 6. Arcana in the world
 # ---------------------------------------------------------------------------
 
-if not os.path.isfile(GENERATOR):
-    fail("there is no generator, so every asset in the module is kept by hand")
-else:
+# Both generators, in the order regen.sh runs them, into one tree. They share
+# a language file: gen_arcana writes its own keys over the whole of it and
+# gen_geodes merges two hundred and seventy names on top. Run separately they
+# each look wrong, because each is missing what the other wrote.
+GENERATORS = [("tools/gen_arcana.py", "ELYSIUM_ARCANA_OUT"),
+              ("tools/gen_geodes.py", "ELYSIUM_GEODES_OUT"),
+              ("tools/gen_relics.py", "ELYSIUM_RELICS_OUT")]
+for relative, _ in GENERATORS:
+    if not os.path.isfile(os.path.join(WORK, relative)):
+        fail(f"there is no {relative}, so the assets it writes are kept by hand")
+
+if all(os.path.isfile(os.path.join(WORK, relative)) for relative, _ in GENERATORS):
     with tempfile.TemporaryDirectory() as tmp:
-        environment = dict(os.environ, ELYSIUM_ARCANA_OUT=tmp)
-        made = subprocess.run([sys.executable, GENERATOR], capture_output=True,
-                              text=True, env=environment, cwd=WORK)
-        if made.returncode != 0:
-            fail("the generator will not run, so nothing here can be rebuilt:\n"
-                 + (made.stdout + made.stderr).strip()[:800])
-        else:
+        ran_all = True
+        for relative, variable in GENERATORS:
+            environment = dict(os.environ, **{variable: tmp})
+            made = subprocess.run([sys.executable, os.path.join(WORK, relative)],
+                                  capture_output=True, text=True, env=environment,
+                                  cwd=WORK)
+            if made.returncode != 0:
+                ran_all = False
+                fail(f"{relative} will not run, so nothing it writes can be "
+                     f"rebuilt:\n" + (made.stdout + made.stderr).strip()[:800])
+        if ran_all:
             fresh = os.path.join(tmp, "src/main/resources")
             drifted = []
             for dirpath, _, filenames in os.walk(fresh):
@@ -497,6 +561,219 @@ for registered in ("ArcanaAttachments.ATTACHMENTS.register", "ArcanaBlocks.BLOCK
              f"of it exists")
 
 print("what it declares   : the game and the library, and not one thing it prices")
+
+
+# ---------------------------------------------------------------------------
+# 7. Two hundred and ten geodes, and the twenty-nine materials that are not here
+# ---------------------------------------------------------------------------
+#
+# The mod this replaces ships geodes for twenty-nine materials, and the list is
+# the union of every mod it has ever supported. In this pack most of them are
+# blocks with no way to obtain them. So the list here is checked against the
+# foundry's own mined materials, exactly as the bees are.
+
+def asset(*parts):
+    return os.path.isfile(os.path.join(RES, "assets", NS, *parts))
+
+
+def datum(*parts):
+    return os.path.isfile(os.path.join(RES, "data", NS, *parts))
+
+
+GEODE_RULES = read(SRC, "rules/GeodeRules.java")
+GEODE_BLOCKS = read(SRC, "registry/GeodeBlocks.java")
+GEODE_ITEMS = read(SRC, "registry/GeodeItems.java")
+geode_source = squashed(GEODE_RULES)
+
+
+def geode_listing(name):
+    found = re.search(r"public static final List<String> " + name
+                      + r" = List\.of\(([^;]*?)\);", geode_source)
+    return re.findall(r'"([a-z_]+)"', found.group(1)) if found else []
+
+
+geode_mined = geode_listing("MINED")
+geode_vanilla = geode_listing("THE_GAMES_OWN")
+geode_materials = geode_mined + geode_vanilla
+geode_kinds = ["block", "budding", "small_bud", "medium_bud", "large_bud",
+               "cluster", "tinted_glass"]
+
+
+def geode_id(material, kind):
+    return f"budding_{material}" if kind == "budding" else f"{material}_{kind}"
+
+
+if not geode_materials:
+    fail("no geode materials could be read out of GeodeRules.java, so nothing below "
+         "this line checked anything at all")
+
+foundry_path = os.path.join(ROOT, "elysium-foundry",
+                            "src/main/java/com/elysium/foundry/rules/FoundryRules.java")
+if not os.path.isfile(foundry_path):
+    fail("the foundry's material list is not where this expects it, so the check "
+         "that a geode names something this pack mines did not run")
+else:
+    foundry_src = open(foundry_path, encoding="utf-8").read()
+    mined_here = set(re.findall(r'mined\("([a-z_]+)", \d+\)', foundry_src))
+    made_here = set(re.findall(r'(?:alloy|refined|grown|pure)\("([a-z_]+)"',
+                               foundry_src))
+    unreachable = [m for m in geode_mined if m not in mined_here]
+    if unreachable:
+        fail(f"{len(unreachable)} geode material(s) the foundry does not mine, so "
+             f"they are walls of blocks nobody can reach — the state the twenty-nine "
+             f"in the jar are mostly in: " + ", ".join(sorted(unreachable)[:8]))
+    alloys = [m for m in geode_materials if m in made_here]
+    if alloys:
+        fail("geode(s) for a material a machine makes rather than one the ground "
+             "grows: " + ", ".join(sorted(alloys)[:6]))
+
+for material in geode_vanilla:
+    if material in geode_mined:
+        fail(f"{material} is listed as both mined here and the game's own")
+
+missing_geodes = []
+for material in geode_materials:
+    for kind in geode_kinds:
+        name = geode_id(material, kind)
+        if not asset("models/block", name + ".json"):
+            missing_geodes.append(name + " model")
+        if not asset("blockstates", name + ".json"):
+            missing_geodes.append(name + " blockstate")
+        if not asset("textures/block", name + ".png"):
+            missing_geodes.append(name + " texture")
+        if not asset("models/item", name + ".json"):
+            missing_geodes.append(name + " item model")
+        if not datum("loot_table/blocks", name + ".json"):
+            missing_geodes.append(name + " loot")
+        if f"block.{NS}.{name}" not in lang:
+            missing_geodes.append(name + " name")
+    for kind in ("shard", "spyglass"):
+        if not asset("models/item", f"{material}_{kind}.json"):
+            missing_geodes.append(f"{material}_{kind} model")
+        if not asset("textures/item", f"{material}_{kind}.png"):
+            missing_geodes.append(f"{material}_{kind} texture")
+        if f"item.{NS}.{material}_{kind}" not in lang:
+            missing_geodes.append(f"{material}_{kind} name")
+if missing_geodes:
+    fail(f"{len(missing_geodes)} thing(s) a geode needs are not there: "
+         + ", ".join(missing_geodes[:8]) + (" ..." if len(missing_geodes) > 8 else ""))
+
+# A directional crystal needs a variant for every way it can face, or the game
+# draws nothing at all for the ones it has no entry for.
+for material in geode_materials[:4]:
+    for kind in ("small_bud", "medium_bud", "large_bud", "cluster"):
+        path = os.path.join(RES, "assets", NS, "blockstates",
+                            geode_id(material, kind) + ".json")
+        if os.path.isfile(path):
+            variants = json.load(open(path, encoding="utf-8")).get("variants", {})
+            if len(variants) != 6:
+                fail(f"{geode_id(material, kind)} has {len(variants)} facing "
+                     f"variant(s) where six are needed, so it draws nothing when it "
+                     f"grows the other ways")
+
+# The budding block has to be handed its own chain, or it grows nothing.
+if "new BuddingGeodeBlock(solid(), chain)" not in squashed(GEODE_BLOCKS):
+    fail("the budding blocks are not built with a chain, so a random tick on one "
+         "does nothing and every geode in the world stays a bare wall")
+if "for (String material : GeodeRules.materials()) {" not in squashed(GEODE_BLOCKS):
+    fail("GeodeBlocks no longer walks the material list, so the registry and the "
+         "rules can disagree about which geodes exist")
+for where, source in (("GeodeBlocks", GEODE_BLOCKS), ("GeodeItems", GEODE_ITEMS)):
+    if "throw new IllegalStateException" not in squashed(source) \
+            or "if (made.size() != GeodeRules." not in squashed(source):
+        fail(f"{where} does not count what it registered against the catalogue")
+
+print(f"geodes             : {len(geode_materials)} material(s) — "
+      f"{len(geode_mined)} the foundry mines and {len(geode_vanilla)} the game's own "
+      f"— in {len(geode_kinds)} shapes each, every chain whole and every block "
+      f"modelled, dropped and named")
+
+
+# ---------------------------------------------------------------------------
+# 8. Thirty relics, and the ability system they are built on
+# ---------------------------------------------------------------------------
+#
+# The hard part is not here: what a relic does is an ability, and the abilities
+# live in the library with their own balance model and their own harness. What
+# is checked here is that every relic's list of abilities is a list the library
+# allows, that no ability exists only in a table, and that the tooltip is read
+# off the roster rather than written into a string.
+
+RELIC_RULES = read(SRC, "rules/RelicRules.java")
+RELIC_ITEMS = read(SRC, "registry/RelicItems.java")
+relic_source = squashed(RELIC_RULES)
+relic_rows = re.findall(
+    r'relic\("([a-z_]+)", "([a-z]+)", (\d+), List\.of\(([^)]*)\)\)', relic_source)
+relic_ids = [row[0] for row in relic_rows]
+relic_abilities = {name for row in relic_rows
+                   for name in re.findall(r'"([a-z_]+)"', row[3])}
+
+ability_path = os.path.join(
+    ROOT, "elysium-lib/src/main/java/com/elysium/lib/ability/ElysiumAbilityRules.java")
+if not os.path.isfile(ability_path):
+    fail("the library's ability roster is not where this expects it, so every relic "
+         "below could name an ability that does not exist")
+    library_abilities = set()
+else:
+    library_abilities = set(re.findall(
+        r'made\("([a-z_]+)", [A-Z]+,', open(ability_path, encoding="utf-8").read()))
+
+if not relic_ids:
+    fail("no relics could be read out of RelicRules.java, so nothing below this line "
+         "checked anything at all")
+
+unknown = sorted(relic_abilities - library_abilities)
+if unknown:
+    fail("relic(s) naming an ability the library does not have, so those relics do "
+         "nothing at all: " + ", ".join(unknown[:6]))
+unworn = sorted(library_abilities - relic_abilities)
+if unworn:
+    fail("abilit(ies) in the library that nothing in the world carries, so they "
+         "exist only in a table: " + ", ".join(unworn[:6]))
+
+# The registry has to refuse an illegal set as well as the harness, because a
+# relic added later by hand never goes through the harness at all.
+if "ElysiumAbilityRules.cannotShareAnItem(relic.abilities())" not in squashed(
+        RELIC_ITEMS):
+    fail("RelicItems does not check what it is about to register against the "
+         "library's rule, so a relic written by hand can carry anything")
+if "for (RelicRules.Relic relic : RelicRules.RELICS) {" not in squashed(RELIC_ITEMS):
+    fail("RelicItems no longer walks the roster, so the registry and the rules can "
+         "disagree about which relics exist")
+if "if (made.size() != RelicRules.RELICS.size()) { throw new IllegalStateException(" \
+        not in squashed(RELIC_ITEMS):
+    fail("RelicItems does not count what it registered against the roster")
+
+# The tooltip reads the roster. A cooldown written into a translation string is
+# a tooltip that stops being true the first time the number is retuned.
+if "ability.cooldown() / 20.0F" not in squashed(RELIC_ITEMS):
+    fail("the relic tooltip no longer reads the cooldown off the ability, so it "
+         "stops being true the first time a number is retuned")
+
+missing_relics = []
+for rid in relic_ids:
+    if not asset("models/item", rid + ".json"):
+        missing_relics.append(rid + " model")
+    if not asset("textures/item", rid + ".png"):
+        missing_relics.append(rid + " texture")
+    if not datum("recipe", rid + ".json"):
+        missing_relics.append(rid + " recipe")
+    if f"item.{NS}.{rid}" not in lang:
+        missing_relics.append(rid + " name")
+for name in sorted(library_abilities):
+    if f"{NS}.ability.{name}" not in lang:
+        missing_relics.append(name + " tooltip line")
+for line in (f"{NS}.relic.slot", f"{NS}.relic.always", f"{NS}.relic.every"):
+    if line not in lang:
+        missing_relics.append(line)
+if missing_relics:
+    fail(f"{len(missing_relics)} thing(s) a relic needs are not there: "
+         + ", ".join(missing_relics[:8]) + (" ..." if len(missing_relics) > 8 else ""))
+
+print(f"relics             : {len(relic_ids)} across "
+      f"{len({row[1] for row in relic_rows})} slot(s), carrying every one of "
+      f"{len(library_abilities)} abilities the library defines, each list legal by "
+      f"the library's own rule")
 
 if problems:
     print(f"{len(problems)} PROBLEM(S):")

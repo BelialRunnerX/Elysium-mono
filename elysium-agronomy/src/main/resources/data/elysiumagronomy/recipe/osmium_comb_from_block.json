@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:osmium_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:osmium_comb",
+    "count": 9
+  }
+}

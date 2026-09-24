@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "minecraft:bricks"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:cooking_pot",
+    "count": 1
+  }
+}

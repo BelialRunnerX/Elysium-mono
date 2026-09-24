@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "elysiumagronomy:block/redstone_dust_comb_block"
+  }
+}

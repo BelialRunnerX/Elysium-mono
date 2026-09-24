@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "elysiumagronomy:block/netherite_scrap_generator_top",
+    "bottom": "elysiumagronomy:block/netherite_scrap_generator_top",
+    "side": "elysiumagronomy:block/netherite_scrap_generator_side"
+  }
+}

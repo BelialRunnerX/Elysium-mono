@@ -1,0 +1,12 @@
+{
+  "station": "oven",
+  "ingredients": [
+    "elysiumagronomy:pie_crust",
+    "minecraft:apple",
+    "minecraft:sugar"
+  ],
+  "ticks": 500,
+  "servings": 4,
+  "effect": "nourishment",
+  "result": "elysiumagronomy:apple_pie"
+}

@@ -14,6 +14,7 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -23,6 +24,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.items.ItemStackHandler;
+
+import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -47,15 +50,70 @@ public class RockGeneratorBlock extends GridBlock {
     public static final MapCodec<RockGeneratorBlock> CODEC =
             simpleCodec(properties -> new RockGeneratorBlock(properties, 0));
 
+    /**
+     * What each vein actually drops into the slot.
+     *
+     * <p>Written down here because it was not, at first: every generator in
+     * the table was built with a tier and nothing else, so the gold generator
+     * produced cobblestone, the diamond generator produced cobblestone, and
+     * all seven were the same block with different sides. Nothing would have
+     * said so until somebody built one and waited.
+     */
+    public static final Map<String, Item> FROM_VEIN = Map.of(
+            "stone", Items.COBBLESTONE,
+            "copper", Items.RAW_COPPER,
+            "iron", Items.RAW_IRON,
+            "gold", Items.RAW_GOLD,
+            "diamond", Items.DIAMOND,
+            "emerald", Items.EMERALD,
+            "netherite_scrap", Items.NETHERITE_SCRAP);
+
     private final int tier;
 
+    /** The vein this one is tuned to, or null for a plain rock generator. */
+    @Nullable
+    private final AgronomyRules.Vein vein;
+
     public RockGeneratorBlock(Properties properties, int tier) {
+        this(properties, tier, null);
+    }
+
+    public RockGeneratorBlock(Properties properties, AgronomyRules.Vein vein) {
+        this(properties, vein.tier(), vein);
+    }
+
+    private RockGeneratorBlock(Properties properties, int tier,
+                               @Nullable AgronomyRules.Vein vein) {
         super(properties);
         this.tier = Math.max(0, Math.min(AgronomyRules.ROCK_PER_HOUR.length - 1, tier));
+        this.vein = vein;
+        if (vein != null && !FROM_VEIN.containsKey(vein.material())) {
+            throw new IllegalStateException("there is a vein of " + vein.material()
+                    + " and nothing said what comes out of it");
+        }
     }
 
     public int tier() {
         return tier;
+    }
+
+    /** The vein this one makes, or null if it just makes rock. */
+    @Nullable
+    public AgronomyRules.Vein vein() {
+        return vein;
+    }
+
+    /** What comes out of this one. */
+    public Item makes() {
+        return vein == null ? Items.COBBLESTONE : FROM_VEIN.get(vein.material());
+    }
+
+    /** How much of it comes out in an hour, at a given share of the grid. */
+    public float perHour(float share) {
+        if (vein == null) {
+            return AgronomyRules.rockPerHour(tier, share);
+        }
+        return vein.perHour() * Math.max(0.0F, Math.min(1.0F, share));
     }
 
     @Override
@@ -130,6 +188,18 @@ public class RockGeneratorBlock extends GridBlock {
             return items;
         }
 
+        /** What this one makes, asked of the block rather than assumed. */
+        private Item makes() {
+            return getBlockState().getBlock() instanceof RockGeneratorBlock rock
+                    ? rock.makes() : Items.COBBLESTONE;
+        }
+
+        /** How much of it an hour, at whatever the grid can afford. */
+        private float rate() {
+            return getBlockState().getBlock() instanceof RockGeneratorBlock rock
+                    ? rock.perHour(fed()) : 0.0F;
+        }
+
         private int tier() {
             return getBlockState().getBlock() instanceof RockGeneratorBlock rock
                     ? rock.tier() : 0;
@@ -167,7 +237,7 @@ public class RockGeneratorBlock extends GridBlock {
         }
 
         public Component says() {
-            float rate = AgronomyRules.rockPerHour(tier(), fed());
+            float rate = rate();
             if (rate <= 0.0F) {
                 return Component.translatable("elysiumagronomy.rock.dark");
             }
@@ -177,7 +247,7 @@ public class RockGeneratorBlock extends GridBlock {
 
         @Override
         protected void serverTick(Level level, BlockPos pos, BlockState state) {
-            float perHour = AgronomyRules.rockPerHour(tier(), fed());
+            float perHour = rate();
             if (perHour <= 0.0F) {
                 return;
             }
@@ -185,7 +255,7 @@ public class RockGeneratorBlock extends GridBlock {
             int whole = AgronomyRules.TICKS_PER_HOUR * AgronomyRules.WORK_FULL;
             while (worked >= whole) {
                 worked -= whole;
-                ItemStack rock = new ItemStack(Items.COBBLESTONE);
+                ItemStack rock = new ItemStack(makes());
                 if (!items.insertItem(OUT, rock, true).isEmpty()) {
                     worked = 0;                // full: stop counting rather than pile up
                     return;

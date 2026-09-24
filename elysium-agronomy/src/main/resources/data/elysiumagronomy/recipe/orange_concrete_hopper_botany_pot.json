@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:orange_concrete_botany_pot"
+    },
+    {
+      "item": "minecraft:hopper"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:orange_concrete_hopper_botany_pot",
+    "count": 1
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "input": "minecraft:pumpkin",
+  "tool": "knife",
+  "yields": [
+    {
+      "item": "minecraft:pumpkin_slice",
+      "count": 4
+    }
+  ]
+}

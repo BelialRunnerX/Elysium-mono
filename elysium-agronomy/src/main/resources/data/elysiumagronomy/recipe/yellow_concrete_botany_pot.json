@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "M M",
+    " M "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:yellow_concrete"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:yellow_concrete_botany_pot",
+    "count": 1
+  }
+}

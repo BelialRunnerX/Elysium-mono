@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "S",
+    "C",
+    "C"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:diamond_shard"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:diamond_spyglass",
+    "count": 1
+  }
+}

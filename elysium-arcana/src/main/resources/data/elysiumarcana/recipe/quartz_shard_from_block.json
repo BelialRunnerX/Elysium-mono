@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:quartz_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:quartz_shard",
+    "count": 4
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "station": "pot",
+  "ingredients": [
+    "minecraft:brown_mushroom",
+    "minecraft:red_mushroom",
+    "elysiumagronomy:cream",
+    "elysiumagronomy:stock"
+  ],
+  "ticks": 420,
+  "servings": 4,
+  "effect": "resistance",
+  "result": "elysiumagronomy:mushroom_stew"
+}

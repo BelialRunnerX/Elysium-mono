@@ -1,0 +1,10 @@
+{
+  "input": "minecraft:mutton",
+  "tool": "knife",
+  "yields": [
+    {
+      "item": "elysiumagronomy:minced_mutton",
+      "count": 2
+    }
+  ]
+}

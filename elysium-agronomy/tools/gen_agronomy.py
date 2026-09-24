@@ -12,6 +12,7 @@ a temporary tree and compares it byte for byte.
 """
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -53,16 +54,27 @@ ESSENCES = ["faint_essence", "bright_essence", "keen_essence",
             "radiant_essence", "ascendant_essence"]
 
 #: material -> (tier, what one makes when you have enough essence)
-SEEDS = {
-    "coal": (1, "minecraft:coal"),
-    "copper": (1, "minecraft:copper_ingot"),
-    "iron": (2, "minecraft:iron_ingot"),
-    "redstone": (2, "minecraft:redstone"),
-    "lapis": (3, "minecraft:lapis_lazuli"),
-    "gold": (3, "minecraft:gold_ingot"),
-    "diamond": (4, "minecraft:diamond"),
-    "netherite": (5, "minecraft:netherite_scrap"),
-}
+#
+# Read out of SeedRules.java rather than written here. It was written here, and
+# in AgronomyItems.java as well, and three hand-written copies of thirty rows
+# is three chances for a seed to take one length of time to grow and cost
+# another to make.
+SEED_RULES = os.path.join(
+    MOD, "src/main/java/com/elysium/agronomy/rules/SeedRules.java")
+with open(SEED_RULES, encoding="utf-8") as _handle:
+    _seed_source = _handle.read()
+SEEDS = {}
+for _material, _tier, _makes in re.findall(
+        r'mined\("([a-z_]+)", (\d+), "([^"]+)"\)', _seed_source):
+    SEEDS[_material] = (int(_tier), _makes)
+if not SEEDS:
+    print("no seeds could be read out of SeedRules.java")
+    sys.exit(2)
+
+#: Materials whose essence turns into a chunk this module makes itself, because
+#: a recipe result has to be a concrete item and the foundry sits above us.
+CHUNKED = sorted(material for material, (tier, makes) in SEEDS.items()
+                 if makes.startswith("elysiumagronomy:"))
 
 BLOCKS = ["pot", "accelerator", "hive",
           "rock_generator", "driven_rock_generator", "industrial_rock_generator"]
@@ -243,6 +255,44 @@ for material, (tier, _) in SEEDS.items():
     ITEM_SPRITES[material + "_seed"] = (lambda t=tier: seed(t - 1))
 
 
+#: The seventeen chunks, drawn from the material's own name so two never look
+#: the same and a new material needs no new artwork.
+def chunk(material):
+    value = 0
+    for char in material:
+        value = (value * 31 + ord(char)) & 0xFFFFFFFF
+    red = 90 + (value % 130)
+    green = 90 + ((value // 7) % 130)
+    blue = 90 + ((value // 53) % 130)
+    core = (red, green, blue)
+    edge = tuple(max(0, channel - 52) for channel in core)
+    shine = tuple(min(255, channel + 48) for channel in core)
+    image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.polygon([(4, 11), (3, 7), (6, 4), (11, 5), (12, 10), (8, 13)],
+                 fill=core + (255,), outline=edge + (255,))
+    draw.line([(6, 7), (9, 6)], fill=shine + (255,))
+    draw.point((7, 9), fill=shine + (255,))
+    return image
+
+
+def food_book():
+    """A bound book with a leaf in it."""
+    cover = (118, 74, 54)
+    spine = (86, 52, 38)
+    page = (232, 226, 206)
+    leaf = (108, 158, 72)
+    image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([3, 2, 12, 13], fill=cover + (255,))
+    draw.rectangle([3, 2, 4, 13], fill=spine + (255,))
+    draw.rectangle([6, 4, 11, 11], fill=page + (255,))
+    draw.line([(7, 6), (10, 6)], fill=(168, 160, 140, 255))
+    draw.line([(7, 8), (10, 8)], fill=(168, 160, 140, 255))
+    draw.polygon([(8, 9), (11, 10), (8, 12)], fill=leaf + (255,))
+    return image
+
+
 def draw_all():
     blocks = os.path.join(ASSETS, "textures/block")
     items = os.path.join(ASSETS, "textures/item")
@@ -252,7 +302,10 @@ def draw_all():
         make().save(os.path.join(blocks, name + ".png"))
     for name, make in ITEM_SPRITES.items():
         make().save(os.path.join(items, name + ".png"))
-    return len(BLOCK_SPRITES) + len(ITEM_SPRITES)
+    for material in CHUNKED:
+        chunk(material).save(os.path.join(items, material + "_chunk.png"))
+    food_book().save(os.path.join(items, "food_book.png"))
+    return len(BLOCK_SPRITES) + len(ITEM_SPRITES) + len(CHUNKED)
 
 
 # ---------------------------------------------------------------------------
@@ -317,6 +370,15 @@ def models_and_states():
         write(os.path.join(ASSETS, "models/item", name + ".json"),
               {"parent": "item/generated", "textures": {"layer0": f"{NS}:item/{name}"}})
         written += 1
+    for material in CHUNKED:
+        write(os.path.join(ASSETS, "models/item", material + "_chunk.json"),
+              {"parent": "item/generated",
+               "textures": {"layer0": f"{NS}:item/{material}_chunk"}})
+        written += 1
+    write(os.path.join(ASSETS, "models/item", "food_book.json"),
+          {"parent": "item/generated",
+           "textures": {"layer0": f"{NS}:item/food_book"}})
+    written += 1
     return written
 
 
@@ -351,6 +413,14 @@ ITEM = lambda name: {"item": name}
 TAG = lambda name: {"tag": name}
 
 RECIPES = {
+    # A book and something grown, which is the whole mechanic in one recipe.
+    "food_book": {
+        "type": "minecraft:crafting_shapeless",
+        "category": "misc",
+        "ingredients": [{"item": "minecraft:book"}, {"item": "minecraft:wheat"},
+                        {"item": "minecraft:apple"}],
+        "result": {"id": f"{NS}:food_book", "count": 1},
+    },
     "pot": shaped(["C C", "CPC", "CCC"], {
         "C": ITEM("minecraft:clay_ball"), "P": TAG("minecraft:planks")},
         f"{NS}:pot", 2),
@@ -383,8 +453,15 @@ def ladder_recipes():
             [ITEM(f"{NS}:{ESSENCES[rung - 1]}")] * ESSENCE_PER_STEP,
             f"{NS}:{ESSENCES[rung]}")
     for material, (tier, gives) in SEEDS.items():
+        # The seed costs a sample of the thing it grows. For the seventeen
+        # whose sample is a chunk this module itself makes, that would be
+        # circular — the only way to get a chunk is to grow the seed — so the
+        # seed asks for the ore instead, which elysium-ores tags and puts in
+        # the ground. You mine it once and grow it after that.
+        sample = (TAG(f"c:ores/{material}") if material in CHUNKED
+                  else ITEM(gives))
         made[f"{material}_seed"] = shapeless(
-            [ITEM(f"{NS}:{ESSENCES[tier - 1]}")] * ESSENCE_PER_STEP + [ITEM(gives)],
+            [ITEM(f"{NS}:{ESSENCES[tier - 1]}")] * ESSENCE_PER_STEP + [sample],
             f"{NS}:{material}_seed")
         made[f"{material}_from_essence"] = shapeless(
             [ITEM(f"{NS}:{ESSENCES[tier - 1]}")] * ESSENCE_PER_INGOT, gives)
@@ -398,6 +475,13 @@ def data_files():
         written += 1
     for name, recipe in dict(RECIPES, **ladder_recipes()).items():
         write(os.path.join(DATA, "recipe", name + ".json"), recipe)
+        written += 1
+
+    # Every chunk carries the tag the foundry already smelts, so growing tin
+    # and mining tin end up in the same furnace rather than in two.
+    for material in CHUNKED:
+        write(os.path.join(DATA, "../c/tags/item", f"raw_materials/{material}.json"),
+              {"replace": False, "values": [f"{NS}:{material}_chunk"]})
         written += 1
 
     # What a hive will take. Vanilla has no bee item, so the tag is ours and
@@ -444,6 +528,10 @@ for material in SEEDS:
 
 LINES = {
     "itemGroup.elysiumagronomy": "Elysium Agronomy",
+    "elysiumagronomy.diet.read": "%s of %s different foods eaten: %s extra hearts.",
+    "elysiumagronomy.diet.tip":
+        "Eat %s different foods for %s extra hearts. Eating the same thing twice "
+        "counts once.",
     "elysiumagronomy.pot.bare": "Nothing planted in it.",
     "elysiumagronomy.pot.dark": "Too dark: light %s, and it wants %s.",
     "elysiumagronomy.pot.growing": "%s, growing at %sx. About %ss to go.",
@@ -465,6 +553,10 @@ def language():
         entries[f"block.{NS}.{name}"] = shown
     for name, shown in ITEM_NAMES.items():
         entries[f"item.{NS}.{name}"] = shown
+    for material in CHUNKED:
+        entries[f"item.{NS}.{material}_chunk"] = " ".join(
+            word.capitalize() for word in material.split("_")) + " Chunk"
+    entries[f"item.{NS}.food_book"] = "Food Book"
     write(os.path.join(ASSETS, "lang/en_us.json"), dict(sorted(entries.items())))
     return len(entries)
 

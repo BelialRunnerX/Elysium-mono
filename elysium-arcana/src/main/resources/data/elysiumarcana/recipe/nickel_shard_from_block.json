@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:nickel_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:nickel_shard",
+    "count": 4
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "tag": "c:ores/nickel"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:nickel_seed",
+    "count": 1
+  }
+}

@@ -67,6 +67,33 @@ public final class AgronomyBlocks {
             BLOCKS.register("driven_rock_generator",
                     () -> new RockGeneratorBlock(steel().strength(3.5F), 1));
 
+    /**
+     * One generator per vein.
+     *
+     * <p>Seven blocks from a seven-row table, because the mod this replaces
+     * writes out seven block classes that differ in one field. The guard below
+     * is the same one every registry in this module carries: six of seven is a
+     * module that works until somebody builds the seventh.
+     */
+    public static final java.util.Map<String, DeferredBlock<Block>> VEINS =
+            registerVeins();
+
+    private static java.util.Map<String, DeferredBlock<Block>> registerVeins() {
+        java.util.Map<String, DeferredBlock<Block>> made =
+                new java.util.LinkedHashMap<>();
+        for (com.elysium.agronomy.rules.AgronomyRules.Vein vein
+                : com.elysium.agronomy.rules.AgronomyRules.VEINS) {
+            made.put(vein.material(), BLOCKS.register(vein.material() + "_generator",
+                    () -> new RockGeneratorBlock(steel(), vein)));
+        }
+        if (made.size() != com.elysium.agronomy.rules.AgronomyRules.VEINS.size()) {
+            throw new IllegalStateException("there are "
+                    + com.elysium.agronomy.rules.AgronomyRules.VEINS.size()
+                    + " veins and " + made.size() + " generator(s) were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
     public static final DeferredBlock<Block> INDUSTRIAL_ROCK_GENERATOR =
             BLOCKS.register("industrial_rock_generator",
                     () -> new RockGeneratorBlock(steel().strength(4.5F), 2));

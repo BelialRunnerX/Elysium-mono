@@ -1,0 +1,10 @@
+{
+  "input": "minecraft:bread",
+  "tool": "knife",
+  "yields": [
+    {
+      "item": "minecraft:bread_slice",
+      "count": 2
+    }
+  ]
+}

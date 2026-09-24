@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:rime_shard_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:rime_shard_shard",
+    "count": 4
+  }
+}

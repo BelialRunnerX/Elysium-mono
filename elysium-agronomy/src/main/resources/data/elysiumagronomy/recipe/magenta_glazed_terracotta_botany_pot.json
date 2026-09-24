@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "M M",
+    " M "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:magenta_glazed_terracotta"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:magenta_glazed_terracotta_botany_pot",
+    "count": 1
+  }
+}

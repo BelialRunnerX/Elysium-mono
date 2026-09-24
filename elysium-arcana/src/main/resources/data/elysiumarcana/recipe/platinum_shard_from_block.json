@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:platinum_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:platinum_shard",
+    "count": 4
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "top": "elysiumagronomy:block/light_blue_terracotta_botany_pot_top_3",
+    "side": "elysiumagronomy:block/light_blue_terracotta_hopper_botany_pot",
+    "bottom": "elysiumagronomy:block/light_blue_terracotta_hopper_botany_pot",
+    "particle": "elysiumagronomy:block/light_blue_terracotta_hopper_botany_pot"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        12,
+        14
+      ],
+      "faces": {
+        "down": {
+          "texture": "#bottom"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        }
+      }
+    }
+  ]
+}

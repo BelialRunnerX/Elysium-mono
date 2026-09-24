@@ -39,6 +39,10 @@ public class ElysiumArcana {
         com.elysium.arcana.registry.ArcanaAttachments.ATTACHMENTS.register(modEventBus);
         com.elysium.arcana.registry.ArcanaBlocks.BLOCKS.register(modEventBus);
         com.elysium.arcana.registry.ArcanaItems.ITEMS.register(modEventBus);
+        com.elysium.arcana.registry.GeodeBlocks.BLOCKS.register(modEventBus);
+        com.elysium.arcana.registry.GeodeBlocks.ITEMS.register(modEventBus);
+        com.elysium.arcana.registry.GeodeItems.ITEMS.register(modEventBus);
+        com.elysium.arcana.registry.RelicItems.ITEMS.register(modEventBus);
         com.elysium.arcana.registry.ArcanaItems.TABS.register(modEventBus);
         LOGGER.info("Elysium Arcana ready");
     }

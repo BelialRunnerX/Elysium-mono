@@ -91,11 +91,43 @@ DECISIONS = [
      "elysium-logistics", "network logic"),
 
     # --- agronomy ---------------------------------------------------------
-    (r"^MysticalAgriculture|^MysticalAgradditions", "PLANNED", "elysium-agronomy",
-     "growing resources"),
-    (r"^botanypots|^productivebees|^FarmersDelight|^Aquaculture|^solcarrot|^tide-",
-     "PLANNED", "elysium-agronomy", "farming, food and fishing"),
-    (r"^cobblegengalore", "PLANNED", "elysium-agronomy", "generators of raw material"),
+    (r"^MysticalAgriculture", "PLANNED", "elysium-agronomy",
+     "growing resources: 30 seeds across 5 rungs, one per material the ground "
+     "gives you, with a chunk item for the 17 the foundry makes ingots of. No "
+     "seed grows an alloy, which is checked against the foundry's own list. "
+     "Its tools, armour, awakening altars and augments do not exist"),
+    (r"^MysticalAgradditions", "PLANNED", "elysium-agronomy",
+     "growing resources: the tier-6 crops and insanium are not started"),
+    # Split out from one row per jar once each was actually looked at. The
+    # notes say what exists and what does not, because a note that says
+    # "farming, food and fishing" for six jars is a note that tells nobody
+    # whether any of it has been done.
+    (r"^productivebees", "PLANNED", "elysium-agronomy",
+     "bees: 75 species with combs, comb blocks, nests and the breeding tree "
+     "exist; the apiary machinery does not. Of its 463 bee entities only 34 "
+     "name a material this pack makes"),
+    (r"^tide-", "PLANNED", "elysium-agronomy",
+     "fishing: 105 fish with items, buckets, eggs, five rods and a bait per "
+     "habitat exist; bobbers, hooks and the fishing blocks do not"),
+    (r"^Aquaculture", "PLANNED", "elysium-agronomy",
+     "fishing: covered by the same 105-fish roster; the fish mounts, tackle "
+     "box, worm farm and neptunium gear do not exist"),
+    (r"^botanypots", "PLANNED", "elysium-agronomy",
+     "pots: 165 working pots across 55 materials, all three fittings, four "
+     "growth stages, 14 soils and 28 sprouts as data. Its 183 blocks come "
+     "from 61 materials, so six of its materials are not covered"),
+    (r"^solcarrot", "DONE", "elysium-agronomy",
+     "a varied diet: thirty different foods for ten hearts, kept as a set so "
+     "eating the same thing twice counts once, surviving death, applied as one "
+     "attribute modifier that replaces itself, and a book that reads it"),
+    (r"^FarmersDelight", "PLANNED", "elysium-agronomy",
+     "cooking: 29 meals across four stations with 11 effects, 24 ingredients, "
+     "13 knife cuts, 5 knives and 25 blocks, none of them dominated. Its "
+     "canvas signs, mushroom colonies, rice paddies and wild crops do not "
+     "exist"),
+    (r"^cobblegengalore", "DONE", "elysium-agronomy",
+     "seven generators, one per vein, each making its own material at a rate "
+     "held under a share of what mining it is worth"),
 
     # --- arsenal ----------------------------------------------------------
     (r"^simplest_", "DONE", "elysium-arsenal",
@@ -238,8 +270,16 @@ DECISIONS = [
     (r"^ProjectE|^projectexpansion", "DONE", "elysium-arcana",
      "transmutation, with a price table derived from the pack's own recipes and proved "
      "to contain no arrangement that makes value out of nothing"),
-    (r"^relics|^GeOre", "PLANNED", "elysium-arcana",
-     "artifacts that level with use, and gem ore variants"),
+    (r"^GeOre", "DONE", "elysium-arcana",
+     "geodes: 210 blocks and 60 items across 30 materials — 20 the foundry "
+     "mines and 10 the game digs up — each with a whole growth chain. NOT yet "
+     "removable: oritech ships compat recipes naming geore items, so the third "
+     "pre-check fails until those are handled"),
+    (r"^relics", "PLANNED", "elysium-arcana",
+     "relics: 30 relics across 8 slots, carrying all 30 abilities of the "
+     "shared ability system now in elysium-lib — the same system the arsenal's "
+     "uniques will use. Its 17 entities (the summons and projectiles the "
+     "actives throw) do not exist yet"),
 
     # --- new, asked for by name -------------------------------------------
     # (no jar in the pack; tracked so the manifest is the whole plan)

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:mycelial_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:mycelial_comb",
+    "count": 9
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CCC",
+    "CCC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "elysiumagronomy:slimy_comb"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:slimy_comb_block",
+    "count": 1
+  }
+}

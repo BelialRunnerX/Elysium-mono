@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SGS",
+    "G G",
+    "SGS"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:diamond_shard"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:phoenix_down",
+    "count": 1
+  }
+}

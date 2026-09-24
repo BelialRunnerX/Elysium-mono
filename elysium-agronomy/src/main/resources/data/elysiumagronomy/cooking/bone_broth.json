@@ -1,0 +1,12 @@
+{
+  "station": "pot",
+  "ingredients": [
+    "minecraft:bone",
+    "elysiumagronomy:stock",
+    "elysiumagronomy:onion"
+  ],
+  "ticks": 360,
+  "servings": 4,
+  "effect": "absorption",
+  "result": "elysiumagronomy:bone_broth"
+}

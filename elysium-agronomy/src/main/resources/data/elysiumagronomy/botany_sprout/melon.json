@@ -1,0 +1,6 @@
+{
+  "needs": "crop",
+  "ticks": 2400,
+  "drop": "melon_slice",
+  "amount": 3
+}

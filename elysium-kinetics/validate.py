@@ -60,6 +60,22 @@ def read(*parts):
     return open(path, encoding="utf-8").read() if os.path.isfile(path) else ""
 
 
+def harness_trouble(output):
+    """The lines of a harness run that say what went wrong.
+
+    A failing harness prints its sections as it goes and its failures among
+    them, and this used to be handed the first sixteen hundred characters of
+    that. Where the failing check was near the end — which it is whenever the
+    newest feature is the broken one — the failures fell off the end entirely
+    and the validator reported a wall of successful section headings. Two
+    negative tests were written against phrases that were never going to be
+    printed before anybody noticed.
+    """
+    lines = [line for line in output.splitlines()
+             if line.strip().startswith("FAIL:") or "failure(s)" in line]
+    return "\n".join(lines or output.strip().splitlines()[-12:])[:2000]
+
+
 def body_of(text, signature):
     """One method's or record's source, brace-matched from its declaration."""
     start = text.find(signature)
@@ -187,7 +203,7 @@ else:
             if ran is None:
                 pass
             elif ran.returncode != 0:
-                fail("the kinetic harness failed:\n" + ran.stdout.strip()[:1600])
+                fail("the kinetic harness failed:\n" + harness_trouble(ran.stdout))
             else:
                 print("the arithmetic     : " + ran.stdout.strip().splitlines()[-1])
 

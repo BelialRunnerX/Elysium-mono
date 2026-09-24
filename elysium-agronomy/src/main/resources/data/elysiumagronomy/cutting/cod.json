@@ -1,0 +1,10 @@
+{
+  "input": "minecraft:cod",
+  "tool": "knife",
+  "yields": [
+    {
+      "item": "elysiumagronomy:fish_fillet",
+      "count": 2
+    }
+  ]
+}

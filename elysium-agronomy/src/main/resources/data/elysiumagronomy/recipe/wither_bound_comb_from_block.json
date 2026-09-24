@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:wither_bound_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:wither_bound_comb",
+    "count": 9
+  }
+}

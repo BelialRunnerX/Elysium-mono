@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:osmium_chunk",
+    "count": 1
+  }
+}

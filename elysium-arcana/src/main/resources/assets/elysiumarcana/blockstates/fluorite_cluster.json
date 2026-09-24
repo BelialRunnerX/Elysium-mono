@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "elysiumarcana:block/fluorite_cluster",
+      "x": 180
+    },
+    "facing=up": {
+      "model": "elysiumarcana:block/fluorite_cluster"
+    },
+    "facing=north": {
+      "model": "elysiumarcana:block/fluorite_cluster",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "elysiumarcana:block/fluorite_cluster",
+      "x": 90,
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumarcana:block/fluorite_cluster",
+      "x": 90,
+      "y": 270
+    },
+    "facing=east": {
+      "model": "elysiumarcana:block/fluorite_cluster",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

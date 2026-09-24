@@ -1,0 +1,8 @@
+{
+  "block": "minecraft:end_stone",
+  "tier": 2,
+  "speed": 0.9,
+  "grows": [
+    "end"
+  ]
+}

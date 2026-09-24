@@ -1,0 +1,12 @@
+{
+  "station": "oven",
+  "ingredients": [
+    "elysiumagronomy:minced_chicken",
+    "elysiumagronomy:onion",
+    "elysiumagronomy:butter"
+  ],
+  "ticks": 700,
+  "servings": 3,
+  "effect": "strength",
+  "result": "elysiumagronomy:roast_chicken"
+}

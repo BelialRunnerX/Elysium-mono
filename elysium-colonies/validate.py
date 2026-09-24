@@ -236,7 +236,7 @@ with tempfile.TemporaryDirectory() as tmp:
         ran = subprocess.run(["java", "-cp", os.path.join(tmp, "out"), HARNESS_MAIN],
                              capture_output=True, text=True)
         if ran.returncode != 0:
-            fail("the colony harness failed:\n" + ran.stdout.strip()[:1600])
+            fail("the colony harness failed:\n" + harness_trouble(ran.stdout))
         else:
             print("the arithmetic     : " + ran.stdout.strip().splitlines()[-1])
 

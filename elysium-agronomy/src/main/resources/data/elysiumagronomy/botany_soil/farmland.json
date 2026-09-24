@@ -1,0 +1,9 @@
+{
+  "block": "minecraft:farmland",
+  "tier": 1,
+  "speed": 1.25,
+  "grows": [
+    "common",
+    "crop"
+  ]
+}

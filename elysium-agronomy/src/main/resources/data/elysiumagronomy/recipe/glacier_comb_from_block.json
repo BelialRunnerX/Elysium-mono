@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:glacier_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:glacier_comb",
+    "count": 9
+  }
+}

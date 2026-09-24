@@ -1,0 +1,13 @@
+{
+  "station": "oven",
+  "ingredients": [
+    "minecraft:pumpkin",
+    "elysiumagronomy:rice",
+    "elysiumagronomy:onion",
+    "elysiumagronomy:minced_beef"
+  ],
+  "ticks": 800,
+  "servings": 4,
+  "effect": "comfort",
+  "result": "elysiumagronomy:stuffed_pumpkin"
+}

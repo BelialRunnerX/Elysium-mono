@@ -1,0 +1,12 @@
+{
+  "station": "oven",
+  "ingredients": [
+    "elysiumagronomy:pie_crust",
+    "minecraft:cocoa_beans",
+    "elysiumagronomy:cream"
+  ],
+  "ticks": 540,
+  "servings": 4,
+  "effect": "haste",
+  "result": "elysiumagronomy:chocolate_pie"
+}

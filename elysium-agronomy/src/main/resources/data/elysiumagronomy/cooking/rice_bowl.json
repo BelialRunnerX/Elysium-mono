@@ -1,0 +1,12 @@
+{
+  "station": "pot",
+  "ingredients": [
+    "elysiumagronomy:rice",
+    "elysiumagronomy:cabbage",
+    "elysiumagronomy:onion"
+  ],
+  "ticks": 380,
+  "servings": 4,
+  "effect": "speed",
+  "result": "elysiumagronomy:rice_bowl"
+}

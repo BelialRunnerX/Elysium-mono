@@ -1,0 +1,6 @@
+{
+  "needs": "hardy",
+  "ticks": 1600,
+  "drop": "moss_block",
+  "amount": 1
+}

@@ -1,0 +1,12 @@
+{
+  "station": "pot",
+  "ingredients": [
+    "elysiumagronomy:barley",
+    "elysiumagronomy:cream",
+    "elysiumagronomy:butter"
+  ],
+  "ticks": 340,
+  "servings": 4,
+  "effect": "nourishment",
+  "result": "elysiumagronomy:barley_porridge"
+}

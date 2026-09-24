@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "item": "minecraft:emerald"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:emerald_seed",
+    "count": 1
+  }
+}

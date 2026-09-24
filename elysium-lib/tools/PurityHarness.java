@@ -15,12 +15,31 @@ public final class PurityHarness {
     private static int checks;
     private static int failures;
 
+    /** How much of one complaint is worth reading. */
+    private static final int ENOUGH = 220;
+
     private static void check(boolean condition, String complaint) {
         checks++;
         if (!condition) {
             failures++;
-            System.out.println("  FAIL: " + complaint);
+            System.out.println("  FAIL: " + trimmed(complaint));
         }
+    }
+
+    /**
+     * One failure, cut to something a reader gets through.
+     *
+     * <p>A check that lists every place it went wrong can run to thousands of
+     * characters. Three failures then show as one and a half, and the most
+     * informative of them — usually the short one saying a constant is zero —
+     * is the one that falls off the end.
+     */
+    private static String trimmed(String complaint) {
+        if (complaint.length() <= ENOUGH) {
+            return complaint;
+        }
+        return complaint.substring(0, ENOUGH) + " … (" + complaint.length()
+                + " characters in all)";
     }
 
     public static void main(String[] args) {

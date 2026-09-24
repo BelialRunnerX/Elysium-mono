@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " S ",
+    "SGS",
+    " S "
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:osmium_shard"
+    },
+    "G": {
+      "item": "minecraft:glass"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:osmium_tinted_glass",
+    "count": 2
+  }
+}

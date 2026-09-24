@@ -1,0 +1,6 @@
+{
+  "needs": "crop",
+  "ticks": 1300,
+  "drop": "beetroot",
+  "amount": 2
+}

@@ -1,0 +1,6 @@
+{
+  "needs": "fungal",
+  "ticks": 2600,
+  "drop": "crimson_stem",
+  "amount": 1
+}

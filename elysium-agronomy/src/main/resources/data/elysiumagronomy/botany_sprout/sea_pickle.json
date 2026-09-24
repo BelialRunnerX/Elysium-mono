@@ -1,0 +1,6 @@
+{
+  "needs": "aquatic",
+  "ticks": 2600,
+  "drop": "sea_pickle",
+  "amount": 2
+}

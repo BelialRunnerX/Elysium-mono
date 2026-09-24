@@ -1,0 +1,12 @@
+{
+  "station": "board",
+  "ingredients": [
+    "elysiumagronomy:cabbage_leaf",
+    "elysiumagronomy:rice",
+    "elysiumagronomy:minced_pork"
+  ],
+  "ticks": 180,
+  "servings": 1,
+  "effect": "nourishment",
+  "result": "elysiumagronomy:cabbage_rolls"
+}

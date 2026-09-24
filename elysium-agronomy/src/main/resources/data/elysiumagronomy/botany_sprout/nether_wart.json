@@ -1,0 +1,6 @@
+{
+  "needs": "nether",
+  "ticks": 2200,
+  "drop": "nether_wart",
+  "amount": 2
+}

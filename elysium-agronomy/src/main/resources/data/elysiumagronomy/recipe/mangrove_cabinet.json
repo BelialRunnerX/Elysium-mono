@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "P P",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "item": "minecraft:mangrove_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:mangrove_cabinet",
+    "count": 1
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "block": "elysiumagronomy:clay_bed",
+  "tier": 2,
+  "speed": 1.35,
+  "grows": [
+    "common",
+    "crop",
+    "aquatic"
+  ]
+}

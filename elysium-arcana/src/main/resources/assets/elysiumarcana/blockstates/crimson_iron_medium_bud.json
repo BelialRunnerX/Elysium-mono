@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "elysiumarcana:block/crimson_iron_medium_bud",
+      "x": 180
+    },
+    "facing=up": {
+      "model": "elysiumarcana:block/crimson_iron_medium_bud"
+    },
+    "facing=north": {
+      "model": "elysiumarcana:block/crimson_iron_medium_bud",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "elysiumarcana:block/crimson_iron_medium_bud",
+      "x": 90,
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumarcana:block/crimson_iron_medium_bud",
+      "x": 90,
+      "y": 270
+    },
+    "facing=east": {
+      "model": "elysiumarcana:block/crimson_iron_medium_bud",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

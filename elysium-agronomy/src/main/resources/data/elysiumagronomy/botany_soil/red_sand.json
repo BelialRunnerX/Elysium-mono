@@ -1,0 +1,9 @@
+{
+  "block": "minecraft:red_sand",
+  "tier": 1,
+  "speed": 0.8,
+  "grows": [
+    "desert",
+    "hardy"
+  ]
+}

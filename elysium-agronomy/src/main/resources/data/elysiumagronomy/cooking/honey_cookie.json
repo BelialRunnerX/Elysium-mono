@@ -1,0 +1,11 @@
+{
+  "station": "oven",
+  "ingredients": [
+    "elysiumagronomy:dough",
+    "minecraft:honey_bottle"
+  ],
+  "ticks": 200,
+  "servings": 4,
+  "effect": "regeneration",
+  "result": "elysiumagronomy:honey_cookie"
+}

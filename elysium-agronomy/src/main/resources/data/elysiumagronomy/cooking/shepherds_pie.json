@@ -1,0 +1,13 @@
+{
+  "station": "oven",
+  "ingredients": [
+    "elysiumagronomy:pie_crust",
+    "elysiumagronomy:minced_mutton",
+    "minecraft:potato",
+    "elysiumagronomy:butter"
+  ],
+  "ticks": 640,
+  "servings": 4,
+  "effect": "resistance",
+  "result": "elysiumagronomy:shepherds_pie"
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SS",
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:osmium_shard"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:osmium_block",
+    "count": 1
+  }
+}

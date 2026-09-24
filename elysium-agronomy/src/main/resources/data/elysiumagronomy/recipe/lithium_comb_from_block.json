@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:lithium_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:lithium_comb",
+    "count": 9
+  }
+}

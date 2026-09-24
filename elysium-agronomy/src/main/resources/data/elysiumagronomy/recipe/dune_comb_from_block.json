@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:dune_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:dune_comb",
+    "count": 9
+  }
+}

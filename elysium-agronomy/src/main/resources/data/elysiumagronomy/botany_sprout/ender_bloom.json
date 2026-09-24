@@ -1,0 +1,6 @@
+{
+  "needs": "end",
+  "ticks": 4600,
+  "drop": "ender_pearl",
+  "amount": 1
+}

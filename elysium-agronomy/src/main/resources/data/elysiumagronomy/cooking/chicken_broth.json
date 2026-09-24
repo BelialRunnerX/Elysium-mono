@@ -1,0 +1,12 @@
+{
+  "station": "pot",
+  "ingredients": [
+    "elysiumagronomy:minced_chicken",
+    "elysiumagronomy:stock",
+    "elysiumagronomy:garlic"
+  ],
+  "ticks": 400,
+  "servings": 4,
+  "effect": "regeneration",
+  "result": "elysiumagronomy:chicken_broth"
+}

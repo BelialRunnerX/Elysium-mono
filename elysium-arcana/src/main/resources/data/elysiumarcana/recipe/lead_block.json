@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SS",
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:lead_shard"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:lead_block",
+    "count": 1
+  }
+}

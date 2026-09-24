@@ -1,0 +1,12 @@
+{
+  "station": "board",
+  "ingredients": [
+    "minecraft:bread",
+    "elysiumagronomy:ham",
+    "elysiumagronomy:cabbage_leaf"
+  ],
+  "ticks": 200,
+  "servings": 1,
+  "effect": "speed",
+  "result": "elysiumagronomy:ham_sandwich"
+}

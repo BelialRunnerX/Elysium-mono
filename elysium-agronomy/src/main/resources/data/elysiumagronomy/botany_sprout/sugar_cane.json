@@ -1,0 +1,6 @@
+{
+  "needs": "common",
+  "ticks": 1600,
+  "drop": "sugar_cane",
+  "amount": 2
+}

@@ -1,0 +1,12 @@
+{
+  "station": "board",
+  "ingredients": [
+    "minecraft:bread",
+    "elysiumagronomy:bacon",
+    "elysiumagronomy:tomato_paste"
+  ],
+  "ticks": 200,
+  "servings": 1,
+  "effect": "strength",
+  "result": "elysiumagronomy:bacon_sandwich"
+}

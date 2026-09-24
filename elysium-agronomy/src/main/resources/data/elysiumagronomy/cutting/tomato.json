@@ -1,0 +1,10 @@
+{
+  "input": "elysiumagronomy:tomato",
+  "tool": "knife",
+  "yields": [
+    {
+      "item": "elysiumagronomy:tomato_paste",
+      "count": 2
+    }
+  ]
+}

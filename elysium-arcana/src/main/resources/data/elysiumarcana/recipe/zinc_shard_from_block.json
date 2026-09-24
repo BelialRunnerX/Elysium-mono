@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:zinc_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:zinc_shard",
+    "count": 4
+  }
+}

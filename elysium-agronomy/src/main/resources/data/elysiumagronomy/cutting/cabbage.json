@@ -1,0 +1,10 @@
+{
+  "input": "elysiumagronomy:cabbage",
+  "tool": "knife",
+  "yields": [
+    {
+      "item": "elysiumagronomy:cabbage_leaf",
+      "count": 3
+    }
+  ]
+}

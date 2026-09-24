@@ -298,6 +298,8 @@ public final class AgronomyRules {
     // Rock, which is the oldest cheat in the game
     // ==================================================================
 
+
+
     /** How many blocks of stone a generator makes an hour at each tier. */
     public static final int[] ROCK_PER_HOUR = {900, 3_600, 14_400};
 
@@ -314,6 +316,115 @@ public final class AgronomyRules {
         int rung = Math.max(0, Math.min(ROCK_PER_HOUR.length - 1, tier));
         float fed = rung == 0 ? 1.0F : Math.max(0.0F, Math.min(1.0F, share));
         return ROCK_PER_HOUR[rung] * fed;
+    }
+
+    /**
+     * A generator tuned to one material.
+     *
+     * <p>The mod this replaces ships seven of these — stone, copper, iron,
+     * gold, diamond, emerald, netherite — and a generator that hands you
+     * netherite is the single most direct way there is to make three ages of
+     * ore ladder pointless. So each one carries the share of a mine it is
+     * allowed to be worth, and {@link #veinsOutmining} refuses the build if
+     * any of them exceeds it.
+     *
+     * @param material what it makes
+     * @param tier     which rung of generator it needs
+     * @param share    how much of a mine's hourly output it may be worth
+     */
+    public record Vein(String material, int tier, float share) {
+
+        public Vein {
+            if (material == null || material.isEmpty()) {
+                throw new IllegalArgumentException("a vein of nothing");
+            }
+            if (tier < 0 || tier >= ROCK_PER_HOUR.length) {
+                throw new IllegalArgumentException(material + " needs a generator at "
+                        + "tier " + tier + " and there are only "
+                        + ROCK_PER_HOUR.length);
+            }
+            if (share <= 0.0F || share > 1.0F) {
+                throw new IllegalArgumentException(material + " is worth " + share
+                        + " of a mine, and the band is above nothing and at most all "
+                        + "of one");
+            }
+        }
+
+        /** What this vein makes in an hour at a full share of the grid. */
+        public float perHour() {
+            return minedPerHour() * share;
+        }
+    }
+
+    /**
+     * Every vein there is.
+     *
+     * <p>Stone is free and worth nothing, which is the honest version of the
+     * oldest trick in the game. Everything above it costs power, needs a
+     * dearer generator, and is worth a fraction of going to find it — a
+     * fraction that shrinks as the material gets better, because the whole
+     * point of a deep mine is that the good things are deep.
+     */
+    public static final List<Vein> VEINS = List.of(
+            new Vein("stone", 0, 1.00F),
+            new Vein("copper", 1, 0.30F),
+            new Vein("iron", 1, 0.22F),
+            new Vein("gold", 2, 0.15F),
+            new Vein("diamond", 2, 0.06F),
+            new Vein("emerald", 2, 0.05F),
+            new Vein("netherite_scrap", 2, 0.02F));
+
+    /** How much of a mine any vein above stone may be worth. */
+    public static final float VEIN_AT_MOST = 0.35F;
+
+    /** Every vein that out-earns going to find the stuff. */
+    public static List<String> veinsOutmining() {
+        List<String> bad = new java.util.ArrayList<>();
+        for (Vein vein : VEINS) {
+            if ("stone".equals(vein.material())) {
+                continue;
+            }
+            if (vein.share() > VEIN_AT_MOST) {
+                bad.add(vein.material() + " is worth " + vein.share()
+                        + " of a mine, and the line is " + VEIN_AT_MOST);
+            }
+        }
+        return List.copyOf(bad);
+    }
+
+    /**
+     * Every pair of veins where the better material is not the rarer one.
+     *
+     * <p>The ordering is the rule, not the numbers: whatever the shares are,
+     * a generator must never make a dearer thing faster than a cheaper one, or
+     * the cheap ones are decoration.
+     */
+    public static List<String> veinsOutOfOrder() {
+        List<String> bad = new java.util.ArrayList<>();
+        for (int index = 1; index < VEINS.size(); index++) {
+            Vein above = VEINS.get(index);
+            Vein below = VEINS.get(index - 1);
+            if (above.share() >= below.share()) {
+                bad.add(above.material() + " comes out as fast as " + below.material()
+                        + " or faster, so the cheaper vein is decoration");
+            }
+            if (above.tier() < below.tier()) {
+                bad.add(above.material() + " needs a cheaper generator than "
+                        + below.material() + ", so the ladder runs backwards");
+            }
+        }
+        return List.copyOf(bad);
+    }
+
+    /** Every vein the generator ladder has no rung for. */
+    public static List<String> veinsWithNoGenerator() {
+        List<String> bad = new java.util.ArrayList<>();
+        for (Vein vein : VEINS) {
+            if (vein.tier() >= ROCK_PER_HOUR.length) {
+                bad.add(vein.material() + " needs a generator nobody can build");
+            }
+        }
+        return List.copyOf(bad);
     }
 
     // ==================================================================

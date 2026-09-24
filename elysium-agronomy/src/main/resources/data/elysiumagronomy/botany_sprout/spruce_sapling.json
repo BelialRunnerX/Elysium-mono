@@ -1,0 +1,6 @@
+{
+  "needs": "common",
+  "ticks": 3600,
+  "drop": "spruce_log",
+  "amount": 1
+}

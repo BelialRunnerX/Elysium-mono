@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:bort_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:bort_shard",
+    "count": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "station": "skillet",
+  "ingredients": [
+    "elysiumagronomy:fish_fillet",
+    "elysiumagronomy:butter",
+    "elysiumagronomy:garlic"
+  ],
+  "ticks": 260,
+  "servings": 1,
+  "effect": "water_breathing",
+  "result": "elysiumagronomy:grilled_fish"
+}

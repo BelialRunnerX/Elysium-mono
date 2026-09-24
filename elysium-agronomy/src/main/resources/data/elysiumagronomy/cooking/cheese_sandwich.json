@@ -1,0 +1,12 @@
+{
+  "station": "board",
+  "ingredients": [
+    "minecraft:bread",
+    "elysiumagronomy:cheese_wheel",
+    "elysiumagronomy:butter"
+  ],
+  "ticks": 200,
+  "servings": 1,
+  "effect": "comfort",
+  "result": "elysiumagronomy:cheese_sandwich"
+}

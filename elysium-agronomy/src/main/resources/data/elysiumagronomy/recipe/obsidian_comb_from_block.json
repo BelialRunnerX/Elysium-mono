@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:obsidian_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:obsidian_comb",
+    "count": 9
+  }
+}

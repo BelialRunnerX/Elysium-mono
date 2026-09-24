@@ -43,6 +43,18 @@ public class ElysiumAgronomy {
         com.elysium.agronomy.registry.AgronomyItems.ITEMS.register(modEventBus);
         com.elysium.agronomy.registry.AgronomyItems.TABS.register(modEventBus);
         com.elysium.agronomy.registry.AgronomyBlockEntities.TYPES.register(modEventBus);
+        com.elysium.agronomy.registry.BeeEntities.TYPES.register(modEventBus);
+        com.elysium.agronomy.registry.BeeBlocks.BLOCKS.register(modEventBus);
+        com.elysium.agronomy.registry.BeeBlocks.ITEMS.register(modEventBus);
+        com.elysium.agronomy.registry.BeeItems.ITEMS.register(modEventBus);
+        com.elysium.agronomy.registry.FishEntities.TYPES.register(modEventBus);
+        com.elysium.agronomy.registry.FishItems.ITEMS.register(modEventBus);
+        com.elysium.agronomy.registry.PotBlocks.BLOCKS.register(modEventBus);
+        com.elysium.agronomy.registry.PotBlocks.ITEMS.register(modEventBus);
+        com.elysium.agronomy.registry.KitchenItems.ITEMS.register(modEventBus);
+        com.elysium.agronomy.registry.KitchenBlocks.BLOCKS.register(modEventBus);
+        com.elysium.agronomy.registry.KitchenBlocks.ITEMS.register(modEventBus);
+        com.elysium.agronomy.registry.DietAttachments.ATTACHMENTS.register(modEventBus);
         LOGGER.info("Elysium Agronomy ready");
     }
 }

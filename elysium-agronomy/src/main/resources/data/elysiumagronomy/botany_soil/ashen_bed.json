@@ -1,0 +1,9 @@
+{
+  "block": "elysiumagronomy:ashen_bed",
+  "tier": 3,
+  "speed": 1.55,
+  "grows": [
+    "nether",
+    "hardy"
+  ]
+}

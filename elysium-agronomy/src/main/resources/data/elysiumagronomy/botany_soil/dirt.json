@@ -1,0 +1,8 @@
+{
+  "block": "minecraft:dirt",
+  "tier": 0,
+  "speed": 1.0,
+  "grows": [
+    "common"
+  ]
+}

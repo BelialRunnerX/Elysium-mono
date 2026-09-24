@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SS",
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:bort_shard"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:bort_block",
+    "count": 1
+  }
+}

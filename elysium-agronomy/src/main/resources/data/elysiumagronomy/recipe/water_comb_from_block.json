@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:water_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:water_comb",
+    "count": 9
+  }
+}

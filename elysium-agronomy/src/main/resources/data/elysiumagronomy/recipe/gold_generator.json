@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:industrial_rock_generator"
+    },
+    {
+      "item": "minecraft:gold_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:gold_generator",
+    "count": 1
+  }
+}

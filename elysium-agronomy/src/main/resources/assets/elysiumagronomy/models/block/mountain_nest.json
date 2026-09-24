@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "elysiumagronomy:block/mountain_nest_top",
+    "front": "elysiumagronomy:block/mountain_nest_front",
+    "side": "elysiumagronomy:block/mountain_nest_side"
+  }
+}

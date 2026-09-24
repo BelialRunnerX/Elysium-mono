@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:hardened_bronze_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:hardened_bronze_comb",
+    "count": 9
+  }
+}

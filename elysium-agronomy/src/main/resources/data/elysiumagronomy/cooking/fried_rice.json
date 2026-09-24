@@ -1,0 +1,13 @@
+{
+  "station": "skillet",
+  "ingredients": [
+    "elysiumagronomy:rice",
+    "minecraft:egg",
+    "elysiumagronomy:onion",
+    "elysiumagronomy:cabbage"
+  ],
+  "ticks": 280,
+  "servings": 1,
+  "effect": "haste",
+  "result": "elysiumagronomy:fried_rice"
+}

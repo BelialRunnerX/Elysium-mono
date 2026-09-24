@@ -1,0 +1,9 @@
+{
+  "block": "elysiumagronomy:gravel_bed",
+  "tier": 2,
+  "speed": 0.95,
+  "grows": [
+    "aquatic",
+    "hardy"
+  ]
+}

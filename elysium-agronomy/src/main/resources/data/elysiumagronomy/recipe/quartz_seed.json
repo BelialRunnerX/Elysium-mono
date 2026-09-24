@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "elysiumagronomy:bright_essence"
+    },
+    {
+      "item": "minecraft:quartz"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:quartz_seed",
+    "count": 1
+  }
+}

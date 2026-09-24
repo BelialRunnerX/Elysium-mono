@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CCC",
+    "CCC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "elysiumagronomy:cabbage"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:cabbage_crate",
+    "count": 1
+  }
+}

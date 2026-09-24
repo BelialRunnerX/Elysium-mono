@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "tag": "c:ores/platinum"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:platinum_seed",
+    "count": 1
+  }
+}

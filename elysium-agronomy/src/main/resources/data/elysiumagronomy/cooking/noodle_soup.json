@@ -1,0 +1,13 @@
+{
+  "station": "pot",
+  "ingredients": [
+    "elysiumagronomy:pasta",
+    "elysiumagronomy:stock",
+    "elysiumagronomy:minced_pork",
+    "elysiumagronomy:ginger"
+  ],
+  "ticks": 600,
+  "servings": 4,
+  "effect": "comfort",
+  "result": "elysiumagronomy:noodle_soup"
+}

@@ -1,0 +1,10 @@
+{
+  "station": "oven",
+  "ingredients": [
+    "elysiumagronomy:dough"
+  ],
+  "ticks": 300,
+  "servings": 2,
+  "effect": "",
+  "result": "elysiumagronomy:bread_loaf"
+}

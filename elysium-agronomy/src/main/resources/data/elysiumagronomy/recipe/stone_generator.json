@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:rock_generator"
+    },
+    {
+      "item": "minecraft:stone"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:stone_generator",
+    "count": 1
+  }
+}

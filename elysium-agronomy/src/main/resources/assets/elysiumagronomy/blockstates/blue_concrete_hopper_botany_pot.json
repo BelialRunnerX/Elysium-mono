@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "elysiumagronomy:block/blue_concrete_hopper_botany_pot_0"
+    },
+    "age=1": {
+      "model": "elysiumagronomy:block/blue_concrete_hopper_botany_pot_1"
+    },
+    "age=2": {
+      "model": "elysiumagronomy:block/blue_concrete_hopper_botany_pot_2"
+    },
+    "age=3": {
+      "model": "elysiumagronomy:block/blue_concrete_hopper_botany_pot_3"
+    }
+  }
+}

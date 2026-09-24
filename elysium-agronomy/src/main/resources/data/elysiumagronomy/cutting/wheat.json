@@ -1,0 +1,10 @@
+{
+  "input": "minecraft:wheat",
+  "tool": "knife",
+  "yields": [
+    {
+      "item": "elysiumagronomy:dough",
+      "count": 1
+    }
+  ]
+}

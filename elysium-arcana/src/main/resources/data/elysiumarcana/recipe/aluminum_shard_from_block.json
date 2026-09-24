@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:aluminum_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:aluminum_shard",
+    "count": 4
+  }
+}

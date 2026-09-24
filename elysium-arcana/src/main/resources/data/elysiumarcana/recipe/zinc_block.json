@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SS",
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:zinc_shard"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:zinc_block",
+    "count": 1
+  }
+}

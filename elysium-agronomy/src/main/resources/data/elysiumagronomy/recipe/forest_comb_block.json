@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CCC",
+    "CCC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "elysiumagronomy:forest_comb"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:forest_comb_block",
+    "count": 1
+  }
+}

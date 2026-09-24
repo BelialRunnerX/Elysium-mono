@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "item": "elysiumagronomy:keen_essence"
+    },
+    {
+      "tag": "c:ores/certus_quartz"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:certus_quartz_seed",
+    "count": 1
+  }
+}

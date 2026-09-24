@@ -1,0 +1,6 @@
+{
+  "needs": "nether",
+  "ticks": 2800,
+  "drop": "soul_sand",
+  "amount": 1
+}

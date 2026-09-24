@@ -1,0 +1,10 @@
+{
+  "input": "minecraft:chicken",
+  "tool": "knife",
+  "yields": [
+    {
+      "item": "elysiumagronomy:minced_chicken",
+      "count": 2
+    }
+  ]
+}

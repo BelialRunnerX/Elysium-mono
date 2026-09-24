@@ -8,9 +8,9 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 24 | DONE | an Elysium module already replaces it |
+| 27 | DONE | an Elysium module already replaces it |
 | 0 | ACTIVE | being worked on now |
-| 110 | PLANNED | has a target module, not started |
+| 107 | PLANNED | has a target module, not started |
 | 8 | KEEP | stays in the pack on purpose |
 | 61 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -22,14 +22,14 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `elysium-atelier` | 30 |
 | `elysium-kinetics` | 19 |
 | `elysium-logistics` | 14 |
-| `elysium-agronomy` | 10 |
 | `elysium-atomics` | 9 |
+| `elysium-agronomy` | 8 |
 | `elysium-bestiary` | 7 |
 | `elysium-arsenal` | 6 |
 | `elysium-comforts` | 5 |
 | `elysium-industry` | 4 |
 | `elysium-wilds` | 3 |
-| `elysium-arcana` | 2 |
+| `elysium-arcana` | 1 |
 | `elysium-foundry` | 1 |
 
 ## Every jar
@@ -46,7 +46,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `ApothicSpawners-1.21.1-1.4.0.jar` | DONE | elysium-spawners | ownable, tunable spawners |
 | `Applied-Mekanistics-1.6.3.jar` | PLANNED | elysium-atomics | chemical storage in the network |
 | `appliedenergistics2-19.2.17.jar` | PLANNED | elysium-logistics | autocrafting is done — core, assemblers, terminal, and a planner that orders what it costs; digital storage in types rather than blocks is not |
-| `Aquaculture-1.21.1-2.7.21.jar` | PLANNED | elysium-agronomy | farming, food and fishing |
+| `Aquaculture-1.21.1-2.7.21.jar` | PLANNED | elysium-agronomy | fishing: covered by the same 105-fish roster; the fish mounts, tackle box, worm farm and neptunium gear do not exist |
 | `architectury-13.0.11-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `athena-neoforge-1.21.1-4.0.6.jar` | DROP | - | library: goes when the mods needing it go |
 | `azurelib-neo-1.21.1-3.1.11.jar` | DROP | - | library: goes when the mods needing it go |
@@ -59,13 +59,13 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `blueprint-1.21.1-8.1.1.jar` | DROP | - | library: goes when the mods needing it go |
 | `bookshelf-neoforge-1.21.1-21.1.81.jar` | DROP | - | library: goes when the mods needing it go |
 | `born_in_chaos_[Neoforge]_1.21.1_1.7.6.jar` | PLANNED | elysium-bestiary | nine hostile beasts exist on a proved reward ladder; their catalogues (dozens of mobs each, bosses, their own gear and items) do not |
-| `botanypots-neoforge-1.21.1-21.1.44.jar` | PLANNED | elysium-agronomy | farming, food and fishing |
+| `botanypots-neoforge-1.21.1-21.1.44.jar` | PLANNED | elysium-agronomy | pots: 165 working pots across 55 materials, all three fittings, four growth stages, 14 soils and 28 sprouts as data. Its 183 blocks come from 61 materials, so six of its materials are not covered |
 | `Chimes-v2.1.1-1.21.1-NeoForge.jar` | PLANNED | elysium-atelier | building and decoration |
 | `chipped-neoforge-1.21.1-4.0.2.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
 | `cloth-config-15.0.140-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `Clothing_Of_The_Lowlands-1.0.8-neoforge-1.21.1.jar` | PLANNED | elysium-atelier | building and decoration |
 | `cluttered-[NeoForge]-3.0.3-1.21.1.jar` | PLANNED | elysium-atelier | building and decoration |
-| `cobblegengalore-1.21.1-0.2.9.jar` | PLANNED | elysium-agronomy | generators of raw material |
+| `cobblegengalore-1.21.1-0.2.9.jar` | DONE | elysium-agronomy | seven generators, one per vein, each making its own material at a rate held under a share of what mining it is worth |
 | `comforts-neoforge-9.0.5+1.21.1.jar` | PLANNED | elysium-comforts | quality of life |
 | `commoncapabilities-1.21.1-neoforge-2.11.5.jar` | PLANNED | elysium-logistics | network logic |
 | `configuration-neoforge-1.21.1-3.1.1.jar` | DROP | - | library: goes when the mods needing it go |
@@ -110,7 +110,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `ExtendedAE-1.21-2.2.35-neoforge.jar` | PLANNED | elysium-logistics | autocrafting is done — core, assemblers, terminal, and a planner that orders what it costs; digital storage in types rather than blocks is not |
 | `ExtremeReactors2-1.21.1-2.4.28.jar` | PLANNED | elysium-atomics | multiblock reactors |
 | `fangs_n_claws-1.2.2.jar` | PLANNED | elysium-bestiary | nine hostile beasts exist on a proved reward ladder; their catalogues (dozens of mobs each, bosses, their own gear and items) do not |
-| `FarmersDelight-1.21.1-1.3.2.jar` | PLANNED | elysium-agronomy | farming, food and fishing |
+| `FarmersDelight-1.21.1-1.3.2.jar` | PLANNED | elysium-agronomy | cooking: 29 meals across four stations with 11 effects, 24 ingredients, 13 knife cuts, 5 knives and 25 blocks, none of them dominated. Its canvas signs, mushroom colonies, rice paddies and wild crops do not exist |
 | `fastleafdecay-35.jar` | DROP | - | performance: not content |
 | `ferritecore-7.0.3-neoforge.jar` | DROP | - | performance: not content |
 | `FluxNetworks-1.21.1-8.0.0.jar` | PLANNED | elysium-atomics | wireless power |
@@ -121,7 +121,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `fusion-1.3.12-neoforge-mc1.21.1.jar` | PLANNED | elysium-atelier | building and decoration |
 | `fzzy_config-0.7.6+1.21+neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `geckolib-neoforge-1.21.1-4.9.2.jar` | DROP | - | library: goes when the mods needing it go |
-| `GeOre-1.21.1-6.2.2.jar` | PLANNED | elysium-arcana | artifacts that level with use, and gem ore variants |
+| `GeOre-1.21.1-6.2.2.jar` | DONE | elysium-arcana | geodes: 210 blocks and 60 items across 30 materials — 20 the foundry mines and 10 the game digs up — each with a whole growth chain. NOT yet removable: oritech ships compat recipes naming geore items, so the third pre-check fails until those are handled |
 | `Glodium-1.21-2.2-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `gravestone-neoforge-1.21.1-1.0.38.jar` | DONE | elysium-comforts | a grave sized to what a player was actually carrying, so nothing an inventory mod added is lost |
 | `guideme-21.1.17.jar` | DROP | - | library: goes when the mods needing it go |
@@ -165,8 +165,8 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `moonlight-1.21.1-3.3.3-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `MouseTweaks-neoforge-mc1.21-2.26.1.jar` | DROP | - | interface and convenience: not content |
 | `multipiston-1.2.58-1.21.1.jar` | KEEP | elysium-colonies | MineColonies' own dependencies |
-| `MysticalAgradditions-1.21.1-8.0.14.jar` | PLANNED | elysium-agronomy | growing resources |
-| `MysticalAgriculture-1.21.1-8.0.27.jar` | PLANNED | elysium-agronomy | growing resources |
+| `MysticalAgradditions-1.21.1-8.0.14.jar` | PLANNED | elysium-agronomy | growing resources: the tier-6 crops and insanium are not started |
+| `MysticalAgriculture-1.21.1-8.0.27.jar` | PLANNED | elysium-agronomy | growing resources: 30 seeds across 5 rungs, one per material the ground gives you, with a chunk item for the 17 the foundry makes ingots of. No seed grows an alloy, which is checked against the foundry's own list. Its tools, armour, awakening altars and augments do not exist |
 | `mythsandlegends-0.0.8.6.jar` | PLANNED | elysium-arsenal | six melee kinds in six tiers exist, none beaten on every axis by another; uniques that carry abilities do not |
 | `naturalist-2.0.2-neoforge-1.21.1.jar` | PLANNED | elysium-bestiary | passive fauna, ambience and a field guide; the bestiary is hostile mobs only and has nothing that does not attack you |
 | `NaturesCompass-1.21.1-3.4.0-neoforge.jar` | DONE | elysium-wilds | a biome compass with a needle and a list you type into, on one bounded search that costs the same for anything; no adjustable radius, on purpose |
@@ -181,7 +181,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `Powah-6.2.10.jar` | PLANNED | elysium-atomics | reactors and energy cells |
 | `powergrid-mc1.21.1-0.5.5.1.jar` | PLANNED | elysium-industry | transmission on poles |
 | `prickle-neoforge-1.21.1-21.1.11.jar` | DROP | - | library: goes when the mods needing it go |
-| `productivebees-1.21.1-13.13.5.jar` | PLANNED | elysium-agronomy | farming, food and fishing |
+| `productivebees-1.21.1-13.13.5.jar` | PLANNED | elysium-agronomy | bees: 75 species with combs, comb blocks, nests and the breeding tree exist; the apiary machinery does not. Of its 463 bee entities only 34 name a material this pack makes |
 | `ProjectE-1.21.1-PE1.1.0.jar` | DONE | elysium-arcana | transmutation, with a price table derived from the pack's own recipes and proved to contain no arrangement that makes value out of nothing |
 | `projectexpansion-1.21.1-1.0.6.jar` | DONE | elysium-arcana | transmutation, with a price table derived from the pack's own recipes and proved to contain no arrangement that makes value out of nothing |
 | `puffish_attributes-0.8.3-1.21-neoforge.jar` | KEEP | elysium-core | read by the skill tree |
@@ -190,7 +190,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `Quark-4.1-482.jar` | PLANNED | elysium-wilds | split: worldgen here, deco to atelier |
 | `refinedstorage-neoforge-2.0.9.jar` | PLANNED | elysium-logistics | the simpler network |
 | `Reforged-1.21.1-1.1.0-NeoForge.jar` | PLANNED | elysium-arsenal | three smithing hammers - an upgrade mechanic rather than weapons, read out of the jar rather than guessed from the name |
-| `relics-1.21.1-0.12.8.jar` | PLANNED | elysium-arcana | artifacts that level with use, and gem ore variants |
+| `relics-1.21.1-0.12.8.jar` | PLANNED | elysium-arcana | relics: 30 relics across 8 slots, carrying all 30 abilities of the shared ability system now in elysium-lib — the same system the arsenal's uniques will use. Its 17 entities (the summons and projectiles the actives throw) do not exist yet |
 | `resourcefulconfig-neoforge-1.21-3.0.11.jar` | DROP | - | library: goes when the mods needing it go |
 | `resourcefullib-neoforge-1.21-3.0.12.jar` | DROP | - | library: goes when the mods needing it go |
 | `ritchiesprojectilelib-2.1.2-mc.1.21.1-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
@@ -208,7 +208,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `sliceanddice-4.3.3-neoforge.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
 | `SmartBrainLib-neoforge-1.21.1-1.16.11.jar` | DROP | - | library: goes when the mods needing it go |
 | `sodium-neoforge-0.8.12+mc1.21.1.jar` | DROP | - | performance: not content |
-| `solcarrot-1.21.1-1.16.6.jar` | PLANNED | elysium-agronomy | farming, food and fishing |
+| `solcarrot-1.21.1-1.16.6.jar` | DONE | elysium-agronomy | a varied diet: thirty different foods for ten hearts, kept as a set so eating the same thing twice counts once, surviving death, applied as one attribute modifier that replaces itself, and a book that reads it |
 | `sophisticatedbackpacks-1.21.1-3.25.74.2056.jar` | PLANNED | elysium-logistics | upgradeable containers |
 | `sophisticatedbackpackscreateintegration-1.21.1-0.1.8.134.jar` | PLANNED | elysium-logistics | upgradeable containers |
 | `sophisticatedcore-1.21.1-1.4.84.2248.jar` | PLANNED | elysium-logistics | upgradeable containers |
@@ -220,7 +220,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `structurize-1.0.832-1.21.1.jar` | KEEP | elysium-colonies | MineColonies' own dependencies |
 | `supplementaries-1.21.1-3.8.8-neoforge.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
 | `tfmg-1.2.2.jar` | PLANNED | elysium-industry | heavy industry, oil and steel |
-| `tide-neoforge-1.21.1-2.1.1.jar` | PLANNED | elysium-agronomy | farming, food and fishing |
+| `tide-neoforge-1.21.1-2.1.1.jar` | PLANNED | elysium-agronomy | fishing: 105 fish with items, buckets, eggs, five rods and a bait per habitat exist; bobbers, hooks and the fishing blocks do not |
 | `titanium-1.21-4.0.43.jar` | DROP | - | library: goes when the mods needing it go |
 | `towntalk-1.2.0.jar` | PLANNED | elysium-comforts | quality of life |
 | `Tridot-1.21.1-1.0.169.jar` | DROP |  | Valoria's own library; goes when Valoria does |

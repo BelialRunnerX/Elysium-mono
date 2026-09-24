@@ -1,0 +1,11 @@
+{
+  "block": "elysiumagronomy:rich_loam",
+  "tier": 3,
+  "speed": 1.7,
+  "grows": [
+    "common",
+    "crop",
+    "hardy",
+    "desert"
+  ]
+}

@@ -32,6 +32,8 @@ public final class ArcanaHarness {
         theDerivation();
         theDirections();
         theWalk();
+        theGeodes();
+        theRelics();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -40,7 +42,11 @@ public final class ArcanaHarness {
         System.out.println(checks + " checks: no recipe anywhere makes more than it "
                 + "consumes, a round trip always loses, and over a million random acts "
                 + "of crafting, dissolving and condensing not one left anybody better "
-                + "off than they started");
+                + "off than they started, and "
+                + GeodeRules.catalogue().size() + " geode blocks whose growth chain "
+                + "has no hole in it, and "
+                + RelicRules.RELICS.size() + " relics carrying every ability the "
+                + "library defines");
     }
 
     // ==================================================================
@@ -283,5 +289,122 @@ public final class ArcanaHarness {
         System.out.println("  the walk: 400 lives, " + crafted + " crafts, " + dissolved
                 + " dissolves and " + condensed + " condenses, and the estate never "
                 + "rose once");
+    }
+
+    // ==================================================================
+
+    /**
+     * Whether the geodes are a catalogue anybody can reach.
+     *
+     * <p>The mod this replaces ships twenty-nine materials, most of which do
+     * not exist in this pack. The materials here are the ones the ground
+     * actually gives you, and validate.py checks that against the foundry's
+     * own mined list. What is checked here is the shape: seven blocks for
+     * every material and a growth chain with no hole in it, because a chain
+     * that stops somewhere is a player standing next to a bud that never
+     * changes with nothing in the world to tell them why.
+     */
+    private static void theGeodes() {
+        check(!GeodeRules.materials().isEmpty(), "there are no geodes at all");
+        check(GeodeRules.halfMade().isEmpty(),
+                "a material missing one of the seven shapes: "
+                        + GeodeRules.halfMade());
+        check(GeodeRules.brokenChain().isEmpty(),
+                "a growth chain with a hole in it: " + GeodeRules.brokenChain());
+        check(GeodeRules.repeated().isEmpty(),
+                "two geode blocks with the same id: " + GeodeRules.repeated());
+        check(GeodeRules.namedTwice().isEmpty(),
+                "a material in both lists at once: " + GeodeRules.namedTwice());
+        check(GeodeRules.deadSteps().isEmpty(),
+                "a step of the chain that leads nowhere: " + GeodeRules.deadSteps());
+
+        check(GeodeRules.catalogue().size()
+                        == GeodeRules.materials().size() * GeodeRules.KINDS.size(),
+                "the catalogue is not every material times every shape, so it was "
+                        + "written out rather than derived");
+        check(GeodeRules.items().size()
+                        == GeodeRules.materials().size() * GeodeRules.ITEMS.size(),
+                "the items are not every material times every kind");
+
+        java.util.Set<String> ids = new java.util.HashSet<>();
+        for (GeodeRules.Geode geode : GeodeRules.catalogue()) {
+            check(ids.add(geode.id()), "two geodes called " + geode.id());
+            check(geode.grows() == GeodeRules.CHAIN.contains(geode.kind()),
+                    geode.id() + " disagrees with itself about whether it grows");
+        }
+
+        // The budding block reads the game's way round. A player should not
+        // have to learn a second convention for an idea they already know.
+        check(new GeodeRules.Geode("amethyst", GeodeRules.BUDDING).id()
+                        .equals("budding_amethyst"),
+                "the budding block is named the other way round from the game's own");
+
+        // Every step grows into the next, and the last grows into nothing.
+        for (int step = 0; step < GeodeRules.CHAIN.size() - 1; step++) {
+            GeodeRules.Geode one = new GeodeRules.Geode("iron",
+                    GeodeRules.CHAIN.get(step));
+            check(one.next().equals(GeodeRules.CHAIN.get(step + 1)),
+                    GeodeRules.CHAIN.get(step) + " does not grow into "
+                            + GeodeRules.CHAIN.get(step + 1));
+        }
+        check(new GeodeRules.Geode("iron",
+                        GeodeRules.CHAIN.get(GeodeRules.CHAIN.size() - 1))
+                        .next().isEmpty(),
+                "the last step of the chain grows into something, so the chain has "
+                        + "no end");
+        check(new GeodeRules.Geode("iron", GeodeRules.BLOCK).next().isEmpty(),
+                "a plain block claims to grow into something");
+        check(!new GeodeRules.Geode("iron", GeodeRules.BLOCK).grows(),
+                "a plain block is a step in the growth chain");
+    }
+
+    // ==================================================================
+
+    /**
+     * Whether thirty relics are thirty relics.
+     *
+     * <p>The balance work is not here — it is in the library, where the
+     * abilities live — and that is the point of having done the ability system
+     * first. What is checked here is the join: every relic carries a set the
+     * library allows, every ability is carried by something, and rarity means
+     * what it claims to.
+     */
+    private static void theRelics() {
+        check(!RelicRules.RELICS.isEmpty(), "there are no relics");
+        check(RelicRules.repeated().isEmpty(),
+                "two relics with the same name: " + RelicRules.repeated());
+        check(RelicRules.illegal().isEmpty(),
+                "a relic carrying abilities no item is allowed to carry: "
+                        + RelicRules.illegal());
+        check(RelicRules.unworn().isEmpty(),
+                "an ability nothing in the world carries: " + RelicRules.unworn());
+        check(RelicRules.indistinguishable().isEmpty(),
+                "two relics that are the same relic under two names: "
+                        + RelicRules.indistinguishable());
+        check(RelicRules.rarityBackwards().isEmpty(),
+                "the rarer relic is the weaker one: " + RelicRules.rarityBackwards());
+        check(RelicRules.emptySlots().isEmpty(),
+                "a slot nothing is worn in: " + RelicRules.emptySlots());
+
+        for (RelicRules.Relic relic : RelicRules.RELICS) {
+            check(!relic.abilities().isEmpty(),
+                    relic.id() + " does nothing at all");
+            check(relic.worth() > 0.0F, relic.id() + " is worth nothing");
+            check(relic.power() > 0.0F, relic.id() + " does nothing when it fires");
+            for (String name : relic.abilities()) {
+                check(com.elysium.lib.ability.ElysiumAbilityRules.ability(name) != null,
+                        relic.id() + " names " + name + ", which the library does "
+                                + "not have");
+            }
+        }
+
+        // A positive control on the join itself: a relic carrying the same
+        // ability twice must be refused, or `illegal()` is reading an empty
+        // list from a rule that never finds anything.
+        check(!com.elysium.lib.ability.ElysiumAbilityRules
+                        .cannotShareAnItem(java.util.List.of("blink", "blink"))
+                        .isEmpty(),
+                "the library allows one item to carry the same ability twice, so the "
+                        + "check every relic above passed through finds nothing");
     }
 }

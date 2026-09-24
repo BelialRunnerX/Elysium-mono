@@ -1,0 +1,8 @@
+{
+  "block": "minecraft:mycelium",
+  "tier": 1,
+  "speed": 1.1,
+  "grows": [
+    "fungal"
+  ]
+}

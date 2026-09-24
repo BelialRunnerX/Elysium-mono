@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CCC",
+    "CCC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "elysiumagronomy:onion"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:onion_crate",
+    "count": 1
+  }
+}

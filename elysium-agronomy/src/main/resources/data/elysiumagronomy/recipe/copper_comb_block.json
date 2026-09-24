@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CCC",
+    "CCC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "elysiumagronomy:copper_comb"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:copper_comb_block",
+    "count": 1
+  }
+}

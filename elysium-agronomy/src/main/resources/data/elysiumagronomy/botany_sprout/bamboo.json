@@ -1,0 +1,6 @@
+{
+  "needs": "common",
+  "ticks": 1400,
+  "drop": "bamboo",
+  "amount": 3
+}

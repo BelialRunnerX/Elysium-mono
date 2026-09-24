@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SS",
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:platinum_shard"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:platinum_block",
+    "count": 1
+  }
+}

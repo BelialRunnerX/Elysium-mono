@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:industrial_rock_generator"
+    },
+    {
+      "item": "minecraft:diamond_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:diamond_generator",
+    "count": 1
+  }
+}

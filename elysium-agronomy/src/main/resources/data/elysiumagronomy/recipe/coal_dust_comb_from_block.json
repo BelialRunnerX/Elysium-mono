@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:coal_dust_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:coal_dust_comb",
+    "count": 9
+  }
+}

@@ -25,8 +25,33 @@ public final class AgronomyBlockEntities {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PotBlock.PotBlockEntity>>
             POT = TYPES.register("pot", () -> BlockEntityType.Builder.of(
-                    PotBlock.PotBlockEntity::new, AgronomyBlocks.POT.get())
+                    PotBlock.PotBlockEntity::new, everyPot())
             .build(null));
+
+    /**
+     * The plain pot and all hundred and sixty-five of the catalogue.
+     *
+     * <p>A block entity type that does not name a block refuses to attach to
+     * it, and the symptom is a pot you can place, fill and watch do nothing at
+     * all. Walking the catalogue means a new colour of pot works the day it
+     * is added rather than the day somebody notices.
+     */
+    private static net.minecraft.world.level.block.Block[] everyPot() {
+        java.util.List<net.minecraft.world.level.block.Block> all =
+                new java.util.ArrayList<>();
+        all.add(AgronomyBlocks.POT.get());
+        for (com.elysium.agronomy.rules.PotRules.Pot pot
+                : com.elysium.agronomy.rules.PotRules.catalogue()) {
+            all.add(PotBlocks.ALL.get(pot.id()).get());
+        }
+        if (all.size() != com.elysium.agronomy.rules.PotRules.catalogue().size() + 1) {
+            throw new IllegalStateException("there are "
+                    + com.elysium.agronomy.rules.PotRules.catalogue().size()
+                    + " pots in the catalogue and " + (all.size() - 1)
+                    + " were given a block entity");
+        }
+        return all.toArray(new net.minecraft.world.level.block.Block[0]);
+    }
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AcceleratorBlock.AcceleratorBlockEntity>>
             ACCELERATOR = TYPES.register("accelerator", () -> BlockEntityType.Builder.of(

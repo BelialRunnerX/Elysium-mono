@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "P P",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "item": "minecraft:crimson_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:crimson_cabinet",
+    "count": 1
+  }
+}

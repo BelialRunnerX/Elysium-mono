@@ -3592,6 +3592,7 @@ classpath_file = os.path.join(mc_libs, "cp.txt")
 # Each entry is (source file, main class, label). Both are executed the same
 # way and both state a rule the source alone cannot prove.
 HARNESSES = [
+    ("AbilityHarness.java", "com.elysium.lib.ability.AbilityHarness", "abilities"),
     ("WeatherHarness.java", "com.elysium.lib.weather.WeatherHarness", "weather"),
     ("GearHarness.java", "com.elysium.lib.item.GearHarness", "gear rule"),
     ("CodexScreenHarness.java", "com.elysium.lib.screen.CodexScreenHarness",

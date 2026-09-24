@@ -1,0 +1,14 @@
+{
+  "input": "minecraft:milk_bucket",
+  "tool": "knife",
+  "yields": [
+    {
+      "item": "elysiumagronomy:butter",
+      "count": 1
+    },
+    {
+      "item": "elysiumagronomy:cream",
+      "count": 2
+    }
+  ]
+}

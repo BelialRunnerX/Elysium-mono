@@ -1,0 +1,9 @@
+{
+  "block": "minecraft:coarse_dirt",
+  "tier": 0,
+  "speed": 0.85,
+  "grows": [
+    "common",
+    "hardy"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "input": "minecraft:barley_sheaf",
+  "tool": "knife",
+  "yields": [
+    {
+      "item": "elysiumagronomy:barley",
+      "count": 2
+    },
+    {
+      "item": "elysiumagronomy:rice",
+      "count": 1
+    }
+  ]
+}

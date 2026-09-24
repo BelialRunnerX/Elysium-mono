@@ -1,0 +1,14 @@
+{
+  "station": "pot",
+  "ingredients": [
+    "elysiumagronomy:rice",
+    "elysiumagronomy:ginger",
+    "elysiumagronomy:garlic",
+    "elysiumagronomy:chili",
+    "elysiumagronomy:stock"
+  ],
+  "ticks": 700,
+  "servings": 4,
+  "effect": "fire_resistance",
+  "result": "elysiumagronomy:curry"
+}

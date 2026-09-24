@@ -1,0 +1,6 @@
+{
+  "needs": "common",
+  "ticks": 4000,
+  "drop": "jungle_log",
+  "amount": 1
+}

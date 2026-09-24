@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SS",
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:rime_shard_shard"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:rime_shard_block",
+    "count": 1
+  }
+}

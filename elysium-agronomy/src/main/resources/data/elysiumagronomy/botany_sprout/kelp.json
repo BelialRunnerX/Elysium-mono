@@ -1,0 +1,6 @@
+{
+  "needs": "aquatic",
+  "ticks": 1500,
+  "drop": "dried_kelp",
+  "amount": 2
+}

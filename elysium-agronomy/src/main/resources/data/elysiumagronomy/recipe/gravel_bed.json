@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:gravel"
+    },
+    {
+      "item": "minecraft:dirt"
+    },
+    {
+      "item": "minecraft:sand"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:gravel_bed",
+    "count": 2
+  }
+}

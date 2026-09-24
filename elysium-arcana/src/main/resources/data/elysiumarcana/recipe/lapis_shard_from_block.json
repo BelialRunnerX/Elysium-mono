@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:lapis_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:lapis_shard",
+    "count": 4
+  }
+}

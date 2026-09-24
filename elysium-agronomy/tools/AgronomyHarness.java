@@ -3,6 +3,7 @@ package com.elysium.agronomy.rules;
 import com.elysium.industry.rules.IndustryRules;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,12 +19,33 @@ public final class AgronomyHarness {
     private static int checks;
     private static int failures;
 
+    /** How much of one complaint is worth reading. */
+    private static final int ENOUGH = 220;
+
     private static void check(boolean condition, String complaint) {
         checks++;
         if (!condition) {
             failures++;
-            System.out.println("  FAIL: " + complaint);
+            System.out.println("  FAIL: " + trimmed(complaint));
         }
+    }
+
+    /**
+     * One failure, cut to something a reader gets through.
+     *
+     * <p>A check that lists every place it went wrong can run to thousands of
+     * characters, and the validator that prints this keeps the first sixteen
+     * hundred. Three failures then show as one and a half, and the most
+     * informative of them — usually the short one saying a constant is zero —
+     * falls off the end entirely. It cost two negative tests to find that, so
+     * every complaint now leaves room for the next one.
+     */
+    private static String trimmed(String complaint) {
+        if (complaint.length() <= ENOUGH) {
+            return complaint;
+        }
+        return complaint.substring(0, ENOUGH) + " … (" + complaint.length()
+                + " characters in all)";
     }
 
     private static void near(float got, float want, float slack, String what) {
@@ -40,6 +62,14 @@ public final class AgronomyHarness {
         theRock();
         theDiet();
         theFrontier();
+        theRoster();
+        theApiary();
+        theFish();
+        theCast();
+        thePots();
+        theVeins();
+        theKitchen();
+        theSeeds();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -47,8 +77,16 @@ public final class AgronomyHarness {
         }
         System.out.println(checks + " checks: a farm is worse than a mine at every tier "
                 + "and every size worth building, a pot is faster for the trouble of it, "
-                + "a crowded hive slows rather than stopping, and a varied diet climbs, "
-                + "curves and stops");
+                + "a crowded hive slows rather than stopping, a varied diet climbs, "
+                + "curves and stops, and every one of " + BeeRules.BEES.size()
+                + " bees can be bred from the four you can find, and every one of "
+                + FishRules.FISH.size() + " fish comes up on a rod somewhere, and "
+                + PotRules.catalogue().size() + " pots that all have all three "
+                + "fittings, and "
+                + AgronomyRules.VEINS.size() + " generators none of which beats a "
+                + "mine, and "
+                + KitchenRules.MEALS.size() + " meals of which none is pointless, and "
+                + SeedRules.SEEDS.size() + " seeds none of which grows an alloy");
     }
 
     // ==================================================================
@@ -384,5 +422,600 @@ public final class AgronomyHarness {
                                 + "nothing");
             }
         }
+    }
+
+    // ==================================================================
+
+    /**
+     * Whether the bee roster hangs together.
+     *
+     * <p>The mod this replaces registers 463 bees, of which 428 name a
+     * material this pack cannot make. Every check below exists so that this
+     * file cannot quietly end up in the same state: a bee nothing breeds, a
+     * comb two bees make, a pair that breeds two children, a chain that loops.
+     */
+    private static void theRoster() {
+        check(BeeRules.orphaned().isEmpty(),
+                "a bee bred from something that is not a bee: " + BeeRules.orphaned());
+        check(BeeRules.cycles().isEmpty(),
+                "a bee that is its own ancestor: " + BeeRules.cycles());
+        check(BeeRules.unreachable().isEmpty(),
+                "a bee no chain of breeding reaches from the ones you find in the "
+                        + "world — it is in the registry and nowhere else: "
+                        + BeeRules.unreachable());
+        check(BeeRules.sharingProduce().isEmpty(),
+                "two bees making the same thing: " + BeeRules.sharingProduce());
+        check(BeeRules.sharingParents().isEmpty(),
+                "one pair breeding two different bees, so one can never be got on "
+                        + "purpose: " + BeeRules.sharingParents());
+        check(BeeRules.inbred().isEmpty(),
+                "a bee bred from itself or from two of the same bee: "
+                        + BeeRules.inbred());
+        check(BeeRules.misplaced().isEmpty(),
+                "a bee bound to the wrong kind of place, or to none: "
+                        + BeeRules.misplaced());
+
+        Set<String> ids = new HashSet<>();
+        for (BeeRules.Bee bee : BeeRules.BEES) {
+            check(ids.add(bee.id()), "two bees called " + bee.id());
+            check(!bee.id().endsWith("_bee"),
+                    bee.id() + " already ends in _bee, so its entity would be "
+                            + bee.entity());
+            check(!bee.produce().isEmpty(), bee.id() + " produces nothing");
+        }
+
+        int wild = BeeRules.ofKind(BeeRules.WILD).size();
+        check(wild >= 2, "only " + wild + " bee(s) can be found in the world, so the "
+                + "whole tree hangs off too narrow a base");
+        check(wild <= 6, wild + " bees can be found without breeding, which leaves "
+                + "breeding little to do");
+
+        for (BeeRules.Bee bee : BeeRules.ofKind(BeeRules.RESOURCE)) {
+            check(bee.produce().equals(bee.id()),
+                    "the " + bee.id() + " bee produces " + bee.produce() + " — a "
+                            + "resource bee is named after what it makes, or a comb "
+                            + "stops being self-explanatory");
+        }
+
+        check(BeeRules.longestChain() >= 4,
+                "the longest breeding chain is only " + BeeRules.longestChain()
+                        + " deep, which is not a progression");
+        check(BeeRules.longestChain() <= 12,
+                "the longest breeding chain is " + BeeRules.longestChain()
+                        + " deep, which is a second career");
+
+        // Every tier between the bottom and the top has somebody on it. A gap
+        // is a rung a player reaches and finds nothing to breed.
+        List<Integer> tiers = BeeRules.tiers();
+        for (int step = 1; step < tiers.size(); step++) {
+            check(tiers.get(step) == tiers.get(step - 1) + 1,
+                    "nothing at all sits at tier " + (tiers.get(step - 1) + 1)
+                            + ", so the ladder has a rung missing");
+        }
+    }
+
+    // ==================================================================
+
+    /**
+     * Whether a hive ever beats a pickaxe.
+     *
+     * <p>The same rule the crops are held to, at a stricter margin: a hive
+     * wants no light, no water, no replanting and no attention, so the only
+     * honest way to price something that runs itself is to make it slow.
+     */
+    private static void theApiary() {
+        check(BeeRules.outMining().isEmpty(),
+                "a full hive out-earns a mine at tier(s) " + BeeRules.outMining()
+                        + " — the moment the ore ladder stops mattering");
+
+        int last = -1;
+        for (int tier : BeeRules.tiers()) {
+            if (tier == 0) {
+                continue;
+            }
+            int ticks = BeeRules.combTicks(tier);
+            check(ticks >= last, "a tier " + tier + " bee fills a comb faster than the "
+                    + "tier below it, so the ladder runs backwards there");
+            last = ticks;
+            check(BeeRules.perHour(tier) > 0.0F,
+                    "a tier " + tier + " hive produces nothing at all");
+        }
+
+        int top = BeeRules.tiers().get(BeeRules.tiers().size() - 1);
+        check(BeeRules.combTicks(top) > BeeRules.combTicks(1),
+                "the top of the bee ladder is no slower than the first rung of it");
+        check(BeeRules.HIVE_AT_MOST < AgronomyRules.FARM_AT_MOST,
+                "a hive is allowed as big a share of a mine as a farm is, and a hive "
+                        + "runs itself while a farm does not");
+        check(AgronomyRules.combsPerHour(AgronomyRules.MOST_BEES + 5, 1000)
+                        == AgronomyRules.combsPerHour(AgronomyRules.MOST_BEES, 1000),
+                "a hive stuffed past its limit goes on getting faster");
+
+        // The first resource rung is derived from the mine rather than chosen,
+        // so retuning the mine has to move it. If somebody changes one and not
+        // the other this is what says so.
+        float solved = AgronomyRules.MOST_BEES * (float) AgronomyRules.TICKS_PER_HOUR
+                / (AgronomyRules.minedPerHour() * BeeRules.HIVE_AT_MOST);
+        check(BeeRules.FIRST_RESOURCE_TICKS >= Math.round(solved),
+                "the first resource bee takes " + BeeRules.FIRST_RESOURCE_TICKS
+                        + " ticks a comb, and the margin against the mine needs at "
+                        + "least " + Math.round(solved));
+
+        // A wild bee makes honey, and honey is not priced against the ore
+        // ladder — but it must not be so fast that it is the whole game either.
+        check(BeeRules.combTicks(0) < BeeRules.combTicks(1),
+                "a wild bee is no faster than a bee that makes metal, which leaves "
+                        + "nothing to like about the ones you can actually find");
+    }
+
+    // ==================================================================
+
+    /** Whether the roster of fish is a roster of fish anybody can catch. */
+    private static void theFish() {
+        check(FishRules.repeated().isEmpty(),
+                "two fish with the same name: " + FishRules.repeated());
+        check(FishRules.neverCaught().isEmpty(),
+                "fish that never come up on any rod in any water — a texture, a "
+                        + "bucket, a spawn egg and no content at all: "
+                        + FishRules.neverCaught());
+        check(FishRules.deadWater().isEmpty(),
+                "a kind of water with nothing living in it anywhere: "
+                        + FishRules.deadWater());
+        check(FishRules.thinWater().isEmpty(),
+                "water too thin to be worth a rod: " + FishRules.thinWater());
+        check(FishRules.unreasonablyRare().isEmpty(),
+                "fish that are a second job rather than a story: "
+                        + FishRules.unreasonablyRare());
+        check(FishRules.betterFoodIsCommoner().isEmpty(),
+                "the rarer fish is the worse meal on average: "
+                        + FishRules.betterFoodIsCommoner());
+        check(FishRules.bestFoodIsCommoner().isEmpty(),
+                "the best meal in the game is a common fish: "
+                        + FishRules.bestFoodIsCommoner());
+
+        Set<String> names = new HashSet<>();
+        for (FishRules.Fish one : FishRules.FISH) {
+            check(names.add(one.id()), "two fish called " + one.id());
+            check(one.length() > 0.0F, one.id() + " has no length to keep a record of");
+            check(one.nutrition() > 0, one.id() + " feeds nobody");
+            check(!one.id().endsWith("_bucket"),
+                    one.id() + " already ends in _bucket, so its bucket would be "
+                            + one.bucket());
+        }
+
+        // Every family has somewhere it is the thing you catch, or it is a
+        // label rather than a habitat.
+        for (FishRules.Family family : FishRules.FAMILIES) {
+            check(!FishRules.ofFamily(family).isEmpty(),
+                    "the " + family.name() + " family has no fish in it");
+        }
+
+        // Every rarity band is occupied, or the ladder has a rung missing and
+        // a rod upgrade buys nothing at that step.
+        for (int rarity = FishRules.COMMONEST; rarity <= FishRules.RAREST; rarity++) {
+            boolean any = false;
+            for (FishRules.Fish one : FishRules.FISH) {
+                if (one.rarity() == rarity) {
+                    any = true;
+                    break;
+                }
+            }
+            check(any, "nothing at all has rarity " + rarity);
+        }
+    }
+
+    // ==================================================================
+
+    /** Whether a cast is arithmetic that holds up. */
+    private static void theCast() {
+        check(FishRules.luckThatHurts().isEmpty(),
+                "a better rod that is worse at being a rod: "
+                        + FishRules.luckThatHurts());
+        check(FishRules.baitThatExcludes().isEmpty(),
+                "bait that takes a fish out of the water rather than shifting the "
+                        + "odds: " + FishRules.baitThatExcludes());
+        check(FishRules.baitThatPullsWrong().isEmpty(),
+                "bait that pulls away from the thing it names: "
+                        + FishRules.baitThatPullsWrong());
+
+        // The shares in any water sum to one. A table that has quietly become
+        // empty, or one that double-counts, shows up here and nowhere else.
+        for (FishRules.Water where : FishRules.fishableWaters()) {
+            for (int luck = 0; luck < FishRules.RODS; luck++) {
+                for (String bait : new String[]{FishRules.NOTHING, "ocean", "river"}) {
+                    double total = 0.0D;
+                    for (FishRules.Chance chance : FishRules.table(where, luck, bait)) {
+                        check(chance.share() > 0.0D,
+                                chance.fish() + " is in the table with no chance at "
+                                        + "all of being caught");
+                        total += chance.share();
+                    }
+                    check(Math.abs(total - 1.0D) < 1.0E-9D,
+                            "the chances in " + where.kind() + " band " + where.band()
+                                    + " with rod " + luck + " sum to " + total
+                                    + " rather than one");
+                }
+            }
+        }
+
+        // A rod past the top of the ladder is the top of the ladder, not
+        // something better. Data files can ask for anything.
+        for (FishRules.Water where : FishRules.fishableWaters()) {
+            check(FishRules.shares(FishRules.table(where, FishRules.RODS + 9,
+                            FishRules.NOTHING))
+                            .equals(FishRules.shares(FishRules.table(where,
+                                    FishRules.RODS - 1, FishRules.NOTHING))),
+                    "a rod past the top of the ladder in " + where.kind()
+                            + " keeps getting better, so a data file can ask for one");
+            check(FishRules.shares(FishRules.table(where, -4, FishRules.NOTHING))
+                            .equals(FishRules.shares(FishRules.table(where, 0,
+                                    FishRules.NOTHING))),
+                    "a rod below the bottom of the ladder in " + where.kind()
+                            + " is worse than no rod at all");
+        }
+
+        // Bait that names nothing is no bait, not an empty water.
+        for (FishRules.Water where : FishRules.fishableWaters()) {
+            check(!FishRules.table(where, 0, "notafamily").isEmpty(),
+                    "bait nothing recognises empties " + where.kind() + " band "
+                            + where.band() + " rather than doing nothing");
+        }
+
+        // Rarity has to mean something: the commonest fish in a water must be
+        // commoner than the rarest, with no rod at all.
+        for (FishRules.Water where : FishRules.fishableWaters()) {
+            if (FishRules.countRarities(where) < 2) {
+                continue;
+            }
+            String rarest = FishRules.rarestIn(where);
+            java.util.Map<String, Double> table =
+                    FishRules.shares(FishRules.table(where, 0, FishRules.NOTHING));
+            double worst = table.getOrDefault(rarest, 0.0D);
+            for (FishRules.Fish one : FishRules.FISH) {
+                Double share = table.get(one.id());
+                if (share == null || one.rarity() >= FishRules.RAREST) {
+                    continue;
+                }
+                if (one.rarity() < FishRules.fish(rarest).rarity()) {
+                    check(share >= worst,
+                            one.id() + " (rarity " + one.rarity() + ") is rarer than "
+                                    + rarest + " (rarity "
+                                    + FishRules.fish(rarest).rarity() + ") in "
+                                    + where.kind() + " band " + where.band());
+                }
+            }
+        }
+
+        check(FishRules.baseWeight(FishRules.COMMONEST)
+                        > FishRules.baseWeight(FishRules.RAREST),
+                "the rarest fish is not rarer than the commonest before any rod is "
+                        + "taken into account");
+        check(FishRules.BAIT_PULL > 1.0D,
+                "bait does not pull towards anything, so it is a crafting recipe "
+                        + "with no effect");
+        check(FishRules.LUCK_TILT > 0.0D,
+                "a rod tilts nothing, so every rung of the rod ladder is the same rod");
+    }
+
+    // ==================================================================
+
+    /** Whether the pot catalogue and the soil it holds hang together. */
+    private static void thePots() {
+        check(PotRules.halfMade().isEmpty(),
+                "a material with some of its fittings and not others, so half the "
+                        + "catalogue is missing and only the player who wanted that "
+                        + "colour finds out: " + PotRules.halfMade());
+        check(PotRules.repeated().isEmpty(),
+                "two pots with the same id: " + PotRules.repeated());
+        check(PotRules.ungrowable().isEmpty(),
+                "a sprout nothing will grow: " + PotRules.ungrowable());
+        check(PotRules.growsEverything().isEmpty(),
+                "a soil that grows everything, leaving the others decoration: "
+                        + PotRules.growsEverything());
+        check(PotRules.unwanted().isEmpty(),
+                "a kind of soil nothing ever asks for: " + PotRules.unwanted());
+        check(PotRules.flatLadder().isEmpty(),
+                "a rung of the soil ladder that buys nothing: "
+                        + PotRules.flatLadder());
+        check(PotRules.pointless().isEmpty(),
+                "a sprout that gives back exactly what you planted: "
+                        + PotRules.pointless());
+        check(PotRules.waxIsCosmetic(),
+                "waxing a pot changes how fast it grows, so every pot in every base "
+                        + "is the wrong one and nobody can say why");
+        check(PotRules.fittingsThatHurry().isEmpty(),
+                "a fitting that is a hidden speed upgrade: "
+                        + PotRules.fittingsThatHurry());
+
+        check(PotRules.catalogue().size()
+                        == PotRules.materials().size() * PotRules.FITTINGS.size(),
+                "the catalogue is not every material times every fitting, so it was "
+                        + "written out rather than derived");
+        check(PotRules.materials().size()
+                        == PotRules.COLOURS.size() * PotRules.CERAMICS.size()
+                        + PotRules.STONES.size(),
+                "the materials are not the colours times the clays plus the stones");
+        check(PotRules.COLOURS.size() == 16,
+                "there are " + PotRules.COLOURS.size() + " dyes rather than sixteen");
+
+        Set<String> ids = new HashSet<>();
+        for (PotRules.Pot pot : PotRules.catalogue()) {
+            check(ids.add(pot.id()), "two pots called " + pot.id());
+            check(pot.id().endsWith("_botany_pot"),
+                    pot.id() + " is not named like a pot");
+            check(pot.feeds() == PotRules.HOPPER.equals(pot.fitting()),
+                    pot.id() + " disagrees with itself about whether it empties into "
+                            + "what is below");
+        }
+
+        // A soil grows faster than bare dirt or there is no reason to dig it.
+        PotRules.Soil dirt = PotRules.soil("dirt");
+        check(dirt != null, "there is no plain dirt, which is what everything else "
+                + "is measured against");
+        if (dirt != null) {
+            for (PotRules.Soil soil : PotRules.SOILS) {
+                if (soil.tier() > dirt.tier()) {
+                    check(soil.speed() != dirt.speed() || !soil.grows().equals(
+                                    dirt.grows()),
+                            soil.id() + " is dearer than dirt and does nothing dirt "
+                                    + "does not");
+                }
+            }
+        }
+
+        // Growing is slower in poorer soil and faster in better, at every pot
+        // speed a player can reach.
+        for (AgronomyRules.Frontier ignored : AgronomyRules.FRONTIERS.subList(0, 1)) {
+            for (PotRules.Sprout sprout : PotRules.SPROUTS) {
+                int slow = sprout.ticksIn(PotRules.soil("coarse_dirt"), 1.0F);
+                int fast = sprout.ticksIn(PotRules.soil("rich_loam"), 1.0F);
+                check(fast < slow, sprout.id() + " takes the same time in rich loam as "
+                        + "in coarse dirt, so the soil ladder does nothing");
+                check(sprout.ticksIn(PotRules.soil("dirt"), 0.0F) >= 1,
+                        sprout.id() + " in a pot that is not growing at all still "
+                                + "finishes, which is a crop that grows in the dark");
+            }
+        }
+    }
+
+    // ==================================================================
+
+    /**
+     * Whether a generator ever beats going to find the stuff.
+     *
+     * <p>The mod this replaces ships a netherite generator. A generator that
+     * hands you netherite is the most direct way there is to make three ages
+     * of ore ladder pointless, so every row in the table carries the share of
+     * a mine it may be worth and this refuses the build if one exceeds it.
+     *
+     * <p>Merely loading the table found a real bug the first time it ran: the
+     * rows were declared above the array they validate themselves against, so
+     * the class threw on initialisation. In a game that is a crash four
+     * seconds into loading with no screen and no explanation.
+     */
+    private static void theVeins() {
+        check(!AgronomyRules.VEINS.isEmpty(), "there are no veins at all");
+        check(AgronomyRules.veinsOutmining().isEmpty(),
+                "a generator worth more of a mine than the line allows: "
+                        + AgronomyRules.veinsOutmining());
+        check(AgronomyRules.veinsOutOfOrder().isEmpty(),
+                "the veins do not get slower as the material gets better: "
+                        + AgronomyRules.veinsOutOfOrder());
+        check(AgronomyRules.veinsWithNoGenerator().isEmpty(),
+                "a vein that needs a generator nobody can build: "
+                        + AgronomyRules.veinsWithNoGenerator());
+
+        Set<String> materials = new HashSet<>();
+        for (AgronomyRules.Vein vein : AgronomyRules.VEINS) {
+            check(materials.add(vein.material()),
+                    "two veins for " + vein.material());
+            check(vein.perHour() > 0.0F,
+                    vein.material() + " comes out of its generator at nothing an hour");
+            check(vein.perHour() <= AgronomyRules.minedPerHour(),
+                    vein.material() + " comes out of a generator faster than out of "
+                            + "the ground");
+        }
+
+        // Stone is the one that may be worth a whole mine, because stone is
+        // worth nothing. Everything else is held to the tighter line.
+        AgronomyRules.Vein stone = AgronomyRules.VEINS.get(0);
+        check("stone".equals(stone.material()),
+                "the first vein is " + stone.material() + " rather than stone, so the "
+                        + "free one is not the worthless one");
+        check(stone.tier() == 0,
+                "the stone generator needs a dearer machine than the first rung, so "
+                        + "the oldest trick in the game is gated behind power");
+        for (AgronomyRules.Vein vein : AgronomyRules.VEINS) {
+            if (!"stone".equals(vein.material())) {
+                check(vein.share() <= AgronomyRules.VEIN_AT_MOST,
+                        vein.material() + " is worth " + vein.share() + " of a mine "
+                                + "and the line is " + AgronomyRules.VEIN_AT_MOST);
+                check(vein.tier() > 0,
+                        vein.material() + " comes out of a generator that costs no "
+                                + "power at all");
+            }
+        }
+
+        // A vein table past its end is its end, not something better.
+        check(AgronomyRules.rockPerHour(AgronomyRules.ROCK_PER_HOUR.length + 4, 1.0F)
+                        == AgronomyRules.rockPerHour(
+                                AgronomyRules.ROCK_PER_HOUR.length - 1, 1.0F),
+                "a rock generator past the top of the table keeps going");
+    }
+
+    // ==================================================================
+
+    /**
+     * Whether a cooking system is a system or a recipe book.
+     *
+     * <p>Twenty-nine meals of which six are worth making is a system with six
+     * meals. The domination check is the one that decides which it is, and the
+     * effects exist so it can pass honestly rather than by giving everything
+     * the same numbers.
+     */
+    private static void theKitchen() {
+        check(KitchenRules.repeated().isEmpty(),
+                "two meals with the same name: " + KitchenRules.repeated());
+        check(KitchenRules.dominated().isEmpty(),
+                "a meal another meal makes pointless: " + KitchenRules.dominated());
+        check(KitchenRules.indistinguishable().isEmpty(),
+                "two meals that are the same meal under two names: "
+                        + KitchenRules.indistinguishable());
+
+        // A positive control, because a predicate that always answers no
+        // passes every check above it and proves nothing at all. This is the
+        // clearest possible domination: same station, same effect, better in
+        // every way. If dominates() cannot see it, dominates() is broken and
+        // the twenty-nine meals below have been checked by nothing.
+        KitchenRules.Meal plain = new KitchenRules.Meal("a_test_meal",
+                java.util.List.of("bread", "cheese_wheel", "butter"),
+                4, 0.4F, 600, 1, KitchenRules.POT, "comfort");
+        KitchenRules.Meal better = new KitchenRules.Meal("a_better_test_meal",
+                java.util.List.of("bread"), 9, 0.9F, 200, 4, KitchenRules.POT,
+                "comfort");
+        check(better.dominates(plain),
+                "the domination check cannot see a meal that is better in every "
+                        + "single way, so it is answering no to everything and the "
+                        + "whole roster has been checked by nothing");
+        check(!plain.dominates(better),
+                "the domination check says the worse meal dominates the better one, "
+                        + "so it is answering yes to everything");
+        // Worse in every way, and cooked somewhere else. Only the station
+        // check stops this being a domination, so this control fails the
+        // moment somebody takes that check out.
+        KitchenRules.Meal elsewhere = new KitchenRules.Meal("a_third_test_meal",
+                java.util.List.of("bread", "cheese_wheel", "butter"),
+                3, 0.3F, 700, 1, KitchenRules.SKILLET, "comfort");
+        check(!better.dominates(elsewhere),
+                "the domination check compares meals made on different stations, so "
+                        + "a soup can make a sandwich pointless");
+        KitchenRules.Meal otherEffect = new KitchenRules.Meal("a_fourth_test_meal",
+                java.util.List.of("bread", "cheese_wheel", "butter"),
+                3, 0.3F, 700, 1, KitchenRules.POT, "strength");
+        check(!better.dominates(otherEffect),
+                "the domination check compares meals that do different things, so a "
+                        + "meal is pointless for being worse at feeding you even "
+                        + "when it is the only thing that makes you stronger");
+        check(KitchenRules.impossible().isEmpty(),
+                "a recipe that names something nothing makes: "
+                        + KitchenRules.impossible());
+        check(KitchenRules.badValue().isEmpty(),
+                "a meal worth too little to cook or too much to be food: "
+                        + KitchenRules.badValue());
+        check(KitchenRules.unused().isEmpty(),
+                "an ingredient nothing ever uses: " + KitchenRules.unused());
+        check(KitchenRules.emptyStations().isEmpty(),
+                "a station you build once and never use: "
+                        + KitchenRules.emptyStations());
+        check(KitchenRules.cutsThatCreate().isEmpty(),
+                "a knife that is a food multiplier: " + KitchenRules.cutsThatCreate());
+
+        Set<String> names = new HashSet<>();
+        for (KitchenRules.Meal meal : KitchenRules.MEALS) {
+            check(names.add(meal.id()), "two meals called " + meal.id());
+            check(!meal.of().isEmpty(), meal.id() + " is made of nothing");
+            check(meal.ticks() > 0, meal.id() + " cooks instantly");
+            check(meal.servings() >= 1, meal.id() + " serves nobody");
+            check(KitchenRules.STATIONS.contains(meal.station()),
+                    meal.id() + " is cooked somewhere that does not exist");
+            // Nothing dominates itself, which is the property the check rests
+            // on and the easiest one to break by loosening the comparison.
+            check(!meal.dominates(meal), meal.id() + " makes itself pointless");
+        }
+
+        // Every station has more than one effect on it, or the station is a
+        // single recipe wearing a block.
+        for (String station : KitchenRules.STATIONS) {
+            Set<String> effects = new HashSet<>();
+            for (KitchenRules.Meal meal : KitchenRules.at(station)) {
+                effects.add(meal.effect());
+            }
+            check(effects.size() >= 2,
+                    "everything made on the " + station + " does the same thing, so "
+                            + "there is one recipe there wearing several names");
+        }
+
+        // An effect that exactly one meal gives is the point of that meal; an
+        // effect nothing gives at all is a field nobody filled in.
+        for (String effect : KitchenRules.effects()) {
+            int count = 0;
+            for (KitchenRules.Meal meal : KitchenRules.MEALS) {
+                if (meal.effect().equals(effect)) {
+                    count++;
+                }
+            }
+            check(count >= 1, "nothing gives " + effect);
+        }
+
+        check(KitchenRules.effects().size() >= 6,
+                "there are only " + KitchenRules.effects().size() + " effects across "
+                        + KitchenRules.MEALS.size() + " meals, which is not enough to "
+                        + "tell them apart by");
+        check(KitchenRules.LEAST_OF_ITS_PARTS < 1.0F,
+                "a meal is required to be worth as much as its parts raw, which no "
+                        + "amount of cooking can promise");
+        check(KitchenRules.MOST_OF_ITS_PARTS > 1.0F,
+                "a meal may not be worth more than its parts, so cooking is a way of "
+                        + "wasting food");
+    }
+
+    // ==================================================================
+
+    /**
+     * Whether the seeds grow only what the ground gives you.
+     *
+     * <p>The mined-or-not check needs the foundry's list, which lives a module
+     * above this one and is read by validate.py out of its source. What can be
+     * checked here is everything else: that the ladder has no gaps, that
+     * nothing is grown twice, and that every essence turns into something a
+     * recipe can actually name.
+     */
+    private static void theSeeds() {
+        check(!SeedRules.SEEDS.isEmpty(), "there are no seeds at all");
+        check(SeedRules.repeated().isEmpty(),
+                "a material two seeds grow: " + SeedRules.repeated());
+        check(SeedRules.emptyRungs().isEmpty(),
+                "a rung of the ladder nothing grows at: " + SeedRules.emptyRungs());
+        check(SeedRules.makingNothing().isEmpty(),
+                "an essence that turns into something no recipe can name: "
+                        + SeedRules.makingNothing());
+
+        Set<String> materials = new HashSet<>();
+        for (SeedRules.Seed seed : SeedRules.SEEDS) {
+            check(materials.add(seed.material()),
+                    "two seeds for " + seed.material());
+            check(seed.tier() >= 1 && seed.tier() <= AgronomyRules.TIERS,
+                    seed.material() + " sits off the end of the ladder");
+            check(seed.id().equals(seed.material() + "_seed"),
+                    seed.material() + "'s seed is not named after it");
+        }
+
+        // A positive control for the mined-only rule: told that a material is
+        // made rather than mined, the check has to say so. Without this the
+        // rule could answer no to everything and validate.py would be reading
+        // an empty list from a function that never finds anything.
+        check(!SeedRules.growingWhatIsMade(Set.of(), Set.of("iron")).isEmpty(),
+                "the mined-only rule cannot see a seed for something it has been "
+                        + "told is made, so it is answering no to everything");
+        check(!SeedRules.growingWhatIsMade(Set.of(), Set.of()).isEmpty(),
+                "the mined-only rule passes a material that is neither mined nor "
+                        + "the game's own, so a seed can grow something nothing "
+                        + "in this pack supplies");
+        check(SeedRules.growingWhatIsMade(new HashSet<>(SeedRules.materials()),
+                        Set.of()).isEmpty(),
+                "the mined-only rule refuses a roster where every material is "
+                        + "mined, so it is answering yes to everything");
+
+        // Growing has to stay under the mine at every rung, which is the rule
+        // the whole module is built on, applied to the seeds that now exist.
+        for (int tier = 1; tier <= AgronomyRules.TIERS; tier++) {
+            check(AgronomyRules.plotsBefore(tier) > 0,
+                    "tier " + tier + " overtakes a mine at no size at all, so there "
+                            + "is no size of farm that is allowed");
+        }
+        check(SeedRules.chunked().size() < SeedRules.SEEDS.size(),
+                "every seed grows something this module has to invent an item for, "
+                        + "which means none of them grows anything the game or the "
+                        + "pack already has");
     }
 }

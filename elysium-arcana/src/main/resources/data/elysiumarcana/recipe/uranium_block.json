@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SS",
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "elysiumarcana:uranium_shard"
+    }
+  },
+  "result": {
+    "id": "elysiumarcana:uranium_block",
+    "count": 1
+  }
+}

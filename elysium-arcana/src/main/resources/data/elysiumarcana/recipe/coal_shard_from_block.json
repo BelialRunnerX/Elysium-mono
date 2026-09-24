@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:coal_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:coal_shard",
+    "count": 4
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "item": "elysiumagronomy:radiant_essence"
+    },
+    {
+      "tag": "c:ores/uranium"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:uranium_seed",
+    "count": 1
+  }
+}

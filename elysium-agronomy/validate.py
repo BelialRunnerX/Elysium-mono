@@ -60,25 +60,35 @@ def read(*parts):
 
 
 def squashed(text):
-    """Every run of whitespace as one space.
-
-    So that a rule can name a whole statement — "drawers.add(...); continue;" —
-    without also having to guess how it was wrapped. Naming the whole statement
-    is the point: this project has now been bitten ten times by a rule that
-    looked for a token which survives the very edit it was meant to catch,
-    because the token appears somewhere else in the same method.
-    """
-    return " ".join(text.split())
-
-
-def squashed(text):
-    """Every run of whitespace as one space, so a rule can name a whole statement.
+    """The code alone, every run of whitespace as one space.
 
     Naming the whole statement is the point: a rule that looks for a token
     which survives the very edit it was meant to catch is a rule that has never
     failed, and this project has now been bitten by that eleven times.
+
+    <p>Comments go first, and that is not cosmetic. Without it every rule in
+    this file could be defeated by putting {@code //} in front of the line it
+    names — the statement is still there, character for character, and the
+    rule goes on passing. A negative test found that by commenting out one
+    line, and it was true of every rule here rather than of one.
     """
-    return " ".join(text.split())
+    return " ".join(strip_comments(text, True).split())
+
+
+def harness_trouble(output):
+    """The lines of a harness run that say what went wrong.
+
+    A failing harness prints its sections as it goes and its failures among
+    them, and this used to be handed the first sixteen hundred characters of
+    that. Where the failing check was near the end — which it is whenever the
+    newest feature is the broken one — the failures fell off the end entirely
+    and the validator reported a wall of successful section headings. Two
+    negative tests were written against phrases that were never going to be
+    printed before anybody noticed.
+    """
+    lines = [line for line in output.splitlines()
+             if line.strip().startswith("FAIL:") or "failure(s)" in line]
+    return "\n".join(lines or output.strip().splitlines()[-12:])[:2000]
 
 
 def body_of(text, signature):
@@ -206,7 +216,7 @@ else:
             if ran is None:
                 pass
             elif ran.returncode != 0:
-                fail("the logistics harness failed:\n" + ran.stdout.strip()[:1600])
+                fail("the agronomy harness failed:\n" + harness_trouble(ran.stdout))
             else:
                 print("the arithmetic     : " + ran.stdout.strip().splitlines()[-1])
 
@@ -323,18 +333,37 @@ print("the machines        : a pot that wants light, an accelerator that shares 
 # 5. The farm in the world
 # ---------------------------------------------------------------------------
 
-GENERATOR = os.path.join(WORK, "tools/gen_agronomy.py")
-if not os.path.isfile(GENERATOR):
-    fail("there is no generator, so every asset in the module is kept by hand")
-else:
+# Both generators, in the order regen.sh runs them, into one tree.
+#
+# They share a language file: gen_agronomy writes its own keys over the whole
+# of it and gen_bees merges seventy-five bees' worth on top. Run separately
+# into separate directories they each look wrong, because each is missing what
+# the other wrote. Run in order into one directory they are exactly what is
+# committed, and that is the thing worth checking — this is how regen.sh runs
+# them and how the tree was built.
+GENERATORS = [("tools/gen_agronomy.py", "ELYSIUM_AGRONOMY_OUT"),
+              ("tools/gen_bees.py", "ELYSIUM_BEES_OUT"),
+              ("tools/gen_fish.py", "ELYSIUM_FISH_OUT"),
+              ("tools/gen_pots.py", "ELYSIUM_POTS_OUT"),
+              ("tools/gen_veins.py", "ELYSIUM_VEINS_OUT"),
+              ("tools/gen_kitchen.py", "ELYSIUM_KITCHEN_OUT")]
+for relative, _ in GENERATORS:
+    if not os.path.isfile(os.path.join(WORK, relative)):
+        fail(f"there is no {relative}, so the assets it writes are kept by hand")
+
+if all(os.path.isfile(os.path.join(WORK, relative)) for relative, _ in GENERATORS):
     with tempfile.TemporaryDirectory() as tmp:
-        environment = dict(os.environ, ELYSIUM_AGRONOMY_OUT=tmp)
-        made = subprocess.run([sys.executable, GENERATOR], capture_output=True,
-                              text=True, env=environment, cwd=WORK)
-        if made.returncode != 0:
-            fail("the generator will not run, so nothing here can be rebuilt:\n"
-                 + (made.stdout + made.stderr).strip()[:800])
-        else:
+        ran_all = True
+        for relative, variable in GENERATORS:
+            environment = dict(os.environ, **{variable: tmp})
+            made = subprocess.run([sys.executable, os.path.join(WORK, relative)],
+                                  capture_output=True, text=True, env=environment,
+                                  cwd=WORK)
+            if made.returncode != 0:
+                ran_all = False
+                fail(f"{relative} will not run, so nothing it writes can be rebuilt:\n"
+                     + (made.stdout + made.stderr).strip()[:800])
+        if ran_all:
             fresh = os.path.join(tmp, "src/main/resources")
             drifted = []
             for dirpath, _, filenames in os.walk(fresh):
@@ -346,8 +375,8 @@ else:
                     elif open(made_path, "rb").read() != open(kept, "rb").read():
                         drifted.append(os.path.relpath(made_path, fresh))
             if drifted:
-                fail(f"{len(drifted)} generated file(s) differ from what the generator "
-                     f"writes, so they were edited by hand and the next run will undo "
+                fail(f"{len(drifted)} generated file(s) differ from what the generators "
+                     f"write, so they were edited by hand and the next run will undo "
                      f"them: " + ", ".join(sorted(drifted)[:6])
                      + (" ..." if len(drifted) > 6 else ""))
 
@@ -459,18 +488,70 @@ if "tier() == 0 ? 1.0F" not in body_of(rock, "private float fed()"):
 
 # --- the ladder, in the Java and in the data ------------------------------
 
-seeds = dict(re.findall(r'SEEDS\.put\("([a-z_]+)", (\d+)\);',
-                        strip_comments(items_src, True)))
+foundry = ""
+foundry_path = os.path.join(os.path.dirname(WORK), "elysium-foundry",
+                            "src/main/java/com/elysium/foundry/rules/FoundryRules.java")
+if os.path.isfile(foundry_path):
+    foundry = open(foundry_path, encoding="utf-8").read()
+else:
+    fail("the foundry's material list is not where this expects it, so the one check "
+         "that stops a bee naming a metal this pack cannot make did not run")
+
+# There is one seed table and it is in SeedRules. There were three — here, in
+# AgronomyItems and in the generator — and three hand-written copies of thirty
+# rows is three chances for a seed to take one length of time to grow and cost
+# another to make. Both readers are checked for actually reading it.
+SEED_RULES = read(SRC, "rules/SeedRules.java")
+seed_rows = re.findall(r'mined\("([a-z_]+)", (\d+), "([^"]+)"\)',
+                       strip_comments(SEED_RULES, True))
+seeds = {material: tier for material, tier, makes in seed_rows}
 generator = read(WORK, "tools/gen_agronomy.py")
-written = dict(re.findall(r'"([a-z_]+)": \((\d+), "', generator))
 if not seeds:
     fail("no seeds are declared, so the module grows nothing")
-if seeds != written:
-    fail("the tiers in the Java and the tiers in the generator disagree: "
-         + ", ".join(f"{name} is {seeds.get(name)} and {written.get(name)}"
-                     for name in sorted(set(seeds) | set(written))
-                     if seeds.get(name) != written.get(name))
-         + " — a seed that takes one length of time to grow and costs another to make")
+# The whole loop, not the name. `SeedRules.SEEDS` also appears in the guard
+# below the loop, so a rule that names only that goes on passing when the loop
+# itself has been replaced by a hand-written list — which is exactly what a
+# negative test caught it doing.
+SEED_LOOP = ("for (com.elysium.agronomy.rules.SeedRules.Seed seed "
+             ": com.elysium.agronomy.rules.SeedRules.SEEDS) {")
+if SEED_LOOP not in squashed(items_src):
+    fail("AgronomyItems no longer walks the seed table in the rules, so the tiers it "
+         "registers and the tiers the rules describe can disagree")
+if "SeedRules.java" not in generator:
+    fail("the generator keeps its own copy of the seed table again, so a seed can "
+         "take one length of time to grow and cost another to make")
+
+# A seed may grow what the ground gives you and nothing else. An ore seed
+# competes with a pickaxe, which is priced; a steel seed competes with the
+# whole foundry and wins, because a field needs no machines.
+foundry_mined = set(re.findall(r'mined\("([a-z_]+)", \d+\)', foundry))
+foundry_made = set(re.findall(
+    r'(?:alloy|refined|grown|pure)\("([a-z_]+)"', foundry))
+games_own = re.search(r'THE_GAMES_OWN = Set\.of\(([^;]*?)\);',
+                      strip_comments(SEED_RULES, True), re.S)
+seed_vanilla = set(re.findall(r'"([a-z_]+)"', games_own.group(1))) if games_own else set()
+if not seed_vanilla:
+    fail("SeedRules declares nothing as the game's own, so every vanilla seed below "
+         "would read as a seed for something nothing makes")
+grown_not_mined = [m for m in seeds
+                   if m in foundry_made
+                   or (m not in foundry_mined and m not in seed_vanilla)]
+if grown_not_mined:
+    fail("seed(s) that grow something a machine makes rather than something the "
+         "ground gives you — a field would replace the whole foundry rather than a "
+         "pickaxe: " + ", ".join(sorted(grown_not_mined)[:8]))
+
+for rung in range(1, int(constant("TIERS", kind="int") or 0) + 1):
+    if str(rung) not in set(seeds.values()):
+        fail(f"nothing at all grows at tier {rung}, so that rung of the ladder is a "
+             f"length of time nobody ever waits")
+
+# A recipe result must be a concrete item; a tag simply fails to load.
+bad_results = [f"{m} -> {makes}" for m, t, makes in seed_rows
+               if not (makes.startswith("minecraft:") or makes.startswith(f"{NS}:"))]
+if bad_results:
+    fail("seed(s) whose essence turns into something that is not a concrete item, "
+         "so the recipe does not load at all: " + ", ".join(bad_results[:6]))
 
 essences = re.findall(r'"([a-z_]+_essence)"', strip_comments(items_src, True))
 if len(essences) != int(constant("TIERS", kind="int") or 0):
@@ -478,11 +559,145 @@ if len(essences) != int(constant("TIERS", kind="int") or 0):
          "has nothing on it")
 
 OURS = {f"{NS}:{name}" for name in registered}
+BEE_RULES = read(SRC, "rules/BeeRules.java")
+BEE_ITEMS = read(SRC, "registry/BeeItems.java")
+BEE_BLOCKS = read(SRC, "registry/BeeBlocks.java")
+BEE_ENTITIES = read(SRC, "registry/BeeEntities.java")
+BEE_MODEL = read(SRC, "client/BeeModel.java")
+
+bee_source = strip_comments(BEE_RULES, True)
+wild_rows = re.findall(r'wild\("([a-z_]+)", "([a-z_]+)", "([a-z_]+)"\)', bee_source)
+resource_rows = re.findall(r'resource\("([a-z_]+)", "([a-z_]+)", "([a-z_]+)"\)',
+                           bee_source)
+place_rows = re.findall(
+    r'place\("([a-z_]+)", "([a-z_]+)", "([a-z_]+)", "([a-z_]+)", "([a-z_]+)"\)',
+    bee_source)
+product_rows = re.findall(
+    r'product\("([a-z_]+)", "([a-z_]+)", "([a-z_]+)", "([a-z_]+)"\)', bee_source)
+
+bee_ids = ([row[0] for row in wild_rows] + [row[0] for row in resource_rows]
+           + [row[0] for row in place_rows] + [row[0] for row in product_rows])
+bee_homes = sorted({row[2] for row in wild_rows} | {row[1] for row in place_rows})
+
+OURS |= {f"{NS}:{bid}_comb" for bid in bee_ids}
+OURS |= {f"{NS}:{bid}_comb_block" for bid in bee_ids}
+OURS |= {f"{NS}:{bid}_bee_spawn_egg" for bid in bee_ids}
+OURS |= {f"{NS}:{home}_nest" for home in bee_homes}
+OURS |= {f"{NS}:{tool}" for tool in
+         ("bee_scoop", "bee_smoker", "bee_jar", "bee_treat")}
+
+FISH_RULES = read(SRC, "rules/FishRules.java")
+FISH_ITEMS = read(SRC, "registry/FishItems.java")
+FISH_ENTITIES = read(SRC, "registry/FishEntities.java")
+FISH_MODEL = read(SRC, "client/FishModel.java")
+fish_source = strip_comments(FISH_RULES, True)
+fish_families = {name: const for name, const, _, _, _ in re.findall(
+    r'public static final Family ([A-Z]+) = new Family\("([a-z_]+)", '
+    r'([A-Z]+), (\d+), ([A-Z]+)\);', fish_source)}
+fish_rows = re.findall(
+    r'fish\("([a-z_]+)", ([A-Z]+), (\d+), ([\d.]+)F, (\d+)\)', fish_source)
+fish_ids = [row[0] for row in fish_rows]
+rod_names = re.findall(r'"([a-z_]+_rod)"', strip_comments(FISH_ITEMS, True))
+
+OURS |= {f"{NS}:{fid}" for fid in fish_ids}
+OURS |= {f"{NS}:{fid}_bucket" for fid in fish_ids}
+OURS |= {f"{NS}:{fid}_spawn_egg" for fid in fish_ids}
+OURS |= {f"{NS}:{name}" for name in rod_names}
+OURS |= {f"{NS}:{family}_bait" for family in fish_families.values()}
+OURS |= {f"{NS}:fillet_knife", f"{NS}:measuring_line"}
+
+POT_RULES = read(SRC, "rules/PotRules.java")
+POT_BLOCKS = read(SRC, "registry/PotBlocks.java")
+pot_source = strip_comments(POT_RULES, True)
+
+
+def pot_listing(name):
+    found = re.search(r"public static final List<String> " + name
+                      + r" = List\.of\(([^;]*?)\);", pot_source, re.S)
+    return re.findall(r'"([a-z_]+)"', found.group(1)) if found else []
+
+
+pot_colours = pot_listing("COLOURS")
+pot_ceramics = pot_listing("CERAMICS")
+pot_stones = pot_listing("STONES")
+pot_materials = [f"{c}_{k}" for k in pot_ceramics for c in pot_colours] + pot_stones
+pot_ids = []
+for material in pot_materials:
+    pot_ids.append(material + "_botany_pot")
+    pot_ids.append(material + "_hopper_botany_pot")
+    pot_ids.append(material + "_waxed_botany_pot")
+our_soils = re.findall(r'"([a-z_]+)"', re.search(
+    r"OUR_SOILS =\s*java\.util\.List\.of\(([^;]*?)\);",
+    strip_comments(POT_BLOCKS, True)).group(1)) if "OUR_SOILS" in POT_BLOCKS else []
+pot_soils = [row[0] for row in re.findall(
+    r'new Soil\("([a-z_]+)", (\d+), ([\d.]+)F, List\.of\(([^)]*)\)\)', pot_source)]
+pot_sprouts = [row[0] for row in re.findall(
+    r'new Sprout\("([a-z_]+)", "([a-z_]+)", (\d+), "([a-z_]+)", (\d+)\)', pot_source)]
+
+OURS |= {f"{NS}:{pid}" for pid in pot_ids}
+OURS |= {f"{NS}:{soil}" for soil in our_soils}
+
+vein_rows = re.findall(r'new Vein\("([a-z_]+)", (\d+), ([\d.]+)F\)',
+                       strip_comments(read(SRC, "rules/AgronomyRules.java"), True))
+OURS |= {f"{NS}:{row[0]}_generator" for row in vein_rows}
+
+KITCHEN_RULES = read(SRC, "rules/KitchenRules.java")
+KITCHEN_ITEMS = read(SRC, "registry/KitchenItems.java")
+KITCHEN_BLOCKS = read(SRC, "registry/KitchenBlocks.java")
+kitchen_source = strip_comments(KITCHEN_RULES, True)
+kitchen_parts = [row[0] for row in re.findall(
+    r'new Ingredient\("([a-z_]+)", (\d+), ([\d.]+)F\)', kitchen_source)]
+kitchen_meals = re.findall(
+    r'new Meal\("([a-z_]+)", List\.of\(([^)]*)\),\s*'
+    r'(\d+), ([\d.]+)F, (\d+), (\d+), ([A-Z]+), "([a-z_]*)"\)', kitchen_source)
+kitchen_cuts = [row[0] for row in re.findall(
+    r'new Cut\("([a-z_]+)", "([a-z_]+)", Map\.of\(([^)]*)\)\)', kitchen_source)]
+
+
+def kitchen_listing(name):
+    found = re.search(r"public static final List<String> " + name
+                      + r" = List\.of\(([^;]*?)\);",
+                      strip_comments(KITCHEN_BLOCKS, True), re.S)
+    return re.findall(r'"([a-z_]+)"', found.group(1)) if found else []
+
+
+kitchen_woods = kitchen_listing("WOODS")
+kitchen_crated = kitchen_listing("CRATED")
+kitchen_stations = dict(re.findall(r'KitchenRules\.([A-Z]+), "([a-z_]+)"',
+                                   strip_comments(KITCHEN_BLOCKS, True)))
+kitchen_knives = re.findall(r'"([a-z_]+)"', (re.search(
+    r'String\[\] kinds = \{([^}]*)\}',
+    strip_comments(KITCHEN_ITEMS, True)) or re.match("", "")).group(1)) \
+    if re.search(r'String\[\] kinds = \{', strip_comments(KITCHEN_ITEMS, True)) else []
+
+kitchen_blocks = (list(kitchen_stations.values())
+                  + [w + "_cabinet" for w in kitchen_woods]
+                  + [c + "_crate" for c in kitchen_crated])
+
+OURS |= {f"{NS}:{part}" for part in kitchen_parts}
+OURS |= {f"{NS}:{row[0]}" for row in kitchen_meals}
+OURS |= {f"{NS}:{name}" for name in kitchen_blocks}
+OURS |= {f"{NS}:{knife}_knife" for knife in kitchen_knives}
+
+chunked = [m for m, t, makes in seed_rows if makes.startswith(f"{NS}:")]
+OURS |= {f"{NS}:{material}_chunk" for material in chunked}
+
 OURS |= {f"{NS}:{name}" for name in re.findall(r'registerSimpleItem\("([a-z_]+)"\)',
                                                strip_comments(items_src, True))}
 OURS |= {f"{NS}:{name}_seed" for name in seeds}
 OURS |= {f"{NS}:{name}" for name in essences}
 BELOW_TAGS = {f"c:plates/{m}" for m in ("iron", "copper", "gold", "steel")}
+# Every ore tag elysium-ores actually declares, read out of its own data rather
+# than listed here. A seed asks for the ore it grows, and an ore tag nothing
+# fills is a recipe that cannot be made.
+_ore_tags = os.path.join(ROOT, "elysium-ores",
+                         "src/main/resources/data/c/tags/block/ores")
+if os.path.isdir(_ore_tags):
+    BELOW_TAGS |= {"c:ores/" + name[:-5] for name in os.listdir(_ore_tags)
+                   if name.endswith(".json")}
+else:
+    fail("elysium-ores declares no ore tags where this expects them, so the seeds "
+         "ask for ores nothing is known to fill")
 below = set()
 for module, namespace in (("elysium-industry", "elysiumindustry"),
                           ("elysium-kinetics", "elysiumkinetics")):
@@ -554,6 +769,716 @@ if f'MODID = "{NS}"' not in main_class:
     fail("the module id is not what everything else in the tree spells it")
 
 print("what it declares   : the game, the library, and the grid its machines hang off")
+
+
+# ---------------------------------------------------------------------------
+# 7. Seventy-five bees, and the four hundred and twenty-eight nobody can catch
+# ---------------------------------------------------------------------------
+#
+# The jar this replaces registers 463 bee entities, of which 428 name a
+# material no installed mod makes. They have spawn eggs, combs and
+# translations, and no way on earth to obtain them. Nothing in that mod could
+# notice, because the roster was typed out rather than derived.
+#
+# So the check that matters most in this file is the one that reads the
+# foundry's own material list out of its source and refuses a bee that names
+# something this pack cannot make.
+
+if not bee_ids:
+    fail("no bees could be read out of BeeRules.java, so nothing below this line "
+         "checked anything at all")
+
+# --- the headline check: every material a bee names, the pack can make -------
+
+foundry_materials = set(re.findall(
+    r'(?:mined|alloy|refined|grown|pure)\("([a-z_]+)"', foundry))
+games_own = set(re.findall(r'THE_GAMES_OWN\s*=\s*Set\.of\(([^;]*)\);', bee_source))
+own = set(re.findall(r'"([a-z_]+)"', games_own.pop())) if games_own else set()
+
+if not own:
+    fail("BeeRules declares no list of the game's own materials, so every vanilla "
+         "resource bee below would read as a bee for a metal nothing makes")
+if not foundry_materials:
+    fail("no materials could be read out of FoundryRules, so the check that a bee "
+         "names something real did not run")
+else:
+    uncatchable = [bid for bid, _, _ in resource_rows
+                   if bid not in foundry_materials and bid not in own]
+    if uncatchable:
+        fail(f"{len(uncatchable)} resource bee(s) name a material neither the foundry "
+             f"makes nor the game ships, so they can never be obtained — which is the "
+             f"exact state the 428 dead bees in the jar this replaces are in: "
+             + ", ".join(sorted(uncatchable)[:8]))
+    unbeed = sorted(foundry_materials - {bid for bid, _, _ in resource_rows})
+    if unbeed:
+        fail(f"{len(unbeed)} material(s) the foundry makes have no bee, so the roster "
+             f"is derived from nothing in particular: " + ", ".join(unbeed[:8]))
+
+# --- the two shade() implementations have to agree --------------------------
+
+def java_hash(text):
+    value = 0
+    for char in text:
+        value = (value * 31 + ord(char)) & 0xFFFFFFFF
+    if value >= 0x80000000:
+        value -= 0x100000000
+    return abs(value)
+
+
+if "hash = hash * 31 + id.charAt(index);" not in squashed(body_of(BEE_ITEMS,
+        "static int shade(String id, int base, int spread)")):
+    fail("BeeItems.shade no longer multiplies by 31, so the colours it computes and "
+         "the ones the generator draws have stopped being the same colours")
+
+if "def java_hash(text):" not in read(WORK, "tools/gen_bees.py"):
+    fail("the generator no longer computes the Java hash, so a comb and the egg that "
+         "gives you the bee that makes it are no longer the same colour")
+
+# --- the model and the texture have to agree about where things are ---------
+
+model_body = re.search(r'texOffs\(0, 0\)', strip_comments(BEE_MODEL, True))
+model_wings = re.findall(r'texOffs\(0, (\d+)\)', strip_comments(BEE_MODEL, True))
+if model_body is None:
+    fail("BeeModel no longer puts the body at texOffs(0, 0), and the generator draws "
+         "it there — a model and a texture that disagree render as garbage rather "
+         "than as an error")
+if sorted(int(v) for v in model_wings) != [0, 12, 18]:
+    fail(f"BeeModel's texture offsets are {sorted(int(v) for v in model_wings)} and the "
+         f"generator draws into 0, 12 and 18")
+if "LayerDefinition.create(mesh, 32, 32)" not in squashed(BEE_MODEL):
+    fail("BeeModel no longer says its texture is 32 by 32, so the offsets above mean "
+         "something different from what the generator drew")
+
+# --- every bee has everything a bee needs -----------------------------------
+
+def asset(*parts):
+    return os.path.isfile(os.path.join(RES, "assets", NS, *parts))
+
+
+def datum(*parts):
+    return os.path.isfile(os.path.join(RES, "data", NS, *parts))
+
+
+missing = []
+for bid in bee_ids:
+    if not asset("models/item", bid + "_comb.json"):
+        missing.append(bid + " comb model")
+    if not asset("textures/item", bid + "_comb.png"):
+        missing.append(bid + " comb texture")
+    if not asset("models/item", bid + "_bee_spawn_egg.json"):
+        missing.append(bid + " spawn egg model")
+    if not asset("models/block", bid + "_comb_block.json"):
+        missing.append(bid + " comb block model")
+    if not asset("blockstates", bid + "_comb_block.json"):
+        missing.append(bid + " comb blockstate")
+    if not asset("models/item", bid + "_comb_block.json"):
+        missing.append(bid + " comb block item model")
+    if not asset("textures/block", bid + "_comb_block.png"):
+        missing.append(bid + " comb block texture")
+    if not asset("textures/entity/bee", bid + ".png"):
+        missing.append(bid + " entity texture")
+    if not datum("loot_table/blocks", bid + "_comb_block.json"):
+        missing.append(bid + " comb block loot")
+    if not datum("recipe", bid + "_comb_block.json"):
+        missing.append(bid + " comb block recipe")
+for home in bee_homes:
+    if not asset("models/block", home + "_nest.json"):
+        missing.append(home + " nest model")
+    if not asset("blockstates", home + "_nest.json"):
+        missing.append(home + " nest blockstate")
+    if not datum("loot_table/blocks", home + "_nest.json"):
+        missing.append(home + " nest loot")
+    for face in ("top", "side", "front"):
+        if not asset("textures/block", f"{home}_nest_{face}.png"):
+            missing.append(f"{home} nest {face} texture")
+if missing:
+    fail(f"{len(missing)} thing(s) a bee needs are not there — a bee without one is a "
+         f"registry entry a player meets as a magenta cube or an unbreakable block: "
+         + ", ".join(missing[:8]) + (" ..." if len(missing) > 8 else ""))
+
+# --- named, every one of them -----------------------------------------------
+
+unnamed = []
+for bid in bee_ids:
+    for key in (f"entity.{NS}.{bid}_bee", f"item.{NS}.{bid}_comb",
+                f"item.{NS}.{bid}_bee_spawn_egg", f"block.{NS}.{bid}_comb_block"):
+        if key not in lang:
+            unnamed.append(key)
+for home in bee_homes:
+    if f"block.{NS}.{home}_nest" not in lang:
+        unnamed.append(f"block.{NS}.{home}_nest")
+if unnamed:
+    fail(f"{len(unnamed)} bee thing(s) have no name and would show their id: "
+         + ", ".join(unnamed[:6]) + (" ..." if len(unnamed) > 6 else ""))
+
+# --- the registries count themselves ----------------------------------------
+
+# The whole statement, not the throw inside it. A rule that names only
+# `throw new IllegalStateException` goes on passing when somebody writes
+# `if (false)` in front of it, which is the fifteenth time this project has
+# been caught by that and the reason check_rules.py exists.
+# The whole statement, condition and all. Naming only the throw is half a
+# statement — `if (false)` in front of it leaves the throw exactly where it is
+# and the rule goes on passing — and check_rules.py refuses that, which is how
+# this rule came to be written properly on the second attempt.
+COUNTED = re.compile(
+    r"if \(made\.size\(\) != [A-Za-z_][A-Za-z0-9_.()]*\)"
+    r" \{ throw new IllegalStateException\(")
+
+
+def unguarded(source, where):
+    """Every registerX() in a file that does not count what it built.
+
+    Looking for the guard anywhere in the file is not enough, and was written
+    that way first: a file with three registration methods goes on passing
+    when one of them loses its guard. Each method is looked at on its own.
+    """
+    body = squashed(source)
+    bad = []
+    for name in re.findall(r"\b(register[A-Za-z]*)\(\) \{", body):
+        if not COUNTED.search(body_of(body, name + "() {")):
+            bad.append(f"{where}.{name}")
+    return bad
+
+
+ungated = []
+for where, source in (("BeeEntities", BEE_ENTITIES), ("BeeItems", BEE_ITEMS),
+                      ("BeeBlocks", BEE_BLOCKS)):
+    ungated.extend(unguarded(source, where))
+if ungated:
+    fail("registration method(s) that do not count what they built against the "
+         "roster, so seventy-four of seventy-five would ship and be found by "
+         "whoever breeds the seventy-fifth: " + ", ".join(ungated))
+
+# Inside register() specifically. BeeEntities walks the roster three times —
+# to register, to give attributes, to place spawns — so a rule that just looks
+# for the loop anywhere in the file goes on passing while the one loop that
+# matters has been narrowed to the first three bees.
+REGISTERING = body_of(squashed(BEE_ENTITIES), "register() {")
+if not REGISTERING:
+    fail("BeeEntities has no register() this can read, so nothing below checked "
+         "what it registers")
+elif "for (BeeRules.Bee bee : BeeRules.BEES) {" not in REGISTERING:
+    fail("BeeEntities.register no longer walks the whole roster, so the entity types "
+         "and the rules can disagree about which bees exist")
+
+# --- the entity textures are the size the model says ------------------------
+
+wrong_size = []
+for bid in bee_ids[:200]:
+    path = os.path.join(RES, "assets", NS, "textures/entity/bee", bid + ".png")
+    if os.path.isfile(path):
+        header = open(path, "rb").read(33)
+        if len(header) >= 33:
+            width = int.from_bytes(header[16:20], "big")
+            height = int.from_bytes(header[20:24], "big")
+            if (width, height) != (32, 32):
+                wrong_size.append(f"{bid} is {width}x{height}")
+if wrong_size:
+    fail("entity texture(s) are not the 32 by 32 the model bakes against: "
+         + ", ".join(wrong_size[:5]))
+
+# --- and the generator has to be the only author ----------------------------
+
+print(f"bees               : {len(bee_ids)} species in {len(bee_homes)} home(s), "
+      f"every resource bee naming a material the foundry makes or the game ships, "
+      f"and {len(foundry_materials)} of {len(foundry_materials)} foundry materials "
+      f"with a bee of their own")
+
+
+# ---------------------------------------------------------------------------
+# 8. A hundred and five fish, and whether any of them can be caught
+# ---------------------------------------------------------------------------
+
+if not fish_ids:
+    fail("no fish could be read out of FishRules.java, so nothing below this line "
+         "checked anything at all")
+if len(fish_families) != 11:
+    fail(f"{len(fish_families)} fish famil(ies) were read where eleven were written, "
+         f"so the roster's shape has changed and the generator is reading it wrong")
+
+missing_fish = []
+for fid in fish_ids:
+    if not asset("models/item", fid + ".json"):
+        missing_fish.append(fid + " item model")
+    if not asset("textures/item", fid + ".png"):
+        missing_fish.append(fid + " item texture")
+    if not asset("models/item", fid + "_bucket.json"):
+        missing_fish.append(fid + " bucket model")
+    if not asset("textures/item", fid + "_bucket.png"):
+        missing_fish.append(fid + " bucket texture")
+    if not asset("models/item", fid + "_spawn_egg.json"):
+        missing_fish.append(fid + " spawn egg model")
+    if not asset("textures/entity/fish", fid + ".png"):
+        missing_fish.append(fid + " entity texture")
+if missing_fish:
+    fail(f"{len(missing_fish)} thing(s) a fish needs are not there — a fish without "
+         f"one is a magenta cube in the water or an item with no picture: "
+         + ", ".join(missing_fish[:8]) + (" ..." if len(missing_fish) > 8 else ""))
+
+unnamed_fish = []
+for fid in fish_ids:
+    for key in (f"entity.{NS}.{fid}", f"item.{NS}.{fid}",
+                f"item.{NS}.{fid}_bucket", f"item.{NS}.{fid}_spawn_egg"):
+        if key not in lang:
+            unnamed_fish.append(key)
+for name in rod_names:
+    if f"item.{NS}.{name}" not in lang:
+        unnamed_fish.append(f"item.{NS}.{name}")
+for family in fish_families.values():
+    if f"item.{NS}.{family}_bait" not in lang:
+        unnamed_fish.append(f"item.{NS}.{family}_bait")
+if unnamed_fish:
+    fail(f"{len(unnamed_fish)} fish thing(s) have no name and would show their id: "
+         + ", ".join(unnamed_fish[:6]) + (" ..." if len(unnamed_fish) > 6 else ""))
+
+# A rod per rung, or a rung of the ladder the rules describe cannot be held.
+rungs = re.search(r"public static final int RODS = (\d+);", fish_source)
+if rungs is None:
+    fail("FishRules no longer says how many rungs of rod there are")
+elif len(rod_names) != int(rungs.group(1)):
+    fail(f"the rules describe {rungs.group(1)} rungs of rod and {len(rod_names)} rod(s) "
+         f"are registered, so a rung of the ladder cannot be held and its tilt does "
+         f"nothing")
+
+# A bait per family, or a habitat cannot be fished for on purpose.
+baits = set(re.findall(r'family\.name\(\) \+ "_bait"', strip_comments(FISH_ITEMS, True)))
+if not baits:
+    fail("the baits are no longer one per family, so some habitat has no bait and "
+         "cannot be fished for on purpose")
+
+ungated_fish = []
+for where, source in (("FishEntities", FISH_ENTITIES), ("FishItems", FISH_ITEMS)):
+    ungated_fish.extend(unguarded(source, where))
+if ungated_fish:
+    fail("registration method(s) that do not count what they built against the "
+         "roster, so a hundred and four of a hundred and five would ship: "
+         + ", ".join(ungated_fish))
+
+FISH_REGISTERING = body_of(squashed(FISH_ENTITIES), "register() {")
+if not FISH_REGISTERING:
+    fail("FishEntities has no register() this can read")
+elif "for (FishRules.Fish one : FishRules.FISH) {" not in FISH_REGISTERING:
+    fail("FishEntities.register no longer walks the whole roster, so the entity types "
+         "and the rules can disagree about which fish exist")
+
+fish_offsets = sorted(int(v) for v in re.findall(r'texOffs\(0, (\d+)\)',
+                                                 strip_comments(FISH_MODEL, True)))
+if fish_offsets != [0, 8]:
+    fail(f"FishModel's texture offsets are {fish_offsets} and the generator draws into "
+         f"0 and 8 — a model and a texture that disagree render as garbage rather than "
+         f"as an error")
+if "LayerDefinition.create(mesh, 32, 32)" not in squashed(FISH_MODEL):
+    fail("FishModel no longer says its texture is 32 by 32, so the offsets above mean "
+         "something different from what the generator drew")
+
+# The hitbox and the drawn size both come from the length, or a fish looks
+# nothing like the thing you are standing next to.
+if "one.length() / 100.0F" not in squashed(FISH_ENTITIES):
+    fail("FishEntities no longer sizes a fish from its own length, so the hitbox is a "
+         "number somebody chose and will stop matching the roster")
+if "fish.rules().length() / MODEL_CENTIMETRES" not in squashed(
+        read(SRC, "client/FishRenderer.java")):
+    fail("FishRenderer no longer scales a fish by its own length, so what you see and "
+         "what you bump into are two different sizes")
+
+wrong_fish_size = []
+for fid in fish_ids[:200]:
+    path = os.path.join(RES, "assets", NS, "textures/entity/fish", fid + ".png")
+    if os.path.isfile(path):
+        header = open(path, "rb").read(33)
+        if len(header) >= 33:
+            width = int.from_bytes(header[16:20], "big")
+            height = int.from_bytes(header[20:24], "big")
+            if (width, height) != (32, 32):
+                wrong_fish_size.append(f"{fid} is {width}x{height}")
+if wrong_fish_size:
+    fail("fish entity texture(s) are not the 32 by 32 the model bakes against: "
+         + ", ".join(wrong_fish_size[:5]))
+
+print(f"fish               : {len(fish_ids)} species across {len(fish_families)} "
+      f"famil(ies), {len(rod_names)} rod(s) and a bait apiece, every one of them "
+      f"modelled, bucketed, named and catchable")
+
+
+# ---------------------------------------------------------------------------
+# 9. A hundred and sixty-five pots, and the soil that goes in them
+# ---------------------------------------------------------------------------
+
+if not pot_ids:
+    fail("no pots could be read out of PotRules.java, so nothing below this line "
+         "checked anything at all")
+if len(pot_colours) != 16:
+    fail(f"{len(pot_colours)} dyes were read where sixteen were written, so the "
+         f"catalogue has lost a colour and only the player who wanted it finds out")
+
+expected_pots = len(pot_materials) * 3
+if len(pot_ids) != expected_pots:
+    fail(f"{len(pot_ids)} pots were derived where {expected_pots} were expected — "
+         f"every material has three fittings or half the catalogue is missing")
+
+registered_pots = set(re.findall(r'BLOCKS\.register\(pot\.id\(\)',
+                                 strip_comments(POT_BLOCKS, True)))
+if not registered_pots:
+    fail("PotBlocks no longer registers a block per pot id, so the catalogue and "
+         "the registry can disagree about which pots exist")
+if "for (PotRules.Pot pot : PotRules.catalogue()) {" not in squashed(POT_BLOCKS):
+    fail("PotBlocks no longer walks the catalogue, so the pots are written out "
+         "rather than derived")
+
+ungated_pots = unguarded(POT_BLOCKS, "PotBlocks")
+if ungated_pots:
+    fail("pot registration method(s) that do not count what they built: "
+         + ", ".join(ungated_pots))
+
+# A pot that cannot grow anything is an ornament, and the difference is
+# invisible until somebody plants in one. The catalogue blocks have to be
+# PotBlocks, their block entity type has to name them, and their blockstates
+# have to carry the age property that block declares — a blockstate with one
+# variant against a block with a property is a file the game refuses to load.
+if "new com.elysium.agronomy.block.PotBlock(" not in squashed(POT_BLOCKS):
+    fail("the catalogue pots are plain blocks, so a hundred and sixty-five of them "
+         "can be placed and filled and will grow nothing at all")
+entities_src = read(SRC, "registry/AgronomyBlockEntities.java")
+if "for (com.elysium.agronomy.rules.PotRules.Pot pot " \
+        ": com.elysium.agronomy.rules.PotRules.catalogue()) {" \
+        not in squashed(entities_src):
+    fail("the pot block entity type no longer names the whole catalogue, so some "
+         "pots attach no block entity and silently do nothing")
+
+missing_pots = []
+for pid in pot_ids:
+    for step in range(4):
+        if not asset("models/block", f"{pid}_{step}.json"):
+            missing_pots.append(f"{pid} model at age {step}")
+    states = os.path.join(RES, "assets", NS, "blockstates", pid + ".json")
+    if os.path.isfile(states):
+        variants = json.load(open(states, encoding="utf-8")).get("variants", {})
+        if set(variants) != {f"age={step}" for step in range(4)}:
+            missing_pots.append(pid + " blockstate has "
+                                + ", ".join(sorted(variants)) + " rather than four ages")
+    if not asset("blockstates", pid + ".json"):
+        missing_pots.append(pid + " blockstate")
+    if not asset("models/item", pid + ".json"):
+        missing_pots.append(pid + " item model")
+    if not asset("textures/block", pid + ".png"):
+        missing_pots.append(pid + " texture")
+    if not datum("loot_table/blocks", pid + ".json"):
+        missing_pots.append(pid + " loot")
+    if not datum("recipe", pid + ".json"):
+        missing_pots.append(pid + " recipe")
+for soil in our_soils:
+    if not asset("textures/block", soil + ".png"):
+        missing_pots.append(soil + " texture")
+    if not asset("blockstates", soil + ".json"):
+        missing_pots.append(soil + " blockstate")
+    if not datum("recipe", soil + ".json"):
+        missing_pots.append(soil + " recipe")
+if missing_pots:
+    fail(f"{len(missing_pots)} thing(s) a pot needs are not there: "
+         + ", ".join(missing_pots[:8]) + (" ..." if len(missing_pots) > 8 else ""))
+
+unnamed_pots = [pid for pid in pot_ids if f"block.{NS}.{pid}" not in lang]
+unnamed_pots += [s for s in our_soils if f"block.{NS}.{s}" not in lang]
+if unnamed_pots:
+    fail(f"{len(unnamed_pots)} pot thing(s) have no name and would show their id: "
+         + ", ".join(unnamed_pots[:6]) + (" ..." if len(unnamed_pots) > 6 else ""))
+
+# Every soil in the table is a block somebody can actually get, whether the
+# game's or ours. A rung of the ladder a player can read about and never build
+# is the same hole as a bee for a metal nothing makes.
+soil_files = os.path.join(RES, "data", NS, "botany_soil")
+if not os.path.isdir(soil_files):
+    fail("the soils are not written out as data, so a pack cannot add one without "
+         "a compiler")
+else:
+    written = {name[:-5] for name in os.listdir(soil_files) if name.endswith(".json")}
+    if written != set(pot_soils):
+        fail(f"the soils in the rules and the soils on disk disagree: "
+             f"{sorted(set(pot_soils) ^ written)[:6]}")
+    homeless = []
+    for name in sorted(written):
+        block = json.load(open(os.path.join(soil_files, name + ".json"),
+                               encoding="utf-8")).get("block", "")
+        if block.startswith(f"{NS}:") and block.split(":", 1)[1] not in our_soils:
+            homeless.append(name)
+    if homeless:
+        fail("soil(s) the table says are ours and nothing registers: "
+             + ", ".join(homeless))
+
+sprout_files = os.path.join(RES, "data", NS, "botany_sprout")
+if not os.path.isdir(sprout_files):
+    fail("the sprouts are not written out as data")
+else:
+    written = {name[:-5] for name in os.listdir(sprout_files) if name.endswith(".json")}
+    if written != set(pot_sprouts):
+        fail(f"the sprouts in the rules and the sprouts on disk disagree: "
+             f"{sorted(set(pot_sprouts) ^ written)[:6]}")
+
+print(f"pots               : {len(pot_ids)} across {len(pot_materials)} material(s) "
+      f"with all three fittings, {len(pot_soils)} soil(s) of which {len(our_soils)} "
+      f"are ours, and {len(pot_sprouts)} sprout(s), each written out as data")
+
+
+# ---------------------------------------------------------------------------
+# 10. Seven generators, and the reason a generator is not a mine
+# ---------------------------------------------------------------------------
+
+if not vein_rows:
+    fail("no veins could be read out of AgronomyRules.java, so nothing below this "
+         "line checked anything at all")
+
+vein_at_most = re.search(r"VEIN_AT_MOST = ([\d.]+)F;",
+                         strip_comments(read(SRC, "rules/AgronomyRules.java"), True))
+if vein_at_most is None:
+    fail("there is no line above which a generator out-earns a mine, so the seven "
+         "generators are priced by taste")
+else:
+    ceiling = float(vein_at_most.group(1))
+    over = [m for m, t, s in vein_rows if m != "stone" and float(s) > ceiling]
+    if over:
+        fail(f"generator(s) worth more than {ceiling} of a mine, which is the most "
+             f"direct way there is to make three ages of ore ladder pointless: "
+             + ", ".join(over))
+
+shares = [float(s) for m, t, s in vein_rows]
+if shares != sorted(shares, reverse=True):
+    fail("the veins do not get slower as the material gets better, so the cheap "
+         "ones are decoration")
+tiers = [int(t) for m, t, s in vein_rows]
+if tiers != sorted(tiers):
+    fail("a dearer material needs a cheaper generator than a commoner one, so the "
+         "ladder runs backwards")
+
+missing_veins = []
+for material, tier, share in vein_rows:
+    name = material + "_generator"
+    if not asset("models/block", name + ".json"):
+        missing_veins.append(name + " model")
+    if not asset("blockstates", name + ".json"):
+        missing_veins.append(name + " blockstate")
+    if not asset("models/item", name + ".json"):
+        missing_veins.append(name + " item model")
+    for face in ("side", "top"):
+        if not asset("textures/block", f"{name}_{face}.png"):
+            missing_veins.append(f"{name} {face} texture")
+    if not datum("loot_table/blocks", name + ".json"):
+        missing_veins.append(name + " loot")
+    if not datum("recipe", name + ".json"):
+        missing_veins.append(name + " recipe")
+    if f"block.{NS}.{name}" not in lang:
+        missing_veins.append(name + " name")
+if missing_veins:
+    fail(f"{len(missing_veins)} thing(s) a generator needs are not there: "
+         + ", ".join(missing_veins[:8]) + (" ..." if len(missing_veins) > 8 else ""))
+
+# The whole loop header, VEINS and all. Naming only its first half is half a
+# statement: narrowing the list to `VEINS.subList(0, 3)` leaves the prefix
+# exactly where it is and three of seven generators ship.
+VEIN_LOOP = ("for (com.elysium.agronomy.rules.AgronomyRules.Vein vein "
+             ": com.elysium.agronomy.rules.AgronomyRules.VEINS) {")
+for where, source in (("AgronomyBlocks", blocks_src), ("AgronomyItems", items_src)):
+    body = squashed(source)
+    if VEIN_LOOP not in body:
+        fail(f"{where} no longer walks the whole vein table, so the generators are "
+             f"written out rather than derived, or some of them are missing")
+    if not COUNTED.search(body_of(body, "registerVeins() {")):
+        fail(f"{where}.registerVeins does not count what it built against the table, "
+             f"so six of seven would ship")
+
+# Every vein says what comes out of it. This was not so at first: all seven
+# generators were built with a tier and nothing else, so the gold one made
+# cobblestone and nothing would have said so until somebody built one and
+# waited an hour.
+rock_block = read(SRC, "block/RockGeneratorBlock.java")
+from_vein = re.search(r"FROM_VEIN = Map\.of\(([^;]*?)\);",
+                      strip_comments(rock_block, True), re.S)
+if from_vein is None:
+    fail("RockGeneratorBlock no longer says what comes out of each vein, so every "
+         "generator in the table makes the same thing")
+else:
+    named = set(re.findall(r'"([a-z_]+)",\s*Items\.', from_vein.group(1)))
+    unsaid = [m for m, t, sh in vein_rows if m not in named]
+    if unsaid:
+        fail("vein(s) with nothing said about what comes out of them, so they make "
+             "cobblestone like everything else: " + ", ".join(unsaid))
+    spare = sorted(named - {m for m, t, sh in vein_rows})
+    if spare:
+        fail("thing(s) named as coming out of a vein that is not in the table: "
+             + ", ".join(spare))
+
+if "new RockGeneratorBlock(steel(), vein)" not in squashed(blocks_src):
+    fail("the vein generators are no longer built from their vein, so they are seven "
+         "copies of the same block with different sides")
+
+print(f"generators         : {len(vein_rows)} vein(s), each under {vein_at_most.group(1) if vein_at_most else '?'} "
+      f"of a mine and each slower than the vein below it")
+
+
+# ---------------------------------------------------------------------------
+# 11. A kitchen, and whether more than three of its meals are worth making
+# ---------------------------------------------------------------------------
+
+if not kitchen_meals:
+    fail("no meals could be read out of KitchenRules.java, so nothing below this "
+         "line checked anything at all")
+if not kitchen_knives:
+    fail("no knives could be read out of KitchenItems.java, so the cutting board "
+         "has nothing to cut with")
+
+# Every effect a meal names is an effect the game has. A meal naming one that
+# is not mapped would silently have no effect at all, which is the one thing
+# that could make two meals identical after the harness has proved they are not.
+named_effects = {row[7] for row in kitchen_meals if row[7]}
+mapped = set(re.findall(r'Map\.entry\("([a-z_]+)", MobEffects\.',
+                        strip_comments(KITCHEN_ITEMS, True)))
+unmapped = sorted(named_effects - mapped)
+if unmapped:
+    fail("meal effect(s) with nothing in the game behind them, so those meals "
+         "silently do nothing and two meals the harness proved different become "
+         "the same: " + ", ".join(unmapped))
+spare_effects = sorted(mapped - named_effects)
+if spare_effects:
+    fail("effect(s) mapped to the game that no meal ever names: "
+         + ", ".join(spare_effects))
+
+ungated_kitchen = unguarded(KITCHEN_ITEMS, "KitchenItems")
+ungated_kitchen += unguarded(KITCHEN_BLOCKS, "KitchenBlocks")
+if ungated_kitchen:
+    fail("kitchen registration method(s) that do not count what they built: "
+         + ", ".join(ungated_kitchen))
+
+# A station in the rules has a block, or meals are cooked on nothing.
+for station in ("POT", "SKILLET", "BOARD", "OVEN"):
+    if station not in kitchen_stations:
+        fail(f"meals are cooked on the {station.lower()} and no block is registered "
+             f"for one")
+
+missing_kitchen = []
+for part in kitchen_parts:
+    if not asset("models/item", part + ".json"):
+        missing_kitchen.append(part + " model")
+    if not asset("textures/item", part + ".png"):
+        missing_kitchen.append(part + " texture")
+for row in kitchen_meals:
+    if not asset("models/item", row[0] + ".json"):
+        missing_kitchen.append(row[0] + " model")
+    if not asset("textures/item", row[0] + ".png"):
+        missing_kitchen.append(row[0] + " texture")
+    if not datum("cooking", row[0] + ".json"):
+        missing_kitchen.append(row[0] + " cooking recipe")
+for name in kitchen_blocks:
+    if not asset("blockstates", name + ".json"):
+        missing_kitchen.append(name + " blockstate")
+    if not datum("loot_table/blocks", name + ".json"):
+        missing_kitchen.append(name + " loot")
+    if not datum("recipe", name + ".json"):
+        missing_kitchen.append(name + " recipe")
+for knife in kitchen_knives:
+    if not asset("models/item", knife + "_knife.json"):
+        missing_kitchen.append(knife + " knife model")
+    if not datum("recipe", knife + "_knife.json"):
+        missing_kitchen.append(knife + " knife recipe")
+for cut in kitchen_cuts:
+    if not datum("cutting", cut + ".json"):
+        missing_kitchen.append(cut + " cutting recipe")
+if missing_kitchen:
+    fail(f"{len(missing_kitchen)} thing(s) the kitchen needs are not there: "
+         + ", ".join(missing_kitchen[:8]) + (" ..." if len(missing_kitchen) > 8 else ""))
+
+unnamed_kitchen = [p for p in kitchen_parts if f"item.{NS}.{p}" not in lang]
+unnamed_kitchen += [r[0] for r in kitchen_meals if f"item.{NS}.{r[0]}" not in lang]
+unnamed_kitchen += [n for n in kitchen_blocks if f"block.{NS}.{n}" not in lang]
+if unnamed_kitchen:
+    fail(f"{len(unnamed_kitchen)} kitchen thing(s) have no name: "
+         + ", ".join(unnamed_kitchen[:6]) + (" ..." if len(unnamed_kitchen) > 6 else ""))
+
+# The cooking recipes on disk say what the rules say. A pack can add a meal by
+# dropping a file in, so the two have to be checked against each other rather
+# than assumed to agree.
+cooking_dir = os.path.join(RES, "data", NS, "cooking")
+if not os.path.isdir(cooking_dir):
+    fail("the meals are not written out as data, so a pack cannot add one without "
+         "a compiler")
+else:
+    on_disk = {name[:-5] for name in os.listdir(cooking_dir) if name.endswith(".json")}
+    in_rules = {row[0] for row in kitchen_meals}
+    if on_disk != in_rules:
+        fail("the meals in the rules and the meals on disk disagree: "
+             + ", ".join(sorted(on_disk ^ in_rules)[:6]))
+    else:
+        drifted_meals = []
+        for row in kitchen_meals:
+            written = json.load(open(os.path.join(cooking_dir, row[0] + ".json"),
+                                     encoding="utf-8"))
+            if (written.get("ticks") != int(row[4])
+                    or written.get("servings") != int(row[5])
+                    or written.get("station") != row[6].lower()
+                    or written.get("effect") != row[7]):
+                drifted_meals.append(row[0])
+        if drifted_meals:
+            fail("meal(s) whose data file says something different from the rules: "
+                 + ", ".join(drifted_meals[:6]))
+
+print(f"kitchen            : {len(kitchen_meals)} meal(s) across "
+      f"{len(kitchen_stations)} station(s) with {len(named_effects)} effect(s), "
+      f"{len(kitchen_parts)} ingredient(s), {len(kitchen_cuts)} cut(s) and "
+      f"{len(kitchen_blocks)} block(s), none of them pointless")
+
+
+# ---------------------------------------------------------------------------
+# 12. A diet, and the book that shows it
+# ---------------------------------------------------------------------------
+#
+# The bonus is an attribute modifier with a stable id, replaced rather than
+# added. A modifier added twice is a player who ate the same apple twice and
+# got paid for it, and that is the single bug this mechanic is most likely to
+# have.
+
+DIET_EVENTS = read(SRC, "event/DietEvents.java")
+DIET_ATTACH = read(SRC, "registry/DietAttachments.java")
+diet = squashed(DIET_EVENTS)
+
+if "health.removeModifier(VARIETY);" not in diet:
+    fail("the diet bonus is added without the old one being taken off, so a player "
+         "who eats two new things has two bonuses and one of them is for ever")
+if "addPermanentModifier" not in diet:
+    fail("the diet bonus is not permanent, so it is gone the next time the player "
+         "logs in and the mechanic silently does nothing")
+if "AttributeModifier.Operation.ADD_VALUE" not in diet:
+    fail("the diet bonus is not a flat addition, so its size depends on what else "
+         "the player is wearing")
+if "AgronomyRules.extraHealth(" not in diet:
+    fail("the diet bonus is a number of its own rather than the one the rules "
+         "compute, so retuning the rule changes nothing anybody has")
+if "player.getHealth() > player.getMaxHealth()" not in diet:
+    fail("nothing clamps a player's health when the bonus shrinks, so retuning the "
+         "rule downwards leaves players above their own maximum")
+
+attach = squashed(DIET_ATTACH)
+if "new LinkedHashSet<>(" not in attach:
+    fail("what a player has eaten is not kept as a set, so eating thirty loaves of "
+         "bread is worth as much as eating thirty different things — which is the "
+         "exact behaviour the bonus exists to discourage")
+if ".copyOnDeath()" not in attach:
+    fail("what a player has eaten is lost on death, so the mechanic is a punishment "
+         "for dying rather than a reward for exploring")
+
+if not asset("models/item", "food_book.json"):
+    fail("the food book has no model")
+if not asset("textures/item", "food_book.png"):
+    fail("the food book has no texture")
+if not datum("recipe", "food_book.json"):
+    fail("the food book cannot be made")
+if f"item.{NS}.food_book" not in lang:
+    fail("the food book has no name")
+for line in ("elysiumagronomy.diet.read", "elysiumagronomy.diet.tip"):
+    if line not in lang:
+        fail(f"the book says {line}, which is not translated, so it shows the key")
+
+print(f"the diet             : {constant('FOODS_FOR_FULL', kind='int')} different "
+      f"foods for {constant('MOST_EXTRA_HEARTS', kind='int')} hearts, kept as a set, "
+      f"surviving death, and applied as one modifier that replaces itself")
 
 if problems:
     print(f"{len(problems)} PROBLEM(S):")

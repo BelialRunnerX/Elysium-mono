@@ -1,0 +1,6 @@
+{
+  "needs": "hardy",
+  "ticks": 2400,
+  "drop": "sweet_berries",
+  "amount": 3
+}

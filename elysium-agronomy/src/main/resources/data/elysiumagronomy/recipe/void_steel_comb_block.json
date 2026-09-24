@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CCC",
+    "CCC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "elysiumagronomy:void_steel_comb"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:void_steel_comb_block",
+    "count": 1
+  }
+}

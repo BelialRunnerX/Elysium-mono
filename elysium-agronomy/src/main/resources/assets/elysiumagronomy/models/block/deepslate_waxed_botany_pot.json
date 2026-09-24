@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "elysiumagronomy:block/deepslate_botany_pot_top",
+    "side": "elysiumagronomy:block/deepslate_waxed_botany_pot",
+    "bottom": "elysiumagronomy:block/deepslate_waxed_botany_pot"
+  }
+}
