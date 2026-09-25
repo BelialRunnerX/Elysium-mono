@@ -1,0 +1,18 @@
+{
+  "type": "elysiumkinetics:sawing",
+  "input": {
+    "item": "minecraft:wheat"
+  },
+  "result": {
+    "id": "elysiumagronomy:dough",
+    "count": 1
+  },
+  "ticks": 120,
+  "pace": "steady",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "elysiumagronomy"
+    }
+  ]
+}

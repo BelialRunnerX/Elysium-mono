@@ -40,7 +40,7 @@ import java.util.Set;
  * A rule that only looked at these would be a rule that cannot see the loop
  * that matters, because the way back is almost always a crafting recipe the
  * game already ships: we mill a sandstone into sand and the game presses four
- * sand back into a sandstone. So {@link #THE_GAMES_WAY_BACK} names every
+ * sand back into a sandstone. So {@link #THE_GAMES_ROUTES} names every
  * recipe the game has that turns something these make back into something
  * these take, and {@code validate.py} reads the game's own jar to check both
  * that each one is really what the game does and — the half that matters —
@@ -93,25 +93,40 @@ public final class ProcessRules {
     }
 
     /**
-     * One recipe the game already has that closes a loop with one of ours.
+     * One recipe the game itself ships whose result and at least one
+     * ingredient are both in this graph.
      *
-     * @param input  what the game's recipe takes
-     * @param takes  how many of it
-     * @param output what the game's recipe makes
-     * @param makes  how many of that
+     * @param recipe which of the game's recipes this is
+     * @param input  the ingredient of it that is in this graph
+     * @param takes  how many of that ingredient it uses
+     * @param output what it makes
+     * @param makes  how many of that it makes
      */
-    public record Reversal(String input, int takes, String output, int makes) {
+    public record Route(String recipe, String input, int takes,
+                        String output, int makes) {
 
-        public Reversal {
+        public Route {
+            Objects.requireNonNull(recipe, "a route with no recipe");
             if (takes <= 0 || makes <= 0) {
-                throw new IllegalArgumentException(input + " -> " + output
-                        + " is not a recipe");
+                throw new IllegalArgumentException(recipe + " takes " + takes
+                        + " and makes " + makes + ", which is not a recipe");
             }
         }
 
         /** How many outputs one input is worth. */
         public double rate() {
             return (double) makes / takes;
+        }
+    }
+
+    /** One item that is a member of one tag these recipes read from. */
+    public record Membership(String item, String tag) {
+
+        public Membership {
+            Objects.requireNonNull(item, "a member of a tag that is nothing");
+            if (!Objects.requireNonNull(tag, "a member of no tag").startsWith("#")) {
+                throw new IllegalArgumentException(tag + " is not a tag");
+            }
         }
     }
 
@@ -255,31 +270,57 @@ public final class ProcessRules {
     // ==================================================================
 
     /**
-     * Every recipe the game ships that turns something these make back into
-     * something these take.
+     * Every recipe the game itself ships that lives inside this graph.
      *
-     * <p>Not a selection. {@code validate.py} walks every recipe in the
-     * game's jar and fails if one of them closes a loop with these and is not
-     * named here, which is what stops this being a list of the loops somebody
-     * happened to think of.
+     * <p>Not a selection, and not the ones somebody thought of. {@code
+     * validate.py} walks all 1,290 recipes in the game's own jar and fails if
+     * any recipe whose result and one of whose ingredients are both nodes
+     * here is missing from this list — and checks each of these against the
+     * recipe file it names, counting a shaped recipe's pattern rather than
+     * believing the number written here.
+     *
+     * <p>Three of them close a loop that comes back with exactly what it left
+     * with: nine bamboo into a block and nine out again, nine wheat into a
+     * bale and nine out again, and deepslate cobbled and smelted back. Those
+     * three sit exactly on the line this rule draws, which is what makes the
+     * line worth drawing.
      */
-    public static final List<Reversal> THE_GAMES_WAY_BACK = List.of(
-            new Reversal("minecraft:sand", 4, "minecraft:sandstone", 1),
-            new Reversal("minecraft:bamboo", 9, "minecraft:bamboo_block", 1),
-            new Reversal("minecraft:wheat", 9, "minecraft:hay_block", 1),
-            new Reversal("minecraft:hay_block", 1, "minecraft:wheat", 9),
-            new Reversal("minecraft:cobbled_deepslate", 1, "minecraft:deepslate", 1));
+    public static final List<Route> THE_GAMES_ROUTES = List.of(
+            new Route("minecraft:bamboo_block", "minecraft:bamboo", 9,
+                    "minecraft:bamboo_block", 1),
+            new Route("minecraft:blaze_powder", "minecraft:blaze_rod", 1,
+                    "minecraft:blaze_powder", 2),
+            new Route("minecraft:bone_meal", "minecraft:bone", 1,
+                    "minecraft:bone_meal", 3),
+            new Route("minecraft:deepslate", "minecraft:cobbled_deepslate", 1,
+                    "minecraft:deepslate", 1),
+            new Route("minecraft:green_dye", "minecraft:cactus", 1,
+                    "minecraft:green_dye", 1),
+            new Route("minecraft:hay_block", "minecraft:wheat", 9,
+                    "minecraft:hay_block", 1),
+            new Route("minecraft:paper", "minecraft:sugar_cane", 3,
+                    "minecraft:paper", 3),
+            new Route("minecraft:sandstone", "minecraft:sand", 4,
+                    "minecraft:sandstone", 1),
+            new Route("minecraft:stick", "#minecraft:planks", 2,
+                    "minecraft:stick", 4),
+            new Route("minecraft:stick_from_bamboo_item", "minecraft:bamboo", 2,
+                    "minecraft:stick", 1),
+            new Route("minecraft:sugar_from_sugar_cane", "minecraft:sugar_cane", 1,
+                    "minecraft:sugar", 1),
+            new Route("minecraft:wheat", "minecraft:hay_block", 1,
+                    "minecraft:wheat", 9));
 
     /**
-     * Which of our outputs belong to which of the tags our inputs name.
+     * Which of our items belong to which of the tags our recipes read from.
      *
-     * <p>A tag is a node in the graph like anything else, and an output that
+     * <p>A tag is a node in this graph like anything else, and an output that
      * is a member of a tag another recipe reads from is an edge nobody would
-     * think to draw — which is exactly the sort of edge a loop hides behind.
-     * Checked against the game's own tag files.
+     * think to draw — which is exactly where a loop hides. Checked against
+     * the game's own tag files.
      */
-    public static final List<Reversal> IN_TAG = List.of(
-            new Reversal("minecraft:oak_planks", 1, "#minecraft:planks", 1));
+    public static final List<Membership> IN_TAG = List.of(
+            new Membership("minecraft:oak_planks", "#minecraft:planks"));
 
     // ==================================================================
     // What has to be true of all of it
@@ -289,12 +330,20 @@ public final class ProcessRules {
     public static List<String> faults() {
         List<String> bad = new ArrayList<>();
         bad.addAll(faultsInSteps(EVERYTHING));
-        bad.addAll(faultsInLoops(EVERYTHING, THE_GAMES_WAY_BACK, IN_TAG));
+        bad.addAll(faultsInLoops(EVERYTHING, THE_GAMES_ROUTES, IN_TAG));
         return List.copyOf(bad);
     }
 
-    /** The roster: one name per machine, a real machine, a real pace. */
-    public static List<String> faultsInSteps(List<Step> steps) {
+    /**
+     * The roster, one recipe at a time.
+     *
+     * <p>Kept apart from {@link #faultsInCoverage} on purpose. A method
+     * holding both answers every control with whichever fires first — hand it
+     * two recipes to prove it notices a duplicate name and it reports instead
+     * that a machine has nothing to read, the control passes, and the rule
+     * about names could be deleted with every check still green.
+     */
+    public static List<String> faultsInEachStep(List<Step> steps) {
         List<String> bad = new ArrayList<>();
         Set<String> seen = new LinkedHashSet<>();
         for (Step one : steps) {
@@ -317,6 +366,12 @@ public final class ProcessRules {
                         + "making more of it and is never a recipe");
             }
         }
+        return bad;
+    }
+
+    /** Whether every machine has something to read. */
+    public static List<String> faultsInCoverage(List<Step> steps) {
+        List<String> bad = new ArrayList<>();
         if (steps.size() < MACHINES.size()) {
             bad.add("there are " + steps.size() + " recipe(s) for "
                     + MACHINES.size() + " machine(s), so one of them has "
@@ -335,6 +390,14 @@ public final class ProcessRules {
         return bad;
     }
 
+    /** The roster: one name per machine, a real machine, a real pace. */
+    public static List<String> faultsInSteps(List<Step> steps) {
+        List<String> bad = new ArrayList<>();
+        bad.addAll(faultsInEachStep(steps));
+        bad.addAll(faultsInCoverage(steps));
+        return bad;
+    }
+
     /**
      * Every loop that comes back with more than it started with.
      *
@@ -344,13 +407,13 @@ public final class ProcessRules {
      * to every node with weight zero makes it one pass rather than one per
      * starting point.
      *
-     * @param steps    what the machines do
-     * @param back     what the game does that closes a loop with them
-     * @param inTag    which outputs are members of which tags read from
+     * @param steps  what the machines do
+     * @param routes what the game does inside the same graph
+     * @param inTag  which items are members of which tags read from
      */
     public static List<String> faultsInLoops(List<Step> steps,
-                                             List<Reversal> back,
-                                             List<Reversal> inTag) {
+                                             List<Route> routes,
+                                             List<Membership> inTag) {
         List<String> bad = new ArrayList<>();
         List<String[]> edges = new ArrayList<>();
         List<Double> weights = new ArrayList<>();
@@ -358,13 +421,13 @@ public final class ProcessRules {
             edges.add(new String[] {one.input(), one.output()});
             weights.add(-Math.log(one.count()));
         }
-        for (Reversal one : back) {
+        for (Route one : routes) {
             edges.add(new String[] {one.input(), one.output()});
             weights.add(-Math.log(one.rate()));
         }
-        for (Reversal one : inTag) {
-            edges.add(new String[] {one.input(), one.output()});
-            weights.add(-Math.log(one.rate()));
+        for (Membership one : inTag) {
+            edges.add(new String[] {one.item(), one.tag()});
+            weights.add(0.0D);
         }
 
         Set<String> nodes = new LinkedHashSet<>();

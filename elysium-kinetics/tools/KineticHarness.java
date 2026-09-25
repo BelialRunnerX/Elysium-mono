@@ -84,6 +84,7 @@ public final class KineticHarness {
         theTree();
         theBooks();
         theEngines();
+        theProcessing();
         edges();
 
         if (failures > 0) {
@@ -1096,7 +1097,172 @@ public final class KineticHarness {
                 + "more out of a fuel than the fuel contains");
     }
 
-        private static void edges() {
+        /**
+     * What the machines do, and the one thing none of it may add up to.
+     *
+     * <p>The roster is a graph and the graph may not have a loop that
+     * multiplies. That is checked over the roster as it ships, and then
+     * proved able to say yes by handing it graphs built to be caught —
+     * because a rule about loops, over a roster with no loop in it that
+     * multiplies, is a rule that has only ever answered no.
+     */
+    private static void theProcessing() {
+        none(ProcessRules.faults(), "the processing");
+        none(ProcessRules.faultsInEachStep(ProcessRules.EVERYTHING),
+                "the recipe roster");
+        none(ProcessRules.faultsInCoverage(ProcessRules.EVERYTHING),
+                "a machine with nothing to read");
+        none(ProcessRules.faultsInLoops(ProcessRules.EVERYTHING,
+                        ProcessRules.THE_GAMES_ROUTES, ProcessRules.IN_TAG),
+                "a loop that comes back with more than it started with");
+
+        check(ProcessRules.EVERYTHING.size()
+                        == ProcessRules.MILLING.size() + ProcessRules.PRESSING.size()
+                        + ProcessRules.SAWING.size() + ProcessRules.MIXING.size(),
+                "the roster walked is not the four rosters added up");
+        int walked = 0;
+        for (String machine : ProcessRules.MACHINES) {
+            int here = ProcessRules.on(machine).size();
+            check(here > 0, machine + " has no recipes");
+            walked += here;
+        }
+        check(walked == ProcessRules.EVERYTHING.size(),
+                "walking the machines found " + walked + " recipe(s) and the "
+                        + "roster has " + ProcessRules.EVERYTHING.size());
+
+        // Every recipe runs at a speed some source in this age can reach, or
+        // it is a recipe that exists and cannot be made.
+        for (ProcessRules.Step one : ProcessRules.EVERYTHING) {
+            boolean reachable = false;
+            for (KineticRules.Source source : SeamRules.everySource()) {
+                reachable |= KineticRules.pace(source.freeSpeed()).ordinal()
+                        >= one.pace().ordinal();
+            }
+            check(reachable, one.name() + " wants a " + one.pace()
+                    + " line and nothing in this age turns that fast");
+            check(one.ticks() > 0 && one.ticks() <= 1_200, one.name()
+                    + " takes " + one.ticks() + " ticks at the reference speed");
+        }
+
+        // The loop rule, proved able to say yes. Three shapes: a two-step
+        // loop that doubles, a three-step loop that doubles round the houses,
+        // and a route of the game's own that closes one.
+        ProcessRules.Step there = new ProcessRules.Step("milling", "control_a",
+                "control:one", "control:two", 2, 100, KineticRules.Pace.SLOW);
+        ProcessRules.Step back = new ProcessRules.Step("pressing", "control_b",
+                "control:two", "control:one", 1, 100, KineticRules.Pace.SLOW);
+        check(!ProcessRules.faultsInLoops(java.util.List.of(there, back),
+                        java.util.List.of(), java.util.List.of()).isEmpty(),
+                "a two-step loop that comes back with twice what went in is "
+                        + "not reported, so the rule that nothing multiplies "
+                        + "cannot say no");
+        ProcessRules.Step evens = new ProcessRules.Step("pressing", "control_c",
+                "control:two", "control:one", 1, 100, KineticRules.Pace.SLOW);
+        check(ProcessRules.faultsInLoops(java.util.List.of(
+                        new ProcessRules.Step("milling", "control_a",
+                                "control:one", "control:two", 1, 100,
+                                KineticRules.Pace.SLOW), evens),
+                        java.util.List.of(), java.util.List.of()).isEmpty(),
+                "a loop that comes back with exactly what went in is reported "
+                        + "as multiplying, so the rule is off by the one case "
+                        + "three of the game's own routes sit on");
+        check(!ProcessRules.faultsInLoops(java.util.List.of(
+                        new ProcessRules.Step("milling", "a", "control:one",
+                                "control:two", 3, 100, KineticRules.Pace.SLOW),
+                        new ProcessRules.Step("sawing", "b", "control:two",
+                                "control:three", 1, 100, KineticRules.Pace.SLOW),
+                        new ProcessRules.Step("pressing", "c", "control:three",
+                                "control:one", 1, 100, KineticRules.Pace.SLOW)),
+                        java.util.List.of(), java.util.List.of()).isEmpty(),
+                "a three-step loop that trebles is not reported");
+        check(!ProcessRules.faultsInLoops(java.util.List.of(
+                        new ProcessRules.Step("milling", "a", "control:one",
+                                "control:two", 2, 100, KineticRules.Pace.SLOW)),
+                        java.util.List.of(new ProcessRules.Route(
+                                "control:back", "control:two", 1,
+                                "control:one", 1)),
+                        java.util.List.of()).isEmpty(),
+                "a loop closed by one of the game's own recipes is not "
+                        + "reported, so the game's half of the graph could be "
+                        + "dropped with every check still green");
+        check(!ProcessRules.faultsInLoops(java.util.List.of(
+                        new ProcessRules.Step("sawing", "b", "#control:tag",
+                                "control:two", 2, 100, KineticRules.Pace.SLOW)),
+                        java.util.List.of(),
+                        java.util.List.of(new ProcessRules.Membership(
+                                "control:two", "#control:tag"))).isEmpty(),
+                "a loop closed through a tag membership is not reported, so "
+                        + "the tag half of the graph could be dropped with "
+                        + "every check still green");
+        check(ProcessRules.faultsInLoops(java.util.List.of(
+                        new ProcessRules.Step("sawing", "b", "#control:tag",
+                                "control:two", 1, 100, KineticRules.Pace.SLOW)),
+                        java.util.List.of(),
+                        java.util.List.of(new ProcessRules.Membership(
+                                "control:two", "#control:tag"))).isEmpty(),
+                "a tag a recipe gives exactly one member of is reported as a "
+                        + "loop that multiplies");
+        check(ProcessRules.faultsInLoops(java.util.List.of(there),
+                        java.util.List.of(), java.util.List.of()).isEmpty(),
+                "a roster with no loop in it at all is reported as looping");
+
+        // And the roster rule, likewise.
+        check(!ProcessRules.faultsInEachStep(java.util.List.of(
+                        new ProcessRules.Step("milling", "control", "a", "b",
+                                1, 100, KineticRules.Pace.SLOW),
+                        new ProcessRules.Step("milling", "control", "c", "d",
+                                1, 100, KineticRules.Pace.SLOW))).isEmpty(),
+                "two recipes on one machine under one name are not reported");
+        check(!ProcessRules.faultsInEachStep(java.util.List.of(
+                        new ProcessRules.Step("grinding", "control", "a", "b",
+                                1, 100, KineticRules.Pace.SLOW))).isEmpty(),
+                "a recipe read by a machine that does not exist is not "
+                        + "reported");
+        check(!ProcessRules.faultsInEachStep(java.util.List.of(
+                        new ProcessRules.Step("milling", "control", "a", "a",
+                                1, 100, KineticRules.Pace.SLOW))).isEmpty(),
+                "a recipe that turns a thing into itself is not reported");
+        check(!ProcessRules.faultsInEachStep(java.util.List.of(
+                        new ProcessRules.Step("milling", "control", "a", "b",
+                                1, 100, KineticRules.Pace.STOPPED))).isEmpty(),
+                "a recipe that runs on a stopped line is not reported");
+        check(ProcessRules.faultsInEachStep(ProcessRules.EVERYTHING).isEmpty(),
+                "the roster this module ships is reported as faulty");
+        check(ProcessRules.faultsInCoverage(ProcessRules.EVERYTHING).isEmpty(),
+                "the roster this module ships leaves a machine with nothing "
+                        + "to read");
+        check(!ProcessRules.faultsInCoverage(java.util.List.of(
+                        new ProcessRules.Step("milling", "control", "a", "b",
+                                1, 100, KineticRules.Pace.SLOW))).isEmpty(),
+                "a roster that gives three of the four machines nothing to "
+                        + "read is not reported");
+
+        java.util.List<String> allowed = new java.util.ArrayList<>();
+        try {
+            new ProcessRules.Step("milling", "control", "a", "b", 0, 100,
+                    KineticRules.Pace.SLOW);
+            allowed.add("a recipe that makes nothing");
+        } catch (IllegalArgumentException expected) {
+            checks++;
+        }
+        try {
+            new ProcessRules.Step("milling", "control", "a", "b", 1, 0,
+                    KineticRules.Pace.SLOW);
+            allowed.add("a recipe that takes no time");
+        } catch (IllegalArgumentException expected) {
+            checks++;
+        }
+        check(allowed.isEmpty(), "the roster allows what it says it forbids: "
+                + allowed);
+
+        System.out.println("  the processing: " + ProcessRules.EVERYTHING.size()
+                + " recipe(s) across " + ProcessRules.MACHINES.size()
+                + " machine(s), joined to " + ProcessRules.THE_GAMES_ROUTES.size()
+                + " of the game's own recipes, and not one loop anywhere in "
+                + "the graph that comes back with more than it started with");
+    }
+
+    private static void edges() {
         KineticRules.Shaft timber = KineticRules.Shaft.TIMBER;
         KineticRules.Reading nothing = KineticRules.settle(List.of(), List.of(), timber);
         check(nothing.rpm() == 0.0F && !nothing.stalled(),

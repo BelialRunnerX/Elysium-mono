@@ -1,0 +1,18 @@
+{
+  "type": "elysiumkinetics:sawing",
+  "input": {
+    "item": "minecraft:milk_bucket"
+  },
+  "result": {
+    "id": "elysiumagronomy:butter",
+    "count": 1
+  },
+  "ticks": 160,
+  "pace": "steady",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "elysiumagronomy"
+    }
+  ]
+}

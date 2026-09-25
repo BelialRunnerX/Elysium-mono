@@ -1,0 +1,18 @@
+{
+  "type": "elysiumkinetics:milling",
+  "input": {
+    "item": "elysiumagronomy:tomato"
+  },
+  "result": {
+    "id": "elysiumagronomy:tomato_seeds",
+    "count": 1
+  },
+  "ticks": 140,
+  "pace": "slow",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "elysiumagronomy"
+    }
+  ]
+}

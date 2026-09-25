@@ -721,39 +721,60 @@ RECIPES = {
     },
 }
 
-#: What each machine does. Ticks are at 32 rpm; a faster line is quicker.
-#:
-#: Deliberately short. These are the jobs vanilla alone can justify; the real
-#: catalogue arrives with the mods being converted into later ages, and a
-#: machine with forty recipes on the day it is added is a machine whose
-#: recipes nobody chose.
-PRESSING = {
-    "paper_from_sugar_cane": ("minecraft:sugar_cane", "minecraft:paper", 1, 100, "slow"),
-    "paper_from_bamboo": ("minecraft:bamboo", "minecraft:paper", 1, 120, "slow"),
-    "green_dye": ("minecraft:cactus", "minecraft:green_dye", 2, 160, "steady"),
-}
+# ---------------------------------------------------------------------------
+# What each machine does, read out of the rules
+# ---------------------------------------------------------------------------
+#
+# This was a set of Python dictionaries, which is to say a set of numbers no
+# harness had ever executed. It is now ProcessRules, because a recipe roster
+# spanning two modules is a graph and a graph is wrong in ways nobody sees by
+# reading a row of it — so the rules hold it, the harness proves no loop in it
+# multiplies, and this file writes out what they say.
 
-SAWING = {
-    "planks_from_logs": ("#minecraft:logs", "minecraft:oak_planks", 6, 140, "steady"),
-    "sticks_from_planks": ("#minecraft:planks", "minecraft:stick", 2, 80, "steady"),
-    "bamboo_from_block": ("minecraft:bamboo_block", "minecraft:bamboo", 9, 100, "steady"),
-}
+PROCESS_SOURCE = open(os.path.join(
+    MOD, "src/main/java/com/elysium/kinetics/rules/ProcessRules.java"),
+    encoding="utf-8").read()
+_flat = re.sub(r"\s+", " ", PROCESS_SOURCE)
 
-MIXING = {
-    "flint_from_gravel": ("minecraft:gravel", "minecraft:flint", 1, 200, "steady"),
-    "sand_from_red_sand": ("minecraft:red_sand", "minecraft:sand", 1, 160, "steady"),
-    "soul_sand": ("minecraft:soul_soil", "minecraft:soul_sand", 1, 180, "steady"),
-}
+_FARM = re.search(r'String FARM = "([a-z]+)"', PROCESS_SOURCE)
+_SEEDED = re.search(r"List<String> SEEDED = List\.of\(([^;]*?)\);", _flat)
+if not _FARM or not _SEEDED:
+    print("ProcessRules no longer says what it joins onto")
+    sys.exit(2)
+FARM = _FARM.group(1)
+SEEDED = re.findall(r'"([a-z_]+)"', _SEEDED.group(1))
 
-MILLING = {
-    "cobblestone": ("minecraft:cobblestone", "minecraft:gravel", 1, 120, "slow"),
-    "gravel": ("minecraft:gravel", "minecraft:sand", 1, 120, "slow"),
-    "sandstone": ("minecraft:sandstone", "minecraft:sand", 2, 140, "slow"),
-    "bone": ("minecraft:bone", "minecraft:bone_meal", 4, 100, "slow"),
-    "sugar_cane": ("minecraft:sugar_cane", "minecraft:sugar", 2, 80, "slow"),
-    "deepslate": ("minecraft:deepslate", "minecraft:cobbled_deepslate", 1, 200, "steady"),
-    "blaze_rod": ("minecraft:blaze_rod", "minecraft:blaze_powder", 4, 160, "steady"),
-}
+MACHINE_OF = {"mill": "milling", "press": "pressing",
+              "saw": "sawing", "stir": "mixing"}
+
+
+def _id(text):
+    """One of the rules' two ways of writing an id, as the id."""
+    text = text.strip()
+    if text.startswith("FARM"):
+        return FARM + ":" + text.split('"')[-2].lstrip(":")
+    return text.strip('"')
+
+
+STEPS = []
+for _one in re.finditer(
+        r'(mill|press|saw|stir)\("([a-z_]+)", '
+        r'(FARM \+ ":[a-z_]+"|"[^"]*"), (FARM \+ ":[a-z_]+"|"[^"]*"), '
+        r"(\d+), (\d+), (SLOW|STEADY|FAST)\)", _flat):
+    STEPS.append({"machine": MACHINE_OF[_one.group(1)], "name": _one.group(2),
+                  "input": _id(_one.group(3)), "output": _id(_one.group(4)),
+                  "count": int(_one.group(5)), "ticks": int(_one.group(6)),
+                  "pace": _one.group(7).lower()})
+# The seed supply is built by a loop over SEEDED rather than written out, for
+# the same reason every roster in this project is walked rather than listed.
+for _crop in SEEDED:
+    STEPS.append({"machine": "milling", "name": _crop + "_seeds",
+                  "input": f"{FARM}:{_crop}", "output": f"{FARM}:{_crop}_seeds",
+                  "count": 1, "ticks": 140, "pace": "slow"})
+if len(STEPS) < 20:
+    print(f"only {len(STEPS)} recipe(s) could be read out of ProcessRules, "
+          f"which is not the roster")
+    sys.exit(2)
 
 
 def data_files():
@@ -762,18 +783,29 @@ def data_files():
     for name, recipe in RECIPES.items():
         write(os.path.join(DATA, "recipe", name + ".json"), recipe)
     machines = 0
-    for kind, table in (("milling", MILLING), ("pressing", PRESSING),
-                        ("sawing", SAWING), ("mixing", MIXING)):
-        for name, (item, result, count, ticks, pace) in table.items():
-            write(os.path.join(DATA, "recipe", kind, name + ".json"), {
-                "type": f"{NS}:{kind}",
-                # A leading hash is a tag; anything else is one item.
-                "input": {"tag": item[1:]} if item.startswith("#") else {"item": item},
-                "result": {"id": result, "count": count},
-                "ticks": ticks,
-                "pace": pace,
-            })
-            machines += 1
+    for step in STEPS:
+        body = {
+            "type": f"{NS}:{step['machine']}",
+            # A leading hash is a tag; anything else is one item.
+            "input": {"tag": step["input"][1:]} if step["input"].startswith("#")
+            else {"item": step["input"]},
+            "result": {"id": step["output"], "count": step["count"]},
+            "ticks": step["ticks"],
+            "pace": step["pace"],
+        }
+        # A recipe that joins onto another module carries a condition naming
+        # it, so Age I is still a jar you can install on its own: without the
+        # farm these recipes are simply not there, rather than being there and
+        # naming an item that does not exist.
+        joins = sorted({part.split(":", 1)[0].lstrip("#")
+                        for part in (step["input"], step["output"])
+                        if not part.lstrip("#").startswith(("minecraft:", NS + ":"))})
+        if joins:
+            body["neoforge:conditions"] = [
+                {"type": "neoforge:mod_loaded", "modid": one} for one in joins]
+        write(os.path.join(DATA, "recipe", step["machine"],
+                           step["name"] + ".json"), body)
+        machines += 1
     # The fuels, which are items rather than blocks and so want a model of
     # the flat kind rather than a blockstate.
     for name in OUR_FUELS:

@@ -1,0 +1,18 @@
+{
+  "type": "elysiumkinetics:sawing",
+  "input": {
+    "item": "minecraft:hay_block"
+  },
+  "result": {
+    "id": "elysiumagronomy:barley",
+    "count": 2
+  },
+  "ticks": 140,
+  "pace": "steady",
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "elysiumagronomy"
+    }
+  ]
+}

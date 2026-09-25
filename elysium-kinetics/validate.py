@@ -622,9 +622,49 @@ for name in registered:
 # Every machine reads its own recipes, and every machine must have some: a
 # block that draws torque and does no work is a block that was registered and
 # then forgotten.
+PROCESS_RULES = strip_comments(read(SRC, "rules/ProcessRules.java"),
+                               keep_strings=True)
+_pflat = re.sub(r"\s+", " ", PROCESS_RULES)
+_farm = re.search(r'String FARM = "([a-z]+)"', PROCESS_RULES)
+FARM = _farm.group(1) if _farm else ""
+_seeded = re.search(r"List<String> SEEDED = List\.of\(([^;]*?)\);", _pflat)
+SEEDED = re.findall(r'"([a-z_]+)"', _seeded.group(1)) if _seeded else []
+if not FARM or not SEEDED:
+    fail("ProcessRules no longer says which module the machines join onto, so "
+         "every check below about the join is checking nothing")
+
+MACHINE_OF = {"mill": "milling", "press": "pressing",
+              "saw": "sawing", "stir": "mixing"}
+
+
+def _rid(text):
+    text = text.strip()
+    if text.startswith("FARM"):
+        return FARM + ":" + text.split('"')[-2].lstrip(":")
+    return text.strip('"')
+
+
+steps = {}
+for _one in re.finditer(
+        r'(mill|press|saw|stir)\("([a-z_]+)", '
+        r'(FARM \+ ":[a-z_]+"|"[^"]*"), (FARM \+ ":[a-z_]+"|"[^"]*"), '
+        r"(\d+), (\d+), (SLOW|STEADY|FAST)\)", _pflat):
+    steps[(MACHINE_OF[_one.group(1)], _one.group(2))] = {
+        "input": _rid(_one.group(3)), "output": _rid(_one.group(4)),
+        "count": int(_one.group(5)), "ticks": int(_one.group(6)),
+        "pace": _one.group(7).lower()}
+for _crop in SEEDED:
+    steps[("milling", _crop + "_seeds")] = {
+        "input": f"{FARM}:{_crop}", "output": f"{FARM}:{_crop}_seeds",
+        "count": 1, "ticks": 140, "pace": "slow"}
+if len(steps) < 20:
+    fail(f"only {len(steps)} recipe(s) could be read out of ProcessRules, which "
+         f"is not the roster and leaves every check below it checking nothing")
+
 KINDS = ("milling", "pressing", "sawing", "mixing", "refining")
 recipes = 0
 paces = set()
+written = set()
 for kind in KINDS:
     folder = os.path.join(RES, f"data/{NS}/recipe/{kind}")
     names = sorted(os.listdir(folder)) if os.path.isdir(folder) else []
@@ -638,12 +678,28 @@ for kind in KINDS:
             fail(f"{kind}/{name} declares {recipe.get('type')}, so it sits in one "
                  f"machine's folder and runs in another's — or in neither")
         paces.add(recipe.get("pace"))
+        # A recipe may name another module's items — that is what a join is —
+        # but only if it carries a condition naming that module, so Age I is
+        # still a jar that installs on its own. Without the condition the
+        # recipe would be there naming an item that is not, which is an error
+        # in the log and a machine that silently cannot make the thing.
+        joined = set()
         for field in ("input", "result"):
             blob = json.dumps(recipe.get(field, {}))
             for namespace in re.findall(r'"([a-z_]+):', blob):
                 if namespace not in ("minecraft", NS):
-                    fail(f"{kind}/{name} names {namespace}, so the recipe needs a mod "
-                         f"Age I does not depend on")
+                    joined.add(namespace)
+        named = {one.get("modid") for one in recipe.get("neoforge:conditions", [])
+                 if one.get("type") == "neoforge:mod_loaded"}
+        for namespace in sorted(joined - named):
+            fail(f"{kind}/{name} names {namespace} and is not conditional on it, "
+                 f"so Age I on its own has a recipe naming an item that is not "
+                 f"there")
+        for namespace in sorted(named - joined):
+            fail(f"{kind}/{name} is conditional on {namespace} and does not name "
+                 f"it, so the condition switches off a recipe for no reason")
+        if kind != "refining":
+            written.add((kind, name[:-5]))
 if len(paces) < 2:
     fail("every machine recipe asks for the same pace, so the speed of the line never "
          "decides what can be made and the pace field does nothing")
@@ -768,6 +824,224 @@ print(f"the hall's contents: {len(registered)} block(s), each modelled, named, d
       f"{len(paces)} pace(s)")
 
 spec_text = read(SPEC)
+
+
+# ---------------------------------------------------------------------------
+# What the machines do, and the one thing none of it may add up to
+# ---------------------------------------------------------------------------
+
+# Every recipe the rules declare is written, and every recipe written is
+# declared. A roster held in one place and written from another drifts the
+# moment somebody edits the easier of the two.
+missing = sorted(f"{a}/{b}" for a, b in set(steps) - written)
+extra = sorted(f"{a}/{b}" for a, b in written - set(steps))
+if missing:
+    fail(f"{len(missing)} recipe(s) the rules declare are not written: "
+         + ", ".join(missing[:6]))
+if extra:
+    fail(f"{len(extra)} recipe(s) are written that the rules do not declare, so "
+         f"they are numbers no harness has ever executed: " + ", ".join(extra[:6]))
+for (kind, name), want in sorted(steps.items()):
+    path = os.path.join(RES, f"data/{NS}/recipe/{kind}/{name}.json")
+    if not os.path.isfile(path):
+        continue
+    got = json.loads(read(path))
+    where = got.get("input", {})
+    wrote = ("#" + where["tag"]) if "tag" in where else where.get("item", "")
+    if wrote != want["input"]:
+        fail(f"{kind}/{name} is written taking {wrote} and the rules say "
+             f"{want['input']}")
+    if got.get("result", {}).get("id") != want["output"] \
+            or got.get("result", {}).get("count") != want["count"]:
+        fail(f"{kind}/{name} is written making {got.get('result')} and the rules "
+             f"say {want['count']} of {want['output']}")
+    if got.get("ticks") != want["ticks"] or got.get("pace") != want["pace"]:
+        fail(f"{kind}/{name} is written at {got.get('ticks')} ticks {got.get('pace')} "
+             f"and the rules say {want['ticks']} {want['pace']}")
+
+# Every id in the other module's namespace is an item that module really has.
+# A join is a recipe naming somebody else's items, and a typo in one of them
+# is a recipe that loads, sits in the book and can never be made.
+farm_lang = os.path.join(ROOT, "elysium-agronomy", "src/main/resources/assets",
+                         FARM, "lang/en_us.json")
+if not os.path.isfile(farm_lang):
+    fail(f"the module these join onto has no language file where this looks, so "
+         f"every id they name is unchecked")
+else:
+    THE_FARM_HAS = {key.split(".", 2)[2] for key
+                    in json.loads(read(farm_lang))
+                    if key.startswith((f"item.{FARM}.", f"block.{FARM}."))}
+    if len(THE_FARM_HAS) < 100:
+        fail(f"only {len(THE_FARM_HAS)} name(s) could be read out of the farm's "
+             f"language file, so the check below it is checking nothing")
+    else:
+        strangers = sorted({one for step in steps.values()
+                            for one in (step["input"], step["output"])
+                            if one.startswith(FARM + ":")
+                            and one.split(":", 1)[1] not in THE_FARM_HAS})
+        if strangers:
+            fail(f"{len(strangers)} recipe(s) name something the farm does not "
+                 f"have: " + ", ".join(strangers[:6]))
+
+# And no mechanical route may yield more than the hand route it automates.
+# The saw doing the kitchen's knife-work is the point of three of the jars
+# this module takes in; a saw that gave more than the knife would be a reason
+# never to hold the knife again.
+cutting = os.path.join(ROOT, "elysium-agronomy", "src/main/resources/data",
+                       FARM, "cutting")
+if not os.path.isdir(cutting):
+    fail("the kitchen's own cutting recipes are not where this looks, so no "
+         "mechanical route was compared against the hand one it automates")
+else:
+    by_hand = {}
+    for name in sorted(os.listdir(cutting)):
+        body = json.loads(read(cutting, name))
+        for yield_ in body.get("yields", []):
+            by_hand[(body.get("input"), yield_.get("item"))] = yield_.get("count", 0)
+    if not by_hand:
+        fail("no hand recipes could be read out of the kitchen's cutting folder")
+    automated = 0
+    for (kind, name), step in sorted(steps.items()):
+        hand = by_hand.get((step["input"], step["output"]))
+        if hand is None:
+            continue
+        automated += 1
+        if step["count"] > hand:
+            fail(f"{kind}/{name} yields {step['count']} and the knife it "
+                 f"automates yields {hand}, so a machine that needs no hand on "
+                 f"it is also the better way of doing it")
+    if automated < 5:
+        fail(f"only {automated} mechanical route(s) were matched against a hand "
+             f"one, and the join is meant to be the kitchen's whole knife")
+
+# The game's own half of the graph, against the game's own jar.
+#
+# A loop rule that only looked at these recipes would be a rule that cannot
+# see the loop that matters, because the way back is almost always a crafting
+# recipe the game already ships. So every recipe in the game's jar whose
+# result and one of whose ingredients are both nodes in this graph has to be
+# declared — not the ones somebody thought of — and each declaration is
+# checked against the recipe file, counting a shaped recipe's pattern rather
+# than believing the number written down.
+
+GAME_JAR = os.path.join(os.environ.get("ELYSIUM_MC_LIBS", "/tmp/mc"), "vanilla.jar")
+routes = {(one[0], one[1]): (int(one[2]), one[3], int(one[4])) for one in
+          re.findall(r'new Route\("([a-z_:]+)", "(#?[a-z_:]+)", (\d+), '
+                     r'"([a-z_:]+)", (\d+)\)', _pflat)}
+if not routes:
+    fail("ProcessRules declares none of the game's own recipes, so the loop "
+         "rule is looking at half a graph and the half it cannot see is the "
+         "half the way back is always in")
+
+if not os.path.isfile(GAME_JAR):
+    print("the game's routes  : the game's jar is not here, so the loops that "
+          "close through its own recipes were not swept for")
+else:
+    import zipfile
+
+    def _named(blob, found):
+        """Every item or tag an ingredient blob names, however it is nested."""
+        if isinstance(blob, str):
+            found.append(blob)
+        elif isinstance(blob, list):
+            for one in blob:
+                _named(one, found)
+        elif isinstance(blob, dict):
+            if isinstance(blob.get("item"), str):
+                found.append(blob["item"])
+            elif isinstance(blob.get("tag"), str):
+                found.append("#" + blob["tag"])
+            else:
+                for one in blob.values():
+                    _named(one, found)
+
+    def _takes(body, want):
+        """How many of one ingredient a recipe uses."""
+        kind = body.get("type", "")
+        if kind.endswith(("smelting", "blasting", "smoking", "campfire_cooking")):
+            return 1
+        found = []
+        if kind.endswith("crafting_shapeless"):
+            _named(body.get("ingredients"), found)
+            return sum(1 for one in found if one == want) or 1
+        if kind.endswith("crafting_shaped"):
+            symbols = []
+            for symbol, blob in (body.get("key") or {}).items():
+                here = []
+                _named(blob, here)
+                if want in here:
+                    symbols.append(symbol)
+            return sum(row.count(symbol) for row in body.get("pattern", [])
+                       for symbol in symbols) or 1
+        return 1
+
+    nodes = {one for step in steps.values()
+             for one in (step["input"], step["output"])}
+    swept = 0
+    closing = {}
+    with zipfile.ZipFile(GAME_JAR) as jar:
+        inside = [one for one in jar.namelist()
+                  if one.startswith("data/minecraft/recipe/") and one.endswith(".json")]
+        if len(inside) < 500:
+            fail(f"only {len(inside)} recipe(s) are in the game's jar where this "
+                 f"looks, so the sweep below is sweeping nothing")
+        for one in inside:
+            body = json.loads(jar.read(one))
+            result = body.get("result")
+            made = result.get("id") if isinstance(result, dict) else result
+            if not isinstance(made, str) or made not in nodes:
+                continue
+            found = []
+            for field in ("ingredients", "ingredient", "key", "base",
+                          "addition", "template"):
+                if field in body:
+                    _named(body[field], found)
+            count = result.get("count", 1) if isinstance(result, dict) else 1
+            for taken in sorted(set(one for one in found if one in nodes)):
+                swept += 1
+                recipe = "minecraft:" + one.split("/")[-1][:-5]
+                closing[(recipe, taken)] = (_takes(body, taken), made, count)
+        # And the tag memberships, against the game's own tag files.
+        for item, tag in re.findall(r'new Membership\("([a-z_:]+)", "#([a-z_:]+)"\)',
+                                    _pflat):
+            where = "data/{}/tags/item/{}.json".format(*tag.split(":", 1))
+            try:
+                values = json.loads(jar.read(where)).get("values", [])
+            except KeyError:
+                fail(f"{tag} is named as a tag and the game has no such tag, so "
+                     f"the edge it stands for is an edge into nothing")
+                continue
+            if item not in [one if isinstance(one, str) else one.get("id")
+                            for one in values]:
+                fail(f"{item} is declared a member of #{tag} and the game's own "
+                     f"tag does not list it, so a loop through that tag is a "
+                     f"loop the rule cannot see")
+
+    undeclared = sorted(f"{a} ({b})" for a, b in set(closing) - set(routes))
+    gone = sorted(f"{a} ({b})" for a, b in set(routes) - set(closing))
+    if undeclared:
+        fail(f"{len(undeclared)} recipe(s) the game ships close a loop with "
+             f"these and are not declared, so the loop rule is looking at a "
+             f"graph with holes in exactly the places loops live: "
+             + ", ".join(undeclared[:6]))
+    if gone:
+        fail(f"{len(gone)} of the game's recipes are declared and the game does "
+             f"not have them, or does not have them naming what this says: "
+             + ", ".join(gone[:6]))
+    for key, want in sorted(routes.items()):
+        got = closing.get(key)
+        if got and got != want:
+            fail(f"{key[0]} is declared taking {want[0]} of {key[1]} and making "
+                 f"{want[2]} of {want[1]}, and the game's own recipe takes "
+                 f"{got[0]} and makes {got[2]} of {got[1]}")
+
+print(f"the processing     : {len(steps)} recipe(s) across "
+      f"{len(set(k for k, _ in steps))} machine(s), {automated} of them the "
+      f"kitchen's knife done by machine and none yielding more than the hand "
+      f"does, joined to {len(re.findall(r'new Route', PROCESS_RULES))} of the "
+      f"game's own recipes - every one of them swept for rather than "
+      f"thought of - with no loop anywhere that comes back with more than it "
+      f"started with")
 
 
 # ---------------------------------------------------------------------------
