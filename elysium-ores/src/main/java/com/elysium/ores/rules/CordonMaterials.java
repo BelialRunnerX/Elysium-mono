@@ -38,7 +38,9 @@ import java.util.Map;
  *   <li><b>METAL</b>: dug. Raw, ingot, nugget, a block of each; the ore drops
  *       the raw form and a furnace makes the ingot.</li>
  *   <li><b>GEM</b>: dug, and already finished. The gem and its block.</li>
- *   <li><b>ALLOY</b>: made, from {@code madeOf}. Ingot, nugget and block.</li>
+ *   <li><b>ALLOY</b>: made, from {@code madeOf}: always two things, because the
+ *       fourth age's alloy smelter holds two, and a chain a player can hold in
+ *       their head is written in pairs. Ingot, nugget and block.</li>
  *   <li><b>SHARD</b>: dropped or found, never dug. The shard and its block.</li>
  *   <li><b>CLOTH</b>: woven from vanilla things. The cloth and its block.</li>
  *   <li><b>EXTERNAL</b>: another Elysium module's family. Nothing shipped.</li>
@@ -187,7 +189,7 @@ public final class CordonMaterials {
                     "cobalt_ingot", 1, "pressure_shell", 1),
             alloy("hemalite", Element.KINETIC, "#a02a3a",
                     new Tier(5, 2431, 24.0F, 15.0F, 15), new Plate(68, 72, 12, 0.0F, 35.0F), 2,
-                    "nightgold_ingot", 1, "blight_crystal", 1, "minecraft:bone", 1),
+                    "nightgold_ingot", 1, "blight_crystal", 1),
             alloy("nullsteel", Element.VOID, "#3a2a5a",
                     new Tier(5, 5248, 30.0F, 17.0F, 20), new Plate(70, 80, 10, 0.15F, 75.0F), 2,
                     "nightgold_ingot", 1, "null_shard", 1),
