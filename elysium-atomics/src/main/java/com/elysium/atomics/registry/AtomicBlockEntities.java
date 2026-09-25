@@ -30,6 +30,14 @@ public final class AtomicBlockEntities {
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ElysiumAtomics.MODID);
 
     /** One type for all three tiers: a cell is a cell, and the block says which. */
+    /** The port a reactor hall forms around. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.atomics.block.ReactorPortBlock.ReactorPortBlockEntity>>
+            REACTOR_PORT = TYPES.register("reactor_port", () -> BlockEntityType.Builder.of(
+                    com.elysium.atomics.block.ReactorPortBlock.ReactorPortBlockEntity::new,
+                    AtomicBlocks.HALL.get(
+                            com.elysium.atomics.rules.HallRules.CONTROLLER).get())
+            .build(null));
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CellBlock.CellBlockEntity>>
             CELL = TYPES.register("cell", () -> BlockEntityType.Builder.of(
                     CellBlock.CellBlockEntity::new,

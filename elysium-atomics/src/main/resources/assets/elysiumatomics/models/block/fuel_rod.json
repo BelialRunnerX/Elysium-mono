@@ -1,0 +1,49 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "top": "elysiumatomics:block/fuel_rod",
+    "side": "elysiumatomics:block/fuel_rod",
+    "bottom": "elysiumatomics:block/fuel_rod",
+    "particle": "elysiumatomics:block/fuel_rod"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#bottom",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#top",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#side",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#side",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#side",
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#side",
+          "cullface": "east"
+        }
+      }
+    }
+  ]
+}

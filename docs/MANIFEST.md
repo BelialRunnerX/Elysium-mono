@@ -8,22 +8,22 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 77 | DONE | an Elysium module already replaces it |
+| 79 | DONE | an Elysium module already replaces it |
 | 15 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 27 | PLANNED | has a target module, not started |
+| 23 | PLANNED | has a target module, not started |
 | 13 | KEEP | stays in the pack on purpose |
-| 71 | DROP | library or performance: nothing to convert |
+| 73 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
 
 ## Work remaining, by module
 
 | module | mods to absorb |
 |---|---|
-| `elysium-atomics` | 9 |
 | `elysium-bestiary` | 8 |
 | `elysium-atelier` | 7 |
 | `elysium-comforts` | 6 |
+| `elysium-atomics` | 5 |
 | `elysium-agronomy` | 4 |
 | `elysium-industry` | 3 |
 | `elysium-wilds` | 2 |
@@ -106,12 +106,12 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `envelope-neoforge-1.21.1-0.7.3.jar` | PLANNED | elysium-comforts | quality of life |
 | `everycomp-1.21-2.11.48-neoforge.jar` | DROP | elysium-atelier | makes one mod's shapes out of another's materials; moot once both are ours, because that crossing is what this module already is |
 | `ExtendedAE-1.21-2.2.35-neoforge.jar` | DONE | elysium-logistics | more devices for a model this pack does not have; what it adds that is content rather than channel management is on the flat network |
-| `ExtremeReactors2-1.21.1-2.4.28.jar` | PLANNED | elysium-atomics | multiblock reactors |
+| `ExtremeReactors2-1.21.1-2.4.28.jar` | DONE | elysium-atomics | reactor halls: a hollow box of casing three to seven on a side, built with Age II's own shape arithmetic. Heat goes as the cube of the side and cooling as the square, so a bigger hall makes more altogether and less per rod - which makes the size a decision rather than a ladder, and is the opposite of how these mods usually work |
 | `fangs_n_claws-1.2.2.jar` | PLANNED | elysium-bestiary | nine hostile beasts exist on a proved reward ladder; their catalogues (dozens of mobs each, bosses, their own gear and items) do not |
 | `FarmersDelight-1.21.1-1.3.2.jar` | SPLIT | elysium-agronomy | cooking: 29 meals across four stations with 11 effects, 24 ingredients, 13 knife cuts, 5 knives and 25 blocks, none of them dominated — and now the crops behind them. Eight of those ingredients were items with a sprite, a crate to keep them in, a place in a dozen recipes and no way on earth to obtain one; six more were made out of nothing at all. Every crop now has a plant, a seed, eight stages, its own growth speed and a wild patch that generates in a tag of biomes, so the cookbook is not locked behind a village that may not exist. The eight sit on a frontier of time against yield, so none of them is as good as another on every axis, and every one of them feeds exactly one raw — a crop worth eating on its own is a reason never to cook. Plus a mushroom colony, capped, because a block that hands out unlimited mushrooms is a block that ends hunger. Its canvas signs are decoration and go to elysium-atelier |
 | `fastleafdecay-35.jar` | DROP | - | performance: not content |
 | `ferritecore-7.0.3-neoforge.jar` | DROP | - | performance: not content |
-| `FluxNetworks-1.21.1-8.0.0.jar` | PLANNED | elysium-atomics | wireless power |
+| `FluxNetworks-1.21.1-8.0.0.jar` | DROP | elysium-industry | wireless power, which this pack deliberately does not have: a grid's books are made, lent, lost, used, stored and spare, and 'lost' is distance down a wire. Power that arrives without travelling would make the one number the voltage ladder exists for a number nothing reads |
 | `friendsandfoes-neoforge-4.0.27+mc1.21.1.jar` | PLANNED | elysium-bestiary | mobs built around one mechanic each, and structures and gear alongside them; the bestiary has three behaviours and no structures at all |
 | `ftb-library-neoforge-2101.1.35.jar` | DROP | - | library: goes when the mods needing it go |
 | `ftb-ultimine-neoforge-2101.1.15.jar` | DROP | - | interface and convenience: not content |
@@ -176,7 +176,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `polyeng-0.4.1.jar` | DROP | - | library: goes when the mods needing it go |
 | `polymorph-neoforge-1.1.0+1.21.1.jar` | DROP | - | interface and convenience: not content |
 | `potentials-neoforge-1.21-0.7.1.jar` | DROP | - | interface and convenience: not content |
-| `Powah-6.2.10.jar` | PLANNED | elysium-atomics | reactors and energy cells |
+| `Powah-6.2.10.jar` | DONE | elysium-atomics | reactors and energy cells: the cells are the three-rung ladder already here, and the reactor is the hall - a thing whose size you choose and whose cooling you have to plumb |
 | `powergrid-mc1.21.1-0.5.5.1.jar` | DONE | elysium-industry | transmission answered properly: the loss down a wire is now charged inside the arithmetic rather than by the block that walks it, and a grid's books - made and borrowed against lost, used, stored and spare - are swept over ten thousand grids built at random |
 | `prickle-neoforge-1.21.1-21.1.11.jar` | DROP | - | library: goes when the mods needing it go |
 | `productivebees-1.21.1-13.13.5.jar` | DONE | elysium-agronomy | bees: 75 species with combs, comb blocks, nests and a breeding tree whose tier is worked out from its parents rather than written down — and now the machinery around them. Four rungs of housing, seven upgrades of which two add bees or speed and five buy back a chore (flowers, collecting, wandering, breeding, sampling), and a centrifuge that turns a comb into a chunk of what the bee makes, wax and a bottle of honey. A hive may still be worth only a quarter of a mine, and that is now proved over every one of 9,984 combinations of housing, upgrades and tier rather than for the one case somebody looked at: the comb time is solved so the best apiary anybody can build lands exactly on the line and a bare hive sits at a fifth of it. Of its 463 bee entities only 34 name a material this pack makes, and a bee for a metal nothing makes is a row in a registry rather than content |
@@ -232,7 +232,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `wwoo-neoforge-2.6.7.jar` | DONE | elysium-wilds | 110 biomes and 367 features replaced by 140 biomes of our own put into vanilla's own overworld: five warmths by five wets by five reliefs on the surface and five by three underground, a partition of the 47.5% of the inland surface they claim. The list is written out in full — ours first, then vanilla's 7,593 entries dumped from the game's own builder and carried through untouched — because our entries being first is what makes each of them win its own cell outright rather than hope to. Every one of vanilla's 53 biomes still has ground of its own, checked entry by entry rather than assumed, and every one of ours decorates like a biome the game already ships so the world cannot fail to start over a feature order nobody can see |
 | `xaerominimap-neoforge-1.21.1-26.4.2.jar` | DROP | - | interface and convenience: not content |
 | `xaeroworldmap-neoforge-1.21.1-1.44.2.jar` | DROP | - | interface and convenience: not content |
-| `ZeroCore2-1.21.1-2.4.21.jar` | PLANNED | elysium-atomics | multiblock reactors |
+| `ZeroCore2-1.21.1-2.4.21.jar` | DROP | - | the multiblock library under ExtremeReactors. Our shape arithmetic is elysium-industry's ShapeRules, swept against every one-block mutation of every orientation, and one multiblock checker in a pack is the right number |
 | `Zeta-1.1-40.jar` | DROP | - | library: goes when the mods needing it go |
 | `(new) space harvestcraft` | PLANNED | elysium-agronomy | designed and not built, on purpose: docs/SPEC_FRONTIER_CROPS.md. Not a roster of alien plants — a greenhouse ladder of four beds, each answering one hardship a world imposes, and fifteen strains made at the awakening altar out of this module's own crops and a sample of the world's ground. It is blocked on one table in elysium-space: five worlds and what is wrong with each of them. Agronomy inventing what a moon is like, when the moon already exists in somebody else's module, is the one way to get this wrong |
 | `(new) gregtech equivalent` | PLANNED | elysium-foundry | the deep material chain that ties the three ages together |

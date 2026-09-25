@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " E ",
+    "PSP",
+    " E "
+  ],
+  "key": {
+    "E": {
+      "item": "elysiumatomics:enriched_uranium"
+    },
+    "P": {
+      "tag": "c:plates/steel"
+    },
+    "S": {
+      "item": "elysiumindustry:steel_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumatomics:fuel_rod",
+    "count": 1
+  }
+}

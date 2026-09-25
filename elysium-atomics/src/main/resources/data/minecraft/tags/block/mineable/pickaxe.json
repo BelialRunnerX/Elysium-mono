@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
+    "elysiumatomics:reactor_casing",
+    "elysiumatomics:fuel_rod",
     "elysiumatomics:basic_cell",
     "elysiumatomics:advanced_cell",
     "elysiumatomics:quantum_cell",
@@ -10,6 +12,7 @@
     "elysiumatomics:servo",
     "elysiumatomics:coolant_channel",
     "elysiumatomics:reactor_core",
-    "elysiumatomics:solar_panel"
+    "elysiumatomics:solar_panel",
+    "elysiumatomics:reactor_port"
   ]
 }

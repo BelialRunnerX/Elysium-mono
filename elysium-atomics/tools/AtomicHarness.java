@@ -50,6 +50,17 @@ public final class AtomicHarness {
                 + " characters in all)";
     }
 
+    /** A list of faults, one line each, so no complaint buries another. */
+    private static void none(java.util.List<String> faults, String what) {
+        check(faults.isEmpty(),
+                what + ": " + (faults.isEmpty() ? "" : faults.get(0)));
+        for (int at = 1; at < faults.size(); at++) {
+            checks++;
+            failures++;
+            System.out.println("  FAIL: " + what + ": " + faults.get(at));
+        }
+    }
+
     private static void near(float got, float want, float slack, String what) {
         check(Math.abs(got - want) <= slack,
                 what + ": expected about " + want + ", got " + got);
@@ -65,6 +76,7 @@ public final class AtomicHarness {
         theServo();
         theLadder();
         theShaft();
+        theHalls();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -704,5 +716,200 @@ public final class AtomicHarness {
                             > IndustryRules.asLoad(IndustryRules.SEPARATOR).draw(),
                     "an Age III machine is lighter on a shaft than Age II's heaviest");
         }
+    }
+
+    /**
+     * Reactor halls: a reactor built at the size you want.
+     *
+     * <p>Two jars in this unit are about exactly this and nothing else, and
+     * the thing they usually get wrong is that bigger is simply better. Here
+     * the claim is a trade — bigger makes more altogether and less per rod —
+     * and a trade is a thing to sweep rather than to assert. Every size, every
+     * amount of plumbing, every throttle.
+     */
+    private static void theHalls() {
+        none(HallRules.faults(), "the reactor halls");
+
+        int swept = 0;
+        float perRodBefore = Float.MAX_VALUE;
+        float wholeBefore = -1.0F;
+        for (int side = HallRules.SMALLEST; side <= HallRules.LARGEST; side++) {
+            // The box adds up: what is casing plus what is inside it is the
+            // whole cube, and the rods are what is inside it.
+            check(HallRules.casingFor(side) + HallRules.inside(side)
+                            == side * side * side,
+                    "a hall " + side + " on a side is not a cube");
+            check(HallRules.rodsIn(side) == HallRules.inside(side),
+                    "a hall " + side + " on a side has room it cannot put a "
+                            + "rod in");
+            check(HallRules.surfaceOf(side) == 6 * side * side,
+                    "a box has six faces");
+
+            // The shape of that size really is that box.
+            com.elysium.industry.rules.ShapeRules.Shape box =
+                    HallRules.boxOf(side);
+            check(box.tall() == side && box.deep() == side
+                            && box.wide() == side,
+                    "the shape for a hall " + side + " on a side is not "
+                            + side + " on a side");
+            java.util.Map<String, Integer> bill = HallRules.billFor(side);
+            check(bill.getOrDefault(HallRules.CASING, 0)
+                            == HallRules.casingFor(side) - 1,
+                    "a hall " + side + " on a side wants "
+                            + bill.getOrDefault(HallRules.CASING, 0)
+                            + " casing and its wall is "
+                            + (HallRules.casingFor(side) - 1)
+                            + " blocks once the port is in it");
+            check(bill.getOrDefault(HallRules.ROD, 0) == HallRules.rodsIn(side),
+                    "a hall " + side + " on a side wants "
+                            + bill.getOrDefault(HallRules.ROD, 0)
+                            + " rod(s) and holds " + HallRules.rodsIn(side));
+            check(com.elysium.industry.rules.ShapeRules.controllerOf(box) != null,
+                    "a hall " + side + " on a side has no port");
+
+            // The trade, at every amount of plumbing.
+            float before = -1.0F;
+            for (int channels = 0;
+                    channels <= HallRules.mostChannelsOn(side); channels++) {
+                swept++;
+                float cooling = HallRules.coolingOf(side, channels);
+                check(cooling > 0.0F, "a hall " + side + " with " + channels
+                        + " channel(s) sheds nothing at all, so it settles "
+                        + "nowhere");
+                check(cooling >= before, "a hall " + side
+                        + " sheds less with " + channels + " channel(s) than "
+                        + "with " + (channels - 1));
+                before = cooling;
+                float safe = HallRules.safeThrottle(side, channels);
+                check(safe >= 0.0F && safe <= 1.0F, "a hall " + side
+                        + " with " + channels + " channel(s) has a safe "
+                        + "throttle of " + safe);
+                // The solved throttle is the throttle: run it there and it
+                // settles at or under safe; run it a little above and it does
+                // not. Solved rather than searched, and swept rather than
+                // trusted.
+                check(HallRules.settlesAt(side, safe, channels)
+                                <= AtomicRules.SAFE + 1.0F,
+                        "a hall " + side + " with " + channels
+                                + " channel(s) run at the throttle solved as "
+                                + "safe settles at "
+                                + HallRules.settlesAt(side, safe, channels));
+                if (safe < 0.999F) {
+                    check(HallRules.settlesAt(side, safe + 0.01F, channels)
+                                    > AtomicRules.SAFE,
+                            "a hall " + side + " with " + channels
+                                    + " channel(s) is still safe a notch above "
+                                    + "the throttle solved as its limit, so "
+                                    + "the limit is under where it could be");
+                }
+            }
+            // And a hall never sheds more than a single core with the same
+            // number of channels would, because nothing about being big helps.
+            check(HallRules.coolingOf(side, AtomicRules.MOST_CHANNELS)
+                            <= AtomicRules.coolingWith(AtomicRules.MOST_CHANNELS)
+                            + 1.0E-4F,
+                    "a hall sheds better per channel than a single core, so "
+                            + "building bigger cools better as well as making "
+                            + "more");
+
+            float whole = HallRules.safeOutput(side, HallRules.mostChannelsOn(side));
+            float perRod = whole / HallRules.rodsIn(side);
+            check(whole > wholeBefore, "a hall " + side + " on a side safely "
+                    + "makes " + whole + " and the one below makes "
+                    + wholeBefore + ", so nobody would build it");
+            check(perRod <= perRodBefore + 1.0E-4F, "a hall " + side
+                    + " on a side makes " + perRod + " a rod and the one "
+                    + "below makes " + perRodBefore + ", so bigger is free");
+            wholeBefore = whole;
+            perRodBefore = perRod;
+        }
+        check(swept > 100, "only " + swept + " hall(s) were swept");
+
+        // No two sizes are the same arrangement, in any rotation of either.
+        check(com.elysium.industry.rules.ShapeRules.faultsInSet(HallRules.SHAPES)
+                        .isEmpty(),
+                "two sizes of hall are the same pile of blocks");
+        for (com.elysium.industry.rules.ShapeRules.Shape shape : HallRules.SHAPES) {
+            check(com.elysium.industry.rules.ShapeRules.matches(shape,
+                            com.elysium.industry.rules.ShapeRules.gridOf(shape)),
+                    shape.id() + " is not its own shape");
+        }
+
+        // Controls, built to be caught. Each one is pointed at its own rule:
+        // a control aimed at the lot is answered by whichever fires first,
+        // and the rest could then be deleted with every check still green.
+        check(!HallRules.faultsInRange(2, 7).isEmpty(),
+                "a smallest hall with nothing inside it is not reported");
+        check(!HallRules.faultsInRange(5, 5).isEmpty(),
+                "a range with one size in it is not reported, so the size of "
+                        + "a reactor could stop being a decision");
+        check(HallRules.faultsInRange(HallRules.SMALLEST, HallRules.LARGEST)
+                        .isEmpty(),
+                "the range this module ships is reported as faulty");
+        check(!HallRules.faultsInBoxes(2, 2).isEmpty(),
+                "a box with no room in it is not reported");
+        check(HallRules.faultsInBoxes(HallRules.SMALLEST, HallRules.LARGEST)
+                        .isEmpty(),
+                "the boxes this module ships are reported as faulty");
+
+        // The ladder, handed a ladder built to be caught.
+        check(!HallRules.faultsInLadder(java.util.List.of(
+                        new float[] {100.0F, 100.0F},
+                        new float[] {400.0F, 200.0F})).isEmpty(),
+                "a ladder that makes more per rod the bigger it gets is not "
+                        + "reported, so building bigger could be free");
+        check(!HallRules.faultsInLadder(java.util.List.of(
+                        new float[] {400.0F, 100.0F},
+                        new float[] {300.0F, 50.0F})).isEmpty(),
+                "a ladder whose bigger rung makes less altogether is not "
+                        + "reported, so it could be a rung nobody builds");
+        check(!HallRules.faultsInLadder(java.util.List.of(
+                        new float[] {400.0F, 100.0F})).isEmpty(),
+                "a ladder with one rung on it is not reported");
+        check(HallRules.faultsInLadder(java.util.List.of(
+                        new float[] {100.0F, 100.0F},
+                        new float[] {400.0F, 50.0F})).isEmpty(),
+                "a ladder that makes more altogether and less per rod is "
+                        + "reported as faulty, which is the shape this module "
+                        + "ships");
+        check(HallRules.faultsInLadder(HallRules.ladderOf(HallRules.SMALLEST,
+                        HallRules.LARGEST)).isEmpty(),
+                "the ladder this module ships is reported as faulty");
+
+        // The plumbing, handed rods weak enough to need none.
+        check(!HallRules.faultsInUnplumbed(HallRules.SMALLEST,
+                        HallRules.LARGEST, 0.1F).isEmpty(),
+                "rods weak enough that a hall is safe at full throttle with "
+                        + "no cooling at all are not reported, so a reactor "
+                        + "could be a generator you simply place");
+        check(HallRules.faultsInUnplumbed(HallRules.SMALLEST,
+                        HallRules.LARGEST, HallRules.PER_ROD).isEmpty(),
+                "the rods this module ships are reported as needing no "
+                        + "cooling");
+        check(!HallRules.faultsInThrottle(HallRules.SMALLEST,
+                        HallRules.PER_ROD).isEmpty(),
+                "a range whose largest hall never needs throttling is not "
+                        + "reported, so the throttle could be a slider nobody "
+                        + "touches");
+        check(HallRules.faultsInThrottle(HallRules.LARGEST, HallRules.PER_ROD)
+                        .isEmpty(),
+                "the largest hall this module ships is reported as needing no "
+                        + "throttle");
+        check(HallRules.faultsInPlumbing(HallRules.SMALLEST, HallRules.LARGEST,
+                        HallRules.PER_ROD).isEmpty(),
+                "the plumbing this module ships is reported as faulty");
+
+        System.out.println("  the halls: " + (HallRules.LARGEST
+                - HallRules.SMALLEST + 1) + " size(s) of reactor, " + swept
+                + " of them swept at every amount of plumbing - each one "
+                + "making more altogether than the one below and less per rod, "
+                + "from "
+                + String.format("%.0f", HallRules.safeOutput(HallRules.SMALLEST,
+                        HallRules.mostChannelsOn(HallRules.SMALLEST)))
+                + " FE/t to "
+                + String.format("%.0f", HallRules.safeOutput(HallRules.LARGEST,
+                        HallRules.mostChannelsOn(HallRules.LARGEST)))
+                + " FE/t, and heat that goes as the cube against cooling that "
+                + "goes as the square");
     }
 }

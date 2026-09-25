@@ -8689,9 +8689,12 @@ block	elysiumatomics:basic_cell
 block	elysiumatomics:centrifuge	
 block	elysiumatomics:coolant_channel	
 block	elysiumatomics:enricher	
+block	elysiumatomics:fuel_rod	
 block	elysiumatomics:quantum_cell	
 block	elysiumatomics:reaction_chamber	
+block	elysiumatomics:reactor_casing	
 block	elysiumatomics:reactor_core	lit=false,true
+block	elysiumatomics:reactor_port	side=0,1,2,3,4,5,6,7
 block	elysiumatomics:servo	axis=x,y,z
 block	elysiumatomics:solar_panel	
 item	elysiumatomics:advanced_cell	
@@ -8700,10 +8703,13 @@ item	elysiumatomics:centrifuge
 item	elysiumatomics:coolant_channel	
 item	elysiumatomics:enriched_uranium	
 item	elysiumatomics:enricher	
+item	elysiumatomics:fuel_rod	
 item	elysiumatomics:quantum_cell	
 item	elysiumatomics:raw_uranium	
 item	elysiumatomics:reaction_chamber	
+item	elysiumatomics:reactor_casing	
 item	elysiumatomics:reactor_core	
+item	elysiumatomics:reactor_port	
 item	elysiumatomics:servo	
 item	elysiumatomics:solar_panel	
 item	elysiumatomics:uranium_ingot	

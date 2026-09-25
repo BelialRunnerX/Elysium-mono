@@ -13,6 +13,7 @@ silently undone the next time this runs.
 """
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -243,7 +244,60 @@ def rod(ramp):
 
 URANIUM = [(40, 58, 34), (66, 96, 52), (96, 134, 70), (140, 184, 96)]
 
+# ---------------------------------------------------------------------------
+# The reactor hall, read out of its own rules
+# ---------------------------------------------------------------------------
+
+HALL_SOURCE = open(os.path.join(
+    MOD, "src/main/java/com/elysium/atomics/rules/HallRules.java"),
+    encoding="utf-8").read()
+HALL = {key: re.search(r'String ' + key + r' = "([a-z_]+)"', HALL_SOURCE)
+        for key in ("CASING", "ROD", "CONTROLLER")}
+if not all(HALL.values()):
+    print("HallRules no longer says what a reactor hall is built of")
+    sys.exit(2)
+HALL = {key: found.group(1) for key, found in HALL.items()}
+LARGEST = int(re.search(r"int LARGEST = (\d+);", HALL_SOURCE).group(1))
+
+
+def casing_face():
+    """Plated wall: the outside of something you are not meant to open."""
+    image = Image.new("RGBA", (16, 16), (108, 112, 116, 255))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 15], outline=(72, 76, 80, 255))
+    for x, y in ((3, 3), (12, 3), (3, 12), (12, 12)):
+        draw.rectangle([x - 1, y - 1, x, y], fill=(150, 154, 158, 255))
+    draw.line([1, 8, 14, 8], fill=(88, 92, 96, 255))
+    return image
+
+
+def rod_face():
+    """A fuel rod, stood on end and glowing where it is doing its work."""
+    image = Image.new("RGBA", (16, 16), (76, 80, 84, 255))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 15], outline=(52, 56, 60, 255))
+    for column in (4, 8, 12):
+        draw.rectangle([column - 1, 2, column, 13], fill=(140, 146, 150, 255))
+        draw.rectangle([column - 1, 5, column, 10], fill=(150, 226, 120, 255))
+    return image
+
+
+def port_face(formed):
+    """The port: the one block of the wall with a window in it."""
+    image = casing_face()
+    draw = ImageDraw.Draw(image)
+    glass = (150, 226, 120) if formed else (60, 74, 66)
+    draw.rectangle([4, 5, 11, 12], fill=(40, 44, 48, 255),
+                   outline=(150, 154, 158, 255))
+    draw.rectangle([6, 7, 9, 10], fill=glass + (255,))
+    return image
+
+
 BLOCK_SPRITES = {
+    HALL["CASING"]: casing_face,
+    HALL["ROD"]: rod_face,
+    HALL["CONTROLLER"]: lambda: port_face(False),
+    HALL["CONTROLLER"] + "_on": lambda: port_face(True),
     "basic_cell": lambda: cell_face(GLOW, 2),
     "advanced_cell": lambda: cell_face(COLD, 4),
     "quantum_cell": lambda: cell_face(HOT, 6),
@@ -371,6 +425,8 @@ def panel_model():
 
 
 CUBES = {
+    HALL["CASING"]: (HALL["CASING"], HALL["CASING"]),
+    HALL["ROD"]: (HALL["ROD"], HALL["ROD"]),
     "basic_cell": ("basic_cell_top", "basic_cell"),
     "advanced_cell": ("advanced_cell_top", "advanced_cell"),
     "quantum_cell": ("quantum_cell_top", "quantum_cell"),
@@ -384,7 +440,8 @@ PIPES = {"coolant_channel": ("coolant_channel", "coolant_channel_end")}
 CORES = {"reactor_core": ("reactor_core", "reactor_core_top")}
 PANELS = ("solar_panel",)
 
-BLOCKS = (list(CUBES) + list(SPINDLES) + list(PIPES) + list(CORES) + list(PANELS))
+BLOCKS = (list(CUBES) + list(SPINDLES) + list(PIPES) + list(CORES)
+          + list(PANELS) + [HALL["CONTROLLER"]])
 
 
 def core_model(side, top):
@@ -442,6 +499,23 @@ def models_and_states():
         write(os.path.join(ASSETS, "models/item", name + ".json"),
               {"parent": f"{NS}:block/{name}"})
         written += 1
+    # The port: one model per size the hall can be, because the block says
+    # out loud which size formed around it and a block that looked the same
+    # at every size would be a block whose one piece of feedback is a message
+    # you have to ask for.
+    port = HALL["CONTROLLER"]
+    write(os.path.join(ASSETS, "models/block", port + ".json"),
+          cube(HALL["CASING"], port))
+    write(os.path.join(ASSETS, "models/block", port + "_on.json"),
+          cube(HALL["CASING"], port + "_on"))
+    write(os.path.join(ASSETS, "blockstates", port + ".json"), {"variants": {
+        **{f"side={size}": {"model": f"{NS}:block/{port}"} for size in (0,)},
+        **{f"side={size}": {"model": f"{NS}:block/{port}_on"}
+           for size in range(1, LARGEST + 1)},
+    }})
+    write(os.path.join(ASSETS, "models/item", port + ".json"),
+          {"parent": f"{NS}:block/{port}"})
+    written += 1
     for name in PANELS:
         write(os.path.join(ASSETS, "models/block", name + ".json"), panel_model())
         write(os.path.join(ASSETS, "blockstates", name + ".json"),
@@ -493,6 +567,16 @@ COPPER_PLATE = TAG("c:plates/copper")
 #: is the gate: you do not reach the third age by finding a new ore, you reach
 #: it by having a factory already.
 RECIPES = {
+    HALL["CASING"]: shaped(["PSP", "S S", "PSP"], {
+        "P": STEEL_PLATE, "S": ITEM(f"{IND}:steel_ingot")},
+        HALL["CASING"], 4),
+    HALL["ROD"]: shaped([" E ", "PSP", " E "], {
+        "E": ITEM(f"{NS}:enriched_uranium"), "P": STEEL_PLATE,
+        "S": ITEM(f"{IND}:steel_ingot")}, HALL["ROD"]),
+    HALL["CONTROLLER"]: shaped(["CGC", "PRP", "CGC"], {
+        "C": ITEM(f"{NS}:" + HALL["CASING"]), "G": ITEM("minecraft:glass"),
+        "P": GOLD_PLATE, "R": ITEM("minecraft:redstone_block")},
+        HALL["CONTROLLER"]),
     "basic_cell": shaped(["PRP", "PCP", "PRP"], {
         "P": STEEL_PLATE, "R": ITEM("minecraft:redstone_block"),
         "C": ITEM(f"{IND}:copper_wire")}, "basic_cell"),
@@ -625,6 +709,9 @@ def data_files():
 # ---------------------------------------------------------------------------
 
 NAMES = {
+    HALL["CASING"]: "Reactor Casing",
+    HALL["ROD"]: "Fuel Rod",
+    HALL["CONTROLLER"]: "Reactor Port",
     "basic_cell": "Basic Cell",
     "advanced_cell": "Advanced Cell",
     "quantum_cell": "Quantum Cell",
@@ -645,6 +732,10 @@ ITEM_NAMES = {
 
 LINES = {
     "itemGroup.elysiumatomics": "Elysium Atomics",
+    "elysiumatomics.hall.unformed": "No reactor here. Nearest miss: %s.",
+    "elysiumatomics.hall.running":
+        "A %s hall: %s rod(s), %s channel(s), making %s FE/t at %s degrees. "
+        "Safe up to %s%% throttle.",
     "elysiumatomics.cell.holding": "Holding %s of %s (%s).",
     "elysiumatomics.cell.charging": "Charging: %s of %s (%s).",
     "elysiumatomics.cell.draining": "Draining: %s of %s (%s).",

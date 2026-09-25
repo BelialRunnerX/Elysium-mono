@@ -76,6 +76,16 @@ def harness_trouble(output):
     return "\n".join(lines or output.strip().splitlines()[-12:])[:2000]
 
 
+def squashed(text):
+    """One method's source with every run of whitespace made one space.
+
+    A rule that names a whole statement has to survive the statement being
+    re-wrapped, or it fails the first time somebody tidies the file and then
+    gets deleted rather than fixed.
+    """
+    return re.sub(r"\s+", " ", text)
+
+
 def body_of(text, signature):
     start = text.find(signature)
     if start < 0:
@@ -372,15 +382,39 @@ blocks_src = read(SRC, "registry/AtomicBlocks.java")
 items_src = read(SRC, "registry/AtomicItems.java")
 registered = re.findall(r'BLOCKS\.register\("([a-z_]+)"', strip_comments(blocks_src, True))
 parts = re.findall(r'part\("([a-z_]+)"\)', strip_comments(items_src, True))
+AGE_BLOCKS = len(registered)
 
-if len(registered) != 10:
-    fail(f"Age III has {len(registered)} block(s); the spec says ten — three cells, a "
-         f"core and its plumbing and a panel, a servo and three machines")
+# The reactor hall's three blocks are registered from a loop over HallRules
+# rather than named one at a time, so a reading that walks literal
+# register("...") calls cannot see them. Parsed out of the rules instead.
+HALL_RULES = strip_comments(read(SRC, "rules/HallRules.java"), keep_strings=True)
+hall = [found.group(1) for found in
+        (re.search(r'String ' + key + r' = "([a-z_]+)"', HALL_RULES)
+         for key in ("CASING", "ROD", "CONTROLLER")) if found]
+if len(hall) != 3:
+    fail(f"HallRules no longer says what a reactor hall is built of; this file "
+         f"read {len(hall)} of its three blocks, and every check below it is "
+         f"then checking nothing")
+registered = registered + hall
+
+if AGE_BLOCKS != 10:
+    fail(f"Age III has {AGE_BLOCKS} block(s) beside the reactor hall; the spec "
+         f"says ten — three cells, a core and its plumbing and a panel, a "
+         f"servo and three machines")
 
 block_items = set(re.findall(r'registerSimpleBlockItem\(AtomicBlocks\.([A-Z_]+)\)',
                              strip_comments(items_src, True)))
 order = re.search(r"ORDER = List\.of\(([^;]+)\);", strip_comments(items_src, True))
 in_tab = set(re.findall(r"[A-Z_]{3,}", order.group(1))) if order else set()
+# What the tab actually shows, read out of the one lambda that builds it: a
+# roster named anywhere in the registry would otherwise satisfy a rule about
+# being *in the tab*.
+_display = re.search(r"displayItems\(\(parameters, output\) -> \{(.*?)\}\)",
+                     re.sub(r"\s+", " ", strip_comments(items_src, True)))
+_shown = _display.group(1) if _display else ""
+if "HALL" not in _shown:
+    fail("the creative tab does not reach for the reactor hall's roster, so "
+         "its three blocks are blocks nobody in a creative world can find")
 
 lang = {}
 lang_path = os.path.join(RES, "assets", NS, "lang/en_us.json")
@@ -395,9 +429,13 @@ if os.path.isfile(pick_path):
     mineable = json.load(open(pick_path, encoding="utf-8")).get("values", [])
 
 for name in registered:
-    if name.upper() not in block_items:
+    # The reactor hall's three are registered from a roster rather than named,
+    # so they have no literal item line and no literal name in the tab's
+    # order. The count checks in the registry catch a missing one, and the
+    # rule above checks the tab reaches for the roster at all.
+    if name.upper() not in block_items and name not in hall:
         fail(f"{name} has no item, so it exists only to a command")
-    if name.upper() not in in_tab:
+    if name.upper() not in in_tab and name not in hall:
         fail(f"{name} is in no creative tab, so nobody in a creative world can find it")
     for kind, where in (("blockstates", f"blockstates/{name}.json"),
                         ("a model", f"models/block/{name}.json"),
@@ -559,9 +597,14 @@ for module, namespace in (("elysium-industry", "elysiumindustry"),
                           ("elysium-kinetics", "elysiumkinetics")):
     folder = os.path.join(ROOT, module, "src/main/resources/data", namespace, "recipe")
     if os.path.isdir(folder):
-        for name in os.listdir(folder):
-            if name.endswith(".json"):
-                below.add(f"{namespace}:{name[:-5]}")
+        # Walked rather than listed. An age below keeps its machine recipes in
+        # folders — recipe/smelting/steel_ingot.json — and a reading that only
+        # looks at the top level decides the age below does not make steel,
+        # which is exactly the thing it is best known for.
+        for dirpath, _, filenames in os.walk(folder):
+            for name in filenames:
+                if name.endswith(".json"):
+                    below.add(f"{namespace}:{name[:-5]}")
 
 recipe_root = os.path.join(RES, "data", NS, "recipe")
 crafted = {}
@@ -658,6 +701,67 @@ if os.path.isfile(ores) and "uranium" in read(ores):
     if not os.path.isfile(filled):
         fail("elysium-ores generates uranium and nothing in this install supplies any, "
              "so every uranium ore in the world drops nothing when mined")
+
+# ---------------------------------------------------------------------------
+# The reactor hall: a reactor whose size is a decision
+# ---------------------------------------------------------------------------
+
+PORT_BLOCK = strip_comments(read(SRC, "block/ReactorPortBlock.java"),
+                            keep_strings=True)
+for needed, why in (
+        ("public static ShapeRules.Shape boxOf(",
+         "nothing builds the box of a given size, so seven shapes would have "
+         "to be written out and the seventh is three hundred and forty-three "
+         "characters of the same letter"),
+        ("public static float safeThrottle(",
+         "nothing solves the throttle a hall is safe at, so the one control a "
+         "player has over a reactor is a slider they find by melting one"),
+        ("public static List<String> faultsInLadder(",
+         "nothing asks whether a bigger hall is a trade rather than an "
+         "upgrade, which is the whole reason there is a second reactor"),
+        ("public static List<String> faultsInPlumbing(",
+         "nothing asks whether the cooling is a decision, so a reactor could "
+         "be a generator you simply place")):
+    if needed not in HALL_RULES:
+        fail(why)
+
+# The hall reuses Age II's shape arithmetic rather than having its own. Two
+# multiblock checkers in one pack is two sets of bugs, and only one of them
+# would be the one the harness sweeps.
+if "import com.elysium.industry.rules.ShapeRules;" not in read(SRC, "rules/HallRules.java"):
+    fail("the reactor hall has its own idea of what a shape is rather than "
+         "the one Age II already proves, so there are two multiblock checkers "
+         "in this pack and only one of them is swept")
+if "ShapeRules.orientations(shape)" not in squashed(PORT_BLOCK):
+    fail("the port does not try every orientation, so a hall built facing the "
+         "wrong way is a hall that does not form and says nothing")
+_look = squashed(body_of(PORT_BLOCK, "public void look("))
+if "if (ShapeRules.sameAs(want, found)) {" not in _look:
+    fail("the port decides for itself whether the blocks are a hall rather "
+         "than asking the arithmetic that is swept at every size")
+if "wrong = best;" not in _look:
+    fail("the port throws away what it found wrong, so a player who has built "
+         "a hall almost right is told nothing at all")
+if "elysiumatomics.hall.unformed" not in PORT_BLOCK:
+    fail("there is no sentence for a hall that has not formed, so the answer "
+         "is the worst one there is: nothing happens")
+_tick = squashed(body_of(PORT_BLOCK, "public static void tick("))
+if "HallRules.coolingOf(side, port.channels)" not in _tick:
+    fail("a hall sheds heat at a rate of its own rather than the one its size "
+         "and plumbing give it, so the number a player watches is a number no "
+         "harness has ever executed")
+
+_sizes = re.search(r"int SMALLEST = (\d+);", HALL_RULES)
+_largest = re.search(r"int LARGEST = (\d+);", HALL_RULES)
+if not _sizes or not _largest:
+    fail("HallRules no longer says how big a hall may be")
+else:
+    print(f"the reactor hall   : {int(_largest.group(1)) - int(_sizes.group(1)) + 1}"
+          f" size(s) of reactor built out of three blocks, each one making "
+          f"more altogether than the one below and less per rod - heat goes "
+          f"as the cube of the side and cooling goes as the square, which is "
+          f"what makes the size a decision rather than a ladder")
+
 
 print(f"the age in the world: {len(registered)} block(s) and {len(parts)} part(s), each "
       f"modelled, dropped, named and craftable out of a factory; "

@@ -1,0 +1,49 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "top": "elysiumatomics:block/reactor_casing",
+    "side": "elysiumatomics:block/reactor_port_on",
+    "bottom": "elysiumatomics:block/reactor_casing",
+    "particle": "elysiumatomics:block/reactor_port_on"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#bottom",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#top",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#side",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#side",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#side",
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#side",
+          "cullface": "east"
+        }
+      }
+    }
+  ]
+}

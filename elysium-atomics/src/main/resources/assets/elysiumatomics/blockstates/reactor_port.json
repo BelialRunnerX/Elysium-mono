@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "side=0": {
+      "model": "elysiumatomics:block/reactor_port"
+    },
+    "side=1": {
+      "model": "elysiumatomics:block/reactor_port_on"
+    },
+    "side=2": {
+      "model": "elysiumatomics:block/reactor_port_on"
+    },
+    "side=3": {
+      "model": "elysiumatomics:block/reactor_port_on"
+    },
+    "side=4": {
+      "model": "elysiumatomics:block/reactor_port_on"
+    },
+    "side=5": {
+      "model": "elysiumatomics:block/reactor_port_on"
+    },
+    "side=6": {
+      "model": "elysiumatomics:block/reactor_port_on"
+    },
+    "side=7": {
+      "model": "elysiumatomics:block/reactor_port_on"
+    }
+  }
+}

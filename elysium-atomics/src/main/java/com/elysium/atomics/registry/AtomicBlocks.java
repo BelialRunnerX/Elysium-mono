@@ -70,6 +70,45 @@ public final class AtomicBlocks {
                     () -> new CoolantChannelBlock(sealed()
                             .mapColor(MapColor.COLOR_CYAN).strength(3.0F)));
 
+    // --- the reactor hall: a reactor built at the size you want ---------
+    //
+    // Registered from the rules rather than named here, so a block a shape
+    // asks for and nothing registers is caught by the count below on the day
+    // the shape is written rather than by a player who built one.
+
+    public static final java.util.Map<String, DeferredBlock<Block>> HALL = registerHall();
+
+    private static java.util.Map<String, DeferredBlock<Block>> registerHall() {
+        java.util.Map<String, DeferredBlock<Block>> made =
+                new java.util.LinkedHashMap<>();
+        made.put(com.elysium.atomics.rules.HallRules.CASING,
+                BLOCKS.register(com.elysium.atomics.rules.HallRules.CASING,
+                        () -> new Block(sealed())));
+        made.put(com.elysium.atomics.rules.HallRules.ROD,
+                BLOCKS.register(com.elysium.atomics.rules.HallRules.ROD,
+                        () -> new Block(sealed())));
+        made.put(com.elysium.atomics.rules.HallRules.CONTROLLER,
+                BLOCKS.register(com.elysium.atomics.rules.HallRules.CONTROLLER,
+                        () -> new com.elysium.atomics.block.ReactorPortBlock(sealed())));
+        if (made.size() != 3) {
+            throw new IllegalStateException("a reactor hall is casing, rods "
+                    + "and a port, and " + made.size() + " were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
+    /**
+     * One of this module's blocks by its plain name, or null.
+     *
+     * <p>A shape's key holds a name, because a shape is arithmetic and
+     * arithmetic does not know what a Block is. This is the one place that
+     * turns one into the other.
+     */
+    public static Block byName(String name) {
+        DeferredBlock<Block> found = HALL.get(name);
+        return found == null ? null : found.get();
+    }
+
     public static final DeferredBlock<Block> SOLAR_PANEL = BLOCKS.register("solar_panel",
             () -> new SolarPanelBlock(sealed().strength(2.0F)
                     .mapColor(MapColor.COLOR_BLUE)));

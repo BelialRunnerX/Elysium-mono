@@ -32,6 +32,30 @@ public final class AtomicItems {
     public static final TagKey<Item> STEEL_PLATE_TAG = ItemTags.create(
             ResourceLocation.fromNamespaceAndPath("c", "plates/steel"));
 
+    /**
+     * The reactor hall's three blocks, walked out of the rules.
+     *
+     * <p>Walked rather than listed, because a block a shape asks for and
+     * nothing gives an item to is a block a player is told to build with and
+     * cannot hold.
+     */
+    public static final java.util.List<DeferredItem<BlockItem>> HALL = hall();
+
+    private static java.util.List<DeferredItem<BlockItem>> hall() {
+        java.util.List<DeferredItem<BlockItem>> made = new java.util.ArrayList<>();
+        for (net.neoforged.neoforge.registries.DeferredBlock<
+                net.minecraft.world.level.block.Block> block
+                : AtomicBlocks.HALL.values()) {
+            made.add(ITEMS.registerSimpleBlockItem(block));
+        }
+        if (made.size() != AtomicBlocks.HALL.size()) {
+            throw new IllegalStateException("a reactor hall has "
+                    + AtomicBlocks.HALL.size() + " block(s) and " + made.size()
+                    + " item(s)");
+        }
+        return java.util.List.copyOf(made);
+    }
+
     public static final DeferredItem<BlockItem> BASIC_CELL =
             ITEMS.registerSimpleBlockItem(AtomicBlocks.BASIC_CELL);
     public static final DeferredItem<BlockItem> ADVANCED_CELL =
@@ -89,6 +113,9 @@ public final class AtomicItems {
                     .icon(() -> new ItemStack(REACTOR_CORE.get()))
                     .displayItems((parameters, output) -> {
                         for (DeferredItem<? extends Item> item : ORDER) {
+                            output.accept(item.get());
+                        }
+                        for (DeferredItem<? extends Item> item : HALL) {
                             output.accept(item.get());
                         }
                         for (DeferredItem<? extends Item> item : PARTS) {
