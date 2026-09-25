@@ -11,6 +11,8 @@
     "elysiumkinetics:oil_engine",
     "elysiumkinetics:distillate_engine",
     "elysiumkinetics:refinery",
-    "elysiumkinetics:dynamo"
+    "elysiumkinetics:dynamo",
+    "elysiumkinetics:anchor",
+    "elysiumkinetics:wide_anchor"
   ]
 }

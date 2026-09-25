@@ -99,6 +99,25 @@ public final class KineticItems {
     public static final DeferredItem<BlockItem> REFINERY =
             ITEMS.registerSimpleBlockItem(KineticBlocks.REFINERY);
 
+    /** The anchors, walked out of the blocks they were registered from. */
+    public static final java.util.Map<String, DeferredItem<BlockItem>> ANCHORS =
+            registerAnchors();
+
+    private static java.util.Map<String, DeferredItem<BlockItem>> registerAnchors() {
+        java.util.Map<String, DeferredItem<BlockItem>> made =
+                new java.util.LinkedHashMap<>();
+        for (java.util.Map.Entry<String, net.neoforged.neoforge.registries.DeferredBlock<net.minecraft.world.level.block.Block>> one
+                : KineticBlocks.ANCHORS.entrySet()) {
+            made.put(one.getKey(), ITEMS.registerSimpleBlockItem(one.getValue()));
+        }
+        if (made.size() != KineticBlocks.ANCHORS.size()) {
+            throw new IllegalStateException("there are "
+                    + KineticBlocks.ANCHORS.size() + " anchor block(s) and "
+                    + made.size() + " item(s) for them");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
     /** The dynamo, which is where the next age starts. */
     public static final DeferredItem<BlockItem> DYNAMO =
             ITEMS.registerSimpleBlockItem(KineticBlocks.DYNAMO);
@@ -115,6 +134,7 @@ public final class KineticItems {
         made.addAll(ENGINES.values());
         made.add(REFINERY);
         made.add(DYNAMO);
+        made.addAll(ANCHORS.values());
         return java.util.List.copyOf(made);
     }
 

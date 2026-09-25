@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:mixing",
+  "input": {
+    "item": "minecraft:spider_eye"
+  },
+  "result": {
+    "id": "minecraft:fermented_spider_eye",
+    "count": 1
+  },
+  "ticks": 200,
+  "pace": "steady"
+}

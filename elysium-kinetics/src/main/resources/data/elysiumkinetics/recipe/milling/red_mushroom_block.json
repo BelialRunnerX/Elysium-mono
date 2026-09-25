@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:milling",
+  "input": {
+    "item": "minecraft:red_mushroom_block"
+  },
+  "result": {
+    "id": "minecraft:red_mushroom",
+    "count": 2
+  },
+  "ticks": 140,
+  "pace": "slow"
+}

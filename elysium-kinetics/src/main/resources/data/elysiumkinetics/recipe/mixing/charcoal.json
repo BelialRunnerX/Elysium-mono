@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:mixing",
+  "input": {
+    "item": "minecraft:charcoal"
+  },
+  "result": {
+    "id": "minecraft:coal",
+    "count": 1
+  },
+  "ticks": 240,
+  "pace": "steady"
+}

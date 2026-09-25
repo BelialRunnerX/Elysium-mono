@@ -1,4 +1,5 @@
 {
+  "block.elysiumkinetics.anchor": "Anchor",
   "block.elysiumkinetics.brass_shaft": "Brass Shaft",
   "block.elysiumkinetics.distillate_engine": "Distillate Engine",
   "block.elysiumkinetics.dynamo": "Dynamo",
@@ -16,7 +17,10 @@
   "block.elysiumkinetics.small_cogwheel": "Small Cogwheel",
   "block.elysiumkinetics.timber_shaft": "Timber Shaft",
   "block.elysiumkinetics.water_wheel": "Water Wheel",
+  "block.elysiumkinetics.wide_anchor": "Wide Anchor",
   "block.elysiumkinetics.windmill_bearing": "Windmill Bearing",
+  "elysiumkinetics.anchor.holding": "Holding a %s square: %s chunk(s) awake.",
+  "elysiumkinetics.anchor.waiting": "Set to a %s square, which needs %s rpm. This is turning at %s. Crouch and prod to change the width.",
   "elysiumkinetics.dynamo.making": "%s FE/t. Holding %s of %s.",
   "elysiumkinetics.dynamo.slow": "Turning at %s rpm; it needs %s before it makes anything. Gear it up.",
   "elysiumkinetics.dynamo.still": "Nothing is turning it.",

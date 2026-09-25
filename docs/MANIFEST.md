@@ -8,28 +8,27 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 67 | DONE | an Elysium module already replaces it |
-| 8 | SPLIT | spans several modules; see docs/SPLITS.md |
+| 76 | DONE | an Elysium module already replaces it |
+| 14 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 48 | PLANNED | has a target module, not started |
+| 29 | PLANNED | has a target module, not started |
 | 13 | KEEP | stays in the pack on purpose |
-| 67 | DROP | library or performance: nothing to convert |
+| 71 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
 
 ## Work remaining, by module
 
 | module | mods to absorb |
 |---|---|
-| `elysium-kinetics` | 19 |
 | `elysium-atomics` | 9 |
-| `elysium-bestiary` | 7 |
+| `elysium-bestiary` | 8 |
+| `elysium-atelier` | 7 |
 | `elysium-comforts` | 6 |
 | `elysium-agronomy` | 4 |
 | `elysium-industry` | 4 |
-| `elysium-atelier` | 3 |
+| `elysium-wilds` | 2 |
 | `elysium-arcana` | 1 |
 | `elysium-foundry` | 1 |
-| `elysium-wilds` | 1 |
 
 ## Every jar
 
@@ -68,23 +67,23 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `comforts-neoforge-9.0.5+1.21.1.jar` | PLANNED | elysium-comforts | quality of life |
 | `commoncapabilities-1.21.1-neoforge-2.11.5.jar` | DROP | elysium-logistics | a capability library for the same, and the game's own capabilities are what this module already runs on |
 | `configuration-neoforge-1.21.1-3.1.1.jar` | DROP | - | library: goes when the mods needing it go |
-| `copycats-3.0.4+mc.1.21.1-neoforge.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
-| `create-1.21.1-6.0.10.jar` | PLANNED | elysium-kinetics | Age I: rotation, stress, contraptions |
-| `create-aeronautics-bundled-1.21.1-1.3.0.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
-| `create-central-kitchen-2.5.0.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
-| `create-enchantment-industry-2.5.1.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
-| `create-integrated-farming-1.2.6.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
-| `create-new-age-1.2.0+neoforge-mc1.21.1.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
-| `create-stuff-additions1.21.1_v2.1.4a.jar` | PLANNED | elysium-kinetics | Age I: rotation, stress, contraptions |
-| `create_aquatic_ambitions-1.21.1-2.0.4.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
-| `create_connected-1.3.2-mc1.21.1.jar` | PLANNED | elysium-kinetics | Age I: rotation, stress, contraptions |
-| `create_power_loader-2.0.5-mc1.21.1.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
-| `create_ultimate_factory-2.2.4-neoforge-1.21.1.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
-| `createaddition-1.6.0.jar` | PLANNED | elysium-kinetics | Age I: rotation, stress, contraptions |
-| `createbigcannons-5.11.7+mc.1.21.1.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
-| `createdeco-2.1.3.jar` | PLANNED | elysium-kinetics | Age I: rotation, stress, contraptions |
-| `createdieselgenerators-1.21.1-1.3.15.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
-| `CreateDragonsPlus-1.11.4.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
+| `copycats-3.0.4+mc.1.21.1-neoforge.jar` | SPLIT | elysium-atelier | blocks that wear another block's texture: a decoration idea, and it belongs with the decoration module |
+| `create-1.21.1-6.0.10.jar` | DONE | elysium-kinetics | Age I is ours: a linear speed-torque curve rather than a stress light switch, a line that settles where push equals draw, a tree of speeds that jams instead of insisting a shaft turns at two of them, 20 blocks, 43 machine recipes and a spec the later ages build against. No contraptions - see CONVERSION section 14 |
+| `create-aeronautics-bundled-1.21.1-1.3.0.jar` | DROP | - | built on contraption assembly: an airship is a flying one |
+| `create-central-kitchen-2.5.0.jar` | DONE | elysium-kinetics | the kitchen fed by machine: the saw does the knife's work and gives only the main yield, so butter without the cream |
+| `create-enchantment-industry-2.5.1.jar` | DROP | elysium-enchanting | covered: taking enchantments off and moving them onto a book are the Tome of Scrapping and the Tome of Transcription, which this pack already has. Doing them on a belt is contraption work |
+| `create-integrated-farming-1.2.6.jar` | DONE | elysium-kinetics | the seed supply: eight crops go back through a millstone for exactly the seed they grew from |
+| `create-new-age-1.2.0+neoforge-mc1.21.1.jar` | DONE | elysium-kinetics | same seam: one exchange rate, stated once at the bottom of the tree and read by every age above it |
+| `create-stuff-additions1.21.1_v2.1.4a.jar` | SPLIT | elysium-atelier | tools and fittings; the fittings go to the atelier and the rest is a config |
+| `create_aquatic_ambitions-1.21.1-2.0.4.jar` | SPLIT | elysium-wilds | aquatic worldgen and creatures; the wilds and the bestiary have it between them |
+| `create_connected-1.3.2-mc1.21.1.jar` | DROP | - | quality of life over Create's own UI: a config and a set of tweaks to a mod that is now ours, so the crossing it makes is a loop over our own rosters |
+| `create_power_loader-2.0.5-mc1.21.1.jar` | DONE | elysium-kinetics | anchors: a chunk loader that is a load, at three widths, costing the same per chunk at every width and letting go when the line stops |
+| `create_ultimate_factory-2.2.4-neoforge-1.21.1.jar` | DONE | elysium-kinetics | opened and read: no blocks, 36 recipe files for machines Create already had. The nine rows our machines can do are in ProcessRules; the rest were chance drops and multi-input compacting |
+| `createaddition-1.6.0.jar` | DONE | elysium-kinetics | the seam: a dynamo turns rotation into FE badly, on purpose, and Age II's alternator and motor are priced off the same constant so the round trip comes home with half |
+| `createbigcannons-5.11.7+mc.1.21.1.jar` | DROP | - | built on contraption assembly, which is the one thing the Age I decision gives up; a cannon is an assembled structure |
+| `createdeco-2.1.3.jar` | SPLIT | elysium-atelier | the brass and copper fittings are a decoration roster and go to the atelier; see docs/SPLITS.md |
+| `createdieselgenerators-1.21.1-1.3.15.jar` | DONE | elysium-kinetics | three fuel engines on a ladder of six fuels, a refinery that climbs it, and no engine getting more out of a fuel than the fuel contains |
+| `CreateDragonsPlus-1.11.4.jar` | SPLIT | elysium-bestiary | creatures rather than machinery; goes to the bestiary with the rest of the mob work |
 | `cristellib-neoforge-1.21.1-3.1.7.jar` | DROP | - | library: goes when the mods needing it go |
 | `Cucumber-1.21.1-8.0.16.jar` | DROP | - | library: goes when the mods needing it go |
 | `curios-neoforge-9.5.1+1.21.1.jar` | KEEP | elysium-trinkets | bundled inside elysium-all (jar-in-jar) |
@@ -129,7 +128,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `ImmersiveEngineering-1.21.1-12.4.2-194.jar` | PLANNED | elysium-industry | Age II: the Reconstruction |
 | `industrialforegoing-1.21-3.6.39.jar` | PLANNED | elysium-atomics | bulk automation: the machines that do a farm's work |
 | `integrateddynamics-1.21.1-neoforge-1.34.0.jar` | DONE | elysium-logistics | a logic layer of nineteen operators over four types, typed before it is run so a player who asks the network to add a number to a chest finds out when they write it rather than when a tick throws — and an expression cannot loop, because an arrow that points forwards is not a legal expression at all |
-| `interiors-1.21.1-neoforge-0.6.1.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
+| `interiors-1.21.1-neoforge-0.6.1.jar` | SPLIT | elysium-atelier | furniture built on Create's fittings; the furniture half goes to the atelier |
 | `invtweaks-1.21.1-1.3.2.jar` | DROP | - | interface and convenience: not content |
 | `iris-neoforge-1.8.14-beta.1+mc1.21.1.jar` | DROP | - | performance: not content |
 | `Jade-1.21.1-NeoForge-15.10.6.jar` | DROP | - | interface and convenience: not content |
@@ -204,7 +203,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `SimplyBows-neoforge-0.1.2.jar` | DONE | elysium-arsenal | 36 bows in 6 kinds, each owning exactly one corner of six axes, with draw frames, and 12 kinds of ammunition whose effects are read off the item so a skeleton or a dispenser firing one works too |
 | `simplyswords-neoforge-1.63.0-1.21.1.jar` | DONE | elysium-arsenal | 24 named weapons smithed from their own shape and tier, carrying abilities priced by the shared library, none over its tier's band |
 | `SimplyTooltips-neoforge-0.1.3.jar` | PLANNED | elysium-comforts | quality of life |
-| `sliceanddice-4.3.3-neoforge.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
+| `sliceanddice-4.3.3-neoforge.jar` | DONE | elysium-kinetics | eleven sawing recipes, one per cutting-board recipe, none of them yielding more than the hand does |
 | `SmartBrainLib-neoforge-1.21.1-1.16.11.jar` | DROP | - | library: goes when the mods needing it go |
 | `sodium-neoforge-0.8.12+mc1.21.1.jar` | DROP | - | performance: not content |
 | `solcarrot-1.21.1-1.16.6.jar` | DONE | elysium-agronomy | a varied diet: thirty different foods for ten hearts, kept as a set so eating the same thing twice counts once, surviving death, applied as one attribute modifier that replaces itself, and a book that reads it |

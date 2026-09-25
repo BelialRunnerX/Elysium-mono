@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:milling",
+  "input": {
+    "item": "minecraft:basalt"
+  },
+  "result": {
+    "id": "minecraft:blackstone",
+    "count": 1
+  },
+  "ticks": 160,
+  "pace": "steady"
+}

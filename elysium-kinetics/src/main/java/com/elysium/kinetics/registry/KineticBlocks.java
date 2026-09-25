@@ -132,6 +132,33 @@ public final class KineticBlocks {
     public static final DeferredBlock<Block> MIXER = BLOCKS.register("mixer",
             () -> new MixerBlock(brass().strength(3.5F)));
 
+    /**
+     * The anchors, walked out of their own rules.
+     *
+     * <p>Two of them, and the second is made of a later age's metal on
+     * purpose: what it needs to turn at shears brass.
+     */
+    public static final java.util.Map<String, DeferredBlock<Block>> ANCHORS =
+            registerAnchors();
+
+    private static java.util.Map<String, DeferredBlock<Block>> registerAnchors() {
+        java.util.Map<String, DeferredBlock<Block>> made =
+                new java.util.LinkedHashMap<>();
+        for (com.elysium.kinetics.rules.AnchorRules.Anchor anchor
+                : com.elysium.kinetics.rules.AnchorRules.ANCHORS) {
+            made.put(anchor.id(), BLOCKS.register(anchor.id(),
+                    () -> new com.elysium.kinetics.block.AnchorBlock(
+                            brass().strength(4.0F), anchor.id())));
+        }
+        if (made.size()
+                != com.elysium.kinetics.rules.AnchorRules.ANCHORS.size()) {
+            throw new IllegalStateException("the rules have "
+                    + com.elysium.kinetics.rules.AnchorRules.ANCHORS.size()
+                    + " anchor(s) and " + made.size() + " were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
     /** The one place this age makes electricity, and it is bad at it. */
     public static final DeferredBlock<Block> DYNAMO = BLOCKS.register(
             com.elysium.kinetics.block.DynamoBlock.NAME,

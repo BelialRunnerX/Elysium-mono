@@ -51,6 +51,25 @@ public final class ProcessRules {
     private ProcessRules() {
     }
 
+    /**
+     * The most a machine may beat the game's own recipe for the same thing.
+     *
+     * <p>Beating it is the point. A millstone that got the same four bone
+     * meal out of a bone that a crafting grid does is a millstone nobody
+     * builds, and every mod of this kind pays a mill something for the shaft
+     * and the hall behind it. So the rule is not that a machine may not win —
+     * it is that it may not win by so much that the game's own recipe becomes
+     * something nobody would ever use.
+     *
+     * <p>Double. A machine hall is worth about as much as the thing itself,
+     * which is a bargain a player can feel and an exchange rate a designer
+     * can hold in their head. This is the number that keeps a mixer from
+     * making blue ice out of one packed ice where the game asks for nine —
+     * which is not a loop and is not a cheat, and is the game's recipe made
+     * pointless, which is the same damage done politely.
+     */
+    public static final double MOST_A_MACHINE_ADDS = 2.0D;
+
     /** Where a recipe is read. One of the machines, by the name of its folder. */
     public static final List<String> MACHINES =
             List.of("milling", "pressing", "sawing", "mixing");
@@ -168,7 +187,23 @@ public final class ProcessRules {
                 mill("deepslate", "minecraft:deepslate",
                         "minecraft:cobbled_deepslate", 1, 200, STEADY),
                 mill("blaze_rod", "minecraft:blaze_rod",
-                        "minecraft:blaze_powder", 4, 160, STEADY)));
+                        "minecraft:blaze_powder", 4, 160, STEADY),
+                // The jar of crushing recipes. Its whole content was recipes
+                // for machines Create already had, so what folds in is the
+                // rows our four machines can do: one thing in, one thing out,
+                // no chances. The rest of that jar was chance drops and
+                // multi-input compacting, and a millstone that rolled dice
+                // would be a different block.
+                mill("red_sandstone", "minecraft:red_sandstone",
+                        "minecraft:red_sand", 1, 120, SLOW),
+                mill("nether_bricks", "minecraft:nether_bricks",
+                        "minecraft:nether_brick", 1, 120, SLOW),
+                mill("brown_mushroom_block", "minecraft:brown_mushroom_block",
+                        "minecraft:brown_mushroom", 2, 140, SLOW),
+                mill("red_mushroom_block", "minecraft:red_mushroom_block",
+                        "minecraft:red_mushroom", 2, 140, SLOW),
+                mill("basalt", "minecraft:basalt",
+                        "minecraft:blackstone", 1, 160, STEADY)));
         for (String crop : SEEDED) {
             made.add(mill(crop + "_seeds", FARM + ":" + crop,
                     FARM + ":" + crop + "_seeds", 1, 140, SLOW));
@@ -188,7 +223,16 @@ public final class ProcessRules {
     public static final List<Step> MIXING = List.of(
             stir("flint_from_gravel", "minecraft:gravel", "minecraft:flint", 1, 200, STEADY),
             stir("sand_from_red_sand", "minecraft:red_sand", "minecraft:sand", 1, 160, STEADY),
-            stir("soul_sand", "minecraft:soul_soil", "minecraft:soul_sand", 1, 180, STEADY));
+            stir("soul_sand", "minecraft:soul_soil", "minecraft:soul_sand", 1, 180, STEADY),
+            // The rest of that jar's single-input rows. Haunting wanted soul
+            // fire and splashing wanted water, and this module has neither —
+            // but it has a mixer, which is already the block that turns one
+            // stone into another, so that is where they go.
+            stir("charcoal", "minecraft:charcoal", "minecraft:coal", 1, 240, STEADY),
+            stir("fermented_spider_eye", "minecraft:spider_eye",
+                    "minecraft:fermented_spider_eye", 1, 200, STEADY),
+            stir("wither_rose", "minecraft:poppy",
+                    "minecraft:wither_rose", 1, 400, STEADY));
 
     /**
      * Sawing, which is also the cutting board on a line.
@@ -292,6 +336,18 @@ public final class ProcessRules {
                     "minecraft:blaze_powder", 2),
             new Route("minecraft:bone_meal", "minecraft:bone", 1,
                     "minecraft:bone_meal", 3),
+            new Route("minecraft:fermented_spider_eye",
+                    "minecraft:brown_mushroom", 1,
+                    "minecraft:fermented_spider_eye", 1),
+            new Route("minecraft:fermented_spider_eye",
+                    "minecraft:spider_eye", 1,
+                    "minecraft:fermented_spider_eye", 1),
+            new Route("minecraft:fermented_spider_eye", "minecraft:sugar", 1,
+                    "minecraft:fermented_spider_eye", 1),
+            new Route("minecraft:nether_bricks", "minecraft:nether_brick", 4,
+                    "minecraft:nether_bricks", 1),
+            new Route("minecraft:red_sandstone", "minecraft:red_sand", 4,
+                    "minecraft:red_sandstone", 1),
             new Route("minecraft:deepslate", "minecraft:cobbled_deepslate", 1,
                     "minecraft:deepslate", 1),
             new Route("minecraft:green_dye", "minecraft:cactus", 1,

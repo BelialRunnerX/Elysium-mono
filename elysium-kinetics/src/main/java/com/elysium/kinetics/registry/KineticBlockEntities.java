@@ -134,6 +134,51 @@ public final class KineticBlockEntities {
                             com.elysium.kinetics.block.DynamoBlock.DynamoBlockEntity::new,
                             KineticBlocks.DYNAMO.get()).build(null));
 
+    /** One type for both anchors: the block says which it is. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.kinetics.block.AnchorBlock.AnchorBlockEntity>>
+            ANCHOR = TYPES.register("anchor", () -> BlockEntityType.Builder.of(
+                    com.elysium.kinetics.block.AnchorBlock.AnchorBlockEntity::new,
+                    everyAnchor()).build(null));
+
+    private static net.minecraft.world.level.block.Block[] everyAnchor() {
+        java.util.List<net.minecraft.world.level.block.Block> all =
+                new java.util.ArrayList<>();
+        for (com.elysium.kinetics.rules.AnchorRules.Anchor anchor
+                : com.elysium.kinetics.rules.AnchorRules.ANCHORS) {
+            all.add(KineticBlocks.ANCHORS.get(anchor.id()).get());
+        }
+        if (all.size()
+                != com.elysium.kinetics.rules.AnchorRules.ANCHORS.size()) {
+            throw new IllegalStateException("the rules have "
+                    + com.elysium.kinetics.rules.AnchorRules.ANCHORS.size()
+                    + " anchor(s) and " + all.size()
+                    + " were given a block entity");
+        }
+        return all.toArray(new net.minecraft.world.level.block.Block[0]);
+    }
+
+    /**
+     * The one ticket controller this module has, which is what an anchor
+     * holds a chunk open with.
+     *
+     * <p>Held here rather than in the block so there is exactly one of it: a
+     * controller per block entity would be a controller per anchor, and the
+     * tickets of a removed one would have nobody left to release them.
+     */
+    public static final net.neoforged.neoforge.common.world.chunk.TicketController
+            ANCHORS = new net.neoforged.neoforge.common.world.chunk.TicketController(
+                    net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
+                            ElysiumKinetics.MODID, "anchors"),
+                    (level, helper) -> {
+                        // Every ticket in a freshly loaded world belongs to a
+                        // block that has not ticked yet, and a block that is
+                        // gone will never tick. Drop them all; the ones with
+                        // an anchor behind them are re-asked for within a
+                        // tick, and the ones without were a leak.
+                        helper.getBlockTickets().forEach((pos, tickets) ->
+                                helper.removeAllTickets(pos));
+                    });
+
     /**
      * Every machine's two slots, so a hopper can feed one and a hopper under
      * it can take what comes out.
@@ -145,6 +190,12 @@ public final class KineticBlockEntities {
     public static final class Capability {
 
         private Capability() {
+        }
+
+        @SubscribeEvent
+        public static void onTicketControllers(
+                net.neoforged.neoforge.common.world.chunk.RegisterTicketControllersEvent event) {
+            event.register(ANCHORS);
         }
 
         @SubscribeEvent

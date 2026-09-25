@@ -39,6 +39,15 @@ wiki, so a piece cannot be missed by being forgotten.
 | `bellsandwhistles: the station` | PLANNED | elysium-transit | metro casing, panels, doors, trapdoors, windows, station platform and headlight |
 | `Design-n-Decor: the machinery` | PLANNED | elysium-kinetics | cogwheels, flywheels, millstones, boilers, fans and girders — 300 of its 903 blocks are a machine shop, and the machine shop is kinetics' |
 | `Design-n-Decor: the decoration` | KEEP | elysium-atelier | the rest is fifteen colours of plating, board and tile: the same block retextured, which is the decision in docs/CONVERSION.md section 9 |
+| `createdeco: the fittings` | PLANNED | elysium-atelier | 1,221 blocks of brass, copper and industrial iron — catwalks, ladders, bars, panels, lamps and the rest. It is a decoration roster in metals, and the decoration rosters are the atelier's. Nothing in it is kinetic |
+| `copycats: the blocks` | PLANNED | elysium-atelier | blocks that wear another block's texture: one mechanic and a handful of shapes, which is a decoration idea and belongs with the decoration |
+| `interiors: the furniture` | PLANNED | elysium-atelier | seats, cushions, curtains, blinds and the shutters, built on Create's fittings in the jar and on the atelier's here |
+| `create-stuff-additions: the fittings` | PLANNED | elysium-atelier | the decorative half — plates, lights, panels — in metals the atelier already has |
+| `create-stuff-additions: the rest` | DROP | - | the tools and the backpack half: a jetpack and a wrench for a mod that is now ours, so the tool is a loop over our own roster |
+| `CreateDragonsPlus: the creatures` | PLANNED | elysium-bestiary | the drakes and what they drop; entities rather than machinery, so it goes where the mob work is |
+| `CreateDragonsPlus: the machinery` | DROP | - | the rest is a forge and a blaze burner tier built on Create's heat, which `elysium-kinetics` deliberately does not have: this age burns fuel in an engine rather than under a pot |
+| `create_aquatic_ambitions: the wilds` | PLANNED | elysium-wilds | the aquatic worldgen — the features and where they sit — which is the overworld overlay's business |
+| `create_aquatic_ambitions: the creatures` | PLANNED | elysium-bestiary | the fish and the rest of what lives in it |
 
 ## The order it has to go in
 

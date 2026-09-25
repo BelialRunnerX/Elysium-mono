@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:milling",
+  "input": {
+    "item": "minecraft:nether_bricks"
+  },
+  "result": {
+    "id": "minecraft:nether_brick",
+    "count": 1
+  },
+  "ticks": 120,
+  "pace": "slow"
+}

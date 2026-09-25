@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "BEB",
+    "ESE",
+    "BEB"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:copper_ingot"
+    },
+    "E": {
+      "item": "minecraft:ender_pearl"
+    },
+    "S": {
+      "item": "elysiumkinetics:brass_shaft"
+    }
+  },
+  "result": {
+    "id": "elysiumkinetics:anchor",
+    "count": 1
+  }
+}

@@ -828,9 +828,10 @@ a decision that lives in one document is a decision the next person re-makes.
 | `createdeco` | a decoration roster — brass and copper fittings — and it goes to `elysium-atelier` |
 | `createaddition`, `create-new-age`, `createdieselgenerators` | the seam between rotation and the electrical grid `elysium-industry` already has: an alternator one way, a motor the other, and a diesel engine as a source |
 | `create_connected`, `copycats`, `interiors`, `create-stuff-additions` | quality-of-life and decoration; the useful half is fittings for the atelier and the rest is a config |
-| `create-integrated-farming`, `create-central-kitchen`, `sliceanddice` | processing recipes joining the kinetics to `elysium-agronomy`, which is now finished and has the crops and the kitchen to join to |
-| `create-enchantment-industry` | joins the kinetics to `elysium-enchanting` |
-| `create_ultimate_factory`, `create_power_loader` | one machine each |
+| `create-integrated-farming`, `create-central-kitchen`, `sliceanddice` | processing recipes joining the kinetics to `elysium-agronomy`: eleven sawing recipes that are the kitchen's whole knife done by machine, and eight milling recipes that are the seed supply. The saw gives only the main yield — butter without the cream — and `validate.py` refuses a mechanical route that beats the hand one |
+| `create_power_loader` | **anchors**: chunk loaders that are loads on a line, two of them, three widths, and the cost per chunk the same at every width |
+| `create_ultimate_factory` | **not a machine at all.** Opened and read: two classes and 36 recipe files, no blocks. It is a recipe pack for machines Create already had, so it folds into `ProcessRules` — the nine rows our four machines can do, one thing in and one thing out. The rest was chance drops and multi-input compacting, and a millstone that rolled dice would be a different block |
+| `create-enchantment-industry` | **DROP, covered.** The two things it exists for — taking enchantments off an item and moving them onto a book — are `elysium-enchanting`'s Tome of Scrapping and Tome of Transcription, which this pack already has. The third is doing them on a belt, which is contraption work this decision gives up |
 | `CreateDragonsPlus`, `create_aquatic_ambitions` | content for `elysium-bestiary` and `elysium-wilds` |
 | `createbigcannons`, `create-aeronautics-bundled` | **DROP**: both are contraption assembly, which is the one thing this decision gives up |
 

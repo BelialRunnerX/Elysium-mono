@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:mixing",
+  "input": {
+    "item": "minecraft:poppy"
+  },
+  "result": {
+    "id": "minecraft:wither_rose",
+    "count": 1
+  },
+  "ticks": 400,
+  "pace": "steady"
+}

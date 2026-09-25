@@ -9378,6 +9378,7 @@ item	elysiumindustry:steel_ingot
 item	elysiumindustry:steel_plate	
 item	elysiumindustry:steel_wire	
 item	elysiumindustry:transformer	
+block	elysiumkinetics:anchor	axis=x,y,z|radius=0
 block	elysiumkinetics:brass_shaft	axis=x,y,z
 block	elysiumkinetics:distillate_engine	axis=x,y,z
 block	elysiumkinetics:dynamo	axis=x,y,z
@@ -9395,7 +9396,9 @@ block	elysiumkinetics:saw	axis=x,y,z
 block	elysiumkinetics:small_cogwheel	axis=x,y,z
 block	elysiumkinetics:timber_shaft	axis=x,y,z
 block	elysiumkinetics:water_wheel	axis=x,y,z
+block	elysiumkinetics:wide_anchor	axis=x,y,z|radius=0,1,2
 block	elysiumkinetics:windmill_bearing	axis=x,y,z
+item	elysiumkinetics:anchor	
 item	elysiumkinetics:brass_shaft	
 item	elysiumkinetics:creosote	
 item	elysiumkinetics:distillate	
@@ -9415,6 +9418,7 @@ item	elysiumkinetics:saw
 item	elysiumkinetics:small_cogwheel	
 item	elysiumkinetics:timber_shaft	
 item	elysiumkinetics:water_wheel	
+item	elysiumkinetics:wide_anchor	
 item	elysiumkinetics:windmill_bearing	
 mob_effect	elysiumlib:bleeding	
 mob_effect	elysiumlib:corrosive_ward	

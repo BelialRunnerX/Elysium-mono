@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x,radius=0": {
+      "model": "elysiumkinetics:block/anchor",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,radius=0": {
+      "model": "elysiumkinetics:block/anchor"
+    },
+    "axis=z,radius=0": {
+      "model": "elysiumkinetics:block/anchor",
+      "x": 90
+    }
+  }
+}

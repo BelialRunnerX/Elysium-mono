@@ -567,8 +567,23 @@ elif f"BLOCKS.register(\n            com.elysium.kinetics.block.DynamoBlock.NAME
     fail("the dynamo is not registered from its own name, so the name in the "
          "block and the name in the world can drift apart")
 
+# The anchors are registered from a loop over their own rules too.
+ANCHOR_RULES = strip_comments(read(SRC, "rules/AnchorRules.java"),
+                              keep_strings=True)
+_aflat = re.sub(r"\s+", " ", ANCHOR_RULES)
+_widest = re.search(r"int WIDEST = (\d+);", ANCHOR_RULES)
+WIDEST = int(_widest.group(1)) if _widest else -1
+anchors = [(one[0], WIDEST if one[1] == "WIDEST" else int(one[1]), one[2])
+           for one in re.findall(
+               r'new Anchor\("([a-z_]+)", (WIDEST|\d+), '
+               r"KineticRules\.Shaft\.([A-Z]+)\)", _aflat)]
+anchor_ids = [one[0] for one in anchors]
+if not anchors or WIDEST < 1:
+    fail("AnchorRules no longer says what the anchors are, so every check "
+         "below about them is checking nothing")
+
 registered = sorted(set(registered) | set(engine_ids) | {refinery}
-                    | ({dynamo} if dynamo else set()))
+                    | ({dynamo} if dynamo else set()) | set(anchor_ids))
 
 # What the tab shows, read out of the one method that builds it.
 #
@@ -585,6 +600,8 @@ if "ENGINES.values()" in tab_order:
     tab_order += " " + " ".join(name.upper() for name in engine_ids)
 if "REFINERY" in tab_order:
     tab_order += " " + refinery.upper()
+if "ANCHORS.values()" in tab_order:
+    tab_order += " " + " ".join(name.upper() for name in anchor_ids)
 if not tab_order:
     fail("the creative tab has no declared order, so what it shows is whatever the "
          "registry happened to list")
@@ -604,7 +621,7 @@ for name in registered:
     if f"block.{NS}.{name}" not in lang_keys:
         fail(f"{name} has no name in any language")
     if f"registerSimpleBlockItem(KineticBlocks.{name.upper()})" not in items \
-            and name not in engine_ids:
+            and name not in engine_ids and name not in anchor_ids:
         fail(f"{name} has no item, so it can only be placed by a command")
     if name.upper() not in tab_order:
         fail(f"{name} is not in the creative tab, so nobody can find it")
@@ -827,6 +844,79 @@ spec_text = read(SPEC)
 
 
 # ---------------------------------------------------------------------------
+# The anchors, and the three ways a chunk loader leaks
+# ---------------------------------------------------------------------------
+
+ANCHOR_BLOCK = strip_comments(read(SRC, "block/AnchorBlock.java"),
+                              keep_strings=True)
+if not ANCHOR_BLOCK:
+    fail("there is no anchor, so every machine in this age stops the moment "
+         "nobody is looking at it and the farm a player built is a farm that "
+         "only grows while they stand in it")
+
+# A chunk loader leaks in three places and only three: the line stopped and it
+# did not let go, the block was broken and it did not let go, and the world
+# came back up holding tickets whose blocks are gone. Each is named as a whole
+# statement, because "letGo(" survives the very edit that would break it.
+_tick = squashed(body_of(ANCHOR_BLOCK, "protected void serverTick("))
+if "} else if (!want && held >= 0) { letGo(server);" not in _tick:
+    fail("an anchor does not let go when its line stops, so a chunk loader in "
+         "this pack is a block you place and forget after all — which is the "
+         "one thing it exists not to be")
+_removed = squashed(body_of(ANCHOR_BLOCK, "public void setRemoved("))
+if "letGo(server); } super.setRemoved();" not in _removed:
+    fail("an anchor does not let go when it is broken, so the chunks it was "
+         "holding stay awake with nothing left in the world asking for them")
+_loaded = squashed(body_of(ANCHOR_BLOCK, "protected void loadAdditional("))
+if "held = -1;" not in _loaded:
+    fail("an anchor reads back what it was holding, so a ticket outlives the "
+         "block that asked for it across a restart")
+_entities = squashed(strip_comments(read(SRC, "registry/KineticBlockEntities.java"),
+                                    keep_strings=True))
+if "helper.removeAllTickets(pos));" not in _entities:
+    fail("nothing drops the tickets of a world coming back up, so an anchor "
+         "broken while the world was off holds its chunks for ever")
+if "event.register(ANCHORS);" not in _entities:
+    fail("the ticket controller is never registered, so an anchor is a load "
+         "that draws torque and keeps nothing awake at all")
+
+# Every width a block will hold has a blockstate, or the widths a player can
+# set it to are widths the game draws as nothing.
+for name, widest, _made in anchors:
+    states = read(RES, f"assets/{NS}/blockstates/{name}.json")
+    if not states:
+        continue
+    variants = json.loads(states).get("variants", {})
+    for axis in ("x", "y", "z"):
+        for radius in range(widest + 1):
+            if f"axis={axis},radius={radius}" not in variants:
+                fail(f"{name} has no model for a radius of {radius} on the "
+                     f"{axis} axis, so a width a player can set it to is a "
+                     f"width the game draws as a missing model")
+    if len(variants) != 3 * (widest + 1):
+        fail(f"{name} is drawn in {len(variants)} state(s) and has "
+             f"{3 * (widest + 1)}, so one of them is a state nothing reaches "
+             f"or a state that does not exist")
+
+if "IntegerProperty.create(\"radius\", 0, AnchorRules.WIDEST)" not in ANCHOR_BLOCK:
+    fail("an anchor's width is not read off the rules, so the widths the block "
+         "offers and the widths the arithmetic prices can drift apart")
+if "AnchorRules.comparator(anchor.holding(), state.getValue(RADIUS))" \
+        not in squashed(ANCHOR_BLOCK):
+    fail("an anchor works out its own comparator reading rather than asking "
+         "the rules, so the number a redstone line reads is a number no "
+         "harness has ever executed")
+if "AnchorRules.loadAt(getBlockState().getValue(RADIUS))" not in squashed(ANCHOR_BLOCK):
+    fail("an anchor draws a load of its own rather than the one its width "
+         "costs, so widening it could be free")
+
+print(f"the anchors        : {len(anchors)} of them over {WIDEST + 1} width(s), "
+      f"each a load rather than a block you place and forget, letting go when "
+      f"the line stops, when it is broken and when a world comes back up "
+      f"holding what it left behind")
+
+
+# ---------------------------------------------------------------------------
 # What the machines do, and the one thing none of it may add up to
 # ---------------------------------------------------------------------------
 
@@ -1016,6 +1106,37 @@ else:
                 fail(f"{item} is declared a member of #{tag} and the game's own "
                      f"tag does not list it, so a loop through that tag is a "
                      f"loop the rule cannot see")
+
+    # And no machine here may beat the game's own recipe for the same thing
+    # out of the same ingredient. A mixer that made blue ice out of one packed
+    # ice, where the game asks for nine, is not a loop and is not a cheat —
+    # it is simply the crafting recipe made pointless, which is the same
+    # damage done politely.
+    _most = re.search(r"MOST_A_MACHINE_ADDS = ([\d.]+)D;", PROCESS_RULES)
+    if not _most:
+        fail("nothing says how much a machine may beat the game's own recipe "
+             "by, so a mixer could make blue ice out of one packed ice where "
+             "the game asks for nine and nothing would say so")
+    else:
+        most = float(_most.group(1))
+        if most < 1.0:
+            fail(f"a machine may beat the game's own recipe by {most}, which "
+                 f"is less than not beating it, so no machine here is worth "
+                 f"the shaft behind it")
+        beaten = []
+        for (recipe, taken), (takes, made, count) in sorted(closing.items()):
+            theirs = count / takes
+            for (kind, name), step in sorted(steps.items()):
+                if step["input"] != taken or step["output"] != made:
+                    continue
+                if step["count"] > theirs * most + 1.0E-6:
+                    beaten.append(f"{kind}/{name} makes {step['count']} where "
+                                  f"{recipe} makes {theirs:g}")
+        if beaten:
+            fail(f"{len(beaten)} machine recipe(s) beat the game's own recipe "
+                 f"for the same thing out of the same ingredient by more than "
+                 f"{most}x, which does not automate that recipe so much as "
+                 f"make it pointless: " + ", ".join(beaten[:4]))
 
     undeclared = sorted(f"{a} ({b})" for a, b in set(closing) - set(routes))
     gone = sorted(f"{a} ({b})" for a, b in set(routes) - set(closing))

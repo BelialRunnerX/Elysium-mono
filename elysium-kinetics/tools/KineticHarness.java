@@ -85,6 +85,7 @@ public final class KineticHarness {
         theBooks();
         theEngines();
         theProcessing();
+        theAnchors();
         edges();
 
         if (failures > 0) {
@@ -1098,6 +1099,167 @@ public final class KineticHarness {
     }
 
         /**
+     * Anchors, and the one thing gearing may never do to one.
+     *
+     * <p>A machine with a speed floor invites exactly one exploit: gear up
+     * into it, so it meets its floor while the hall turns slowly. It does not
+     * work, and the reason is the whole model in a sentence — gearing moves
+     * power about and does not make any. Swept rather than asserted.
+     */
+    private static void theAnchors() {
+        none(AnchorRules.faults(), "the anchors");
+
+        // Every radius costs the same per chunk, which is what stops one
+        // width being the only one worth building.
+        float perChunk = AnchorRules.powerPerChunk(0);
+        for (int radius = 0; radius <= AnchorRules.WIDEST; radius++) {
+            near(AnchorRules.powerPerChunk(radius), perChunk, perChunk * 1.0E-3F,
+                    "a chunk at radius " + radius + " costs something other "
+                            + "than a chunk at radius 0");
+            check(AnchorRules.chunksAt(radius)
+                            == AnchorRules.acrossAt(radius) * AnchorRules.acrossAt(radius),
+                    "a square of radius " + radius + " is not its width times "
+                            + "its width");
+            check(AnchorRules.loadAt(radius).draw() > 0.0F
+                            && AnchorRules.loadAt(radius).leastRpm() > 0.0F,
+                    "an anchor at radius " + radius + " is free");
+        }
+        check(AnchorRules.chunksAt(0) == 1, "a radius of nothing is not one chunk");
+        check(AnchorRules.chunksAt(1) == 9, "a radius of one is not nine chunks");
+        check(AnchorRules.chunksAt(2) == 25, "a radius of two is not twenty-five");
+
+        // Gearing may never make an anchor cheaper. Every radius, every
+        // ratio either way, every stage count.
+        int swept = 0;
+        for (int radius = 0; radius <= AnchorRules.WIDEST; radius++) {
+            float ungeared = AnchorRules.powerAt(radius);
+            for (int step = 1; step <= 160; step++) {
+                float ratio = step / 8.0F;
+                for (int stages = 0; stages <= 4; stages++) {
+                    swept++;
+                    float cost = AnchorRules.costAtRoot(radius, ratio, stages);
+                    check(cost >= ungeared - ungeared * 1.0E-3F,
+                            "an anchor at radius " + radius + " geared by "
+                                    + ratio + " through " + stages
+                                    + " stage(s) costs " + cost + " and costs "
+                                    + ungeared + " bolted straight on, so "
+                                    + "gearing has made power rather than "
+                                    + "moved it about");
+                    if (stages > 0) {
+                        check(cost > ungeared,
+                                "an anchor " + stages + " gear stage(s) out "
+                                        + "costs no more than one bolted "
+                                        + "straight on, so the teeth are free");
+                    } else {
+                        near(cost, ungeared, ungeared * 1.0E-3F,
+                                "an anchor geared with no teeth at all costs "
+                                        + "something other than what it costs "
+                                        + "bolted straight on");
+                    }
+                }
+            }
+        }
+        check(swept > 1_000, "only " + swept + " gearing(s) were swept");
+
+        // The comparator says something, and says more the more it holds.
+        check(AnchorRules.comparator(false, AnchorRules.WIDEST) == 0,
+                "an anchor holding nothing reads as holding something");
+        int last = 0;
+        for (int radius = 0; radius <= AnchorRules.WIDEST; radius++) {
+            int here = AnchorRules.comparator(true, radius);
+            check(here >= 1 && here <= 15, "an anchor at radius " + radius
+                    + " reads " + here + " on a comparator");
+            check(here >= last, "a wider anchor reads lower than a narrower one");
+            last = here;
+        }
+        check(AnchorRules.GRACE_TICKS > 0,
+                "an anchor lets go the instant the wind turns, so a windmill "
+                        + "hall unloads its own farm several times a minute");
+        check(AnchorRules.GRACE_TICKS <= 1_200,
+                "an anchor holds on for " + AnchorRules.GRACE_TICKS
+                        + " ticks after it stops, which is a chunk loader with "
+                        + "a long memory rather than a machine");
+
+        // Controls, built to be caught.
+        check(!AnchorRules.faultsInAnchors(java.util.List.of(
+                        new AnchorRules.Anchor("control", 1,
+                                KineticRules.Shaft.STEEL),
+                        new AnchorRules.Anchor("control", 2,
+                                KineticRules.Shaft.STEEL))).isEmpty(),
+                "two anchors under one name are not reported");
+        check(!AnchorRules.faultsInAnchors(java.util.List.of(
+                        new AnchorRules.Anchor("control", 1,
+                                KineticRules.Shaft.STEEL),
+                        new AnchorRules.Anchor("control_two", 2,
+                                KineticRules.Shaft.TIMBER))).isEmpty(),
+                "an anchor made of a metal that shears at the speed it needs "
+                        + "is not reported, so it could be a block that breaks "
+                        + "itself the first time it works");
+        check(!AnchorRules.faultsInAnchors(java.util.List.of(
+                        new AnchorRules.Anchor("control", 1,
+                                KineticRules.Shaft.STEEL),
+                        new AnchorRules.Anchor("control_two", 1,
+                                KineticRules.Shaft.STEEL))).isEmpty(),
+                "an anchor holding no more than the one below it is not "
+                        + "reported");
+        check(AnchorRules.faultsInAnchors(AnchorRules.ANCHORS).isEmpty(),
+                "the anchors this module ships are reported as faulty");
+        check(!AnchorRules.faultsInCost(java.util.List.of(
+                        AnchorRules.loadAt(0))).isEmpty(),
+                "a roster with one width in it is not reported, so the panel "
+                        + "could be a screen with one button");
+        check(!AnchorRules.faultsInCost(java.util.List.of(
+                        new KineticRules.Load(6.0F, 48.0F),
+                        new KineticRules.Load(54.0F, 432.0F),
+                        new KineticRules.Load(150.0F, 1200.0F))).isEmpty(),
+                "widths priced by their area on both numbers are not "
+                        + "reported, so one width could be the only one worth "
+                        + "building and the other two decoration");
+        check(!AnchorRules.faultsInCost(java.util.List.of(
+                        new KineticRules.Load(0.0F, 48.0F),
+                        new KineticRules.Load(0.0F, 144.0F))).isEmpty(),
+                "an anchor that costs nothing at all is not reported");
+        check(AnchorRules.faultsInCost(AnchorRules.everyWidth()).isEmpty(),
+                "the widths this module ships are reported as faulty");
+        check(!AnchorRules.faultsInReach(java.util.List.of(
+                        new AnchorRules.Anchor("control", 2,
+                                KineticRules.Shaft.STEEL),
+                        new AnchorRules.Anchor("control_two", 2,
+                                KineticRules.Shaft.STEEL))).isEmpty(),
+                "a first anchor nothing in the age can drive is not reported");
+        check(!AnchorRules.faultsInReach(java.util.List.of(
+                        new AnchorRules.Anchor("control", 0,
+                                KineticRules.Shaft.BRASS),
+                        new AnchorRules.Anchor("control_two", 0,
+                                KineticRules.Shaft.BRASS))).isEmpty(),
+                "a widest anchor one of Age I's own sources turns with no "
+                        + "gearing is not reported, so the biggest anchor in "
+                        + "the pack could be a block you place and forget");
+        check(AnchorRules.drivenBySomething(AnchorRules.loadAt(0)),
+                "nothing in this age can drive the cheapest anchor");
+        check(!AnchorRules.drivenBySomething(AnchorRules.loadAt(AnchorRules.WIDEST)),
+                "one of this age's sources turns the widest anchor on its own");
+
+        java.util.List<String> allowed = new java.util.ArrayList<>();
+        try {
+            new AnchorRules.Anchor("control", AnchorRules.WIDEST + 1,
+                    KineticRules.Shaft.STEEL);
+            allowed.add("an anchor wider than this age has");
+        } catch (IllegalArgumentException expected) {
+            checks++;
+        }
+        check(allowed.isEmpty(), "the anchors allow what they say they forbid: "
+                + allowed);
+
+        System.out.println("  the anchors: " + AnchorRules.ANCHORS.size()
+                + " of them over " + (AnchorRules.WIDEST + 1) + " width(s), "
+                + swept + " gearing(s) swept and not one of them making an "
+                + "anchor cheaper than bolting it straight on, at "
+                + String.format("%.0f", perChunk) + " torque-rpm a chunk "
+                + "whatever width it is set to");
+    }
+
+    /**
      * What the machines do, and the one thing none of it may add up to.
      *
      * <p>The roster is a graph and the graph may not have a loop that

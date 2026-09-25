@@ -344,6 +344,12 @@ def draw_all():
     dynamo_face(False).save(os.path.join(out, DYNAMO + ".png"))
     dynamo_face(True).save(os.path.join(out, DYNAMO + "_top.png"))
     drawn += 2
+    for anchor in ANCHORS:
+        anchor_face(anchor, False).save(
+            os.path.join(out, anchor["id"] + ".png"))
+        anchor_face(anchor, True).save(
+            os.path.join(out, anchor["id"] + "_top.png"))
+        drawn += 2
     for name in OUR_FUELS:
         fuel_sprite(name).save(os.path.join(items, name + ".png"))
         drawn += 1
@@ -474,6 +480,26 @@ if not DYNAMO:
     sys.exit(2)
 DYNAMO = DYNAMO.group(1)
 
+# The anchors: the machines whose product is that the world keeps running.
+ANCHOR_SOURCE = open(os.path.join(
+    MOD, "src/main/java/com/elysium/kinetics/rules/AnchorRules.java"),
+    encoding="utf-8").read()
+_WIDEST = re.search(r"int WIDEST = (\d+);", ANCHOR_SOURCE)
+if not _WIDEST:
+    print("AnchorRules no longer says how wide an anchor may be")
+    sys.exit(2)
+WIDEST = int(_WIDEST.group(1))
+ANCHORS = [{"id": one[0],
+            "widest": WIDEST if one[1] == "WIDEST" else int(one[1]),
+            "made": one[2].lower()}
+           for one in re.findall(
+               r'new Anchor\("([a-z_]+)", (WIDEST|\d+), '
+               r"KineticRules\.Shaft\.([A-Z]+)\)",
+               re.sub(r"\s+", " ", ANCHOR_SOURCE))]
+if not ANCHORS:
+    print("AnchorRules no longer has the shape this reads")
+    sys.exit(2)
+
 
 def engine_face(engine, top):
     """
@@ -543,6 +569,34 @@ def dynamo_face(top):
     return image
 
 
+def anchor_face(anchor, top):
+    """
+    An anchor: a ring with a weight hanging in it, wider the more it holds.
+
+    Drawn from what it is made of, because the second one is made of a later
+    age's metal and a player should be able to see that before they try to
+    run it on a brass shaft.
+    """
+    metal = {"brass": (162, 130, 72), "steel": (150, 154, 160),
+             "timber": (124, 96, 62), "ascendant": (198, 176, 222)}
+    body = metal.get(anchor["made"], (140, 140, 140))
+    dark = tuple(max(0, part - 48) for part in body)
+    glow = (118, 196, 214)
+    image = Image.new("RGBA", (16, 16), body + (255,))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 15], outline=dark + (255,))
+    inset = 4 - anchor["widest"]
+    if top:
+        draw.ellipse([inset, inset, 15 - inset, 15 - inset],
+                     outline=glow + (255,), width=2)
+        draw.ellipse([7, 7, 8, 8], fill=glow + (255,))
+        return image
+    draw.rectangle([inset, 3, 15 - inset, 12], outline=dark + (255,))
+    for at in range(anchor["widest"] + 1):
+        draw.rectangle([6, 5 + at * 3, 9, 6 + at * 3], fill=glow + (255,))
+    return image
+
+
 def fuel_sprite(name):
     """A fuel, darker and oilier the further up the ladder it is."""
     rung = OUR_FUELS.index(name)
@@ -579,6 +633,8 @@ for _engine in ENGINES:
                                  _engine["id"], _engine["id"] + "_top")
 BLOCKS[REFINERY] = slab(16, REFINERY + "_top", REFINERY, REFINERY + "_top")
 BLOCKS[DYNAMO] = slab(14, DYNAMO + "_top", DYNAMO, DYNAMO + "_top")
+for _anchor in ANCHORS:
+    BLOCKS[_anchor["id"]] = pillar(16, _anchor["id"], _anchor["id"] + "_top")
 
 #: Which blocks a placement can lay on any axis. A millstone cannot.
 #:
@@ -588,10 +644,32 @@ BLOCKS[DYNAMO] = slab(14, DYNAMO + "_top", DYNAMO, DYNAMO + "_top")
 FIXED = {"millstone", "sail", "press", "mixer", REFINERY}
 
 
+ANCHOR_IDS = {one["id"]: one for one in ANCHORS}
+
+
+def anchor_blockstate(name):
+    """Every axis crossed with every width the block will hold.
+
+    One model for all of them: a block that is drawn differently at every
+    width is three models to draw and three to keep in step, and the width is
+    already the thing the block says out loud when you prod it.
+    """
+    widest = ANCHOR_IDS[name]["widest"]
+    variants = {}
+    for axis in ("x", "y", "z"):
+        for radius in range(widest + 1):
+            variants[f"axis={axis},radius={radius}"] = \
+                axis_blockstate(name)["variants"][f"axis={axis}"]
+    return {"variants": variants}
+
+
 def models_and_states():
     for name, model in BLOCKS.items():
         write(os.path.join(ASSETS, "models/block", name + ".json"), model)
-        if name in FIXED:
+        if name in ANCHOR_IDS:
+            write(os.path.join(ASSETS, "blockstates", name + ".json"),
+                  anchor_blockstate(name))
+        elif name in FIXED:
             write(os.path.join(ASSETS, "blockstates", name + ".json"),
                   {"variants": {"axis=x": {"model": f"{NS}:block/{name}"},
                                 "axis=y": {"model": f"{NS}:block/{name}"},
@@ -856,6 +934,34 @@ def data_files():
     })
     machines += 1
 
+    # The anchors. The first is brass and an ender pearl — the pearl is the
+    # game's own way of saying "somewhere else is still there" — and the
+    # second is the first one built up in steel, which is the metal it has to
+    # be made of to survive the speed it needs.
+    for at, anchor in enumerate(ANCHORS):
+        if at == 0:
+            body = {
+                "type": "minecraft:crafting_shaped",
+                "category": "building",
+                "pattern": ["BEB", "ESE", "BEB"],
+                "key": {"B": {"item": "minecraft:copper_ingot"},
+                        "E": {"item": "minecraft:ender_pearl"},
+                        "S": {"item": f"{NS}:brass_shaft"}},
+                "result": {"id": f"{NS}:{anchor['id']}", "count": 1},
+            }
+        else:
+            body = {
+                "type": "minecraft:crafting_shaped",
+                "category": "building",
+                "pattern": ["IEI", "IAI", "IEI"],
+                "key": {"I": {"item": "minecraft:iron_block"},
+                        "E": {"item": "minecraft:ender_eye"},
+                        "A": {"item": f"{NS}:{ANCHORS[at - 1]['id']}"}},
+                "result": {"id": f"{NS}:{anchor['id']}", "count": 1},
+            }
+        write(os.path.join(DATA, "recipe", anchor["id"] + ".json"), body)
+        machines += 1
+
     # One refining recipe per step up the ladder that this module makes.
     #
     # Walked from the ladder rather than written out, so a fuel added to it is
@@ -885,6 +991,7 @@ def data_files():
     pick += [f"{NS}:{one['id']}" for one in ENGINES]
     pick.append(f"{NS}:{REFINERY}")
     pick.append(f"{NS}:{DYNAMO}")
+    pick += [f"{NS}:{one['id']}" for one in ANCHORS]
     write(os.path.join(tags, "mineable/axe.json"), {"replace": False, "values": axe})
     write(os.path.join(tags, "mineable/pickaxe.json"), {"replace": False, "values": pick})
     return len(BLOCKS) + len(RECIPES) + machines + 2
@@ -967,6 +1074,13 @@ def language():
     entries[f"{NS}.{DYNAMO}.slow"] = \
         "Turning at %s rpm; it needs %s before it makes anything. Gear it up."
     entries[f"{NS}.{DYNAMO}.making"] = "%s FE/t. Holding %s of %s."
+    for anchor in ANCHORS:
+        entries[f"block.{NS}.{anchor['id']}"] = " ".join(
+            word.capitalize() for word in anchor["id"].split("_"))
+    entries[f"{NS}.anchor.holding"] = "Holding a %s square: %s chunk(s) awake."
+    entries[f"{NS}.anchor.waiting"] = \
+        "Set to a %s square, which needs %s rpm. This is turning at %s. " \
+        "Crouch and prod to change the width."
     write(os.path.join(ASSETS, "lang/en_us.json"), dict(sorted(entries.items())))
     return len(entries)
 

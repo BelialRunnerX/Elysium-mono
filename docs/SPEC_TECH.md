@@ -337,6 +337,8 @@ a player cannot plan around.
 | Contraptions (moving structures) | planned |
 | Fuel engines and the refinery (a ladder of six fuels, three engines) | **done** |
 | The dynamo (torque → FE, badly) | **done** |
+| Anchors (chunk loaders that are loads) | **done** |
+| The processing roster, and the loop rule over it | **done** |
 
 **How two blocks connect**, since every later age inherits it. Three rules and
 no more:
@@ -386,6 +388,28 @@ its source at half its free speed**, where a source makes the most power it
 will ever make. Gear past that and the line slows more than the dynamo gains.
 The harness sweeps five hundred ratios per source per stage count against that
 closed form.
+
+**An anchor is a load.** A chunk loader in most mods is a block you place and
+forget, which is why a world with a dozen of them runs at a crawl. Here it
+draws torque in proportion to how much world it keeps awake, and it lets go
+when the line stops. Both its draw and the speed it needs grow with the
+*width across* rather than the area, so power — torque times speed — comes out
+proportional to the area, and the cost per chunk is identical at every width.
+That is what stops one radius being the only one worth building.
+
+Gearing cannot cheat it, and the reason is the model in one sentence: **gearing
+moves power about and does not make any**. Gear up into an anchor and the
+reflected draw grows by exactly the ratio the speed does, so what it takes off
+the root is unchanged, less what the teeth cost.
+
+**Nothing a machine makes may come back as more than it took.** The whole
+processing roster is a graph — every recipe an edge from its input to its
+output — and it is checked for a cycle whose counts multiply out above one, in
+log space, by Bellman-Ford. The game's own recipes are nodes in that graph too,
+because the way back is almost always one of them, and `validate.py` sweeps
+every recipe in the game's jar rather than trusting a list somebody wrote. A
+machine may beat the game's own recipe for the same thing — that is what a mill
+is *for* — by at most `ProcessRules.MOST_A_MACHINE_ADDS`, which is double.
 
 **The windmill** is a thing you build rather than a block you place: a bearing,
 and sailcloth flood-filled out from it in the plane it turns in. Sails add
