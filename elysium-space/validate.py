@@ -840,6 +840,23 @@ else:
     if "nearestAnchor(" not in _send:
         fail("travel does not check that the traveller is still at a gate, so a kept "
              "packet is a teleport from anywhere")
+    # The anchor is clicked from the game's block reach (4.5 blocks, 5 in
+    # creative), so the traveller may be that far away when they choose. The
+    # first version searched two blocks and told a player who clicked from
+    # three that they were no longer standing at a waygate.
+    _near = body_of(_travel, "private static BlockPos nearestAnchor")
+    _reach = re.search(r"public static final int REACH = (\d+);", _travel)
+    if not _reach:
+        fail("WaygateTravel has no REACH, so how far a traveller may stand is a number "
+             "buried in a loop")
+    else:
+        if int(_reach.group(1)) < 5:
+            fail(f"WaygateTravel.REACH is {_reach.group(1)}, less than the block reach the "
+                 f"anchor is clicked from (4.5, 5 in creative), so a player who opens the "
+                 f"screen from across the room is refused as no longer at the gate")
+        if "REACH" not in _near or re.search(r"offset\(\s*-?\d", _near):
+            fail("nearestAnchor searches a hard-coded distance rather than REACH, so the "
+                 "stated reach and the checked one can disagree")
     if _send.count("WaygateRing.read(") < 2:
         fail("travel checks one end of the journey and not the other, so a gate whose "
              "far ring was broken drops a player into the ground")

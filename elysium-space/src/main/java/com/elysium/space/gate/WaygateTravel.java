@@ -105,14 +105,28 @@ public final class WaygateTravel {
     }
 
     /**
+     * How far from the anchor a traveller may stand and still be at the gate.
+     *
+     * The anchor is a block, and a block is clicked from the game's block
+     * reach: four and a half blocks, five in creative. So a player who opens
+     * the screen from across the room is that far away when they choose, and
+     * the check here has to accept them — the first version accepted two
+     * blocks, and told anybody who clicked from three that they were "no
+     * longer standing at a waygate" when they had not moved. Five is the
+     * furthest a click can come from; a kept packet from further away is
+     * still refused, which is what the check is for.
+     */
+    public static final int REACH = 5;
+
+    /**
      * The anchor the traveller is standing at, if any.
      *
-     * Within a couple of blocks of the gate they clicked, which is as far as
-     * anybody gets between opening a screen and choosing from it.
+     * Within {@link #REACH} of where they stand, which covers wherever they
+     * could have clicked the anchor from.
      */
     private static BlockPos nearestAnchor(ServerLevel level, BlockPos at) {
-        for (BlockPos near : BlockPos.betweenClosed(at.offset(-2, -2, -2),
-                at.offset(2, 2, 2))) {
+        for (BlockPos near : BlockPos.betweenClosed(at.offset(-REACH, -REACH, -REACH),
+                at.offset(REACH, REACH, REACH))) {
             if (level.getBlockState(near)
                     .is(com.elysium.space.registry.SpaceBlocks.WAYGATE_ANCHOR.get())) {
                 return near.immutable();
@@ -120,9 +134,6 @@ public final class WaygateTravel {
         }
         return null;
     }
-
-    /** How far a traveller may have wandered. Read by nothing else; stated for the harness. */
-    public static final int REACH = 2;
 
     /** The ticks a gate waits before answering again. */
     public static final int SETTLE = GateRules.SETTLE;

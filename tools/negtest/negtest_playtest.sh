@@ -53,6 +53,9 @@ import json; p="elysium-kinetics/src/main/resources/assets/elysiumkinetics/model
 PY
 out=$(timeout 1800 python3 check_models.py 2>&1); cp /tmp/nb_pt_shaft elysium-kinetics/src/main/resources/assets/elysiumkinetics/models/block/brass_shaft.json
 if grep -q "brass_shaft" <<<"$out"; then failn=$((failn+1)); echo "MISS : a shaft reading only opaque pixels was flagged"; else pass=$((pass+1)); echo "ok   : a shaft reading only opaque pixels is left alone"; fi
+# space: a traveller must be accepted from as far as the anchor can be clicked
+t elysium-space src/main/java/com/elysium/space/gate/WaygateTravel.java 'public static final int REACH = 5;' 'public static final int REACH = 2;' "less than the block reach"
+t elysium-space src/main/java/com/elysium/space/gate/WaygateTravel.java 'at.offset(-REACH, -REACH, -REACH)' 'at.offset(-2, -2, -2)' "hard-coded distance"
 # lib: the elite class no longer loaded by the constructor
 t elysium-lib src/main/java/com/elysium/lib/ElysiumLib.java '        com.elysium.lib.elite.ElysiumElites.bootstrap();' '' "nothing loads the class before RegisterEvent"
 echo "$pass passed, $failn missed"
