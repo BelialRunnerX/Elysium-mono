@@ -56,6 +56,13 @@ if grep -q "brass_shaft" <<<"$out"; then failn=$((failn+1)); echo "MISS : a shaf
 # space: a traveller must be accepted from as far as the anchor can be clicked
 t elysium-space src/main/java/com/elysium/space/gate/WaygateTravel.java 'public static final int REACH = 5;' 'public static final int REACH = 2;' "less than the block reach"
 t elysium-space src/main/java/com/elysium/space/gate/WaygateTravel.java 'at.offset(-REACH, -REACH, -REACH)' 'at.offset(-2, -2, -2)' "hard-coded distance"
+# space: the Bastion stays flat, and its mountains stay black
+BW=src/main/resources/data/elysiumspace/worldgen
+t elysium-space $BW/noise_settings/emerald_bastion.json '"erosion": "elysiumspace:emerald_bastion/erosion"' '"erosion": "minecraft:overworld/erosion"' "biomes follow"
+t elysium-space $BW/density_function/emerald_bastion/erosion.json '"value": 0.38' '"value": 0.6' "shatters and sinks"
+t elysium-space $BW/density_function/emerald_bastion/erosion.json '"location": -0.42' '"location": 0.2' "meant to be mostly flat"
+t elysium-space $BW/density_function/emerald_bastion/offset.json 'elysiumspace:emerald_bastion/erosion' 'minecraft:overworld/erosion' "its hills come back"
+t elysium-space $BW/noise_settings/emerald_bastion.json '"elysiumspace:emerald_bastion_highlands"' '"elysiumspace:emerald_bastion_plains"' "not volcanic"
 # lib: the elite class no longer loaded by the constructor
 t elysium-lib src/main/java/com/elysium/lib/ElysiumLib.java '        com.elysium.lib.elite.ElysiumElites.bootstrap();' '' "nothing loads the class before RegisterEvent"
 echo "$pass passed, $failn missed"

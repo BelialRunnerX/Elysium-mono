@@ -143,7 +143,7 @@ def block():
 WORDS = {
     "block.elysiumspace.freight_terminal": "Freight Terminal",
     "elysiumspace.freight.title": "Freight",
-    "elysiumspace.freight.entry": "%s  —  %s",
+    "elysiumspace.freight.run": "%s",
     "elysiumspace.freight.aboard":
         "%s stack(s) aboard, %s mB of fuel in the tank",
     "elysiumspace.freight.alone":

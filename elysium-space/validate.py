@@ -526,6 +526,47 @@ except (KeyError, TypeError):
     fail("the Bastion's continents function is not add(a, mul(b, continents)); cannot prove no oceans")
 if ns.get("noise_router", {}).get("continents") != f"{NS}:emerald_bastion/continents":
     fail("the Bastion's noise router still reads the overworld's continents, oceans included")
+
+# Flat, with rare volcanic ranges. Erosion decides flat against mountainous, and
+# the Bastion reads the overworld's through a spline. Its points all carry
+# derivative 0, so between two points the value never leaves them: the points
+# alone bound the whole curve. Plains are 0.05..0.45; above 0.45 vanilla
+# shatters the ground and above 0.55 sinks it into swamp, so nothing may exceed
+# 0.45. Peaks need -0.78. And the mountains must stay a minority of the input.
+if ns.get("noise_router", {}).get("erosion") != f"{NS}:emerald_bastion/erosion":
+    fail("the Bastion's noise router reads the overworld's erosion, so its biomes follow "
+         "hills the terrain no longer has")
+for _df in ("offset", "factor", "jaggedness"):
+    _txt = json.dumps(json_files.get(os.path.join(DATA, f"worldgen/density_function/emerald_bastion/{_df}.json"), {}))
+    if "minecraft:overworld/erosion" in _txt:
+        fail(f"the Bastion's {_df} still reads the overworld's erosion, so its hills come back")
+_ero = json_files.get(os.path.join(DATA, "worldgen/density_function/emerald_bastion/erosion.json"), {})
+try:
+    _spline = _ero["argument"]["spline"]
+    assert _spline["coordinate"] == "minecraft:overworld/erosion"
+    _pts = [(p["location"], p["value"], p["derivative"]) for p in _spline["points"]]
+except (KeyError, TypeError, AssertionError):
+    _pts = None
+    fail("the Bastion's erosion is not a spline over the overworld's; cannot prove it is flat")
+if _pts:
+    if any(d != 0 for _, _, d in _pts):
+        fail("the Bastion's erosion spline has a slope at a point, so it can overshoot its values")
+    if any(b[1] < a[1] for a, b in zip(_pts, _pts[1:])):
+        fail("the Bastion's erosion spline turns back on itself, so plains and peaks interleave")
+    if max(v for _, v, _ in _pts) > 0.45:
+        fail(f"the Bastion's erosion reaches {max(v for _, v, _ in _pts)}; above 0.45 vanilla "
+             f"shatters and sinks the ground, which is not flat")
+    if min(v for _, v, _ in _pts) > -0.78:
+        fail("the Bastion's erosion never reaches peak values, so it has no mountains")
+    _mountain = next((a for a, v, _ in reversed(_pts) if v <= -0.375), -1.0)
+    if (_mountain + 1.0) / 2.0 > 0.3:
+        fail(f"the Bastion's mountains take the overworld's erosion up to {_mountain}, over "
+             f"30% of its range; the world is meant to be mostly flat")
+_rule = json.dumps(ns.get("surface_rule", {}))
+if f"{NS}:emerald_bastion_highlands" not in _rule or "minecraft:blackstone" not in _rule:
+    fail("the Bastion's mountains are not volcanic: no blackstone rule for the highlands")
+print(f"bastion terrain    : plains from the overworld's erosion above "
+      f"{next(a for a, v, _ in _pts if v > -0.375) if _pts else '?'}, black volcanic ranges below it")
 print(f"emerald bastion    : {len(bastion_biomes)} biomes with no monsters, deepslate, no stone, "
       f"emerald most common ({counts.get('emerald')} a chunk), no oceans")
 print()
@@ -719,13 +760,15 @@ if os.path.isdir(_stl_tex):
     for d, _, fs in os.walk(_stl_tex):
         for f in fs:
             if f.endswith(".png"):
-                _theirs[_hl.md5(open(os.path.join(d, f), "rb").read()).hexdigest()] = os.path.relpath(os.path.join(d, f), _stl_tex)
+                _theirs[_hl.md5(open(os.path.join(d, f), "rb").read()).hexdigest()] = os.path.relpath(os.path.join(d, f), _stl_tex).replace(os.sep, "/")
     _ours_tex = os.path.join(ASSETS, "textures")
     _copies = 0
     for d, _, fs in os.walk(_ours_tex):
         for f in fs:
             p = os.path.join(d, f)
-            rel = os.path.relpath(p, _ours_tex)
+            # Forward slashes, as _KEEP is written: on Windows relpath gives
+            # backslashes and the kept Earth would be reported as a copy.
+            rel = os.path.relpath(p, _ours_tex).replace(os.sep, "/")
             if f.endswith(".png") and rel not in _KEEP:
                 digest = _hl.md5(open(p, "rb").read()).hexdigest()
                 if digest in _theirs:

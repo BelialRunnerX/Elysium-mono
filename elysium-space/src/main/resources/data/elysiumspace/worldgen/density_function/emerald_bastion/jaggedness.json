@@ -27,7 +27,7 @@
                   "derivative": 0.0,
                   "location": 0.03,
                   "value": {
-                    "coordinate": "minecraft:overworld/erosion",
+                    "coordinate": "elysiumspace:emerald_bastion/erosion",
                     "points": [
                       {
                         "derivative": 0.0,
@@ -155,7 +155,7 @@
                   "derivative": 0.0,
                   "location": 0.65,
                   "value": {
-                    "coordinate": "minecraft:overworld/erosion",
+                    "coordinate": "elysiumspace:emerald_bastion/erosion",
                     "points": [
                       {
                         "derivative": 0.0,

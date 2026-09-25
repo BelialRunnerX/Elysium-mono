@@ -181,8 +181,6 @@ def language():
         f"block.{NS}.waygate_anchor": "Waygate Anchor",
         "elysiumspace.waygate.title": "Waygate",
         "elysiumspace.waygate.count": "%s gates stand open",
-        "elysiumspace.waygate.entry": "%s — %s",
-        "elysiumspace.waygate.more": "More gates",
         "elysiumspace.waygate.alone": "This is the only waygate. Build another one somewhere worth returning to.",
         "elysiumspace.waygate.unbuilt": "The ring is not finished.",
         "elysiumspace.waygate.missing": "The ring is %s blocks short of %s. The first gap is at %s, %s, %s.",

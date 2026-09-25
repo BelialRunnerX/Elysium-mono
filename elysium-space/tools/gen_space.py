@@ -1091,14 +1091,21 @@ ORE_BLOCKS = {  # deepslate ores only: the Bastion has no stone
 }
 
 
+BLACKSTONE_ORES = {"emerald": "minecraft:deepslate_emerald_ore", "gold": "minecraft:gilded_blackstone"}
+
+
 def ores():
     names = []
     for kind, (block, size, count, lo, hi) in ORE_BLOCKS.items():
         name = f"emerald_bastion_ore_{kind}"
+        targets = [{"state": {"Name": block}, "target": {"predicate_type": "minecraft:tag_match",
+                                                         "tag": "minecraft:deepslate_ore_replaceables"}}]
+        if kind in BLACKSTONE_ORES:
+            # The mountains are blackstone, not deepslate; without this they would be barren.
+            targets.append({"state": {"Name": BLACKSTONE_ORES[kind]},
+                            "target": {"predicate_type": "minecraft:block_match", "block": "minecraft:blackstone"}})
         write(os.path.join(WG, "configured_feature", name + ".json"), {"type": "minecraft:ore",
-              "config": {"discard_chance_on_air_exposure": 0.0, "size": size, "targets": [
-                  {"state": {"Name": block}, "target": {"predicate_type": "minecraft:tag_match",
-                                                          "tag": "minecraft:deepslate_ore_replaceables"}}]}})
+              "config": {"discard_chance_on_air_exposure": 0.0, "size": size, "targets": targets}})
         write(os.path.join(WG, "placed_feature", name + ".json"), {"feature": f"{NS}:{name}",
               "placement": [{"type": "minecraft:count", "count": count}, {"type": "minecraft:in_square"},
                             {"type": "minecraft:height_range", "height": {"type": "minecraft:trapezoid",
@@ -1155,17 +1162,28 @@ def bastion_biomes(ore_features, lake):
 
 BASTION_DF = ["continents", "offset", "factor", "jaggedness", "depth", "sloped_cheese"]
 
+# How the Bastion reads the overworld's erosion: (overworld value, Bastion value).
+# Erosion is what decides flat or mountainous. Vanilla's bands are peaks below
+# -0.78, mountains to -0.375, hills to 0.05, plains 0.05..0.45, then shattered
+# windswept ground (0.45..0.55) and sunken swamp above. Most of the overworld's
+# range is folded into the plains band, and never past it; only its low tail
+# (below about -0.45) becomes peaks, which the highlands biome sits on and
+# paints black. So: a flat green world with ranges of volcanic rock.
+BASTION_EROSION = [(-1.0, -0.95), (-0.55, -0.85), (-0.42, -0.4), (-0.3, 0.12), (0.2, 0.25), (1.0, 0.38)]
+
 
 def bastion_terrain():
-    """The overworld's terrain with the oceans taken out.
+    """The overworld's terrain with the oceans taken out and the ground laid flat.
 
     Continentalness is what makes oceans: below about -0.19 the ground drops
     under sea level. The Bastion reads the overworld's continents squeezed into
     -0.1..0.6 (coast to inland), so there are no oceans. Valleys still fall to
-    sea level, and those are its rivers and lakes. Every density function that
-    reads continents is copied so it reads ours.
+    sea level, and those are its rivers and lakes. Erosion is remapped by
+    BASTION_EROSION so the land is plains except for rare mountain ranges.
+    Every density function that reads either is copied so it reads ours.
     """
     pairs = [(f"minecraft:overworld/{n}", f"{NS}:emerald_bastion/{n}") for n in BASTION_DF]
+    pairs.append(("minecraft:overworld/erosion", f"{NS}:emerald_bastion/erosion"))
     for n in BASTION_DF[1:]:
         data = sub_all(vjson(f"data/minecraft/worldgen/density_function/overworld/{n}.json"), pairs)
         write(os.path.join(WG, "density_function/emerald_bastion", n + ".json"), data)
@@ -1173,14 +1191,44 @@ def bastion_terrain():
         "type": "minecraft:flat_cache", "argument": {"type": "minecraft:add", "argument1": 0.25,
             "argument2": {"type": "minecraft:mul", "argument1": 0.35,
                           "argument2": "minecraft:overworld/continents"}}})
+    write(os.path.join(WG, "density_function/emerald_bastion/erosion.json"), {
+        "type": "minecraft:flat_cache", "argument": {"type": "minecraft:spline", "spline": {
+            "coordinate": "minecraft:overworld/erosion",
+            "points": [{"location": a, "value": b, "derivative": 0.0} for a, b in BASTION_EROSION]}}})
     ns = sub_all(vjson("data/minecraft/worldgen/noise_settings/overworld.json"), pairs)
     ns["default_block"] = {"Name": "minecraft:deepslate"}
     ns["ore_veins_enabled"] = False             # the veins are granite/tuff-filled; no stone here
     bedrock = ns["surface_rule"]["sequence"][0]
     moss, mud = {"type": "minecraft:block", "result_state": {"Name": "minecraft:moss_block"}}, \
         {"type": "minecraft:block", "result_state": {"Name": "minecraft:mud"}}
+    blackstone = {"type": "minecraft:block", "result_state": {"Name": "minecraft:blackstone"}}
+    basalt = {"type": "minecraft:block", "result_state": {"Name": "minecraft:basalt",
+                                                          "Properties": {"axis": "y"}}}
+    magma = {"type": "minecraft:block", "result_state": {"Name": "minecraft:magma_block"}}
+    # The highlands are the mountains (erosion below -0.375, which BASTION_EROSION
+    # keeps to the ranges), and they are volcanic: blackstone right through above
+    # sea level, a skin of basalt in broad patches, and thin seams of magma
+    # where the surface noise crosses zero, like cooling cracks.
+    volcanic = {"type": "minecraft:condition",
+                "if_true": {"type": "minecraft:biome", "biome_is": [f"{NS}:emerald_bastion_highlands"]},
+                "then_run": {"type": "minecraft:sequence", "sequence": [
+                    {"type": "minecraft:condition", "if_true": {"type": "minecraft:stone_depth",
+                         "offset": 0, "add_surface_depth": False, "secondary_depth_range": 0,
+                         "surface_type": "floor"},
+                     "then_run": {"type": "minecraft:sequence", "sequence": [
+                         {"type": "minecraft:condition", "if_true": {"type": "minecraft:noise_threshold",
+                              "noise": "minecraft:surface", "min_threshold": -0.025, "max_threshold": 0.025},
+                          "then_run": magma},
+                         {"type": "minecraft:condition", "if_true": {"type": "minecraft:noise_threshold",
+                              "noise": "minecraft:surface", "min_threshold": 0.3, "max_threshold": 1.0},
+                          "then_run": basalt},
+                         blackstone]}},
+                    {"type": "minecraft:condition", "if_true": {"type": "minecraft:y_above",
+                         "anchor": {"absolute": 60}, "surface_depth_multiplier": 0, "add_stone_depth": False},
+                     "then_run": blackstone}]}}
     ns["surface_rule"] = {"type": "minecraft:sequence", "sequence": [
         bedrock,
+        volcanic,
         {"type": "minecraft:condition", "if_true": {"type": "minecraft:above_preliminary_surface"},
          "then_run": {"type": "minecraft:sequence", "sequence": [
              # Cliffs stay bare dark rock, which is most of what the mountains are.
@@ -1204,7 +1252,11 @@ def bastion_terrain():
         "type": f"{NS}:emerald_bastion",
         "generator": {"type": "minecraft:noise", "settings": f"{NS}:emerald_bastion",
             "biome_source": {"type": "minecraft:multi_noise", "biomes": [
-                {"biome": f"{NS}:emerald_bastion_plains", "parameters": p(whole, whole, whole, [-0.2, 1.0], whole)},
+                # Plains either side of the river's weirdness band, not over it: a
+                # biome whose box covers the river's ties with it, and ties go
+                # to the first listed, so there would be no river biome at all.
+                {"biome": f"{NS}:emerald_bastion_plains", "parameters": p(whole, whole, whole, [-0.2, 1.0], [-1.0, -0.05])},
+                {"biome": f"{NS}:emerald_bastion_plains", "parameters": p(whole, whole, whole, [-0.2, 1.0], [0.05, 1.0])},
                 {"biome": f"{NS}:emerald_bastion_highlands", "parameters": p(whole, whole, whole, [-1.0, -0.375], whole)},
                 {"biome": f"{NS}:emerald_bastion_river", "parameters": p(whole, whole, whole, [-0.2, 1.0], [-0.05, 0.05])},
             ]}}})
@@ -1249,7 +1301,15 @@ LANG = {
     "elysiumspace.rocket.nowhere": "Rockets cannot launch from here",
     "elysiumspace.rocket.needs_pad": "A rocket must stand on a Launch Pad",
     "elysiumspace.destinations.title": "Choose a destination",
-    "elysiumspace.destinations.entry": "%s  (%s mB)",
+    "elysiumspace.destinations.burn": "Burns %s mB",
+    "elysiumspace.destinations.nowhere": "Nowhere within reach. The tank is the limit, not the map.",
+    # Space weather, named by the lib's ElysiumWeather under its own keys.
+    "elysium.weather.ashfall": "Ashfall",
+    "elysium.weather.firestorm": "A firestorm",
+    "elysium.weather.ion_storm": "An ion storm",
+    "elysium.weather.regolith_gust": "A regolith gust",
+    "elysium.weather.solar_flare": "A solar flare",
+    "elysium.weather.whiteout": "A whiteout",
     "elysiumspace.destinations.land": "Land here",
     "elysiumspace.destinations.fuel": "Fuel: %s / %s mB",
     "elysiumspace.destinations.overworld": "The Overworld",

@@ -41,7 +41,11 @@ Elysium's rooms. Reskin to the Elysium theme after that. Reference:
 **Emerald Bastion** (Dylan's spec): a green and dark-rock palette. Moss replaces
 grass and mud replaces dirt. There is no stone or cobblestone: the underground is
 all deepslate, with deepslate ores of every type and a lot of emerald. No oceans,
-but lakes and rivers. Mostly flat plains with some mountains. **Emgrove** trees
+but lakes and rivers. Flat green plains (about 88% of the land) broken by ranges
+of black volcanic mountains (about 8%): the highlands are blackstone right through
+above sea level, skinned with basalt and cracked with thin magma seams, and still
+carry emerald ore and gilded blackstone. Flatness comes from remapping the
+overworld's erosion (`BASTION_EROSION` in `tools/gen_space.py`). **Emgrove** trees
 are mangrove-like but with greenish wood and planks. It is an imperial emerald
 stronghold world, and nothing hostile spawns naturally at any light level.
 
