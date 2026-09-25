@@ -533,6 +533,11 @@ else:
     if "new SimpleTier(incorrectFor(rung.level()), rung.uses(), rung.speed(), rung.damage(), rung.enchant()," \
             not in arsenal_items_src:
         fail("a Cordon rung's Tier is not built from the rung's own numbers")
+    _plain_items = strip_comments(read(SRC, "registry/ArsenalItems.java"), True)
+    if not (0 <= _plain_items.find("GAME = Map.of(") < _plain_items.find("TIERS = tiers();")):
+        fail("the game's tier map is declared after the TIERS field that reads it; static fields "
+             "initialise in declaration order, so TIERS reads a null map and the mod crashes at the "
+             "title screen — which is how the first jar of this did")
     if "if (made.size() != WeaponRules.RUNGS.size()) {" not in arsenal_items_src:
         fail("nothing counts the tiers built against the rungs, so a rung can go without a Tier and "
              "every weapon at it would throw on registration")

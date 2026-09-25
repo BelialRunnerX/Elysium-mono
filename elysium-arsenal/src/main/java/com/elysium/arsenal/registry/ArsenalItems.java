@@ -60,12 +60,15 @@ public final class ArsenalItems {
      * <p>Public because the uniques are built on the same tiers and a second
      * copy of this map is a second copy that can drift.
      */
-    public static final Map<String, Tier> TIERS = tiers();
-
+    // Declared before TIERS, which reads it: a static initialiser runs in
+    // declaration order, and the other way round is a null map at startup —
+    // which is exactly how the first jar of this crashed at the title screen.
     private static final Map<String, Tier> GAME = Map.of(
             "wooden", Tiers.WOOD, "stone", Tiers.STONE, "iron", Tiers.IRON,
             "golden", Tiers.GOLD, "diamond", Tiers.DIAMOND,
             "netherite", Tiers.NETHERITE);
+
+    public static final Map<String, Tier> TIERS = tiers();
 
     private static Map<String, Tier> tiers() {
         Map<String, Tier> made = new LinkedHashMap<>();
