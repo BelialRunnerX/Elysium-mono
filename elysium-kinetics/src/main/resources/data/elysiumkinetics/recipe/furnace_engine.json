@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MFM",
+    "MSM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:iron_ingot"
+    },
+    "F": {
+      "item": "minecraft:furnace"
+    },
+    "S": {
+      "item": "elysiumkinetics:brass_shaft"
+    }
+  },
+  "result": {
+    "id": "elysiumkinetics:furnace_engine",
+    "count": 1
+  }
+}

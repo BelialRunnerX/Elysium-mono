@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "elysiumkinetics:block/refinery"
+    },
+    "axis=y": {
+      "model": "elysiumkinetics:block/refinery"
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/refinery"
+    }
+  }
+}

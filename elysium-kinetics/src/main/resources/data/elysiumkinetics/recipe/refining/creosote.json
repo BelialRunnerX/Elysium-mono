@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:refining",
+  "input": {
+    "item": "minecraft:coal_block"
+  },
+  "result": {
+    "id": "elysiumkinetics:creosote",
+    "count": 1
+  },
+  "ticks": 300,
+  "pace": "STEADY"
+}

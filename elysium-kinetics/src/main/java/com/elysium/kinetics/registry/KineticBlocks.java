@@ -7,6 +7,7 @@ import com.elysium.kinetics.block.HandCrankBlock;
 import com.elysium.kinetics.block.MillstoneBlock;
 import com.elysium.kinetics.block.MixerBlock;
 import com.elysium.kinetics.block.PressBlock;
+import com.elysium.kinetics.block.RefineryBlock;
 import com.elysium.kinetics.block.SawBlock;
 import com.elysium.kinetics.block.ShaftBlock;
 import com.elysium.kinetics.block.WaterWheelBlock;
@@ -92,6 +93,41 @@ public final class KineticBlocks {
 
     public static final DeferredBlock<Block> SAW = BLOCKS.register("saw",
             () -> new SawBlock(timber().strength(2.5F)));
+
+    /**
+     * The engines, walked out of the rules.
+     *
+     * <p>Three of them, and a refinery that turns one fuel into the next.
+     * Registered from {@link com.elysium.kinetics.rules.EngineRules#ENGINES}
+     * rather than listed here, so an engine added to the ladder is a block the
+     * same day, and the count check at the end catches the one somebody
+     * forgot.
+     */
+    public static final java.util.Map<String, DeferredBlock<Block>> ENGINES =
+            registerEngines();
+
+    private static java.util.Map<String, DeferredBlock<Block>> registerEngines() {
+        java.util.Map<String, DeferredBlock<Block>> made =
+                new java.util.LinkedHashMap<>();
+        for (com.elysium.kinetics.rules.EngineRules.Engine engine
+                : com.elysium.kinetics.rules.EngineRules.ENGINES) {
+            made.put(engine.id(), BLOCKS.register(engine.id(),
+                    () -> new com.elysium.kinetics.block.EngineBlock(
+                            brass(), engine.id())));
+        }
+        if (made.size()
+                != com.elysium.kinetics.rules.EngineRules.ENGINES.size()) {
+            throw new IllegalStateException("the rules have "
+                    + com.elysium.kinetics.rules.EngineRules.ENGINES.size()
+                    + " engine(s) and " + made.size() + " were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
+    /** What turns one fuel into the next. */
+    public static final DeferredBlock<Block> REFINERY = BLOCKS.register(
+            com.elysium.kinetics.rules.EngineRules.REFINERY,
+            () -> new RefineryBlock(brass()));
 
     public static final DeferredBlock<Block> MIXER = BLOCKS.register("mixer",
             () -> new MixerBlock(brass().strength(3.5F)));

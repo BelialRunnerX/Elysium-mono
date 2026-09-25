@@ -206,6 +206,80 @@ public final class LineRules {
      * which is the honest outcome: a network too big to resolve is a network
      * whose speed nobody can state.
      */
+    /**
+     * What a whole line is pushing and drawing, reflected onto the root.
+     *
+     * <p>The one thing anything kinetic has to prove is that torque is
+     * conserved: at the speed a line settles at, what the sources push equals
+     * what the loads draw, and nothing is created going round the hall. That
+     * is a property of {@link KineticRules#settle} and of {@link
+     * KineticRules.Source#through} together, and it is not obvious — the
+     * reflection multiplies a source's torque by the ratio and divides its
+     * speed by it, and a sign error either way is a machine hall that makes
+     * power out of cogs.
+     *
+     * @param pushed what every source together pushes with, at the root
+     * @param drawn  what every load together takes, at the root
+     * @param idle   what is left over, which is zero on a line that is
+     *               working and positive on one that is not yet loaded
+     */
+    public record Balance(float pushed, float drawn, float idle) {
+
+        /** How far out of balance it is, as a share of what is pushed. */
+        public float apart() {
+            float size = Math.max(Math.abs(pushed), Math.abs(drawn + idle));
+            return size <= 0.0F ? 0.0F
+                    : Math.abs(pushed - drawn - idle) / size;
+        }
+    }
+
+    /**
+     * The books for a line, at the speed it settled at.
+     *
+     * <p>Reflected onto the root rather than summed where the machines
+     * actually are, because that is the one place every number is in the same
+     * units. A load two step-ups out is nine times heavier at the root, and a
+     * balance that added the raw numbers would be adding rpm at one end to
+     * rpm at the other.
+     */
+    public static Balance balance(List<Driven> sources, List<Drawn> loads,
+                                  Assembly assembly) {
+        float rpm = Math.abs(assembly.root().rpm());
+        float pushed = 0.0F;
+        for (Driven one : sources) {
+            pushed += one.source().through(one.at().ratio(), one.at().stages())
+                    .torqueAt(rpm);
+        }
+        float drawn = 0.0F;
+        for (Drawn one : loads) {
+            KineticRules.Load reflected =
+                    one.load().through(one.at().ratio(), one.at().stages());
+            if (reflected.working(rpm)) {
+                drawn += reflected.draw();
+            }
+        }
+        return new Balance(pushed, drawn, Math.max(0.0F, pushed - drawn));
+    }
+
+    /**
+     * How much torque a loop adds going round it.
+     *
+     * <p>Zero, always, or the hall is a perpetual motion machine. Reflecting
+     * a source out through a ratio and back through its inverse has to give
+     * the source back — less what the teeth cost, which is a loss and never a
+     * gain. Handed the ratio rather than read off a line so a control can ask
+     * it about a loop built to be caught.
+     */
+    public static float goingRound(KineticRules.Source source, float ratio,
+                                   int stages) {
+        if (ratio == 0.0F) {
+            return 0.0F;
+        }
+        KineticRules.Source there = source.through(ratio, stages);
+        KineticRules.Source back = there.through(1.0F / ratio, stages);
+        return back.stallTorque() - source.stallTorque();
+    }
+
     public static boolean tooBig(int members) {
         return members > MOST_MEMBERS;
     }

@@ -525,8 +525,39 @@ items = re.sub(r"\s+", " ", strip_comments(read(SRC, "registry/KineticItems.java
 # The one list the tab shows, read out of its own declaration rather than by
 # looking at the whole file — a name mentioned anywhere in the registry would
 # otherwise satisfy a check about being *in the tab*.
-_order = re.search(r"ORDER = java\.util\.List\.of\(([^;]*)\);", items)
+# The engines and the fuels are registered from a loop over EngineRules, so
+# they are invisible to a reading that walks literal register("...") calls —
+# the same blind spot that once let five hundred blocks go unchecked in
+# elysium-logistics. Parsed out of the rules and added by hand.
+ENGINE_RULES = strip_comments(read(SRC, "rules/EngineRules.java"),
+                              keep_strings=True)
+engine_ids = re.findall(r'new Engine\("([a-z_]+)"', ENGINE_RULES)
+fuel_ids = [one.split(":", 1)[1] for one
+            in re.findall(r'new Fuel\("([a-z:_]+)"', ENGINE_RULES)
+            if one.startswith(NS + ":")]
+_refinery = re.search(r'REFINERY = "([a-z_]+)"', ENGINE_RULES)
+refinery = _refinery.group(1) if _refinery else ""
+if not engine_ids or not fuel_ids or not refinery:
+    fail(f"EngineRules no longer says what the engines are; this file read "
+         f"{len(engine_ids)} engine(s) and {len(fuel_ids)} fuel(s), and every "
+         f"check below it is then checking nothing")
+registered = sorted(set(registered) | set(engine_ids) | {refinery})
+
+# What the tab shows, read out of the one method that builds it.
+#
+# It used to be a literal list and is now a list plus two rosters walked from
+# the rules, because an engine added to the ladder should appear in the tab
+# the same day rather than the day somebody remembers. So the covered set is
+# the names written down plus, when the method reaches for a roster, every
+# name in that roster.
+_order = re.search(r"List<DeferredItem<BlockItem>> order\(\) \{(.*?)\}", items)
+if not _order:
+    _order = re.search(r"ORDER = java\.util\.List\.of\(([^;]*)\);", items)
 tab_order = _order.group(1) if _order else ""
+if "ENGINES.values()" in tab_order:
+    tab_order += " " + " ".join(name.upper() for name in engine_ids)
+if "REFINERY" in tab_order:
+    tab_order += " " + refinery.upper()
 if not tab_order:
     fail("the creative tab has no declared order, so what it shows is whatever the "
          "registry happened to list")
@@ -545,7 +576,8 @@ for name in registered:
             fail(f"{name} has no {what}")
     if f"block.{NS}.{name}" not in lang_keys:
         fail(f"{name} has no name in any language")
-    if f"registerSimpleBlockItem(KineticBlocks.{name.upper()})" not in items:
+    if f"registerSimpleBlockItem(KineticBlocks.{name.upper()})" not in items \
+            and name not in engine_ids:
         fail(f"{name} has no item, so it can only be placed by a command")
     if name.upper() not in tab_order:
         fail(f"{name} is not in the creative tab, so nobody can find it")
@@ -563,7 +595,7 @@ for name in registered:
 # Every machine reads its own recipes, and every machine must have some: a
 # block that draws torque and does no work is a block that was registered and
 # then forgotten.
-KINDS = ("milling", "pressing", "sawing", "mixing")
+KINDS = ("milling", "pressing", "sawing", "mixing", "refining")
 recipes = 0
 paces = set()
 for kind in KINDS:
@@ -626,6 +658,82 @@ machines = [name for name in sorted(os.listdir(os.path.join(SRC, "block")))
 if len(machines) != len(KINDS):
     fail(f"{len(machines)} machine block(s) for {len(KINDS)} recipe kind(s): "
          f"{machines}")
+
+
+# ---------------------------------------------------------------------------
+# The engines, and the sum they may not get wrong
+# ---------------------------------------------------------------------------
+
+if "public static List<String> faultsInCeiling(" not in ENGINE_RULES:
+    fail("nothing asks whether the ceiling an engine is measured against is a "
+         "ceiling at all, and at one or more every check on an engine passes "
+         "by being asked nothing, so the whole section becomes a comment")
+if "public static List<String> makingEnergy(" not in ENGINE_RULES:
+    fail("nothing asks whether an engine gets more out of a fuel than the fuel "
+         "contains, which is a machine hall that makes energy — the same bug "
+         "as a loop that gains torque, arrived at from the other end")
+if "return left > 0 ? rules().source() : null;" not in strip_comments(
+        read(SRC, "block/EngineBlock.java"), keep_strings=True):
+    fail("an engine pushes on an empty tank, so it is free — and a free engine "
+         "is every other source in the age with an extra recipe in front of it")
+if "left -= Math.max(1, rules.burning() / TICKS_PER_SECOND);" not in \
+        strip_comments(read(SRC, "block/EngineBlock.java"), keep_strings=True):
+    fail("an engine spends fuel at a rate of its own rather than at the thirst "
+         "the rules give it, so the sum the harness proves is about an engine "
+         "nobody runs")
+
+fuels_declared = re.findall(r'new Fuel\("([a-z:_]+)", ([\d_]+), "([a-z ]*)"\)',
+                            ENGINE_RULES)
+if len(fuels_declared) < 2:
+    fail("there is no ladder of fuels, so there is nothing to refine and the "
+         "refinery is a block that draws torque and does nothing")
+burns = [int(one[1].replace("_", "")) for one in fuels_declared]
+if burns != sorted(burns):
+    fail(f"the fuel ladder runs backwards somewhere: {burns}")
+
+for name in engine_ids:
+    if not os.path.isfile(os.path.join(RES, f"data/{NS}/recipe/{name}.json")):
+        fail(f"{name} has no recipe, so a rung of the engine ladder is a block "
+             f"only the creative menu has")
+    if f"block.{NS}.{name}" not in lang_keys:
+        fail(f"{name} has no name a player reads")
+
+for name in fuel_ids:
+    if not os.path.isfile(os.path.join(
+            RES, f"assets/{NS}/models/item/{name}.json")):
+        fail(f"{name} has no model, so a fuel of ours is a purple cube")
+    if f"item.{NS}.{name}" not in lang_keys:
+        fail(f"{name} has no name a player reads")
+
+# Every fuel this module makes has a way up to it, or it is an item nobody can
+# ever hold.
+refining = os.path.join(RES, f"data/{NS}/recipe/refining")
+made_by_refining = set()
+if not os.path.isdir(refining):
+    fail("there is no refining folder, so the refinery reads no recipes at all")
+else:
+    for name in sorted(os.listdir(refining)):
+        body = json.loads(read(refining, name))
+        if body.get("type") != f"{NS}:refining":
+            fail(f"refining/{name} is not a refining recipe")
+        made_by_refining.add(str(body.get("result", {}).get("id", "")))
+        if not body.get("input"):
+            fail(f"refining/{name} is made out of nothing")
+for name in fuel_ids:
+    if f"{NS}:{name}" not in made_by_refining:
+        fail(f"{name} is a fuel this module makes and nothing makes it, so it "
+             f"is an item nobody can ever hold")
+
+if refinery:
+    if not os.path.isfile(os.path.join(RES, f"data/{NS}/recipe/{refinery}.json")):
+        fail("the refinery has no recipe")
+    if "extends MachineBlock" not in read(SRC, "block/RefineryBlock.java"):
+        fail("the refinery is not one of the shared machines, so it has its own "
+             "copy of the two slots and the grind loop to drift")
+
+print(f"the engines        : {len(engine_ids)} engine(s) on a ladder of "
+      f"{len(fuels_declared)} fuel(s), {len(fuel_ids)} of them ours and every "
+      f"one with a way up to it, and a refinery to climb it with")
 
 print(f"the hall's contents: {len(registered)} block(s), each modelled, named, drawn, "
       f"dropped and craftable; {textures} texture reference(s) all present; "

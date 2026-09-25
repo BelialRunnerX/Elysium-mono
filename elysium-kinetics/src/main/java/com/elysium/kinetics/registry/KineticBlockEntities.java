@@ -92,6 +92,41 @@ public final class KineticBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MachineBlock.MachineBlockEntity>>
             MIXER = machine("mixer", KineticBlocks.MIXER);
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MachineBlock.MachineBlockEntity>>
+            REFINERY = machine(com.elysium.kinetics.rules.EngineRules.REFINERY,
+                    KineticBlocks.REFINERY);
+
+    /** One type for all three engines: the block says which it is. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.kinetics.block.EngineBlock.EngineBlockEntity>>
+            ENGINE = TYPES.register("engine", () -> BlockEntityType.Builder.of(
+                    com.elysium.kinetics.block.EngineBlock.EngineBlockEntity::new,
+                    everyEngine()).build(null));
+
+    /**
+     * Every engine on the ladder.
+     *
+     * <p>A block entity type that does not name a block refuses to attach to
+     * it, and the symptom is an engine you can place, fill with coal and
+     * watch do nothing at all — with no error anywhere, because nothing went
+     * wrong.
+     */
+    private static net.minecraft.world.level.block.Block[] everyEngine() {
+        java.util.List<net.minecraft.world.level.block.Block> all =
+                new java.util.ArrayList<>();
+        for (com.elysium.kinetics.rules.EngineRules.Engine engine
+                : com.elysium.kinetics.rules.EngineRules.ENGINES) {
+            all.add(KineticBlocks.ENGINES.get(engine.id()).get());
+        }
+        if (all.size()
+                != com.elysium.kinetics.rules.EngineRules.ENGINES.size()) {
+            throw new IllegalStateException("the ladder has "
+                    + com.elysium.kinetics.rules.EngineRules.ENGINES.size()
+                    + " engine(s) and " + all.size()
+                    + " were given a block entity");
+        }
+        return all.toArray(new net.minecraft.world.level.block.Block[0]);
+    }
+
     /**
      * Every machine's two slots, so a hopper can feed one and a hopper under
      * it can take what comes out.
@@ -108,10 +143,12 @@ public final class KineticBlockEntities {
         @SubscribeEvent
         public static void onCapabilities(RegisterCapabilitiesEvent event) {
             for (DeferredHolder<BlockEntityType<?>, BlockEntityType<MachineBlock.MachineBlockEntity>>
-                    machine : java.util.List.of(MILLSTONE, PRESS, SAW, MIXER)) {
+                    machine : java.util.List.of(MILLSTONE, PRESS, SAW, MIXER, REFINERY)) {
                 event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, machine.get(),
                         (entity, side) -> entity.items());
             }
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ENGINE.get(),
+                    (entity, side) -> entity.items());
         }
     }
 }

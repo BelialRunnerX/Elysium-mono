@@ -752,3 +752,91 @@ be planted, combs that no longer have to be collected by hand, bees that no
 longer wander off, breeding that happens in the box rather than in a field.
 That is what the jar being replaced is actually for, and none of it is
 priced against the ore ladder because none of it produces anything.
+
+---
+
+## 14. Create, and the nineteen jars sitting on top of it
+
+Nineteen jars, content weight 5,211, and the weight badly understates it.
+Create is not a content mod. It is a physics system — rotational force, a
+stress budget, contraptions that assemble a region of the world into a moving
+thing, belts that carry items as entities — and the other eighteen jars are
+content resting on that system. Counting blocks counts the easy half.
+
+### The three honest options
+
+1. **Keep Create and convert only the addons.** The pack keeps one foreign
+   jar; eighteen of nineteen become ours. Cheapest, and it leaves the single
+   largest mod in the pack unconverted forever.
+2. **Build a reduced kinetic system of our own** — rotation and torque, no
+   contraption assembly — and put the addons' content on it. Loses moving
+   contraptions, which is a real part of why people install Create.
+3. **Drop the kinetics and convert the addons' content onto machinery this
+   pack already has** — `elysium-industry`'s grid and `elysium-atomics`.
+   Loses the whole feel of the age, and turns eighteen jars of shafts and
+   gearboxes into eighteen jars of boxes that take power.
+
+### The decision: (2), and half of it already exists
+
+`elysium-kinetics` already has the system. `KineticRules` is a line of rigidly
+coupled shafts, a source described by a free speed and a stall torque, a load
+that draws a constant torque, and a line that settles where push equals draw.
+Sixteen blocks are built on it: shafts, cogwheels, gearboxes, a hand crank, a
+water wheel, a windmill bearing, a millstone, a mixer, a press, a saw.
+
+It is also, deliberately, **not Create's model**. Create gives a source a
+fixed capacity and flips the whole network to OVERSTRESSED the moment demand
+crosses supply — one comparison to implement, and it reads as a light switch:
+everything works, then nothing does, with no warning in between. A linear
+speed-torque curve is the same amount of code and behaves like a machine. The
+line gets audibly slower as you hang things off it, and the first thing to
+stop is whatever needed the most speed, which is a sentence a player can act
+on.
+
+So the decision is to finish what is there rather than to start again, and to
+take the addons' content onto it.
+
+### What it costs, stated plainly
+
+**No contraptions.** No pistons that move a region, no gantries, no trains
+built out of blocks, no flying machines. That is the single biggest thing in
+Create and we are not building it: assembling an arbitrary region of the world
+into a moving entity, with block entities, inventories, redstone and
+collisions intact, is a mod's worth of work on its own and every one of its
+failure modes is a corrupted save rather than a wrong number.
+
+A player coming from Create will find the shafts, the gearboxes, the
+processing and the stress, and will not find the moving machinery. The pack
+keeps trains through `elysium-transit`, which is a different and simpler
+promise: a train on rails rather than a train assembled out of blocks.
+
+**Belts carry items, and do not carry players or blocks.** The same reason.
+
+**`createbigcannons` and `create-aeronautics` do not fold in at all.** Both
+are built on contraption assembly — a cannon is an assembled structure and an
+airship is a flying one — so neither has a home here. They are DROP with a
+reason rather than PLANNED against a module that will never take them.
+
+### What each of the nineteen becomes
+
+Written against every row in `docs/MANIFEST.md` rather than only here, because
+a decision that lives in one document is a decision the next person re-makes.
+
+| jar | becomes |
+|---|---|
+| `create` | the kinetic system itself: lines, sources, loads, and the processing blocks |
+| `createdeco` | a decoration roster — brass and copper fittings — and it goes to `elysium-atelier` |
+| `createaddition`, `create-new-age`, `createdieselgenerators` | the seam between rotation and the electrical grid `elysium-industry` already has: an alternator one way, a motor the other, and a diesel engine as a source |
+| `create_connected`, `copycats`, `interiors`, `create-stuff-additions` | quality-of-life and decoration; the useful half is fittings for the atelier and the rest is a config |
+| `create-integrated-farming`, `create-central-kitchen`, `sliceanddice` | processing recipes joining the kinetics to `elysium-agronomy`, which is now finished and has the crops and the kitchen to join to |
+| `create-enchantment-industry` | joins the kinetics to `elysium-enchanting` |
+| `create_ultimate_factory`, `create_power_loader` | one machine each |
+| `CreateDragonsPlus`, `create_aquatic_ambitions` | content for `elysium-bestiary` and `elysium-wilds` |
+| `createbigcannons`, `create-aeronautics-bundled` | **DROP**: both are contraption assembly, which is the one thing this decision gives up |
+
+### The one thing anything kinetic has to prove
+
+Stress is conserved. What the sources push equals what the loads draw plus
+what is idle, on every network, including ones with cycles in them — a network
+that gains torque going round a loop is a perpetual motion machine, and a
+player finds that long before anybody finds it by reading.

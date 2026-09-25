@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumkinetics:block/distillate_engine"
+    },
+    "axis=x": {
+      "model": "elysiumkinetics:block/distillate_engine",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/distillate_engine",
+      "x": 90
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "elysiumkinetics:refining",
+  "input": {
+    "item": "elysiumkinetics:creosote"
+  },
+  "result": {
+    "id": "elysiumkinetics:distillate",
+    "count": 1
+  },
+  "ticks": 300,
+  "pace": "STEADY"
+}

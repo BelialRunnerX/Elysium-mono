@@ -57,7 +57,9 @@ public record KineticRecipe(Ingredient input, ItemStack result, int ticks,
         MILLING("milling"),
         PRESSING("pressing"),
         SAWING("sawing"),
-        MIXING("mixing");
+        MIXING("mixing"),
+        /** One fuel into the next, which is the only reason to build a refinery. */
+        REFINING("refining");
 
         private final String name;
 

@@ -1,0 +1,44 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "top": "elysiumkinetics:block/distillate_engine_top",
+    "side": "elysiumkinetics:block/distillate_engine",
+    "bottom": "elysiumkinetics:block/distillate_engine_top",
+    "particle": "elysiumkinetics:block/distillate_engine"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#bottom",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        }
+      }
+    }
+  ]
+}

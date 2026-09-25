@@ -14,6 +14,7 @@ Nobody else's pixels are in this repository, and a cog is a circle with teeth
 on it, which is a thing a program can draw.
 """
 import json
+import re
 import math
 import os
 import sys
@@ -325,10 +326,25 @@ SPRITES = {
 
 def draw_all():
     out = os.path.join(ASSETS, "textures/block")
+    items = os.path.join(ASSETS, "textures/item")
     os.makedirs(out, exist_ok=True)
+    os.makedirs(items, exist_ok=True)
     for name, make in SPRITES.items():
         make().save(os.path.join(out, name + ".png"))
-    return len(SPRITES)
+    drawn = len(SPRITES)
+    for engine in ENGINES:
+        engine_face(engine, False).save(
+            os.path.join(out, engine["id"] + ".png"))
+        engine_face(engine, True).save(
+            os.path.join(out, engine["id"] + "_top.png"))
+        drawn += 2
+    refinery_face(False).save(os.path.join(out, REFINERY + ".png"))
+    refinery_face(True).save(os.path.join(out, REFINERY + "_top.png"))
+    drawn += 2
+    for name in OUR_FUELS:
+        fuel_sprite(name).save(os.path.join(items, name + ".png"))
+        drawn += 1
+    return drawn
 
 
 # ---------------------------------------------------------------------------
@@ -417,6 +433,89 @@ def slab(height, top, side, bottom):
     }
 
 
+# ---------------------------------------------------------------------------
+# The engines, read out of their own rules
+# ---------------------------------------------------------------------------
+
+ENGINE_SOURCE = open(os.path.join(
+    MOD, "src/main/java/com/elysium/kinetics/rules/EngineRules.java"),
+    encoding="utf-8").read()
+
+ENGINES = [{"id": one[0], "free": float(one[1]), "stall": float(one[2]),
+            "takes": int(one[3]), "burning": int(one[4])}
+           for one in re.findall(
+               r'new Engine\("([a-z_]+)",\s*new KineticRules\.Source\('
+               r'([\d.]+)F, ([\d.]+)F\), (\d+), (\d+)\)', ENGINE_SOURCE)]
+FUELS = [{"id": one[0], "burn": int(one[1].replace("_", "")), "made": one[2]}
+         for one in re.findall(
+             r'new Fuel\("([a-z:_]+)", ([\d_]+), "([a-z ]*)"\)', ENGINE_SOURCE)]
+REFINERY = re.search(r'REFINERY = "([a-z_]+)"', ENGINE_SOURCE)
+REFINING_TICKS = re.search(r'REFINING_TICKS = (\d+);', ENGINE_SOURCE)
+if not ENGINES or not FUELS or not REFINERY or not REFINING_TICKS:
+    print(f"EngineRules no longer has the shape this reads: {len(ENGINES)} "
+          f"engine(s), {len(FUELS)} fuel(s)")
+    sys.exit(2)
+REFINERY = REFINERY.group(1)
+REFINING_TICKS = int(REFINING_TICKS.group(1))
+OUR_FUELS = [one["id"].split(":", 1)[1] for one in FUELS
+             if one["id"].startswith(NS + ":")]
+
+
+def engine_face(engine, top):
+    """
+    An engine, drawn from how hard it pushes.
+
+    <p>Hotter the stronger it is, and with one more pipe on the side for each
+    rung, so three engines on a wall are three engines rather than one block
+    in three colours.
+    """
+    rung = ENGINES.index(engine)
+    body = (98 + rung * 34, 84 + rung * 12, 72)
+    dark = tuple(max(0, part - 44) for part in body)
+    hot = (232, 150 - rung * 30, 60)
+    image = Image.new("RGBA", (16, 16), body + (255,))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 15], outline=dark + (255,))
+    if top:
+        draw.ellipse([4, 4, 11, 11], fill=dark + (255,))
+        draw.ellipse([6, 6, 9, 9], fill=hot + (255,))
+        return image
+    for at in range(rung + 1):
+        draw.rectangle([2, 3 + at * 4, 13, 4 + at * 4], fill=dark + (255,))
+    draw.rectangle([5, 11, 10, 14], fill=hot + (255,), outline=dark + (255,))
+    return image
+
+
+def refinery_face(top):
+    """A still: a vessel with a pipe off the top of it."""
+    body = (120, 116, 108)
+    dark = tuple(max(0, part - 44) for part in body)
+    glass = (168, 196, 188)
+    image = Image.new("RGBA", (16, 16), body + (255,))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 15], outline=dark + (255,))
+    if top:
+        draw.ellipse([3, 3, 12, 12], fill=glass + (255,), outline=dark + (255,))
+        draw.ellipse([7, 7, 8, 8], fill=dark + (255,))
+        return image
+    draw.rectangle([4, 5, 11, 13], fill=glass + (255,), outline=dark + (255,))
+    draw.rectangle([10, 1, 12, 5], fill=dark + (255,))
+    return image
+
+
+def fuel_sprite(name):
+    """A fuel, darker and oilier the further up the ladder it is."""
+    rung = OUR_FUELS.index(name)
+    body = (68 - rung * 20, 54 - rung * 18, 44 - rung * 14)
+    shine = tuple(min(255, part + 90 + rung * 30) for part in body)
+    image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.ellipse([3, 4, 12, 13], fill=body + (255,),
+                 outline=tuple(max(0, c - 20) for c in body) + (255,))
+    draw.ellipse([5, 6, 8, 8], fill=shine + (255,))
+    return image
+
+
 BLOCKS = {
     "timber_shaft": pillar(6, "timber_shaft", "timber_shaft_end"),
     "brass_shaft": pillar(6, "brass_shaft", "brass_shaft_end"),
@@ -435,9 +534,13 @@ BLOCKS = {
     "saw": slab(14, "saw_top", "saw", "saw_top"),
     "mixer": slab(16, "mixer_top", "mixer", "mixer_top"),
 }
+for _engine in ENGINES:
+    BLOCKS[_engine["id"]] = slab(16, _engine["id"] + "_top",
+                                 _engine["id"], _engine["id"] + "_top")
+BLOCKS[REFINERY] = slab(16, REFINERY + "_top", REFINERY, REFINERY + "_top")
 
 #: Which blocks a placement can lay on any axis. A millstone cannot.
-FIXED = {"millstone", "sail", "press", "mixer"}
+FIXED = {"millstone", "sail", "press", "mixer", REFINERY}
 
 
 def models_and_states():
@@ -626,6 +729,60 @@ def data_files():
                 "pace": pace,
             })
             machines += 1
+    # The fuels, which are items rather than blocks and so want a model of
+    # the flat kind rather than a blockstate.
+    for name in OUR_FUELS:
+        write(os.path.join(ASSETS, "models/item", name + ".json"), {
+            "parent": "minecraft:item/generated",
+            "textures": {"layer0": f"{NS}:item/{name}"},
+        })
+        machines += 1
+
+    # The engines, the refinery and the fuels.
+    for at, engine in enumerate(ENGINES):
+        metal = ["minecraft:iron_ingot", "minecraft:iron_block",
+                 "minecraft:netherite_scrap"][min(2, at)]
+        write(os.path.join(DATA, "recipe", engine["id"] + ".json"), {
+            "type": "minecraft:crafting_shaped",
+            "category": "building",
+            "pattern": ["MMM", "MFM", "MSM"],
+            "key": {"M": {"item": metal},
+                    "F": {"item": "minecraft:furnace"},
+                    "S": {"item": f"{NS}:brass_shaft"}},
+            "result": {"id": f"{NS}:{engine['id']}", "count": 1},
+        })
+        machines += 1
+    write(os.path.join(DATA, "recipe", REFINERY + ".json"), {
+        "type": "minecraft:crafting_shaped",
+        "category": "building",
+        "pattern": ["IGI", "ICI", "ISI"],
+        "key": {"I": {"item": "minecraft:iron_ingot"},
+                "G": {"item": "minecraft:glass"},
+                "C": {"item": "minecraft:cauldron"},
+                "S": {"item": f"{NS}:brass_shaft"}},
+        "result": {"id": f"{NS}:{REFINERY}", "count": 1},
+    })
+    machines += 1
+
+    # One refining recipe per step up the ladder that this module makes.
+    #
+    # Walked from the ladder rather than written out, so a fuel added to it is
+    # a fuel that can be made the same day — and a fuel of ours with no way up
+    # to it is an item nobody can ever hold.
+    for at, fuel in enumerate(FUELS):
+        if not fuel["id"].startswith(NS + ":") or at == 0:
+            continue
+        under = FUELS[at - 1]
+        name = fuel["id"].split(":", 1)[1]
+        write(os.path.join(DATA, "recipe", "refining", name + ".json"), {
+            "type": f"{NS}:refining",
+            "input": {"item": under["id"]},
+            "result": {"id": fuel["id"], "count": 1},
+            "ticks": REFINING_TICKS,
+            "pace": "STEADY",
+        })
+        machines += 1
+
     # The tags that make a shaft choppable and a millstone mineable.
     tags = os.path.join(MOD, "src/main/resources/data/minecraft/tags/block")
     axe = [f"{NS}:{n}" for n in
@@ -633,6 +790,8 @@ def data_files():
             "water_wheel", "sail", "saw")]
     pick = [f"{NS}:{n}" for n in ("brass_shaft", "millstone", "gearbox",
                                   "windmill_bearing", "press", "mixer")]
+    pick += [f"{NS}:{one['id']}" for one in ENGINES]
+    pick.append(f"{NS}:{REFINERY}")
     write(os.path.join(tags, "mineable/axe.json"), {"replace": False, "values": axe})
     write(os.path.join(tags, "mineable/pickaxe.json"), {"replace": False, "values": pick})
     return len(BLOCKS) + len(RECIPES) + machines + 2
@@ -696,6 +855,20 @@ def language():
         entries[f"{NS}.{machine}.working"] = working
     for name, shown in NAMES.items():
         entries[f"block.{NS}.{name}"] = shown
+    for engine in ENGINES:
+        entries[f"block.{NS}.{engine['id']}"] = " ".join(
+            word.capitalize() for word in engine["id"].split("_"))
+    entries[f"block.{NS}.{REFINERY}"] = REFINERY.capitalize()
+    for name in OUR_FUELS:
+        entries[f"item.{NS}.{name}"] = name.capitalize()
+    entries[f"{NS}.engine.empty"] = "Nothing in the hopper."
+    entries[f"{NS}.engine.wrongfuel"] = \
+        "This engine will not burn that; it wants something further up the ladder."
+    entries[f"{NS}.engine.burning"] = "Burning: %s second(s) left, at %s rpm."
+    entries[f"{NS}.refinery.still"] = "Nothing is turning it."
+    entries[f"{NS}.refinery.slow"] = "Turning at %s rpm; it needs %s to distil."
+    entries[f"{NS}.refinery.empty"] = "Turning at %s rpm, with an empty vessel."
+    entries[f"{NS}.refinery.working"] = "Distilling, at %s rpm."
     write(os.path.join(ASSETS, "lang/en_us.json"), dict(sorted(entries.items())))
     return len(entries)
 

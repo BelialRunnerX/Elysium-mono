@@ -45,6 +45,26 @@ public final class KineticHarness {
                 + " characters in all)";
     }
 
+    /**
+     * A list of faults, reported one at a time.
+     *
+     * <p>A single check handed a whole list concatenates it into one
+     * complaint, and {@link #trimmed} then cuts everything past the first
+     * fault away — so a section with three things wrong shows one of them and
+     * a reader fixes it three times. Each fault gets its own line and its own
+     * character budget instead.
+     */
+    private static void none(java.util.List<String> faults, String what) {
+        check(faults.isEmpty(),
+                what + ": " + (faults.isEmpty() ? "" : faults.get(0)));
+        for (int at = 1; at < faults.size(); at++) {
+            checks++;
+            failures++;
+            System.out.println("  FAIL: " + trimmed(what + ": "
+                    + faults.get(at)));
+        }
+    }
+
     private static void near(float got, float want, float slack, String what) {
         check(Math.abs(got - want) <= slack,
                 what + ": expected about " + want + ", got " + got);
@@ -61,6 +81,8 @@ public final class KineticHarness {
         work();
         theDynamo();
         theTree();
+        theBooks();
+        theEngines();
         edges();
 
         if (failures > 0) {
@@ -523,7 +545,349 @@ public final class KineticHarness {
         check(refused, "a member geared to a standstill is accepted onto the line");
     }
 
-    private static void edges() {
+// ==================================================================
+
+    /**
+     * The one thing anything kinetic has to prove.
+     *
+     * <p>Torque is conserved. At the speed a line settles at, what the
+     * sources push equals what the loads draw plus what is idle — on every
+     * network, including ones with loops in them. A hall that gains torque
+     * going round a loop is a perpetual motion machine, and a player finds
+     * that long before anybody finds it by reading.
+     *
+     * <p>Randomly built rather than hand-written, because the interesting
+     * cases are combinations: four kinds of source, five kinds of load,
+     * gearing in both directions to six stages deep, and a loop that agrees
+     * with itself. Nobody writes the thirty-thousandth of those by hand.
+     */
+    private static void theBooks() {
+        java.util.List<KineticRules.Source> kinds = java.util.List.of(
+                KineticRules.HAND_CRANK, KineticRules.WATER_WHEEL,
+                KineticRules.SAIL, KineticRules.STEAM_ENGINE);
+        java.util.List<KineticRules.Load> drawn = java.util.List.of(
+                KineticRules.MILLSTONE, KineticRules.PRESS, KineticRules.SAW,
+                KineticRules.MIXER, KineticRules.DYNAMO);
+        float up = KineticRules.ratio(KineticRules.LARGE_TEETH,
+                KineticRules.SMALL_TEETH);
+        float down = KineticRules.ratio(KineticRules.SMALL_TEETH,
+                KineticRules.LARGE_TEETH);
+
+        java.util.Random random = new java.util.Random(6_170_425L);
+        int built = 0;
+        float worst = 0.0F;
+        for (int hall = 0; hall < 20_000; hall++) {
+            java.util.List<LineRules.Driven> sources = new java.util.ArrayList<>();
+            java.util.List<LineRules.Drawn> loads = new java.util.ArrayList<>();
+            int howManySources = 1 + random.nextInt(4);
+            for (int at = 0; at < howManySources; at++) {
+                sources.add(new LineRules.Driven(
+                        kinds.get(random.nextInt(kinds.size())),
+                        somewhere(random, up, down)));
+            }
+            int howManyLoads = random.nextInt(5);
+            for (int at = 0; at < howManyLoads; at++) {
+                loads.add(new LineRules.Drawn(
+                        drawn.get(random.nextInt(drawn.size())),
+                        somewhere(random, up, down)));
+            }
+            KineticRules.Shaft shaft = KineticRules.Shaft.values()[
+                    random.nextInt(KineticRules.Shaft.values().length)];
+            LineRules.Assembly hallAssembly =
+                    LineRules.assemble(sources, loads, shaft, false);
+            built++;
+            LineRules.Balance books = LineRules.balance(sources, loads, hallAssembly);
+            worst = Math.max(worst, books.apart());
+            check(books.apart() < 1.0E-3F,
+                    "a hall of " + howManySources + " source(s) and " + howManyLoads
+                            + " load(s) pushes " + books.pushed() + " and draws "
+                            + books.drawn() + " with " + books.idle()
+                            + " idle, which does not add up");
+            check(books.idle() >= -1.0E-4F,
+                    "a hall is drawing more than its sources push, which is "
+                            + "torque out of nowhere");
+            check(hallAssembly.root().rpm() >= 0.0F,
+                    "a line settled at a negative speed, and the root's speed is "
+                            + "a magnitude");
+            check(hallAssembly.root().rpm() <= KineticRules.MAX_RPM,
+                    "a line settled at " + hallAssembly.root().rpm()
+                            + " and nothing in any age turns faster than "
+                            + KineticRules.MAX_RPM);
+        }
+        check(built == 20_000, "only " + built + " hall(s) were built");
+
+        // A loop that agrees with itself. Out through a ratio and back
+        // through its inverse has to give the source back, less the teeth.
+        for (KineticRules.Source one : kinds) {
+            for (float ratio : new float[] {up, down, up * up, down * down,
+                    1.0F, -up, -down}) {
+                for (int stages = 0; stages <= 4; stages++) {
+                    float gained = LineRules.goingRound(one, ratio, stages);
+                    check(gained <= 1.0E-4F,
+                            "a source sent out through " + ratio + " and back "
+                                    + "comes home " + gained + " stronger, which "
+                                    + "is a machine hall that makes torque out "
+                                    + "of cogs");
+                    check(gained >= -one.stallTorque() - 1.0E-4F,
+                            "a source sent out and back comes home weaker than "
+                                    + "nothing at all");
+                }
+            }
+        }
+
+        // And the teeth cost something, or the loss is a comment.
+        float lossy = LineRules.goingRound(KineticRules.WATER_WHEEL, up, 2);
+        check(lossy < 0.0F, "a round trip through two gear stages costs nothing, "
+                + "so GEAR_LOSS is a number nothing reads");
+
+        // The teeth are paid both ways. A trip out through some stages and
+        // home through the same stages has to cost exactly what going
+        // straight through twice as many costs — which is the statement that
+        // a ratio round-trips exactly and that the losses compose. A trip
+        // that pays the teeth only once is still lossy, so the check above
+        // would not notice it, and it would hide a source gaining a little on
+        // every stage behind a loss that is charged half as often as it
+        // should be.
+        for (KineticRules.Source one : kinds) {
+            for (float ratio : new float[] {up, down, up * up, -up}) {
+                for (int stages = 1; stages <= 4; stages++) {
+                    float round = LineRules.goingRound(one, ratio, stages);
+                    float straight = one.through(1.0F, 2 * stages).stallTorque()
+                            - one.stallTorque();
+                    check(Math.abs(round - straight)
+                                    <= Math.abs(straight) * 1.0E-3F + 1.0E-4F,
+                            "a source sent out through " + ratio + " and back "
+                                    + "comes home " + round + " different and "
+                                    + "going straight through " + (2 * stages)
+                                    + " stages costs " + straight + ", so the "
+                                    + "round trip pays the teeth only once");
+                }
+            }
+        }
+
+        // A control: a balance built to be caught, because over twenty
+        // thousand healthy halls this rule can only ever answer yes.
+        LineRules.Balance crooked = new LineRules.Balance(10.0F, 40.0F, 0.0F);
+        check(crooked.apart() > 1.0E-3F,
+                "books showing ten pushed against forty drawn are reported as "
+                        + "balanced, so the rule that torque is conserved cannot "
+                        + "say no");
+        LineRules.Balance straight = new LineRules.Balance(10.0F, 4.0F, 6.0F);
+        check(straight.apart() < 1.0E-3F,
+                "books that add up exactly are reported as out of balance");
+        check(new LineRules.Balance(0.0F, 0.0F, 0.0F).apart() == 0.0F,
+                "a hall with nothing in it is reported as out of balance");
+
+        System.out.println("  the books: " + built + " halls built at random, "
+                + "every one of them pushing exactly what it draws and what is "
+                + "idle (worst " + String.format("%.2e", worst)
+                + "), and no loop anywhere giving a source back stronger than "
+                + "it went out");
+    }
+
+    /**
+     * Somewhere on a line, through up to six stages of gearing.
+     *
+     * <p>Both directions and both signs, because a sign error in the
+     * reflection is exactly the bug the books above exist to find.
+     */
+    private static LineRules.At somewhere(java.util.Random random, float up,
+                                          float down) {
+        float ratio = 1.0F;
+        int stages = random.nextInt(7);
+        for (int at = 0; at < stages; at++) {
+            ratio = LineRules.compose(ratio, random.nextBoolean() ? up : down);
+        }
+        return new LineRules.At(ratio, stages);
+    }
+
+    // ==================================================================
+
+    /**
+     * Engines, and the sum they may not get wrong.
+     *
+     * <p>Age I had four sources and every one of them was free once it was
+     * built. A fuel is the thing that makes a machine hall a decision rather
+     * than a shape, so: engines that burn something.
+     *
+     * <p>And an engine may not put more energy into a line than the fuel it
+     * burned contains. That is not a balance decision, it is arithmetic, and
+     * getting it wrong is a machine hall that makes energy — the same failure
+     * as a loop that gains torque, arrived at from the other end.
+     */
+    private static void theEngines() {
+        none(EngineRules.faults(), "the engines");
+        none(EngineRules.makingEnergy(EngineRules.ENGINES, EngineRules.FUELS),
+                "an engine getting more out of a fuel than the fuel contains");
+        none(EngineRules.unburnable(), "a fuel nothing will burn");
+        none(EngineRules.faultsInCeiling(EngineRules.EFFICIENCY),
+                "the ceiling on an engine is not a ceiling");
+
+        // Every engine on every fuel it takes, counted.
+        int pairs = 0;
+        for (EngineRules.Engine engine : EngineRules.ENGINES) {
+            for (EngineRules.Fuel one : EngineRules.FUELS) {
+                if (!engine.accepts(one)) {
+                    continue;
+                }
+                pairs++;
+                float got = engine.outOf(one);
+                check(got > 0.0F, engine.id() + " gets nothing out of "
+                        + one.id());
+                check(got <= one.allowed() + 1.0E-3F, engine.id()
+                        + " gets " + got + " out of " + one.id()
+                        + " and may have " + one.allowed());
+                float share = EngineRules.efficiencyOf(engine, one);
+                check(share > 0.0F && share < 1.0F, engine.id() + " runs at "
+                        + share + " of the energy in " + one.id()
+                        + ", and a perfect engine is the shape of a bug rather "
+                        + "than of a reward");
+                check(share <= EngineRules.EFFICIENCY + 1.0E-4F,
+                        engine.id() + " runs at " + share + " and the ceiling "
+                                + "is " + EngineRules.EFFICIENCY);
+            }
+        }
+        check(pairs >= 10, "only " + pairs + " engine-and-fuel pair(s) were "
+                + "checked, and there are " + EngineRules.ENGINES.size()
+                + " engine(s) and " + EngineRules.FUELS.size() + " fuel(s)");
+
+        // An engine drives a line like any other source, and a line with one
+        // on it balances its books like any other line.
+        for (EngineRules.Engine engine : EngineRules.ENGINES) {
+            java.util.List<LineRules.Driven> driving = java.util.List.of(
+                    new LineRules.Driven(engine.source(), LineRules.At.ROOT));
+            java.util.List<LineRules.Drawn> drawing = java.util.List.of(
+                    new LineRules.Drawn(EngineRules.REFINERY_LOAD,
+                            LineRules.At.ROOT));
+            KineticRules.Shaft shaft = EngineRules.shaftFor(engine);
+            check(shaft != null, engine.id() + " turns faster than any shaft in "
+                    + "any age survives, so it is a block nobody can use");
+            LineRules.Assembly hall = LineRules.assemble(driving, drawing,
+                    shaft == null ? KineticRules.Shaft.ASCENDANT : shaft, false);
+            check(hall.running(), engine.id() + " will not turn a refinery on "
+                    + shaft + ", which is the one thing every engine above the "
+                    + "first is for");
+            check(!LineRules.assemble(driving, drawing,
+                            KineticRules.Shaft.TIMBER, false).running()
+                            || shaft == KineticRules.Shaft.TIMBER,
+                    engine.id() + " runs on timber and wants " + shaft
+                            + ", so the shaft it needs is not the shaft it "
+                            + "needs");
+            LineRules.Balance books = LineRules.balance(driving, drawing, hall);
+            check(books.apart() < 1.0E-3F, engine.id()
+                    + "'s line does not balance its books");
+        }
+
+        // Each engine names the shaft it needs, and the ladder of engines
+        // climbs the ladder of materials with it.
+        KineticRules.Shaft wanted = null;
+        for (EngineRules.Engine engine : EngineRules.ENGINES) {
+            KineticRules.Shaft shaft = EngineRules.shaftFor(engine);
+            check(shaft != null, engine.id() + " needs a shaft no age has");
+            if (shaft != null && wanted != null) {
+                check(shaft.ordinal() >= wanted.ordinal(), engine.id()
+                        + " runs on a weaker shaft than the engine below it, so "
+                        + "the ladder of engines and the ladder of materials "
+                        + "pull against each other");
+            }
+            wanted = shaft;
+        }
+
+        // The ladder: stronger going up, and thirstier with it.
+        for (int at = 1; at < EngineRules.ENGINES.size(); at++) {
+            EngineRules.Engine one = EngineRules.ENGINES.get(at);
+            EngineRules.Engine under = EngineRules.ENGINES.get(at - 1);
+            check(one.source().stallTorque() > under.source().stallTorque(),
+                    one.id() + " pushes no harder than " + under.id());
+            check(one.burning() > under.burning(), one.id()
+                    + " is no thirstier than " + under.id()
+                    + ", and an engine that is stronger for the same fuel is "
+                    + "the whole ladder in one block");
+            check(one.takes() > under.takes(), one.id() + " takes no deeper a "
+                    + "fuel than " + under.id());
+        }
+        for (int at = 1; at < EngineRules.FUELS.size(); at++) {
+            check(EngineRules.FUELS.get(at).burn()
+                            >= EngineRules.FUELS.get(at - 1).burn(),
+                    "the fuel ladder runs backwards at "
+                            + EngineRules.FUELS.get(at).id());
+        }
+        none(EngineRules.notWorthRefining(EngineRules.ENGINES),
+                "an engine further up the ladder is merely thirstier");
+
+        // Controls, built to be caught.
+        EngineRules.Engine greedy = new EngineRules.Engine("control",
+                new KineticRules.Source(1024.0F, 1024.0F), 1, 1);
+        check(!EngineRules.makingEnergy(java.util.List.of(greedy),
+                        EngineRules.FUELS).isEmpty(),
+                "an engine that gets a thousand times a lump of coal out of a "
+                        + "lump of coal is not reported, so the rule that a "
+                        + "machine may not make energy cannot say no");
+        check(EngineRules.makingEnergy(
+                        java.util.List.of(EngineRules.ENGINES.get(0)),
+                        EngineRules.FUELS).isEmpty(),
+                "an ordinary engine is reported as making energy");
+        check(!EngineRules.faultsInCeiling(1.0F).isEmpty(),
+                "an engine allowed every last joule in a fuel is not reported, "
+                        + "so the ceiling every other check here measures "
+                        + "against could be raised until nothing is asked");
+        check(!EngineRules.faultsInCeiling(1.4F).isEmpty(),
+                "an engine allowed more energy out than there is in the fuel "
+                        + "is not reported");
+        check(!EngineRules.faultsInCeiling(0.0F).isEmpty(),
+                "an engine allowed nothing at all is not reported");
+        check(EngineRules.faultsInCeiling(0.6F).isEmpty(),
+                "an ordinary ceiling is reported as faulty");
+        check(!EngineRules.faultsInFuels(java.util.List.of(
+                        new EngineRules.Fuel("control", 1_600, ""),
+                        new EngineRules.Fuel("control_two", 400, "work")))
+                        .isEmpty(),
+                "a fuel worth less than the one below it is not reported, so "
+                        + "the ladder could run backwards and nobody would "
+                        + "refine anything");
+        check(EngineRules.faultsInFuels(java.util.List.of(
+                        new EngineRules.Fuel("control", 400, ""),
+                        new EngineRules.Fuel("control_two", 1_600, "work")))
+                        .isEmpty(),
+                "an ordinary pair of fuels is reported as faulty");
+        check(!EngineRules.faultsInEngines(java.util.List.of(
+                        new EngineRules.Engine("control",
+                                new KineticRules.Source(64.0F, 24.0F), 2, 32),
+                        new EngineRules.Engine("control_two",
+                                new KineticRules.Source(64.0F, 24.0F), 3, 32)))
+                        .isEmpty(),
+                "an engine no stronger than the one below it is not reported");
+        check(!EngineRules.notWorthRefining(java.util.List.of(
+                        EngineRules.ENGINES.get(0), EngineRules.ENGINES.get(0)))
+                        .isEmpty(),
+                "two engines that get exactly the same out of a fuel are not "
+                        + "reported, so the top of the ladder could be merely "
+                        + "thirstier");
+
+        java.util.List<String> allowed = new java.util.ArrayList<>();
+        try {
+            new EngineRules.Fuel("control", 0, "");
+            allowed.add("a fuel that does not burn");
+        } catch (IllegalArgumentException expected) {
+            checks++;
+        }
+        try {
+            new EngineRules.Engine("control",
+                    new KineticRules.Source(64.0F, 24.0F), 1, 0);
+            allowed.add("an engine that runs on nothing");
+        } catch (IllegalArgumentException expected) {
+            checks++;
+        }
+        check(allowed.isEmpty(), "the engines allow what they say they forbid: "
+                + allowed);
+
+        System.out.println("  the engines: " + EngineRules.ENGINES.size()
+                + " engine(s) on a ladder of " + EngineRules.FUELS.size()
+                + " fuel(s), " + pairs + " pairing(s), not one of them getting "
+                + "more out of a fuel than the fuel contains");
+    }
+
+        private static void edges() {
         KineticRules.Shaft timber = KineticRules.Shaft.TIMBER;
         KineticRules.Reading nothing = KineticRules.settle(List.of(), List.of(), timber);
         check(nothing.rpm() == 0.0F && !nothing.stalled(),

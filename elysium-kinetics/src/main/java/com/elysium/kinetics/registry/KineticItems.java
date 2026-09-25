@@ -50,11 +50,68 @@ public final class KineticItems {
     public static final DeferredItem<BlockItem> MIXER =
             ITEMS.registerSimpleBlockItem(KineticBlocks.MIXER);
 
+    /** One item per engine on the ladder, walked out of the rules. */
+    public static final java.util.Map<String, DeferredItem<BlockItem>> ENGINES =
+            registerEngines();
+
+    private static java.util.Map<String, DeferredItem<BlockItem>> registerEngines() {
+        java.util.Map<String, DeferredItem<BlockItem>> made =
+                new java.util.LinkedHashMap<>();
+        for (java.util.Map.Entry<String, net.neoforged.neoforge.registries.DeferredBlock<net.minecraft.world.level.block.Block>> one
+                : KineticBlocks.ENGINES.entrySet()) {
+            made.put(one.getKey(), ITEMS.registerSimpleBlockItem(one.getValue()));
+        }
+        if (made.size() != KineticBlocks.ENGINES.size()) {
+            throw new IllegalStateException("there are "
+                    + KineticBlocks.ENGINES.size() + " engine block(s) and "
+                    + made.size() + " item(s) for them");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
+    /**
+     * The fuels this module makes itself.
+     *
+     * <p>Two: what a press gets out of a block of coal, and what a second
+     * pressing gets out of that. The game's own four are the bottom of the
+     * ladder and are not ours to register.
+     */
+    public static final java.util.Map<String, DeferredItem<Item>> FUELS =
+            registerFuels();
+
+    private static java.util.Map<String, DeferredItem<Item>> registerFuels() {
+        java.util.Map<String, DeferredItem<Item>> made =
+                new java.util.LinkedHashMap<>();
+        for (String name : com.elysium.kinetics.rules.EngineRules.ours()) {
+            made.put(name, ITEMS.registerSimpleItem(name));
+        }
+        if (made.size()
+                != com.elysium.kinetics.rules.EngineRules.ours().size()) {
+            throw new IllegalStateException("the rules have "
+                    + com.elysium.kinetics.rules.EngineRules.ours().size()
+                    + " fuel(s) of our own and " + made.size()
+                    + " were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
+    /** The refinery, which turns one fuel into the next. */
+    public static final DeferredItem<BlockItem> REFINERY =
+            ITEMS.registerSimpleBlockItem(KineticBlocks.REFINERY);
+
     /** The order the tab shows them in: carry it, change it, make it, spend it. */
-    private static final java.util.List<DeferredItem<BlockItem>> ORDER = java.util.List.of(
-            TIMBER_SHAFT, BRASS_SHAFT, SMALL_COGWHEEL, LARGE_COGWHEEL, GEARBOX,
-            HAND_CRANK, WATER_WHEEL, WINDMILL_BEARING, SAIL,
-            MILLSTONE, PRESS, SAW, MIXER);
+    private static final java.util.List<DeferredItem<BlockItem>> ORDER = order();
+
+    private static java.util.List<DeferredItem<BlockItem>> order() {
+        java.util.List<DeferredItem<BlockItem>> made =
+                new java.util.ArrayList<>(java.util.List.of(
+                        TIMBER_SHAFT, BRASS_SHAFT, SMALL_COGWHEEL,
+                        LARGE_COGWHEEL, GEARBOX, HAND_CRANK, WATER_WHEEL,
+                        WINDMILL_BEARING, SAIL, MILLSTONE, PRESS, SAW, MIXER));
+        made.addAll(ENGINES.values());
+        made.add(REFINERY);
+        return java.util.List.copyOf(made);
+    }
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = TABS.register(
             "kinetics", () -> CreativeModeTab.builder()

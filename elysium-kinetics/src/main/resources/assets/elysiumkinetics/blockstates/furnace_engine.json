@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumkinetics:block/furnace_engine"
+    },
+    "axis=x": {
+      "model": "elysiumkinetics:block/furnace_engine",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/furnace_engine",
+      "x": 90
+    }
+  }
+}
