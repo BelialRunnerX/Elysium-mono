@@ -689,11 +689,19 @@ def worldgen():
         "features": [f"{NS}:wild_loomflax", f"{NS}:wild_downbloom"],
         "step": "vegetal_decoration"})
 
+    # Where emberwood grows is a tag of its own: a biome set is either one tag
+    # or a list of ids, never a list with a tag in it (the game refuses the
+    # whole world: "Not a JSON object: #minecraft:is_nether"). The tag also
+    # lets the two Cinderveil biomes be optional, so the flora loads with or
+    # without the space module.
+    write(os.path.join(DATA, "tags/worldgen/biome/emberwood_grows.json"), {
+        "replace": False,
+        "values": ["#minecraft:is_nether",
+                   {"id": "elysiumspace:cinderveil_desert", "required": False},
+                   {"id": "elysiumspace:cinderveil_infernal_barrens", "required": False}]})
     write(os.path.join(DATA, "neoforge/biome_modifier/emberwood.json"), {
         "type": "neoforge:add_features",
-        "biomes": ["#minecraft:is_nether",
-                   "elysiumspace:cinderveil_desert",
-                   "elysiumspace:cinderveil_infernal_barrens"],
+        "biomes": f"#{NS}:emberwood_grows",
         "features": [f"{NS}:emberwood"],
         "step": "vegetal_decoration"})
 

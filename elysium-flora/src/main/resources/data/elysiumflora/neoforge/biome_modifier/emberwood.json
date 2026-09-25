@@ -1,10 +1,6 @@
 {
   "type": "neoforge:add_features",
-  "biomes": [
-    "#minecraft:is_nether",
-    "elysiumspace:cinderveil_desert",
-    "elysiumspace:cinderveil_infernal_barrens"
-  ],
+  "biomes": "#elysiumflora:emberwood_grows",
   "features": [
     "elysiumflora:emberwood"
   ],
