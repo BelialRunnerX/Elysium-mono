@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumtrinkets:carrion_drone",
+    "elysiumtrinkets:lattice_shard",
+    "elysiumtrinkets:mote",
+    "elysiumtrinkets:purge_drone"
+  ]
+}

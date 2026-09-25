@@ -94,10 +94,10 @@ def read_trinkets():
     read of the real table rather than a second copy of it.
     """
     found = []
-    for filename, crafted in (("UniqueTrinkets.java", False),
-                              ("CraftedTrinkets.java", True)):
+    for filename, crafted, call in (("UniqueTrinkets.java", False, "unique"),
+                                    ("CraftedTrinkets.java", True, "crafted"),
+                                    ("CompanionTrinkets.java", False, "companion")):
         source = open(os.path.join(JAVA, filename), encoding="utf-8").read()
-        call = "crafted" if crafted else "unique"
         for match in re.finditer(
                 r'=\s*' + call + r'\(\s*\n?\s*"(\w+)",\s*'
                 r'(?:ElysiumElements?\.)(\w+),\s*"(\w+)",\s*(\d+)',
@@ -111,7 +111,7 @@ def write(path, obj):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     if os.path.exists(path):
         return False
-    with open(path, "w", encoding="utf-8") as handle:
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(obj, handle, indent=2)
         handle.write("\n")
     return True
@@ -136,9 +136,84 @@ def write_sprites(entries):
         metal, glow = ELEMENT_METAL.get(element, ELEMENT_METAL["NONE"])
         if metal not in style.METAL:
             metal = "iron"
-        trinket_art.SHAPES[slot](metal, glow).save(target)
+        if slot == "companion":
+            companion_sprite(path, metal, glow).save(target)
+        else:
+            trinket_art.SHAPES[slot](metal, glow).save(target)
         written += 1
     return written
+
+
+# ---------------------------------------------------------------------------
+# The companion slot (docs/SPLITS.md "Valoria: charms")
+# ---------------------------------------------------------------------------
+#
+# Valoria's pet slot under its own name. Not one of Curios' presets, so the
+# slot file has to say what it is - an icon and an order - where the seven
+# preset slots only ask for a size. The four companions are each a small
+# machine or anomaly, and each is drawn as one: a hovering body with the
+# element's light in it, and a silhouette that says what it does.
+
+COMPANION_SLOT = "companion"
+COMPANION_ICON = f"{MOD}:slot/companion_slot"
+SLOT_ICONS = os.path.join(RES, f"assets/{MOD}/textures/slot")
+
+from canvas import Canvas, rect, union  # noqa: E402
+
+
+def companion_sprite(path, metal, glow):
+    """One companion: what hovers at the shoulder."""
+    c = Canvas()
+    ramp = style.METAL[metal]
+    light = style.GLOW[glow]
+    if path == "mote":
+        # A round little light with two wisps trailing.
+        body = {(x, y) for y in range(16) for x in range(16) if (x - 8) ** 2 + (y - 7) ** 2 <= 9}
+        c.plate(body, ramp)
+        c.glow([(7, 6), (8, 6), (7, 7), (8, 7)], light, within=body)
+        c.plate(union(rect(3, 10, 5, 10), rect(2, 11, 3, 12), rect(10, 10, 12, 10), rect(12, 11, 13, 12)), ramp)
+    elif path == "carrion_drone":
+        # A squat hull with a grabbing arm below.
+        body = union(rect(4, 4, 11, 8), rect(5, 3, 10, 3), rect(5, 9, 10, 9))
+        c.plate(body, ramp)
+        c.glow([(6, 5), (9, 5)], light, within=body)
+        c.plate(union(rect(7, 10, 8, 12), rect(5, 13, 7, 13), rect(8, 13, 10, 13)), ramp)
+    elif path == "lattice_shard":
+        # A tall crystal, point down, that reads as a shield when it settles.
+        body = {(x, y) for y in range(16) for x in range(16)
+                if abs(x - 7.5) <= (12 - y) * 0.45 and 2 <= y <= 12}
+        c.plate(body, ramp)
+        c.glow([(7, 6), (8, 6), (7, 7), (8, 7), (7, 8), (8, 8)], light, within=body)
+    else:
+        # The purge drone: a ring with a core, and a spout beneath.
+        ring = {(x, y) for y in range(16) for x in range(16)
+                if 6 <= (x - 8) ** 2 + (y - 7) ** 2 <= 16}
+        c.plate(ring, ramp)
+        c.glow([(7, 6), (8, 6), (7, 7), (8, 7)], light, within={(7, 6), (8, 6), (7, 7), (8, 7)})
+        c.plate(union(rect(7, 11, 8, 13), rect(6, 14, 9, 14)), ramp)
+    c.outline(ramp[0])
+    return c
+
+
+def companion_slot_icon():
+    """The slot's own icon: a grey silhouette of something hovering."""
+    c = Canvas()
+    grey = style.METAL["stone"]
+    body = {(x, y) for y in range(16) for x in range(16) if (x - 8) ** 2 + (y - 7) ** 2 <= 9}
+    c.plate(body, grey)
+    c.plate(union(rect(3, 10, 5, 10), rect(2, 11, 3, 12), rect(10, 10, 12, 10), rect(12, 11, 13, 12)), grey)
+    c.outline(grey[0])
+    return c
+
+
+def write_companion_slot():
+    """The icon the slot file names. The slot file itself is written with the others."""
+    os.makedirs(SLOT_ICONS, exist_ok=True)
+    target = os.path.join(SLOT_ICONS, "companion_slot.png")
+    if os.path.exists(target):
+        return 0
+    companion_slot_icon().save(target)
+    return 1
 
 
 def write_models(entries):
@@ -188,8 +263,12 @@ def write_curios(entries):
         # which would have thrown away Curios' icon and - much worse - its tag
         # validator, so the slot would have accepted anything or nothing. A
         # consumer mod's only business here is asking for a size.
-        if write(os.path.join(RES, f"data/{MOD}/curios/slots/{slot}.json"),
-                 {"size": sizes.get(slot, 1)}):
+        # The companion slot is not a preset: it has to say what it is. No
+        # validators key, because Curios' default for a slot that names none
+        # is the tag validator, which is the one wanted.
+        declared = ({"size": 1, "order": 1200, "icon": COMPANION_ICON}
+                    if slot == COMPANION_SLOT else {"size": sizes.get(slot, 1)})
+        if write(os.path.join(RES, f"data/{MOD}/curios/slots/{slot}.json"), declared):
             written += 1
 
         # The tag lives in the curios namespace, not ours: it is Curios' tag
@@ -200,8 +279,18 @@ def write_curios(entries):
 
     # "player", not "minecraft:player" - which is how Curios' own consumers
     # write it. The filename is arbitrary; the contents are not.
-    if write(os.path.join(RES, f"data/{MOD}/curios/entities/player.json"),
-             {"entities": ["player"], "slots": sorted(slots)}):
+    # The one file here that is updated rather than added: a slot that joins
+    # later has to be given to the player, and the add-only write above would
+    # leave it registered, tagged and worn by nobody.
+    entities = os.path.join(RES, f"data/{MOD}/curios/entities/player.json")
+    given = set()
+    if os.path.exists(entities):
+        given = set(json.load(open(entities, encoding="utf-8")).get("slots", []))
+    if not set(slots) <= given:
+        os.makedirs(os.path.dirname(entities), exist_ok=True)
+        with open(entities, "w", encoding="utf-8", newline="\n") as handle:
+            json.dump({"entities": ["player"], "slots": sorted(given | set(slots))}, handle, indent=2)
+            handle.write("\n")
         written += 1
     return written
 
@@ -292,6 +381,7 @@ SLOT_NAMES = {
     "hands": "Worn on the hands",
     "back": "Worn across the back",
     "head": "Worn on the head",
+    "companion": "Hovers at your shoulder",
 }
 
 # One line each, in the trinket's own voice. Written here rather than generated
@@ -339,6 +429,11 @@ DESCRIPTIONS = {
     "prospect_charm": "Elysium drops roll again %s of the time.",
     "artificers_loupe": "Reforges come out %s better.",
     "miners_rig": "Tools survive %s of their use, and ore sometimes pays twice.",
+
+    "mote": "Lights the dark for you, and for everything looking for you.",
+    "carrion_drone": "Picks over what you kill. The Empire notices the company you keep.",
+    "lattice_shard": "Settles on you when you hold still, gets in the way when you do not, and you hit softer with it about you.",
+    "purge_drone": "Bleeds the Null field out of you, and bleeds you a little to do it.",
 }
 
 
@@ -437,8 +532,9 @@ def write_lang(entries):
                 added += 1
 
     os.makedirs(os.path.dirname(LANG), exist_ok=True)
-    with open(LANG, "w", encoding="utf-8") as handle:
+    with open(LANG, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(lang, handle, indent=2, ensure_ascii=False, sort_keys=True)
+        handle.write("\n")
     return added
 
 
@@ -455,6 +551,7 @@ def main():
     print(f"recipes written    : {write_recipes(entries)}")
     print(f"loot tables written: {write_loot(entries)}")
     print(f"potion charm files : {write_potion_charm()}")
+    print(f"companion slot icon: {write_companion_slot()}")
     print(f"lang keys added    : {write_lang(entries)}")
 
 

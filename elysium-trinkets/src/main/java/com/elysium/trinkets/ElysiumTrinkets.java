@@ -2,6 +2,7 @@ package com.elysium.trinkets;
 
 import com.elysium.lib.trinket.ElysiumTrinket;
 import com.elysium.trinkets.item.ElysiumTrinketItem;
+import com.elysium.trinkets.trinket.CompanionTrinkets;
 import com.elysium.trinkets.trinket.CraftedTrinkets;
 import com.elysium.trinkets.trinket.UniqueTrinkets;
 import com.mojang.logging.LogUtils;
@@ -109,6 +110,10 @@ public class ElysiumTrinkets {
         for (ElysiumTrinket trinket : CraftedTrinkets.ALL) {
             register(trinket, CraftedTrinkets.CRAFTED_TIER);
         }
+        // The companion slot: found, like the uniques, and never ascending.
+        for (ElysiumTrinket trinket : CompanionTrinkets.ALL) {
+            register(trinket, 0);
+        }
 
         // The one line that needs Curios to exist.
         CuriosSlots.install();
@@ -126,8 +131,9 @@ public class ElysiumTrinkets {
         CREATIVE_TABS.register(modEventBus);
         RECIPES.register(modEventBus);
 
-        LOGGER.info("Elysium Trinkets ready: {} found, {} crafted, {} slots",
-                UniqueTrinkets.ALL.length, CraftedTrinkets.ALL.length, slotCount());
+        LOGGER.info("Elysium Trinkets ready: {} found, {} crafted, {} companions, {} slots",
+                UniqueTrinkets.ALL.length, CraftedTrinkets.ALL.length, CompanionTrinkets.ALL.length,
+                slotCount());
     }
 
     /**

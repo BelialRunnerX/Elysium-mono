@@ -71,14 +71,14 @@ def read_java(rel, keep_comments=False):
 
 def read_trinkets():
     found = []
-    for filename, crafted in (("trinket/UniqueTrinkets.java", False),
-                              ("trinket/CraftedTrinkets.java", True)):
+    for filename, crafted, call in (("trinket/UniqueTrinkets.java", False, "unique"),
+                                    ("trinket/CraftedTrinkets.java", True, "crafted"),
+                                    ("trinket/CompanionTrinkets.java", False, "companion")):
         path = os.path.join(JAVA, filename)
         if not os.path.exists(path):
             fail(f"{filename} is missing - no trinkets could be read")
             continue
         source = open(path, encoding="utf-8").read()
-        call = "crafted" if crafted else "unique"
         for match in re.finditer(
                 r'=\s*' + call + r'\(\s*\n?\s*"(\w+)",\s*'
                 r'(?:ElysiumElements?\.)(\w+),\s*"(\w+)",\s*(\d+)',
@@ -204,6 +204,50 @@ for slot in slots:
 
 if len(problems) == _before:
     print(f"curios slots       : {len(slots)} ({', '.join(slots)}), all registered and tagged")
+
+# ---------------------------------------------------------------------------
+# The companion slot (docs/SPLITS.md "Valoria: charms")
+# ---------------------------------------------------------------------------
+#
+# Valoria's pet slot, under its own name. It is not one of Curios' presets, so
+# unlike the seven above it has to say what it is: without an icon it is a
+# blank square, and without an order it lands wherever Curios puts it. And what
+# goes in it has to obey the module's own rule for a found trinket - a rule
+# with a price - because a companion that is strictly better than an empty
+# slot is a cosmetic with a stat, which is what Valoria's pixie was.
+_before = len(problems)
+companions = [t for t in trinkets if t[2] == "companion"]
+if not companions:
+    fail("nothing goes in the companion slot, so the slot exists and is empty")
+_slot_file = load_maybe(f"data/{MOD}/curios/slots/companion.json") or {}
+if "icon" not in _slot_file or "order" not in _slot_file:
+    fail("the companion slot is not a Curios preset and its file names no icon or no order, "
+         "so it is a blank square wherever Curios puts it")
+else:
+    _icon = _slot_file["icon"]
+    _ns, _path = _icon.split(":", 1) if ":" in _icon else (MOD, _icon)
+    if not exists(f"assets/{_ns}/textures/{_path}.png"):
+        fail(f"the companion slot's icon {_icon} has no texture, so the slot shows the missing-texture square")
+if _slot_file.get("operation") == "SET" or "validators" in _slot_file:
+    fail("the companion slot sets validators or an operation; Curios' default for a new slot is the "
+         "tag validator, which is the one wanted, and naming another is how a slot accepts anything")
+_companion_src = read_java("trinket/CompanionTrinkets.java")
+for path, _element, _slot, _level, is_crafted in companions:
+    if is_crafted:
+        fail(f"{path} is a crafted companion; a companion is found, like every other rule")
+    start = _companion_src.find(f'"{path}"')
+    end = _companion_src.find("public static final", start + 1)
+    block = _companion_src[start:end if end > 0 else len(_companion_src)]
+    if block.count("@Override") < 2:
+        fail(f"{path} answers only one hook, so it is strictly better than an empty slot: a companion "
+             f"does one thing for you and one thing to you")
+if "CompanionTrinkets.ALL" not in read_java("ElysiumTrinkets.java"):
+    fail("the mod never registers CompanionTrinkets.ALL, so the companions exist in the library and have no items")
+if "import top.theillusivec4" in _companion_src or "CuriosApi" in _companion_src:
+    fail("CompanionTrinkets reaches for Curios; only CuriosSlots may")
+if len(problems) == _before:
+    print(f"the companion slot : Valoria's pet slot with {len(companions)} companion(s) in it, each found, "
+          f"each a rule with a price, the slot iconed and ordered")
 
 # ---------------------------------------------------------------------------
 # Obtainable, and obtainable exactly one way
