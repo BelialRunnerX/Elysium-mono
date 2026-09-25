@@ -147,7 +147,21 @@ def main():
     for vein in VEINS:
         words[f"block.{NS}.{vein['material']}_generator"] = \
             a_name(vein["material"]) + " Generator"
-    committed = os.path.join(MOD, "src/main/resources/assets", NS, "lang/en_us.json")
+    # The base is the language file as it stands in the output tree if one is
+    # there, and the committed one otherwise.
+    #
+    # Six generators write this file and each keeps the keys it does not own,
+    # so they have to compose: the first starts from what is committed and
+    # every one after it starts from what the one before wrote. Starting every
+    # one of them from the committed file instead means the last to run puts
+    # back whatever is in it — including a value somebody edited by hand,
+    # which then matches itself and nothing reports it. That hid a hand-edited
+    # line for as long as this file has had six generators writing it.
+    committed = os.path.join(MOD, "src/main/resources/assets", NS,
+                             "lang/en_us.json")
+    standing = os.path.join(ASSETS, "lang/en_us.json")
+    if os.path.exists(standing):
+        committed = standing
     path = os.path.join(ASSETS, "lang/en_us.json")
     existing = json.loads(read(committed)) if os.path.exists(committed) else {}
     for key in {f"block.{NS}.{v['material']}_generator" for v in VEINS}:

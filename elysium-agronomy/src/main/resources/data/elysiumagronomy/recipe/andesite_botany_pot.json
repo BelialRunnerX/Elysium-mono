@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "M M",
+    " M "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:andesite"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:andesite_botany_pot",
+    "count": 1
+  }
+}

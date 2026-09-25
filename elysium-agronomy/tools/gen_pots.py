@@ -80,11 +80,16 @@ MATERIALS = [f"{colour}_{ceramic}" for ceramic in CERAMICS for colour in COLOURS
 MATERIALS += STONES
 
 
-# A material whose block item is not called what the material is called. Only
-# quartz so far: `minecraft:quartz` is the gem you dig up and the block is
-# `quartz_block`, so a pot recipe written the obvious way asks for three
-# gemstones and reads wrong on the recipe screen.
-BLOCK_ITEM = {"quartz": "quartz_block"}
+# A material whose block item is not called what the material is called.
+#
+# `minecraft:quartz` is the gem you dig up and the block is `quartz_block`, so
+# a pot recipe written the obvious way asks for three gemstones and reads
+# wrong on the recipe screen. `minecraft:amethyst` and `minecraft:dripstone`
+# are worse than wrong: they do not exist at all, and a recipe naming one
+# fails to load with "unknown registry key" at the moment a player opens a
+# world. The load test caught both the day the two materials were added.
+BLOCK_ITEM = {"quartz": "quartz_block", "amethyst": "amethyst_block",
+              "dripstone": "dripstone_block"}
 
 
 # The soils this module makes rather than the game. They are registered as
@@ -396,7 +401,21 @@ def lang():
     for soil in OURS:
         words[f"block.{NS}.{soil}"] = a_name(soil)
 
-    committed = os.path.join(MOD, "src/main/resources/assets", NS, "lang/en_us.json")
+    # The base is the language file as it stands in the output tree if one is
+    # there, and the committed one otherwise.
+    #
+    # Six generators write this file and each keeps the keys it does not own,
+    # so they have to compose: the first starts from what is committed and
+    # every one after it starts from what the one before wrote. Starting every
+    # one of them from the committed file instead means the last to run puts
+    # back whatever is in it — including a value somebody edited by hand,
+    # which then matches itself and nothing reports it. That hid a hand-edited
+    # line for as long as this file has had six generators writing it.
+    committed = os.path.join(MOD, "src/main/resources/assets", NS,
+                             "lang/en_us.json")
+    standing = os.path.join(ASSETS, "lang/en_us.json")
+    if os.path.exists(standing):
+        committed = standing
     path = os.path.join(ASSETS, "lang/en_us.json")
     existing = json.loads(read(committed)) if os.path.exists(committed) else {}
     ours = {f"block.{NS}.{pot_id(m, f)}" for m, f in POTS}

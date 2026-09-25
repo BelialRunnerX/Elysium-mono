@@ -8,10 +8,10 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 66 | DONE | an Elysium module already replaces it |
+| 67 | DONE | an Elysium module already replaces it |
 | 8 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 49 | PLANNED | has a target module, not started |
+| 48 | PLANNED | has a target module, not started |
 | 13 | KEEP | stays in the pack on purpose |
 | 67 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -24,7 +24,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `elysium-atomics` | 9 |
 | `elysium-bestiary` | 7 |
 | `elysium-comforts` | 6 |
-| `elysium-agronomy` | 5 |
+| `elysium-agronomy` | 4 |
 | `elysium-industry` | 4 |
 | `elysium-atelier` | 3 |
 | `elysium-arcana` | 1 |
@@ -58,7 +58,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `blueprint-1.21.1-8.1.1.jar` | DROP | - | library: goes when the mods needing it go |
 | `bookshelf-neoforge-1.21.1-21.1.81.jar` | DROP | - | library: goes when the mods needing it go |
 | `born_in_chaos_[Neoforge]_1.21.1_1.7.6.jar` | PLANNED | elysium-bestiary | nine hostile beasts exist on a proved reward ladder; their catalogues (dozens of mobs each, bosses, their own gear and items) do not |
-| `botanypots-neoforge-1.21.1-21.1.44.jar` | PLANNED | elysium-agronomy | pots: 165 working pots across 55 materials, all three fittings, four growth stages, 14 soils and 28 sprouts as data. Its 183 blocks come from 61 materials, so six of its materials are not covered |
+| `botanypots-neoforge-1.21.1-21.1.44.jar` | DONE | elysium-agronomy | pots: 183 working pots across 61 materials — all forty-eight fired clays and thirteen stones — with all three fittings, four growth stages, 14 soils and 28 sprouts as data. It was 55 materials; the six that were missing were andesite, diorite, granite, basalt, dripstone and amethyst, which is to say the six blocks a player has most of and would most obviously reach for. Same count as the jar |
 | `Chimes-v2.1.1-1.21.1-NeoForge.jar` | PLANNED | elysium-comforts | moved to elysium-comforts: five blocks whose whole content is an ambient sound, which is what that module is for |
 | `chipped-neoforge-1.21.1-4.0.2.jar` | KEEP | elysium-atelier | 250 cosmetic texture variants per block; replacing it needs a retexture generator, which this project has deliberately not built. See docs/CONVERSION.md section 9 — the user's call |
 | `cloth-config-15.0.140-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
@@ -235,6 +235,6 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `xaeroworldmap-neoforge-1.21.1-1.44.2.jar` | DROP | - | interface and convenience: not content |
 | `ZeroCore2-1.21.1-2.4.21.jar` | PLANNED | elysium-atomics | multiblock reactors |
 | `Zeta-1.1-40.jar` | DROP | - | library: goes when the mods needing it go |
-| `(new) space harvestcraft` | PLANNED | elysium-agronomy | a space-themed Pam's: crops and trees for the frontier worlds |
+| `(new) space harvestcraft` | PLANNED | elysium-agronomy | designed and not built, on purpose: docs/SPEC_FRONTIER_CROPS.md. Not a roster of alien plants — a greenhouse ladder of four beds, each answering one hardship a world imposes, and fifteen strains made at the awakening altar out of this module's own crops and a sample of the world's ground. It is blocked on one table in elysium-space: five worlds and what is wrong with each of them. Agronomy inventing what a moon is like, when the moon already exists in somebody else's module, is the one way to get this wrong |
 | `(new) gregtech equivalent` | PLANNED | elysium-foundry | the deep material chain that ties the three ages together |
 | `(new) automobility equivalent` | DONE | elysium-transit | vehicles, roads and what they carry |

@@ -98,8 +98,8 @@ edit $S/block/RockGeneratorBlock.java '            return draw.draw() <= 0.0F ? 
 expect "a first rock generator that asks the grid for nothing and gets charged" "behind the second age"
 
 echo "the ladder, in two places"
-edit $S/registry/AgronomyItems.java '        SEEDS.put("diamond", 4);' '        SEEDS.put("diamond", 3);'
-expect "a seed at one tier in the Java and another in the data" "disagree"
+edit $S/rules/SeedRules.java '            mined("diamond", 4, "minecraft:diamond"),' '            mined("diamond", 3, "minecraft:diamond"),'
+expect "a seed at one tier in the rules and another in the data" "differ from what the generators write"
 
 rm $R/data/elysiumagronomy/recipe/gold_from_essence.json
 expect "essence with nothing to turn it into" "no use"

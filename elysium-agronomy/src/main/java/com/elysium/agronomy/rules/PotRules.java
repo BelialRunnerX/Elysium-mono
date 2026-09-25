@@ -133,9 +133,21 @@ public final class PotRules {
     /** The fired clays a coloured pot can be made of. */
     public static final List<String> CERAMICS = List.of("terracotta", "glazed_terracotta", "concrete");
 
-    /** The stones a plain pot can be cut from. */
+    /**
+     * The stones a plain pot can be cut from.
+     *
+     * <p>Thirteen, which with the forty-eight fired clays is sixty-one
+     * materials and a hundred and eighty-three pots — the same count as the
+     * jar this replaces. It was seven, and the six that were missing
+     * (andesite, diorite, granite, basalt, dripstone and amethyst) are
+     * exactly the six blocks a player has most of and would most obviously
+     * reach for. A roster short of the one it replaces is not a conversion,
+     * it is most of a conversion.
+     */
     public static final List<String> STONES = List.of(
-            "stone", "deepslate", "tuff", "blackstone", "calcite", "quartz", "obsidian");
+            "stone", "deepslate", "tuff", "blackstone", "calcite", "quartz",
+            "obsidian", "andesite", "diorite", "granite", "basalt",
+            "dripstone", "amethyst");
 
     /** Every soil a pot can be filled with. */
     public static final List<Soil> SOILS = List.of(
