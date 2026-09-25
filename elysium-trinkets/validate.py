@@ -241,7 +241,7 @@ for path, _element, _slot, _level, is_crafted in companions:
     if block.count("@Override") < 2:
         fail(f"{path} answers only one hook, so it is strictly better than an empty slot: a companion "
              f"does one thing for you and one thing to you")
-if "CompanionTrinkets.ALL" not in read_java("ElysiumTrinkets.java"):
+if "for (ElysiumTrinket trinket : CompanionTrinkets.ALL) {" not in " ".join(read_java("ElysiumTrinkets.java").split()):
     fail("the mod never registers CompanionTrinkets.ALL, so the companions exist in the library and have no items")
 if "import top.theillusivec4" in _companion_src or "CuriosApi" in _companion_src:
     fail("CompanionTrinkets reaches for Curios; only CuriosSlots may")
