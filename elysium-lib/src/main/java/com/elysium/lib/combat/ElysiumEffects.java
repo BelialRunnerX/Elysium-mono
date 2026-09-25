@@ -9,6 +9,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -27,6 +28,13 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * <p>Per the "no caps" ruling, Grievous Wounds no longer blocks all healing at
  * level three: it is a share of an uncapped level (ElysiumCombatRules.levelShare),
  * so it climbs forever and never quite reaches all of it.
+ *
+ * <p>Valoria's seven follow (docs/SPEC_VALORIA.md, "Valoria: effects"). Salve
+ * ticks here. Stunned, Tipsy, Foresight and Overload are their modifiers.
+ * Exhaustion and Renewal are read by the healing handler through
+ * ElysiumCombatRules, where Exhaustion's floor of half is gone and Renewal's
+ * ceiling with it. Valoria's Nihility Protection is the Null ward, registered
+ * beside the Null field in {@code com.elysium.lib.nihil.ElysiumNull}.
  */
 public final class ElysiumEffects {
 
@@ -53,6 +61,24 @@ public final class ElysiumEffects {
 
     /** Flaming Detonation's divisor: burning ticks become damage at the end. */
     public static final double DETONATION_DIVISOR = 14.0D;
+
+    /** Salve heals this much a tick a level while below full health (Valoria's Aloe Regen). */
+    public static final float SALVE_PER_TICK = 0.025F;
+
+    /** Stunned: flat speed removed, so a slow creature stops outright. */
+    public static final double STUNNED_SPEED = -0.5D;
+
+    /** Tipsy: a fifth more damage dealt, a tenth of armour gone, both as totals. */
+    public static final double TIPSY_DAMAGE = 0.2D;
+    public static final double TIPSY_ARMOUR = -0.10D;
+
+    /** Foresight (Valoria's Sinister Prediction): four points of damage and a heart of health. */
+    public static final double FORESIGHT_DAMAGE = 4.0D;
+    public static final double FORESIGHT_HEALTH = 2.0D;
+
+    /** Overload (Valoria's Soul Burst): a quarter more damage and a twentieth more speed, as totals. */
+    public static final double OVERLOAD_DAMAGE = 0.25D;
+    public static final double OVERLOAD_SPEED = 0.05D;
 
     public static final DeferredHolder<MobEffect, MobEffect> SUNDERING =
             EFFECTS.register("sundering", () -> new Simple(MobEffectCategory.HARMFUL, 0xB03030));
@@ -83,8 +109,64 @@ public final class ElysiumEffects {
                     .addAttributeModifier(NeoForgeMod.CREATIVE_FLIGHT, id("flying"), 1.0D,
                             AttributeModifier.Operation.ADD_VALUE));
 
+    public static final DeferredHolder<MobEffect, MobEffect> SALVE =
+            EFFECTS.register("salve", Salve::new);
+
+    public static final DeferredHolder<MobEffect, MobEffect> STUNNED =
+            EFFECTS.register("stunned", () -> new Simple(MobEffectCategory.HARMFUL, 0xD8C860)
+                    .addAttributeModifier(Attributes.MOVEMENT_SPEED, id("stunned"), STUNNED_SPEED,
+                            AttributeModifier.Operation.ADD_VALUE));
+
+    public static final DeferredHolder<MobEffect, MobEffect> TIPSY =
+            EFFECTS.register("tipsy", () -> new Simple(MobEffectCategory.NEUTRAL, 0xB08040)
+                    .addAttributeModifier(Attributes.ATTACK_DAMAGE, id("tipsy_damage"), TIPSY_DAMAGE,
+                            AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+                    .addAttributeModifier(Attributes.ARMOR, id("tipsy_armour"), TIPSY_ARMOUR,
+                            AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+
+    public static final DeferredHolder<MobEffect, MobEffect> EXHAUSTION =
+            EFFECTS.register("exhaustion", () -> new Simple(MobEffectCategory.HARMFUL, 0x606060));
+
+    public static final DeferredHolder<MobEffect, MobEffect> RENEWAL =
+            EFFECTS.register("renewal", () -> new Simple(MobEffectCategory.BENEFICIAL, 0x70E0A0));
+
+    public static final DeferredHolder<MobEffect, MobEffect> FORESIGHT =
+            EFFECTS.register("foresight", () -> new Simple(MobEffectCategory.BENEFICIAL, 0x8040C0)
+                    .addAttributeModifier(Attributes.ATTACK_DAMAGE, id("foresight_damage"), FORESIGHT_DAMAGE,
+                            AttributeModifier.Operation.ADD_VALUE)
+                    .addAttributeModifier(Attributes.MAX_HEALTH, id("foresight_health"), FORESIGHT_HEALTH,
+                            AttributeModifier.Operation.ADD_VALUE));
+
+    public static final DeferredHolder<MobEffect, MobEffect> OVERLOAD =
+            EFFECTS.register("overload", () -> new Simple(MobEffectCategory.BENEFICIAL, 0x40C0F0)
+                    .addAttributeModifier(Attributes.ATTACK_DAMAGE, id("overload_damage"), OVERLOAD_DAMAGE,
+                            AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+                    .addAttributeModifier(Attributes.ATTACK_SPEED, id("overload_speed"), OVERLOAD_SPEED,
+                            AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+
     public static void register(IEventBus modBus) {
         EFFECTS.register(modBus);
+    }
+
+    /** Salve: a slow mend, every tick, only while there is something to mend. */
+    private static final class Salve extends MobEffect {
+
+        private Salve() {
+            super(MobEffectCategory.BENEFICIAL, 0x60C060);
+        }
+
+        @Override
+        public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+            return true;
+        }
+
+        @Override
+        public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+            if (!entity.level().isClientSide() && entity.getHealth() < entity.getMaxHealth()) {
+                entity.heal(SALVE_PER_TICK * (1 + amplifier));
+            }
+            return true;
+        }
     }
 
     /** An effect whose whole work is its attribute modifiers, or is read elsewhere. */

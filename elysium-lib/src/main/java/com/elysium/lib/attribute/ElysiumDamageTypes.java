@@ -30,6 +30,9 @@ public final class ElysiumDamageTypes {
     public static final ResourceKey<DamageType> CURRENT_HP = key("current_hp_damage");
     public static final ResourceKey<DamageType> DETONATION = key("detonation");
     public static final ResourceKey<DamageType> FIRE = key("fire_damage");
+    /** The Null field hurting past half of the gauge, and reclaiming a player at the top. */
+    public static final ResourceKey<DamageType> NULL = key("null");
+    public static final ResourceKey<DamageType> NULL_COLLAPSE = key("null_collapse");
 
     public static final TagKey<DamageType> NON_PHYSICAL = TagKey.create(Registries.DAMAGE_TYPE,
             ResourceLocation.fromNamespaceAndPath(ElysiumLib.MODID, "is_non_physical"));

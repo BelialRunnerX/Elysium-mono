@@ -102,10 +102,83 @@ public record ElysiumAttributeSpec(String name, Kind kind, double nominalDefault
             flat("prot_pierce"),
             chance("prot_shred", 0.0D),
             new ElysiumAttributeSpec("elytra_flight", Kind.TOGGLE, 0.0D, 0.0D),
-            chance("cooldown_reduction", 0.0D));
+            chance("cooldown_reduction", 0.0D),
+            // Valoria's, in Elysium's names (docs/SPEC_VALORIA.md). Flat
+            // damage per element and a chance-kind resistance to each, so a
+            // resistance stacks as odds and never reaches all of it; Valoria
+            // summed percentages and clamped at a hundred.
+            flat("dash_distance"),
+            flat("strike_radius"),
+            mult("summon_damage", 1.0D, 0.0D),
+            new ElysiumAttributeSpec("summon_count", Kind.FLAT, 1.0D, 0.0D),
+            flat("summon_lifetime"),
+            chance("miss_chance", 0.0D),
+            chance("element_resistance", 0.0D),
+            flat("void_damage"),
+            chance("void_resistance", 0.0D),
+            flat("plasma_damage"),
+            chance("plasma_resistance", 0.0D),
+            flat("neural_damage"),
+            chance("neural_resistance", 0.0D),
+            flat("dimensional_damage"),
+            chance("dimensional_resistance", 0.0D),
+            flat("kinetic_damage"),
+            chance("kinetic_resistance", 0.0D),
+            new ElysiumAttributeSpec("null_capacity", Kind.FLAT, 100.0D, 1.0D),
+            new ElysiumAttributeSpec("null_resilience", Kind.FLAT, 5.0D, 1.0D),
+            chance("null_resistance", 0.0D),
+            flat("null_damage"));
 
     /** Apotheosis attributes covered by something other than a new one. */
     public static final List<String> MAPPED_ELSEWHERE = List.of("mining_speed", "ghost_health");
+
+    /** The rows Valoria's attributes brought; everything else in ALL is Apotheosis's. */
+    public static final List<String> VALORIA_ROWS = List.of(
+            "dash_distance", "strike_radius", "summon_damage", "summon_count", "summon_lifetime",
+            "miss_chance", "element_resistance",
+            "void_damage", "void_resistance", "plasma_damage", "plasma_resistance",
+            "neural_damage", "neural_resistance", "dimensional_damage", "dimensional_resistance",
+            "kinetic_damage", "kinetic_resistance",
+            "null_capacity", "null_resilience", "null_resistance", "null_damage");
+
+    /** A Valoria attribute and the row, or vanilla attribute, that carries it here. */
+    public record Renamed(String valoria, String elysium) {
+    }
+
+    /** Vanilla attributes a Valoria one maps onto instead of a row. */
+    public static final List<String> VANILLA = List.of("block_break_speed");
+
+    /**
+     * Valoria's attributes, every one: the eighteen its language file names and
+     * the five its code registered without words. Elements follow the
+     * SPEC_VALORIA map (infernal is plasma, depth is dimensional, nature is
+     * neural, nihility is the Null field); the ranged crit pair folds into the
+     * one crit pair, because a bow and a blade should read the same stat.
+     */
+    public static final List<Renamed> VALORIA = List.of(
+            new Renamed("dash_distance", "dash_distance"),
+            new Renamed("attack_radius", "strike_radius"),
+            new Renamed("excavation_speed", "block_break_speed"),
+            new Renamed("summon_damage", "summon_damage"),
+            new Renamed("necromancy_count", "summon_count"),
+            new Renamed("necromancy_lifetime", "summon_lifetime"),
+            new Renamed("elemental_resistance", "element_resistance"),
+            new Renamed("nature_damage", "neural_damage"),
+            new Renamed("nature_resistance", "neural_resistance"),
+            new Renamed("depth_damage", "dimensional_damage"),
+            new Renamed("depth_resistance", "dimensional_resistance"),
+            new Renamed("infernal_damage", "plasma_damage"),
+            new Renamed("infernal_resistance", "plasma_resistance"),
+            new Renamed("nihility_damage", "null_damage"),
+            new Renamed("nihility_resistance", "null_resistance"),
+            new Renamed("max_nihility", "null_capacity"),
+            new Renamed("nihility_resilience", "null_resilience"),
+            new Renamed("dodge_chance", "dodge_chance"),
+            new Renamed("miss_chance", "miss_chance"),
+            new Renamed("crit_chance", "crit_chance"),
+            new Renamed("crit_damage", "crit_damage"),
+            new Renamed("ranged_crit_chance", "crit_chance"),
+            new Renamed("ranged_crit_damage", "crit_damage"));
 
     public static ElysiumAttributeSpec named(String name) {
         for (ElysiumAttributeSpec s : ALL) {

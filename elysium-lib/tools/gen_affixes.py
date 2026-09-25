@@ -328,7 +328,7 @@ def merge_lang(entries, out):
     path = os.path.join(HERE, "src/main/resources/assets", NS, "lang/en_us.json")
     current = json.load(open(path, encoding="utf-8")) if os.path.isfile(path) else {}
     current.update(entries)
-    with open(path, "w", encoding="utf-8") as f:
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(dict(sorted(current.items())), f, indent=2, ensure_ascii=False)
         f.write("\n")
 
@@ -349,7 +349,7 @@ def main(out=OUT):
             "max_level": max_level,
             "effects": effects,
         }
-        with open(os.path.join(out, aid + ".json"), "w", encoding="utf-8") as f:
+        with open(os.path.join(out, aid + ".json"), "w", encoding="utf-8", newline="\n") as f:
             json.dump(affix, f, indent=2)
             f.write("\n")
         lang[f"elysium.affix.{NS}.{aid}"] = name

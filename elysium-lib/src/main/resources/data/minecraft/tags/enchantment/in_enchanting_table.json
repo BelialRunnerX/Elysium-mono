@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumlib:bleeding",
+    "elysiumlib:accuracy",
+    "elysiumlib:explosive_charge"
+  ]
+}

@@ -111,6 +111,12 @@ public class ElysiumLib {
         // damage tick reads it without knowing which did.
         com.elysium.lib.hazard.ElysiumWards.Effects.register(modEventBus);
 
+        // The Null field (Valoria's Nihility): a sixth hazard on the Void
+        // element, the gauge it fills, and the ward against it. Registered
+        // here rather than among the five so those stay the specification's.
+        com.elysium.lib.nihil.ElysiumNull.bootstrap();
+        com.elysium.lib.nihil.ElysiumNull.register(modEventBus);
+
         // The combat attributes (crit, dodge, pierce, shred, lifesteal and the
         // rest). In the library so gear and affixes share one holder each.
         com.elysium.lib.attribute.ElysiumAttributes.register(modEventBus);

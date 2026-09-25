@@ -4,6 +4,8 @@
     "elysiumlib:bleeding",
     "elysiumlib:detonation",
     "elysiumlib:fire_damage",
-    "elysiumlib:cold_damage"
+    "elysiumlib:cold_damage",
+    "elysiumlib:null",
+    "elysiumlib:null_collapse"
   ]
 }

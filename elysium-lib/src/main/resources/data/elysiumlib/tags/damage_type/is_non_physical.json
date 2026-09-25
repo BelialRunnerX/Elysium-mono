@@ -7,6 +7,8 @@
     "#minecraft:is_fire",
     "#minecraft:is_explosion",
     "#minecraft:is_lightning",
-    "#minecraft:is_freezing"
+    "#minecraft:is_freezing",
+    "elysiumlib:null",
+    "elysiumlib:null_collapse"
   ]
 }

@@ -221,4 +221,43 @@ public final class ElysiumCombatRules {
     public static float levelShare(int level, double pointsForAll) {
         return ElysiumShares.share(level * ElysiumShares.PACE, pointsForAll);
     }
+
+    // ------------------------------------------------------------------
+    // Valoria's (docs/SPEC_VALORIA.md): healing effects and elemental damage
+    // ------------------------------------------------------------------
+
+    /** Exhaustion: the level is the stat, and this is its b. Level one slows healing by a tenth, as Valoria's did. */
+    public static final double EXHAUSTION_POINTS_FOR_ALL = 36.0D;
+
+    /** Renewal's healing bonus per level. Valoria capped it at half; here it climbs. */
+    public static final double RENEWAL_PER_LEVEL = 0.1D;
+
+    /** What Exhaustion leaves of a heal: Valoria's floor of half is gone, and no level reaches nothing. */
+    public static float exhaustionScale(int level) {
+        return level <= 0 ? 1.0F : 1.0F - levelShare(level, EXHAUSTION_POINTS_FOR_ALL);
+    }
+
+    /** What Renewal makes of a heal. */
+    public static float renewalScale(int level) {
+        return level <= 0 ? 1.0F : (float) (1.0D + level * RENEWAL_PER_LEVEL);
+    }
+
+    /**
+     * What an attacker's elemental damage adds to a blow: the flat amount,
+     * less the share the target's resistance to that element and to all
+     * elements stop. Valoria summed the two percentages and clamped at a
+     * hundred; here the two shares add as odds, so a resistance stacks
+     * forever and never quite stops all of it.
+     */
+    public static float elementalBonus(double flat, double resistShare, double allShare) {
+        if (!(flat > 0.0D)) {
+            return 0.0F;
+        }
+        float stopped = ElysiumShares.add(clamp(resistShare), clamp(allShare));
+        return (float) (flat * (1.0D - stopped));
+    }
+
+    private static float clamp(double share) {
+        return Double.isNaN(share) ? 0.0F : (float) Math.max(0.0D, Math.min(1.0D, share));
+    }
 }

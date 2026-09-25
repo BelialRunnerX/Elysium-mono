@@ -102,7 +102,7 @@ def sources(strip_comments=True):
                 text = open(path, encoding="utf-8").read()
                 if strip_comments:
                     text = COMMENT.sub(" ", text)
-                yield os.path.relpath(path, SRC), text
+                yield os.path.relpath(path, SRC).replace(os.sep, "/"), text
 
 
 if not os.path.isdir(SRC):
@@ -3405,8 +3405,10 @@ if "overhealAbsorption" not in _combat_handler:
 _effects_src = strip_comments(open(os.path.join(_COMBAT, "ElysiumEffects.java"), encoding="utf-8").read())
 _EFFECT_NAMES = re.findall(r'EFFECTS\.register\("([a-z_]+)"', _effects_src)
 if sorted(_EFFECT_NAMES) != sorted(["sundering", "bleeding", "grievous", "vitality", "knowledge",
-                                    "detonation", "flying"]):
-    fail(f"the effects are not Apothic Attributes' seven: {_EFFECT_NAMES}")
+                                    "detonation", "flying",
+                                    "salve", "stunned", "tipsy", "exhaustion", "renewal",
+                                    "foresight", "overload"]):
+    fail(f"the effects are not Apothic Attributes' seven and Valoria's seven: {_EFFECT_NAMES}")
 for _name in _EFFECT_NAMES:
     if f"effect.elysiumlib.{_name}" not in _lang:
         fail(f"effect {_name} has no name; its icon would show a raw key")
@@ -3728,6 +3730,7 @@ HARNESSES = [
     ("WorldTierHarness.java", "com.elysium.lib.tier.WorldTierHarness", "world tiers"),
     ("LootRarityHarness.java", "com.elysium.lib.tier.LootRarityHarness", "loot rarity"),
     ("TierAugmentHarness.java", "com.elysium.lib.tier.TierAugmentHarness", "tier augments"),
+    ("NullHarness.java", "com.elysium.lib.nihil.NullHarness", "the Null field"),
 ]
 
 missing = [name for name, _, _ in HARNESSES
@@ -3747,7 +3750,7 @@ else:
     annotations = os.environ.get(
         "ELYSIUM_ANNOTATIONS", "/opt/gradle-8.14.3/lib/annotations-24.0.1.jar")
     if os.path.isfile(annotations):
-        classpath += ":" + annotations
+        classpath += os.pathsep + annotations
 
     with tempfile.TemporaryDirectory() as scratch:
         library = os.path.join(scratch, "lib")
@@ -3774,18 +3777,27 @@ else:
                 return None
             return text
 
+        # The sources go through an argfile: the library names more files
+        # than one command line holds everywhere, and javac reads @files on
+        # every platform. Forward slashes, because a backslash in an argfile
+        # is an escape.
+        source_list = os.path.join(scratch, "sources.txt")
+        with open(source_list, "w", encoding="utf-8") as handle:
+            for p in java_files:
+                handle.write('"' + str(p).replace("\\", "/") + '"\n')
+
         # The module once, then each harness against it.
         if run(["javac", "-nowarn", "-proc:none", "-cp", classpath,
-                "-d", library] + [str(p) for p in java_files],
+                "-d", library, "@" + source_list],
                "library") is not None:
             for source, main, label in HARNESSES:
                 path = os.path.join(WORK, "tools", source)
                 if run(["javac", "-nowarn", "-proc:none",
-                        "-cp", classpath + ":" + library,
+                        "-cp", classpath + os.pathsep + library,
                         "-d", tools, path], label) is None:
                     continue
                 summary = run(["java", "-cp",
-                               ":".join([classpath, library, tools]), main],
+                               os.pathsep.join([classpath, library, tools]), main],
                               label)
                 if summary is not None:
                     print(f"{label:<19}: " + summary.split("\n")[0])
@@ -4035,6 +4047,170 @@ if "MOST_STORMY" not in _weather_rules:
 
 print(f"weather            : a hazard source read off the day, announced when it "
       f"turns, and drawn only where the sky is")
+
+# ---------------------------------------------------------------------------
+# Valoria: effects (docs/SPLITS.md; docs/SPEC_VALORIA.md)
+# ---------------------------------------------------------------------------
+#
+# Valoria's status effects, attributes and enchantments, and its Nihility as
+# the Null field. NullHarness executes the gauge's arithmetic and the ward's;
+# AttributeHarness executes the mapping; CombatHarness the healing scales and
+# the elemental bonus. What none of them can see is the wiring: that the field
+# is a hazard the existing protection answers rather than a second pipeline,
+# that the gauge is moved from the tick and from the ward, that the effects
+# are read where they matter, and that the data the generator writes is what
+# is shipped.
+
+_NIHIL = os.path.join(SRC, "nihil")
+_null_rules = strip_comments(open(os.path.join(_NIHIL, "ElysiumNullRules.java"), encoding="utf-8").read())
+for _imp in re.findall(r"\bimport\s+(?:static\s+)?([\w.]+)\s*;", _null_rules):
+    if not _imp.startswith("java."):
+        fail(f"ElysiumNullRules imports {_imp}; it is executed without a game")
+_null = strip_comments(open(os.path.join(_NIHIL, "ElysiumNull.java"), encoding="utf-8").read())
+if 'ElysiumHazard.register(id("null"), ElysiumElements.VOID, 0.0F)' not in _null:
+    fail("the Null field is not a hazard on the Void element with no damage of its own, so "
+         "either armour does not answer it or it hurts twice — once as a hazard, once as a gauge")
+if "ElysiumWards.bind(NULL, WARD)" not in _null:
+    fail("the Null ward is not bound to the Null field, so a warded player still accrues")
+if "MobEffectCategory.BENEFICIAL" not in body_of(_null, "private NullWard()"):
+    fail("the Null ward is not beneficial, so milk and every cure strip it")
+if "ElysiumNull.register(modEventBus);" not in strip_comments(_main_src) \
+        or "ElysiumNull.bootstrap();" not in strip_comments(_main_src):
+    fail("ElysiumLib never registers the Null field's attachment and ward; the gauge would "
+         "throw on first read and the ward would not exist")
+_null_handler = strip_comments(open(os.path.join(_NIHIL, "ElysiumNullHandler.java"), encoding="utf-8").read())
+_tick = body_of(_null_handler, "public static void onPlayerTick(")
+for _need, _why in (
+        ("ElysiumHazardField.intensity(level, pos, ElysiumNull.NULL)",
+         "the gauge does not read the field's intensity, so it accrues everywhere or nowhere"),
+        ("!ElysiumWards.isWarded(player, ElysiumNull.NULL)",
+         "a warded player still accrues; the ward would be a shield and not a ward"),
+        ("ElysiumNullRules.accrual(protection, difficulty) * intensity",
+         "accrual is not the tested rule scaled by the field; a second copy would drift"),
+        ("ElysiumNull.add(player, -ElysiumNullRules.decay(difficulty))",
+         "the gauge never decays away from the field, so one visit is forever"),
+        ("if (ElysiumNullRules.collapses(ratio))",
+         "the top of the gauge does nothing; the field would hurt forever and never reclaim anybody"),
+        ("player.isCreative() || player.isSpectator()",
+         "creative players accrue, which is a builder dying in their own field")):
+    if _need not in _tick:
+        fail(_why)
+_prot = body_of(_null_handler, "private static float protection(")
+for _need, _why in (
+        ("ElysiumProtection.isSealed(player, ElysiumNull.NULL)",
+         "a sealed set does not stop the field; the Void armour a player built answers nothing"),
+        ("ElysiumProtection.inShelteredClaim(level, pos)",
+         "a filed claim does not shelter from the field, so a base in one is not a base"),
+        ("return ElysiumResistance.combine(all);",
+         "the field's protection is not combined by the library's arithmetic, so it would "
+         "disagree with every other hazard's")):
+    if _need not in _prot:
+        fail(_why)
+_ward_hit = body_of(_null_handler, "public static void onIncomingDamage(")
+for _need, _why in (
+        ("event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)",
+         "the ward shields blows that bypass armour, which Valoria's did not"),
+        ("ElysiumNullRules.wardBlock(ward.getAmplifier() + 1)",
+         "the ward's shield is not the tested share of the level"),
+        ("ElysiumNull.add(player, ElysiumNullRules.wardLeak(incoming, reduced));",
+         "what the ward turns aside never leaks into the gauge, so a high ward is free")):
+    if _need not in _ward_hit:
+        fail(_why)
+_status = strip_comments(open(os.path.join(_EVENT, "ElysiumStatusHandler.java"), encoding="utf-8").read())
+_heal = body_of(_status, "public static void onHeal(")
+if "amount *= ElysiumCombatRules.exhaustionScale(exhaustion.getAmplifier() + 1);" not in _heal \
+        or "amount *= ElysiumCombatRules.renewalScale(renewal.getAmplifier() + 1);" not in _heal \
+        or "event.setAmount(amount);" not in _heal:
+    fail("Exhaustion and Renewal do not scale healing through the tested rules")
+_thrown = body_of(_status, "public static void onBlowThrown(")
+if '"miss_chance"' not in _thrown or "event.setCanceled(true);" not in _thrown:
+    fail("miss_chance never cancels a blow; the attribute would be a tooltip line")
+if "stunned(attacker)" not in _thrown:
+    fail("a stunned attacker's blow still lands")
+_landing = body_of(_status, "public static void onBlowLanding(")
+if "amount += ElysiumCombatRules.elementalBonus(flat, resisted, all);" not in _landing:
+    fail("elemental damage is not added through the tested rule")
+if "ElysiumNull.add(player, landed);" not in _landing:
+    fail("null_damage that lands never fills the target's gauge, so it is plain damage with a name")
+if "attacker instanceof Player && victim instanceof Player" not in _landing:
+    fail("elemental bonuses apply between players, which Valoria kept out of duels")
+if "ElysiumSummons.damageMultiplier(owner)" not in _landing:
+    fail("summon_damage never scales an owned creature's blow")
+for _event in ("AttackEntityEvent", "LivingEntityUseItemEvent.Start", "PlayerInteractEvent.RightClickBlock",
+               "PlayerInteractEvent.LeftClickBlock", "PlayerInteractEvent.EntityInteract"):
+    if f"({_event} event)" not in _status:
+        fail(f"Stunned does not cancel {_event}; a stunned player could still do that")
+_salve = body_of(_effects_src, "public boolean applyEffectTick(LivingEntity entity, int amplifier) {\n            if (!entity.level().isClientSide() && entity.getHealth()")
+if "entity.heal(SALVE_PER_TICK * (1 + amplifier));" not in _effects_src:
+    fail("Salve does not heal its rate per level")
+if "entity.getHealth() < entity.getMaxHealth()" not in _effects_src:
+    fail("Salve heals at full health, which is a heal event every tick for nothing")
+# The enchantments are data; the class only holds keys, and both have to agree.
+_ench_src = strip_comments(open(os.path.join(SRC, "item/ElysiumEnchantments.java"), encoding="utf-8").read())
+_ench_keys = sorted(re.findall(r'key\("([a-z_]+)"\)', _ench_src))
+_ench_dir = os.path.join(RES, "data/elysiumlib/enchantment")
+_ench_json = sorted(f[:-5] for f in os.listdir(_ench_dir) if f.endswith(".json")) if os.path.isdir(_ench_dir) else []
+if _ench_keys != _ench_json or _ench_keys != ["accuracy", "bleeding", "explosive_charge"]:
+    fail(f"ElysiumEnchantments names {_ench_keys} but enchantment/ holds {_ench_json}; Valoria's "
+         f"three are bleeding, accuracy and explosive_charge")
+for _n in _ench_json:
+    _e = json.load(open(os.path.join(_ench_dir, _n + ".json"), encoding="utf-8"))
+    for _k in (f"enchantment.elysiumlib.{_n}", f"enchantment.elysiumlib.{_n}.desc"):
+        if _k not in _lang:
+            fail(f"enchantment {_n} shows the raw key {_k}")
+    _items = _e.get("supported_items", "")
+    if _items.startswith("#elysiumlib:"):
+        _tag = os.path.join(RES, "data/elysiumlib/tags/item", _items[len("#elysiumlib:"):] + ".json")
+        if not os.path.isfile(_tag):
+            fail(f"enchantment {_n} applies to {_items}, a tag that does not exist, so nothing can carry it")
+    if _e.get("max_level", 0) < 1:
+        fail(f"enchantment {_n} has no levels")
+    for _table in ("in_enchanting_table", "non_treasure"):
+        _t = json.load(open(os.path.join(RES, f"data/minecraft/tags/enchantment/{_table}.json"), encoding="utf-8"))
+        if f"elysiumlib:{_n}" not in _t.get("values", []) or _t.get("replace", False):
+            fail(f"enchantment {_n} is not added to minecraft:{_table}, so no table offers it")
+_bleed = json.load(open(os.path.join(_ench_dir, "bleeding.json"), encoding="utf-8")) if "bleeding" in _ench_json else {}
+_bleed_effects = _bleed.get("effects", {}).get("minecraft:post_attack", [])
+if not any(_x.get("effect", {}).get("to_apply") == "elysiumlib:bleeding" for _x in _bleed_effects):
+    fail("the bleeding enchantment does not apply the library's own Bleeding on hit")
+# The Null field's damage and its words.
+for _k in ("elysium.hazard.null", "elysium.hazard.null.cheap", "elysium.hazard.null.engineered",
+           "elysium.null.rising", "elysium.null.speaks", "elysium.null.extracted", "elysium.combat.missed"):
+    if _k not in _lang:
+        fail(f"{_k} is not translated; the line that tells a player what the field is doing to them is a raw key")
+for _n in ("null", "null_collapse"):
+    if _n not in _dt_json:
+        fail(f"damage type {_n} is missing; the field would throw the first time it hurt")
+    for _ns, _tag in (("minecraft", "bypasses_armor"), ("elysiumlib", "is_non_physical")):
+        _t = json.load(open(os.path.join(RES, f"data/{_ns}/tags/damage_type/{_tag}.json"), encoding="utf-8"))
+        if f"elysiumlib:{_n}" not in _t.get("values", []):
+            fail(f"elysiumlib:{_n} is not in {_ns}:{_tag}; armour would stop the field, or a physical resistance would")
+# Generated data is what is shipped.
+_gen = os.path.join(WORK, "tools/gen_valoria_effects.py")
+if not os.path.isfile(_gen):
+    fail("tools/gen_valoria_effects.py is gone; the enchantments, damage types and words could drift")
+else:
+    import filecmp as _fc
+    import subprocess as _sp
+    with tempfile.TemporaryDirectory() as _scratch:
+        _run = _sp.run([sys.executable, _gen], capture_output=True, text=True, cwd=WORK,
+                       env={**os.environ, "ELYSIUM_LIB_OUT": _scratch, "PYTHONIOENCODING": "utf-8"})
+        if _run.returncode != 0:
+            fail(f"tools/gen_valoria_effects.py no longer runs: {_run.stderr.strip()[-300:]}")
+        else:
+            _drift = []
+            for _root, _dirs, _files in os.walk(_scratch):
+                for _f in _files:
+                    _made = os.path.join(_root, _f)
+                    _rel = os.path.relpath(_made, _scratch)
+                    _shipped = os.path.join(WORK, _rel)
+                    if not os.path.isfile(_shipped) or not _fc.cmp(_made, _shipped, shallow=False):
+                        _drift.append(_rel.replace(os.sep, "/"))
+            if _drift:
+                fail(f"the shipped files are not what tools/gen_valoria_effects.py generates: {_drift[:5]}")
+print(f"valoria effects    : the Null field as a sixth hazard with a gauge and a ward, "
+      f"{len(re.findall(r'\"([a-z_]+)\"', re.search(r'VALORIA_ROWS = List\.of\((.*?)\);', _spec_src, re.S).group(1)))} "
+      f"attributes, seven effects and {len(_ench_json)} enchantments, all read by a rule")
 
 if problems:
     print(f"{len(problems)} PROBLEM(S):")

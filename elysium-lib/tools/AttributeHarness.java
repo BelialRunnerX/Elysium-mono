@@ -11,7 +11,9 @@ import java.util.Set;
  *
  * <ol>
  *   <li><b>Coverage.</b> Every one of Apotheosis's 22 attributes is either a
- *       row here or named as mapped elsewhere, and nothing is both.</li>
+ *       row here or named as mapped elsewhere, and nothing is both; every one
+ *       of Valoria's 23 maps onto a row or a vanilla attribute; every row is
+ *       one or the other's.</li>
  *   <li><b>Uncapped.</b> Every row's ceiling is the shared finite MAX, and
  *       its floor is at or below its default.</li>
  *   <li><b>Chances are odds.</b> The stored default converts back to the
@@ -57,8 +59,40 @@ public final class AttributeHarness {
             check(rows.contains(a) || ElysiumAttributeSpec.MAPPED_ELSEWHERE.contains(a),
                     a + " is not covered");
         }
-        check(rows.size() + ElysiumAttributeSpec.MAPPED_ELSEWHERE.size() == 22,
-                "rows beyond the reference list");
+        Set<String> valoriaRows = new HashSet<>(ElysiumAttributeSpec.VALORIA_ROWS);
+        check(valoriaRows.size() == ElysiumAttributeSpec.VALORIA_ROWS.size(), "a Valoria row is listed twice");
+        for (String v : valoriaRows) {
+            check(rows.contains(v), v + " is named as Valoria's and is not a row");
+            check(!APOTHEOSIS.contains(v), v + " is claimed by both Apotheosis and Valoria");
+        }
+        check(rows.size() + ElysiumAttributeSpec.MAPPED_ELSEWHERE.size() == 22 + valoriaRows.size(),
+                "rows beyond the two reference lists");
+        check(ElysiumAttributeSpec.VALORIA.size() == 23, "Valoria brought 23 attributes (18 named, 5 unnamed)");
+        Set<String> valoriaNames = new HashSet<>();
+        Set<String> targets = new HashSet<>();
+        for (ElysiumAttributeSpec.Renamed r : ElysiumAttributeSpec.VALORIA) {
+            check(valoriaNames.add(r.valoria()), r.valoria() + " is mapped twice");
+            check(rows.contains(r.elysium()) || ElysiumAttributeSpec.VANILLA.contains(r.elysium()),
+                    r.valoria() + " maps onto " + r.elysium() + ", which is neither a row nor vanilla");
+            targets.add(r.elysium());
+        }
+        for (String v : valoriaRows) {
+            check(targets.contains(v) || v.startsWith("void_") || v.startsWith("kinetic_"),
+                    v + " is a Valoria row nothing of Valoria's maps onto");
+        }
+        for (String element : new String[] {"void", "plasma", "neural", "dimensional", "kinetic"}) {
+            check(rows.contains(element + "_damage") && rows.contains(element + "_resistance"),
+                    "the " + element + " element lacks a damage or resistance row");
+            check(ElysiumAttributeSpec.named(element + "_resistance").kind() == ElysiumAttributeSpec.Kind.CHANCE,
+                    element + " resistance is not a chance, so it would stack past all of it");
+        }
+        check(ElysiumAttributeSpec.named("null_capacity").nominalDefault() == 100.0D
+                && ElysiumAttributeSpec.named("null_capacity").min() >= 1.0D,
+                "null capacity is not Valoria's hundred, or can reach nothing");
+        check(ElysiumAttributeSpec.named("null_resilience").nominalDefault() == 5.0D
+                && ElysiumAttributeSpec.named("null_resilience").min() >= 1.0D,
+                "null resilience is not Valoria's five seconds, or can reach nothing");
+        check(ElysiumAttributeSpec.named("summon_count").nominalDefault() == 1.0D, "a summoner starts with one");
 
         // 2. uncapped
         for (ElysiumAttributeSpec s : ElysiumAttributeSpec.ALL) {
@@ -134,7 +168,8 @@ public final class AttributeHarness {
         check(!ElysiumContributorTable.owns("elysium:x", "nocolon"), "id without namespace allowed");
 
         System.out.println(checks + " checks: all 22 Apotheosis attributes covered ("
-                + rows.size() + " rows, " + ElysiumAttributeSpec.MAPPED_ELSEWHERE.size()
-                + " mapped), uncapped, chances stack as odds and never reach 100%; contributors sorted, unique and namespaced");
+                + (rows.size() - valoriaRows.size()) + " rows, " + ElysiumAttributeSpec.MAPPED_ELSEWHERE.size()
+                + " mapped) and all 23 of Valoria's (" + valoriaRows.size()
+                + " rows), uncapped, chances stack as odds and never reach 100%; contributors sorted, unique and namespaced");
     }
 }

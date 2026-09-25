@@ -166,6 +166,33 @@ public final class CombatHarness {
     }
 
     /** An effect's level is a stat like any other: it climbs and arrives nowhere. */
+    private static void valoria() {
+        check(ElysiumCombatRules.exhaustionScale(0) == 1.0F, "no exhaustion still slowed healing");
+        float one = ElysiumCombatRules.exhaustionScale(1);
+        check(Math.abs(one - 0.9F) < 1e-6F, "exhaustion I leaves " + one + " of a heal, not nine tenths as Valoria's did");
+        float previous = one;
+        for (int level = 2; level <= 500; level++) {
+            float scale = ElysiumCombatRules.exhaustionScale(level);
+            check(scale < previous, "exhaustion " + level + " slows healing no more than " + (level - 1));
+            check(scale > 0.0F, "exhaustion " + level + " stops healing outright");
+            previous = scale;
+        }
+        check(ElysiumCombatRules.exhaustionScale(5) < 0.7F, "exhaustion V still heals at Valoria's floor of half or above 0.7");
+        check(ElysiumCombatRules.renewalScale(0) == 1.0F, "no renewal still sped healing");
+        check(Math.abs(ElysiumCombatRules.renewalScale(1) - 1.1F) < 1e-6F, "renewal I is not a tenth more");
+        check(ElysiumCombatRules.renewalScale(10) > 1.5F, "renewal X is held at Valoria's ceiling of half again");
+        check(ElysiumCombatRules.elementalBonus(0.0D, 0.0D, 0.0D) == 0.0F, "no elemental damage still added a bonus");
+        check(ElysiumCombatRules.elementalBonus(10.0D, 0.0D, 0.0D) == 10.0F, "unresisted elemental damage lost something");
+        check(Math.abs(ElysiumCombatRules.elementalBonus(10.0D, 0.5D, 0.0D) - 5.0F) < 1e-5F,
+                "half resistance did not halve the bonus");
+        float both = ElysiumCombatRules.elementalBonus(10.0D, 0.5D, 0.5D);
+        check(both < 5.0F && both > 0.0F, "two half resistances gave " + both + ": not more than one, or all of it");
+        check(Math.abs(both - 10.0F / 3.0F) < 1e-4F, "two half resistances did not stack as odds (a third left)");
+        check(ElysiumCombatRules.elementalBonus(10.0D, 1.0D, 1.0D) >= 0.0F, "full resistance went negative");
+        check(ElysiumCombatRules.elementalBonus(10.0D, Double.NaN, -1.0D) == 10.0F, "a NaN or negative resistance stopped something");
+        check(ElysiumCombatRules.elementalBonus(10.0D, 0.9D, 0.9D) > 0.0F, "stacked resistance reached all of it");
+    }
+
     private static void levels() {
         float one = ElysiumCombatRules.levelShare(1, 10.0D);
         float three = ElysiumCombatRules.levelShare(3, 10.0D);
@@ -184,6 +211,7 @@ public final class CombatHarness {
         stealAndOverheal();
         drawAndCooldown();
         levels();
+        valoria();
 
         System.out.println("combat: pierce, shred, negative armour, repeating crits, the auxiliary hits, "
                 + "lifesteal and overheal, draw speed and cooldowns — " + checked + " assertions");
