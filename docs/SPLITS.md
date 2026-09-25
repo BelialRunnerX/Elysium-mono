@@ -43,6 +43,17 @@ wiki, so a piece cannot be missed by being forgotten.
 | `ImmersiveEngineering: the wiring` | PLANNED | elysium-industry | connectors, relays and the wire that hangs between two posts rather than sitting in a block — the part of this jar that is a different transmission model from the grid already here |
 | `ImmersiveEngineering: the machines` | PLANNED | elysium-industry | the excavator, the assembler, the bottling machine and the rest of the powered roster |
 | `ImmersiveEngineering: the gear` | PLANNED | elysium-arsenal | the revolver, the railgun, the drill and the chemthrower |
+| `tfmg: the steel` | DONE | elysium-industry | a blast furnace that wants no wire: iron and coke into steel, in a brick box that is the first thing Age II builds rather than the thing it builds after a power station |
+| `tfmg: the oil` | PLANNED | elysium-industry | crude, the derrick that pumps it and the tower that cracks it. Needs a fluid chain, which no module in this pack has yet and which is a feature of its own rather than a roster |
+| `tfmg: the decoration` | PLANNED | elysium-atelier | industrial panelling, catwalks and signage, which is a decoration roster in metals |
+| `oritech: the machines` | PLANNED | elysium-industry | its own roster of processing steps, laid on the grid this module already has and priced against its books |
+| `oritech: the compat` | PLANNED | elysium-arcana | the recipes naming `geore:` items, which are why GeOre is still in the mods folder although it is marked DONE. Nothing may retire that jar until these are ours |
+| `Mekanism: the fission` | DONE | elysium-atomics | the reactor hall: a size you choose, cooling you plumb, and heat that goes as the cube against cooling that goes as the square |
+| `Mekanism: the chemistry` | PLANNED | elysium-atomics | the ore chain from three to five - dust, clump, shard, crystal - and the gases that drive it. The ladder to three is done; this is the step that makes Age III about chemistry rather than about heat |
+| `Mekanism: the logistics` | PLANNED | elysium-logistics | the pipes, the cardboard box and the quantum entangloporter, which are storage-and-movement and belong where the movement is |
+| `MekanismTools: the gear` | PLANNED | elysium-arsenal | tools and armour in Mekanism's alloys, as new rungs on the ladders the arsenal already has |
+| `industrialforegoing: the farm machines` | PLANNED | elysium-atomics | the planter, the harvester and the animal machines, joined to elysium-agronomy's crops the way the kinetics' saw is joined to its kitchen |
+| `industrialforegoing: the rest` | PLANNED | elysium-atomics | the laser drill and the fluid machines, which want the same fluid chain tfmg's oil does |
 | `createdeco: the fittings` | PLANNED | elysium-atelier | 1,221 blocks of brass, copper and industrial iron — catwalks, ladders, bars, panels, lamps and the rest. It is a decoration roster in metals, and the decoration rosters are the atelier's. Nothing in it is kinetic |
 | `copycats: the blocks` | PLANNED | elysium-atelier | blocks that wear another block's texture: one mechanic and a handful of shapes, which is a decoration idea and belongs with the decoration |
 | `interiors: the furniture` | PLANNED | elysium-atelier | seats, cushions, curtains, blinds and the shutters, built on Create's fittings in the jar and on the atelier's here |

@@ -8,12 +8,12 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 79 | DONE | an Elysium module already replaces it |
-| 15 | SPLIT | spans several modules; see docs/SPLITS.md |
+| 80 | DONE | an Elysium module already replaces it |
+| 20 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 23 | PLANNED | has a target module, not started |
+| 16 | PLANNED | has a target module, not started |
 | 13 | KEEP | stays in the pack on purpose |
-| 73 | DROP | library or performance: nothing to convert |
+| 74 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
 
 ## Work remaining, by module
@@ -23,10 +23,11 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `elysium-bestiary` | 8 |
 | `elysium-atelier` | 7 |
 | `elysium-comforts` | 6 |
-| `elysium-atomics` | 5 |
 | `elysium-agronomy` | 4 |
 | `elysium-industry` | 3 |
 | `elysium-wilds` | 2 |
+| `elysium-atomics` | 2 |
+| `elysium-arsenal` | 1 |
 | `elysium-arcana` | 1 |
 | `elysium-foundry` | 1 |
 
@@ -42,7 +43,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `ApothicAttributes-1.21.1-2.10.1.jar` | DONE | elysium-lib | the twenty attributes and the combat model |
 | `ApothicEnchanting-1.21.1-1.6.0.jar` | DONE | elysium-enchanting | the Arcane Table |
 | `ApothicSpawners-1.21.1-1.4.0.jar` | DONE | elysium-spawners | ownable, tunable spawners |
-| `Applied-Mekanistics-1.6.3.jar` | PLANNED | elysium-atomics | chemical storage in the network |
+| `Applied-Mekanistics-1.6.3.jar` | DROP | elysium-logistics | chemical storage in a storage network: a shim between two jars that are both ours, and the crossing it makes is a loop over our own rosters - the same reason the two sophisticated-storage shims are DROP |
 | `appliedenergistics2-19.2.17.jar` | DONE | elysium-logistics | its devices folded onto the flat network; its channels, cable tiers, P2P tunnels and spatial storage deliberately deleted, and docs/CONVERSION.md section 10 says so plainly rather than leaving it to be discovered |
 | `Aquaculture-1.21.1-2.7.21.jar` | SPLIT | elysium-agronomy | fishing: the same 105-fish roster, and now a mount for every one of them — made out of the fish, so it is a trophy rather than a plaque anybody can craft — plus a worm farm whose bait is capped, because bait a player can have as much of as they like is a rod that always catches what it is pointed at, and a tackle box to keep it all in. Its neptunium gear is a tool and armour set and belongs to elysium-arsenal and elysium-armory; see docs/SPLITS.md |
 | `architectury-13.0.11-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
@@ -126,7 +127,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `handcrafted-neoforge-1.21.1-4.0.3.jar` | DONE | elysium-atelier | the twenty-four furniture shapes in 33 materials, and now upholstered in sixteen colours as well: benches, chairs, stools, tables, shelves, cabinets, counters, sinks, stoves, wardrobes, drawers, nightstands, desks, planters, troughs, racks, screens and posts |
 | `ImmediatelyFast-NeoForge-1.6.11+1.21.1.jar` | DROP | - | performance: not content |
 | `ImmersiveEngineering-1.21.1-12.4.2-194.jar` | SPLIT | elysium-industry | the multiblocks are in: a coke oven and a blast furnace out of two bricks, every orientation accepted and every one-block mutation refused by name, and neither wants a wire. The rest of the jar is still to come; see docs/SPLITS.md |
-| `industrialforegoing-1.21-3.6.39.jar` | PLANNED | elysium-atomics | bulk automation: the machines that do a farm's work |
+| `industrialforegoing-1.21-3.6.39.jar` | SPLIT | elysium-atomics | bulk automation: the machines that do a farm's work. The farm is elysium-agronomy's and the machines are this age's, so it is a join rather than a jar; see docs/SPLITS.md |
 | `integrateddynamics-1.21.1-neoforge-1.34.0.jar` | DONE | elysium-logistics | a logic layer of nineteen operators over four types, typed before it is run so a player who asks the network to add a number to a chest finds out when they write it rather than when a tick throws — and an expression cannot loop, because an arrow that points forwards is not a legal expression at all |
 | `interiors-1.21.1-neoforge-0.6.1.jar` | SPLIT | elysium-atelier | furniture built on Create's fittings; the furniture half goes to the atelier |
 | `invtweaks-1.21.1-1.3.2.jar` | DROP | - | interface and convenience: not content |
@@ -152,9 +153,9 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `mcw-mcwwindows-2.4.2-mc1.21.1neoforge.jar` | DONE | elysium-atelier | panes in all 33 materials, plus sills, awnings and cornices |
 | `mcw-roofs-2.3.2-mc1.21.1neoforge.jar` | DONE | elysium-atelier | two pitches of roof in 33 materials, each with the slope, outer corner, valley and ridge without which a roof cannot be closed — a property of the set that is invisible in any one block |
 | `mcw-trapdoors-1.1.5-mc1.21.1neoforge.jar` | DONE | elysium-atelier | trapdoors in every material the game has none of, with their tags derived rather than typed |
-| `Mekanism-1.21.1-10.7.19.85.jar` | PLANNED | elysium-atomics | Age III: chemistry and fission |
-| `MekanismGenerators-1.21.1-10.7.19.85.jar` | PLANNED | elysium-atomics | Age III: chemistry and fission |
-| `MekanismTools-1.21.1-10.7.19.85.jar` | PLANNED | elysium-atomics | Age III: chemistry and fission |
+| `Mekanism-1.21.1-10.7.19.85.jar` | SPLIT | elysium-atomics | Age III. Fission is answered by the reactor hall; the ore chain stops at three where Mekanism's reaches five, and the chemistry that gets it there is the one thing left; see docs/SPLITS.md |
+| `MekanismGenerators-1.21.1-10.7.19.85.jar` | DONE | elysium-atomics | generators: the solar panel, the servo off an Age I line and the reactor hall between them are what this jar is for, and all three are priced against the grid's books |
+| `MekanismTools-1.21.1-10.7.19.85.jar` | SPLIT | elysium-arsenal | the tools and armour of Mekanism's alloys, which is gear and belongs with the gear; see docs/SPLITS.md |
 | `minecolonies-1.1.1368-1.21.1-snapshot.jar` | KEEP | elysium-colonies | the host this module adds on to |
 | `mob_grinding_utils-1.1.10+mc1.21.1.jar` | PLANNED | elysium-bestiary | farming infrastructure rather than creatures - fans, saws, spawner tooling; it is filed here because it is about mobs and belongs with whatever ends up owning automation of them |
 | `mobs_of_mythology-neoforge-1.21.1-3.0.0.jar` | PLANNED | elysium-bestiary | nine hostile beasts exist on a proved reward ladder; their catalogues (dozens of mobs each, bosses, their own gear and items) do not |
@@ -169,7 +170,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `naturalist-2.0.2-neoforge-1.21.1.jar` | PLANNED | elysium-bestiary | passive fauna, ambience and a field guide; the bestiary is hostile mobs only and has nothing that does not attack you |
 | `NaturesCompass-1.21.1-3.4.0-neoforge.jar` | DONE | elysium-wilds | a biome compass with a needle and a list you type into, on one bounded search that costs the same for anything; no adjustable radius, on purpose |
 | `OctoLib-NEOFORGE-0.6.2+1.21.jar` | DROP | - | library: goes when the mods needing it go |
-| `oritech-neoforge-1.21.1-1.2.10.jar` | PLANNED | elysium-industry | machines between Ages II and III |
+| `oritech-neoforge-1.21.1-1.2.10.jar` | SPLIT | elysium-industry | machines between Ages II and III. The grid, the machines and the multiblocks are here; what is left is its own roster of processing steps and the GeOre compat recipes that keep that jar in the pack; see docs/SPLITS.md |
 | `Patchouli-1.21.1-93-NEOFORGE.jar` | DROP | - | library: goes when the mods needing it go |
 | `Placebo-1.21.1-9.9.2.jar` | DONE | elysium-lib | Apotheosis' own library |
 | `player-animation-lib-forge-2.0.4+1.21.1.jar` | DROP | - | library: goes when the mods needing it go |
@@ -217,7 +218,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `Stronger Skill Tree.jar` | DONE | elysium-core | our own tree, shipped in the jar |
 | `structurize-1.0.832-1.21.1.jar` | KEEP | elysium-colonies | MineColonies' own dependencies |
 | `supplementaries-1.21.1-3.8.8-neoforge.jar` | SPLIT | elysium-atelier | four mods in a trench coat: fittings here, machines to logistics, comforts to comforts. See docs/SPLITS.md |
-| `tfmg-1.2.2.jar` | PLANNED | elysium-industry | heavy industry, oil and steel |
+| `tfmg-1.2.2.jar` | SPLIT | elysium-industry | heavy industry, oil and steel. The steel half is answered - a blast furnace that wants no wire - and the oil half is a fluid chain this module does not have yet; see docs/SPLITS.md |
 | `tide-neoforge-1.21.1-2.1.1.jar` | DONE | elysium-agronomy | fishing: 105 fish in 11 families, five rods and a bait apiece, and now what goes on the end of the line. Four hooks and four bobbers, every one of them a stated change to a cast rather than a special case in a block — and three rules swept over every water, every rod and all twenty-five ways of fitting a rod: nothing fitted ever takes a fish away, nothing fitted ever empties a water that had fish in it, and a better hook never makes the rare fish harder to get relative to the common one. That last is the rule a modifier system comes undone on, because nobody can see a probability |
 | `titanium-1.21-4.0.43.jar` | DROP | - | library: goes when the mods needing it go |
 | `towntalk-1.2.0.jar` | PLANNED | elysium-comforts | quality of life |
