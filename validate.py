@@ -239,6 +239,17 @@ def main():
         failures.append("packaging")
     print()
 
+    # Cross-cutting again: a blockstate names models, a model names a parent
+    # and textures, and the web crosses modules and reaches into vanilla. A
+    # miss is one WARN line at resource reload and a purple-and-black block,
+    # which is how the kinetics sail and the flora door item shipped.
+    print("=" * 70)
+    print("models — every blockstate, model and texture reference lands on a file")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_models.py"], cwd=HERE).returncode != 0:
+        failures.append("models")
+    print()
+
     for name, blurb in MODS:
         directory = HERE / name
         script = directory / "validate.py"

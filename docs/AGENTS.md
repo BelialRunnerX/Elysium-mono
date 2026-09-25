@@ -67,7 +67,7 @@ All four of these, every time. A feature that is done except for the validator
 is not done.
 
     ./compile.sh                       every module still type-checks
-    python3 validate.py                all 29 module validators and 16 root checks
+    python3 validate.py                all 29 module validators and 17 root checks
     python3 check_rules.py             no new entry on the rule-hygiene ratchet
     bash tools/negtest/negtest_<yours>.sh   every check you wrote proved effective
 
