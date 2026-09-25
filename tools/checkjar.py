@@ -57,6 +57,21 @@ def is_tag(entry):
             and entry.endswith(".json"))
 
 
+#: Files that are not tags and are unioned anyway.
+#:
+#: There is exactly one kind, and it is the one this tool spent a while
+#: reporting as four problems that were not problems: NeoForge's global loot
+#: modifier list. It is a "values" list like a tag, three modules add to it,
+#: and `check_merge.py` — which is the authority on what the merge may union —
+#: has always allowed it. A tool that disagrees with the authority is a tool
+#: whose output people learn to scroll past, which is worse than not having it.
+UNIONED_TOO = ("data/neoforge/loot_modifiers/global_loot_modifiers.json",)
+
+
+def is_unioned(entry):
+    return is_tag(entry) or entry in UNIONED_TOO
+
+
 def lost_values(source_bytes, merged_bytes):
     """
     Entries of a source tag that the merged tag no longer has.
@@ -149,11 +164,15 @@ def main():
 
     # --- nothing was lost ----------------------------------------------
     expected_ids = []
+    brought = set()
     for jar in args.inputs:
         with zipfile.ZipFile(jar) as archive:
             source = {info.filename: archive.read(info)
                       for info in archive.infolist() if not info.is_dir()}
         name = os.path.basename(jar)
+        brought |= {entry.split("/")[1] for entry in source
+                    if entry.startswith(("assets/", "data/"))
+                    and entry.count("/") > 1}
 
         if MODS_TOML in source and tomllib is not None:
             try:
@@ -170,7 +189,7 @@ def main():
                 fail(f"{name}: {entry} is not in the merged jar")
                 continue
             if merged[entry] != payload:
-                if is_tag(entry):
+                if is_unioned(entry):
                     # A tag file is *allowed* to change, because the merge
                     # unions it. It is not allowed to change by losing
                     # anything, which is the whole reason the union exists —
@@ -185,7 +204,7 @@ def main():
                              f"whatever is not in this file does not exist.")
                 else:
                     fail(f"{name}: {entry} changed during the merge, and it is "
-                         f"not a tag file the merge is allowed to union")
+                         f"not a file the merge is allowed to union")
 
     # --- mods declared vs mods present ---------------------------------
     for mod_id in expected_ids:
@@ -200,10 +219,16 @@ def main():
                  f"carries that id — NeoForge crashes on startup")
 
     # --- resource namespaces -------------------------------------------
+    #
+    # Asked of the inputs rather than of the list of declared mods. A module
+    # that shipped no resources of its own cannot have lost any in the merge,
+    # and reporting one as though it had is how a tool teaches people that its
+    # output is noise. Exactly one module here is code only, and it was being
+    # reported every build.
     namespaces = {entry.split("/")[1] for entry in merged
                   if entry.startswith(("assets/", "data/")) and entry.count("/") > 1}
     for mod_id in declared:
-        if mod_id not in namespaces:
+        if mod_id in brought and mod_id not in namespaces:
             fail(f"no assets/ or data/ under the {mod_id} namespace — its "
                  f"resources did not survive the merge")
 
