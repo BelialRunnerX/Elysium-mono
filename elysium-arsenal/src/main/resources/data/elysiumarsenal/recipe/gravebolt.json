@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "elysiumarsenal:legend_sigil"
+  },
+  "base": {
+    "item": "elysiumarsenal:netherite_crossbow"
+  },
+  "addition": {
+    "item": "minecraft:nether_star"
+  },
+  "result": {
+    "id": "elysiumarsenal:gravebolt",
+    "count": 1
+  }
+}

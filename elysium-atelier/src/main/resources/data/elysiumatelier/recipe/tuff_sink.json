@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:tuff"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:tuff_sink",
+    "count": 2
+  }
+}

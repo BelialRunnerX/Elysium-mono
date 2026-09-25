@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:compressed_clay"
+    }
+  ],
+  "result": {
+    "id": "minecraft:clay",
+    "count": 9
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "minecraft:bricks"
+  },
+  "result": {
+    "id": "elysiumatelier:bricks_ladder",
+    "count": 8
+  }
+}

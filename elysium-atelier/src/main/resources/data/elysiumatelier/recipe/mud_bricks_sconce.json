@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:mud_bricks"
+    },
+    "X": {
+      "item": "minecraft:torch"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:mud_bricks_sconce",
+    "count": 4
+  }
+}

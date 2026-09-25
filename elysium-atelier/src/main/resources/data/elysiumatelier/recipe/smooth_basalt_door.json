@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MM",
+    "MM",
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:smooth_basalt"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:smooth_basalt_door",
+    "count": 3
+  }
+}

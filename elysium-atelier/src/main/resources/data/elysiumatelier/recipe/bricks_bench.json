@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:bricks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:bricks_bench",
+    "count": 2
+  }
+}

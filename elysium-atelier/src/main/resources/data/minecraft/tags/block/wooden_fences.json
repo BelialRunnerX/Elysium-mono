@@ -1,0 +1,16 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumatelier:acacia_diagonal_fence",
+    "elysiumatelier:bamboo_diagonal_fence",
+    "elysiumatelier:birch_diagonal_fence",
+    "elysiumatelier:cherry_diagonal_fence",
+    "elysiumatelier:crimson_diagonal_fence",
+    "elysiumatelier:dark_oak_diagonal_fence",
+    "elysiumatelier:jungle_diagonal_fence",
+    "elysiumatelier:mangrove_diagonal_fence",
+    "elysiumatelier:oak_diagonal_fence",
+    "elysiumatelier:spruce_diagonal_fence",
+    "elysiumatelier:warped_diagonal_fence"
+  ]
+}

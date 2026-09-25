@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:bricks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:bricks_crate",
+    "count": 4
+  }
+}

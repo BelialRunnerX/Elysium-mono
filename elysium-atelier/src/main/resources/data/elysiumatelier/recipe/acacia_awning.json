@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:acacia_planks"
+    },
+    "X": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:acacia_awning",
+    "count": 8
+  }
+}

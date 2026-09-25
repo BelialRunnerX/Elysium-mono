@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:smooth_basalt"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:smooth_basalt_shelf",
+    "count": 4
+  }
+}

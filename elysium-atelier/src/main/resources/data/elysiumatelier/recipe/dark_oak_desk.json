@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dark_oak_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dark_oak_desk",
+    "count": 5
+  }
+}

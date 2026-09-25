@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:prismarine_cabinet"
+    }
+  ],
+  "result": {
+    "id": "minecraft:prismarine",
+    "count": 1
+  }
+}

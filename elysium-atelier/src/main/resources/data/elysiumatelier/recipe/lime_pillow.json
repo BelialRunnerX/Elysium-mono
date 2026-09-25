@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:lime_wool"
+    },
+    "X": {
+      "item": "minecraft:feather"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:lime_pillow",
+    "count": 7
+  }
+}

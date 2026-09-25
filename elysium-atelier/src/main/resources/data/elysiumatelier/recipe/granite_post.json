@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM ",
+    " MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:granite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:granite_post",
+    "count": 8
+  }
+}

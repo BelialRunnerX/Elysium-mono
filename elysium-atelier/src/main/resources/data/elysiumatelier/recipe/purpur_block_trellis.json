@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:purpur_block"
+    },
+    "X": {
+      "item": "minecraft:bamboo"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:purpur_block_trellis",
+    "count": 12
+  }
+}

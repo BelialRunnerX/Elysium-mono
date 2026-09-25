@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/netherite_shortbow",
+  "textures": {
+    "layer0": "elysiumarsenal:item/netherite_shortbow_pulling_1"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:warped_bench"
+    },
+    {
+      "item": "minecraft:brown_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:brown_warped_bench",
+    "count": 1
+  }
+}

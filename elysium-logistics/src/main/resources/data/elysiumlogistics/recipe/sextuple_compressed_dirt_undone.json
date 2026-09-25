@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:sextuple_compressed_dirt"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:quintuple_compressed_dirt",
+    "count": 9
+  }
+}

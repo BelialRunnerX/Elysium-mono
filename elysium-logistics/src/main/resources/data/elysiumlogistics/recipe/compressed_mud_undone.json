@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:compressed_mud"
+    }
+  ],
+  "result": {
+    "id": "minecraft:mud",
+    "count": 9
+  }
+}

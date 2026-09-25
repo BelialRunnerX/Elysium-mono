@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/sunspine",
+  "textures": {
+    "layer0": "elysiumarsenal:item/sunspine_pulling_0"
+  }
+}

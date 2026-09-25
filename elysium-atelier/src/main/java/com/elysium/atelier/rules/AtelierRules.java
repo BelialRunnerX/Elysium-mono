@@ -117,7 +117,24 @@ public final class AtelierRules {
             new Shape("lattice", 4, 8, 4),
             new Shape("shutter", 3, 12, 5),
             // And something soft.
-            new Shape("rug", 2, 16, 5));
+            new Shape("rug", 2, 16, 5),
+            // A kitchen, which is the one room the game gives a player nothing
+            // for at all.
+            new Shape("counter", 8, 4, 4),
+            new Shape("sink", 8, 2, 2),
+            new Shape("stove", 8, 2, 2),
+            // Somewhere to put clothes, and the rest of a bedroom.
+            new Shape("wardrobe", 8, 5, 6),
+            new Shape("drawers", 8, 4, 5),
+            new Shape("nightstand", 6, 4, 3),
+            new Shape("desk", 7, 5, 5),
+            // Things that hold other things.
+            new Shape("planter", 5, 4, 3),
+            new Shape("trough", 6, 4, 4),
+            new Shape("rack", 4, 6, 3),
+            // And two that divide a room rather than fill it.
+            new Shape("screen", 4, 6, 3),
+            new Shape("post", 4, 8, 4));
 
     /**
      * Every material the shapes come in.
@@ -158,12 +175,21 @@ public final class AtelierRules {
         }
         found.add(new Material("bamboo", "minecraft:bamboo_planks",
                 "minecraft:block/bamboo_planks", true));
-        found.add(stone("stone", "stone"));
-        found.add(stone("deepslate", "deepslate"));
-        found.add(stone("tuff", "tuff"));
-        found.add(stone("blackstone", "blackstone"));
+        for (String name : List.of("stone", "deepslate", "tuff", "blackstone",
+                "andesite", "diorite", "granite", "calcite", "dripstone_block",
+                "smooth_basalt", "sandstone", "red_sandstone", "prismarine",
+                "dark_prismarine", "purpur_block", "bricks", "mud_bricks",
+                "nether_bricks", "end_stone_bricks", "amethyst_block")) {
+            found.add(stone(name, name));
+        }
+        // The two whose face is not called what the block is called. Written
+        // out rather than special-cased in stone(), because the exception is
+        // the interesting thing: a pillar has a side and a top, and a shape
+        // cut out of one wears its side.
         found.add(new Material("quartz", "minecraft:quartz_block",
                 "minecraft:block/quartz_block_side", false));
+        found.add(new Material("basalt", "minecraft:basalt",
+                "minecraft:block/basalt_side", false));
         return List.copyOf(found);
     }
 

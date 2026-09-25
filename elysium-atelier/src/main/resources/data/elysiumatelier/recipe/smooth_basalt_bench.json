@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:smooth_basalt"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:smooth_basalt_bench",
+    "count": 2
+  }
+}

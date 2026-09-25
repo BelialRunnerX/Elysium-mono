@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:tuff"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:tuff_desk",
+    "count": 5
+  }
+}

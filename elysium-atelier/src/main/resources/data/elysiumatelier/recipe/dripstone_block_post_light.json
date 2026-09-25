@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dripstone_block"
+    },
+    "X": {
+      "item": "minecraft:lantern"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dripstone_block_post_light",
+    "count": 2
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "minecraft:purpur_block"
+  },
+  "result": {
+    "id": "elysiumatelier:purpur_block_ladder",
+    "count": 8
+  }
+}

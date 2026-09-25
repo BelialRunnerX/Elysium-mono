@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:pink_wool"
+    },
+    "X": {
+      "item": "minecraft:feather"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:pink_canopy",
+    "count": 12
+  }
+}

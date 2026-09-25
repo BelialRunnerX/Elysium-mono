@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/diamond_shortbow",
+  "textures": {
+    "layer0": "elysiumarsenal:item/diamond_shortbow_pulling_0"
+  }
+}

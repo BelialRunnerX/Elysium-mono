@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "elysiumlogistics:quadruple_compressed_gold_block"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:quintuple_compressed_gold_block",
+    "count": 1
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M ",
+    " M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:crimson_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:crimson_stove",
+    "count": 2
+  }
+}

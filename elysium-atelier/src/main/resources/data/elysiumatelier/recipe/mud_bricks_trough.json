@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM ",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:mud_bricks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:mud_bricks_trough",
+    "count": 4
+  }
+}

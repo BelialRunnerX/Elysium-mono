@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dark_oak_planks"
+    },
+    "X": {
+      "item": "minecraft:white_wool"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dark_oak_cushion",
+    "count": 7
+  }
+}

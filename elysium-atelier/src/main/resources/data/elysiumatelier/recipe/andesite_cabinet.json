@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "MM",
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:andesite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:andesite_cabinet",
+    "count": 6
+  }
+}

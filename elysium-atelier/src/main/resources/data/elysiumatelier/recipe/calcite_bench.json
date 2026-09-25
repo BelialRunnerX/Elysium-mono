@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:calcite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:calcite_bench",
+    "count": 2
+  }
+}

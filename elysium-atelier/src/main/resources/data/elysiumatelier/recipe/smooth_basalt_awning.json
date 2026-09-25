@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:smooth_basalt"
+    },
+    "X": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:smooth_basalt_awning",
+    "count": 8
+  }
+}

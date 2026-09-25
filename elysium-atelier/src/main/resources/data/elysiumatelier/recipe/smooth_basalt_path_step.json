@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:smooth_basalt"
+    },
+    "X": {
+      "item": "minecraft:flint"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:smooth_basalt_path_step",
+    "count": 2
+  }
+}

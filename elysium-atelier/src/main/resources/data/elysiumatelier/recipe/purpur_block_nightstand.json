@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "M "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:purpur_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:purpur_block_nightstand",
+    "count": 4
+  }
+}

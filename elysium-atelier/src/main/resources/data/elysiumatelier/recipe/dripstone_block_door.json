@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MM",
+    "MM",
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dripstone_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dripstone_block_door",
+    "count": 3
+  }
+}

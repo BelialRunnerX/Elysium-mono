@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MM "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:mangrove_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:mangrove_drawers",
+    "count": 4
+  }
+}

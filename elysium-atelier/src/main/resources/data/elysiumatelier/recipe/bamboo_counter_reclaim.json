@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:bamboo_counter"
+    }
+  ],
+  "result": {
+    "id": "minecraft:bamboo_planks",
+    "count": 1
+  }
+}

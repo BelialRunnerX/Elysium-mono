@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "M "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dripstone_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dripstone_block_nightstand",
+    "count": 4
+  }
+}

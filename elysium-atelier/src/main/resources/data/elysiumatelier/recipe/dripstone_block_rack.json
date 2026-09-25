@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "M  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dripstone_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dripstone_block_rack",
+    "count": 6
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM ",
+    " MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:quartz_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:quartz_post",
+    "count": 8
+  }
+}

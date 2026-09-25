@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M ",
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:calcite"
+    },
+    "X": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:calcite_sill",
+    "count": 8
+  }
+}

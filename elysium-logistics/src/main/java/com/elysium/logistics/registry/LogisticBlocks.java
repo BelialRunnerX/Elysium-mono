@@ -7,7 +7,9 @@ import com.elysium.logistics.block.AssemblyCoreBlock;
 import com.elysium.logistics.block.ControllerBlock;
 import com.elysium.logistics.block.DrawerBlock;
 import com.elysium.logistics.block.TerminalBlock;
+import com.elysium.logistics.rules.CompressRules;
 import com.elysium.logistics.rules.LogisticRules;
+import com.elysium.logistics.rules.NetRules;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -15,6 +17,9 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Every block storage is made of, so far.
@@ -55,6 +60,64 @@ public final class LogisticBlocks {
                 .mapColor(MapColor.COLOR_GRAY)
                 .sound(SoundType.METAL)
                 .strength(4.0F);
+    }
+
+    /**
+     * Every compression, in every material.
+     *
+     * <p>Five hundred and thirty-one blocks from a loop over two lists, which
+     * is the whole argument for writing it this way: the jar this replaces
+     * declares four and a half thousand of them by hand, and a hand-written
+     * catalogue that size has a block in it with the wrong hardness and
+     * nobody has ever found it.
+     *
+     * <p>Hardness and blast resistance come off the tier rather than being
+     * typed, so the ladder the harness proved climbs is the ladder a player
+     * swings a pickaxe at.
+     */
+    /**
+     * The seven devices that make a network reach anything outside itself.
+     *
+     * <p>Registered from the roster for the same reason everything else here
+     * is: an eighth device is a line in {@link NetRules} and nothing in this
+     * file changes at all.
+     */
+    public static final Map<String, DeferredBlock<Block>> DEVICES = devices();
+
+    private static Map<String, DeferredBlock<Block>> devices() {
+        Map<String, DeferredBlock<Block>> made = new LinkedHashMap<>();
+        for (NetRules.Device device : NetRules.DEVICES) {
+            made.put(device.name(), BLOCKS.register(device.name(),
+                    () -> new Block(steel())));
+        }
+        if (made.size() != NetRules.howMany()) {
+            throw new IllegalStateException("the rules list " + NetRules.howMany()
+                    + " devices and " + made.size() + " were registered");
+        }
+        return Map.copyOf(made);
+    }
+
+    public static final Map<String, DeferredBlock<Block>> COMPRESSED = compressed();
+
+    private static Map<String, DeferredBlock<Block>> compressed() {
+        Map<String, DeferredBlock<Block>> made = new LinkedHashMap<>();
+        for (String material : CompressRules.MATERIALS) {
+            for (int tier = 1; tier <= CompressRules.TIERS; tier++) {
+                String id = CompressRules.idFor(material, tier);
+                float hardness = CompressRules.hardness(tier);
+                float resistance = CompressRules.resistance(tier);
+                made.put(id, BLOCKS.register(id, () -> new Block(
+                        BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
+                                .strength(hardness, resistance)
+                                .requiresCorrectToolForDrops())));
+            }
+        }
+        if (made.size() != CompressRules.howMany()) {
+            throw new IllegalStateException("the rules list "
+                    + CompressRules.howMany() + " compressions and " + made.size()
+                    + " were registered");
+        }
+        return Map.copyOf(made);
     }
 
     public static final DeferredBlock<Block> TIMBER_DRAWER = BLOCKS.register("timber_drawer",

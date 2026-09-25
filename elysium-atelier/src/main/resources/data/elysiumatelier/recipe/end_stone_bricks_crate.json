@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:end_stone_bricks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:end_stone_bricks_crate",
+    "count": 4
+  }
+}

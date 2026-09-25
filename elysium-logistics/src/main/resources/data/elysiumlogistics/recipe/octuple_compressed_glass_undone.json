@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:octuple_compressed_glass"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:septuple_compressed_glass",
+    "count": 9
+  }
+}

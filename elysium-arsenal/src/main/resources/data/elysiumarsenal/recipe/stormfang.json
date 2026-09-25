@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "elysiumarsenal:legend_sigil"
+  },
+  "base": {
+    "item": "elysiumarsenal:netherite_sabre"
+  },
+  "addition": {
+    "item": "minecraft:heart_of_the_sea"
+  },
+  "result": {
+    "id": "elysiumarsenal:stormfang",
+    "count": 1
+  }
+}

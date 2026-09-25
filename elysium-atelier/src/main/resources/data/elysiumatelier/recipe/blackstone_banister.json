@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:blackstone"
+    },
+    "X": {
+      "item": "minecraft:iron_nugget"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:blackstone_banister",
+    "count": 14
+  }
+}

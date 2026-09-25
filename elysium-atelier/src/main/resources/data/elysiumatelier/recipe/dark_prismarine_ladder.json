@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "minecraft:dark_prismarine"
+  },
+  "result": {
+    "id": "elysiumatelier:dark_prismarine_ladder",
+    "count": 8
+  }
+}

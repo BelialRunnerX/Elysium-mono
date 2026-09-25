@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:diorite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:diorite_beam",
+    "count": 12
+  }
+}

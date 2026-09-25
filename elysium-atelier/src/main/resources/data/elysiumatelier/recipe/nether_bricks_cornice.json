@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:nether_bricks"
+    },
+    "X": {
+      "item": "minecraft:brick"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:nether_bricks_cornice",
+    "count": 6
+  }
+}

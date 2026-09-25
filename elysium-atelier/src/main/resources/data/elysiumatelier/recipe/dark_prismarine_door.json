@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MM",
+    "MM",
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dark_prismarine"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dark_prismarine_door",
+    "count": 3
+  }
+}

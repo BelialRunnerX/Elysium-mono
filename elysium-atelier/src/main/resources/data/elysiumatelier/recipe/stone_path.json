@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:stone"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:stone_path",
+    "count": 8
+  }
+}

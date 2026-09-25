@@ -31,6 +31,13 @@ public class ElysiumArsenal {
 
     public ElysiumArsenal(IEventBus modEventBus) {
         com.elysium.arsenal.registry.ArsenalItems.ITEMS.register(modEventBus);
+        com.elysium.arsenal.registry.RangedItems.ITEMS.register(modEventBus);
+        com.elysium.arsenal.registry.UniqueItems.ITEMS.register(modEventBus);
+        com.elysium.arsenal.registry.ForgeItems.ITEMS.register(modEventBus);
+        com.elysium.arsenal.forge.ForgeComponents.TYPES.register(modEventBus);
+        com.elysium.arsenal.registry.DigBlocks.BLOCKS.register(modEventBus);
+        com.elysium.arsenal.registry.DigItems.ITEMS.register(modEventBus);
+        com.elysium.arsenal.registry.DigBlockEntities.TYPES.register(modEventBus);
         com.elysium.arsenal.registry.ArsenalItems.TABS.register(modEventBus);
         LOGGER.info("Elysium Arsenal ready: {} tool(s)",
                 com.elysium.arsenal.rules.ArsenalRules.catalogue().size());

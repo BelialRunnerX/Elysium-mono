@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:acacia_chair"
+    },
+    {
+      "item": "minecraft:green_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:green_acacia_chair",
+    "count": 1
+  }
+}

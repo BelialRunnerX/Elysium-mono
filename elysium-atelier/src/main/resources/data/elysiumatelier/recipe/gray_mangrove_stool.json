@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:mangrove_stool"
+    },
+    {
+      "item": "minecraft:gray_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:gray_mangrove_stool",
+    "count": 1
+  }
+}

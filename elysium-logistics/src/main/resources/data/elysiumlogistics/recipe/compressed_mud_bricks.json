@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:mud_bricks"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:compressed_mud_bricks",
+    "count": 1
+  }
+}

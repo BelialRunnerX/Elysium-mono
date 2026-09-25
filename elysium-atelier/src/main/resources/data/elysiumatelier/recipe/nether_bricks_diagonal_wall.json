@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "  M",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:nether_bricks"
+    },
+    "X": {
+      "item": "minecraft:flint"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:nether_bricks_diagonal_wall",
+    "count": 6
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:andesite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:andesite_stool",
+    "count": 4
+  }
+}

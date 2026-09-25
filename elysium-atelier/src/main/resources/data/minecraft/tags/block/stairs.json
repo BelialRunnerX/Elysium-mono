@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumatelier:amethyst_block_stair",
+    "elysiumatelier:basalt_stair",
+    "elysiumatelier:calcite_stair",
+    "elysiumatelier:deepslate_stair",
+    "elysiumatelier:dripstone_block_stair",
+    "elysiumatelier:smooth_basalt_stair"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:mud_bricks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:mud_bricks_beam",
+    "count": 12
+  }
+}

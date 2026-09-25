@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:smooth_basalt"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:smooth_basalt_lattice",
+    "count": 8
+  }
+}

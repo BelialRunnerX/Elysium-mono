@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:compressed_tuff"
+    }
+  ],
+  "result": {
+    "id": "minecraft:tuff",
+    "count": 9
+  }
+}

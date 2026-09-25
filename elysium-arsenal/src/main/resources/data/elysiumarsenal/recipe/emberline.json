@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "elysiumarsenal:legend_sigil"
+  },
+  "base": {
+    "item": "elysiumarsenal:diamond_longsword"
+  },
+  "addition": {
+    "item": "minecraft:echo_shard"
+  },
+  "result": {
+    "id": "elysiumarsenal:emberline",
+    "count": 1
+  }
+}

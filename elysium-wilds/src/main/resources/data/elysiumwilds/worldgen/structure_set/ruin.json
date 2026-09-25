@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "elysiumwilds:ruin",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 28,
+    "separation": 11,
+    "salt": 900446
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:smooth_basalt_bench"
+    }
+  ],
+  "result": {
+    "id": "minecraft:smooth_basalt",
+    "count": 1
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MM "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:tuff"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:tuff_drawers",
+    "count": 4
+  }
+}

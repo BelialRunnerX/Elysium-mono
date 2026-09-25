@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:tuff_sink"
+    }
+  ],
+  "result": {
+    "id": "minecraft:tuff",
+    "count": 1
+  }
+}

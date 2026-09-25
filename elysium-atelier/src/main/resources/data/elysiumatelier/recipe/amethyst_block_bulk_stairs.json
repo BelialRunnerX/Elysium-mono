@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:amethyst_block"
+    },
+    "X": {
+      "item": "minecraft:flint"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:amethyst_block_bulk_stairs",
+    "count": 4
+  }
+}

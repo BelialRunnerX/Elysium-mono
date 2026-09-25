@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "M  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:acacia_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:acacia_rack",
+    "count": 6
+  }
+}

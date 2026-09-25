@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:smooth_basalt"
+    },
+    "X": {
+      "item": "minecraft:brick"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:smooth_basalt_cornice",
+    "count": 6
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "elysiumlogistics:quintuple_compressed_sandstone"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:sextuple_compressed_sandstone",
+    "count": 1
+  }
+}

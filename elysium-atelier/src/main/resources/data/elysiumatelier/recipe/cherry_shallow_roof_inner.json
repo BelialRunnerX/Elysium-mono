@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "M  ",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:cherry_planks"
+    },
+    "X": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:cherry_shallow_roof_inner",
+    "count": 5
+  }
+}

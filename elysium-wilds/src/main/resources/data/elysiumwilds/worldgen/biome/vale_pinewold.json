@@ -1,0 +1,63 @@
+{
+  "has_precipitation": true,
+  "temperature": 0.125,
+  "downfall": 0.5,
+  "effects": {
+    "sky_color": 10531276,
+    "fog_color": 12239568,
+    "water_color": 3633566,
+    "water_fog_color": 3633566,
+    "grass_color": 8625495,
+    "foliage_color": 7179853,
+    "mood_sound": {
+      "block_search_extent": 8,
+      "offset": 2.0,
+      "sound": "minecraft:ambient.cave",
+      "tick_delay": 6000
+    }
+  },
+  "spawners": {
+    "monster": [],
+    "creature": [
+      {
+        "type": "minecraft:rabbit",
+        "maxCount": 3,
+        "minCount": 2,
+        "weight": 6
+      },
+      {
+        "type": "minecraft:fox",
+        "maxCount": 2,
+        "minCount": 2,
+        "weight": 4
+      }
+    ],
+    "ambient": [],
+    "water_creature": [],
+    "water_ambient": [],
+    "underground_water_creature": [],
+    "axolotls": [],
+    "misc": []
+  },
+  "spawn_costs": {},
+  "carvers": {
+    "air": [
+      "minecraft:cave",
+      "minecraft:cave_extra_underground",
+      "minecraft:canyon"
+    ]
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+  ]
+}

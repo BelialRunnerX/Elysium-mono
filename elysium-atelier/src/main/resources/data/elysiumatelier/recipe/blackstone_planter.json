@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM ",
+    "  M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:blackstone"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:blackstone_planter",
+    "count": 4
+  }
+}

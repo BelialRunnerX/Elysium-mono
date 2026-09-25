@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:purpur_block_crate"
+    }
+  ],
+  "result": {
+    "id": "minecraft:purpur_block",
+    "count": 1
+  }
+}

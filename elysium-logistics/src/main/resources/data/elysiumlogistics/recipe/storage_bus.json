@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "MBM",
+    "MCM",
+    "MBM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "elysiumlogistics:bus"
+    },
+    "C": {
+      "item": "minecraft:chest"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:storage_bus",
+    "count": 1
+  }
+}

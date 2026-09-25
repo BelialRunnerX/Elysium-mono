@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:red_sandstone"
+    },
+    "X": {
+      "item": "minecraft:brick"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:red_sandstone_cornice",
+    "count": 6
+  }
+}

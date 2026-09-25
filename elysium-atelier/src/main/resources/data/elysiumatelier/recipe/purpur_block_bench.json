@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:purpur_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:purpur_block_bench",
+    "count": 2
+  }
+}

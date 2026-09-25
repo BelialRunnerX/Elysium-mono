@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:bricks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:bricks_beam",
+    "count": 12
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:amethyst_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:amethyst_block_pane",
+    "count": 16
+  }
+}

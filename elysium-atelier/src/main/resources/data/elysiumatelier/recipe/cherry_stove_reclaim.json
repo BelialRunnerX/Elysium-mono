@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:cherry_stove"
+    }
+  ],
+  "result": {
+    "id": "minecraft:cherry_planks",
+    "count": 1
+  }
+}

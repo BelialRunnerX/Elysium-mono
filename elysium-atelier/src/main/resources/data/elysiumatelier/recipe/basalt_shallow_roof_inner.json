@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "M  ",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:basalt"
+    },
+    "X": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:basalt_shallow_roof_inner",
+    "count": 5
+  }
+}

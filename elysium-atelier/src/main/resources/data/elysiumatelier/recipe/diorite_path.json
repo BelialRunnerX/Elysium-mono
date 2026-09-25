@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:diorite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:diorite_path",
+    "count": 8
+  }
+}

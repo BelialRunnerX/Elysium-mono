@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/template_glass_pane_noside_alt",
+  "textures": {
+    "pane": "minecraft:block/amethyst_block",
+    "edge": "minecraft:block/amethyst_block",
+    "particle": "minecraft:block/amethyst_block"
+  }
+}

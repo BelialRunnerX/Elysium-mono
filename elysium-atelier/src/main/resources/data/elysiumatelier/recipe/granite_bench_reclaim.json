@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:granite_bench"
+    }
+  ],
+  "result": {
+    "id": "minecraft:granite",
+    "count": 1
+  }
+}

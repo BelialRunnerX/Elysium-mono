@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:purpur_block"
+    },
+    "X": {
+      "item": "minecraft:torch"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:purpur_block_sconce",
+    "count": 4
+  }
+}

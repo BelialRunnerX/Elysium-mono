@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SLS",
+    "LBL",
+    "LLL"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:string"
+    },
+    "L": {
+      "item": "minecraft:leather"
+    },
+    "B": {
+      "item": "elysiumlogistics:satchel"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:knapsack",
+    "count": 1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:calcite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:calcite_path",
+    "count": 8
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/pebblethrower",
+  "textures": {
+    "layer0": "elysiumarsenal:item/pebblethrower_pulling_2"
+  }
+}

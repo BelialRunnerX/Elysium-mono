@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:bamboo_planks"
+    },
+    "X": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:bamboo_bridge_deck",
+    "count": 4
+  }
+}

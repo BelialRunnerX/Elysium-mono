@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:black_wool"
+    },
+    "X": {
+      "item": "minecraft:lead"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:black_runner",
+    "count": 14
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:stone_counter"
+    }
+  ],
+  "result": {
+    "id": "minecraft:stone",
+    "count": 1
+  }
+}

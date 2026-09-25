@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MM "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:jungle_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:jungle_drawers",
+    "count": 4
+  }
+}

@@ -85,6 +85,18 @@ public class ShapedBlock extends HorizontalDirectionalBlock implements SimpleWat
             case "shutter" -> Block.box(0.0D, 0.0D, 13.0D, 16.0D, 16.0D, 16.0D);
             case "rug" -> Block.box(0.0D, 0.0D, 0.0D, 16.0D, 1.0D, 16.0D);
             case "beam" -> Block.box(5.0D, 5.0D, 0.0D, 11.0D, 11.0D, 16.0D);
+            case "counter" -> Block.box(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D);
+            case "stove" -> Shapes.block();
+            case "sink" -> Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+            case "wardrobe" -> Block.box(1.0D, 0.0D, 3.0D, 15.0D, 16.0D, 15.0D);
+            case "drawers" -> Block.box(0.0D, 0.0D, 1.0D, 16.0D, 15.0D, 16.0D);
+            case "nightstand" -> Block.box(2.0D, 0.0D, 2.0D, 14.0D, 12.0D, 14.0D);
+            case "desk" -> Block.box(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D);
+            case "planter" -> Block.box(2.0D, 0.0D, 2.0D, 14.0D, 10.0D, 14.0D);
+            case "trough" -> Block.box(0.0D, 0.0D, 3.0D, 16.0D, 9.0D, 13.0D);
+            case "rack" -> Block.box(0.0D, 2.0D, 12.0D, 16.0D, 16.0D, 16.0D);
+            case "screen" -> Block.box(0.0D, 0.0D, 6.0D, 16.0D, 16.0D, 10.0D);
+            case "post" -> Block.box(6.0D, 0.0D, 6.0D, 10.0D, 16.0D, 10.0D);
             default -> Shapes.block();          // crate, cabinet, table, pillar
         };
     }

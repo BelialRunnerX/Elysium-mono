@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumatelier:amethyst_block_slab",
+    "elysiumatelier:basalt_slab",
+    "elysiumatelier:calcite_slab",
+    "elysiumatelier:deepslate_slab",
+    "elysiumatelier:dripstone_block_slab",
+    "elysiumatelier:smooth_basalt_slab"
+  ]
+}

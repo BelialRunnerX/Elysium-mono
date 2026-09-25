@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "CLC",
+    "LBL",
+    "LLL"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "L": {
+      "item": "minecraft:leather"
+    },
+    "B": {
+      "item": "elysiumlogistics:knapsack"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:haversack",
+    "count": 1
+  }
+}

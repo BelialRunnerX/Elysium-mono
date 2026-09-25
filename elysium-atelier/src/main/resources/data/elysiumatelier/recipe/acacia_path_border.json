@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:acacia_planks"
+    },
+    "X": {
+      "item": "minecraft:gravel"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:acacia_path_border",
+    "count": 4
+  }
+}

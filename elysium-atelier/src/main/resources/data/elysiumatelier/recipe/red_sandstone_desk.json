@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:red_sandstone"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:red_sandstone_desk",
+    "count": 5
+  }
+}

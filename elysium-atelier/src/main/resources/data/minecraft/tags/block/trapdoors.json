@@ -1,9 +1,26 @@
 {
   "replace": false,
   "values": [
+    "elysiumatelier:amethyst_block_trapdoor",
+    "elysiumatelier:andesite_trapdoor",
+    "elysiumatelier:basalt_trapdoor",
     "elysiumatelier:blackstone_trapdoor",
+    "elysiumatelier:bricks_trapdoor",
+    "elysiumatelier:calcite_trapdoor",
+    "elysiumatelier:dark_prismarine_trapdoor",
     "elysiumatelier:deepslate_trapdoor",
+    "elysiumatelier:diorite_trapdoor",
+    "elysiumatelier:dripstone_block_trapdoor",
+    "elysiumatelier:end_stone_bricks_trapdoor",
+    "elysiumatelier:granite_trapdoor",
+    "elysiumatelier:mud_bricks_trapdoor",
+    "elysiumatelier:nether_bricks_trapdoor",
+    "elysiumatelier:prismarine_trapdoor",
+    "elysiumatelier:purpur_block_trapdoor",
     "elysiumatelier:quartz_trapdoor",
+    "elysiumatelier:red_sandstone_trapdoor",
+    "elysiumatelier:sandstone_trapdoor",
+    "elysiumatelier:smooth_basalt_trapdoor",
     "elysiumatelier:stone_trapdoor",
     "elysiumatelier:tuff_trapdoor"
   ]

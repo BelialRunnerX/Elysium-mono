@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:bamboo_stool"
+    },
+    {
+      "item": "minecraft:cyan_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:cyan_bamboo_stool",
+    "count": 1
+  }
+}

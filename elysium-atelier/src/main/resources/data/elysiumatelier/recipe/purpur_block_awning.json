@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:purpur_block"
+    },
+    "X": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:purpur_block_awning",
+    "count": 8
+  }
+}

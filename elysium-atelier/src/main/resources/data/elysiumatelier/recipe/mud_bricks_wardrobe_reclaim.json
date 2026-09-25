@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:mud_bricks_wardrobe"
+    }
+  ],
+  "result": {
+    "id": "minecraft:mud_bricks",
+    "count": 1
+  }
+}

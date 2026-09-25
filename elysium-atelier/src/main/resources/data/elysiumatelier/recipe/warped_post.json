@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM ",
+    " MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:warped_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:warped_post",
+    "count": 8
+  }
+}

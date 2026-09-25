@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:warped_chair"
+    },
+    {
+      "item": "minecraft:brown_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:brown_warped_chair",
+    "count": 1
+  }
+}

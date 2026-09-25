@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "M  ",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:purpur_block"
+    },
+    "X": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:purpur_block_shallow_roof_inner",
+    "count": 5
+  }
+}

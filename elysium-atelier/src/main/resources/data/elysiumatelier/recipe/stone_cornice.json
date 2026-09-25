@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:stone"
+    },
+    "X": {
+      "item": "minecraft:brick"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:stone_cornice",
+    "count": 6
+  }
+}

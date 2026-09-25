@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:dark_prismarine_drawers"
+    }
+  ],
+  "result": {
+    "id": "minecraft:dark_prismarine",
+    "count": 1
+  }
+}

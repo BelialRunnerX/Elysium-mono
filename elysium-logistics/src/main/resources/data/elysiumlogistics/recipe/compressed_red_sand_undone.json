@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:compressed_red_sand"
+    }
+  ],
+  "result": {
+    "id": "minecraft:red_sand",
+    "count": 9
+  }
+}

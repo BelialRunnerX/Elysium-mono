@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:quadruple_compressed_slime_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:triple_compressed_slime_block",
+    "count": 9
+  }
+}

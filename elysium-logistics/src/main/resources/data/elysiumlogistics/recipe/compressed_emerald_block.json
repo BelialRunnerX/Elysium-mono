@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:emerald_block"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:compressed_emerald_block",
+    "count": 1
+  }
+}

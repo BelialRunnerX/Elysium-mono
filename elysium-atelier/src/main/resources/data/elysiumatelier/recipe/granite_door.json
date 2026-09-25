@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MM",
+    "MM",
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:granite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:granite_door",
+    "count": 3
+  }
+}

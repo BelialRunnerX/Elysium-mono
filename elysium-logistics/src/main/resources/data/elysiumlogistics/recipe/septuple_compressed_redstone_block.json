@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "elysiumlogistics:sextuple_compressed_redstone_block"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:septuple_compressed_redstone_block",
+    "count": 1
+  }
+}

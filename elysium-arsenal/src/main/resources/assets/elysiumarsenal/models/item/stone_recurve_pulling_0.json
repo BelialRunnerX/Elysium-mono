@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/stone_recurve",
+  "textures": {
+    "layer0": "elysiumarsenal:item/stone_recurve_pulling_0"
+  }
+}

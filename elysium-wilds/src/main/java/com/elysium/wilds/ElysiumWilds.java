@@ -39,6 +39,8 @@ public class ElysiumWilds {
         com.elysium.wilds.registry.WildComponents.TYPES.register(modEventBus);
         com.elysium.wilds.registry.WildItems.ITEMS.register(modEventBus);
         com.elysium.wilds.registry.WildItems.TABS.register(modEventBus);
+        com.elysium.wilds.registry.WildStructures.TYPES.register(modEventBus);
+        com.elysium.wilds.registry.WildStructures.PIECES.register(modEventBus);
         LOGGER.info("Elysium Wilds ready: one search of {} sample(s), no larger for "
                         + "anything", com.elysium.wilds.rules.WildRules.SAMPLES_PER_SEARCH);
     }

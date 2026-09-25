@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:prismarine"
+    },
+    "X": {
+      "item": "minecraft:paper"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:prismarine_panel",
+    "count": 12
+  }
+}

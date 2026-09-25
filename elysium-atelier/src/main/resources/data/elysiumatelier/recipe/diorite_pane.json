@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:diorite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:diorite_pane",
+    "count": 16
+  }
+}

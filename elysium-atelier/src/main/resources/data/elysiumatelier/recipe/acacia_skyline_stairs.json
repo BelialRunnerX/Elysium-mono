@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "MM "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:acacia_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:acacia_skyline_stairs",
+    "count": 4
+  }
+}

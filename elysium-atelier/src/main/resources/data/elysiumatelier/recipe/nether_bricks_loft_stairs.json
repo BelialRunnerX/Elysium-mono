@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M  ",
+    " M ",
+    "  M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:nether_bricks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:nether_bricks_loft_stairs",
+    "count": 8
+  }
+}

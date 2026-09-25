@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "MM",
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:prismarine"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:prismarine_cabinet",
+    "count": 6
+  }
+}

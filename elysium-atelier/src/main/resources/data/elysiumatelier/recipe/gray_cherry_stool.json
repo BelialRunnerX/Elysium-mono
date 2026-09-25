@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:cherry_stool"
+    },
+    {
+      "item": "minecraft:gray_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:gray_cherry_stool",
+    "count": 1
+  }
+}

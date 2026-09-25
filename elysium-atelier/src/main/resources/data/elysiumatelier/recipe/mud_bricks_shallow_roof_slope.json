@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "M ",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:mud_bricks"
+    },
+    "X": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:mud_bricks_shallow_roof_slope",
+    "count": 4
+  }
+}

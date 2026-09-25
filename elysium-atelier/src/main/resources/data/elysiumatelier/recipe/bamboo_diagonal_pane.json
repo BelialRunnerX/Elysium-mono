@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M  ",
+    " MM",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:bamboo_planks"
+    },
+    "X": {
+      "item": "minecraft:glass"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:bamboo_diagonal_pane",
+    "count": 12
+  }
+}

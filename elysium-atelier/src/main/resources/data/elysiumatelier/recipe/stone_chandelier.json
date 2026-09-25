@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:stone"
+    },
+    "X": {
+      "item": "minecraft:chain"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:stone_chandelier",
+    "count": 1
+  }
+}

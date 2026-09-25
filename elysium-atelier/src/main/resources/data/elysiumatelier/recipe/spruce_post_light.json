@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:spruce_planks"
+    },
+    "X": {
+      "item": "minecraft:lantern"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:spruce_post_light",
+    "count": 2
+  }
+}

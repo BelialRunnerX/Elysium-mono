@@ -1,0 +1,41 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "all": "minecraft:block/nether_bricks",
+    "particle": "minecraft:block/nether_bricks"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        4,
+        0
+      ],
+      "to": [
+        16,
+        8,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all"
+        },
+        "north": {
+          "texture": "#all"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        },
+        "east": {
+          "texture": "#all"
+        }
+      }
+    }
+  ]
+}

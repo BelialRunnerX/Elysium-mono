@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:quintuple_compressed_coal_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:quadruple_compressed_coal_block",
+    "count": 9
+  }
+}

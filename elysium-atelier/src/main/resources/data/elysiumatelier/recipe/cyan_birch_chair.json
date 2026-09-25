@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:birch_chair"
+    },
+    {
+      "item": "minecraft:cyan_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:cyan_birch_chair",
+    "count": 1
+  }
+}

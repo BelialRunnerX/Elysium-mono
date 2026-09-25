@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:basalt"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:basalt_shutter",
+    "count": 12
+  }
+}

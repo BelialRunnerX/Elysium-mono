@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:jungle_bench"
+    },
+    {
+      "item": "minecraft:yellow_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:yellow_jungle_bench",
+    "count": 1
+  }
+}

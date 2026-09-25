@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:quadruple_compressed_smooth_basalt"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:triple_compressed_smooth_basalt",
+    "count": 9
+  }
+}

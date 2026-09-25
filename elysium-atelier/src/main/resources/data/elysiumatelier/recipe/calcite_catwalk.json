@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:calcite"
+    },
+    "X": {
+      "item": "minecraft:iron_bars"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:calcite_catwalk",
+    "count": 7
+  }
+}

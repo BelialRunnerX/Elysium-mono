@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumatelier:block/basalt_pillar"
+    },
+    "axis=x": {
+      "model": "elysiumatelier:block/basalt_pillar",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumatelier:block/basalt_pillar",
+      "x": 90
+    }
+  }
+}

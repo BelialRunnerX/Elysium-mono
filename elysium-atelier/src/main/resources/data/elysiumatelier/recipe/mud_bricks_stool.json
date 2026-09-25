@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:mud_bricks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:mud_bricks_stool",
+    "count": 4
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M  ",
+    " M ",
+    "  M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:tuff"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:tuff_loft_stairs",
+    "count": 8
+  }
+}

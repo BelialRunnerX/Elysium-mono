@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/gravebolt",
+  "textures": {
+    "layer0": "elysiumarsenal:item/gravebolt_pulling_0"
+  }
+}

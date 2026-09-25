@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,waterlogged=false": {
+      "model": "elysiumatelier:block/cherry_shallow_roof_ridge"
+    },
+    "facing=east,waterlogged=false": {
+      "model": "elysiumatelier:block/cherry_shallow_roof_ridge",
+      "y": 90
+    },
+    "facing=south,waterlogged=false": {
+      "model": "elysiumatelier:block/cherry_shallow_roof_ridge",
+      "y": 180
+    },
+    "facing=west,waterlogged=false": {
+      "model": "elysiumatelier:block/cherry_shallow_roof_ridge",
+      "y": 270
+    },
+    "facing=north,waterlogged=true": {
+      "model": "elysiumatelier:block/cherry_shallow_roof_ridge"
+    },
+    "facing=east,waterlogged=true": {
+      "model": "elysiumatelier:block/cherry_shallow_roof_ridge",
+      "y": 90
+    },
+    "facing=south,waterlogged=true": {
+      "model": "elysiumatelier:block/cherry_shallow_roof_ridge",
+      "y": 180
+    },
+    "facing=west,waterlogged=true": {
+      "model": "elysiumatelier:block/cherry_shallow_roof_ridge",
+      "y": 270
+    }
+  }
+}

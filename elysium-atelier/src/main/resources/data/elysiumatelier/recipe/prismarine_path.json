@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:prismarine"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:prismarine_path",
+    "count": 8
+  }
+}

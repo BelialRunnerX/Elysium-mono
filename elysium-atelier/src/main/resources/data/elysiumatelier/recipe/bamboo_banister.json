@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:bamboo_planks"
+    },
+    "X": {
+      "item": "minecraft:iron_nugget"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:bamboo_banister",
+    "count": 14
+  }
+}

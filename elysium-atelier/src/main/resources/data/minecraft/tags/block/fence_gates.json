@@ -1,9 +1,26 @@
 {
   "replace": false,
   "values": [
+    "elysiumatelier:amethyst_block_gate",
+    "elysiumatelier:andesite_gate",
+    "elysiumatelier:basalt_gate",
     "elysiumatelier:blackstone_gate",
+    "elysiumatelier:bricks_gate",
+    "elysiumatelier:calcite_gate",
+    "elysiumatelier:dark_prismarine_gate",
     "elysiumatelier:deepslate_gate",
+    "elysiumatelier:diorite_gate",
+    "elysiumatelier:dripstone_block_gate",
+    "elysiumatelier:end_stone_bricks_gate",
+    "elysiumatelier:granite_gate",
+    "elysiumatelier:mud_bricks_gate",
+    "elysiumatelier:nether_bricks_gate",
+    "elysiumatelier:prismarine_gate",
+    "elysiumatelier:purpur_block_gate",
     "elysiumatelier:quartz_gate",
+    "elysiumatelier:red_sandstone_gate",
+    "elysiumatelier:sandstone_gate",
+    "elysiumatelier:smooth_basalt_gate",
     "elysiumatelier:stone_gate",
     "elysiumatelier:tuff_gate"
   ]

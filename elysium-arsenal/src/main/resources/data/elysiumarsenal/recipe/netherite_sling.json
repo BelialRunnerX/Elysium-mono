@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "S S",
+    " M ",
+    " M "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:netherite_sling",
+    "count": 1
+  }
+}

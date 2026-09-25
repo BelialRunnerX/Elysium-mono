@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dripstone_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dripstone_block_shutter",
+    "count": 12
+  }
+}

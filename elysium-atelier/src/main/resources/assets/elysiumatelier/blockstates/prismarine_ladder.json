@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "elysiumatelier:block/prismarine_ladder",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "elysiumatelier:block/prismarine_ladder"
+    },
+    "facing=south": {
+      "model": "elysiumatelier:block/prismarine_ladder",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumatelier:block/prismarine_ladder",
+      "y": 270
+    }
+  }
+}

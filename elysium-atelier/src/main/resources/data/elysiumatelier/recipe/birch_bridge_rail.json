@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:birch_planks"
+    },
+    "X": {
+      "item": "minecraft:chain"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:birch_bridge_rail",
+    "count": 6
+  }
+}

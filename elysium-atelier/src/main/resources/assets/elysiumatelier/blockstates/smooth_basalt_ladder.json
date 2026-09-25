@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "elysiumatelier:block/smooth_basalt_ladder",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "elysiumatelier:block/smooth_basalt_ladder"
+    },
+    "facing=south": {
+      "model": "elysiumatelier:block/smooth_basalt_ladder",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumatelier:block/smooth_basalt_ladder",
+      "y": 270
+    }
+  }
+}

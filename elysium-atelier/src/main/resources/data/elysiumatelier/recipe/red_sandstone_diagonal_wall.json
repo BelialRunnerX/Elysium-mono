@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "  M",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:red_sandstone"
+    },
+    "X": {
+      "item": "minecraft:flint"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:red_sandstone_diagonal_wall",
+    "count": 6
+  }
+}

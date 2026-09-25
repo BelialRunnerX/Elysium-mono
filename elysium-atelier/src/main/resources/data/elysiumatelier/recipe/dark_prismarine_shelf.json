@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dark_prismarine"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dark_prismarine_shelf",
+    "count": 4
+  }
+}

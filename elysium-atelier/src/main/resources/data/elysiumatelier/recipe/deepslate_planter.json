@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM ",
+    "  M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:deepslate"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:deepslate_planter",
+    "count": 4
+  }
+}

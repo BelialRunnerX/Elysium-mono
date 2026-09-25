@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:cherry_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:cherry_desk",
+    "count": 5
+  }
+}

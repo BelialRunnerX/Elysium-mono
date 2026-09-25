@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/template_glass_pane_noside",
+  "textures": {
+    "pane": "minecraft:block/purpur_block",
+    "edge": "minecraft:block/purpur_block",
+    "particle": "minecraft:block/purpur_block"
+  }
+}

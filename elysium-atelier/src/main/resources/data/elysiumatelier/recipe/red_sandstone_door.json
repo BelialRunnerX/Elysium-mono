@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MM",
+    "MM",
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:red_sandstone"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:red_sandstone_door",
+    "count": 3
+  }
+}

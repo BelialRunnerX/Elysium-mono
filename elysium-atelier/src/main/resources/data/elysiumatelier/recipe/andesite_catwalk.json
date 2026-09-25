@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:andesite"
+    },
+    "X": {
+      "item": "minecraft:iron_bars"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:andesite_catwalk",
+    "count": 7
+  }
+}

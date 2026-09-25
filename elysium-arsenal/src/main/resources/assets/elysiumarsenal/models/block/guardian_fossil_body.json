@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "elysiumarsenal:block/guardian_fossil_body"
+  }
+}

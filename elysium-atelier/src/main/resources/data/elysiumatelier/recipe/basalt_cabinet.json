@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "MM",
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:basalt"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:basalt_cabinet",
+    "count": 6
+  }
+}

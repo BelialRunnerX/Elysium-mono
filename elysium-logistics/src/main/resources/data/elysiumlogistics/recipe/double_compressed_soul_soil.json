@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "elysiumlogistics:compressed_soul_soil"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:double_compressed_soul_soil",
+    "count": 1
+  }
+}

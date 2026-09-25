@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "elysiumarsenal:legend_sigil"
+  },
+  "base": {
+    "item": "elysiumarsenal:iron_spear"
+  },
+  "addition": {
+    "item": "minecraft:amethyst_shard"
+  },
+  "result": {
+    "id": "elysiumarsenal:riverreach",
+    "count": 1
+  }
+}

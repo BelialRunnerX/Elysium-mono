@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:double_compressed_glowstone"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:compressed_glowstone",
+    "count": 9
+  }
+}

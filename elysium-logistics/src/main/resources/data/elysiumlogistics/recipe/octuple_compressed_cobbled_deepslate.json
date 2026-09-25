@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "elysiumlogistics:septuple_compressed_cobbled_deepslate"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:octuple_compressed_cobbled_deepslate",
+    "count": 1
+  }
+}

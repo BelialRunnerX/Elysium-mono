@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:amethyst_block"
+    },
+    "X": {
+      "item": "minecraft:torch"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:amethyst_block_sconce",
+    "count": 4
+  }
+}

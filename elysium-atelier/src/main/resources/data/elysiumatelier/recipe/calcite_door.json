@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MM",
+    "MM",
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:calcite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:calcite_door",
+    "count": 3
+  }
+}

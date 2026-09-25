@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M  ",
+    " MM",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:mud_bricks"
+    },
+    "X": {
+      "item": "minecraft:glass"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:mud_bricks_diagonal_pane",
+    "count": 12
+  }
+}

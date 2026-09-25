@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:calcite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:calcite_fence",
+    "count": 3
+  }
+}

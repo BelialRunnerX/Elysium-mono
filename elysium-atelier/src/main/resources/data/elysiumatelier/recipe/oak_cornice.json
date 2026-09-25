@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:oak_planks"
+    },
+    "X": {
+      "item": "minecraft:brick"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:oak_cornice",
+    "count": 6
+  }
+}

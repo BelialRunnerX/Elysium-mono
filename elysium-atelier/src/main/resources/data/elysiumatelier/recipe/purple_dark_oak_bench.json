@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:dark_oak_bench"
+    },
+    {
+      "item": "minecraft:purple_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:purple_dark_oak_bench",
+    "count": 1
+  }
+}

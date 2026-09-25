@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:bamboo_bench"
+    },
+    {
+      "item": "minecraft:purple_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:purple_bamboo_bench",
+    "count": 1
+  }
+}

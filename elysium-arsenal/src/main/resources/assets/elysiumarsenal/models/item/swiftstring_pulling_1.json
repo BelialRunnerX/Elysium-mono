@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/swiftstring",
+  "textures": {
+    "layer0": "elysiumarsenal:item/swiftstring_pulling_1"
+  }
+}

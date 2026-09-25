@@ -1,92 +1,61 @@
 # The prompt to paste into a new Cowork session
 
-Everything below the line is meant to be copied whole. It assumes nothing
-about the new session except that your machine is linked and
+Everything below the line is meant to be copied whole. It assumes nothing about
+the new session except that your machine is linked and
 `C:\Users\weaks\curseforge` is a connected folder.
 
 ---
 
 I'm continuing work on Elysium, a private Minecraft 1.21.1 / NeoForge modpack
-conversion. It is for my own use — not commercial, not public — so licensing
-is my problem to handle with mod authors, not a reason to stop.
+conversion. It is for my own use — not commercial, not public — so licensing is
+my problem to handle with mod authors, not a reason to stop.
 
 **Get the source back first. It is not in this container.**
 
-In my connected `curseforge` folder there are two files, either of which is
-enough on its own:
+The whole tree is on my machine as plain files, at
 
-- `elysium-mono-source.tgz` — the working tree; unpacks to `Elysium-mono/`
-- `elysium-mono.bundle` — a complete git repo in one file
+    C:\Users\weaks\curseforge\Elysium-mono
 
-Stage one of them, put the tree at `/tmp/Elysium-mono`, and check it arrived:
-`ls -d elysium-*` should count 29, `ls tools/negtest/*.sh` should count 127,
-and `docs/TODO.md` should exist. From the bundle, `git log --oneline` should
-show the conversion commits sitting on top of `72cb0ed` on a branch called
-`elysium-conversion`.
+18058 files, every one verified against a SHA-256 manifest
+(`MIRROR-MANIFEST.json`, at the top of that folder) after it was written. Copy
+it into the container at `/tmp/Elysium-mono` and check it arrived:
 
-**Then read `/tmp/Elysium-mono/docs/TODO.md` before doing anything else.** It
-is the handover: where this stands, what is honestly still missing, the
-protocols, and the order to work in. Read all of it. Don't start from my
-summary here — start from that file.
+    ls -d elysium-*            should count 29
+    ls tools/negtest/*.sh      should count 140
+    python3 tools/board.py list
 
-## How I want you to work
+**Then read `docs/AGENTS.md`.** It is short, and it is the whole working
+agreement: how the repository is laid out, how to take a unit of work without
+standing in somebody else's files, what "finished" means, and the dozen
+mistakes this project has actually made and now checks for.
 
-One feature at a time, all the way through: architect it, write the pure rules,
-write the harness, make the harness pass, write the game-side code, write the
-generator, write the validator section, write the negative tests, run the root
-validation, build. A feature that is "done except for the validator" is not
-done. Keep each piece as modular but as extensible as you can.
+**Take a unit before you touch anything:**
 
-Every rule lives in a pure JDK class under `rules/` — no `net.minecraft`, no
-`net.neoforged` — so a harness can sweep millions of cases without a game.
-Every check must be negative-tested: break it deliberately, one way at a time,
-and prove it reports. `tools/negtest/` has 127 scripts doing exactly that, and
-`tools/dryrun.py` checks a script's anchors without touching the tree — read
-`tools/negtest/README.md` before writing a new one. `docs/TODO.md` §5 has the
-rest, and every protocol in it is there because something went wrong without
-it.
+    python3 tools/board.py list
+    python3 tools/board.py claim <module> --as <yourname>
 
-Type-check and build with `./compile.sh` (add `--jars --bundle` for the merged
-jar). Validate with `python3 validate.py` at the root — 29 module validators
-and 16 cross-cutting checks, about eight minutes. Don't build the launcher's
-exe or run Gradle builds; `compile.sh` is the check that matters.
+**Where it stands.** 29 modules, 45 validators (29 module +
+16 cross-cutting), 140 negative-test scripts. 33 of the pack's jars
+are replaced; 102 are still planned, across 16 units on the board.
+`docs/MANIFEST.md` is the ledger and `docs/SPLITS.md` holds the jars that span
+several modules.
 
-## Standing constraints — these are not negotiable
+**Before you hand anything back:**
 
-- **Never write to, replace, or delete anything in the `V+ and Tech` instance.**
-  Reading it is fine. It is my working pack and it stays untouched.
-  `Claude-dev-build` is yours to develop in; `Claude` is my testing copy.
-- **Never delete a mod jar.** Retiring one means *moving* it to
-  `mods/_superseded/`, and only after the three pre-checks in
-  `docs/CONVERSION.md` §4b. I'll clean up jars myself later.
-- **Never mark a manifest row DONE for a frame.** Twelve furniture shapes is
-  not `handcrafted`; nine beasts is not sixty. Marking a row DONE retires a jar
-  and takes real content out of my pack.
-- **Never use a credential pasted in plain text**, including any token that
-  appears anywhere in old notes. If something needs auth, tell me and I'll do it.
-- GitHub is gated for `curl` here and Maven, npm and PyPI return 403. If a
-  fetch is blocked, say so and move on — don't go looking for another route.
+    ./compile.sh
+    python3 validate.py
+    python3 check_rules.py
+    bash tools/negtest/negtest_<yours>.sh
+    python3 tools/ownership.py --as <yourname>
 
-## Design directions already decided
+Then build with `./compile.sh --jars --bundle`, send me the jars, and write
+them into both `Instances/Claude/mods` and `Instances/Claude-dev-build/mods`.
 
-Uncap progression rather than gating it, and give percentile stat and stat+
-scaling — I want the player to scale really hard. Don't change the GUI
-elements; they're right as they are. We are not doing the retexture generator.
-When you fix a bug, fix it so the intended feature or mechanic still works —
-don't neuter a mechanic to make a check pass.
-
-## What to do first
-
-`docs/TODO.md` §6 has the order I agreed to. Unless something has changed:
-
-1. Push the `elysium-conversion` branch to GitHub — I'll run the push, just
-   tell me when the tree is ready.
-2. I'll launch the pack once and send you the crash log or `latest.log`;
-   nothing in this tree has ever met the running game. Test what you can
-   yourself before asking me — I'd rather you caught it than I did.
-3. Finish `elysium-comforts`. Five small jars, the only module within reach of
-   actually being complete.
-
-Start by restoring the tree and reading `docs/TODO.md`, then tell me what you
-found and what you intend to do first. Don't ask me to re-explain any of the
-above — it's all in that file in more detail.
+**Standing preferences.** One feature all the way through before the next —
+architected, ruled, harnessed, generated, validated, negative-tested, built.
+Prioritise converting the remaining mods over polishing what exists. Uncap
+everything and scale percentile effects on stat/(stat+b); the player should
+scale hard. Don't change the GUI. There is no retexture generator. Don't touch
+anything under `Instances/V+ and Tech*`. Retire a jar by moving it to
+`mods/_superseded/`, never by deleting it, and only after the three checks in
+`docs/CONVERSION.md` §4b.

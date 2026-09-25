@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:basalt"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:basalt_pane",
+    "count": 16
+  }
+}

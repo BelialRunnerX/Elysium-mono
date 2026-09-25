@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "minecraft:deepslate"
+  },
+  "result": {
+    "id": "elysiumatelier:deepslate_vertical_slab",
+    "count": 2
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:basalt"
+    },
+    "X": {
+      "item": "minecraft:iron_nugget"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:basalt_bridge_support",
+    "count": 3
+  }
+}

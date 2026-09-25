@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M ",
+    "MM",
+    "M "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:smooth_basalt"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:smooth_basalt_terrace_stairs",
+    "count": 6
+  }
+}

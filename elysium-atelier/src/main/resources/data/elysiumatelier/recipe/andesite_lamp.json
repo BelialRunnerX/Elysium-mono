@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:andesite"
+    },
+    "X": {
+      "item": "minecraft:glowstone_dust"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:andesite_lamp",
+    "count": 2
+  }
+}

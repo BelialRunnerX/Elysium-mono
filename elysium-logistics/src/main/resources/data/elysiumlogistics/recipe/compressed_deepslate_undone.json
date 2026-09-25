@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:compressed_deepslate"
+    }
+  ],
+  "result": {
+    "id": "minecraft:deepslate",
+    "count": 9
+  }
+}

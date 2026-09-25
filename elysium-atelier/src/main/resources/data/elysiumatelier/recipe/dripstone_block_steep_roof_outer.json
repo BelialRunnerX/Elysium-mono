@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dripstone_block"
+    },
+    "X": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dripstone_block_steep_roof_outer",
+    "count": 4
+  }
+}

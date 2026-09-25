@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:spruce_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:spruce_path",
+    "count": 8
+  }
+}

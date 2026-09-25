@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM ",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:diorite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:diorite_trough",
+    "count": 4
+  }
+}

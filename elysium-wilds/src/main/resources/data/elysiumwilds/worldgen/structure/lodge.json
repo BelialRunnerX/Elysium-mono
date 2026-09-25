@@ -1,0 +1,8 @@
+{
+  "type": "elysiumwilds:grammar",
+  "grammar": "lodge",
+  "biomes": "#minecraft:is_taiga",
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_thin",
+  "spawn_overrides": {}
+}

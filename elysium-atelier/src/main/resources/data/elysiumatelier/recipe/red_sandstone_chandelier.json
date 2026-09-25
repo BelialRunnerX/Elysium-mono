@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:red_sandstone"
+    },
+    "X": {
+      "item": "minecraft:chain"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:red_sandstone_chandelier",
+    "count": 1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:cherry_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:cherry_path",
+    "count": 8
+  }
+}

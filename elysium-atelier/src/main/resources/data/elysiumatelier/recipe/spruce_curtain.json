@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:spruce_planks"
+    },
+    "X": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:spruce_curtain",
+    "count": 14
+  }
+}

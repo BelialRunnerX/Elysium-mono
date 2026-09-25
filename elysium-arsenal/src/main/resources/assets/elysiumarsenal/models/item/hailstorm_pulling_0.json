@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/hailstorm",
+  "textures": {
+    "layer0": "elysiumarsenal:item/hailstorm_pulling_0"
+  }
+}

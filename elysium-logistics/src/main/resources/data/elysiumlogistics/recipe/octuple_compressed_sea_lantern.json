@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "elysiumlogistics:septuple_compressed_sea_lantern"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:octuple_compressed_sea_lantern",
+    "count": 1
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "BBB",
+    "PPP",
+    "P P"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:bone"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:archeology_table",
+    "count": 1
+  }
+}

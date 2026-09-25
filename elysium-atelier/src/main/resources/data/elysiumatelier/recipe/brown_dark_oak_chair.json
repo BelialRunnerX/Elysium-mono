@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:dark_oak_chair"
+    },
+    {
+      "item": "minecraft:brown_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:brown_dark_oak_chair",
+    "count": 1
+  }
+}

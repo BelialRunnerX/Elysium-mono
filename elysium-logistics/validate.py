@@ -31,6 +31,12 @@ BELOW = [os.path.join(ROOT, "elysium-kinetics/src/main/java/com/elysium/kinetics
          os.path.join(ROOT, "elysium-industry/src/main/java/com/elysium/industry/rules")]
 HARNESS = os.path.join(WORK, "tools/LogisticHarness.java")
 HARNESS_MAIN = "com.elysium.logistics.rules.LogisticHarness"
+COMPRESS_HARNESS = os.path.join(WORK, "tools/CompressHarness.java")
+COMPRESS_MAIN = "com.elysium.logistics.rules.CompressHarness"
+PACK_HARNESS = os.path.join(WORK, "tools/PackHarness.java")
+PACK_MAIN = "com.elysium.logistics.rules.PackHarness"
+NET_HARNESS = os.path.join(WORK, "tools/NetHarness.java")
+NET_MAIN = "com.elysium.logistics.rules.NetHarness"
 
 #: How long the arithmetic is allowed to take. The honest sweeps in
 #: the harness run in a few seconds; anything past this is a loop.
@@ -180,6 +186,15 @@ for name in sorted(os.listdir(PURE)) if os.path.isdir(PURE) else []:
             fail(f"rules/{name} imports {used}; a rules class may reach only into other "
                  f"rules, which are pure like itself")
 
+if not os.path.isfile(NET_HARNESS):
+    fail("there is no network harness, so a logic layer that can loop or add a "
+         "number to a chest is checked by reading")
+if not os.path.isfile(PACK_HARNESS):
+    fail("there is no pack harness, so the one thing every mod of this kind gets "
+         "wrong — taking a space upgrade out of a full bag — is checked by reading")
+if not os.path.isfile(COMPRESS_HARNESS):
+    fail("there is no compression harness, so the round trip — the one property a "
+         "save depends on — is checked by reading, which nobody has ever done")
 if not os.path.isfile(HARNESS):
     fail("there is no harness, so every number below is checked by reading")
 else:
@@ -190,7 +205,8 @@ else:
         for folder in BELOW:
             sources += [os.path.join(folder, n) for n in os.listdir(folder)
                         if n.endswith(".java")]
-        for source in sources + [HARNESS]:
+        for source in sources + [HARNESS, COMPRESS_HARNESS, PACK_HARNESS,
+                                 NET_HARNESS]:
             open(os.path.join(staged, os.path.basename(source)), "w",
                  encoding="utf-8").write(read(source))
         compiled = subprocess.run(
@@ -221,6 +237,57 @@ else:
                 fail("the logistics harness failed:\n" + harness_trouble(ran.stdout))
             else:
                 print("the arithmetic     : " + ran.stdout.strip().splitlines()[-1])
+
+            try:
+                ran_compress = subprocess.run(
+                    ["java", "-cp", os.path.join(tmp, "out"), COMPRESS_MAIN],
+                    capture_output=True, text=True, timeout=HARNESS_SECONDS)
+            except subprocess.TimeoutExpired:
+                ran_compress = None
+                fail(f"the compression harness did not finish within "
+                     f"{HARNESS_SECONDS} seconds")
+            if ran_compress is None:
+                pass
+            elif ran_compress.returncode != 0:
+                fail("the compression harness failed:\n"
+                     + harness_trouble(ran_compress.stdout))
+            else:
+                print("the round trip     : "
+                      + ran_compress.stdout.strip().splitlines()[-1])
+
+            try:
+                ran_pack = subprocess.run(
+                    ["java", "-cp", os.path.join(tmp, "out"), PACK_MAIN],
+                    capture_output=True, text=True, timeout=HARNESS_SECONDS)
+            except subprocess.TimeoutExpired:
+                ran_pack = None
+                fail(f"the pack harness did not finish within {HARNESS_SECONDS} "
+                     f"seconds")
+            if ran_pack is None:
+                pass
+            elif ran_pack.returncode != 0:
+                fail("the pack harness failed:\n" + harness_trouble(ran_pack.stdout))
+            else:
+                print("what a pack holds : "
+                      + ran_pack.stdout.strip().splitlines()[-1])
+
+            try:
+                ran_net = subprocess.run(
+                    ["java", "-cp", os.path.join(tmp, "out"), NET_MAIN],
+                    capture_output=True, text=True, timeout=HARNESS_SECONDS)
+            except subprocess.TimeoutExpired:
+                ran_net = None
+                fail(f"the network harness did not finish within "
+                     f"{HARNESS_SECONDS} seconds, which for a file whose whole "
+                     f"claim is that expressions terminate is the answer")
+            if ran_net is None:
+                pass
+            elif ran_net.returncode != 0:
+                fail("the network harness failed:\n"
+                     + harness_trouble(ran_net.stdout))
+            else:
+                print("the logic layer    : "
+                      + ran_net.stdout.strip().splitlines()[-1])
 
 rules = read(PURE, "LogisticRules.java")
 plain = strip_comments(rules)
@@ -633,7 +700,61 @@ for charged in ("controller.spend(moved);", "controller.spend(out.getCount());")
 
 # --- the recipes ----------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# The compression catalogue, read once and used twice
+# ---------------------------------------------------------------------------
+#
+# Five hundred and thirty-one blocks registered from a loop rather than by
+# name, so nothing that reads `BLOCKS.register("...")` above can see them.
+# They are ours all the same: a recipe that asks for the tier below itself is
+# asking for one of ours, and a check that does not know that reports five
+# hundred problems that are not problems.
+
+compress = strip_comments(read(PURE, "CompressRules.java"), True)
+
+
+def compress_list(name):
+    found = re.search(name + r" = List\.of\((.*?)\);", compress, re.S)
+    return re.findall(r'"([a-z_:]+)"', found.group(1)) if found else []
+
+
+compress_materials = compress_list("MATERIALS")
+compress_depths = compress_list("DEPTHS")
+compress_markers = compress_list("MARKERS")
+_tiers = re.search(r"TIERS = (\d+);", compress)
+compress_tiers = int(_tiers.group(1)) if _tiers else 0
+
+compress_ids = []
+for _material in compress_materials:
+    for _tier in range(1, compress_tiers + 1):
+        compress_ids.append((_material, _tier,
+                             compress_depths[_tier - 1] + "_" + _material))
+
 OURS = {f"{NS}:{name}" for name in registered}
+OURS |= {f"{NS}:{id}" for _m, _t, id in compress_ids}
+
+pack = strip_comments(read(PURE, "PackRules.java"), True)
+pack_bodies = [(name, int(slots), int(fittings), carried == "true")
+               for name, slots, fittings, carried in re.findall(
+                   r'new Body\("([a-z_]+)",\s*(\d+),\s*(\d+),\s*(true|false)\)',
+                   pack)]
+pack_kinds = dict(re.findall(
+    r'public static final String (\w+)\s*=\s*"([a-z_]+)";', pack))
+pack_parts = [(name, pack_kinds.get(kind, kind), int(slots))
+              for name, kind, slots in re.findall(
+                  r'new Part\("([a-z_]+)",\s*(\w+),\s*(\d+)\)', pack)]
+pack_ids = [one[0] for one in pack_bodies] + [one[0] for one in pack_parts]
+OURS |= {f"{NS}:{name}" for name in pack_ids}
+
+net = strip_comments(read(PURE, "NetRules.java"), True)
+net_roles = dict(re.findall(
+    r'public static final String (\w+)\s*=\s*"([a-z_]+)";', net))
+net_devices = [(name, net_roles.get(role, role), int(draws))
+               for name, role, draws in re.findall(
+                   r'new Device\("([a-z_]+)",\s*(\w+),\s*(\d+)\)', net)]
+net_ops = [(name, gives) for name, gives in re.findall(
+    r'new Op\("([a-z_]+)",\s*List\.of\([^)]*\),\s*(\w+)\)', net)]
+OURS |= {f"{NS}:{name}" for name, _r, _d in net_devices}
 BELOW_TAGS = {"c:ingots/steel"} | {f"c:plates/{m}" for m in
                                    ("iron", "copper", "gold", "steel")}
 below = set()
@@ -700,6 +821,304 @@ print(f"storage in the world: {len(registered)} block(s), each modelled through 
 main_class = read(SRC, "ElysiumLogistics.java")
 if f'MODID = "{NS}"' not in main_class:
     fail("the module id is not what everything else in the tree spells it")
+
+# ---------------------------------------------------------------------------
+# Compression
+# ---------------------------------------------------------------------------
+#
+# Five hundred and thirty-one blocks from a loop over two lists. The harness
+# proves the arithmetic; what is left for here is that the data the game will
+# actually run says the same thing — because the property that matters is a
+# pair of recipes, and a pair of recipes that disagree with the arithmetic by
+# one is a machine for making matter and nothing in this pack survives it.
+
+if compress_tiers < 3 or len(compress_materials) < 20:
+    fail(f"this validator read {len(compress_materials)} material(s) and "
+         f"{compress_tiers} tier(s) out of the compression rules, and a check "
+         f"against a short list passes whatever is wrong with the rest")
+if len(compress_depths) != compress_tiers or len(compress_markers) != compress_tiers:
+    fail(f"the rules go {compress_tiers} tiers deep with {len(compress_depths)} "
+         f"name(s) and {len(compress_markers)} frame(s); a tier would be unnamed "
+         f"or two tiers would look the same across a room")
+
+missing = []
+for material, tier, id in compress_ids:
+    for where in (f"assets/{NS}/blockstates/{id}.json",
+                  f"assets/{NS}/models/block/{id}.json",
+                  f"assets/{NS}/models/item/{id}.json",
+                  f"data/{NS}/loot_table/blocks/{id}.json",
+                  f"data/{NS}/recipe/{id}.json",
+                  f"data/{NS}/recipe/{id}_undone.json"):
+        if not os.path.isfile(os.path.join(RES, where)):
+            missing.append(f"{id} has no {where.rsplit('/', 2)[-2]}")
+if missing:
+    fail(f"{len(missing)} of {len(compress_ids) * 6} things a compression needs "
+         f"are missing: " + ", ".join(missing[:6]))
+
+# The pair of recipes, which is the round trip written as data. Nine in, one
+# out, one in, nine out, and the thing it is made of is the tier below it.
+wrong = []
+for material, tier, id in compress_ids:
+    under = ("minecraft:" + material if tier == 1
+             else f"{NS}:" + compress_depths[tier - 2] + "_" + material)
+    body = read(RES, "data", NS, f"recipe/{id}.json")
+    if body:
+        made = json.loads(body)
+        grid = made.get("pattern", [])
+        cells = sum(row.count("M") for row in grid)
+        if cells != 9:
+            wrong.append(f"{id} is compressed out of {cells} rather than nine")
+        if made.get("key", {}).get("M", {}).get("item") != under:
+            wrong.append(f"{id} is compressed out of "
+                         f"{made.get('key', {}).get('M')} and not {under}")
+        if made.get("result", {}).get("count", 0) != 1:
+            wrong.append(f"{id} makes {made.get('result', {}).get('count')} at a "
+                         f"time, and nine into more than one is a machine for "
+                         f"making matter")
+    back = read(RES, "data", NS, f"recipe/{id}_undone.json")
+    if back:
+        undone = json.loads(back)
+        if undone.get("type") != "minecraft:crafting_shapeless":
+            wrong.append(f"{id} comes apart on a grid rather than in the hand")
+        items = [one.get("item") for one in undone.get("ingredients", [])]
+        if items != [f"{NS}:{id}"]:
+            wrong.append(f"{id} comes apart out of {items}")
+        if undone.get("result", {}).get("id") != under:
+            wrong.append(f"{id} comes apart into "
+                         f"{undone.get('result', {}).get('id')} and not {under}")
+        if undone.get("result", {}).get("count", 0) != 9:
+            wrong.append(f"{id} comes apart into "
+                         f"{undone.get('result', {}).get('count')} rather than "
+                         f"nine — which is a loop that "
+                         f"{'makes' if undone.get('result', {}).get('count', 0) > 9 else 'destroys'}"
+                         f" matter every time it is run")
+    if wrong:
+        break
+if wrong:
+    fail(f"the compression recipes and the arithmetic disagree: {wrong[:3]}")
+
+# Every tier framed in its own metal. Two tiers framed the same are two tiers
+# a player miscrafts, and the mistake costs them the difference between them.
+frames = {}
+for material, tier, id in compress_ids[:compress_tiers]:
+    body = read(RES, "assets", NS, f"models/block/{id}.json")
+    if not body:
+        continue
+    textures = json.loads(body).get("textures", {})
+    frame = textures.get("frame")
+    material_face = textures.get("material")
+    if not frame or not material_face:
+        fail(f"{id} is drawn without a frame or without a face, so the tier "
+             f"cannot be read off it")
+        break
+    if frame == material_face:
+        fail(f"{id} is framed in the same thing it is made of, so it looks "
+             f"exactly like the block it compresses")
+        break
+    if frame in frames:
+        fail(f"tier {tier} and tier {frames[frame]} are both framed in {frame}, "
+             f"so a player cannot tell them apart across a room")
+        break
+    frames[frame] = tier
+if len(frames) and len(frames) != compress_tiers:
+    fail(f"{len(frames)} of {compress_tiers} tiers were checked for a frame")
+
+compress_src = squashed(strip_comments(
+    read(SRC, "registry/LogisticBlocks.java"), True))
+if "for (String material : CompressRules.MATERIALS) { for (int tier = 1; " \
+        "tier <= CompressRules.TIERS; tier++) {" not in compress_src:
+    fail("the compressions are not registered from the two lists, so a "
+         "sixtieth material is nine blocks that do not exist and nothing says so")
+if "if (made.size() != CompressRules.howMany()) { throw new IllegalStateException(" \
+        not in compress_src:
+    fail("nothing counts the compressions registered against the rules")
+if ".strength(hardness, resistance)" not in compress_src:
+    fail("a compression's hardness is not read off its tier, so the ladder the "
+         "harness proved climbs is not the ladder a player swings a pickaxe at")
+
+compress_items = squashed(strip_comments(
+    read(SRC, "registry/LogisticItems.java"), True))
+if "ITEMS.registerSimpleBlockItem(entry.getValue())" not in compress_items:
+    fail("the compressions have no items, so they are five hundred blocks only a "
+         "command can place")
+
+print(f"compression        : {len(compress_materials)} material(s) x "
+      f"{compress_tiers} tier(s) = {len(compress_ids)} block(s), every one "
+      f"compressed out of nine of the tier below and coming apart into nine "
+      f"again, and every tier framed in a different one of the game's own metals")
+
+# ---------------------------------------------------------------------------
+# Packs
+# ---------------------------------------------------------------------------
+#
+# Four jars' worth of one idea. The harness proves the arithmetic; what is
+# left for here is that every body and every part is an item a player can
+# actually get, that the ladder in the rules is the ladder in the recipes, and
+# that nothing was registered by hand beside the loop.
+
+if len(pack_bodies) != len(re.findall(r"new Body\(", pack)) \
+        or len(pack_parts) != len(re.findall(r"new Part\(", pack)):
+    fail(f"this validator read {len(pack_bodies)} body(s) and {len(pack_parts)} "
+         f"part(s) out of the pack rules and they declare more, so everything "
+         f"below is about a smaller roster than the one that ships")
+if len(pack_ids) < 8:
+    fail(f"this validator found {len(pack_ids)} packs and parts, and a check "
+         f"against a handful of the roster passes whatever is wrong with the rest")
+
+missing = []
+for name in pack_ids:
+    for where in (f"assets/{NS}/textures/item/{name}.png",
+                  f"assets/{NS}/models/item/{name}.json",
+                  f"data/{NS}/recipe/{name}.json"):
+        if not os.path.isfile(os.path.join(RES, where)):
+            missing.append(f"{name} has no {where.rsplit('/', 2)[-2]}")
+    if f"item.{NS}.{name}" not in lang:
+        missing.append(f"{name} has no name, so it is called by its id")
+if missing:
+    fail(f"{len(missing)} of {len(pack_ids) * 4} things a pack needs are missing: "
+         + ", ".join(missing[:6]))
+
+# The ladder in the recipes: every bag above the first is built out of the bag
+# below it, or the ladder is five unrelated recipes and a player with a
+# rucksack has three bags they can never use again.
+carried = [one for one in pack_bodies if one[3]]
+ladder = 0
+for at, (name, slots, fittings, _carried) in enumerate(carried):
+    body = read(RES, "data", NS, f"recipe/{name}.json")
+    if not body:
+        continue
+    key = json.loads(body).get("key", {})
+    asked = {one.get("item") for one in key.values() if isinstance(one, dict)}
+    if at == 0:
+        if any(str(one).startswith(f"{NS}:") for one in asked):
+            fail(f"the first bag is built out of {asked}, and the first rung of a "
+                 f"ladder cannot be built out of a rung")
+    else:
+        below = f"{NS}:{carried[at - 1][0]}"
+        if below not in asked:
+            fail(f"{name} is not built out of {carried[at - 1][0]}, so the bag "
+                 f"below it is a dead end and a player who made one has wasted it")
+        else:
+            ladder += 1
+if carried and ladder != len(carried) - 1:
+    fail(f"{ladder} of {len(carried) - 1} bags are built out of the bag below them")
+
+# And the same for the pockets, which are the part of the roster that has a
+# ladder at all.
+pockets = [one for one in pack_parts if one[1] == "space"]
+pockets.sort(key=lambda one: one[2])
+for at, (name, _kind, _slots) in enumerate(pockets[1:], start=1):
+    body = read(RES, "data", NS, f"recipe/{name}.json")
+    if not body:
+        continue
+    asked = {one.get("item") for one in json.loads(body).get("key", {}).values()
+             if isinstance(one, dict)}
+    if f"{NS}:{pockets[at - 1][0]}" not in asked:
+        fail(f"{name} is not built out of {pockets[at - 1][0]}, so the smaller "
+             f"pocket is a dead end")
+
+# Every kind of part drawn as its own thing. A row of identical plates down
+# the side of a bag tells a player nothing at all, and it is the one thing
+# about this roster that no amount of arithmetic can notice.
+drawn = {}
+for name, kind, slots in pack_parts:
+    where = os.path.join(RES, "assets", NS, "textures/item", name + ".png")
+    if not os.path.isfile(where):
+        continue
+    with open(where, "rb") as handle:
+        sprite = handle.read()
+    if sprite in drawn and drawn[sprite][1] != kind:
+        fail(f"{name} and {drawn[sprite][0]} are drawn exactly the same and are "
+             f"different kinds of part, so a row of them down the side of a bag "
+             f"says nothing about what is fitted")
+        break
+    drawn[sprite] = (name, kind)
+
+pack_src = squashed(strip_comments(read(SRC, "registry/LogisticItems.java"), True))
+if "for (String name : PackRules.catalogue()) {" not in pack_src:
+    fail("the packs are not registered by walking the roster, so a ninth body is "
+         "an item that does not exist and nothing says so")
+if "if (made.size() != PackRules.howMany()) { throw new IllegalStateException(" \
+        not in pack_src:
+    fail("nothing counts the packs registered against the roster they were "
+         "walked from")
+if "new Item.Properties().stacksTo(1)" not in pack_src:
+    fail("a pack stacks, so a player can put sixty-four bags in one slot and "
+         "every one of them holds what the one on top holds")
+
+print(f"what a pack holds  : {len(pack_bodies)} body(s) and {len(pack_parts)} "
+      f"part(s), every one drawn, named and craftable, every bag above the first "
+      f"built out of the bag below it, and none of them stacking")
+
+# ---------------------------------------------------------------------------
+# The devices and the logic layer
+# ---------------------------------------------------------------------------
+#
+# The harness proves the logic terminates and is typed. What is left for here
+# is that the seven devices exist as blocks a player can build, that each is
+# drawn as its own thing — a wall of identical faces tells a player nothing
+# about what their network does — and that every one of them hangs off the bus
+# it needs, so none of them is a device you can put down on its own and wonder
+# about.
+
+if len(net_devices) != len(re.findall(r"new Device\(", net)):
+    fail(f"this validator read {len(net_devices)} of "
+         f"{len(re.findall(r'new Device', net))} devices out of the rules")
+if len(net_devices) < 4 or len(net_ops) < 8:
+    fail(f"this validator found {len(net_devices)} device(s) and {len(net_ops)} "
+         f"operator(s), and a check against a handful passes whatever is wrong "
+         f"with the rest")
+
+missing = []
+for name, role, draws in net_devices:
+    for where in (f"assets/{NS}/textures/block/{name}.png",
+                  f"assets/{NS}/models/block/{name}.json",
+                  f"assets/{NS}/blockstates/{name}.json",
+                  f"assets/{NS}/models/item/{name}.json",
+                  f"data/{NS}/loot_table/blocks/{name}.json",
+                  f"data/{NS}/recipe/{name}.json"):
+        if not os.path.isfile(os.path.join(RES, where)):
+            missing.append(f"{name} has no {where.rsplit('/', 2)[-2]}")
+    if f"block.{NS}.{name}" not in lang:
+        missing.append(f"{name} has no name, so it is called by its id")
+if missing:
+    fail(f"{len(missing)} of {len(net_devices) * 7} things a device needs are "
+         f"missing: " + ", ".join(missing[:6]))
+
+# Every device drawn as its own thing, and every one of them built on a bus.
+faces = {}
+for name, role, draws in net_devices:
+    where = os.path.join(RES, "assets", NS, "textures/block", name + ".png")
+    if os.path.isfile(where):
+        with open(where, "rb") as handle:
+            sprite = handle.read()
+        if sprite in faces:
+            fail(f"{name} and {faces[sprite]} are drawn exactly the same, so a "
+                 f"wall of devices says nothing about what a network does")
+            break
+        faces[sprite] = name
+    body = read(RES, "data", NS, f"recipe/{name}.json")
+    if body:
+        asked = {one.get("item") for one in json.loads(body).get("key", {}).values()
+                 if isinstance(one, dict)}
+        if f"{NS}:bus" not in asked:
+            fail(f"{name} is not built out of a bus, so it is a device a player "
+                 f"can put down with nothing to hang it off and no way of "
+                 f"knowing why it does nothing")
+            break
+
+net_src = squashed(strip_comments(read(SRC, "registry/LogisticBlocks.java"), True))
+if "for (NetRules.Device device : NetRules.DEVICES) {" not in net_src:
+    fail("the devices are not registered by walking the roster, so an eighth is "
+         "a block that does not exist and nothing says so")
+if "if (made.size() != NetRules.howMany()) { throw new IllegalStateException(" \
+        not in net_src:
+    fail("nothing counts the devices registered against the roster")
+
+print(f"the network's face : {len(net_devices)} device(s) filling "
+      f"{len({one[1] for one in net_devices})} role(s) and {len(net_ops)} "
+      f"operator(s) in the logic layer, every device drawn as its own thing and "
+      f"every one of them built on the bus it hangs off")
 
 print("what it declares   : the game, the library, and the grid a network hangs off")
 

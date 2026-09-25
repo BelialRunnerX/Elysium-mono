@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:jungle_stool"
+    },
+    {
+      "item": "minecraft:green_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:green_jungle_stool",
+    "count": 1
+  }
+}

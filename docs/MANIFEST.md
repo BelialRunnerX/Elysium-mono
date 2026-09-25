@@ -8,27 +8,26 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 27 | DONE | an Elysium module already replaces it |
+| 62 | DONE | an Elysium module already replaces it |
+| 4 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 107 | PLANNED | has a target module, not started |
-| 8 | KEEP | stays in the pack on purpose |
-| 61 | DROP | library or performance: nothing to convert |
+| 57 | PLANNED | has a target module, not started |
+| 13 | KEEP | stays in the pack on purpose |
+| 67 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
 
 ## Work remaining, by module
 
 | module | mods to absorb |
 |---|---|
-| `elysium-atelier` | 30 |
 | `elysium-kinetics` | 19 |
-| `elysium-logistics` | 14 |
 | `elysium-atomics` | 9 |
 | `elysium-agronomy` | 8 |
 | `elysium-bestiary` | 7 |
-| `elysium-arsenal` | 6 |
-| `elysium-comforts` | 5 |
+| `elysium-comforts` | 6 |
 | `elysium-industry` | 4 |
-| `elysium-wilds` | 3 |
+| `elysium-atelier` | 3 |
+| `elysium-wilds` | 2 |
 | `elysium-arcana` | 1 |
 | `elysium-foundry` | 1 |
 
@@ -36,38 +35,38 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | jar | status | module | note |
 |---|---|---|---|
-| `[Neoforge]ctov-3.6.3.jar` | PLANNED | elysium-wilds | worldgen and finding your way about it |
-| `allthecompressed-1.21.1-4.4.0.jar` | PLANNED | elysium-logistics | storage at a distance, and compression |
+| `[Neoforge]ctov-3.6.3.jar` | DONE | elysium-wilds | six thousand nbt templates replaced by eight room grammars that lay a building out from a seed — hamlet, watchtower, camp, ruin, lodge, mine, shrine and keep, built from twelve rooms whose doors have to line up. A building is not a file any more: it is whatever the grammar reaches within its own box, so two hamlets are never the same hamlet and the same seed always lays out the same one. Proved over 80,000 buildings — every room walkable from the door, no two rooms in one place, nothing outside the box it claimed — and shipped as a real structure with its own type, piece and placement, not a datapack of templates |
+| `allthecompressed-1.21.1-4.4.0.jar` | DONE | elysium-logistics | 59 materials x 9 tiers = 531 compressions, each made of nine of the tier below and coming apart into nine again — the round trip swept over every tier, every material and every amount up to a stack, plus 60,000 random chains, because a tier worth eight or ten of the one below is a machine for destroying or making matter and nothing else in the pack survives one. No new sprite: a compression wears the face of what it is made of, in a frame of one of nine of the game's own metals, and the tier reads across a room |
 | `Almanac-1.21.1-2-neoforge-1.5.2.jar` | DROP | - | a config library letmedespawn requires |
-| `amendments-neoforge-1.21-2.1.7.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
+| `amendments-neoforge-1.21-2.1.7.jar` | KEEP | elysium-atelier | thirteen blocks and fifty-two items, every one of them a change to a block the game already has — a cake you can place facing a way, a lantern on a wall, a banner on a ceiling. Reimplementing vanilla's own blocks to add a rotation is all risk and no content; the jar stays |
 | `Apotheosis-1.21.1-8.7.0.jar` | DONE | elysium-ascendancy | loot, affixes, gems, rarities |
 | `ApothicAttributes-1.21.1-2.10.1.jar` | DONE | elysium-lib | the twenty attributes and the combat model |
 | `ApothicEnchanting-1.21.1-1.6.0.jar` | DONE | elysium-enchanting | the Arcane Table |
 | `ApothicSpawners-1.21.1-1.4.0.jar` | DONE | elysium-spawners | ownable, tunable spawners |
 | `Applied-Mekanistics-1.6.3.jar` | PLANNED | elysium-atomics | chemical storage in the network |
-| `appliedenergistics2-19.2.17.jar` | PLANNED | elysium-logistics | autocrafting is done — core, assemblers, terminal, and a planner that orders what it costs; digital storage in types rather than blocks is not |
+| `appliedenergistics2-19.2.17.jar` | DONE | elysium-logistics | its devices folded onto the flat network; its channels, cable tiers, P2P tunnels and spatial storage deliberately deleted, and docs/CONVERSION.md section 10 says so plainly rather than leaving it to be discovered |
 | `Aquaculture-1.21.1-2.7.21.jar` | PLANNED | elysium-agronomy | fishing: covered by the same 105-fish roster; the fish mounts, tackle box, worm farm and neptunium gear do not exist |
 | `architectury-13.0.11-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `athena-neoforge-1.21.1-4.0.6.jar` | DROP | - | library: goes when the mods needing it go |
 | `azurelib-neo-1.21.1-3.1.11.jar` | DROP | - | library: goes when the mods needing it go |
 | `balm-neoforge-1.21.1-21.0.64.jar` | DROP | - | library: goes when the mods needing it go |
-| `beautify-neoforge-1.21.1-2.0.2.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
-| `bellsandwhistles-0.4.7-1.21.1.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
-| `betterarcheology-neoforge-1.21.1-1.3.8.jar` | PLANNED | elysium-arsenal | digging things up, which needs somewhere to dig before it needs a tool |
-| `bf_blockpack-neoforge-1.21.1-1.0.11.jar` | PLANNED | elysium-atelier | building and decoration |
+| `beautify-neoforge-1.21.1-2.0.2.jar` | DONE | elysium-atelier | blinds, trellises, rope you can climb, panelling and picture frames in every material, the rope and the trellis in the game's own climbable tag so a player goes up them rather than sliding down |
+| `bellsandwhistles-0.4.7-1.21.1.jar` | SPLIT | elysium-atelier | train and station fittings, which belong where the trains are. See docs/SPLITS.md |
+| `betterarcheology-neoforge-1.21.1-1.3.8.jar` | DONE | elysium-arsenal | three brushes on a ladder that never becomes fast, sites whose contents are a function of where they are rather than a roll a player can repeat, seven fossils in halves worth pairing, three artefacts none of which is a worse version of another, two sorts of totem that stay two sorts, and the rotten and cracked-mud sets |
+| `bf_blockpack-neoforge-1.21.1-1.0.11.jar` | KEEP | elysium-atelier | its shapes are built — vertical slabs, columns, beams, shutters, guardrails, awnings, ladders, panelling, frames; what is left is 800 blocks of retexture, which is the decision in docs/CONVERSION.md section 9 |
 | `blockui-1.0.209-1.21.1.jar` | KEEP | elysium-colonies | MineColonies' own dependencies |
 | `blueprint-1.21.1-8.1.1.jar` | DROP | - | library: goes when the mods needing it go |
 | `bookshelf-neoforge-1.21.1-21.1.81.jar` | DROP | - | library: goes when the mods needing it go |
 | `born_in_chaos_[Neoforge]_1.21.1_1.7.6.jar` | PLANNED | elysium-bestiary | nine hostile beasts exist on a proved reward ladder; their catalogues (dozens of mobs each, bosses, their own gear and items) do not |
 | `botanypots-neoforge-1.21.1-21.1.44.jar` | PLANNED | elysium-agronomy | pots: 165 working pots across 55 materials, all three fittings, four growth stages, 14 soils and 28 sprouts as data. Its 183 blocks come from 61 materials, so six of its materials are not covered |
-| `Chimes-v2.1.1-1.21.1-NeoForge.jar` | PLANNED | elysium-atelier | building and decoration |
-| `chipped-neoforge-1.21.1-4.0.2.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
+| `Chimes-v2.1.1-1.21.1-NeoForge.jar` | PLANNED | elysium-comforts | moved to elysium-comforts: five blocks whose whole content is an ambient sound, which is what that module is for |
+| `chipped-neoforge-1.21.1-4.0.2.jar` | KEEP | elysium-atelier | 250 cosmetic texture variants per block; replacing it needs a retexture generator, which this project has deliberately not built. See docs/CONVERSION.md section 9 — the user's call |
 | `cloth-config-15.0.140-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
-| `Clothing_Of_The_Lowlands-1.0.8-neoforge-1.21.1.jar` | PLANNED | elysium-atelier | building and decoration |
-| `cluttered-[NeoForge]-3.0.3-1.21.1.jar` | PLANNED | elysium-atelier | building and decoration |
+| `Clothing_Of_The_Lowlands-1.0.8-neoforge-1.21.1.jar` | KEEP | elysium-atelier | 112 cosmetic garments, every one of them a texture and nothing else; the same retexture decision |
+| `cluttered-[NeoForge]-3.0.3-1.21.1.jar` | KEEP | elysium-atelier | its shapes are built; what is left is new stone and wood types and sixteen colours of wallpaper, which is the same retexture decision |
 | `cobblegengalore-1.21.1-0.2.9.jar` | DONE | elysium-agronomy | seven generators, one per vein, each making its own material at a rate held under a share of what mining it is worth |
 | `comforts-neoforge-9.0.5+1.21.1.jar` | PLANNED | elysium-comforts | quality of life |
-| `commoncapabilities-1.21.1-neoforge-2.11.5.jar` | PLANNED | elysium-logistics | network logic |
+| `commoncapabilities-1.21.1-neoforge-2.11.5.jar` | DROP | elysium-logistics | a capability library for the same, and the game's own capabilities are what this module already runs on |
 | `configuration-neoforge-1.21.1-3.1.1.jar` | DROP | - | library: goes when the mods needing it go |
 | `copycats-3.0.4+mc.1.21.1-neoforge.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
 | `create-1.21.1-6.0.10.jar` | PLANNED | elysium-kinetics | Age I: rotation, stress, contraptions |
@@ -89,25 +88,25 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `cristellib-neoforge-1.21.1-3.1.7.jar` | DROP | - | library: goes when the mods needing it go |
 | `Cucumber-1.21.1-8.0.16.jar` | DROP | - | library: goes when the mods needing it go |
 | `curios-neoforge-9.5.1+1.21.1.jar` | KEEP | elysium-trinkets | bundled inside elysium-all (jar-in-jar) |
-| `cyclopscore-1.21.1-neoforge-1.29.2.jar` | PLANNED | elysium-logistics | network logic |
+| `cyclopscore-1.21.1-neoforge-1.29.2.jar` | DROP | elysium-logistics | a library the logic layer above needed and ours does not; nothing in it is content a player obtains |
 | `dankstorage-neoforge-1.21.1-20.jar` | DONE | elysium-logistics | three drawer tiers, a bus, and a controller that indexes the lot |
-| `Design-n-Decor-1.21.1-2.2b.jar` | PLANNED | elysium-atelier | building and decoration |
-| `DiagonalFences-v21.1.1-1.21.1-NeoForge.jar` | PLANNED | elysium-atelier | building and decoration |
-| `DiagonalWalls-v21.1.2-1.21.1-NeoForge.jar` | PLANNED | elysium-atelier | building and decoration |
-| `DiagonalWindows-v21.1.1-1.21.1-NeoForge.jar` | PLANNED | elysium-atelier | building and decoration |
-| `DnDesires-1.21.1-2.3a-BETA.jar` | PLANNED | elysium-atelier | building and decoration |
+| `Design-n-Decor-1.21.1-2.2b.jar` | SPLIT | elysium-atelier | a machine shop and a paint shop in one jar: the machinery to kinetics, the rest the retexture decision. See docs/SPLITS.md |
+| `DiagonalFences-v21.1.1-1.21.1-NeoForge.jar` | DONE | elysium-atelier | diagonal fences in 33 materials, in the game's own fence tag so an ordinary fence meets one, each an unbroken run of overlapping boxes corner to corner and through the middle where a fence post stands — proved by flood fill, because two boxes meeting at a corner do not meet and it looks like a rail from every angle |
+| `DiagonalWalls-v21.1.2-1.21.1-NeoForge.jar` | DONE | elysium-atelier | diagonal walls in 33 materials, in the game's own wall tag, built and proved the same way as the fences |
+| `DiagonalWindows-v21.1.1-1.21.1-NeoForge.jar` | DONE | elysium-atelier | diagonal panes in 33 materials, the thinnest of the three runs, so a glazed wall can leave the grid |
+| `DnDesires-1.21.1-2.3a-BETA.jar` | DONE | elysium-atelier | cushions, curtains and panelling in the eleven materials a hand can work, and frames, trellises and board walls in all 33 |
 | `domum-ornamentum-1.0.231-main.jar` | KEEP | elysium-colonies | MineColonies' own dependencies |
-| `DustyDecorations_1.21.1Neoforge_V1.13.jar` | PLANNED | elysium-atelier | building and decoration |
+| `DustyDecorations_1.21.1Neoforge_V1.13.jar` | DONE | elysium-atelier | quoins, banisters, cushions, curtains, board walls and panelling in 33 materials, priced off their own models so none of them is a way of turning two blocks into three |
 | `easy-villagers-neoforge-1.21.1-1.1.42.jar` | PLANNED | elysium-comforts | a villager can be carried, with its whole ledger and its restock clock intact; the trading station, breeder, converter, incubator, farmer and iron farm are not started |
 | `elysium-all-1.0.0.jar` | DONE | - | ours already |
 | `elysiumcolonies-1.0.0.jar` | DONE | - | ours already |
-| `enderchests-neoforge-1.21.1-1.0.jar` | PLANNED | elysium-logistics | storage at a distance, and compression |
+| `enderchests-neoforge-1.21.1-1.0.jar` | DONE | elysium-logistics | the ender link: two of them join networks that are nowhere near each other, at four times an ordinary device's draw |
 | `entity_model_features-3.2.4-1.21-neoforge.jar` | DROP | - | performance: not content |
 | `entity_texture_features_1.21-neoforge-7.1.jar` | DROP | - | performance: not content |
 | `entityculling-neoforge-1.10.5-mc1.21.1.jar` | DROP | - | performance: not content |
 | `envelope-neoforge-1.21.1-0.7.3.jar` | PLANNED | elysium-comforts | quality of life |
-| `everycomp-1.21-2.11.48-neoforge.jar` | PLANNED | elysium-atelier | building and decoration |
-| `ExtendedAE-1.21-2.2.35-neoforge.jar` | PLANNED | elysium-logistics | autocrafting is done — core, assemblers, terminal, and a planner that orders what it costs; digital storage in types rather than blocks is not |
+| `everycomp-1.21-2.11.48-neoforge.jar` | DROP | elysium-atelier | makes one mod's shapes out of another's materials; moot once both are ours, because that crossing is what this module already is |
+| `ExtendedAE-1.21-2.2.35-neoforge.jar` | DONE | elysium-logistics | more devices for a model this pack does not have; what it adds that is content rather than channel management is on the flat network |
 | `ExtremeReactors2-1.21.1-2.4.28.jar` | PLANNED | elysium-atomics | multiblock reactors |
 | `fangs_n_claws-1.2.2.jar` | PLANNED | elysium-bestiary | nine hostile beasts exist on a proved reward ladder; their catalogues (dozens of mobs each, bosses, their own gear and items) do not |
 | `FarmersDelight-1.21.1-1.3.2.jar` | PLANNED | elysium-agronomy | cooking: 29 meals across four stations with 11 effects, 24 ingredients, 13 knife cuts, 5 knives and 25 blocks, none of them dominated. Its canvas signs, mushroom colonies, rice paddies and wild crops do not exist |
@@ -118,18 +117,18 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `ftb-library-neoforge-2101.1.35.jar` | DROP | - | library: goes when the mods needing it go |
 | `ftb-ultimine-neoforge-2101.1.15.jar` | DROP | - | interface and convenience: not content |
 | `functionalstorage-1.21.1-1.5.8.jar` | DONE | elysium-logistics | three drawer tiers, a bus, and a controller that indexes the lot |
-| `fusion-1.3.12-neoforge-mc1.21.1.jar` | PLANNED | elysium-atelier | building and decoration |
+| `fusion-1.3.12-neoforge-mc1.21.1.jar` | DROP | elysium-atelier | connected textures: a client-side rendering feature, not content a player obtains |
 | `fzzy_config-0.7.6+1.21+neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `geckolib-neoforge-1.21.1-4.9.2.jar` | DROP | - | library: goes when the mods needing it go |
 | `GeOre-1.21.1-6.2.2.jar` | DONE | elysium-arcana | geodes: 210 blocks and 60 items across 30 materials — 20 the foundry mines and 10 the game digs up — each with a whole growth chain. NOT yet removable: oritech ships compat recipes naming geore items, so the third pre-check fails until those are handled |
 | `Glodium-1.21-2.2-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `gravestone-neoforge-1.21.1-1.0.38.jar` | DONE | elysium-comforts | a grave sized to what a player was actually carrying, so nothing an inventory mod added is lost |
 | `guideme-21.1.17.jar` | DROP | - | library: goes when the mods needing it go |
-| `handcrafted-neoforge-1.21.1-4.0.3.jar` | PLANNED | elysium-atelier | the core twelve shapes exist; the rest of their catalogues (beds, couches, counters, sinks, cupboards, drawers) do not |
+| `handcrafted-neoforge-1.21.1-4.0.3.jar` | DONE | elysium-atelier | the twenty-four furniture shapes in 33 materials, and now upholstered in sixteen colours as well: benches, chairs, stools, tables, shelves, cabinets, counters, sinks, stoves, wardrobes, drawers, nightstands, desks, planters, troughs, racks, screens and posts |
 | `ImmediatelyFast-NeoForge-1.6.11+1.21.1.jar` | DROP | - | performance: not content |
 | `ImmersiveEngineering-1.21.1-12.4.2-194.jar` | PLANNED | elysium-industry | Age II: the Reconstruction |
 | `industrialforegoing-1.21-3.6.39.jar` | PLANNED | elysium-atomics | bulk automation: the machines that do a farm's work |
-| `integrateddynamics-1.21.1-neoforge-1.34.0.jar` | PLANNED | elysium-logistics | network logic |
+| `integrateddynamics-1.21.1-neoforge-1.34.0.jar` | DONE | elysium-logistics | a logic layer of nineteen operators over four types, typed before it is run so a player who asks the network to add a number to a chest finds out when they write it rather than when a tick throws — and an expression cannot loop, because an arrow that points forwards is not a legal expression at all |
 | `interiors-1.21.1-neoforge-0.6.1.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
 | `invtweaks-1.21.1-1.3.2.jar` | DROP | - | interface and convenience: not content |
 | `iris-neoforge-1.8.14-beta.1+mc1.21.1.jar` | DROP | - | performance: not content |
@@ -144,16 +143,16 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `lithium-neoforge-0.15.4+mc1.21.1.jar` | DROP | - | performance: not content |
 | `lithostitched-1.7.13-neoforge-21.1.jar` | DROP | - | library: goes when the mods needing it go |
 | `lootr-neoforge-1.21.1-1.11.38.123.jar` | DONE | elysium-comforts | every player their own roll of a loot container, derived rather than remembered |
-| `mcw-bridges-3.1.2-mc1.21.1neoforge.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
-| `mcw-doors-1.1.5-mc1.21.1neoforge.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
-| `mcw-furniture-3.4.1-mc1.21.1neoforge.jar` | PLANNED | elysium-atelier | the core twelve shapes exist; the rest of their catalogues (beds, couches, counters, sinks, cupboards, drawers) do not |
-| `mcw-lights-1.1.5-mc1.21.1neoforge.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
-| `mcw-mcwfences-1.2.1-mc1.21.1neoforge.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
-| `mcw-mcwpaths-1.1.1-mc1.21.1neoforge.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
-| `mcw-mcwstairs-1.0.2-mc1.21.1neoforge.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
-| `mcw-mcwwindows-2.4.2-mc1.21.1neoforge.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
-| `mcw-roofs-2.3.2-mc1.21.1neoforge.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
-| `mcw-trapdoors-1.1.5-mc1.21.1neoforge.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
+| `mcw-bridges-3.1.2-mc1.21.1neoforge.jar` | DONE | elysium-atelier | deck, rail and support in 33 materials, the rail joining symmetrically the way the game's own panes do |
+| `mcw-doors-1.1.5-mc1.21.1neoforge.jar` | DONE | elysium-atelier | doors in every material the game has none of, with their tags derived rather than typed |
+| `mcw-furniture-3.4.1-mc1.21.1neoforge.jar` | DONE | elysium-atelier | twelve furniture shapes in 33 materials, priced in eighths of a block so that no chain of crafting and breaking comes back with more than it started with |
+| `mcw-lights-1.1.5-mc1.21.1neoforge.jar` | DONE | elysium-atelier | a four-rung light ladder in 33 materials, each rung brighter and dearer than the last, topping out at the game's own ceiling |
+| `mcw-mcwfences-1.2.1-mc1.21.1neoforge.jar` | DONE | elysium-atelier | fences and gates in every material the game has none of, joining proved symmetric over every pair |
+| `mcw-mcwpaths-1.1.1-mc1.21.1neoforge.jar` | DONE | elysium-atelier | paths, borders and steps in 33 materials, every one proved thinner than a slab |
+| `mcw-mcwstairs-1.0.2-mc1.21.1neoforge.jar` | DONE | elysium-atelier | five ways up in 33 materials — compact, loft, terrace, skyline and bulk — plus balconies, railings and platforms, every one of them proved walkable without jumping rather than merely stair-shaped |
+| `mcw-mcwwindows-2.4.2-mc1.21.1neoforge.jar` | DONE | elysium-atelier | panes in all 33 materials, plus sills, awnings and cornices |
+| `mcw-roofs-2.3.2-mc1.21.1neoforge.jar` | DONE | elysium-atelier | two pitches of roof in 33 materials, each with the slope, outer corner, valley and ridge without which a roof cannot be closed — a property of the set that is invisible in any one block |
+| `mcw-trapdoors-1.1.5-mc1.21.1neoforge.jar` | DONE | elysium-atelier | trapdoors in every material the game has none of, with their tags derived rather than typed |
 | `Mekanism-1.21.1-10.7.19.85.jar` | PLANNED | elysium-atomics | Age III: chemistry and fission |
 | `MekanismGenerators-1.21.1-10.7.19.85.jar` | PLANNED | elysium-atomics | Age III: chemistry and fission |
 | `MekanismTools-1.21.1-10.7.19.85.jar` | PLANNED | elysium-atomics | Age III: chemistry and fission |
@@ -161,13 +160,13 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `mob_grinding_utils-1.1.10+mc1.21.1.jar` | PLANNED | elysium-bestiary | farming infrastructure rather than creatures - fans, saws, spawner tooling; it is filed here because it is about mobs and belongs with whatever ends up owning automation of them |
 | `mobs_of_mythology-neoforge-1.21.1-3.0.0.jar` | PLANNED | elysium-bestiary | nine hostile beasts exist on a proved reward ladder; their catalogues (dozens of mobs each, bosses, their own gear and items) do not |
 | `modernfix-neoforge-5.27.20+mc1.21.1.jar` | DROP | - | performance: not content |
-| `modular_backpacks-0.2.7.jar` | PLANNED | elysium-logistics | upgradeable containers |
+| `modular_backpacks-0.2.7.jar` | DONE | elysium-logistics | five bags and three crates, ten parts in eight kinds, and one part system for both — capacity is the sum of what is fitted and never more, no part goes in twice, no bag goes inside a bag, and pulling a space upgrade out of a full bag is refused rather than quietly shrinking it, which is what every mod of this kind does instead |
 | `moonlight-1.21.1-3.3.3-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `MouseTweaks-neoforge-mc1.21-2.26.1.jar` | DROP | - | interface and convenience: not content |
 | `multipiston-1.2.58-1.21.1.jar` | KEEP | elysium-colonies | MineColonies' own dependencies |
 | `MysticalAgradditions-1.21.1-8.0.14.jar` | PLANNED | elysium-agronomy | growing resources: the tier-6 crops and insanium are not started |
 | `MysticalAgriculture-1.21.1-8.0.27.jar` | PLANNED | elysium-agronomy | growing resources: 30 seeds across 5 rungs, one per material the ground gives you, with a chunk item for the 17 the foundry makes ingots of. No seed grows an alloy, which is checked against the foundry's own list. Its tools, armour, awakening altars and augments do not exist |
-| `mythsandlegends-0.0.8.6.jar` | PLANNED | elysium-arsenal | six melee kinds in six tiers exist, none beaten on every axis by another; uniques that carry abilities do not |
+| `mythsandlegends-0.0.8.6.jar` | DONE | elysium-arsenal | 24 named weapons smithed from their own shape and tier, carrying abilities priced by the shared library, none over its tier's band |
 | `naturalist-2.0.2-neoforge-1.21.1.jar` | PLANNED | elysium-bestiary | passive fauna, ambience and a field guide; the bestiary is hostile mobs only and has nothing that does not attack you |
 | `NaturesCompass-1.21.1-3.4.0-neoforge.jar` | DONE | elysium-wilds | a biome compass with a needle and a list you type into, on one bounded search that costs the same for anything; no adjustable radius, on purpose |
 | `OctoLib-NEOFORGE-0.6.2+1.21.jar` | DROP | - | library: goes when the mods needing it go |
@@ -188,8 +187,8 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `puffish_skills-0.18.3-1.21-neoforge.jar` | KEEP | elysium-core | the skill tree ships as a datapack for it |
 | `PuzzlesLib-v21.1.52-1.21.1-NeoForge.jar` | DROP | - | library: goes when the mods needing it go |
 | `Quark-4.1-482.jar` | PLANNED | elysium-wilds | split: worldgen here, deco to atelier |
-| `refinedstorage-neoforge-2.0.9.jar` | PLANNED | elysium-logistics | the simpler network |
-| `Reforged-1.21.1-1.1.0-NeoForge.jar` | PLANNED | elysium-arsenal | three smithing hammers - an upgrade mechanic rather than weapons, read out of the jar rather than guessed from the name |
+| `refinedstorage-neoforge-2.0.9.jar` | DONE | elysium-logistics | the network model this module keeps: flat, no channels, a controller and a bus. Importer, exporter, storage bus, monitor, detector and interface are the seven faces it reaches the world through, each a stated draw on the grid so a warehouse is a load you power rather than a layout you solve. See docs/CONVERSION.md section 10 |
+| `Reforged-1.21.1-1.1.0-NeoForge.jar` | DONE | elysium-arsenal | 45 grades across 5 kinds of gear and 3 hammers that roll them; the gamble proved to spoil more often than it improves, to pay 0.4% a roll, and to have no grade worth as much as the smallest step up the weapon ladder |
 | `relics-1.21.1-0.12.8.jar` | PLANNED | elysium-arcana | relics: 30 relics across 8 slots, carrying all 30 abilities of the shared ability system now in elysium-lib — the same system the arsenal's uniques will use. Its 17 entities (the summons and projectiles the actives throw) do not exist yet |
 | `resourcefulconfig-neoforge-1.21-3.0.11.jar` | DROP | - | library: goes when the mods needing it go |
 | `resourcefullib-neoforge-1.21-3.0.12.jar` | DROP | - | library: goes when the mods needing it go |
@@ -202,23 +201,23 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `simplest_hammers-1.21.1-1.2.0.jar` | DONE | elysium-arsenal | hammer, excavator, scythe and paxel in six tiers, each proved slower than the tool it replaces on one block and faster over nine |
 | `simplest_paxels-1.21.1-1.0.6.jar` | DONE | elysium-arsenal | hammer, excavator, scythe and paxel in six tiers, each proved slower than the tool it replaces on one block and faster over nine |
 | `simplest_scythes-1.21.1-1.1.0.jar` | DONE | elysium-arsenal | hammer, excavator, scythe and paxel in six tiers, each proved slower than the tool it replaces on one block and faster over nine |
-| `SimplyBows-neoforge-0.1.2.jar` | PLANNED | elysium-arsenal | bows with effects; nothing in the module is ranged |
-| `simplyswords-neoforge-1.63.0-1.21.1.jar` | PLANNED | elysium-arsenal | six melee kinds in six tiers exist, none beaten on every axis by another; uniques that carry abilities do not |
+| `SimplyBows-neoforge-0.1.2.jar` | DONE | elysium-arsenal | 36 bows in 6 kinds, each owning exactly one corner of six axes, with draw frames, and 12 kinds of ammunition whose effects are read off the item so a skeleton or a dispenser firing one works too |
+| `simplyswords-neoforge-1.63.0-1.21.1.jar` | DONE | elysium-arsenal | 24 named weapons smithed from their own shape and tier, carrying abilities priced by the shared library, none over its tier's band |
 | `SimplyTooltips-neoforge-0.1.3.jar` | PLANNED | elysium-comforts | quality of life |
 | `sliceanddice-4.3.3-neoforge.jar` | PLANNED | elysium-kinetics | Create addon: folds into Age I |
 | `SmartBrainLib-neoforge-1.21.1-1.16.11.jar` | DROP | - | library: goes when the mods needing it go |
 | `sodium-neoforge-0.8.12+mc1.21.1.jar` | DROP | - | performance: not content |
 | `solcarrot-1.21.1-1.16.6.jar` | DONE | elysium-agronomy | a varied diet: thirty different foods for ten hearts, kept as a set so eating the same thing twice counts once, surviving death, applied as one attribute modifier that replaces itself, and a book that reads it |
-| `sophisticatedbackpacks-1.21.1-3.25.74.2056.jar` | PLANNED | elysium-logistics | upgradeable containers |
-| `sophisticatedbackpackscreateintegration-1.21.1-0.1.8.134.jar` | PLANNED | elysium-logistics | upgradeable containers |
-| `sophisticatedcore-1.21.1-1.4.84.2248.jar` | PLANNED | elysium-logistics | upgradeable containers |
-| `sophisticatedstorage-1.21.1-1.5.85.2071.jar` | PLANNED | elysium-logistics | upgradeable containers |
-| `sophisticatedstoragecreateintegration-1.21.1-0.1.21.209.jar` | PLANNED | elysium-logistics | upgradeable containers |
+| `sophisticatedbackpacks-1.21.1-3.25.74.2056.jar` | DONE | elysium-logistics | the carried half of the same part system: gathering, voiding, feeding, cooking, pressing, restocking and sieving, fitted to a bag rather than reimplemented for one |
+| `sophisticatedbackpackscreateintegration-1.21.1-0.1.8.134.jar` | DROP | elysium-logistics | a shim between two jars that are now both ours; the crossing it makes is a loop over two of our own rosters |
+| `sophisticatedcore-1.21.1-1.4.84.2248.jar` | DONE | elysium-logistics | the shared part system itself, which is what this jar is and why it is one line in PackRules rather than a library |
+| `sophisticatedstorage-1.21.1-1.5.85.2071.jar` | DONE | elysium-logistics | the placed half: crate, strongbox and vault take the same parts a bag does, which is the thing the two jars it replaces never shared |
+| `sophisticatedstoragecreateintegration-1.21.1-0.1.21.209.jar` | DROP | elysium-logistics | the same shim for the placed half, moot for the same reason |
 | `stonezone-1.21-2.11.17-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `StorageDrawers-neoforge-1.21.1-13.11.4.jar` | DONE | elysium-logistics | three drawer tiers, a bus, and a controller that indexes the lot |
 | `Stronger Skill Tree.jar` | DONE | elysium-core | our own tree, shipped in the jar |
 | `structurize-1.0.832-1.21.1.jar` | KEEP | elysium-colonies | MineColonies' own dependencies |
-| `supplementaries-1.21.1-3.8.8-neoforge.jar` | PLANNED | elysium-atelier | doors, trapdoors, gates, fences and panes exist in the materials the game lacks them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do not |
+| `supplementaries-1.21.1-3.8.8-neoforge.jar` | SPLIT | elysium-atelier | four mods in a trench coat: fittings here, machines to logistics, comforts to comforts. See docs/SPLITS.md |
 | `tfmg-1.2.2.jar` | PLANNED | elysium-industry | heavy industry, oil and steel |
 | `tide-neoforge-1.21.1-2.1.1.jar` | PLANNED | elysium-agronomy | fishing: 105 fish with items, buckets, eggs, five rods and a bait per habitat exist; bobbers, hooks and the fishing blocks do not |
 | `titanium-1.21-4.0.43.jar` | DROP | - | library: goes when the mods needing it go |
@@ -227,10 +226,10 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `trmt-0.5.1-1.21.1-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `UnionLib-1.21.1-13.0-NeoForge.jar` | DROP | - | library: goes when the mods needing it go |
 | `valhelsia_core-neoforge-1.21.1-1.1.5.jar` | DROP | - | library: goes when the mods needing it go |
-| `valhelsia_furniture-neoforge-1.21.1-1.1.1.jar` | PLANNED | elysium-atelier | building and decoration |
-| `Valoria-1.21.1-1.0.4.2.jar` | PLANNED | elysium-arsenal | the Vale: gear, creatures, charms and a realm, split by kind across arsenal, bestiary, trinkets and wilds |
+| `valhelsia_furniture-neoforge-1.21.1-1.1.1.jar` | DONE | elysium-atelier | sixteen dye colours crossed with eleven woods and three seats — 528 upholstered chairs, stools and benches, each this module's own seat with its cushion and back drawn in the game's own wool, plus drapes, canopies, pillows and runners in every colour |
+| `Valoria-1.21.1-1.0.4.2.jar` | SPLIT | - | four mods in a trench coat: 17 material sets, 50 entities, a dimension with 15 biomes and 22 structures, a curio slot, 17 effects and 18 attributes. Split into units in docs/SPLITS.md |
 | `waystones-neoforge-1.21.1-21.1.40.jar` | DONE | elysium-transit | bind, jump, and a price the grid pays; sits beside the waygate rather than replacing it |
-| `woodworks-1.21.1-4.0.2.jar` | PLANNED | elysium-atelier | building and decoration |
+| `woodworks-1.21.1-4.0.2.jar` | DONE | elysium-atelier | ladders, board walls and panelling in every wood the game has none of, the ladders cut on a stonecutter one block at a time |
 | `wwoo-neoforge-2.6.7.jar` | PLANNED | elysium-wilds | worldgen and finding your way about it |
 | `xaerominimap-neoforge-1.21.1-26.4.2.jar` | DROP | - | interface and convenience: not content |
 | `xaeroworldmap-neoforge-1.21.1-1.44.2.jar` | DROP | - | interface and convenience: not content |

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:compressed_nether_bricks"
+    }
+  ],
+  "result": {
+    "id": "minecraft:nether_bricks",
+    "count": 9
+  }
+}

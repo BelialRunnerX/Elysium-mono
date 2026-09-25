@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MM "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:sandstone"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:sandstone_drawers",
+    "count": 4
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "elysiumatelier:block/stone_ladder",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "elysiumatelier:block/stone_ladder"
+    },
+    "facing=south": {
+      "model": "elysiumatelier:block/stone_ladder",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumatelier:block/stone_ladder",
+      "y": 270
+    }
+  }
+}

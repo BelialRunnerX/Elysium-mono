@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "MBM",
+    "MCM",
+    "MBM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "elysiumlogistics:bus"
+    },
+    "C": {
+      "item": "minecraft:dropper"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:exporter",
+    "count": 1
+  }
+}

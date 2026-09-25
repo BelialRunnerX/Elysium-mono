@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "minecraft:jungle_planks"
+  },
+  "result": {
+    "id": "elysiumatelier:jungle_vertical_slab",
+    "count": 2
+  }
+}

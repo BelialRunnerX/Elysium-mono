@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:nonuple_compressed_gravel"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:octuple_compressed_gravel",
+    "count": 9
+  }
+}

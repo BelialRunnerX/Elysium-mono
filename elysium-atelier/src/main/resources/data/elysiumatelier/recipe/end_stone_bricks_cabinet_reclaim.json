@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:end_stone_bricks_cabinet"
+    }
+  ],
+  "result": {
+    "id": "minecraft:end_stone_bricks",
+    "count": 1
+  }
+}

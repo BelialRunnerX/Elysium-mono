@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/netherite_recurve",
+  "textures": {
+    "layer0": "elysiumarsenal:item/netherite_recurve_pulling_1"
+  }
+}

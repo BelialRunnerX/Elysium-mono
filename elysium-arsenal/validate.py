@@ -174,7 +174,13 @@ for name in sorted(os.listdir(PURE)) if os.path.isdir(PURE) else []:
             fail(f"rules/{name} reaches for {forbidden}; the rules are the JDK alone, "
                  f"so a harness can sweep a thousand tool speeds without a game")
     for used in re.findall(r"import\s+(com\.elysium\.[\w.]+);", without_package):
-        fail(f"rules/{name} imports {used}; the rules are the JDK alone")
+        # The library's ability roster is the exception, and only it. The
+        # uniques are priced by the same arithmetic the relics are, and a
+        # second copy of that arithmetic here is a second copy that drifts.
+        if used.startswith("com.elysium.lib."):
+            continue
+        fail(f"rules/{name} imports {used}; the rules are the JDK alone, except for "
+             f"the library's own pure arithmetic")
 
 if not os.path.isfile(HARNESS):
     fail("there is no harness, so whether a tool sits inside the band is an opinion")
@@ -183,8 +189,14 @@ else:
         staged = os.path.join(tmp, "src")
         os.makedirs(staged)
         sources = [os.path.join(PURE, n) for n in os.listdir(PURE) if n.endswith(".java")]
-        for source in sources + [HARNESS, os.path.join(WORK,
-                                                       "tools/WeaponHarness.java")]:
+        for source in sources + [HARNESS,
+                                 os.path.join(WORK, "tools/WeaponHarness.java"),
+                                 os.path.join(WORK, "tools/RangedHarness.java"),
+                                 os.path.join(WORK, "tools/ForgeHarness.java"),
+                                 os.path.join(WORK, "tools/DigHarness.java"),
+                                 os.path.join(ROOT, "elysium-lib/src/main/java/"
+                                              "com/elysium/lib/ability/"
+                                              "ElysiumAbilityRules.java")]:
             open(os.path.join(staged, os.path.basename(source)), "w",
                  encoding="utf-8").write(read(source))
         compiled = subprocess.run(
@@ -197,7 +209,13 @@ else:
         else:
             for main, label in ((HARNESS_MAIN, "the arithmetic     "),
                                 ("com.elysium.arsenal.rules.WeaponHarness",
-                                 "the weapons        ")):
+                                 "the weapons        "),
+                                ("com.elysium.arsenal.rules.RangedHarness",
+                                 "the bows           "),
+                                ("com.elysium.arsenal.rules.ForgeHarness",
+                                 "reforging          "),
+                                ("com.elysium.arsenal.rules.DigHarness",
+                                 "the digging        ")):
                 try:
                     ran = subprocess.run(
                         ["java", "-cp", os.path.join(tmp, "out"), main],
@@ -418,18 +436,6 @@ for tier in tiers:
 # thirty-six weapon models were held flat, because nothing had ever looked at
 # them — which is the same shape as every other bug in this repository: the
 # check was right about what it looked at and looked at one thing.
-models = os.path.join(RES, "assets", NS, "models/item")
-flat = []
-for name in sorted(os.listdir(models)) if os.path.isdir(models) else []:
-    if not name.endswith(".json"):
-        continue
-    if '"parent": "item/handheld"' not in read(models, name):
-        flat.append(name[:-5])
-for name in flat[:8]:
-    fail(f"{name} is not held like a tool, so it lies flat in a player's hand")
-if len(flat) > 8:
-    fail(f"...and {len(flat) - 8} more that lie flat")
-
 print(f"the catalogue      : {len(tiers) * len(shapes)} tool(s), every one drawn, "
       f"modelled, named and built out of the vanilla tool it replaces")
 
@@ -557,6 +563,576 @@ if "if (made.size() != WeaponRules.catalogue().size()) {" not in registering:
 
 print("the weapons        : none of them beaten on every axis by another, each the best "
       "at something, and the piercing half split at the source rather than added on top")
+
+# Three kinds of model, and each has to be the right one. A tool or a melee
+# weapon is held; a bow has its own held pose and its own draw frames; an
+# arrow and a template lie flat, which is correct for them and wrong for
+# everything else. Checking one file passed happily while thirty-six weapon
+# models were held flat, because nothing had ever looked at them.
+models = os.path.join(RES, "assets", NS, "models/item")
+bow_shapes = set(re.findall(r'new Bow\("([a-z_]+)"',
+                            strip_comments(read(PURE, "RangedRules.java"), True)))
+# The one declaration of the tiers, which WeaponRules and RangedRules both
+# alias. Reading it from the aliases would find "ArsenalRules.TIERS" and no
+# tiers at all, and a set of no ids makes every check below vacuous.
+bow_ids = {f"{tier}_{shape}" for tier in tiers for shape in bow_shapes}
+unique_rows = re.findall(r'unique\("([a-z_]+)", "([a-z_]+)", "([a-z]+)"',
+                         strip_comments(read(PURE, "UniqueRules.java"), True))
+for id, shape, _ in unique_rows:
+    if shape in bow_shapes:
+        bow_ids.add(id)
+flat_on_purpose = {f"{name}" for name, _, bolt in re.findall(
+    r'new Shot\("([a-z_]+)", ([\d.]+)F, "[a-z]*", (true|false)\)',
+    strip_comments(read(PURE, "RangedRules.java"), True))}
+flat_on_purpose.add("legend_sigil")
+
+
+# ---------------------------------------------------------------------------
+# The bows, their ammunition, and the twenty-four that have names
+# ---------------------------------------------------------------------------
+#
+# The arithmetic above is about whether the set is worth having. This is about
+# whether it is in the game at all: every one of them drawn, modelled, named,
+# craftable, registered, counted, and — for the bows — able to animate a draw.
+
+ranged_src = strip_comments(read(PURE, "RangedRules.java"), True)
+shot_rows = re.findall(
+    r'new Shot\("([a-z_]+)", ([\d.]+)F, "([a-z]*)", (true|false)\)', ranged_src)
+
+wanted = []
+for tier in tiers:
+    for shape in sorted(bow_shapes):
+        wanted.append((f"{tier}_{shape}", True))
+for name, _, _, _ in shot_rows:
+    wanted.append((name, False))
+for id, shape, _ in unique_rows:
+    wanted.append((id, shape in bow_shapes))
+wanted.append(("legend_sigil", False))
+
+absent = []
+for id, is_bow in wanted:
+    for kind, where in (("a sprite", f"assets/{NS}/textures/item/{id}.png"),
+                        ("a model", f"assets/{NS}/models/item/{id}.json"),
+                        ("a recipe", f"data/{NS}/recipe/{id}.json")):
+        if not os.path.isfile(os.path.join(RES, where)):
+            absent.append(f"{id} has no {kind}")
+    if f"item.{NS}.{id}" not in lang:
+        absent.append(f"{id} has no name in the language file")
+    if is_bow:
+        for frame in range(3):
+            drawn = f"{id}_pulling_{frame}"
+            for where in (f"assets/{NS}/textures/item/{drawn}.png",
+                          f"assets/{NS}/models/item/{drawn}.json"):
+                if not os.path.isfile(os.path.join(RES, where)):
+                    absent.append(f"{id} has no frame {frame} of its draw")
+if absent:
+    fail(f"{len(absent)} of {len(wanted) * 4} things a ranged or named weapon needs "
+         f"are missing: " + ", ".join(absent[:5]))
+
+# Our arrows have to be in the game's own arrow tag. Without it no bow in the
+# game will accept one of them, ours included, and the failure is silent: the
+# bow simply refuses to draw and nothing is logged.
+arrow_tag = read(RES, "data/minecraft/tags/item/arrows.json")
+for name, _, _, bolt in shot_rows:
+    if bolt == "true":
+        continue
+    if f"{NS}:{name}" not in arrow_tag:
+        fail(f"{name} is not in the game's arrow tag, so no bow will accept it and "
+             f"the only symptom is a bow that will not draw")
+
+# A unique is smithed from its own shape at its own tier. Anything else lets a
+# player skip the weapon it is a version of, which is the whole ladder; and a
+# recipe whose base is another module's item would make this module need that
+# module to be installed.
+for id, shape, tier in unique_rows:
+    recipe = read(RES, "data", NS, f"recipe/{id}.json")
+    if not recipe:
+        continue
+    body = json.loads(recipe)
+    if body.get("type") != "minecraft:smithing_transform":
+        fail(f"{id} is crafted rather than smithed, so it can be made without ever "
+             f"making the weapon it is a version of")
+        continue
+    base = body.get("base", {}).get("item", "")
+    if base != f"{NS}:{tier}_{shape}":
+        fail(f"{id} is smithed from {base} rather than from a {tier} {shape}, so "
+             f"either it skips a tier or it is a different weapon underneath")
+    addition = body.get("addition", {}).get("item", "")
+    if not addition.startswith("minecraft:"):
+        fail(f"{id} costs {addition}, which is not the game's own — so this module "
+             f"would need another one installed to make its uniques")
+
+# Registration, per registry, counted against the roster it walked. A registry
+# that walks the roster and stops halfway registers a prefix of it and says
+# nothing, and the count is the only thing that notices.
+ranged_items = squashed(strip_comments(read(SRC, "registry/RangedItems.java"), True))
+if "for (RangedRules.Bow kind : RangedRules.KINDS) {" not in ranged_items:
+    fail("the bows are not registered from the catalogue, so a seventh kind is six "
+         "more declarations and six more chances to give one of them the wrong tier")
+for statement in (
+        "if (made.size() != RangedRules.catalogue().size()) { throw new "
+        "IllegalStateException(",
+        "if (made.size() != RangedRules.SHOTS.size()) { throw new "
+        "IllegalStateException("):
+    if statement not in ranged_items:
+        fail("nothing counts what the ranged registry registered against the roster "
+             "it walked, so the game can start with one missing and say nothing")
+
+unique_items = squashed(strip_comments(read(SRC, "registry/UniqueItems.java"), True))
+if "for (UniqueRules.Unique unique : UniqueRules.UNIQUES) {" not in unique_items:
+    fail("the uniques are not registered from the roster")
+if "if (made.size() != UniqueRules.UNIQUES.size()) { throw new IllegalStateException(" \
+        not in unique_items:
+    fail("nothing counts the uniques registered against the roster, so the game can "
+         "start with one missing and say nothing")
+if "ElysiumAbilityRules.cannotShareAnItem(unique.abilities());" not in unique_items:
+    fail("a unique added by hand later would never be asked whether the abilities it "
+         "carries are a set any item may carry")
+
+# A bow that does not describe its draw holds one picture for the whole draw
+# and then fires, which reads as a bow that has stopped working rather than as
+# a missing model — so nobody would ever report it.
+client = squashed(strip_comments(read(SRC, "client/ArsenalClient.java"), True))
+for statement, why in (
+        ("for (DeferredItem<? extends Item> held : RangedItems.BOWS.values()) {",
+         "the draw is registered for named bows only, or for none"),
+        ("if (described != expected) { throw new IllegalStateException(",
+         "nothing counts the bows that know how to draw against the bows there are"),
+        ("event.enqueueWork(ArsenalClient::describeEveryBow);",
+         "registration happens on the setup thread, where it is not safe and "
+         "silently loses entries")):
+    if statement not in client:
+        fail("the draw: " + why)
+
+tab = squashed(strip_comments(read(SRC, "registry/ArsenalItems.java"), True))
+for statement in ("for (String id : RangedRules.catalogue()) {",
+                  "for (RangedRules.Shot shot : RangedRules.SHOTS) {",
+                  "for (UniqueRules.Unique unique : UniqueRules.UNIQUES) {"):
+    if statement not in tab:
+        fail("the creative tab does not walk one of the rosters, so some of what the "
+             "module adds cannot be found in it")
+
+for registered in ("RangedItems.ITEMS.register", "UniqueItems.ITEMS.register"):
+    if registered not in main_class:
+        fail(f"{registered} is never called, so part of the module is written and "
+             f"none of it exists")
+
+# What an arrow does beyond arriving. Every one of these was a way of turning
+# twelve kinds of ammunition back into one kind with twelve names.
+effects = strip_comments(read(SRC, "event/ArrowEffects.java"), True)
+behind = squashed(body_of(effects, "public static RangedRules.Shot shotBehind("))
+if "ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());" not in behind:
+    fail("which shot an arrow was is not read off the item it carries, so an arrow "
+         "fired by a skeleton, a dispenser or the game's own bow does nothing at all "
+         "and only the arrows we fire ourselves work")
+if "if (id == null || !ElysiumArsenal.MODID.equals(id.getNamespace())) {" not in behind:
+    fail("every arrow in the game is looked up in our roster by path alone, so "
+         "another mod's arrow of the same name would fire our effect")
+
+applying = squashed(body_of(effects, "private static void apply(ServerLevel level,"))
+for effect in ("bleed", "sundering", "slowing", "marking", "burning", "piercing",
+               "chaining"):
+    if f'case "{effect}"' not in applying:
+        fail(f"an arrow that says it does {effect} does nothing, so it is a flint "
+             f"arrow with a different name and a different recipe")
+
+piercing = squashed(body_of(effects, "private static void pierce(ServerLevel level,"))
+if "hit.hurt(new DamageSource(type, arrow, shooter), dealt * PIERCE_SHARE);" not in \
+        piercing:
+    fail("a piercing shot's armour-bypassing half is not a share of what the hit "
+         "actually took, so it is a share of a number armour, resistance and every "
+         "other mod in the pack never saw")
+
+chaining = squashed(body_of(effects, "private static void chain(ServerLevel level,"))
+if "other -> other != hit && other != shooter && other.isAlive()" not in chaining:
+    fail("a chain can come back to what it just left or reach the shooter, which is "
+         "an arrow that kills the person who fired it")
+if ("nearest.hurt(level.damageSources().indirectMagic(arrow, shooter), "
+        "dealt * CHAIN_SHARE);") not in chaining:
+    fail("the second target of a chain is hit by something other than the chain, so "
+         "it can chain again and a herd is one arrow")
+
+print(f"the bows and names : {len(tiers) * len(bow_shapes)} bow(s) in "
+      f"{len(bow_shapes)} kinds, {len(shot_rows)} kind(s) of ammunition and "
+      f"{len(unique_rows)} named weapon(s), every one drawn, modelled, named, "
+      f"smithed or crafted, registered and counted")
+
+# ---------------------------------------------------------------------------
+# Reforging
+# ---------------------------------------------------------------------------
+#
+# The arithmetic above proves the gamble is a gamble. This is about whether the
+# gamble is in the game: three hammers a player can make, forty-five grades
+# with names, a component that survives a save, and a grade that is read back
+# rather than baked in.
+
+forge_src = strip_comments(read(PURE, "ForgeRules.java"), True)
+grade_rows = re.findall(r'grade\("([a-z_]+)", "([a-z]+)", \d+', forge_src)
+hammer_rows = re.findall(r'"([a-z_]+)", List\.of\(([^)]*)\)',
+                         re.search(r"HAMMERS = Map\.of\((.*?)\);", forge_src,
+                                   re.S).group(1))
+gear_rows = re.findall(r'"([a-z]+)"', re.search(
+    r"KINDS =\s*List\.of\(([^)]*)\)", forge_src).group(1))
+
+absent = []
+for hammer, _ in hammer_rows:
+    for kind, where in (("sprite", f"assets/{NS}/textures/item/{hammer}.png"),
+                        ("model", f"assets/{NS}/models/item/{hammer}.json"),
+                        ("recipe", f"data/{NS}/recipe/{hammer}.json")):
+        if not os.path.isfile(os.path.join(RES, where)):
+            absent.append(f"{hammer} has no {kind}")
+    if f"item.{NS}.{hammer}" not in lang:
+        absent.append(f"{hammer} has no name in the language file")
+for grade, _ in grade_rows:
+    if f"{NS}.grade.{grade}" not in lang:
+        absent.append(f"{grade} has no name, so its tooltip reads as its id")
+for kind in gear_rows:
+    if f"{NS}.gear.{kind}" not in lang:
+        absent.append(f"{kind} has no name, so a hammer's tooltip reads as an id")
+for key in ("forge.rolls", "forge.how", "forge.wrong_hammer", "forge.too_poor"):
+    if f"{NS}.{key}" not in lang:
+        absent.append(f"{key} has no wording, so the hammer says nothing when it "
+                      f"refuses")
+if absent:
+    fail(f"{len(absent)} thing(s) reforging needs are missing: "
+         + ", ".join(absent[:5]))
+
+# The grade has to survive a save and a network packet, or every sword loses
+# its grade the moment a player logs out and back in.
+components = squashed(strip_comments(read(SRC, "forge/ForgeComponents.java"), True))
+if ".persistent(Codec.STRING)" not in components:
+    fail("a grade is not saved, so every piece of gear in the world is ungraded "
+         "again the moment the server restarts")
+if ".networkSynchronized(ByteBufCodecs.STRING_UTF8)" not in components:
+    fail("a grade never reaches the client, so the tooltip is blank on every "
+         "machine that is not the server")
+
+main_class_squashed = squashed(strip_comments(main_class, True))
+if "com.elysium.arsenal.forge.ForgeComponents.TYPES.register(modEventBus);" not in \
+        main_class_squashed:
+    fail("the grade component is written and never registered, which is a crash the "
+         "first time anybody picks up a sword")
+if "com.elysium.arsenal.registry.ForgeItems.ITEMS.register(modEventBus);" not in \
+        main_class_squashed:
+    fail("the hammers are written and never registered")
+
+events = strip_comments(read(SRC, "forge/ForgeEvents.java"), True)
+assigning = squashed(body_of(events, "public static void assignTo("))
+if "if (ForgeComponents.gradeOn(stack) != null) { return; }" not in assigning:
+    fail("gear is regraded every time it is picked up, so dropping a sword and "
+         "collecting it again is a free hammer that costs no experience and wears "
+         "nothing out — and every number the harness proves is about a mechanic the "
+         "game does not have")
+
+applying = squashed(body_of(events, "public static void onAttributes("))
+if "ForgeRules.Grade grade = ForgeRules.grade(id);" not in applying:
+    fail("what a grade does is not read out of the rules at the moment it is asked, "
+         "so a grade retuned in an update leaves every sword already in a world "
+         "carrying the old numbers with nothing to say which is which")
+if "if (grade == null) { return; }" not in applying:
+    fail("a grade whose name no longer exists is not handled, so a world saved under "
+         "an older roster crashes rather than treating the gear as ungraded")
+
+colouring = squashed(body_of(events, "public static ChatFormatting colourOf("))
+if "float worth = grade.worth();" not in colouring:
+    fail("a grade's colour is not read from what it is worth, so a grade retuned "
+         "from a loss into a win goes on reading grey while making the gear better")
+
+kinds_src = strip_comments(read(SRC, "forge/ForgeKinds.java"), True)
+of_stack = squashed(body_of(kinds_src, "public static String of(ItemStack stack)"))
+for statement, why in (
+        ("if (stack.getItem() instanceof ShieldItem) { return \"shield\"; }",
+         "a shield is not told from a weapon"),
+        ("if (stack.getItem() instanceof DiggerItem) { return \"tool\"; }",
+         "a paxel is a weapon on one machine and a tool on another, and the two "
+         "disagree about what it is worth")):
+    if statement not in of_stack:
+        fail("what kind of gear a thing is: " + why)
+if "instanceof ProjectileWeaponItem" not in of_stack:
+    fail("only our own bows can be graded, so the mechanic is invisible to a player "
+         "carrying anybody else's")
+
+hammer_src = strip_comments(read(SRC, "item/HammerItem.java"), True)
+using = squashed(body_of(hammer_src, "public InteractionResultHolder<ItemStack> use("))
+for statement, why in (
+        ("int experience = current != null ? current.experience() : cheapest(kind);",
+         "the price is not read off the grade the gear already has, so rolling away "
+         "from a Fabled sword costs what rolling away from a Dull one costs and the "
+         "right play is to hold the hammer down"),
+        ("player.giveExperienceLevels(-experience);",
+         "reforging is free, so the odds the harness proves describe a gamble with "
+         "nothing at stake"),
+        ("held.hurtAndBreak(wear, player, LivingEntity.getSlotForHand(hand));",
+         "the hammer never wears out")):
+    if statement not in using:
+        fail("a swing of the hammer: " + why)
+if "if (kind == null || !rolls(kind)) {" not in using:
+    fail("any hammer reforges any gear, so which hammer a player made does not "
+         "matter and two of the three are decoration")
+
+forge_items = squashed(strip_comments(read(SRC, "registry/ForgeItems.java"), True))
+if "for (String hammer : new TreeMap<>(ForgeRules.HAMMERS).keySet()) {" not in \
+        forge_items:
+    fail("the hammers are not registered from the rules' own table, so a fourth one "
+         "added there is a kind of gear nothing can reforge and the only symptom is "
+         "a player wondering why their shield never changes")
+if "if (made.size() != ForgeRules.HAMMERS.size()) { throw new IllegalStateException(" \
+        not in forge_items:
+    fail("nothing counts the hammers registered against the table")
+
+print(f"reforging          : {len(grade_rows)} grade(s) across {len(gear_rows)} kinds "
+      f"of gear, {len(hammer_rows)} hammer(s) that roll them, every grade named and "
+      f"every hammer craftable")
+
+# ---------------------------------------------------------------------------
+# The digging
+# ---------------------------------------------------------------------------
+
+dig_src = strip_comments(read(PURE, "DigRules.java"), True)
+brush_rows = re.findall(r'new Brush\("([a-z_]+)", (\d+), [\d.]+F\)', dig_src)
+site_rows = re.findall(r'new Site\("([a-z_]+)", "([a-z:_]+)", "([a-z_]+)"\)', dig_src)
+fossil_rows = re.findall(
+    r'new Fossil\("([a-z_]+)", "([a-z_]+)", "([a-z_]+)", [\d.]+F, \d+\)',
+    strip_comments(read(PURE, "FossilRules.java"), True))
+artifact_rows = re.findall(
+    r'new Artifact\("([a-z_]+)", "([a-z_]+)", [\d.]+F, \d+, "([a-z]+)"\)',
+    strip_comments(read(PURE, "ArtifactRules.java"), True))
+totem_rows = re.findall(r'new Totem\("([a-z_]+)", (PLACED|HELD), [\d.]+F, \d+, \d+\)',
+                        strip_comments(read(PURE, "TotemRules.java"), True))
+how_many_stages = int(re.search(r"STAGES = (\d+);", dig_src).group(1))
+
+absent = []
+for name, _ in brush_rows:
+    for kind, where in (("sprite", f"assets/{NS}/textures/item/{name}.png"),
+                        ("model", f"assets/{NS}/models/item/{name}.json"),
+                        ("recipe", f"data/{NS}/recipe/{name}.json")):
+        if not os.path.isfile(os.path.join(RES, where)):
+            absent.append(f"{name} has no {kind}")
+    if f"item.{NS}.{name}" not in lang:
+        absent.append(f"{name} has no name in the language file")
+
+# Every block the digging adds needs four things, and a missing one of each
+# fails differently: no blockstate is a purple-and-black cube, no model is the
+# same, no loot table is a block that vanishes when broken, and no name is a
+# block called by its id.
+dug_blocks = [block for block, _, _ in site_rows]
+for creature, _, _ in fossil_rows:
+    dug_blocks += [f"{creature}_fossil", f"{creature}_fossil_head",
+                   f"{creature}_fossil_body"]
+dug_blocks += [name for name, kind in totem_rows if kind == "PLACED"]
+dug_blocks += ["chiseled_bone_block", "archeology_table", "rotten_log",
+               "rotten_planks", "rotten_slab", "rotten_stairs", "rotten_fence",
+               "rotten_fence_gate", "rotten_door", "rotten_trapdoor",
+               "rotten_pressure_plate", "cracked_mud_bricks",
+               "cracked_mud_brick_slab", "cracked_mud_brick_stairs",
+               "infested_mud_bricks"]
+for block in dug_blocks:
+    for kind, where in (("blockstate", f"assets/{NS}/blockstates/{block}.json"),
+                        ("item model", f"assets/{NS}/models/item/{block}.json"),
+                        ("loot table",
+                         f"data/{NS}/loot_table/blocks/{block}.json")):
+        if not os.path.isfile(os.path.join(RES, where)):
+            absent.append(f"{block} has no {kind}")
+    if f"block.{NS}.{block}" not in lang:
+        absent.append(f"{block} has no name in the language file")
+
+# A site has a model per stage of its brushing. One fewer than there are
+# stages is a blockstate pointing at a model that is not there, which is a
+# purple-and-black cube at the moment a player is halfway through a dig.
+for block, _, _ in site_rows:
+    states = read(RES, "assets", NS, f"blockstates/{block}.json")
+    if states:
+        variants = json.loads(states).get("variants", {})
+        if len(variants) != how_many_stages:
+            absent.append(f"{block} has {len(variants)} of {how_many_stages} "
+                          f"stages drawn")
+    for stage in range(how_many_stages):
+        if not os.path.isfile(os.path.join(
+                RES, f"assets/{NS}/models/block/{block}_{stage}.json")):
+            absent.append(f"{block} has no model for stage {stage}")
+
+for name, _, _ in artifact_rows:
+    for kind, where in (("sprite",
+                         f"assets/{NS}/textures/item/identified_{name}.png"),
+                        ("model",
+                         f"assets/{NS}/models/item/identified_{name}.json")):
+        if not os.path.isfile(os.path.join(RES, where)):
+            absent.append(f"identified_{name} has no {kind}")
+    if f"item.{NS}.identified_{name}" not in lang:
+        absent.append(f"identified_{name} has no name")
+for name, kind in totem_rows:
+    if kind == "HELD" and f"item.{NS}.{name}" not in lang:
+        absent.append(f"{name} has no name")
+if absent:
+    fail(f"{len(absent)} thing(s) the digging needs are missing: "
+         + ", ".join(absent[:6]))
+
+# What is buried has to be worked out from the position, in the game as well
+# as in the arithmetic. A block entity that stored it would let a player break
+# the block, put it back and roll again for something better.
+site_entity = strip_comments(read(SRC, "block/entity/SiteBlockEntity.java"), True)
+buried = squashed(body_of(site_entity, "public ItemStack whatIsBuried("))
+if ("DigRules.Find find = DigRules.whatIsBuried(pool, level.getSeed(), "
+        "getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ());") \
+        not in buried:
+    fail("what a site holds is not worked out from where the site is, so a player "
+         "who dislikes what they found can break the block, put it back and roll "
+         "again — and two blocks that ought to hold the same thing do not")
+saving = squashed(body_of(site_entity, "protected void saveAdditional("))
+if 'tag.putInt("stage", stage);' not in saving:
+    fail("how far through a dig a site is is not saved, so a player who walks away "
+         "and comes back starts again")
+if 'tag.putString("item"' in squashed(site_entity):
+    fail("what is buried is written into the block entity, which is the thing "
+         "working it out from the position exists to avoid")
+
+brush_item = strip_comments(read(SRC, "item/BrushItem.java"), True)
+brushing = squashed(body_of(brush_item, "public void onUseTick("))
+for statement, why in (
+        ("if (!entity.brushFor(brush.ticks())) { return; }",
+         "a brush works at a speed that is not its own, so the ladder is three "
+         "items that behave identically"),
+        ("level.setBlock(pos, site.leavesBehind(), Block.UPDATE_ALL);",
+         "a finished site stays a site, so it can be brushed for ever"),
+        ("stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand( "
+         "player.getUsedItemHand()));",
+         "brushing costs the brush nothing, so the cheapest one is the only one "
+         "anybody makes")):
+    if statement not in brushing:
+        fail("brushing: " + why)
+if "BlockPos pos = aimedAt(player);" not in brushing:
+    fail("the block being brushed is remembered from the click rather than looked "
+         "at each tick, so a player can start on a site and keep brushing it from "
+         "across the room")
+
+# A fossil's effect is looked for from the player outward. The other way round
+# is twenty-one blocks each searching a room for players, which costs what
+# somebody built rather than what they are doing.
+fossil_events = strip_comments(read(SRC, "event/FossilEffects.java"), True)
+ticking = squashed(body_of(fossil_events, "public static void onTick("))
+if "if (event.getServer().getTickCount() % EVERY != 0) { return; }" not in ticking:
+    fail("every player looks through a cube of four and a half thousand blocks "
+         "twenty times a second, which is the same mistake as having the blocks "
+         "search for players and costs more")
+looking = squashed(body_of(fossil_events, "public static Map<String, Float> around("))
+if "float worth = FossilRules.given(one, skulls.containsKey(one.creature()), " \
+        "bodies.containsKey(one.creature()));" not in looking:
+    fail("what a fossil gives is not the rules' own answer about its halves, so "
+         "the arithmetic proving a pair is worth more than two halves is about a "
+         "different fossil")
+
+totem_block = strip_comments(read(SRC, "block/TotemBlock.java"), True)
+ticking = squashed(body_of(totem_block, "public void tick(BlockState state,"))
+if "level.scheduleTick(pos, this, totem.every());" not in ticking:
+    fail("a placed totem acts once and stops, or acts on the world's own tick "
+         "rather than on its own period — and the arithmetic capping what it does "
+         "in a minute is about a period it does not use")
+
+artifact_events = strip_comments(read(SRC, "event/ArtifactEffects.java"), True)
+strength = squashed(body_of(artifact_events, "public static float strengthOn("))
+if "return found.at(ForgeComponents.artifactLevel(stack));" not in strength:
+    fail("what an artefact does is not read out of its own rules at its own level, "
+         "so deepening one buys whatever this file thinks rather than what the "
+         "roster says")
+tunnelling = squashed(body_of(artifact_events, "public static void onBreak("))
+if "if (DIGGING.get()) { return; }" not in tunnelling:
+    fail("breaking a block calls back into the break that broke it, so one swing "
+         "digs to bedrock")
+if "if (!tool.isCorrectToolForDrops(under)) { return; }" not in tunnelling:
+    fail("a tunnelling pickaxe takes the dirt under the stone, so it is not a "
+         "pickaxe that digs deeper, it is every tool at once")
+
+dig_blocks_src = squashed(strip_comments(read(SRC, "registry/DigBlocks.java"), True))
+for statement, why in (
+        ("for (DigRules.Site site : DigRules.SITES) {", "the sites"),
+        ("for (FossilRules.Fossil one : FossilRules.FOSSILS) {", "the fossils"),
+        ("for (TotemRules.Totem one : TotemRules.of(TotemRules.PLACED)) {",
+         "the placed totems")):
+    if statement not in dig_blocks_src:
+        fail(f"{why} are not registered from their own roster, so one added there "
+             f"is a block that does not exist and nothing says so")
+for counted in ("if (made.size() != DigRules.SITES.size()) { throw new "
+                "IllegalStateException(",
+                "if (made.size() != FossilRules.catalogue().size()) { throw new "
+                "IllegalStateException("):
+    if counted not in dig_blocks_src:
+        fail("nothing counts what the block registry registered against the roster "
+             "it walked")
+
+dig_items_src = squashed(strip_comments(read(SRC, "registry/DigItems.java"), True))
+if "for (Map.Entry<String, DeferredBlock<net.minecraft.world.level.block.Block>> " \
+        "row : blocks.entrySet()) {" not in dig_items_src:
+    fail("the block items are not made by walking the blocks, so a block "
+         "registered without one is a block that exists, generates and cannot be "
+         "picked up — which looks exactly like a block that does not exist")
+if "if (made.size() != ArtifactRules.ARTIFACTS.size()) { throw new " \
+        "IllegalStateException(" not in dig_items_src:
+    fail("nothing counts the artefacts registered against the roster, so "
+         "identifying can land on one that was never registered")
+
+for registered in ("DigBlocks.BLOCKS.register", "DigItems.ITEMS.register",
+                   "DigBlockEntities.TYPES.register"):
+    if registered not in main_class:
+        fail(f"{registered} is never called, so part of the digging is written and "
+             f"none of it exists")
+
+entities = squashed(strip_comments(read(SRC, "registry/DigBlockEntities.java"), True))
+if ("return DigBlocks.SITES.values().stream() .map(DeferredHolder::get)"
+        ".toArray(Block[]::new);") not in entities:
+    fail("the site block entity is bound to a list of blocks typed by hand, so a "
+         "fourth site is a block that drops its block entity the moment anybody "
+         "looks at it")
+
+# Block items inherit their block's model; a block item that did not would be
+# a floating flat square in the hand. Everything the digging adds that is a
+# block is one, and the list is the same one the checks above walk.
+block_items = set(dug_blocks)
+flat_on_purpose |= {f"identified_{name}" for name, _, _ in artifact_rows}
+flat_on_purpose |= {name for name, kind in totem_rows if kind == "HELD"}
+flat_on_purpose |= {"artifact_shard", "unidentified_artifact", "music_disc_relic"}
+handheld_on_purpose = {name for name, _ in brush_rows}
+
+wrong = []
+for name in sorted(os.listdir(models)) if os.path.isdir(models) else []:
+    if not name.endswith(".json"):
+        continue
+    id = name[:-5]
+    body = read(models, name)
+    if id.endswith(("_pulling_0", "_pulling_1", "_pulling_2")):
+        # A draw frame inherits its bow's pose. One that inherited
+        # item/generated instead would snap flat the instant a draw began,
+        # which reads as the bow disappearing.
+        parent = id.rsplit("_pulling_", 1)[0]
+        if f'"parent": "{NS}:item/{parent}"' not in body:
+            wrong.append(f"{id} does not inherit {parent}'s pose")
+        continue
+    if id in block_items:
+        if f'"parent": "{NS}:block/' not in body:
+            wrong.append(f"{id} is a block item that does not inherit its block's "
+                         f"model, so it is a flat square in the hand")
+        continue
+    if id in bow_ids:
+        if '"overrides"' not in body or '"pulling"' not in body:
+            wrong.append(f"{id} is a bow with no draw frames, so it holds one "
+                         f"picture through the whole draw")
+        if '"thirdperson_righthand"' not in body:
+            wrong.append(f"{id} is a bow with no held pose")
+    elif id in flat_on_purpose:
+        if '"parent": "item/generated"' not in body:
+            wrong.append(f"{id} is held like a tool and is not one")
+    elif '"parent": "item/handheld"' not in body:
+        wrong.append(f"{id} is not held like a tool, so it lies flat in a "
+                     f"player's hand")
+for complaint in wrong[:8]:
+    fail(complaint)
+if len(wrong) > 8:
+    fail(f"...and {len(wrong) - 8} more models of the wrong kind")
+
+
+print(f"the digging        : {len(brush_rows)} brush(es), {len(site_rows)} site(s), "
+      f"{len(fossil_rows)} fossil(s) in {how_many_stages}-stage digs, "
+      f"{len(artifact_rows)} artefact(s) and {len(totem_rows)} totem(s), every "
+      f"block drawn, modelled, named, dropping itself and registered")
 
 print("what it declares   : the game and the library, and not one thing beyond them")
 

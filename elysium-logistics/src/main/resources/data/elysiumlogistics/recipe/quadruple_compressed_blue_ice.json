@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "elysiumlogistics:triple_compressed_blue_ice"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:quadruple_compressed_blue_ice",
+    "count": 1
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:compressed_calcite"
+    }
+  ],
+  "result": {
+    "id": "minecraft:calcite",
+    "count": 9
+  }
+}

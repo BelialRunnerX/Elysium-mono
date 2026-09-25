@@ -1,0 +1,8 @@
+{
+  "type": "elysiumwilds:grammar",
+  "grammar": "mine",
+  "biomes": "#minecraft:is_mountain",
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_thin",
+  "spawn_overrides": {}
+}

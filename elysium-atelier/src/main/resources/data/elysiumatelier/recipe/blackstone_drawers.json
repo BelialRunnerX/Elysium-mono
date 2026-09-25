@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MM "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:blackstone"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:blackstone_drawers",
+    "count": 4
+  }
+}

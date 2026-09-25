@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dark_prismarine"
+    },
+    "X": {
+      "item": "minecraft:iron_nugget"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dark_prismarine_banister",
+    "count": 14
+  }
+}

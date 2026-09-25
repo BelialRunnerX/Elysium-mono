@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MM ",
+    "M  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:acacia_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:acacia_wardrobe",
+    "count": 5
+  }
+}

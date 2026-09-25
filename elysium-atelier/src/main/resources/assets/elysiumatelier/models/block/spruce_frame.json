@@ -1,0 +1,137 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "all": "minecraft:block/spruce_planks",
+    "particle": "minecraft:block/spruce_planks"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        6
+      ],
+      "to": [
+        16,
+        2,
+        10
+      ],
+      "faces": {
+        "down": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all"
+        },
+        "north": {
+          "texture": "#all"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        },
+        "east": {
+          "texture": "#all"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        14,
+        6
+      ],
+      "to": [
+        16,
+        16,
+        10
+      ],
+      "faces": {
+        "down": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all"
+        },
+        "north": {
+          "texture": "#all"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        },
+        "east": {
+          "texture": "#all"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        2,
+        6
+      ],
+      "to": [
+        2,
+        14,
+        10
+      ],
+      "faces": {
+        "down": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all"
+        },
+        "north": {
+          "texture": "#all"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        },
+        "east": {
+          "texture": "#all"
+        }
+      }
+    },
+    {
+      "from": [
+        14,
+        2,
+        6
+      ],
+      "to": [
+        16,
+        14,
+        10
+      ],
+      "faces": {
+        "down": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all"
+        },
+        "north": {
+          "texture": "#all"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        },
+        "east": {
+          "texture": "#all"
+        }
+      }
+    }
+  ]
+}

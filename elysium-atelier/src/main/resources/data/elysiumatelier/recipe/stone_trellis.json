@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:stone"
+    },
+    "X": {
+      "item": "minecraft:bamboo"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:stone_trellis",
+    "count": 12
+  }
+}

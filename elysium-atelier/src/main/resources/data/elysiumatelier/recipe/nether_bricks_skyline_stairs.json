@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "MM "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:nether_bricks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:nether_bricks_skyline_stairs",
+    "count": 4
+  }
+}

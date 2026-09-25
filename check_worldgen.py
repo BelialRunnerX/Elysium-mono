@@ -66,6 +66,14 @@ WORLDS = {
     # somewhere a player actually walks into.
     "emerald_bastion": (0.70, "a habitable world: plains, with highlands and rivers "
                               "through them"),
+    # Fifteen biomes on a partition of the climate plane: five bands of warmth
+    # crossed with three of rain, every band running edge to edge from where
+    # the last one stopped. Fifteen equal rectangles is one fifteenth apiece,
+    # so a ceiling anywhere near a third means the bands are not what they say
+    # they are -- which is exactly the kind of claim this file exists to make
+    # somebody argue with in review.
+    "vale": (0.30, "fifteen biomes on an even grid of warmth and rain, none of "
+                   "them more than a third of it"),
 }
 
 problems = []

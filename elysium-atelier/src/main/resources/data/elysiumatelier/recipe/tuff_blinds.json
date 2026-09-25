@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:tuff"
+    },
+    "X": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:tuff_blinds",
+    "count": 6
+  }
+}

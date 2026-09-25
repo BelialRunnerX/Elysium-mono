@@ -223,8 +223,12 @@ DECISIONS = [
      "not"),
     (r"^DnDesires|^Design-n-Decor|^DustyDecorations|^cluttered|^bf_blockpack|^Clothing_Of_The_Lowlands",
      "PLANNED", "elysium-atelier", "building and decoration"),
-    (r"^valhelsia_furniture|^woodworks|^fusion|^everycomp|^Diagonal|^Chimes|^copycat",
+    (r"^valhelsia_furniture|^woodworks|^fusion|^everycomp|^Diagonal|^copycat",
      "PLANNED", "elysium-atelier", "building and decoration"),
+    # Five blocks whose whole content is an ambient sound, which is what
+    # elysium-comforts is for rather than what a decoration module is.
+    (r"^Chimes", "PLANNED", "elysium-comforts",
+     "an ambient sound and the five blocks that make it"),
 
     # --- wilds ------------------------------------------------------------
     (r"^wwoo|^\[Neoforge\]ctov", "PLANNED", "elysium-wilds",
@@ -324,6 +328,48 @@ def decide(jar):
     return None
 
 
+#: How far along each status is. Regenerating must never move a row backwards.
+PROGRESS = {"UNDECIDED": 0, "PLANNED": 1, "ACTIVE": 2, "DROP": 3, "KEEP": 3,
+            "SPLIT": 4, "DONE": 5}
+
+
+def already(path):
+    """What the manifest on disk says, so regenerating does not undo work.
+
+    This file used to print the table straight out of DECISIONS, which meant
+    running it threw away every status anybody had advanced by hand -- the
+    header even says to edit the status column as work lands. One person
+    regenerating after a rename would have silently marked two dozen finished
+    conversions as PLANNED again, and the only sign would have been the work
+    being done twice.
+    """
+    known = {}
+    if not os.path.isfile(path):
+        return known
+    for line in open(path, encoding="utf-8"):
+        row = re.match(r"\|\s*`([^`]+)`\s*\|\s*([A-Z]+)\s*\|\s*([^|]+?)\s*\|"
+                       r"\s*(.*?)\s*\|\s*$", line)
+        if row:
+            jar, status, module, note = row.groups()
+            known[jar] = (status, module, note)
+    return known
+
+
+def merged(jar, found, known):
+    """The decision, or what the manifest already says if that is further on."""
+    was = known.get(jar)
+    if was is None:
+        return found
+    if PROGRESS.get(was[0], 0) > PROGRESS.get(found[0], 0):
+        return was
+    # Same status, but somebody has written a fuller note than the table's:
+    # keep theirs. A note saying what was actually built is worth more than
+    # a note saying what was planned.
+    if was[0] == found[0] and len(was[2]) > len(found[2]):
+        return (found[0], found[1], was[2])
+    return found
+
+
 def main():
     if len(sys.argv) < 2:
         print(__doc__)
@@ -332,14 +378,21 @@ def main():
             if line.strip().endswith(".jar")]
     rows = []
     undecided = []
+    known = already(os.path.join(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))), "docs/MANIFEST.md"))
     for jar in sorted(jars, key=str.lower):
         found = decide(jar)
         if found is None:
+            was = known.get(jar)
+            if was and was[0] != "UNDECIDED":
+                rows.append((jar,) + was)
+                continue
             undecided.append(jar)
             rows.append((jar, "UNDECIDED", "?", "**nobody has decided about this**"))
         else:
-            rows.append((jar,) + found)
-    rows.extend(NEW)
+            rows.append((jar,) + merged(jar, found, known))
+    for planned in NEW:
+        rows.append((planned[0],) + tuple(merged(planned[0], planned[1:], known)))
 
     counts = {}
     for _, status, _, _ in rows:
@@ -360,6 +413,7 @@ def main():
     print("| count | status | means |")
     print("|---|---|---|")
     for status, means in (("DONE", "an Elysium module already replaces it"),
+                          ("SPLIT", "spans several modules; see docs/SPLITS.md"),
                           ("ACTIVE", "being worked on now"),
                           ("PLANNED", "has a target module, not started"),
                           ("KEEP", "stays in the pack on purpose"),

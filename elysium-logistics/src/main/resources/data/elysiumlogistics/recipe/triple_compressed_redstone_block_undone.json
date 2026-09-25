@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:triple_compressed_redstone_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:double_compressed_redstone_block",
+    "count": 9
+  }
+}

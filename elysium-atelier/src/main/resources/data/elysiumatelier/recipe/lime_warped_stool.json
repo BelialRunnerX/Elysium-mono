@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:warped_stool"
+    },
+    {
+      "item": "minecraft:lime_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:lime_warped_stool",
+    "count": 1
+  }
+}

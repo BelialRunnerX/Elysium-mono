@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM ",
+    " MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:basalt"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:basalt_post",
+    "count": 8
+  }
+}

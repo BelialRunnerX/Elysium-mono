@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "M",
+    "M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dark_prismarine"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dark_prismarine_pillar",
+    "count": 3
+  }
+}

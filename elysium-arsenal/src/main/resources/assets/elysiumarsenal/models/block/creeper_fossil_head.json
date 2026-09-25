@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "elysiumarsenal:block/creeper_fossil_head"
+  }
+}

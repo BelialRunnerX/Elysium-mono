@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:red_sandstone"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:red_sandstone_beam",
+    "count": 12
+  }
+}

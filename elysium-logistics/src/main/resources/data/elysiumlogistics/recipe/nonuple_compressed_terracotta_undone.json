@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:nonuple_compressed_terracotta"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:octuple_compressed_terracotta",
+    "count": 9
+  }
+}

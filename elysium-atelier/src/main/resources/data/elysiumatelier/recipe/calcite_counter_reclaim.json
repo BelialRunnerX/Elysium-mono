@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:calcite_counter"
+    }
+  ],
+  "result": {
+    "id": "minecraft:calcite",
+    "count": 1
+  }
+}

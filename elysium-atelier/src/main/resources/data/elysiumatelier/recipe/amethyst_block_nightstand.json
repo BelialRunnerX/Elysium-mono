@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "M "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:amethyst_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:amethyst_block_nightstand",
+    "count": 4
+  }
+}

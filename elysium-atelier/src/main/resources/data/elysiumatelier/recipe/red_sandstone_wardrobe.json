@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MM ",
+    "M  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:red_sandstone"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:red_sandstone_wardrobe",
+    "count": 5
+  }
+}

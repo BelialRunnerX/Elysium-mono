@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:cobblestone"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:compressed_cobblestone",
+    "count": 1
+  }
+}

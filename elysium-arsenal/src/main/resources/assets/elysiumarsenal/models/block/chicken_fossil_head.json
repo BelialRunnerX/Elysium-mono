@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "elysiumarsenal:block/chicken_fossil_head"
+  }
+}

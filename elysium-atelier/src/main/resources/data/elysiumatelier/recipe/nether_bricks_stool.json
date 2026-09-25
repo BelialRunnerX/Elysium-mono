@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:nether_bricks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:nether_bricks_stool",
+    "count": 4
+  }
+}

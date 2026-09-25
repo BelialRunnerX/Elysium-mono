@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:nether_bricks_cabinet"
+    }
+  ],
+  "result": {
+    "id": "minecraft:nether_bricks",
+    "count": 1
+  }
+}

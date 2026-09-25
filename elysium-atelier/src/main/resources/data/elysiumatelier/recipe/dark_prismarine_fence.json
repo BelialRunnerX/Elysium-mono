@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dark_prismarine"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dark_prismarine_fence",
+    "count": 3
+  }
+}

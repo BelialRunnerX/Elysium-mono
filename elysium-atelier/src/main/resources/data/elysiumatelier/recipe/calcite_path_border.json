@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:calcite"
+    },
+    "X": {
+      "item": "minecraft:gravel"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:calcite_path_border",
+    "count": 4
+  }
+}

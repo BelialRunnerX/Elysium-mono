@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM ",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:sandstone"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:sandstone_trough",
+    "count": 4
+  }
+}

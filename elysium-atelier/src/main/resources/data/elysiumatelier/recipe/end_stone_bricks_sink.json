@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:end_stone_bricks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:end_stone_bricks_sink",
+    "count": 2
+  }
+}

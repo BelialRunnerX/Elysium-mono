@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "elysiumlogistics:sextuple_compressed_red_sand"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:septuple_compressed_red_sand",
+    "count": 1
+  }
+}

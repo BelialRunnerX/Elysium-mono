@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "elysiumlogistics:triple_compressed_moss_block"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:quadruple_compressed_moss_block",
+    "count": 1
+  }
+}

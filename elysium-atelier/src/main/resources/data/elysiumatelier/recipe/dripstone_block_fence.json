@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dripstone_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dripstone_block_fence",
+    "count": 3
+  }
+}

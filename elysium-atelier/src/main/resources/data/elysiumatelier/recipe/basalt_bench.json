@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:basalt"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:basalt_bench",
+    "count": 2
+  }
+}

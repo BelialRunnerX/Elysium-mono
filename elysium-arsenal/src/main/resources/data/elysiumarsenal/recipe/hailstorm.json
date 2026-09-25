@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "elysiumarsenal:legend_sigil"
+  },
+  "base": {
+    "item": "elysiumarsenal:diamond_repeater"
+  },
+  "addition": {
+    "item": "minecraft:echo_shard"
+  },
+  "result": {
+    "id": "elysiumarsenal:hailstorm",
+    "count": 1
+  }
+}

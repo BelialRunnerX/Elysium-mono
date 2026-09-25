@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:red_sandstone"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:compressed_red_sandstone",
+    "count": 1
+  }
+}

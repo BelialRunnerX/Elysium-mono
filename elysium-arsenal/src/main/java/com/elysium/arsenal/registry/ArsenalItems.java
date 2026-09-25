@@ -5,6 +5,8 @@ import com.elysium.arsenal.item.BroadToolItem;
 import com.elysium.arsenal.item.ScytheItem;
 import com.elysium.arsenal.item.WeaponItem;
 import com.elysium.arsenal.rules.ArsenalRules;
+import com.elysium.arsenal.rules.RangedRules;
+import com.elysium.arsenal.rules.UniqueRules;
 import com.elysium.arsenal.rules.WeaponRules;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -45,8 +47,13 @@ public final class ArsenalItems {
     public static final DeferredRegister<CreativeModeTab> TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ElysiumArsenal.MODID);
 
-    /** The vanilla tier behind each of our tier names, in the rules' order. */
-    private static final Map<String, Tier> TIERS = Map.of(
+    /**
+     * The vanilla tier behind each of our tier names, in the rules' order.
+     *
+     * <p>Public because the uniques are built on the same six tiers and a
+     * second copy of this map is a second copy that can drift.
+     */
+    public static final Map<String, Tier> TIERS = Map.of(
             "wooden", Tiers.WOOD, "stone", Tiers.STONE, "iron", Tiers.IRON,
             "golden", Tiers.GOLD, "diamond", Tiers.DIAMOND,
             "netherite", Tiers.NETHERITE);
@@ -150,6 +157,28 @@ public final class ArsenalItems {
                         }
                         for (String id : WeaponRules.catalogue()) {
                             output.accept(WEAPONS.get(id).get());
+                        }
+                        // Walked rather than listed, here as everywhere. A tab
+                        // that shows thirty-five of thirty-six bows is a bug
+                        // nobody reports, because nobody knows the last one is
+                        // missing.
+                        for (String id : RangedRules.catalogue()) {
+                            output.accept(RangedItems.BOWS.get(id).get());
+                        }
+                        for (RangedRules.Shot shot : RangedRules.SHOTS) {
+                            output.accept(RangedItems.SHOTS.get(shot.name()).get());
+                        }
+                        for (String hammer : new java.util.TreeMap<>(
+                                com.elysium.arsenal.rules.ForgeRules.HAMMERS)
+                                .keySet()) {
+                            output.accept(ForgeItems.HAMMERS.get(hammer).get());
+                        }
+                        output.accept(UniqueItems.SIGIL.get());
+                        for (UniqueRules.Unique unique : UniqueRules.UNIQUES) {
+                            output.accept(UniqueItems.ALL.get(unique.id()).get());
+                        }
+                        for (DeferredItem<Item> dug : DigItems.all().values()) {
+                            output.accept(dug.get());
                         }
                     })
                     .build());

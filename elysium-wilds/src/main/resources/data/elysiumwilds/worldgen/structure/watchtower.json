@@ -1,0 +1,8 @@
+{
+  "type": "elysiumwilds:grammar",
+  "grammar": "watchtower",
+  "biomes": "#minecraft:is_hill",
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_thin",
+  "spawn_overrides": {}
+}

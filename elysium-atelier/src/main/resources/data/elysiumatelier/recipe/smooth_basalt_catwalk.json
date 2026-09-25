@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:smooth_basalt"
+    },
+    "X": {
+      "item": "minecraft:iron_bars"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:smooth_basalt_catwalk",
+    "count": 7
+  }
+}

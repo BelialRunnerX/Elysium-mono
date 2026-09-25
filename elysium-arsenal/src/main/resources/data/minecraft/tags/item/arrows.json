@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumarsenal:flint_arrow",
+    "elysiumarsenal:iron_arrow",
+    "elysiumarsenal:barbed_arrow",
+    "elysiumarsenal:ember_arrow",
+    "elysiumarsenal:rime_arrow",
+    "elysiumarsenal:sundering_arrow",
+    "elysiumarsenal:hollow_arrow",
+    "elysiumarsenal:thunder_arrow",
+    "elysiumarsenal:void_arrow"
+  ]
+}

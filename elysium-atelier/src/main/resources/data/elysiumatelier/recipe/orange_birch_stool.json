@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:birch_stool"
+    },
+    {
+      "item": "minecraft:orange_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:orange_birch_stool",
+    "count": 1
+  }
+}

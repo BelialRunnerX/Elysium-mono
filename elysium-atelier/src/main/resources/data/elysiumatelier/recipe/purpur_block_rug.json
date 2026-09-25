@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " M ",
+    "MMM",
+    " M "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:purpur_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:purpur_block_rug",
+    "count": 16
+  }
+}

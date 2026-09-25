@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:double_compressed_sea_lantern"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:compressed_sea_lantern",
+    "count": 9
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:bricks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:bricks_desk",
+    "count": 5
+  }
+}

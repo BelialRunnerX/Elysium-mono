@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "M "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:birch_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:birch_nightstand",
+    "count": 4
+  }
+}

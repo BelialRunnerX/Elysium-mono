@@ -188,19 +188,40 @@ for name in sorted(os.listdir(PURE)) if os.path.isdir(PURE) else []:
 
 JOIN_HARNESS = os.path.join(WORK, "tools/JoinHarness.java")
 JOIN_MAIN = "com.elysium.atelier.rules.JoinHarness"
+ARCH_HARNESS = os.path.join(WORK, "tools/ArchHarness.java")
+ARCH_MAIN = "com.elysium.atelier.rules.ArchHarness"
+COURSE_HARNESS = os.path.join(WORK, "tools/CourseHarness.java")
+COURSE_MAIN = "com.elysium.atelier.rules.CourseHarness"
+TRIM_HARNESS = os.path.join(WORK, "tools/TrimHarness.java")
+TRIM_MAIN = "com.elysium.atelier.rules.TrimHarness"
+CLOTH_HARNESS = os.path.join(WORK, "tools/ClothHarness.java")
+CLOTH_MAIN = "com.elysium.atelier.rules.ClothHarness"
+DIAG_HARNESS = os.path.join(WORK, "tools/DiagonalHarness.java")
+DIAG_MAIN = "com.elysium.atelier.rules.DiagonalHarness"
 
 join_out = ""
-for where in (HARNESS, JOIN_HARNESS):
+arch_out = ""
+course_out = ""
+trim_out = ""
+cloth_out = ""
+diag_out = ""
+for where in (HARNESS, JOIN_HARNESS, ARCH_HARNESS, COURSE_HARNESS, TRIM_HARNESS,
+              CLOTH_HARNESS, DIAG_HARNESS):
     if not os.path.isfile(where):
         fail(f"{os.path.basename(where)} is gone, so what it proved is now checked by "
              f"reading, which nobody has ever done")
 
-if os.path.isfile(HARNESS) and os.path.isfile(JOIN_HARNESS):
+if os.path.isfile(HARNESS) and os.path.isfile(JOIN_HARNESS) \
+        and os.path.isfile(ARCH_HARNESS) and os.path.isfile(COURSE_HARNESS) \
+        and os.path.isfile(TRIM_HARNESS) and os.path.isfile(CLOTH_HARNESS) \
+        and os.path.isfile(DIAG_HARNESS):
     with tempfile.TemporaryDirectory() as tmp:
         staged = os.path.join(tmp, "src")
         os.makedirs(staged)
         sources = [os.path.join(PURE, n) for n in os.listdir(PURE) if n.endswith(".java")]
-        for source in sources + [HARNESS, JOIN_HARNESS]:
+        for source in sources + [HARNESS, JOIN_HARNESS, ARCH_HARNESS,
+                                 COURSE_HARNESS, TRIM_HARNESS, CLOTH_HARNESS,
+                                 DIAG_HARNESS]:
             open(os.path.join(staged, os.path.basename(source)), "w",
                  encoding="utf-8").write(read(source))
         compiled = subprocess.run(
@@ -212,7 +233,12 @@ if os.path.isfile(HARNESS) and os.path.isfile(JOIN_HARNESS):
                  + compiled.stderr.strip()[:1200])
         else:
             for main, label in ((HARNESS_MAIN, "the arithmetic     "),
-                                (JOIN_MAIN, "the joining        ")):
+                                (JOIN_MAIN, "the joining        "),
+                                (ARCH_MAIN, "the building       "),
+                                (COURSE_MAIN, "the courses        "),
+                                (TRIM_MAIN, "the fittings       "),
+                                (CLOTH_MAIN, "the colours        "),
+                                (DIAG_MAIN, "the diagonals      ")):
                 try:
                     ran = subprocess.run(
                         ["java", "-cp", os.path.join(tmp, "out"), main],
@@ -227,9 +253,28 @@ if os.path.isfile(HARNESS) and os.path.isfile(JOIN_HARNESS):
                     continue
                 if main == JOIN_MAIN:
                     join_out = ran.stdout
+                if main == ARCH_MAIN:
+                    arch_out = ran.stdout
+                if main == COURSE_MAIN:
+                    course_out = ran.stdout
+                if main == TRIM_MAIN:
+                    trim_out = ran.stdout
+                if main == CLOTH_MAIN:
+                    cloth_out = ran.stdout
+                if main == DIAG_MAIN:
+                    diag_out = ran.stdout
                 said = [line for line in ran.stdout.strip().splitlines()
                         if not line.startswith("TAG ")
-                        and not line.startswith("OPENING ")]
+                        and not line.startswith("OPENING ")
+                        and not line.startswith("GEOM ")
+                        and not line.startswith("COURSE ")
+                        and not line.startswith("CTAG ")
+                        and not line.startswith("TRIM ")
+                        and not line.startswith("TTAG ")
+                        and not line.startswith("PAD ")
+                        and not line.startswith("CLOTH ")
+                        and not line.startswith("DIAG ")
+                        and not line.startswith("DTAG ")]
                 print(label + ": " + said[-1])
 
 rules = read(PURE, "AtelierRules.java")
@@ -306,14 +351,25 @@ print(f"the prices         : {len(shapes)} shapes, none of them profitable to cr
 # 4. The catalogue
 # ---------------------------------------------------------------------------
 
-materials = re.findall(r'wood\("([a-z_]+)"\)|stone\("([a-z_]+)", "[a-z_]+"\)|'
-                       r'new Material\("([a-z_]+)"', strip_comments(rules, True))
-declared = [next(part for part in group if part) for group in materials]
-declared = [name for name in declared if name != "name"]
-woods = re.search(r'for \(String name : List\.of\(([^)]*)\)\)', strip_comments(rules, True))
-if woods:
-    declared = re.findall(r'"([a-z_]+)"', woods.group(1)) + [
-        name for name in declared if name not in re.findall(r'"([a-z_]+)"', woods.group(1))]
+# Every material, from every place the rules build one: the loops that call a
+# helper, and the three built by hand. Reading only the *first* loop was fine
+# while there was one and silently checked thirteen of thirty-three the day
+# there were two — and a catalogue check that looks at a subset passes.
+plain_rules = strip_comments(rules, True)
+declared = []
+for listed, _helper in re.findall(
+        r'for \(String name : List\.of\(([^)]*)\)\) \{\s*found\.add\((\w+)\(',
+        plain_rules, re.S):
+    declared.extend(re.findall(r'"([a-z_]+)"', listed))
+for group in re.findall(r'stone\("([a-z_]+)", "[a-z_]+"\)|new Material\("([a-z_]+)"',
+                        plain_rules):
+    name = next((part for part in group if part), "")
+    if name and name != "name" and name not in declared:
+        declared.append(name)
+if len(declared) < 20:
+    fail(f"this validator could only find {len(declared)} materials in the rules, "
+         f"and a catalogue check that looks at a subset of the catalogue passes "
+         f"whatever is wrong with the rest of it")
 
 blocks_src = squashed(strip_comments(read(SRC, "registry/AtelierBlocks.java"), True))
 if "for (AtelierRules.Material material : AtelierRules.MATERIALS) { for (AtelierRules.Shape shape : AtelierRules.SHAPES) {" \
@@ -639,6 +695,939 @@ else:
         print(f"the joins          : {len(wanted)} tag file(s) matching the rules "
               f"block for block, {compared} blockstate(s) identical to the game's own, "
               f"and {checked} model(s) built on the templates the game builds them on")
+
+# ---------------------------------------------------------------------------
+# The architectural pieces
+# ---------------------------------------------------------------------------
+#
+# Six hundred and ninety-three blocks whose models are drawn by a table in the
+# generator and whose collision comes from the rules. Two descriptions of one
+# geometry, and a block whose model and collision differ is one you fall
+# through or cannot step onto, looking completely correct from every angle.
+
+arch = strip_comments(read(PURE, "ArchRules.java"), True)
+arch_pieces = re.findall(r'new Piece\(\s*"([a-z_]+)"', arch)
+pitches = re.findall(r'"([a-z]+)"',
+                     re.search(r"PITCHES =\s*List\.of\(([^)]*)\)", arch).group(1))
+roof_roles = re.findall(r"found\.add\(roof\(pitch, (\w+),", arch)
+for pitch in pitches:
+    for role in roof_roles:
+        arch_pieces.append(f"{pitch}_roof_{role.lower()}")
+joining = {name for name in re.findall(
+    r'new Piece\(\s*"([a-z_]+)"[^)]*?,\s*true\s*\)', arch, re.S)}
+
+if len(arch_pieces) < 10:
+    fail(f"this validator found {len(arch_pieces)} architectural pieces in the "
+         f"rules, and a catalogue check that looks at a handful of the catalogue "
+         f"passes whatever is wrong with the rest of it")
+
+absent = []
+for material in declared:
+    for piece in arch_pieces:
+        id = f"{material}_{piece}"
+        wanted = [f"assets/{NS}/blockstates/{id}.json",
+                  f"assets/{NS}/models/item/{id}.json",
+                  f"data/{NS}/loot_table/blocks/{id}.json",
+                  f"data/{NS}/recipe/{id}.json"]
+        if piece not in joining:
+            wanted.append(f"assets/{NS}/models/block/{id}.json")
+        for where in wanted:
+            if not os.path.isfile(os.path.join(RES, where)):
+                absent.append(f"{id} has no {where.rsplit('/', 2)[-2]}")
+        if f"block.{NS}.{id}" not in lang:
+            absent.append(f"{id} has no name, so it is called by its id")
+if absent:
+    fail(f"{len(absent)} of {len(declared) * len(arch_pieces) * 5} things an "
+         f"architectural block needs are missing: " + ", ".join(absent[:6]))
+
+# The geometry, compared against what the harness printed out of the rules the
+# block itself reads. This is the only thing standing between the two
+# descriptions drifting apart.
+printed = {}
+for line in arch_out.splitlines():
+    if not line.startswith("GEOM "):
+        continue
+    parts = line.split()
+    printed[parts[1]] = [tuple(int(n) for n in box.split(",")) for box in parts[2:]]
+if not printed:
+    fail("the harness printed no geometry, so the models are compared against "
+         "nothing and the check passes by having no opinion")
+else:
+    for piece in arch_pieces:
+        if piece not in printed:
+            fail(f"{piece} has no geometry from the rules, so its model is checked "
+                 f"against nothing")
+            continue
+        if piece in joining:
+            continue
+        body = read(RES, "assets", NS, f"models/block/{declared[0]}_{piece}.json")
+        if not body:
+            continue
+        drawn = [tuple(json.loads(body)["elements"][n]["from"]
+                       + json.loads(body)["elements"][n]["to"])
+                 for n in range(len(json.loads(body)["elements"]))]
+        if drawn != printed[piece]:
+            fail(f"{piece} is drawn as {drawn} and collides as {printed[piece]}, so "
+                 f"it is a block you can fall through or cannot step onto and it "
+                 f"looks correct from every angle")
+
+pieces_src = squashed(strip_comments(read(SRC, "registry/AtelierBlocks.java"), True))
+if "for (AtelierRules.Material material : AtelierRules.MATERIALS) { for " \
+        "(ArchRules.Piece piece : ArchRules.PIECES) {" not in pieces_src:
+    fail("the architectural blocks are not registered from the two rosters, so a "
+         "twenty-second piece is a block that does not exist and nothing says so")
+if "if (made.size() != ArchRules.howMany()) { throw new IllegalStateException(" \
+        not in pieces_src:
+    fail("nothing counts the architectural blocks registered against the roster "
+         "they were walked from")
+if "properties = properties.lightLevel(state -> piece.light());" not in pieces_src:
+    fail("a light's brightness is not read off the piece, so the ladder the rules "
+         "prove climbs is not the ladder a player sees in a dark room")
+
+items_src = squashed(strip_comments(read(SRC, "registry/AtelierItems.java"), True))
+if "java.util.List.of(AtelierBlocks.ALL, AtelierBlocks.OPENINGS, " \
+        "AtelierBlocks.PIECES, AtelierBlocks.COURSES, AtelierBlocks.FITTINGS, " \
+        "AtelierBlocks.CLOTH, AtelierBlocks.DIAGONALS)) {" not in items_src:
+    fail("the seven rosters of blocks are not all walked for items, so one of them "
+         "is blocks a player can only place with a command — which in a decoration "
+         "module is a block that does not exist")
+if "int blocks = AtelierBlocks.ALL.size() + AtelierBlocks.OPENINGS.size() + " \
+        "AtelierBlocks.PIECES.size() + AtelierBlocks.COURSES.size() + " \
+        "AtelierBlocks.FITTINGS.size() + AtelierBlocks.CLOTH.size() + " \
+        "AtelierBlocks.DIAGONALS.size();" not in items_src:
+    fail("the count the items are checked against does not add up all seven "
+         "rosters, so a roster left out of the loop above would not be noticed")
+
+print(f"the building       : {len(arch_pieces)} piece(s) in {len(declared)} "
+      f"material(s) = {len(arch_pieces) * len(declared)} block(s), every one drawn "
+      f"exactly as it collides, stated, dropped, named, craftable and registered "
+      f"from a loop")
+
+# ---------------------------------------------------------------------------
+# The courses
+# ---------------------------------------------------------------------------
+#
+# The cuts of a block and the ways up one: three hundred and sixty-three
+# blocks whose prices are not written down anywhere but counted off their own
+# models. So the three things that can be wrong here are all about agreement
+# rather than about a number — the shape the rules price against the shape the
+# generator draws, the list of what the game already has against the game, and
+# the four cuts the game knows against the way the game draws them.
+
+# Every material, with the vanilla block it is cut from and whether a hand
+# alone works it. Read the same three ways the catalogue above reads them: the
+# loops that call a helper, and the ones written out by hand.
+course_materials = {}
+#: What each helper actually builds, read out of the helper rather than
+#: assumed: wood() makes planks out of a name and stone() makes the block of
+#: that name, and a validator that assumes the first would call an oak
+#: vertical slab a cut of minecraft:oak, which is not a block.
+helpers = {}
+for helper, suffix, soft in re.findall(
+        r'private static Material (\w+)\(String name[^)]*\) \{\s*'
+        r'return new Material\(name,\s*"minecraft:" \+ name'
+        r'(?:\s*\+\s*"([a-z_]+)")?,.*?(true|false)\);',
+        plain_rules, re.S):
+    helpers[helper] = (suffix, soft == "true")
+for listed, helper in re.findall(
+        r'for \(String name : List\.of\(([^)]*)\)\) \{\s*found\.add\((\w+)\(',
+        plain_rules, re.S):
+    if helper not in helpers:
+        fail(f"this validator cannot read what {helper}() builds a material out "
+             f"of, so every stonecutting recipe it checks is checked against a "
+             f"guess at the ingredient")
+        continue
+    suffix, soft = helpers[helper]
+    for name in re.findall(r'"([a-z_]+)"', listed):
+        course_materials[name] = ("minecraft:" + name + suffix, soft)
+for name, block, _face, soft in re.findall(
+        r'new Material\("([a-z_]+)",\s*"([a-z:_]+)",\s*"([a-z:/_]+)",\s*(true|false)\)',
+        plain_rules, re.S):
+    course_materials[name] = (block, soft == "true")
+for name in declared:
+    if name not in course_materials:
+        fail(f"this validator cannot say what {name} is cut from or whether a hand "
+             f"works it, so every tag it checks below is checked against a guess")
+        course_materials[name] = ("minecraft:" + name, False)
+
+course = strip_comments(read(PURE, "CourseRules.java"), True)
+course_kinds = []
+course_named = dict(re.findall(
+    r'public static final String (\w+)\s*=\s*"([a-z_]+)";', course))
+for name, family, role, made, of, joins in re.findall(
+        r'new Kind\(\s*(\w+),\s*(\w+),\s*("[a-z]*"|\w+),\s*(\d+),\s*(\d+),'
+        r'\s*(true|false)\s*\)', course, re.S):
+    course_kinds.append((course_named[name], course_named[family],
+                         int(made), int(of), joins == "true"))
+if len(course_kinds) != len(re.findall(r"new Kind\(", course)):
+    fail(f"this validator read {len(course_kinds)} of "
+         f"{len(re.findall(r'new Kind', course))} courses out of the rules, so "
+         f"whatever it says below is about a smaller catalogue than the one that "
+         f"ships")
+
+course_already = {}
+_block = re.search(r"VANILLA_ALREADY = Map\.of\((.*?)\);", course, re.S)
+if not _block:
+    fail("the course rules no longer say what the game already has, so this module "
+         "would add a second oak stair to a game that has had one since 2011")
+else:
+    for name, listed in re.findall(r'(\w+),\s*Set\.of\(([^)]*)\)', _block.group(1)):
+        course_already[course_named[name]] = set(re.findall(r'"([a-z_]+)"', listed))
+course_spelt = dict(re.findall(r'"([a-z_]+)",\s*"([a-z_]+)"',
+                               re.search(r"AS_THE_GAME_SPELLS_IT = Map\.of\((.*?)\);",
+                                         course, re.S).group(1)))
+course_stonecut = {course_named[name] for name in re.findall(
+    r"\b([A-Z_]+)\b",
+    re.search(r"STONECUT =\s*List\.of\(([^)]*)\);", course, re.S).group(1))}
+
+# What the game already has, against the game. JoinRules has the same list for
+# doors and only ever checked that it was *used*, which would not catch a
+# material the game gained later and would not catch one typed wrong here.
+if not os.path.isfile(VANILLA_JAR):
+    print("the cuts           : the game's jar is not here, so what it already "
+          "cuts was not checked against it")
+else:
+    import zipfile as _zip
+    with _zip.ZipFile(VANILLA_JAR) as jar:
+        theirs = {n.split("/")[-1][:-5] for n in jar.namelist()
+                  if n.startswith("assets/minecraft/blockstates/")
+                  and n.endswith(".json")}
+    suffix = {"stair": "_stairs", "slab": "_slab", "wall": "_wall"}
+    wrong = []
+    for kind, tail in suffix.items():
+        claimed = course_already.get(kind, set())
+        for material in declared:
+            spelt = course_spelt.get(material, material)
+            in_game = (spelt + tail) in theirs
+            if in_game and material not in claimed:
+                wrong.append(f"the game has a {spelt}{tail} and this module adds "
+                             f"a second one")
+            if not in_game and material in claimed:
+                wrong.append(f"the game is said to have a {spelt}{tail} and has "
+                             f"no such block, so that cut is simply missing")
+    for kind in course_already:
+        if kind not in suffix and course_already[kind]:
+            wrong.append(f"the game is said to have {kind}s and the game has "
+                         f"never had one of any material")
+    if wrong:
+        fail(f"{len(wrong)} disagreement(s) between what the game has and what "
+             f"this module thinks it has: " + "; ".join(sorted(set(wrong))[:4]))
+    else:
+        print(f"the cuts           : {sum(len(v) for v in course_already.values())} "
+              f"cut(s) the game already ships, every one of them checked against "
+              f"the game's own blockstates and left out")
+
+# Every course, with everything a block needs.
+course_ids = []
+for material in declared:
+    for kind, _family, _made, _of, _joins in course_kinds:
+        if material in course_already.get(kind, set()):
+            continue
+        course_ids.append((material, kind, f"{material}_{kind}"))
+if len(course_ids) < 100:
+    fail(f"this validator found {len(course_ids)} courses, and a catalogue check "
+         f"that looks at a handful of the catalogue passes whatever is wrong with "
+         f"the rest of it")
+
+missing = []
+for material, kind, id in course_ids:
+    wanted = [f"assets/{NS}/blockstates/{id}.json",
+              f"assets/{NS}/models/item/{id}.json",
+              f"data/{NS}/loot_table/blocks/{id}.json",
+              f"data/{NS}/recipe/{id}.json"]
+    for where in wanted:
+        if not os.path.isfile(os.path.join(RES, where)):
+            missing.append(f"{id} has no {where.rsplit('/', 2)[-2]}")
+    if f"block.{NS}.{id}" not in lang:
+        missing.append(f"{id} has no name, so it is called by its id")
+if missing:
+    fail(f"{len(missing)} of {len(course_ids) * 5} things a course needs are "
+         f"missing: " + ", ".join(missing[:6]))
+
+# A stonecutter takes one of its ingredient. A recipe claiming to take two is
+# one the game loads, ignores the second of, and hands out the difference.
+cutting = 0
+for material, kind, id in course_ids:
+    body = read(RES, "data", NS, f"recipe/{id}.json")
+    if not body:
+        continue
+    recipe = json.loads(body)
+    if kind in course_stonecut:
+        cutting += 1
+        if recipe.get("type") != "minecraft:stonecutting":
+            fail(f"{id} is said to be cut on a stonecutter and its recipe is a "
+                 f"{recipe.get('type')}, so it is on a grid this module has "
+                 f"forty-five other recipes competing for")
+            break
+        cut_from = (recipe.get("ingredient") or {}).get("item")
+        if cut_from != course_materials[material][0]:
+            fail(f"{id} is cut from {cut_from} and it is made of "
+                 f"{course_materials[material][0]}; a stonecutting recipe with "
+                 f"the wrong ingredient, or none, is a recipe the player never "
+                 f"sees and a block they can never get")
+            break
+        if recipe.get("result", {}).get("count", 0) < 1:
+            fail(f"{id} is cut out of a block and gives nothing back")
+            break
+    elif recipe.get("type") != "minecraft:crafting_shaped":
+        fail(f"{id} is crafted and its recipe is a {recipe.get('type')}")
+        break
+if not cutting:
+    fail("not one course is cut on a stonecutter, so the check above is about "
+         "a recipe type nothing in this module uses")
+
+# The geometry, against what the harness printed out of the rules the block
+# itself reads. The only thing standing between the two descriptions drifting.
+course_printed = {}
+for line in course_out.splitlines():
+    if not line.startswith("COURSE "):
+        continue
+    parts = line.split()
+    course_printed[parts[1]] = [tuple(int(n) for n in box.split(","))
+                                for box in parts[2:]]
+if not course_printed:
+    fail("the course harness printed no geometry, so the models are compared "
+         "against nothing and the check passes by having no opinion")
+else:
+    drawn_here = {kind for kind, _f, _m, _o, joins in course_kinds
+                  if kind not in course_stonecut and not joins}
+    for kind, _family, _made, _of, _joins in course_kinds:
+        if kind not in course_printed:
+            fail(f"{kind} has no geometry from the rules, so its model is checked "
+                 f"against nothing")
+            continue
+        if kind not in drawn_here:
+            continue
+        first = next((id for material, k, id in course_ids if k == kind), None)
+        if first is None:
+            continue
+        body = read(RES, "assets", NS, f"models/block/{first}.json")
+        if not body:
+            continue
+        model = json.loads(body)
+        drawn = [tuple(one["from"] + one["to"]) for one in model["elements"]]
+        if drawn != course_printed[kind]:
+            fail(f"{kind} is drawn as {drawn} and collides as "
+                 f"{course_printed[kind]}, so it is a block you can fall through "
+                 f"or cannot step onto and it looks correct from every angle")
+
+# And the four cuts the game already knows, drawn the way the game draws them.
+COURSE_SAME_AS = {"stair": ("stone_stairs", "stone"), "slab": ("stone_slab", "stone"),
+                  "wall": ("cobblestone_wall", "cobblestone"),
+                  "ladder": ("ladder", None)}
+if os.path.isfile(VANILLA_JAR):
+    import zipfile as _zip2
+    copied = 0
+    with _zip2.ZipFile(VANILLA_JAR) as jar:
+        for kind, (theirs, their_block) in sorted(COURSE_SAME_AS.items()):
+            ours = next((id for material, k, id in course_ids if k == kind), None)
+            if ours is None:
+                fail(f"there is no {kind} in the whole catalogue to compare with "
+                     f"the game's own {theirs}")
+                continue
+            if kind == "ladder":
+                # Ours is drawn out of its own boxes rather than the game's
+                # one-texture plane, so only the state is the game's.
+                pass
+            mine = os.path.join(RES, "assets", NS, "blockstates", ours + ".json")
+            if not os.path.isfile(mine):
+                fail(f"{ours} has no blockstate, so it is drawn as nothing")
+                continue
+            try:
+                vanilla = jar.read(f"assets/minecraft/blockstates/{theirs}.json")
+            except KeyError:
+                fail(f"the game has no {theirs} to compare {ours} against")
+                continue
+            got = json.dumps(json.loads(read(mine)), sort_keys=True) \
+                .replace(f"{NS}:block/{ours}", f"minecraft:block/{theirs}")
+            if their_block:
+                material = ours[:-(len(kind) + 1)]
+                whole = course_materials.get(material, ("", False))[0]
+                if whole:
+                    got = got.replace("minecraft:block/" + whole.split(":", 1)[1],
+                                      f"minecraft:block/{their_block}")
+            want = json.dumps(json.loads(vanilla), sort_keys=True)
+            if got != want:
+                fail(f"{ours} is not drawn the way the game draws a {theirs}. A "
+                     f"stair has forty variants and one of them wrong is a corner "
+                     f"you fall through from exactly one direction, and it is not "
+                     f"something anybody sees by reading the file")
+            copied += 1
+
+# The models under those states. A blockstate naming the right model is no use
+# when the model is built on the wrong template: a slab whose bottom half
+# parents the top half is a slab that floats, and the blockstate is perfect.
+COURSE_SAME_MODELS = {
+    "stair": [("", "stone_stairs"), ("_inner", "stone_stairs_inner"),
+              ("_outer", "stone_stairs_outer")],
+    "slab": [("", "stone_slab"), ("_top", "stone_slab_top")],
+    "wall": [("_post", "cobblestone_wall_post"), ("_side", "cobblestone_wall_side"),
+             ("_side_tall", "cobblestone_wall_side_tall"),
+             ("_inventory", "cobblestone_wall_inventory")],
+}
+if os.path.isfile(VANILLA_JAR):
+    import zipfile as _zip3
+    parented = 0
+    with _zip3.ZipFile(VANILLA_JAR) as jar:
+        for kind, parts in sorted(COURSE_SAME_MODELS.items()):
+            ours = next((id for material, k, id in course_ids if k == kind), None)
+            if ours is None:
+                continue
+            for suffix, theirs in parts:
+                mine = os.path.join(RES, "assets", NS, "models/block",
+                                    ours + suffix + ".json")
+                if not os.path.isfile(mine):
+                    fail(f"{ours}{suffix} has no model, so the state that names it "
+                         f"draws nothing")
+                    continue
+                try:
+                    vanilla = json.loads(jar.read(
+                        f"assets/minecraft/models/block/{theirs}.json"))
+                except KeyError:
+                    fail(f"the game has no model {theirs} to compare "
+                         f"{ours}{suffix} against")
+                    continue
+                got = json.loads(read(mine)).get("parent")
+                want = vanilla.get("parent")
+                if got != want:
+                    fail(f"{ours}{suffix} is built on {got} and the game builds a "
+                         f"{theirs} on {want}; the state naming it is perfect and "
+                         f"the piece is the wrong shape")
+                parented += 1
+    if not parented:
+        fail("not one course model was compared with the game's own, so the "
+             "check above has no opinion about anything")
+
+# A double slab is the material's own block and nobody else's. Getting it
+# wrong is a slab that turns into somebody else's stone when you stack two.
+for material, kind, id in course_ids:
+    if kind != "slab":
+        continue
+    body = read(RES, "assets", NS, f"blockstates/{id}.json")
+    if not body:
+        continue
+    whole = json.loads(body).get("variants", {}).get("type=double", {}).get("model")
+    want = "minecraft:block/" + course_materials[material][0].split(":", 1)[1]
+    if whole != want:
+        fail(f"two {id}s stack into {whole} and the material is {want}; a slab "
+             f"that turns into somebody else's block when you stack it is not "
+             f"something anybody sees by reading the file")
+        break
+
+# The tags, against what the rules derive.
+# Read out of the harness, which read them out of the rules, rather than
+# derived a third time here. A third copy is a third thing to keep in step, and
+# the copy that drifts is always the one nothing is compared against.
+course_tags_want = {}
+for line in course_out.splitlines():
+    if not line.startswith("CTAG "):
+        continue
+    parts = line.split()
+    for tag in parts[2:]:
+        course_tags_want.setdefault(tag, set()).add(f"{NS}:{parts[1]}")
+if len(course_tags_want) < 3:
+    fail("the course harness printed tags for nothing, so the tag files below "
+         "are compared against an empty list and the check has no opinion")
+tagged = {id for values in course_tags_want.values() for id in values}
+if len(tagged) != len(course_ids):
+    fail(f"the rules put {len(tagged)} of {len(course_ids)} courses in a tag; a "
+         f"course in no tag at all is mined with a fist and stacks with nothing")
+# The four cuts the game already knows have tags the game itself relies on.
+# Said here rather than only against what the rules derive, because a rule
+# that says less is a rule nothing contradicts: dropping minecraft:slabs from
+# the rules would drop it from the files and from the list they are compared
+# against, all three in step and all three wrong.
+MUST_BE_IN = {"stair": "minecraft:stairs", "slab": "minecraft:slabs",
+              "wall": "minecraft:walls", "ladder": "minecraft:climbable"}
+for material, kind, id in course_ids:
+    tag = MUST_BE_IN.get(kind)
+    if tag and f"{NS}:{id}" not in course_tags_want.get(tag, set()):
+        fail(f"{id} is a {kind} and the rules do not put it in {tag}; a slab "
+             f"outside the game's slab tag is a slab no other slab stacks with, "
+             f"a ladder outside its climbable tag is one a player slides down, "
+             f"and both read as a rendering bug")
+        break
+
+for tag, values in sorted(course_tags_want.items()):
+    namespace, path = tag.split(":", 1)
+    where = os.path.join(RES, "data", namespace, "tags/block", path + ".json")
+    if not os.path.isfile(where):
+        fail(f"{tag} has no file, so every course that needs it is mined with a "
+             f"fist and stacks with nothing")
+        continue
+    have = set(json.loads(read(where)).get("values", []))
+    absent = values - have
+    if absent:
+        fail(f"{len(absent)} course(s) are missing from {tag}: "
+             f"{sorted(absent)[:3]} — a slab outside the game's slab tag is a slab "
+             f"no other slab stacks with, and it reads as a rendering bug")
+
+courses_src = squashed(strip_comments(read(SRC, "registry/AtelierBlocks.java"), True))
+if "for (CourseRules.Course course : CourseRules.catalogue()) {" not in courses_src:
+    fail("the courses are not registered by walking the catalogue, so a "
+         "fourteenth kind is a block that does not exist and nothing says so")
+if "if (made.size() != CourseRules.howMany()) { throw new IllegalStateException(" \
+        not in courses_src:
+    fail("nothing counts the courses registered against the catalogue they were "
+         "walked from")
+if "case CourseRules.STAIR -> BLOCKS.register(id, () -> new StairBlock(cut(from)," \
+        " settled));" not in courses_src:
+    fail("a stair is not registered as the game's own stair, so it does not turn "
+         "its own corners and every corner in a staircase is a hole")
+if "case CourseRules.LADDER -> BLOCKS.register(id, () -> new LadderBlock(settled));" \
+        not in courses_src:
+    fail("a ladder is not registered as the game's own ladder, so it is a block "
+         "shaped like a ladder that a player slides down")
+
+print(f"the courses        : {len(course_kinds)} kind(s) over {len(declared)} "
+      f"material(s) = {len(course_ids)} block(s), {cutting} of them cut on a "
+      f"stonecutter one block at a time, every one drawn exactly as it collides, "
+      f"tagged, dropped, named and registered from the catalogue")
+
+# ---------------------------------------------------------------------------
+# The fittings
+# ---------------------------------------------------------------------------
+#
+# Twelve shapes, three of which exist only in the eleven materials a hand can
+# work. The interesting check is that last one: a crossing that is *not* every
+# kind times every material is a crossing with a condition in it, and a
+# condition a generator gets wrong writes three hundred and thirty blocks or
+# three hundred and ninety-six and both look completely reasonable.
+
+trim = strip_comments(read(PURE, "TrimRules.java"), True)
+trim_named = dict(re.findall(
+    r'public static final String (\w+)\s*=\s*"([a-z_]+)";', trim))
+trim_kinds = []
+for name, family, made, of, joins, climbs in re.findall(
+        r'new Kind\(\s*(\w+),\s*(\w+),\s*(\d+),\s*(\d+),\s*(true|false),'
+        r'\s*(true|false)\s*\)', trim, re.S):
+    trim_kinds.append((trim_named[name], trim_named[family], int(made), int(of),
+                       joins == "true", climbs == "true"))
+if len(trim_kinds) != len(re.findall(r"new Kind\(", trim)):
+    fail(f"this validator read {len(trim_kinds)} of "
+         f"{len(re.findall(r'new Kind', trim))} fittings out of the rules, so "
+         f"whatever it says below is about a smaller catalogue than the one that "
+         f"ships")
+trim_soft = trim_named.get("SOFT")
+if not trim_soft:
+    fail("the trim rules no longer name the family that is only made out of "
+         "something soft, so a cushion of deepslate would be checked for and "
+         "found")
+
+trim_ids = []
+trim_refused = []
+for material in declared:
+    soft = course_materials[material][1]
+    for kind, family, _made, _of, joins, climbs in trim_kinds:
+        if family == trim_soft and not soft:
+            trim_refused.append(f"{material}_{kind}")
+            continue
+        trim_ids.append((material, kind, f"{material}_{kind}", joins, climbs))
+if len(trim_ids) < 100:
+    fail(f"this validator found {len(trim_ids)} fittings, and a catalogue check "
+         f"that looks at a handful of the catalogue passes whatever is wrong with "
+         f"the rest of it")
+if not trim_refused:
+    fail("every fitting is made in every material, so the rule that a cushion is "
+         "cut out of something soft refuses nothing and is not a rule")
+
+missing = []
+for material, kind, id, joins, climbs in trim_ids:
+    wanted = [f"assets/{NS}/blockstates/{id}.json",
+              f"assets/{NS}/models/item/{id}.json",
+              f"data/{NS}/loot_table/blocks/{id}.json",
+              f"data/{NS}/recipe/{id}.json"]
+    if not joins:
+        wanted.append(f"assets/{NS}/models/block/{id}.json")
+    for where in wanted:
+        if not os.path.isfile(os.path.join(RES, where)):
+            missing.append(f"{id} has no {where.rsplit('/', 2)[-2]}")
+    if f"block.{NS}.{id}" not in lang:
+        missing.append(f"{id} has no name, so it is called by its id")
+if missing:
+    fail(f"{len(missing)} of {len(trim_ids) * 5} things a fitting needs are "
+         f"missing: " + ", ".join(missing[:6]))
+
+# And the other direction: a cushion of deepslate would be a file nobody asked
+# for, which is exactly what a crossing with a condition gets wrong.
+strayed = [id for id in trim_refused
+           if os.path.isfile(os.path.join(RES, "assets", NS, "blockstates",
+                                          id + ".json"))]
+if strayed:
+    fail(f"{len(strayed)} fitting(s) exist that the rules refuse to make: "
+         f"{strayed[:4]} — a cushion of deepslate is a joke the generator makes "
+         f"on its own, in every material, and nobody sees it until they open the "
+         f"creative menu")
+
+# The geometry, against what the harness printed out of the rules.
+trim_printed = {}
+for line in trim_out.splitlines():
+    if not line.startswith("TRIM "):
+        continue
+    parts = line.split()
+    trim_printed[parts[1]] = [tuple(int(n) for n in box.split(","))
+                              for box in parts[2:]]
+if not trim_printed:
+    fail("the trim harness printed no geometry, so the models are compared "
+         "against nothing and the check passes by having no opinion")
+else:
+    for kind, _family, _made, _of, joins, _climbs in trim_kinds:
+        if kind not in trim_printed:
+            fail(f"{kind} has no geometry from the rules, so its model is checked "
+                 f"against nothing")
+            continue
+        if joins:
+            continue
+        first = next((id for material, k, id, _j, _c in trim_ids if k == kind), None)
+        if first is None:
+            continue
+        body = read(RES, "assets", NS, f"models/block/{first}.json")
+        if not body:
+            continue
+        drawn = [tuple(one["from"] + one["to"])
+                 for one in json.loads(body)["elements"]]
+        if drawn != trim_printed[kind]:
+            fail(f"{kind} is drawn as {drawn} and collides as {trim_printed[kind]}, "
+                 f"so it is a block you can fall through or cannot step onto and it "
+                 f"looks correct from every angle")
+
+# The tags, read out of the harness rather than derived a third time here.
+trim_tags_want = {}
+for line in trim_out.splitlines():
+    if not line.startswith("TTAG "):
+        continue
+    parts = line.split()
+    for tag in parts[2:]:
+        trim_tags_want.setdefault(tag, set()).add(f"{NS}:{parts[1]}")
+if len(trim_tags_want) < 2:
+    fail("the trim harness printed tags for nothing, so the tag files below are "
+         "compared against an empty list and the check has no opinion")
+climbing = trim_tags_want.get("minecraft:climbable", set())
+for material, kind, id, _joins, climbs in trim_ids:
+    if climbs and f"{NS}:{id}" not in climbing:
+        fail(f"{id} is climbed and the rules do not put it in "
+             f"minecraft:climbable, so a player slides down it and the model is "
+             f"perfect")
+        break
+for tag, values in sorted(trim_tags_want.items()):
+    namespace, path = tag.split(":", 1)
+    where = os.path.join(RES, "data", namespace, "tags/block", path + ".json")
+    if not os.path.isfile(where):
+        fail(f"{tag} has no file, so every fitting that needs it is mined with a "
+             f"fist")
+        continue
+    absent = values - set(json.loads(read(where)).get("values", []))
+    if absent:
+        fail(f"{len(absent)} fitting(s) are missing from {tag}: {sorted(absent)[:3]}")
+
+fittings_src = squashed(strip_comments(read(SRC, "registry/AtelierBlocks.java"), True))
+if "for (TrimRules.Fitting fitting : TrimRules.catalogue()) {" not in fittings_src:
+    fail("the fittings are not registered by walking the catalogue, so a "
+         "thirteenth is a block that does not exist and nothing says so")
+if "if (made.size() != TrimRules.howMany()) { throw new IllegalStateException(" \
+        not in fittings_src:
+    fail("nothing counts the fittings registered against the catalogue they were "
+         "walked from")
+
+print(f"the fittings       : {len(trim_kinds)} kind(s) over {len(declared)} "
+      f"material(s) = {len(trim_ids)} block(s) and {len(trim_refused)} refused for "
+      f"being cut out of something a hand cannot work, every one drawn exactly as "
+      f"it collides, tagged, dropped, named and registered from the catalogue")
+
+# ---------------------------------------------------------------------------
+# The colour axis
+# ---------------------------------------------------------------------------
+#
+# Five hundred and ninety-two blocks and not one new texture: a red oak chair
+# is this module's oak chair with two of its six boxes drawn in the game's own
+# red wool. Which two is written down in the rules and the boxes are in the
+# generator, so the one thing that can go wrong silently is the two disagreeing
+# — a chair that gains a box and goes on being padded on the boxes it used to
+# have, which is a chair with a cushion on one leg and it renders perfectly.
+
+cloth = strip_comments(read(PURE, "ClothRules.java"), True)
+colours = re.findall(r'"([a-z_]+)"',
+                     re.search(r"COLOURS = List\.of\((.*?)\);", cloth, re.S).group(1))
+cloth_seats = [(shape, int(boxes), [int(n) for n in re.findall(r"\d+", padded)])
+               for shape, boxes, padded in re.findall(
+                   r'new Seat\("([a-z_]+)",\s*(\d+),\s*List\.of\(([^)]*)\)\)', cloth)]
+cloth_kinds = []
+for name, made, of in re.findall(r'new Cloth\((\w+),\s*(\d+),\s*(\d+)\)', cloth):
+    spelt = re.search(r'public static final String ' + name + r'\s*=\s*"([a-z_]+)";',
+                      cloth)
+    if spelt:
+        cloth_kinds.append((spelt.group(1), int(made), int(of)))
+if len(colours) != 16 or not cloth_seats or not cloth_kinds:
+    fail(f"this validator read {len(colours)} colour(s), {len(cloth_seats)} seat(s) "
+         f"and {len(cloth_kinds)} kind(s) of cloth out of the rules, and a crossing "
+         f"check built on a short list passes whatever is wrong with the rest")
+
+cloth_woods = [m for m in declared if course_materials[m][1]]
+cloth_ids = []
+for colour in colours:
+    for wood in cloth_woods:
+        for shape, _boxes, _padded in cloth_seats:
+            cloth_ids.append((colour, f"{colour}_{wood}_{shape}", shape))
+    for kind, _made, _of in cloth_kinds:
+        cloth_ids.append((colour, f"{colour}_{kind}", kind))
+if len(cloth_ids) < 300:
+    fail(f"this validator found {len(cloth_ids)} coloured blocks, and a catalogue "
+         f"check that looks at a handful of the catalogue passes whatever is wrong "
+         f"with the rest of it")
+
+missing = []
+for colour, id, _shape in cloth_ids:
+    for where in (f"assets/{NS}/blockstates/{id}.json",
+                  f"assets/{NS}/models/block/{id}.json",
+                  f"assets/{NS}/models/item/{id}.json",
+                  f"data/{NS}/loot_table/blocks/{id}.json",
+                  f"data/{NS}/recipe/{id}.json"):
+        if not os.path.isfile(os.path.join(RES, where)):
+            missing.append(f"{id} has no {where.rsplit('/', 2)[-2]}")
+    if f"block.{NS}.{id}" not in lang:
+        missing.append(f"{id} has no name, so it is called by its id")
+if missing:
+    fail(f"{len(missing)} of {len(cloth_ids) * 6} things a coloured block needs are "
+         f"missing: " + ", ".join(missing[:6]))
+
+# The padding, against what the harness printed out of the rules. Every seat is
+# drawn as its own shape's boxes with some of them in wool, and both numbers —
+# how many boxes and which of them are cloth — have to be what the rules say.
+padding = {}
+for line in cloth_out.splitlines():
+    if not line.startswith("PAD "):
+        continue
+    parts = line.split()
+    padding[parts[1]] = (int(parts[2]), [int(n) for n in parts[3:]])
+if not padding:
+    fail("the cloth harness printed no padding, so which boxes are cloth is "
+         "checked against nothing and the check passes by having no opinion")
+else:
+    checked = 0
+    for shape, boxes, padded in cloth_seats:
+        if shape not in padding:
+            fail(f"{shape} is upholstered and the rules printed no padding for it")
+            continue
+        if padding[shape] != (boxes, padded):
+            fail(f"{shape} is padded on {padded} of {boxes} boxes here and "
+                 f"{padding[shape]} in the rules")
+            continue
+        first = next((id for colour, id, kind in cloth_ids if kind == shape), None)
+        if first is None:
+            continue
+        body = read(RES, "assets", NS, f"models/block/{first}.json")
+        if not body:
+            continue
+        model = json.loads(body)
+        drawn = model.get("elements", [])
+        if len(drawn) != boxes:
+            fail(f"{first} is drawn as {len(drawn)} boxes and the rules upholster "
+                 f"{boxes}; the cushion is on whichever box that number lands on")
+            continue
+        wore = [n for n, one in enumerate(drawn)
+                if one["faces"]["up"]["texture"] == "#cloth"]
+        if wore != sorted(padded):
+            fail(f"{first} wears cloth on boxes {wore} and the rules pad {padded}, "
+                 f"so it is a chair with a cushion on one of its legs and it "
+                 f"renders perfectly")
+            continue
+        textures = model.get("textures", {})
+        want_cloth = f"minecraft:block/{first.split('_' + shape)[0].rsplit('_', 1)[0]}_wool"
+        if not textures.get("cloth", "").endswith("_wool"):
+            fail(f"{first} is upholstered in {textures.get('cloth')}, which is not "
+                 f"wool, so the colour axis is not a colour axis")
+        if textures.get("wood") == textures.get("cloth"):
+            fail(f"{first} wears one texture on its frame and its cushion, so it "
+                 f"is a block of wool shaped like a chair")
+        checked += 1
+    if not checked:
+        fail("not one upholstered seat was compared with the padding the rules "
+             "print, so that comparison has no opinion about anything")
+
+# Every colour's seat has to be upholstered in that colour's own wool, which is
+# the whole of the difference between five hundred and twenty-eight blocks and
+# thirty-three of them.
+wrong = []
+for colour, id, kind in cloth_ids:
+    body = read(RES, "assets", NS, f"models/block/{id}.json")
+    if not body:
+        continue
+    textures = json.loads(body).get("textures", {})
+    wore = textures.get("cloth") or textures.get("all")
+    if wore != f"minecraft:block/{colour}_wool":
+        wrong.append(f"{id} is {wore}")
+if wrong:
+    fail(f"{len(wrong)} coloured block(s) wear the wrong colour: {wrong[:4]} — "
+         f"which is the entire difference between this and one uncoloured block")
+
+# The recipes: a seat and a block of wool, shapeless, and nothing else.
+seat_recipes = 0
+for colour, id, kind in cloth_ids:
+    body = read(RES, "data", NS, f"recipe/{id}.json")
+    if not body:
+        continue
+    recipe = json.loads(body)
+    if kind in {shape for shape, _b, _p in cloth_seats}:
+        seat_recipes += 1
+        if recipe.get("type") != "minecraft:crafting_shapeless":
+            fail(f"{id} is made on a grid rather than out of a seat and a block of "
+                 f"wool, and this module has no grids left")
+            break
+        items = [one.get("item") for one in recipe.get("ingredients", [])]
+        if f"minecraft:{colour}_wool" not in items:
+            fail(f"{id} is not made out of {colour} wool at all, so it is a "
+                 f"{colour} seat only by name")
+            break
+        if not any(str(one).startswith(f"{NS}:") for one in items):
+            fail(f"{id} is not made out of one of this module's own seats, so it "
+                 f"is a seat that costs nothing to sit on")
+            break
+if not seat_recipes:
+    fail("not one upholstered seat has a recipe, so the checks above are about "
+         "recipes nothing ships")
+
+cloth_src = squashed(strip_comments(read(SRC, "registry/AtelierBlocks.java"), True))
+if "for (ClothRules.Upholstered seat : ClothRules.seats()) {" not in cloth_src:
+    fail("the upholstered seats are not registered by walking the crossing, so a "
+         "seventeenth colour is five hundred blocks that do not exist")
+if "if (made.size() != ClothRules.howMany()) { throw new IllegalStateException(" \
+        not in cloth_src:
+    fail("nothing counts the coloured blocks registered against the crossing they "
+         "were walked from")
+
+print(f"the colours        : {len(colours)} dye(s) x {len(cloth_woods)} wood(s) x "
+      f"{len(cloth_seats)} seat(s) plus {len(cloth_kinds)} thing(s) of cloth alone "
+      f"= {len(cloth_ids)} block(s), every one wearing its own colour's wool on "
+      f"the boxes the rules pad and its wood everywhere else")
+
+# ---------------------------------------------------------------------------
+# The forty-five degrees
+# ---------------------------------------------------------------------------
+#
+# A diagonal in a game of cubes is a staircase of little boxes, and a
+# staircase of little boxes has one way of being wrong that renders perfectly:
+# two boxes meeting at a corner do not meet, the game walks a mob straight
+# through the join, and it looks like a continuous rail from every angle. The
+# rules flood-fill it; this compares what they drew with what the generator
+# drew, which is the only thing standing between the two descriptions.
+
+diagonal = strip_comments(read(PURE, "DiagonalRules.java"), True)
+diag_named = dict(re.findall(
+    r'public static final String (\w+)\s*=\s*"([a-z_]+)";', diagonal))
+diag_kinds = []
+for name, wide, made, of in re.findall(
+        r'new Kind\((\w+),\s*(\d+),\s*(\d+),\s*(\d+)\)', diagonal):
+    if name in diag_named:
+        diag_kinds.append((diag_named[name], int(wide), int(made), int(of)))
+if len(diag_kinds) != len(re.findall(r"new Kind\(", diagonal)):
+    fail(f"this validator read {len(diag_kinds)} of "
+         f"{len(re.findall(r'new Kind', diagonal))} diagonals out of the rules")
+
+diag_ids = [(material, kind, f"{material}_{kind}")
+            for material in declared for kind, _w, _m, _o in diag_kinds]
+if len(diag_ids) < 50:
+    fail(f"this validator found {len(diag_ids)} diagonals, and a catalogue check "
+         f"that looks at a handful of the catalogue passes whatever is wrong with "
+         f"the rest of it")
+
+missing = []
+for material, kind, id in diag_ids:
+    for where in (f"assets/{NS}/blockstates/{id}.json",
+                  f"assets/{NS}/models/block/{id}.json",
+                  f"assets/{NS}/models/item/{id}.json",
+                  f"data/{NS}/loot_table/blocks/{id}.json",
+                  f"data/{NS}/recipe/{id}.json"):
+        if not os.path.isfile(os.path.join(RES, where)):
+            missing.append(f"{id} has no {where.rsplit('/', 2)[-2]}")
+    if f"block.{NS}.{id}" not in lang:
+        missing.append(f"{id} has no name, so it is called by its id")
+if missing:
+    fail(f"{len(missing)} of {len(diag_ids) * 6} things a diagonal needs are "
+         f"missing: " + ", ".join(missing[:6]))
+
+diag_printed = {}
+for line in diag_out.splitlines():
+    if not line.startswith("DIAG "):
+        continue
+    parts = line.split()
+    diag_printed[parts[1]] = [tuple(int(n) for n in box.split(","))
+                              for box in parts[2:]]
+if not diag_printed:
+    fail("the diagonal harness printed no geometry, so the models are compared "
+         "against nothing and the check passes by having no opinion")
+else:
+    for kind, _wide, _made, _of in diag_kinds:
+        if kind not in diag_printed:
+            fail(f"{kind} has no geometry from the rules")
+            continue
+        first = next((id for material, k, id in diag_ids if k == kind), None)
+        body = read(RES, "assets", NS, f"models/block/{first}.json") if first else ""
+        if not body:
+            continue
+        drawn = [tuple(one["from"] + one["to"])
+                 for one in json.loads(body)["elements"]]
+        if drawn != diag_printed[kind]:
+            fail(f"{kind} is drawn as {len(drawn)} boxes and collides as "
+                 f"{len(diag_printed[kind])}, so it is a rail with a gap in it "
+                 f"that looks continuous from every angle")
+
+# And the drawn run itself, checked here rather than taken on trust: every box
+# has to overlap the one before it and the run has to reach both corners.
+for kind, _wide, _made, _of in diag_kinds:
+    run = diag_printed.get(kind)
+    if not run:
+        continue
+    for before, now in zip(run, run[1:]):
+        if not (now[0] < before[3] and now[2] < before[5]):
+            fail(f"{kind} has a box starting at {now[0]} and the one before it "
+                 f"ending at {before[3]}: two boxes meeting at a corner do not "
+                 f"meet, and a mob walks straight through the join")
+            break
+    if run[0][0] != 0 or run[-1][3] != 16:
+        fail(f"{kind} runs from {run[0][0]} to {run[-1][3]} rather than corner to "
+             f"corner, so a line of them is a dotted line")
+
+# The tags, read out of the harness rather than derived a third time here.
+diag_tags_want = {}
+for line in diag_out.splitlines():
+    if not line.startswith("DTAG "):
+        continue
+    parts = line.split()
+    for tag in parts[2:]:
+        diag_tags_want.setdefault(tag, set()).add(f"{NS}:{parts[1]}")
+if len(diag_tags_want) < 2:
+    fail("the diagonal harness printed tags for nothing, so the tag files are "
+         "compared against an empty list")
+for material, kind, id in diag_ids:
+    if kind == "diagonal_fence" \
+            and f"{NS}:{id}" not in diag_tags_want.get("minecraft:fences", set()):
+        fail(f"{id} is not in the game's own fence tag, so no ordinary fence meets "
+             f"it and the whole point of a diagonal is that a run of them can be "
+             f"mixed with a straight one")
+        break
+for tag, values in sorted(diag_tags_want.items()):
+    namespace, path = tag.split(":", 1)
+    where = os.path.join(RES, "data", namespace, "tags/block", path + ".json")
+    if not os.path.isfile(where):
+        fail(f"{tag} has no file, so every diagonal that needs it is mined with a "
+             f"fist and meets nothing")
+        continue
+    absent = values - set(json.loads(read(where)).get("values", []))
+    if absent:
+        fail(f"{len(absent)} diagonal(s) are missing from {tag}: {sorted(absent)[:3]}")
+
+diag_src = squashed(strip_comments(read(SRC, "registry/AtelierBlocks.java"), True))
+if "for (DiagonalRules.Run run : DiagonalRules.catalogue()) {" not in diag_src:
+    fail("the diagonals are not registered by walking the catalogue")
+if "if (made.size() != DiagonalRules.howMany()) { throw new IllegalStateException(" \
+        not in diag_src:
+    fail("nothing counts the diagonals registered against the catalogue they were "
+         "walked from")
+
+print(f"the diagonals      : {len(diag_kinds)} kind(s) over {len(declared)} "
+      f"material(s) = {len(diag_ids)} block(s), every one an unbroken run of "
+      f"overlapping boxes from one corner of its block to the other and through "
+      f"the middle where an ordinary fence keeps its post")
 
 print("what it declares   : the game and the library, and not one thing beyond them")
 

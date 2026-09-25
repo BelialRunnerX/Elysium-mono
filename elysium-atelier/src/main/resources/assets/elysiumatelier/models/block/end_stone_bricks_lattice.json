@@ -1,0 +1,41 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "all": "minecraft:block/end_stone_bricks",
+    "particle": "minecraft:block/end_stone_bricks"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        7
+      ],
+      "to": [
+        16,
+        16,
+        9
+      ],
+      "faces": {
+        "down": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all"
+        },
+        "north": {
+          "texture": "#all"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        },
+        "east": {
+          "texture": "#all"
+        }
+      }
+    }
+  ]
+}

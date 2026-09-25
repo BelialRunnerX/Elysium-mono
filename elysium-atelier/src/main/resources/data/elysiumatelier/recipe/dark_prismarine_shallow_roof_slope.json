@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "M ",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dark_prismarine"
+    },
+    "X": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dark_prismarine_shallow_roof_slope",
+    "count": 4
+  }
+}

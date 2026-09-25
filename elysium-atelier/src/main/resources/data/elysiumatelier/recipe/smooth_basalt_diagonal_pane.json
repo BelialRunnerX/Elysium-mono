@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M  ",
+    " MM",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:smooth_basalt"
+    },
+    "X": {
+      "item": "minecraft:glass"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:smooth_basalt_diagonal_pane",
+    "count": 12
+  }
+}

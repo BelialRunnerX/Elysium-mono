@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "elysiumlogistics:quadruple_compressed_netherrack"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:quintuple_compressed_netherrack",
+    "count": 1
+  }
+}

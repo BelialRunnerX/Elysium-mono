@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:cherry_bench"
+    },
+    {
+      "item": "minecraft:white_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:white_cherry_bench",
+    "count": 1
+  }
+}

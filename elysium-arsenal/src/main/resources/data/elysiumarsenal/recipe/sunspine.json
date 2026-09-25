@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "elysiumarsenal:legend_sigil"
+  },
+  "base": {
+    "item": "elysiumarsenal:netherite_longbow"
+  },
+  "addition": {
+    "item": "minecraft:heart_of_the_sea"
+  },
+  "result": {
+    "id": "elysiumarsenal:sunspine",
+    "count": 1
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:diorite_counter"
+    }
+  ],
+  "result": {
+    "id": "minecraft:diorite",
+    "count": 1
+  }
+}

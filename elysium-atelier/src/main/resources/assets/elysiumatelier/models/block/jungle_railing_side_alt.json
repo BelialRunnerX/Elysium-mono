@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/template_glass_pane_side_alt",
+  "textures": {
+    "pane": "minecraft:block/jungle_planks",
+    "edge": "minecraft:block/jungle_planks",
+    "particle": "minecraft:block/jungle_planks"
+  }
+}

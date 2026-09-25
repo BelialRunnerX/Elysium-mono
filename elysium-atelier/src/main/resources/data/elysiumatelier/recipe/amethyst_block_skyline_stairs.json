@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "MM "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:amethyst_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:amethyst_block_skyline_stairs",
+    "count": 4
+  }
+}

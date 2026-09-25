@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/golden_repeater",
+  "textures": {
+    "layer0": "elysiumarsenal:item/golden_repeater_pulling_2"
+  }
+}

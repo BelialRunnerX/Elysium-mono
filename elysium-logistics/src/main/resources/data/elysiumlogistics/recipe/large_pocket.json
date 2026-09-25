@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "LLL",
+    "LPL",
+    "LLL"
+  ],
+  "key": {
+    "L": {
+      "item": "minecraft:leather"
+    },
+    "P": {
+      "item": "elysiumlogistics:small_pocket"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:large_pocket",
+    "count": 1
+  }
+}

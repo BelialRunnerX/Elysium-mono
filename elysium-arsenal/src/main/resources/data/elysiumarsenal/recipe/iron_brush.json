@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " MF",
+    " S ",
+    "S  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:iron_ingot"
+    },
+    "F": {
+      "item": "minecraft:feather"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:iron_brush",
+    "count": 1
+  }
+}

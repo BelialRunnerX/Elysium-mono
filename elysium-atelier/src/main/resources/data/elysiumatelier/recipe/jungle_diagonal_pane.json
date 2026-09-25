@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M  ",
+    " MM",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:jungle_planks"
+    },
+    "X": {
+      "item": "minecraft:glass"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:jungle_diagonal_pane",
+    "count": 12
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:sextuple_compressed_bricks"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:quintuple_compressed_bricks",
+    "count": 9
+  }
+}

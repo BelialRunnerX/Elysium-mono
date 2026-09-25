@@ -461,3 +461,152 @@ module is marked DONE is a bug in that module, not a leftover.
 * **Pure libraries** — architectury, balm, bookshelf and the rest. They exist
   to be depended on; when the mods depending on them are gone, so are they.
   Anything of theirs we actually need is already in `elysium-lib`.
+
+
+## 9. The multipliers, and the one that cannot be converted
+
+*Written while converting elysium-atelier, 2026-09-25.*
+
+Four of the atelier's thirty jars do not add blocks of their own. They take
+blocks that already exist and make variants:
+
+| jar | weight | what it multiplies |
+|---|---|---|
+| `chipped` | 13,979 | ~250 cosmetic **texture** variants of each of about 60 base blocks |
+| `fusion` | 0 | connected textures |
+| `everycomp` | 48 | compatibility blocks between other mods' materials and shapes |
+| `DiagonalFences` / `DiagonalWalls` / `DiagonalWindows` | 0 | diagonal **geometry** for fences, walls and panes |
+
+Three of those four have an answer. The fourth does not.
+
+**The Diagonals are geometry, so they are ours to build.** A diagonal fence is
+a shape, not a texture, and it drops out of the same shape-family engine
+everything else in this module uses. *Built, 2026-09-25:* three kinds in
+thirty-three materials, each an unbroken run of overlapping boxes from one
+corner of its block to the other — flood-filled and proved to be one piece,
+because two boxes meeting at a corner do not meet and a mob walks straight
+through the join while it looks like a continuous rail from every angle.
+
+**`everycomp` becomes moot.** It exists to make, say, another mod's stairs out
+of a third mod's wood. Once both of those mods are ours, the crossing is a
+loop over two of our own rosters, which is what this module already is.
+
+**`fusion` is a resource pack.** Connected textures are a client-side
+rendering feature; nothing in it is content a player obtains.
+
+**`chipped` cannot be converted, and this is the reason.** Its whole value is
+two hundred and fifty *textures* per block. Replacing it means generating
+textures, and there is a standing instruction on this project not to build a
+retexture generator. So the options are:
+
+1. **Keep `chipped`.** One foreign jar stays in the pack. The conversion is
+   then 130-of-131 rather than 131-of-131, and the thing kept is the one thing
+   in the pack that is purely cosmetic.
+2. **Drop it.** The pack loses about fifteen thousand decorative variants and
+   nobody's existing builds survive.
+3. **Reverse the standing instruction** and build a retexture generator.
+
+### The same decision, and three more jars came to it
+
+*Added 2026-09-25, after the shape work was finished.*
+
+`chipped` is not alone. Once every **shape** in the block packs was built —
+and it now is: vertical slabs, five ways up, balconies, railings, platforms,
+panelling, blinds, board walls, frames, trellises, quoins, banisters,
+catwalks, girders, cushions, curtains, rope, and sixteen colours of upholstery
+out of the game's own wool — what was left in three more jars was the same
+thing `chipped` is, and nothing else:
+
+| jar | what is left after the shapes | weight left |
+|---|---|---|
+| `bf_blockpack` | ~800 blocks of bricks, tiles, shingles, wallpaper and candlesticks: retexture | ~1,800 |
+| `cluttered` | new stone and wood *types* (marble, chalcedony, willow, poplar, sycamore) and sixteen colours of wallpaper: retexture | ~1,500 |
+| `Clothing_Of_The_Lowlands` | 112 garments, every one of them a texture | 169 |
+
+They are marked KEEP for the same reason and they belong in the same decision.
+Answering it once answers all four, and the four together are about 24% of
+everything left to convert.
+
+This is not a decision an agent should take alone: it is 19% of everything
+left to convert by content weight, and option 3 contradicts an instruction
+given deliberately. **It is the user's call**, and until it is made `chipped`
+is marked KEEP with this section as the reason.
+
+Whatever is decided, the other three are ours and are being built.
+
+## 10. Three storage networks, and which two are being deleted
+
+*Written while converting elysium-logistics, 2026-09-25, before any code.*
+
+Three of this unit's jars are whole storage networks:
+
+| jar | model |
+|---|---|
+| `refinedstorage` | one flat network: a controller, a grid, disk drives, and no limit on how many devices talk at once |
+| `appliedenergistics2` | a **channel-budgeted** network: every device costs a channel, cables carry eight, and laying out a base is the puzzle |
+| `ExtendedAE` | more devices for AE2's model |
+
+Building all three is building three things that cannot see each other's
+items. A player picks one and the other two are a creative-menu tab of dead
+blocks.
+
+**The decision: the flat network, and AE2's channels are deleted.**
+
+`elysium-logistics` already is the flat model — `LogisticNetwork`, a
+controller, a bus, drawers, a terminal, assemblers and a planner — so this is
+as much a statement of what has been built as a choice about what to build.
+
+**What it costs, plainly.** Deleted: channels, cable tiers and P2P tunnels;
+the ME controller's face budget; spatial storage; and the CPU-cluster model of
+autocrafting. Those are most of what makes AE2 *AE2*, and a player who came
+here for the channel puzzle will not find it.
+
+**What replaces the pressure channels create.** A network here is a constant
+draw on the grid — `DEVICE_DRAW` FE per device per tick, `MOST_DEVICES` of
+them — so a warehouse is a load you have to power rather than a layout you
+have to solve. It is a different kind of constraint and it is a smaller one.
+That is the honest version: this is a simplification, not a translation.
+
+**What is folded on rather than lost.** AE2's and ExtendedAE's *content* —
+terminals, pattern encoding, export and import behaviour, a crafting monitor,
+storage tiers — is device content on a network we already have, and it goes on
+the flat one. `refinedstorage` is the model we are keeping, so its jar is the
+one whose behaviour the tests are written against.
+
+## 11. Six thousand structures, and the grammar that replaces them
+
+*Written while converting elysium-wilds, 2026-09-25, before any code.*
+
+`[Neoforge]ctov-3.6.3.jar` is 6,557 of this unit's 8,825, and it is almost
+entirely NBT: hundreds of hand-built templates for villages, towers, camps and
+ruins. Three ways to replace it:
+
+1. **Ship the templates as data.** Fastest, and it is not a conversion: it is
+   the same files in our folder. Nothing in them can be checked, argued with,
+   or changed without a structure editor, and every one of them is a thing we
+   would be shipping rather than a thing we built.
+2. **Hand-place a much smaller set well.** Honest and small. Twenty good
+   structures instead of six hundred, and the pack's world gets quieter.
+3. **Generate them from a room grammar.** Rooms, doors, and rules about how
+   they may be joined; the generator walks the grammar and lays out a
+   building.
+
+**The decision: a room grammar.** It is the only one of the three where the
+result can be *proved* rather than looked at, and this repository's whole
+argument is that the interesting properties of generated content are the ones
+nobody sees by looking:
+
+- **Every room is reachable from the entrance.** A building with a sealed
+  wing renders perfectly, generates perfectly, and is a room a player can
+  only reach by mining. Flood-filled, the same way a diagonal fence is.
+- **Nothing overlaps.** Two rooms in one space is a wall that is not there and
+  a chest inside a staircase.
+- **Every building fits the box it claimed**, so a structure cannot silently
+  spill into the chunk next door.
+- **Every grammar terminates.** A rule that can expand into itself forever is
+  a chunk that never finishes generating, which is a server that stops.
+
+**What it costs.** Our buildings will be *systematic* where ctov's are
+hand-composed: a ctov village has a blacksmith somebody designed, and ours has
+a blacksmith the grammar laid out. That is a real loss of character and it is
+the price of every property above.

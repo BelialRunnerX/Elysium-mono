@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:purpur_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:purpur_block_shelf",
+    "count": 4
+  }
+}

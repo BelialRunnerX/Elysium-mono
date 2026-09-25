@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:spruce_planks"
+    },
+    "X": {
+      "item": "minecraft:white_wool"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:spruce_cushion",
+    "count": 7
+  }
+}

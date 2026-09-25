@@ -1,0 +1,8 @@
+{
+  "type": "elysiumwilds:grammar",
+  "grammar": "shrine",
+  "biomes": "#minecraft:is_jungle",
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_thin",
+  "spawn_overrides": {}
+}

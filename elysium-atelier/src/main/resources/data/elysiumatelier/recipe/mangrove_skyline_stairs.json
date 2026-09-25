@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "MM "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:mangrove_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:mangrove_skyline_stairs",
+    "count": 4
+  }
+}

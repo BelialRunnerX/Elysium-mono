@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "M  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dark_prismarine"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dark_prismarine_counter",
+    "count": 4
+  }
+}

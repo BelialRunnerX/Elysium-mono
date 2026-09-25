@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM ",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:mangrove_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:mangrove_trough",
+    "count": 4
+  }
+}

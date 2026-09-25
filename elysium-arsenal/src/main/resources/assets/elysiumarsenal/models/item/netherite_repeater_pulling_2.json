@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/netherite_repeater",
+  "textures": {
+    "layer0": "elysiumarsenal:item/netherite_repeater_pulling_2"
+  }
+}

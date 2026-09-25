@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " MF",
+    " S ",
+    "S  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "F": {
+      "item": "minecraft:feather"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:netherite_brush",
+    "count": 1
+  }
+}

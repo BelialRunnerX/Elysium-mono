@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M ",
+    " M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:stone"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:stone_stove",
+    "count": 2
+  }
+}

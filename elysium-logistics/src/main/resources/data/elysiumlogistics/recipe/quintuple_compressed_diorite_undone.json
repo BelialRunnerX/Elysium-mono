@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:quintuple_compressed_diorite"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:quadruple_compressed_diorite",
+    "count": 9
+  }
+}

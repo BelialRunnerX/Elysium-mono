@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:mangrove_bench"
+    },
+    {
+      "item": "minecraft:gray_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:gray_mangrove_bench",
+    "count": 1
+  }
+}

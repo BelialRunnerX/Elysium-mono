@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:warped_planks"
+    },
+    "X": {
+      "item": "minecraft:paper"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:warped_panel",
+    "count": 12
+  }
+}

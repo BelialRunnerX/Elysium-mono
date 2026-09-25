@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:compressed_granite"
+    }
+  ],
+  "result": {
+    "id": "minecraft:granite",
+    "count": 9
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "elysiumwilds:grammar",
+  "grammar": "ruin",
+  "biomes": "#minecraft:is_overworld",
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_thin",
+  "spawn_overrides": {}
+}

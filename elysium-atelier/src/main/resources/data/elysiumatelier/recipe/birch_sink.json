@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:birch_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:birch_sink",
+    "count": 2
+  }
+}

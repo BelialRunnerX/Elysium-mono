@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:double_compressed_quartz_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:compressed_quartz_block",
+    "count": 9
+  }
+}

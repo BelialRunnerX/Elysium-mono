@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "  M",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:diorite"
+    },
+    "X": {
+      "item": "minecraft:flint"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:diorite_diagonal_wall",
+    "count": 6
+  }
+}

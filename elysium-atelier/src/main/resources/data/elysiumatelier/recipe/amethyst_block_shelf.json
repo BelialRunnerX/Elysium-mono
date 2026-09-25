@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:amethyst_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:amethyst_block_shelf",
+    "count": 4
+  }
+}

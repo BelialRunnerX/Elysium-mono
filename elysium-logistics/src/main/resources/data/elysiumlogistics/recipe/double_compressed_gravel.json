@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "elysiumlogistics:compressed_gravel"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:double_compressed_gravel",
+    "count": 1
+  }
+}

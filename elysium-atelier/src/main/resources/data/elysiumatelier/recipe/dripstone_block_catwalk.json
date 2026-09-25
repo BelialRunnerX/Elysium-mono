@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dripstone_block"
+    },
+    "X": {
+      "item": "minecraft:iron_bars"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dripstone_block_catwalk",
+    "count": 7
+  }
+}

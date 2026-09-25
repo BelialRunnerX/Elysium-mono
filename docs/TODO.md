@@ -11,65 +11,35 @@ the work is gone.
 ## 0. The environment is not durable. The source is.
 
 **The tree lives in an ephemeral cloud container.** `/tmp/Elysium-mono` is
-reclaimed when the session ends. Every module in it was written in containers
-like that one, and none of it is on the GitHub remote: `git remote -v` points
-at `BelialRunnerX/Elysium-mono`, the last commit there predates the whole
-29-module conversion, and GitHub is gated for `curl` in this environment so
-nothing can push from here.
+reclaimed when the session ends, and none of this work is on the GitHub remote:
+`git remote -v` points at a repository whose last commit predates the whole
+29-module conversion, and GitHub is gated for `curl` here, so nothing can
+push from the container.
 
-So the source is archived to your own machine instead. Two files, both in
-`~/curseforge`, and either one is enough on its own:
+So the source lives on your own machine instead, as plain files:
 
-    elysium-mono-source.tgz    the working tree
-    elysium-mono.bundle        the full git history
+    C:\Users\weaks\curseforge\Elysium-mono
 
-The tarball unpacks to a directory called `Elysium-mono` and contains every
-module, `docs/`, every validator and every generator. It excludes `dist/`,
-`build/`, compiled classes and `.git`, all of which rebuild or come from the
-bundle.
+Not an archive — the actual tree, 18058 files, every one verified against
+`MIRROR-MANIFEST.json` (a SHA-256 per file, written from the container) after
+it landed. Nothing has to be unpacked and nothing can half-unpack.
 
-The bundle is a complete git repository in one file. `git clone
-elysium-mono.bundle Elysium-mono` reconstructs the tree *and* its history,
-including the branch this session's work is on. That was checked by cloning it
-here: 29 modules, both commits, `docs/TODO.md` present.
+To check a copy arrived intact: `ls -d elysium-*` counts 29,
+`ls tools/negtest/*.sh` counts 140, and
 
-**This session's work is committed**, on a branch called `elysium-conversion`,
-10,955 files in one commit on top of `72cb0ed`. `master` is untouched and
-nothing has been pushed — the remote (`BelialRunnerX/Elysium-mono`) is
-unreachable from the container, and pushing is yours to do.
+    python3 - <<'PY'
+    import hashlib, json, os
+    manifest = json.load(open("MIRROR-MANIFEST.json"))
+    bad = [p for p, want in manifest.items()
+           if not os.path.isfile(p)
+           or hashlib.sha256(open(p, "rb").read()).hexdigest() != want]
+    print(len(manifest), "files,", len(bad), "wrong")
+    PY
 
-**To resume:**
+reports zero wrong.
 
-1. Get the tree into the new container. Either stage `elysium-mono-source.tgz`
-   from the connected folder and `tar xzf` it as `/tmp/Elysium-mono`, or clone
-   the bundle to the same path. Check that `git log --oneline -2` shows the
-   conversion commit sitting on top of `72cb0ed`, and that `ls -d elysium-*`
-   counts 29, before trusting anything.
-2. **Push the branch.** `git push -u origin elysium-conversion` from your own
-   machine, where the remote is reachable. This is the single most valuable
-   thing you can do with ten minutes, and until it is done every copy of this
-   work is one lost file away from gone.
-3. The build needs a Minecraft classpath at `/tmp/mc/cp.txt` and the jars it
-   names, plus `/tmp/mods` holding Silent Gear, Apotheosis, Placebo,
-   MineColonies, Structurize and BlockUI for the compile-only bridges.
-   `compile.sh` says exactly what is missing and refuses to build a jar that
-   quietly lacks a feature.
-4. `python3 validate.py` at the root runs everything: sixteen cross-cutting
-   checks and twenty-nine module validators. It takes about eight minutes. A
-   clean run is the proof the tree arrived intact.
-5. `./compile.sh --jars --bundle` produces `dist/elysium-all-1.0.0.jar`.
-
-`docs/RESUME_PROMPT.md` in this tree is the prompt to paste into the new
-session. It restates the working method and the standing constraints, and it
-points back here.
-
-Every number in this document can be recomputed rather than believed. The two
-scans it rests on travel with the tree: `docs/pack-inventory.json` is the scan
-of all 181 jars in the live instance, and `docs/ours-inventory.json` is what
-our own modules register. `~/curseforge/CLAUDE-NOTES.md`, on your machine, is
-the running narrative of what was built and why.
-
----
+**Work is handed out through the board, not by reading this document.** See
+`docs/AGENTS.md`; `python3 tools/board.py list` is the current state.
 
 ## 1. Where things stand
 

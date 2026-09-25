@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:oak_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:compressed_oak_planks",
+    "count": 1
+  }
+}

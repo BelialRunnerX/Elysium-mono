@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "IPI",
+    "PBP",
+    "IPI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "B": {
+      "item": "elysiumlogistics:crate"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:strongbox",
+    "count": 1
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:light_blue_wool"
+    },
+    "X": {
+      "item": "minecraft:lead"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:light_blue_runner",
+    "count": 14
+  }
+}

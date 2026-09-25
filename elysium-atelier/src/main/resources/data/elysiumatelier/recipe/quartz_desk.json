@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:quartz_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:quartz_desk",
+    "count": 5
+  }
+}

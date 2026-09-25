@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:septuple_compressed_honeycomb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:sextuple_compressed_honeycomb_block",
+    "count": 9
+  }
+}

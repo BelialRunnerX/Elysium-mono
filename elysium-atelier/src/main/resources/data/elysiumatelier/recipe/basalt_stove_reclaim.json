@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:basalt_stove"
+    }
+  ],
+  "result": {
+    "id": "minecraft:basalt",
+    "count": 1
+  }
+}

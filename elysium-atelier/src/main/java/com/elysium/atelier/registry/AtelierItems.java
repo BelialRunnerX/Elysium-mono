@@ -40,7 +40,10 @@ public final class AtelierItems {
         Map<String, DeferredItem<BlockItem>> made = new LinkedHashMap<>();
         for (Map<String, net.neoforged.neoforge.registries.DeferredBlock<
                 net.minecraft.world.level.block.Block>> group
-                : java.util.List.of(AtelierBlocks.ALL, AtelierBlocks.OPENINGS)) {
+                : java.util.List.of(AtelierBlocks.ALL, AtelierBlocks.OPENINGS,
+                        AtelierBlocks.PIECES, AtelierBlocks.COURSES,
+                        AtelierBlocks.FITTINGS, AtelierBlocks.CLOTH,
+                        AtelierBlocks.DIAGONALS)) {
             for (Map.Entry<String, net.neoforged.neoforge.registries.DeferredBlock<
                     net.minecraft.world.level.block.Block>> entry : group.entrySet()) {
                 made.put(entry.getKey(), ITEMS.registerSimpleBlockItem(entry.getValue()));
@@ -48,10 +51,13 @@ public final class AtelierItems {
         }
         // A block with no item is a block a player can only place with a
         // command, which in a decoration mod is a block that does not exist.
-        if (made.size() != AtelierBlocks.ALL.size() + AtelierBlocks.OPENINGS.size()) {
-            throw new IllegalStateException("there are "
-                    + (AtelierBlocks.ALL.size() + AtelierBlocks.OPENINGS.size())
-                    + " blocks and " + made.size() + " items");
+        int blocks = AtelierBlocks.ALL.size() + AtelierBlocks.OPENINGS.size()
+                + AtelierBlocks.PIECES.size() + AtelierBlocks.COURSES.size()
+                + AtelierBlocks.FITTINGS.size() + AtelierBlocks.CLOTH.size()
+                + AtelierBlocks.DIAGONALS.size();
+        if (made.size() != blocks) {
+            throw new IllegalStateException("there are " + blocks + " blocks and "
+                    + made.size() + " items");
         }
         return Map.copyOf(made);
     }
@@ -71,7 +77,18 @@ public final class AtelierItems {
                                         + shape.name()).get());
                             }
                             for (String kind : JoinRules.KINDS) {
-                                output.accept(ALL.get(material.name() + "_" + kind).get());
+                                DeferredItem<BlockItem> opening =
+                                        ALL.get(material.name() + "_" + kind);
+                                // The game already has most wooden openings,
+                                // so a wooden material simply has none of ours.
+                                if (opening != null) {
+                                    output.accept(opening.get());
+                                }
+                            }
+                            for (com.elysium.atelier.rules.ArchRules.Piece piece
+                                    : com.elysium.atelier.rules.ArchRules.PIECES) {
+                                output.accept(ALL.get(material.name() + "_"
+                                        + piece.name()).get());
                             }
                         }
                     })

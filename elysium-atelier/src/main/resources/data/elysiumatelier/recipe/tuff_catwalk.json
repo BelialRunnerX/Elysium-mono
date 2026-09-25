@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:tuff"
+    },
+    "X": {
+      "item": "minecraft:iron_bars"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:tuff_catwalk",
+    "count": 7
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:quadruple_compressed_prismarine"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:triple_compressed_prismarine",
+    "count": 9
+  }
+}

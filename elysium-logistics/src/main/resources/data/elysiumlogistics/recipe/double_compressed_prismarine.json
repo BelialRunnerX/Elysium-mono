@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "elysiumlogistics:compressed_prismarine"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:double_compressed_prismarine",
+    "count": 1
+  }
+}

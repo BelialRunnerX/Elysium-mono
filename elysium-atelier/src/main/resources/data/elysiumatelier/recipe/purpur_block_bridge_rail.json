@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:purpur_block"
+    },
+    "X": {
+      "item": "minecraft:chain"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:purpur_block_bridge_rail",
+    "count": 6
+  }
+}

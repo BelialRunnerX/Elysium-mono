@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:dripstone_block_crate"
+    }
+  ],
+  "result": {
+    "id": "minecraft:dripstone_block",
+    "count": 1
+  }
+}

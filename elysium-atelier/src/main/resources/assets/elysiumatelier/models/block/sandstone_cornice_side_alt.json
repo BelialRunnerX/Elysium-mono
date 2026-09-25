@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/template_glass_pane_side_alt",
+  "textures": {
+    "pane": "minecraft:block/sandstone",
+    "edge": "minecraft:block/sandstone",
+    "particle": "minecraft:block/sandstone"
+  }
+}

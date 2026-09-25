@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:diorite"
+    },
+    "X": {
+      "item": "minecraft:torch"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:diorite_sconce",
+    "count": 4
+  }
+}

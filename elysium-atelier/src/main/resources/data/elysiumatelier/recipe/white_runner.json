@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M",
+    "M",
+    "X"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:white_wool"
+    },
+    "X": {
+      "item": "minecraft:lead"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:white_runner",
+    "count": 14
+  }
+}

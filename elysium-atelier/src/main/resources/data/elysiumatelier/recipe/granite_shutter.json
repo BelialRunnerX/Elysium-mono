@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:granite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:granite_shutter",
+    "count": 12
+  }
+}

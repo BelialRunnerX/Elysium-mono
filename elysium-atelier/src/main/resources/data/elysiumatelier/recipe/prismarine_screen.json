@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M",
+    " M "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:prismarine"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:prismarine_screen",
+    "count": 6
+  }
+}

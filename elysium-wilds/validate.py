@@ -33,6 +33,10 @@ RES = os.path.join(WORK, "src/main/resources")
 SRC = os.path.join(WORK, "src/main/java/com/elysium/wilds")
 PURE = os.path.join(SRC, "rules")
 HARNESS = os.path.join(WORK, "tools/WildHarness.java")
+VALE_HARNESS = os.path.join(WORK, "tools/ValeHarness.java")
+VALE_MAIN = "com.elysium.wilds.rules.ValeHarness"
+GRAMMAR_HARNESS = os.path.join(WORK, "tools/GrammarHarness.java")
+GRAMMAR_MAIN = "com.elysium.wilds.rules.GrammarHarness"
 HARNESS_MAIN = "com.elysium.wilds.rules.WildHarness"
 CHECKER = os.path.join(ROOT, "check_worldgen.py")
 
@@ -168,6 +172,12 @@ for name in sorted(os.listdir(PURE)) if os.path.isdir(PURE) else []:
     for used in re.findall(r"import\s+(com\.elysium\.[\w.]+);", without_package):
         fail(f"rules/{name} imports {used}; the rules are the JDK alone")
 
+if not os.path.isfile(GRAMMAR_HARNESS):
+    fail("there is no grammar harness, so whether every room of every building "
+         "this pack generates can be walked to is an opinion")
+if not os.path.isfile(VALE_HARNESS):
+    fail("there is no Vale harness, so whether fifteen biomes partition the "
+         "climate plane or merely nearly do is an opinion")
 if not os.path.isfile(HARNESS):
     fail("there is no harness, so whether a claim inside another claim can generate "
          "is an opinion")
@@ -176,7 +186,7 @@ else:
         staged = os.path.join(tmp, "src")
         os.makedirs(staged)
         sources = [os.path.join(PURE, n) for n in os.listdir(PURE) if n.endswith(".java")]
-        for source in sources + [HARNESS]:
+        for source in sources + [HARNESS, VALE_HARNESS, GRAMMAR_HARNESS]:
             open(os.path.join(staged, os.path.basename(source)), "w",
                  encoding="utf-8").write(read(source))
         compiled = subprocess.run(
@@ -201,6 +211,41 @@ else:
                 fail("the wilds harness failed:\n" + harness_trouble(ran.stdout))
             else:
                 print("the arithmetic     : " + ran.stdout.strip().splitlines()[-1])
+
+            try:
+                ran_vale = subprocess.run(
+                    ["java", "-cp", os.path.join(tmp, "out"), VALE_MAIN],
+                    capture_output=True, text=True, timeout=HARNESS_SECONDS)
+            except subprocess.TimeoutExpired:
+                ran_vale = None
+                fail(f"the Vale harness did not finish within {HARNESS_SECONDS} "
+                     f"seconds")
+            if ran_vale is None:
+                pass
+            elif ran_vale.returncode != 0:
+                fail("the Vale harness failed:\n" + harness_trouble(ran_vale.stdout))
+            else:
+                print("the Vale           : "
+                      + ran_vale.stdout.strip().splitlines()[-1])
+
+            try:
+                ran_grammar = subprocess.run(
+                    ["java", "-cp", os.path.join(tmp, "out"), GRAMMAR_MAIN],
+                    capture_output=True, text=True, timeout=HARNESS_SECONDS)
+            except subprocess.TimeoutExpired:
+                ran_grammar = None
+                fail(f"the grammar harness did not finish within "
+                     f"{HARNESS_SECONDS} seconds, which for a file whose whole "
+                     f"claim is that laying a building out terminates is the "
+                     f"answer")
+            if ran_grammar is None:
+                pass
+            elif ran_grammar.returncode != 0:
+                fail("the grammar harness failed:\n"
+                     + harness_trouble(ran_grammar.stdout))
+            else:
+                print("the buildings      : "
+                      + ran_grammar.stdout.strip().splitlines()[-1])
 
 rules = read(PURE, "WildRules.java")
 plain = strip_comments(rules)
@@ -407,7 +452,11 @@ if os.path.isfile(GENERATOR):
         built = subprocess.run([sys.executable, GENERATOR], capture_output=True,
                                text=True, env=env, cwd=WORK)
         if built.returncode != 0:
-            fail("the generator does not run:\n" + built.stderr.strip()[:1200])
+            # Its own complaints go to stdout, and a failure reported without
+            # the reason for it is a failure somebody has to reproduce before
+            # they can read it.
+            fail("the generator does not run:\n"
+                 + (built.stdout + built.stderr).strip()[:1200])
         else:
             drifted = []
             for kind in ("assets", "data"):
@@ -469,6 +518,238 @@ for where, field in (("WildComponents", "TYPES"), ("WildItems", "ITEMS"),
     if wanted not in squashed(strip_comments(read(SRC, "ElysiumWilds.java"))):
         fail(f"{where}.{field} is declared and never put on the bus, so everything in "
              f"it is written, compiled, and absent from the game")
+
+# ---------------------------------------------------------------------------
+# The Vale
+# ---------------------------------------------------------------------------
+#
+# The harness proves the claim is a partition. What is left for here is that
+# the data the game will actually read says the same thing: fifteen biome
+# files, a dimension that names all fifteen, and every rectangle in it exactly
+# the one the rules work out. A dimension whose claims have drifted from the
+# rules is a world the proof is about and the player is not in.
+
+vale = strip_comments(read(PURE, "ValeRules.java"), True)
+vale_warmths = re.search(r"WARMTHS = (\d+);", vale)
+vale_wets = re.search(r"WETS = (\d+);", vale)
+vale_listed = re.search(r"(?<![A-Z_])NAMES = List\.of\((.*?)\);", vale, re.S)
+vale_names = re.findall(r'"([a-z_]+)"', vale_listed.group(1)) if vale_listed else []
+vale_warmths = int(vale_warmths.group(1)) if vale_warmths else 0
+vale_wets = int(vale_wets.group(1)) if vale_wets else 0
+
+if not vale_names or vale_warmths < 2 or vale_wets < 2:
+    fail(f"this validator read {len(vale_names)} name(s) and a {vale_warmths} by "
+         f"{vale_wets} grid out of the Vale's rules, and a check against a short "
+         f"list passes whatever is wrong with the rest")
+elif len(vale_names) != vale_warmths * vale_wets:
+    fail(f"the Vale crosses {vale_warmths} x {vale_wets} bands and has "
+         f"{len(vale_names)} name(s); one biome is unnamed and the unnamed one is "
+         f"the one that never generates")
+else:
+    missing = []
+    for name in vale_names:
+        where = os.path.join(RES, "data", NS, "worldgen/biome", "vale_" + name + ".json")
+        if not os.path.isfile(where):
+            missing.append(name)
+        if f"biome.{NS}.vale_{name}" not in lang:
+            missing.append(name + " (no name)")
+    if missing:
+        fail(f"{len(missing)} biome(s) of the Vale have no file or no name: "
+             f"{missing[:4]}")
+
+    world = os.path.join(RES, "data", NS, "dimension/vale.json")
+    if not os.path.isfile(world):
+        fail("the Vale has fifteen biomes and no dimension to put them in")
+    else:
+        claims = json.loads(read(world))["generator"]["biome_source"]["biomes"]
+        claimed = [one["biome"] for one in claims]
+        if len(claimed) != len(vale_names):
+            fail(f"the Vale's dimension names {len(claimed)} biome(s) and the "
+                 f"rules have {len(vale_names)}; the difference is biomes with a "
+                 f"file, a name and no territory")
+        elif len(set(claimed)) != len(claimed):
+            fail("the Vale's dimension names one biome twice, so another one is "
+                 "not named at all and never generates")
+        else:
+            # Every rectangle exactly the one the bands work out. Off by a
+            # thousandth and two bands overlap or leave a gap, and climate in
+            # the gap goes to whichever box happens to be nearest.
+            def edge(at, bands):
+                return round(-1.0 + 2.0 * at / bands, 4)
+
+            wrong = []
+            at = 0
+            for warmth in range(vale_warmths):
+                for wet in range(vale_wets):
+                    want = {
+                        "temperature": [edge(warmth, vale_warmths),
+                                        edge(warmth + 1, vale_warmths)],
+                        "humidity": [edge(wet, vale_wets), edge(wet + 1, vale_wets)],
+                    }
+                    got = claims[at]["parameters"]
+                    if got.get("temperature") != want["temperature"] \
+                            or got.get("humidity") != want["humidity"]:
+                        wrong.append(f"{claimed[at]} claims {got.get('temperature')} "
+                                     f"x {got.get('humidity')} and its band is "
+                                     f"{want['temperature']} x {want['humidity']}")
+                    at += 1
+            if wrong:
+                fail(f"{len(wrong)} of the Vale's claims are not the bands the "
+                     f"rules work out: {wrong[:2]}")
+
+    # Nobody may want fewer than they will take. The game does not refuse a
+    # spawner whose minimum is above its maximum -- it logs a line, drops the
+    # spawner and carries on, so the biome is simply empty and nothing in the
+    # world says why. This shipped that way for three biomes of the Vale.
+    backwards = []
+    for name in vale_names:
+        where = os.path.join(RES, "data", NS, "worldgen/biome",
+                             "vale_" + name + ".json")
+        if not os.path.isfile(where):
+            continue
+        for kind, listed in json.loads(read(where)).get("spawners", {}).items():
+            for one in listed:
+                if one.get("minCount", 0) > one.get("maxCount", 0):
+                    backwards.append(f"vale_{name} wants at least "
+                                     f"{one.get('minCount')} {one.get('type')} and "
+                                     f"at most {one.get('maxCount')}")
+                if one.get("weight", 0) < 1:
+                    backwards.append(f"vale_{name} spawns {one.get('type')} at "
+                                     f"weight {one.get('weight')}, which is never")
+    if backwards:
+        fail(f"{len(backwards)} spawner(s) the game will log and drop, leaving the "
+             f"biome empty and nothing saying why: {backwards[:3]}")
+
+    # And no two biome files identical: two identical biomes are one biome
+    # with two names and nobody standing in either can tell.
+    seen = {}
+    for name in vale_names:
+        where = os.path.join(RES, "data", NS, "worldgen/biome",
+                             "vale_" + name + ".json")
+        if not os.path.isfile(where):
+            continue
+        body = json.dumps(json.loads(read(where)), sort_keys=True)
+        if body in seen:
+            fail(f"vale_{name} and vale_{seen[body]} are the same file to the "
+                 f"byte, so they are one biome with two names")
+            break
+        seen[body] = name
+
+    kind = os.path.join(RES, "data", NS, "dimension_type/vale.json")
+    if not os.path.isfile(kind):
+        fail("the Vale has a dimension and no type, so the game has nowhere to "
+             "read its height or its light from")
+    else:
+        # A dimension type whose numbers disagree with each other is a world
+        # that loads and then behaves like a different one: a logical height
+        # above the real height is chunks the game will generate into and then
+        # refuse to let anything stand in.
+        kind = json.loads(read(kind))
+        if kind.get("logical_height", 0) > kind.get("height", 0):
+            fail(f"the Vale is {kind.get('height')} blocks tall and says its "
+                 f"logical height is {kind.get('logical_height')}; the game will "
+                 f"generate into the difference and let nothing stand there")
+        if kind.get("min_y", 0) + kind.get("height", 0) > 2032:
+            fail("the Vale's floor plus its height is past the top of a world")
+        if kind.get("height", 0) % 16:
+            fail(f"the Vale is {kind.get('height')} blocks tall and a world is "
+                 f"made of chunks sixteen deep")
+
+    print(f"the Vale           : {len(vale_names)} biome(s) on a {vale_warmths} by "
+          f"{vale_wets} grid, every rectangle exactly the band the rules work out, "
+          f"no two of the files alike, and a dimension and a type to put them in")
+
+# ---------------------------------------------------------------------------
+# The structures
+# ---------------------------------------------------------------------------
+#
+# The harness proves the buildings. What is left for here is that the world
+# has somewhere to put them: a structure file and a placement apiece, a
+# spacing the game will accept, and a grammar name that is a grammar — a
+# structure naming one that is not simply never generates, and nothing but
+# this says so.
+
+grammar = strip_comments(read(PURE, "GrammarRules.java"), True)
+grammar_names = [name for name, _start in re.findall(
+    r'new Grammar\("([a-z_]+)",\s*"([a-z_]+)"', grammar)]
+if len(grammar_names) != len(re.findall(r"new Grammar\(", grammar)):
+    fail(f"this validator read {len(grammar_names)} of "
+         f"{len(re.findall(r'new Grammar', grammar))} buildings out of the rules")
+if len(grammar_names) < 4:
+    fail(f"this validator found {len(grammar_names)} kind(s) of building, and a "
+         f"check against a handful passes whatever is wrong with the rest")
+
+missing = []
+for name in grammar_names:
+    for where in (f"data/{NS}/worldgen/structure/{name}.json",
+                  f"data/{NS}/worldgen/structure_set/{name}.json"):
+        if not os.path.isfile(os.path.join(RES, where)):
+            missing.append(f"{name} has no {where.rsplit('/', 2)[-2]}")
+if missing:
+    fail(f"{len(missing)} of {len(grammar_names) * 2} things a building needs are "
+         f"missing: " + ", ".join(missing[:6]))
+
+salts = {}
+for name in grammar_names:
+    body = read(RES, "data", NS, f"worldgen/structure/{name}.json")
+    if body:
+        one = json.loads(body)
+        if one.get("grammar") != name:
+            fail(f"the structure {name} is laid out by the grammar "
+                 f"{one.get('grammar')}, and a structure naming a grammar that "
+                 f"is not one never generates and nothing says so")
+        if one.get("type") != f"{NS}:grammar":
+            fail(f"the structure {name} is a {one.get('type')} rather than one of "
+                 f"ours")
+        if not str(one.get("biomes", "")).startswith("#") and not one.get("biomes"):
+            fail(f"the structure {name} belongs in no biome, so it is a building "
+                 f"the world has nowhere to put")
+    placed = read(RES, "data", NS, f"worldgen/structure_set/{name}.json")
+    if placed:
+        where = json.loads(placed).get("placement", {})
+        spacing = where.get("spacing", 0)
+        separation = where.get("separation", 0)
+        if separation >= spacing:
+            fail(f"{name} is placed every {spacing} chunk(s) with {separation} "
+                 f"guaranteed between them; the game refuses a separation that is "
+                 f"not smaller than the spacing and the structure never appears")
+        if spacing > 128:
+            fail(f"{name} is placed every {spacing} chunks, which is {spacing * 16} "
+                 f"blocks and further than anybody walks")
+        salt = where.get("salt")
+        if salt in salts:
+            fail(f"{name} and {salts[salt]} are placed with the same salt, so "
+                 f"every one of them generates in the same chunk as the other and "
+                 f"one of the two is always the one that loses")
+        salts[salt] = name
+
+layout_src = squashed(strip_comments(read(PURE, "GrammarRules.java"), True))
+if "for (int tries = 0; tries < TRIES && placed.size() < wanted; tries++) {" \
+        not in layout_src:
+    fail("laying a building out is not bounded by a count of tries, so a grammar "
+         "that cannot place what it wants is a chunk that never finishes "
+         "generating — which is a server that stops rather than a building that "
+         "looks wrong")
+
+structure_src = squashed(strip_comments(
+    read(SRC, "structure/GrammarStructure.java"), True))
+if "GrammarRules.layOut(grammar, seed)" not in structure_src:
+    fail("the structure in the world is not laid out by the rules the harness "
+         "proved, so every property above is about a building that does not ship")
+if "if (GrammarRules.grammar(grammar) == null) { return Optional.empty(); }" \
+        not in structure_src:
+    fail("a structure naming a grammar that does not exist is not refused, so it "
+         "throws out of world generation rather than simply not appearing")
+
+piece_src = squashed(strip_comments(read(SRC, "structure/RoomPiece.java"), True))
+if "if (!kind.opens(way)) { continue; }" not in piece_src:
+    fail("the gaps a room is built with are not the doors the rules say it has, "
+         "so the building a player walks through is not the building the harness "
+         "walked through")
+
+print(f"the structures     : {len(grammar_names)} kind(s) of building, every one "
+      f"with a placement the game will accept, a salt of its own and a grammar "
+      f"that exists")
 
 print("the seam           : the rules pointed at every dimension file in the "
       "repository, a world with no row an error rather than a pass, and every "

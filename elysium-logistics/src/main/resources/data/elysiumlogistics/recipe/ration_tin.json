@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "III",
+    "IBI",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_nugget"
+    },
+    "B": {
+      "item": "minecraft:bread"
+    }
+  },
+  "result": {
+    "id": "elysiumlogistics:ration_tin",
+    "count": 1
+  }
+}

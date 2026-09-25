@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "minecraft:mangrove_planks"
+  },
+  "result": {
+    "id": "elysiumatelier:mangrove_vertical_slab",
+    "count": 2
+  }
+}

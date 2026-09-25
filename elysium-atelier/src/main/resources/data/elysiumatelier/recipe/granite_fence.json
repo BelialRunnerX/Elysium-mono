@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:granite"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:granite_fence",
+    "count": 3
+  }
+}

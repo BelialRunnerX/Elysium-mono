@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:jungle_chair"
+    },
+    {
+      "item": "minecraft:orange_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:orange_jungle_chair",
+    "count": 1
+  }
+}

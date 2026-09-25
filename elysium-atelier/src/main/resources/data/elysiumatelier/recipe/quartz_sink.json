@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "M M"
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:quartz_block"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:quartz_sink",
+    "count": 2
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:mangrove_chair"
+    },
+    {
+      "item": "minecraft:magenta_wool"
+    }
+  ],
+  "result": {
+    "id": "elysiumatelier:magenta_mangrove_chair",
+    "count": 1
+  }
+}

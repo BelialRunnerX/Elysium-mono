@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MMM",
+    " M ",
+    "X  "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:nether_bricks"
+    },
+    "X": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:nether_bricks_steep_roof_inner",
+    "count": 5
+  }
+}

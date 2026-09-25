@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:dark_prismarine"
+    },
+    "X": {
+      "item": "minecraft:glowstone_dust"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:dark_prismarine_lamp",
+    "count": 2
+  }
+}

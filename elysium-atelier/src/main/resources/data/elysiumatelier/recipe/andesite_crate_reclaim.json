@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumatelier:andesite_crate"
+    }
+  ],
+  "result": {
+    "id": "minecraft:andesite",
+    "count": 1
+  }
+}

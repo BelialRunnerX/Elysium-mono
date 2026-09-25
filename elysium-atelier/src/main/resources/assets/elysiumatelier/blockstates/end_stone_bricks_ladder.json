@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "elysiumatelier:block/end_stone_bricks_ladder",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "elysiumatelier:block/end_stone_bricks_ladder"
+    },
+    "facing=south": {
+      "model": "elysiumatelier:block/end_stone_bricks_ladder",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumatelier:block/end_stone_bricks_ladder",
+      "y": 270
+    }
+  }
+}

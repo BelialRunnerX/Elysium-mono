@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "MM",
+    "X "
+  ],
+  "key": {
+    "M": {
+      "item": "minecraft:brown_wool"
+    },
+    "X": {
+      "item": "minecraft:lead"
+    }
+  },
+  "result": {
+    "id": "elysiumatelier:brown_drape",
+    "count": 12
+  }
+}

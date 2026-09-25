@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/diamond_repeater",
+  "textures": {
+    "layer0": "elysiumarsenal:item/diamond_repeater_pulling_0"
+  }
+}
