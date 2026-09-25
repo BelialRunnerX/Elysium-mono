@@ -1,0 +1,9 @@
+{
+  "station": "board",
+  "of": [
+    "elysiumagronomy:dough",
+    "minecraft:wheat"
+  ],
+  "result": "elysiumagronomy:pie_crust",
+  "count": 1
+}

@@ -90,6 +90,53 @@ if not (INGREDIENTS and MEALS and CUTS and WOODS and CRATED and STATIONS and KNI
     print("the kitchen's sources no longer have the shape this reads")
     sys.exit(2)
 
+# ---------------------------------------------------------------------------
+# The crops behind it, and the larder
+# ---------------------------------------------------------------------------
+
+CROP_SOURCE = read(os.path.join(
+    MOD, "src/main/java/com/elysium/agronomy/rules/CropRules.java"))
+
+CROPS = [{"id": one[0], "ground": one[1].lower(), "stages": int(one[2]),
+          "ticks": int(one[3].replace("_", "")), "yield": int(one[4]),
+          "nutrition": int(one[5]), "biomes": one[6]}
+         for one in re.findall(
+             r'new Crop\("([a-z_]+)", ([A-Z]+), (\d+), ([\d_]+), (\d+), '
+             r'(\d+), "([a-z_]+)"\)', CROP_SOURCE)]
+# WHEAT is declared the same way and is the yardstick rather than a crop of
+# ours; a generator that wrote a wheat block would be replacing the game's.
+CROPS = [one for one in CROPS if one["id"] != "wheat"]
+
+LARDER = []
+for one in re.findall(
+        r'new Larder\("([a-z_]+)", KitchenRules\.([A-Z]+),\s*List\.of\(([^)]*)\)\)',
+        CROP_SOURCE):
+    LARDER.append({"id": one[0], "station": one[1].lower(),
+                   "of": re.findall(r'"([a-z_]+)"', one[2])})
+
+COLONY = re.search(r'COLONY = "([a-z_]+)"', CROP_SOURCE)
+COLONY = COLONY.group(1) if COLONY else ""
+MUSHROOMS = re.search(r'MUSHROOMS\s*=\s*List\.of\(([^;]*?)\);', CROP_SOURCE)
+MUSHROOMS = re.findall(r'"([a-z_]+)"', MUSHROOMS.group(1)) if MUSHROOMS else []
+
+if not CROPS or not LARDER or not COLONY or not MUSHROOMS:
+    print(f"CropRules no longer has the shape this reads: {len(CROPS)} crop(s), "
+          f"{len(LARDER)} larder item(s)")
+    sys.exit(2)
+
+#: Which of the game's biomes a wild patch turns up in. The rules name a sort
+#: of place; this is the tag that sort of place means, and the game's own tags
+#: are used rather than a list of biomes so a pack that adds biomes gets the
+#: patches too.
+WILD_IN = {
+    "plains": "#minecraft:is_overworld",
+    "forest": "#minecraft:is_forest",
+    "savanna": "#minecraft:is_savanna",
+    "desert": "#minecraft:is_badlands",
+    "jungle": "#minecraft:is_jungle",
+    "swamp": "#minecraft:is_overworld",
+}
+
 
 def java_hash(text):
     value = 0
@@ -189,6 +236,205 @@ def save(image, *parts):
 def flat(texture):
     return {"parent": "minecraft:item/generated",
             "textures": {"layer0": f"{NS}:item/{texture}"}}
+
+
+def crop_sprite(crop, stage, stages):
+    """
+    One stage of a crop, drawn from its own name and how far along it is.
+
+    <p>Green and low at the start, its own colour and tall at the end, so a
+    field of eight crops reads as eight crops and a half-grown one reads as
+    half-grown. Nobody should have to count pixels to know whether to harvest.
+    """
+    from PIL import Image, ImageDraw
+    ripe = shade(crop["id"], 0x8AA24A, 70)
+    young = (0x6A, 0x8E, 0x3C)
+    share = stage / max(1, stages - 1)
+    body = tuple(int(young[at] + (ripe[at] - young[at]) * share)
+                 for at in range(3))
+    image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    top = 14 - int(2 + share * 10)
+    for column in (3, 7, 11):
+        draw.line([(column, 15), (column, top)], fill=body + (255,))
+        if share > 0.3:
+            draw.point((column - 1, top + 2), fill=body + (255,))
+            draw.point((column + 1, top + 2), fill=body + (255,))
+    if share > 0.75:
+        for column in (3, 7, 11):
+            draw.rectangle([column - 1, top, column + 1, top + 1],
+                           fill=ripe + (255,))
+    return image
+
+
+def seed_sprite(crop):
+    """A seed, in a paler version of what it grows into."""
+    from PIL import Image, ImageDraw
+    body = lighter(shade(crop["id"], 0x8AA24A, 70), 50)
+    edge = darker(body, 50)
+    image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    for at, (x, y) in enumerate(((5, 6), (9, 5), (7, 10), (11, 9))):
+        draw.ellipse([x, y, x + 2, y + 3], fill=body + (255,),
+                     outline=edge + (255,))
+    return image
+
+
+def colony_sprite():
+    """A clump of mushrooms on a block of dirt."""
+    from PIL import Image, ImageDraw
+    earth = (94, 70, 48)
+    image = Image.new("RGBA", (16, 16), earth + (255,))
+    draw = ImageDraw.Draw(image)
+    for at, (x, y, cap) in enumerate((
+            (3, 7, (176, 76, 68)), (8, 5, (198, 198, 188)),
+            (11, 9, (150, 106, 72)))):
+        draw.rectangle([x, y + 2, x + 1, y + 4], fill=(226, 222, 210, 255))
+        draw.ellipse([x - 1, y, x + 3, y + 3], fill=cap + (255,))
+    return image
+
+
+def crop_files():
+    """Every crop: eight models, a blockstate, a seed, loot and a wild patch."""
+    written = 0
+    for crop in CROPS:
+        stages = crop["stages"]
+        for stage in range(8):
+            shown = min(stage, stages - 1)
+            save(crop_sprite(crop, shown, stages), ASSETS, "textures/block",
+                 f"{crop['id']}_crop_stage{stage}.png")
+            write(os.path.join(ASSETS, "models/block",
+                               f"{crop['id']}_crop_stage{stage}.json"),
+                  {"parent": "minecraft:block/crop",
+                   "textures": {"crop": f"{NS}:block/{crop['id']}_crop_stage{stage}"}})
+            written += 1
+        write(os.path.join(ASSETS, "blockstates", crop["id"] + "_crop.json"),
+              {"variants": {
+                  f"age={stage}": {
+                      "model": f"{NS}:block/{crop['id']}_crop_stage{stage}"}
+                  for stage in range(8)}})
+        written += 1
+        save(seed_sprite(crop), ASSETS, "textures/item",
+             crop["id"] + "_seeds.png")
+        write(os.path.join(ASSETS, "models/item", crop["id"] + "_seeds.json"),
+              flat(crop["id"] + "_seeds"))
+        written += 1
+        # Ripe it gives its yield and a seed back; unripe it gives the seed.
+        # A crop that eats its own seed when it is broken early is a crop
+        # nobody plants twice.
+        write(os.path.join(DATA, "loot_table/blocks", crop["id"] + "_crop.json"), {
+            "type": "minecraft:block",
+            "pools": [
+                {"rolls": 1, "entries": [{"type": "minecraft:item",
+                                          "name": f"{NS}:{crop['id']}_seeds"}]},
+                {"rolls": 1,
+                 "conditions": [{
+                     "condition": "minecraft:block_state_property",
+                     "block": f"{NS}:{crop['id']}_crop",
+                     "properties": {"age": str(crop["stages"] - 1)}}],
+                 "entries": [{
+                     "type": "minecraft:item",
+                     "name": f"{NS}:{crop['id']}",
+                     "functions": [{
+                         "function": "minecraft:set_count",
+                         "count": crop["yield"]}]}]},
+            ],
+        })
+        written += 1
+
+    # The colony.
+    save(colony_sprite(), ASSETS, "textures/block", COLONY + ".png")
+    write(os.path.join(ASSETS, "models/block", COLONY + ".json"),
+          {"parent": "minecraft:block/cube_all",
+           "textures": {"all": f"{NS}:block/{COLONY}"}})
+    write(os.path.join(ASSETS, "blockstates", COLONY + ".json"),
+          {"variants": {"": {"model": f"{NS}:block/{COLONY}"}}})
+    write(os.path.join(ASSETS, "models/item", COLONY + ".json"),
+          {"parent": f"{NS}:block/{COLONY}"})
+    write(os.path.join(DATA, "loot_table/blocks", COLONY + ".json"), {
+        "type": "minecraft:block",
+        "pools": [{"rolls": 1, "entries": [{"type": "minecraft:item",
+                                            "name": f"{NS}:{COLONY}"}]}],
+    })
+    write(os.path.join(DATA, "recipe", COLONY + ".json"), {
+        "type": "minecraft:crafting_shapeless",
+        "category": "building",
+        "ingredients": [{"item": "minecraft:dirt"},
+                        {"item": f"minecraft:{MUSHROOMS[0]}"},
+                        {"item": f"minecraft:{MUSHROOMS[1]}"}],
+        "result": {"id": f"{NS}:{COLONY}", "count": 1},
+    })
+    written += 5
+    return written
+
+
+def wild_files():
+    """
+    A wild patch for every crop, and the biome modifier that puts it there.
+
+    <p>A patch rather than a village chest: a kitchen locked behind a village
+    is a kitchen a player may never open, and the one thing worse than a
+    recipe with no ingredient is a recipe whose ingredient exists somewhere
+    the world may not have generated.
+    """
+    written = 0
+    for crop in CROPS:
+        patch = "wild_" + crop["id"]
+        write(os.path.join(DATA, "worldgen/configured_feature", patch + ".json"), {
+            "type": "minecraft:random_patch",
+            "config": {
+                "tries": 24,
+                "xz_spread": 5,
+                "y_spread": 1,
+                "feature": {
+                    "feature": {
+                        "type": "minecraft:simple_block",
+                        "config": {"to_place": {
+                            "type": "minecraft:simple_state_provider",
+                            "state": {
+                                "Name": f"{NS}:{crop['id']}_crop",
+                                "Properties": {
+                                    "age": str(crop["stages"] - 1)}}}},
+                    },
+                    "placement": [{
+                        "type": "minecraft:block_predicate_filter",
+                        "predicate": {"type": "minecraft:matching_blocks",
+                                      "blocks": "minecraft:air"}}],
+                },
+            },
+        })
+        write(os.path.join(DATA, "worldgen/placed_feature", patch + ".json"), {
+            "feature": f"{NS}:{patch}",
+            "placement": [
+                {"type": "minecraft:rarity_filter", "chance": 12},
+                {"type": "minecraft:in_square"},
+                {"type": "minecraft:heightmap",
+                 "heightmap": "WORLD_SURFACE_WG"},
+                {"type": "minecraft:biome"},
+            ],
+        })
+        write(os.path.join(DATA, "neoforge/biome_modifier", patch + ".json"), {
+            "type": "neoforge:add_features",
+            "biomes": WILD_IN.get(crop["biomes"], "#minecraft:is_overworld"),
+            "features": f"{NS}:{patch}",
+            "step": "vegetal_decoration",
+        })
+        written += 3
+    return written
+
+
+def larder_files():
+    """What the kitchen makes out of what, as data the pot and board read."""
+    written = 0
+    for one in LARDER:
+        write(os.path.join(DATA, "larder", one["id"] + ".json"), {
+            "station": one["station"],
+            "of": [named(part) for part in one["of"]],
+            "result": f"{NS}:{one['id']}",
+            "count": 1,
+        })
+        written += 1
+    return written
 
 
 def draw_and_model():
@@ -315,6 +561,10 @@ def lang(blocks):
         words[f"item.{NS}.{kind}_knife"] = a_name(kind) + " Knife"
     for name, tone in blocks:
         words[f"block.{NS}.{name}"] = a_name(name)
+    for crop in CROPS:
+        words[f"block.{NS}.{crop['id']}_crop"] = a_name(crop["id"])
+        words[f"item.{NS}.{crop['id']}_seeds"] = a_name(crop["id"]) + " Seeds"
+    words[f"block.{NS}.{COLONY}"] = a_name(COLONY)
 
     committed = os.path.join(MOD, "src/main/resources/assets", NS, "lang/en_us.json")
     path = os.path.join(ASSETS, "lang/en_us.json")
@@ -329,9 +579,12 @@ def main():
     blocks = draw_and_model()
     cooking()
     block_recipes(blocks)
+    grown = crop_files() + wild_files() + larder_files()
     lang(blocks)
     print(f"kitchen: {len(MEALS)} meal(s), {len(INGREDIENTS)} ingredient(s), "
-          f"{len(CUTS)} cut(s), {len(blocks)} block(s), {len(KNIVES)} knife/knives")
+          f"{len(CUTS)} cut(s), {len(blocks)} block(s), {len(KNIVES)} knife/knives; "
+          f"and {len(CROPS)} crop(s) with a wild patch apiece, a colony and "
+          f"{len(LARDER)} larder recipe(s) in {grown} file(s)")
 
 
 if __name__ == "__main__":

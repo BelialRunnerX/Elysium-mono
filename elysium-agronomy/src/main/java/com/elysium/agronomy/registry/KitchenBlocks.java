@@ -70,6 +70,51 @@ public final class KitchenBlocks {
     public static final Map<String, DeferredBlock<Block>> CABINETS = registerCabinets();
     public static final Map<String, DeferredBlock<Block>> CRATES = registerCrates();
 
+    /**
+     * A crop block and a seed for every crop the kitchen asks for.
+     *
+     * <p>Eight ingredients had a sprite, a crate and a place in a dozen
+     * recipes and no way on earth to obtain one. These are the plants.
+     *
+     * <p>{@link net.minecraft.world.level.block.CropBlock} and not a class of
+     * our own, because the game's own crop is trampled, bone-mealed, grown by
+     * random tick and harvested by every automation mod there is, and a crop
+     * of our own would have to be all of that again to be a crop rather than
+     * a block that changes colour.
+     */
+    public static final Map<String, DeferredBlock<Block>> CROPS = registerCrops();
+
+    private static Map<String, DeferredBlock<Block>> registerCrops() {
+        Map<String, DeferredBlock<Block>> made = new java.util.LinkedHashMap<>();
+        for (com.elysium.agronomy.rules.CropRules.Crop crop
+                : com.elysium.agronomy.rules.CropRules.CROPS) {
+            DeferredBlock<Block> block = BLOCKS.register(crop.id() + "_crop",
+                    () -> new com.elysium.agronomy.block.KitchenCropBlock(
+                            BlockBehaviour.Properties.ofFullCopy(
+                                            net.minecraft.world.level.block.Blocks.WHEAT)
+                                    .noCollission()
+                                    .randomTicks()
+                                    .instabreak()
+                                    .sound(net.minecraft.world.level.block.SoundType.CROP),
+                            crop.id()));
+            made.put(crop.id(), block);
+        }
+        if (made.size()
+                != com.elysium.agronomy.rules.CropRules.CROPS.size()) {
+            throw new IllegalStateException("there are "
+                    + com.elysium.agronomy.rules.CropRules.CROPS.size()
+                    + " crop(s) and " + made.size() + " were registered");
+        }
+        return Map.copyOf(made);
+    }
+
+    /** The colony, which grows mushrooms rather than being one. */
+    public static final DeferredBlock<Block> COLONY = BLOCKS.register(
+            com.elysium.agronomy.rules.CropRules.COLONY,
+            () -> new Block(BlockBehaviour.Properties
+                    .ofFullCopy(net.minecraft.world.level.block.Blocks.BROWN_MUSHROOM_BLOCK)
+                    .randomTicks()));
+
     private static DeferredBlock<Block> block(String name,
                                               BlockBehaviour.Properties properties) {
         DeferredBlock<Block> made = BLOCKS.register(name, () -> new Block(properties));

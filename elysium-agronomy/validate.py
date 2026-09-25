@@ -815,6 +815,28 @@ OURS |= {f"{NS}:{one[0]}" for one in bobbers}
 OURS |= {f"{NS}:{worm_farm}", f"{NS}:{tackle_box}"}
 OURS |= {f"{NS}:{fid}_mount" for fid in fish_ids}
 
+CROP_RULES = read(SRC, "rules/CropRules.java")
+crop_source = strip_comments(CROP_RULES, True)
+crops = [{"id": one[0], "ground": one[1].lower(), "stages": int(one[2]),
+          "ticks": int(one[3].replace("_", "")), "yield": int(one[4]),
+          "nutrition": int(one[5]), "biomes": one[6]}
+         for one in re.findall(
+             r'new Crop\("([a-z_]+)", ([A-Z]+), (\d+), ([\d_]+), (\d+), '
+             r'(\d+), "([a-z_]+)"\)', crop_source)]
+crops = [one for one in crops if one["id"] != "wheat"]
+larder = [one[0] for one in re.findall(
+    r'new Larder\("([a-z_]+)", KitchenRules\.([A-Z]+)', crop_source)]
+colony = re.search(r'COLONY = "([a-z_]+)"', crop_source)
+colony = colony.group(1) if colony else ""
+if len(crops) < 4 or not larder or not colony:
+    fail(f"CropRules no longer has the shape this file reads: {len(crops)} "
+         f"crop(s), {len(larder)} larder item(s); every check below it is then "
+         f"checking nothing")
+
+OURS |= {f"{NS}:{one['id']}_crop" for one in crops}
+OURS |= {f"{NS}:{one['id']}_seeds" for one in crops}
+OURS |= {f"{NS}:{colony}"}
+
 for name in registered:
     if name not in crafted:
         fail(f"{name} has no crafting recipe, so it can only be given")
@@ -1902,6 +1924,115 @@ for fid in fish_ids[:1] if fish_ids else []:
 print(f"the tackle         : {len(hooks)} hook(s), {len(bobbers)} bobber(s), "
       f"{len(fish_ids)} mount(s) and two stations, none of them taking a fish "
       f"away and no hook making the rare one harder to get")
+
+
+# ---------------------------------------------------------------------------
+# The crops behind the kitchen
+# ---------------------------------------------------------------------------
+
+if "float ours = found == null ? 1.0F" not in \
+        strip_comments(read(SRC, "block/KitchenCropBlock.java")):
+    fail("a crop grows at the game's own speed rather than at the one the "
+         "rules give it, so the frontier of time against yield that the "
+         "harness proves is a table in a comment")
+if "public static List<String> fromNowhere(" not in crop_source:
+    fail("nothing asks, of every ingredient, where it comes from — which is "
+         "the check that found six of them coming from nowhere at all")
+
+for crop in crops:
+    name = crop["id"]
+    if not os.path.isfile(os.path.join(RES, "assets", NS, "blockstates",
+                                       name + "_crop.json")):
+        fail(f"{name} has no blockstate, so the crop is a purple cube")
+    else:
+        states = json.loads(read(RES, "assets", NS, "blockstates",
+                                 name + "_crop.json")).get("variants", {})
+        if len(states) != 8:
+            fail(f"{name}'s blockstate has {len(states)} age(s) and the game's "
+                 f"crop property has eight; the ages with no model are the "
+                 f"ones a creative player bone-meals it to")
+    for stage in range(8):
+        if not os.path.isfile(os.path.join(
+                RES, "assets", NS, "models/block",
+                f"{name}_crop_stage{stage}.json")):
+            fail(f"{name} has no model for age {stage}")
+            break
+    if not os.path.isfile(os.path.join(RES, "assets", NS, "models/item",
+                                       name + "_seeds.json")):
+        fail(f"{name} has no seed model")
+    if f"item.{NS}.{name}_seeds" not in lang_file:
+        fail(f"{name}'s seed has no name a player reads")
+    if f"block.{NS}.{name}_crop" not in lang_file:
+        fail(f"{name}'s crop has no name a player reads")
+
+    loot = os.path.join(RES, "data", NS, "loot_table/blocks", name + "_crop.json")
+    if not os.path.isfile(loot):
+        fail(f"{name} drops nothing when it is broken, so a field of it is a "
+             f"field that cannot be harvested")
+    else:
+        body = read(loot)
+        if f"{NS}:{name}_seeds" not in body:
+            fail(f"{name} does not give its seed back when it is broken, so a "
+                 f"crop broken early is a crop nobody plants twice")
+        if f"{NS}:{name}" not in body:
+            fail(f"{name} does not drop itself when it is ripe")
+
+    patch = "wild_" + name
+    for folder in ("worldgen/configured_feature", "worldgen/placed_feature"):
+        if not os.path.isfile(os.path.join(RES, "data", NS, folder,
+                                           patch + ".json")):
+            fail(f"{name} has no {folder.split('/')[-1]} for its wild patch, so "
+                 f"the first seed of it comes from a village that may not exist")
+    modifier = os.path.join(RES, "data", NS, "neoforge/biome_modifier",
+                            patch + ".json")
+    if not os.path.isfile(modifier):
+        fail(f"{patch} is a feature nothing puts in a biome, so it is generated "
+             f"nowhere at all")
+    else:
+        body = json.loads(read(modifier))
+        if body.get("type") != "neoforge:add_features":
+            fail(f"{patch}'s biome modifier is not an add-features modifier")
+        if body.get("features") != f"{NS}:{patch}":
+            fail(f"{patch}'s biome modifier adds {body.get('features')}")
+        if not str(body.get("biomes", "")).startswith("#"):
+            fail(f"{patch} is added to {body.get('biomes')} rather than to a "
+                 f"tag, so a pack that adds a biome of that sort gets no patch")
+
+# The wild patches are not all in one place, or where a player spawns decides
+# most of what they can ever cook.
+places = {crop["biomes"] for crop in crops}
+if len(places) < 3:
+    fail(f"every wild patch turns up in one of only {len(places)} sort(s) of "
+         f"place, so where a player spawns decides most of what they can ever "
+         f"cook")
+
+for name in larder:
+    path = os.path.join(RES, "data", NS, "larder", name + ".json")
+    if not os.path.isfile(path):
+        fail(f"{name} is in the kitchen's cupboard and there is no recipe that "
+             f"puts it there")
+    else:
+        body = json.loads(read(path))
+        if not body.get("of"):
+            fail(f"{name} is made out of nothing at all")
+        if body.get("result") != f"{NS}:{name}":
+            fail(f"{name}'s recipe makes {body.get('result')}")
+
+if colony:
+    for folder in ("models/block", "models/item", "blockstates"):
+        if not os.path.isfile(os.path.join(RES, "assets", NS, folder,
+                                           colony + ".json")):
+            fail(f"the mushroom colony has no {folder.split('/')[-1]}")
+    if not os.path.isfile(os.path.join(RES, "data", NS, "recipe",
+                                       colony + ".json")):
+        fail("the mushroom colony has no recipe")
+    if f"block.{NS}.{colony}" not in lang_file:
+        fail("the mushroom colony has no name a player reads")
+
+print(f"the crops          : {len(crops)} crop(s) on the frontier of time "
+      f"against yield, a wild patch apiece in {len(places)} sort(s) of place, "
+      f"{len(larder)} larder recipe(s), and every ingredient the kitchen asks "
+      f"for coming from somewhere")
 
 print(f"the diet             : {constant('FOODS_FOR_FULL', kind='int')} different "
       f"foods for {constant('MOST_EXTRA_HEARTS', kind='int')} hearts, kept as a set, "

@@ -1,0 +1,10 @@
+{
+  "station": "pot",
+  "of": [
+    "minecraft:bone",
+    "elysiumagronomy:onion",
+    "minecraft:carrot"
+  ],
+  "result": "elysiumagronomy:stock",
+  "count": 1
+}

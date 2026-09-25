@@ -9,9 +9,9 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | count | status | means |
 |---|---|---|
 | 66 | DONE | an Elysium module already replaces it |
-| 7 | SPLIT | spans several modules; see docs/SPLITS.md |
+| 8 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 50 | PLANNED | has a target module, not started |
+| 49 | PLANNED | has a target module, not started |
 | 13 | KEEP | stays in the pack on purpose |
 | 67 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -109,7 +109,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `ExtendedAE-1.21-2.2.35-neoforge.jar` | DONE | elysium-logistics | more devices for a model this pack does not have; what it adds that is content rather than channel management is on the flat network |
 | `ExtremeReactors2-1.21.1-2.4.28.jar` | PLANNED | elysium-atomics | multiblock reactors |
 | `fangs_n_claws-1.2.2.jar` | PLANNED | elysium-bestiary | nine hostile beasts exist on a proved reward ladder; their catalogues (dozens of mobs each, bosses, their own gear and items) do not |
-| `FarmersDelight-1.21.1-1.3.2.jar` | PLANNED | elysium-agronomy | cooking: 29 meals across four stations with 11 effects, 24 ingredients, 13 knife cuts, 5 knives and 25 blocks, none of them dominated. Its canvas signs, mushroom colonies, rice paddies and wild crops do not exist |
+| `FarmersDelight-1.21.1-1.3.2.jar` | SPLIT | elysium-agronomy | cooking: 29 meals across four stations with 11 effects, 24 ingredients, 13 knife cuts, 5 knives and 25 blocks, none of them dominated — and now the crops behind them. Eight of those ingredients were items with a sprite, a crate to keep them in, a place in a dozen recipes and no way on earth to obtain one; six more were made out of nothing at all. Every crop now has a plant, a seed, eight stages, its own growth speed and a wild patch that generates in a tag of biomes, so the cookbook is not locked behind a village that may not exist. The eight sit on a frontier of time against yield, so none of them is as good as another on every axis, and every one of them feeds exactly one raw — a crop worth eating on its own is a reason never to cook. Plus a mushroom colony, capped, because a block that hands out unlimited mushrooms is a block that ends hunger. Its canvas signs are decoration and go to elysium-atelier |
 | `fastleafdecay-35.jar` | DROP | - | performance: not content |
 | `ferritecore-7.0.3-neoforge.jar` | DROP | - | performance: not content |
 | `FluxNetworks-1.21.1-8.0.0.jar` | PLANNED | elysium-atomics | wireless power |

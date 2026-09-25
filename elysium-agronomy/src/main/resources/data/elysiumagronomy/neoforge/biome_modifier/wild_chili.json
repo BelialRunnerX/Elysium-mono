@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_badlands",
+  "features": "elysiumagronomy:wild_chili",
+  "step": "vegetal_decoration"
+}

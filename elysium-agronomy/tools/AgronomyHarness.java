@@ -68,6 +68,7 @@ public final class AgronomyHarness {
         theAltar();
         theFish();
         theTackle();
+        theCrops();
         theCast();
         thePots();
         theVeins();
@@ -1119,6 +1120,156 @@ public final class AgronomyHarness {
                 + TackleRules.everyTackle().size() + " way(s) of fitting a line, "
                 + "nothing taken away, no water emptied, and no hook making the "
                 + "rare fish harder to get");
+    }
+
+
+    // ==================================================================
+
+    /**
+     * The crops behind the kitchen.
+     *
+     * <p>Twenty-nine meals, twenty-four ingredients, and eight of those
+     * ingredients were items with a sprite, a crate to keep them in, a place
+     * in a dozen recipes and no way on earth to obtain a single one. The
+     * check that matters here is the boring one: of every ingredient, where
+     * does it come from, and is the answer ever "nowhere".
+     */
+    private static void theCrops() {
+        check(CropRules.faults().isEmpty(),
+                "something wrong with the crops themselves: " + CropRules.faults());
+        check(CropRules.dominatingWheat(CropRules.CROPS).isEmpty(),
+                "a crop is as good as another on every axis and better on one: "
+                        + CropRules.dominatingWheat(CropRules.CROPS));
+        check(CropRules.feedingTooWell(CropRules.CROPS).isEmpty(),
+                "a crop feeds well enough on its own to make cooking pointless: "
+                        + CropRules.feedingTooWell(CropRules.CROPS));
+
+        // Every ingredient the kitchen asks for comes from somewhere.
+        java.util.List<String> wanted = new java.util.ArrayList<>();
+        for (KitchenRules.Ingredient one : KitchenRules.INGREDIENTS) {
+            wanted.add(one.id());
+        }
+        java.util.List<String> made = new java.util.ArrayList<>();
+        for (KitchenRules.Cut cut : KitchenRules.CUTS) {
+            made.addAll(cut.yields().keySet());
+        }
+        for (KitchenRules.Meal meal : KitchenRules.MEALS) {
+            made.add(meal.id());
+        }
+        made.addAll(CropRules.larder());
+        java.util.List<String> vanilla =
+                new java.util.ArrayList<>(KitchenRules.THE_GAMES_OWN);
+        check(CropRules.fromNowhere(wanted, CropRules.grown(), made, vanilla)
+                        .isEmpty(),
+                "the kitchen asks for something nothing in the world gives: "
+                        + CropRules.fromNowhere(wanted, CropRules.grown(), made,
+                                vanilla));
+
+        // And what the larder is made of comes from somewhere too, or the
+        // hole has only moved one step back.
+        java.util.List<String> intoTheLarder = new java.util.ArrayList<>();
+        for (CropRules.Larder one : CropRules.LARDER) {
+            intoTheLarder.addAll(one.of());
+        }
+        check(CropRules.fromNowhere(intoTheLarder, CropRules.grown(), made,
+                        vanilla).isEmpty(),
+                "the larder is made out of something nothing in the world gives: "
+                        + CropRules.fromNowhere(intoTheLarder, CropRules.grown(),
+                                made, vanilla));
+        check(CropRules.faultsInLarder(CropRules.LARDER).isEmpty(),
+                "something wrong with the larder: "
+                        + CropRules.faultsInLarder(CropRules.LARDER));
+
+        // And every crop the cutting board cuts is one somebody can have.
+        java.util.List<String> cutting = new java.util.ArrayList<>();
+        for (KitchenRules.Cut cut : KitchenRules.CUTS) {
+            cutting.add(cut.input());
+        }
+        check(CropRules.fromNowhere(cutting, CropRules.grown(), made, vanilla)
+                        .isEmpty(),
+                "the cutting board cuts something nothing in the world gives: "
+                        + CropRules.fromNowhere(cutting, CropRules.grown(), made,
+                                vanilla));
+
+        // The roster itself.
+        java.util.Set<String> named = new java.util.LinkedHashSet<>();
+        for (CropRules.Crop one : CropRules.CROPS) {
+            check(named.add(one.id()), one.id() + " names two crops");
+            check(named.add(one.seed()), one.seed() + " names two things");
+            check(one.growing() > 0, one.id() + " is ripe the moment it is planted");
+            check(one.yield() > 0, one.id() + " gives nothing when it is cut");
+            check(CropRules.crop(one.id()) == one,
+                    one.id() + " cannot be found by its own name");
+            check(!one.patch().isEmpty(), one.id() + " has no wild patch, so the "
+                    + "first seed of it comes from a village that may not exist");
+        }
+        check(CropRules.patches().size() == CropRules.CROPS.size(),
+                "there are " + CropRules.CROPS.size() + " crop(s) and "
+                        + CropRules.patches().size() + " wild patch(es)");
+        java.util.Set<String> places = new java.util.LinkedHashSet<>();
+        for (CropRules.Crop one : CropRules.CROPS) {
+            places.add(one.biomes());
+        }
+        check(places.size() >= 3, "every wild patch turns up in one of only "
+                + places.size() + " sort(s) of place, so where a player spawns "
+                + "decides most of what they can ever cook");
+
+        // Controls, built to be caught.
+        check(!CropRules.dominatingWheat(java.util.List.of(
+                        new CropRules.Crop("control", CropRules.TILLED, 2, 100,
+                                9, 9, "plains"))).isEmpty(),
+                "a crop that grows in a hundred ticks for nine at nine "
+                        + "nutrition is not reported as beating wheat, so the "
+                        + "rule that nothing here obsoletes anything cannot say "
+                        + "no");
+        check(CropRules.dominatingWheat(java.util.List.of(
+                        new CropRules.Crop("control", CropRules.PADDY, 2, 100,
+                                9, 9, "swamp"))).isEmpty(),
+                "a crop in shallow water is compared against wheat in a field, "
+                        + "and then the rule demands that rice and barley be the "
+                        + "same kind of thing");
+        check(!CropRules.feedingTooWell(java.util.List.of(
+                        new CropRules.Crop("control", CropRules.TILLED, 4, 3000,
+                                1, 6, "plains"))).isEmpty(),
+                "a crop that feeds six raw is not reported");
+        check(!CropRules.fromNowhere(java.util.List.of("moonfruit"),
+                        CropRules.grown(), made, vanilla).isEmpty(),
+                "an ingredient nothing in the world gives is not reported, which "
+                        + "is a cookbook for a cupboard nobody can fill");
+        check(CropRules.fromNowhere(java.util.List.of("cabbage"),
+                        CropRules.grown(), made, vanilla).isEmpty(),
+                "cabbage is grown here and reported as coming from nowhere");
+        check(!CropRules.faultsInLarder(java.util.List.of(
+                        new CropRules.Larder("control", "nowhere",
+                                java.util.List.of("wheat")))).isEmpty(),
+                "a larder item made at a station that does not exist is not "
+                        + "reported");
+        check(!CropRules.faultsInRoster(java.util.List.of(
+                        new CropRules.Crop("control", CropRules.TILLED, 4, 3000,
+                                1, 1, ""))).isEmpty(),
+                "a crop whose wild patch turns up nowhere is not reported");
+
+        java.util.List<String> allowed = new java.util.ArrayList<>();
+        try {
+            new CropRules.Crop("control", "gravel", 4, 3000, 1, 1, "plains");
+            allowed.add("a crop growing in something that is not ground");
+        } catch (IllegalArgumentException expected) {
+            checks++;
+        }
+        try {
+            new CropRules.Crop("control", CropRules.TILLED, 1, 3000, 1, 1, "plains");
+            allowed.add("a crop ripe the moment it is planted");
+        } catch (IllegalArgumentException expected) {
+            checks++;
+        }
+        check(allowed.isEmpty(), "the crops allow what they say they forbid: "
+                + allowed);
+
+        System.out.println("  the crops: " + CropRules.CROPS.size()
+                + " crop(s) on the frontier of time and yield, a wild patch "
+                + "apiece in " + places.size() + " sort(s) of place, and every "
+                + "one of " + wanted.size() + " ingredient(s) coming from "
+                + "somewhere");
     }
 
     // ==================================================================

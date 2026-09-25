@@ -98,6 +98,42 @@ public final class KitchenItems {
     }
 
     /** The five knives, which is what a cutting board wants. */
+    /**
+     * A seed for every crop the kitchen asks for.
+     *
+     * <p>A {@link net.minecraft.world.item.ItemNameBlockItem}, which is the
+     * game's own "this item plants that block" and is why a wheat seed is a
+     * wheat seed rather than a block item called wheat. Without it a player
+     * holding a cabbage seed would place a fully grown cabbage.
+     */
+    public static final Map<String, DeferredItem<net.minecraft.world.item.ItemNameBlockItem>>
+            SEEDS = registerSeeds();
+
+    private static Map<String, DeferredItem<net.minecraft.world.item.ItemNameBlockItem>>
+            registerSeeds() {
+        Map<String, DeferredItem<net.minecraft.world.item.ItemNameBlockItem>> made =
+                new java.util.LinkedHashMap<>();
+        for (com.elysium.agronomy.rules.CropRules.Crop crop
+                : com.elysium.agronomy.rules.CropRules.CROPS) {
+            made.put(crop.id(), ITEMS.register(crop.seed(),
+                    () -> new net.minecraft.world.item.ItemNameBlockItem(
+                            KitchenBlocks.CROPS.get(crop.id()).get(),
+                            new Item.Properties())));
+        }
+        if (made.size()
+                != com.elysium.agronomy.rules.CropRules.CROPS.size()) {
+            throw new IllegalStateException("there are "
+                    + com.elysium.agronomy.rules.CropRules.CROPS.size()
+                    + " crop(s) and " + made.size()
+                    + " seed(s); a crop with no seed is a plant nobody can plant");
+        }
+        return Map.copyOf(made);
+    }
+
+    /** The colony block, as an item. */
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> COLONY =
+            ITEMS.registerSimpleBlockItem(KitchenBlocks.COLONY);
+
     public static final Map<String, DeferredItem<Item>> KNIVES = registerKnives();
 
     private static Map<String, DeferredItem<Item>> registerKnives() {

@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_forest",
+  "features": "elysiumagronomy:wild_garlic",
+  "step": "vegetal_decoration"
+}

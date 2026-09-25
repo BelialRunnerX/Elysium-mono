@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_savanna",
+  "features": "elysiumagronomy:wild_tomato",
+  "step": "vegetal_decoration"
+}

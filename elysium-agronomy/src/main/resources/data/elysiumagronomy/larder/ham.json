@@ -1,0 +1,8 @@
+{
+  "station": "oven",
+  "of": [
+    "minecraft:porkchop"
+  ],
+  "result": "elysiumagronomy:ham",
+  "count": 1
+}

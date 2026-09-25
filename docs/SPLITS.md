@@ -30,6 +30,8 @@ wiki, so a piece cannot be missed by being forgotten.
 | `Aquaculture: the water` | DONE | elysium-agronomy | the fish, the rods, the hooks and bobbers, a mount for all 105 of them, the worm farm and the tackle box |
 | `Aquaculture: neptunium` | PLANNED | elysium-arsenal | the neptunium tools, and the material behind them — a rare catch rather than an ore, which is the one thing about this set worth keeping |
 | `Aquaculture: neptunium armour` | PLANNED | elysium-armory | the armour of the same set |
+| `FarmersDelight: the kitchen` | DONE | elysium-agronomy | the meals, the stations, the cuts, the crops behind them and the larder that makes the rest |
+| `FarmersDelight: the signs` | PLANNED | elysium-atelier | canvas signs in sixteen colours, which is a decoration roster and belongs where the decoration rosters are |
 | `supplementaries: the fittings` | PLANNED | elysium-atelier | sconces, item shelves, signposts, flags, planters, bellows and ash — the part of the jar that is decoration, in the materials this module already has |
 | `supplementaries: the machines` | PLANNED | elysium-logistics | hourglasses, pulleys, cages, jars, safes and the blocks that move or hold things |
 | `supplementaries: the comforts` | PLANNED | elysium-comforts | candle holders, lanterns, the doormat, the rope and what they do to a room |
