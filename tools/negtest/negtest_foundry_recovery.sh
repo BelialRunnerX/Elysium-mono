@@ -17,7 +17,7 @@ PY
 t $S/rules/FoundryRules.java 'made.put("cobalt", "nickel");' 'made.put("cobalt", "cobalt");' "is its own companion"
 t $S/rules/FoundryRules.java 'RECOVERY_NUGGETS = 3;' 'RECOVERY_NUGGETS = 9;' "a whole unit or more"
 t $S/rules/FoundryRules.java 'made.put("pearlium", "silver");' 'made.put("pearlium", "silver");
-        made.put("steel", "nickel");' "recovery loops"
+        made.put("steel", "nickel");' "a recipe can make and loop"
 t tools/gen_foundry.py '"cobalt": "nickel", "pearlium": "silver",' '"cobalt": "silver", "pearlium": "silver",' "companions differ between the rules and the generator"
 t $S/rules/FoundryRules.java 'alloy("nightgold", 1, "gold", UNIT, "cobalt", UNIT),' 'alloy("nightgold", 1, "gold", 2 * UNIT, "cobalt", UNIT),' "price depends on which file you read"
 t ../docs/SPEC_FOUNDRY.md '| nightgold | 1 | 18 |' '| nightgold | 1 | 27 |' "SPEC_FOUNDRY.md says nightgold"

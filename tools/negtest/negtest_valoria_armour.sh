@@ -18,7 +18,7 @@ t $M/nullsteel.json '"armor": 70.0,' '"armor": 7.0,' "in the roster"
 t $M/cobalt.json '"durability": 1750.0,' '"durability": 175.0,' "in the roster"
 t $M/chitin.json '"cordon"' '"cordoned"' "cordon category"
 t $M/lattice.json '"trait": "void_ward"' '"trait": "void_warden"' "a trait that does not exist"
-t tools/gen_materials.py '"lunite": "moonwalker",' '"lunite": "moonwalker", "loom_fang": "venom",' "not what tools/gen_materials.py generates\|is in the roster and has no"
+t tools/gen_materials.py '"lunite": "moonwalker",' '"lunite": "malleable",' "not what tools/gen_materials.py generates"
 F=$M/mireweave.json
 cp $F /tmp/nb_va_b; rm $F
 out=$(timeout 1800 python3 validate.py 2>&1); cp /tmp/nb_va_b $F
