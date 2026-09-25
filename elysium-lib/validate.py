@@ -4232,7 +4232,7 @@ for _dir, _, _files in os.walk(SRC):
             continue
         _text = strip_comments(open(os.path.join(_dir, _file), encoding="utf-8").read())
         _here = _file[:-5]
-        for _owner, _reg in re.findall(r'([A-Z]\w+)\.([A-Z_]+)\.register\(\s*"', _text):
+        for _owner, _reg in re.findall(r'\b([A-Z]\w+)\.([A-Z_]+)\.register\(\s*"', _text):
             if _owner == _here:
                 continue
             _riders += 1
