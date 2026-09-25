@@ -18,7 +18,8 @@ import os
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MOD = os.path.dirname(HERE)
+# The same switch gen_flora.py has: validate.py rebuilds into a scratch tree.
+MOD = os.environ.get("ELYSIUM_FLORA_OUT", os.path.dirname(HERE))
 BASE = os.path.join(HERE, "base")
 OUT = os.path.join(MOD, "src/main/resources/assets/elysiumflora/textures")
 

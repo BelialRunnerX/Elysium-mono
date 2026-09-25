@@ -15,7 +15,10 @@ import shutil
 HERE = os.path.dirname(os.path.abspath(__file__))
 MOD = os.path.dirname(HERE)
 NS = "elysiumflora"
-RES = os.path.join(MOD, "src/main/resources")
+# ELYSIUM_FLORA_OUT points what the generator writes at another tree:
+# validate.py sets it to rebuild everything into a scratch folder and compare
+# with what is shipped. What it reads (the rules) always comes from the module.
+RES = os.path.join(os.environ.get("ELYSIUM_FLORA_OUT", MOD), "src/main/resources")
 DATA = os.path.join(RES, "data", NS)
 ASSETS = os.path.join(RES, "assets", NS)
 JAVA = os.path.join(MOD, "src/main/java/com/elysium/flora")

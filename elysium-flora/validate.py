@@ -363,6 +363,56 @@ print(f"where they grow    : {len(placed)} feature(s) across "
       f"{len(os.listdir(modifier_dir)) if os.path.isdir(modifier_dir) else 0} modifier(s)")
 
 # ---------------------------------------------------------------------------
+# The shipped files are what the generators write
+# ---------------------------------------------------------------------------
+# The mirror shipped emberwood's biome modifier naming a tag, and gen_flora.py
+# still wrote the older list-with-a-tag-in-it that the game refuses; nothing
+# here compared the two, so the next regeneration put the broken form back and
+# the world would not load. Every other generated module rebuilds into a
+# scratch tree and diffs; now this one does too.
+
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                 "tools"))
+import samefile  # noqa: E402
+
+FLORA_GENERATORS = ["tools/gen_textures.py", "tools/gen_flora.py"]
+for relative in FLORA_GENERATORS:
+    if not os.path.isfile(os.path.join(WORK, relative)):
+        fail(f"there is no {relative}, so the files it writes are kept by hand")
+if all(os.path.isfile(os.path.join(WORK, relative)) for relative in FLORA_GENERATORS):
+    with tempfile.TemporaryDirectory() as tmp:
+        ran_all = True
+        for relative in FLORA_GENERATORS:
+            made = subprocess.run([sys.executable, os.path.join(WORK, relative)],
+                                  capture_output=True, text=True,
+                                  env=dict(os.environ, ELYSIUM_FLORA_OUT=tmp), cwd=WORK)
+            if made.returncode != 0:
+                ran_all = False
+                fail(f"{relative} will not run, so nothing it writes can be rebuilt:\n"
+                     + (made.stdout + made.stderr).strip()[:800])
+        if ran_all:
+            fresh = os.path.join(tmp, "src/main/resources")
+            drifted = []
+            made_count = 0
+            for dirpath, _, filenames in os.walk(fresh):
+                for name in filenames:
+                    made_count += 1
+                    made_path = os.path.join(dirpath, name)
+                    kept = os.path.join(RES, os.path.relpath(made_path, fresh))
+                    if not os.path.isfile(kept):
+                        drifted.append(os.path.relpath(made_path, fresh) + " (missing)")
+                    elif not samefile.same(made_path, kept):
+                        drifted.append(os.path.relpath(made_path, fresh))
+            if drifted:
+                fail(f"{len(drifted)} generated file(s) differ from what the generators write "
+                     f"now; run tools/gen_textures.py then tools/gen_flora.py rather than "
+                     f"editing them: " + ", ".join(sorted(drifted)[:6])
+                     + (" ..." if len(drifted) > 6 else ""))
+            print(f"generated          : {made_count} file(s) rebuilt from the two generators, "
+                  f"each the same as the one shipped")
+
+# ---------------------------------------------------------------------------
 # Textures the atlas can read
 # ---------------------------------------------------------------------------
 # A block or item texture is one square frame, or a column of square frames
