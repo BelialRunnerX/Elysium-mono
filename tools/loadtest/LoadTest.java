@@ -241,6 +241,10 @@ public final class LoadTest {
                 (MappedRegistry<EntityType<?>>) BuiltInRegistries.ENTITY_TYPE;
         MappedRegistry<MobEffect> effects =
                 (MappedRegistry<MobEffect>) BuiltInRegistries.MOB_EFFECT;
+        MappedRegistry<net.minecraft.world.level.levelgen.structure.StructureType<?>>
+                structures = (MappedRegistry<net.minecraft.world.level.levelgen
+                        .structure.StructureType<?>>) BuiltInRegistries.STRUCTURE_TYPE;
+        structures.unfreeze();
         MappedRegistry<PlacementModifierType<?>> placements =
                 (MappedRegistry<PlacementModifierType<?>>) BuiltInRegistries.PLACEMENT_MODIFIER_TYPE;
         MappedRegistry<net.minecraft.core.component.DataComponentType<?>> components =
@@ -297,6 +301,13 @@ public final class LoadTest {
                         count++;
                     }
                 }
+                case "structure_type" -> {
+                    if (!BuiltInRegistries.STRUCTURE_TYPE.containsKey(id)) {
+                        Registry.register(structures, id,
+                                StubStructure.stubType());
+                        count++;
+                    }
+                }
                 case "mob_effect" -> {
                     if (!effects.containsKey(id)) {
                         Registry.register(effects, id,
@@ -309,6 +320,7 @@ public final class LoadTest {
                 }
             }
         }
+        structures.freeze();
         components.freeze();
         placements.freeze();
         blocks.freeze();
@@ -526,5 +538,72 @@ public final class LoadTest {
     /** The game's own data pack, which lives inside the jar we compile against. */
     private static PackResources vanilla() {
         return ServerPacksSource.createVanillaPackSource();
+    }
+
+    /**
+     * A structure that parses and generates nothing.
+     *
+     * <p>Our structures are registered in Java, and Java is the one thing
+     * this harness cannot run. Without a stand-in, every structure file of
+     * ours fails with "unknown registry key" and every structure set naming
+     * one comes back unbound — a wall of errors that looks exactly like a
+     * real bug in files that are perfectly good.
+     *
+     * <p>It reads the settings every structure has and ignores everything
+     * else in the file, which is the point: what is being checked here is
+     * that the placement, the biome tag and the spawn overrides are all
+     * things the game will accept, not what the structure does with them.
+     */
+    private static final class StubStructure
+            extends net.minecraft.world.level.levelgen.structure.Structure {
+
+        static final com.mojang.serialization.MapCodec<StubStructure> CODEC =
+                com.mojang.serialization.codecs.RecordCodecBuilder.mapCodec(
+                        instance -> instance.group(settingsCodec(instance))
+                                .apply(instance, StubStructure::new));
+
+        /**
+         * A fresh type for every stubbed id.
+         *
+         * <p>Fresh, and an anonymous class rather than a lambda, for one
+         * reason each. A registry refuses the same value twice, so all the
+         * stubbed types cannot be one object; and a lambda that captures
+         * nothing is built once and handed back every time it is asked for,
+         * which is the same object wearing a different name.
+         *
+         * <p>The cast is because {@code StructureType} is not covariant in
+         * its codec: a {@code MapCodec<StubStructure>} is not a {@code
+         * MapCodec<Structure>}, and nothing here ever encodes one.
+         */
+        @SuppressWarnings("unchecked")
+        static net.minecraft.world.level.levelgen.structure.StructureType<?>
+                stubType() {
+            return new net.minecraft.world.level.levelgen.structure
+                    .StructureType<>() {
+                @Override
+                public com.mojang.serialization.MapCodec<
+                        net.minecraft.world.level.levelgen.structure.Structure>
+                        codec() {
+                    return (com.mojang.serialization.MapCodec<
+                            net.minecraft.world.level.levelgen.structure.Structure>)
+                            (com.mojang.serialization.MapCodec<?>) CODEC;
+                }
+            };
+        }
+
+        StubStructure(StructureSettings settings) {
+            super(settings);
+        }
+
+        @Override
+        public java.util.Optional<GenerationStub> findGenerationPoint(
+                GenerationContext context) {
+            return java.util.Optional.empty();
+        }
+
+        @Override
+        public net.minecraft.world.level.levelgen.structure.StructureType<?> type() {
+            return stubType();
+        }
     }
 }

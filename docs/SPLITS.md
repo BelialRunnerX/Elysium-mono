@@ -18,9 +18,12 @@ wiki, so a piece cannot be missed by being forgotten.
 | `Valoria: armour` | PLANNED | elysium-armory | the armour and shields of those same 17 sets, plus 13 trim materials. Blocked on elysium-ores for the same reason |
 | `Valoria: materials` | PLANNED | elysium-ores | the ores, ingots and drops the 17 sets are made of. Nothing else in the split can start until this lands |
 | `Valoria: creatures` | PLANNED | elysium-bestiary | 50 entities, their spawns, drops and loot |
-| `Valoria: the Vale` | PLANNED | elysium-wilds | the dimension and its 15 biomes are built: five bands of warmth crossed with three of rain, a partition of the climate plane so every biome wins its own rectangle and none can sit inside another's — proved by arithmetic over 160,801 climates and again by the sampling that once found a river that never generated. The 22 structures are what is left |
+| `Valoria: the Vale` | DONE | elysium-wilds | the dimension and its 15 biomes: five bands of warmth crossed with three of rain, a partition of the climate plane so every biome wins its own rectangle and none can sit inside another's — proved by arithmetic over 322,267 checks and again by the sampling that once found a river that never generated. The structures are the eight room grammars, which the whole pack gets rather than this dimension alone |
 | `Valoria: charms` | PLANNED | elysium-trinkets | the pet curio slot and what goes in it |
 | `Valoria: effects` | PLANNED | elysium-lib | 17 effects, 18 attributes and 6 enchantments the rest of the split reads. Shared ground: needs the `shared` unit |
+| `Quark: the worldgen` | DONE | elysium-wilds | 23 biomes and 9 features, answered by the overworld overlay rather than one at a time: 140 biomes of ours in half of the inland surface, declared ahead of vanilla's 7,593 entries so each of them wins its own cell outright |
+| `Quark: the decoration` | PLANNED | elysium-atelier | 815 blocks and 106 items, most of them vertical slabs, shingles, thatch, framed glass and hedges — the roster this module already generates, in materials it already has |
+| `Quark: the rest` | PLANNED | elysium-kinetics | the automation half: pipes, crates, hoppers, the pistons that push more than twelve, and the 16 entities |
 | `supplementaries: the fittings` | PLANNED | elysium-atelier | sconces, item shelves, signposts, flags, planters, bellows and ash — the part of the jar that is decoration, in the materials this module already has |
 | `supplementaries: the machines` | PLANNED | elysium-logistics | hourglasses, pulleys, cages, jars, safes and the blocks that move or hold things |
 | `supplementaries: the comforts` | PLANNED | elysium-comforts | candle holders, lanterns, the doormat, the rope and what they do to a room |

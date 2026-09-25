@@ -610,3 +610,91 @@ nobody sees by looking:
 hand-composed: a ctov village has a blacksmith somebody designed, and ours has
 a blacksmith the grammar laid out. That is a real loss of character and it is
 the price of every property above.
+
+---
+
+## 12. A hundred and forty biomes in somebody else's overworld
+
+`wwoo` is 110 biomes and 367 features; Quark's worldgen half is another 23
+biomes and 16 structures. Between them they are the largest single block of
+content left, and they share one problem that none of the other jars have:
+**the overworld is not ours.**
+
+A dimension of our own — the Vale — is easy. We write the dimension file, we
+write the biome files, and every climate in it belongs to us. The overworld's
+biome source is vanilla's `minecraft:overworld` parameter list, built in Java
+inside `OverworldBiomeBuilder`, and a datapack cannot append to it. The
+`multi_noise_biome_source_parameter_list` registry looks like the place to do
+it and is not: its codec is `{"preset": "..."}` and names one of the presets
+the game already has.
+
+### The three ways in
+
+1. **A region-management library** of the sort TerraBlender provides. It
+   works, and it is a third-party jar added to a project whose entire purpose
+   is removing third-party jars.
+2. **A biome source of our own**, registered in code, wrapping vanilla's list
+   and prepending ours. Small file, no new dependency — and a codec we would
+   be writing blind, where a mistake is a world that will not load at all.
+3. **Override the world preset.** `minecraft:worldgen/world_preset/normal`
+   names the overworld's biome source inline, and `minecraft:multi_noise`
+   takes an explicit list of entries as readily as it takes a preset name. So
+   we write the whole list: ours, then vanilla's.
+
+**The decision: override the world preset.** It is plain data, so
+`check_loadtest.py` puts it through the game's own codecs before the jar is
+built, and a mistake is a file the loader names rather than a world that dies
+on Create World.
+
+### Where vanilla's half of the list comes from
+
+Not typed. `tools/DumpOverworld.java` calls `OverworldBiomeBuilder.addBiomes`
+— the game's own builder, from the jar on the classpath — and prints the
+7,593 entries it is handed into `tools/data/overworld-vanilla.tsv`. The
+generator copies them through verbatim. Nothing about vanilla's overworld is
+restated in our words, so nothing about it can drift.
+
+### Why ours can be declared first, and what that settles
+
+Climate is six axes, every entry claims a box, and every column goes to the
+nearest box with ties broken by declaration order. Put our entries at the
+head of the list and the arithmetic is no longer an argument:
+
+- **A climate inside one of our boxes is ours.** Our distance is the depth
+  term and nothing else; vanilla's is the depth term or more; the tie goes to
+  whoever was declared first, and that is us.
+- **A climate outside all of them is vanilla's**, exactly as it was, because
+  we changed nothing about vanilla's entries.
+
+So the thing to prove is not "does our biome generate" — that is arithmetic —
+but **what we took**, and the answer has to be a share rather than a hope.
+
+### The share, and what is left of vanilla
+
+Our biomes claim, at the surface:
+
+    continentalness  inland only, from -0.11 up
+    depth            0, the surface, as vanilla's own surface entries do
+    weirdness        six of vanilla's twelve bands, every other one
+    temperature      all five of vanilla's bands
+    humidity         all five
+    erosion          all five
+
+Which is **47.5% of the inland surface**, 125 ways: five warmths by five
+wetnesses by five reliefs, a partition of the region, every cell a biome.
+Vanilla keeps the other half, the oceans, the shore, the rivers and the
+caves, and **not one of its 53 overworld biomes loses all of its territory** —
+checked entry by entry against the dump, not assumed.
+
+Fifteen more sit at depth 1, five warmths by three wetnesses, which is Quark's
+cave half.
+
+### What it costs
+
+`wwoo` replaces the overworld; we take half of the land and leave the rest
+alone, so a player who knows vanilla still recognises where they are. Our 125
+are *systematic* — a cell of a grid rather than a place somebody imagined —
+and the price of that is the same price the room grammar pays. What is bought
+is that every one of them provably generates, that none of them is a
+duplicate of another under a different name, and that no vanilla biome was
+quietly deleted to make room.

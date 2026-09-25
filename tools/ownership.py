@@ -56,16 +56,23 @@ def allowed(paths, mine):
     for state, path in paths:
         if any(path.startswith(prefix) for prefix in board.THE_BOARD):
             continue
+        # Something you hold outright is yours whatever else covers it. The
+        # add-only rule is for agents who hold a module and nothing more; it
+        # used to be asked first, and then holding `shared` — which is what
+        # the board tells you to claim before touching anything under
+        # tools/ — still could not edit tools/negtest/README.md. A rule that
+        # forbids what the board instructs is a rule people learn to work
+        # around.
+        if any(path.startswith(prefix) for prefix in prefixes):
+            permitted.append(path)
+            continue
         # A file you have just added under an add-only place is yours; one
         # that was already there is whoever wrote it, and editing it is the
         # trespass this is looking for.
         if any(path.startswith(prefix) for prefix in board.ADD_ONLY):
             (permitted if state.strip() == "??" else trespass).append(path)
             continue
-        if any(path.startswith(prefix) for prefix in prefixes):
-            permitted.append(path)
-        else:
-            trespass.append(path)
+        trespass.append(path)
     return permitted, trespass
 
 

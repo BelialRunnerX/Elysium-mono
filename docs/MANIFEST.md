@@ -8,10 +8,10 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 62 | DONE | an Elysium module already replaces it |
-| 4 | SPLIT | spans several modules; see docs/SPLITS.md |
+| 63 | DONE | an Elysium module already replaces it |
+| 5 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 57 | PLANNED | has a target module, not started |
+| 55 | PLANNED | has a target module, not started |
 | 13 | KEEP | stays in the pack on purpose |
 | 67 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -27,9 +27,9 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `elysium-comforts` | 6 |
 | `elysium-industry` | 4 |
 | `elysium-atelier` | 3 |
-| `elysium-wilds` | 2 |
 | `elysium-arcana` | 1 |
 | `elysium-foundry` | 1 |
+| `elysium-wilds` | 1 |
 
 ## Every jar
 
@@ -186,7 +186,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `puffish_attributes-0.8.3-1.21-neoforge.jar` | KEEP | elysium-core | read by the skill tree |
 | `puffish_skills-0.18.3-1.21-neoforge.jar` | KEEP | elysium-core | the skill tree ships as a datapack for it |
 | `PuzzlesLib-v21.1.52-1.21.1-NeoForge.jar` | DROP | - | library: goes when the mods needing it go |
-| `Quark-4.1-482.jar` | PLANNED | elysium-wilds | split: worldgen here, deco to atelier |
+| `Quark-4.1-482.jar` | SPLIT | elysium-wilds | three pieces in docs/SPLITS.md: the worldgen is done, the 815 decoration blocks go to the atelier and the automation half to kinetics |
 | `refinedstorage-neoforge-2.0.9.jar` | DONE | elysium-logistics | the network model this module keeps: flat, no channels, a controller and a bus. Importer, exporter, storage bus, monitor, detector and interface are the seven faces it reaches the world through, each a stated draw on the grid so a warehouse is a load you power rather than a layout you solve. See docs/CONVERSION.md section 10 |
 | `Reforged-1.21.1-1.1.0-NeoForge.jar` | DONE | elysium-arsenal | 45 grades across 5 kinds of gear and 3 hammers that roll them; the gamble proved to spoil more often than it improves, to pay 0.4% a roll, and to have no grade worth as much as the smallest step up the weapon ladder |
 | `relics-1.21.1-0.12.8.jar` | PLANNED | elysium-arcana | relics: 30 relics across 8 slots, carrying all 30 abilities of the shared ability system now in elysium-lib — the same system the arsenal's uniques will use. Its 17 entities (the summons and projectiles the actives throw) do not exist yet |
@@ -230,7 +230,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `Valoria-1.21.1-1.0.4.2.jar` | SPLIT | - | four mods in a trench coat: 17 material sets, 50 entities, a dimension with 15 biomes and 22 structures, a curio slot, 17 effects and 18 attributes. Split into units in docs/SPLITS.md |
 | `waystones-neoforge-1.21.1-21.1.40.jar` | DONE | elysium-transit | bind, jump, and a price the grid pays; sits beside the waygate rather than replacing it |
 | `woodworks-1.21.1-4.0.2.jar` | DONE | elysium-atelier | ladders, board walls and panelling in every wood the game has none of, the ladders cut on a stonecutter one block at a time |
-| `wwoo-neoforge-2.6.7.jar` | PLANNED | elysium-wilds | worldgen and finding your way about it |
+| `wwoo-neoforge-2.6.7.jar` | DONE | elysium-wilds | 110 biomes and 367 features replaced by 140 biomes of our own put into vanilla's own overworld: five warmths by five wets by five reliefs on the surface and five by three underground, a partition of the 47.5% of the inland surface they claim. The list is written out in full — ours first, then vanilla's 7,593 entries dumped from the game's own builder and carried through untouched — because our entries being first is what makes each of them win its own cell outright rather than hope to. Every one of vanilla's 53 biomes still has ground of its own, checked entry by entry rather than assumed, and every one of ours decorates like a biome the game already ships so the world cannot fail to start over a feature order nobody can see |
 | `xaerominimap-neoforge-1.21.1-26.4.2.jar` | DROP | - | interface and convenience: not content |
 | `xaeroworldmap-neoforge-1.21.1-1.44.2.jar` | DROP | - | interface and convenience: not content |
 | `ZeroCore2-1.21.1-2.4.21.jar` | PLANNED | elysium-atomics | multiblock reactors |

@@ -37,6 +37,16 @@ VALE_HARNESS = os.path.join(WORK, "tools/ValeHarness.java")
 VALE_MAIN = "com.elysium.wilds.rules.ValeHarness"
 GRAMMAR_HARNESS = os.path.join(WORK, "tools/GrammarHarness.java")
 GRAMMAR_MAIN = "com.elysium.wilds.rules.GrammarHarness"
+OVERWORLD_HARNESS = os.path.join(WORK, "tools/OverworldHarness.java")
+OVERWORLD_MAIN = "com.elysium.wilds.rules.OverworldHarness"
+ROSTER = os.path.join(WORK, "tools/OverworldRoster.java")
+ROSTER_MAIN = "com.elysium.wilds.rules.OverworldRoster"
+VALE_ROSTER = os.path.join(WORK, "tools/ValeRoster.java")
+VALE_ROSTER_MAIN = "com.elysium.wilds.rules.ValeRoster"
+DATA_IN = os.path.join(WORK, "tools/data")
+VANILLA_LIST = os.path.join(DATA_IN, "overworld-vanilla.tsv")
+VANILLA_FEATURES = os.path.join(DATA_IN, "biome-features.tsv")
+VANILLA_PRESETS = os.path.join(DATA_IN, "world_preset")
 HARNESS_MAIN = "com.elysium.wilds.rules.WildHarness"
 CHECKER = os.path.join(ROOT, "check_worldgen.py")
 
@@ -45,6 +55,14 @@ HARNESS_SECONDS = 180
 NS = "elysiumwilds"
 
 problems = []
+
+#: What tools/OverworldRoster.java printed, one line per biome. Empty when the
+#: rules did not compile, and then every check that reads it says so rather
+#: than throwing a NameError out of the validator.
+roster_lines = []
+
+#: And the Vale's, likewise.
+vale_roster_lines = []
 
 
 def fail(msg):
@@ -186,7 +204,8 @@ else:
         staged = os.path.join(tmp, "src")
         os.makedirs(staged)
         sources = [os.path.join(PURE, n) for n in os.listdir(PURE) if n.endswith(".java")]
-        for source in sources + [HARNESS, VALE_HARNESS, GRAMMAR_HARNESS]:
+        for source in sources + [HARNESS, VALE_HARNESS, GRAMMAR_HARNESS,
+                                 OVERWORLD_HARNESS, ROSTER, VALE_ROSTER]:
             open(os.path.join(staged, os.path.basename(source)), "w",
                  encoding="utf-8").write(read(source))
         compiled = subprocess.run(
@@ -246,6 +265,44 @@ else:
             else:
                 print("the buildings      : "
                       + ran_grammar.stdout.strip().splitlines()[-1])
+
+            try:
+                ran_over = subprocess.run(
+                    ["java", "-cp", os.path.join(tmp, "out"), OVERWORLD_MAIN],
+                    capture_output=True, text=True, timeout=HARNESS_SECONDS)
+            except subprocess.TimeoutExpired:
+                ran_over = None
+                fail(f"the overworld harness did not finish within "
+                     f"{HARNESS_SECONDS} seconds")
+            if ran_over is None:
+                pass
+            elif ran_over.returncode != 0:
+                fail("the overworld harness failed:\n"
+                     + harness_trouble(ran_over.stdout))
+            else:
+                print("the overworld      : "
+                      + ran_over.stdout.strip().splitlines()[-1])
+
+            # And the roster itself, printed, so the files written in Python
+            # can be checked against the arithmetic written in Java. Two
+            # implementations of one piece of arithmetic drift, and the drift
+            # is a biome painted one colour in the proof and another in the
+            # file the game reads.
+            try:
+                ran_roster = subprocess.run(
+                    ["java", "-cp", os.path.join(tmp, "out"), ROSTER_MAIN],
+                    capture_output=True, text=True, timeout=HARNESS_SECONDS)
+                roster_lines = [line for line in ran_roster.stdout.splitlines()
+                                if line.strip() and "\t" in line]
+                ran_vale_roster = subprocess.run(
+                    ["java", "-cp", os.path.join(tmp, "out"), VALE_ROSTER_MAIN],
+                    capture_output=True, text=True, timeout=HARNESS_SECONDS)
+                vale_roster_lines = [line for line
+                                     in ran_vale_roster.stdout.splitlines()
+                                     if line.strip() and "\t" in line]
+            except subprocess.TimeoutExpired:
+                roster_lines = []
+                fail("a roster printer did not finish")
 
 rules = read(PURE, "WildRules.java")
 plain = strip_comments(rules)
@@ -750,6 +807,404 @@ if "if (!kind.opens(way)) { continue; }" not in piece_src:
 print(f"the structures     : {len(grammar_names)} kind(s) of building, every one "
       f"with a placement the game will accept, a salt of its own and a grammar "
       f"that exists")
+
+
+# ---------------------------------------------------------------------------
+# The Vale, likewise: the files against the rules that were proved
+# ---------------------------------------------------------------------------
+
+# A list that came back empty is a check that reads nothing and passes, which
+# is the failure this whole file exists to make loud.
+if len(vale_roster_lines) != 15:
+    fail(f"the Vale's rules printed {len(vale_roster_lines)} biome(s) and the "
+         f"Vale has fifteen, so the comparison below is comparing nothing")
+
+vale_drift = []
+for line in vale_roster_lines:
+    parts = line.split("\t")
+    path = os.path.join(RES, "data", NS, "worldgen/biome", parts[0] + ".json")
+    if not os.path.isfile(path):
+        vale_drift.append(f"{parts[0]} is in the rules and has no file")
+        continue
+    biome = json.loads(open(path, encoding="utf-8").read())
+    effects = biome.get("effects", {})
+    for key, want in (("sky_color", int(parts[1])), ("fog_color", int(parts[2])),
+                      ("water_color", int(parts[3])),
+                      ("water_fog_color", int(parts[3])),
+                      ("grass_color", int(parts[4])),
+                      ("foliage_color", int(parts[5]))):
+        if effects.get(key) != want:
+            vale_drift.append(f"{parts[0]}'s {key} is {effects.get(key)} in the "
+                              f"file and {want} in the rules")
+    if abs(biome.get("temperature", 0.0) - float(parts[6])) > 1e-6:
+        vale_drift.append(f"{parts[0]} is {biome.get('temperature')} warm in the "
+                          f"file and {parts[6]} in the rules")
+    if biome.get("has_precipitation") is not (parts[8] == "true"):
+        vale_drift.append(f"{parts[0]} rains in the file and not in the rules")
+if vale_drift:
+    fail(f"{len(vale_drift)} thing(s) in the Vale's files are not what "
+         f"ValeRules works out, and ValeHarness proves its properties about the "
+         f"rules rather than the files, first three:\n    "
+         + "\n    ".join(vale_drift[:3]))
+
+# ---------------------------------------------------------------------------
+# The overworld: what was written against what the rules say
+# ---------------------------------------------------------------------------
+#
+# Everything here is about the gap between two implementations. The proof is
+# in Java and the files are written by Python, and neither one can see the
+# other. A biome painted one colour in the proof and another in the file the
+# game reads is a real bug that no amount of arithmetic finds, because the
+# arithmetic is right.
+
+over_src = squashed(strip_comments(read(PURE, "OverworldRules.java"), True))
+
+if "for (int axis = 0; axis < WildRules.AXES; axis++) {" not in over_src:
+    fail("the overworld's claims are not compared axis by axis against the "
+         "number of axes the space has, so a claim with five could go out and "
+         "the game would read the sixth as whatever was next in memory")
+
+if 'if (low == high && !bothPoints) {' not in over_src:
+    fail("two claims that meet at a face are not told apart from two that share "
+         "a point axis; depth is a point on every surface entry the game ships, "
+         "so reading that as a face touch makes every pair of surface biomes "
+         "disjoint and the overlap check answers no forever")
+
+# The dumps. Not ours, not editable, and the thing everything else rests on.
+vanilla_rows = [line for line in read(VANILLA_LIST).splitlines()
+                if line.strip() and not line.startswith("#")]
+if len(vanilla_rows) < 7000:
+    fail(f"the dump of vanilla's overworld has {len(vanilla_rows)} entries and "
+         f"the game builds 7,593; the difference is vanilla biomes that would "
+         f"stop generating and nothing would say which")
+# The dump counts itself in its own header, and the header is written by the
+# dumper. A row taken out by hand leaves the header saying what the game
+# actually builds, and the two no longer agree — which is the only way to
+# notice one missing entry among seven and a half thousand.
+stated = re.search(r"# (\d+) entries across (\d+) biomes\.", read(VANILLA_LIST))
+if not stated:
+    fail("the dump of vanilla's overworld no longer says how much of it there "
+         "should be, so a row taken out of it is a row nothing can miss")
+else:
+    if int(stated.group(1)) != len(vanilla_rows):
+        fail(f"the dump of vanilla's overworld says it holds "
+             f"{stated.group(1)} entries and it holds {len(vanilla_rows)}; a "
+             f"row has been added or taken out by hand and vanilla's overworld "
+             f"is not vanilla's overworld any more")
+    if int(stated.group(2)) != len({row.split("\t")[0] for row in vanilla_rows}):
+        fail(f"the dump says it covers {stated.group(2)} biomes and it covers "
+             f"{len({row.split(chr(9))[0] for row in vanilla_rows})}")
+
+bad_width = [row for row in vanilla_rows if len(row.split("\t")) != 14]
+if bad_width:
+    fail(f"{len(bad_width)} row(s) of the overworld dump are not 14 columns, so "
+         f"an entry would be written with an axis missing")
+
+feature_rows = [line for line in read(VANILLA_FEATURES).splitlines()
+                if line.strip() and not line.startswith("#")]
+vanilla_decoration = {}
+for row in feature_rows:
+    parts = row.split("\t")
+    if len(parts) != 3:
+        fail("a row of the decoration dump is not three columns")
+        continue
+    vanilla_decoration.setdefault(parts[0], {}).setdefault(int(parts[1]), []) \
+        .append(parts[2])
+stated_features = re.search(r"# (\d+) rows across (\d+) biomes\.",
+                            read(VANILLA_FEATURES))
+if not stated_features:
+    fail("the dump of vanilla's decoration no longer says how much of it there "
+         "should be")
+elif int(stated_features.group(1)) != len(feature_rows):
+    fail(f"the dump of vanilla's decoration says it holds "
+         f"{stated_features.group(1)} rows and it holds {len(feature_rows)}")
+
+if len(vanilla_decoration) < 50:
+    fail(f"the dump of vanilla's decoration has {len(vanilla_decoration)} "
+         f"biome(s) in it and the game ships sixty-two; a biome of ours would "
+         f"decorate like nothing")
+
+# What the Java says the roster is.
+if len(roster_lines) != 140:
+    fail(f"the overworld's rules printed {len(roster_lines)} biome(s) and the "
+         f"roster is a hundred and forty, so every comparison below is "
+         f"comparing nothing")
+
+roster = {}
+for line in roster_lines:
+    parts = line.split("\t")
+    if len(parts) < 11:
+        fail("a line of the printed roster is too short to be a biome")
+        continue
+    roster[parts[0]] = parts
+if roster_lines and len(roster) != len(roster_lines):
+    fail("the printed roster names a biome twice")
+
+over_dir = os.path.join(RES, "data", NS, "worldgen/biome")
+written = {name[:-5] for name in os.listdir(over_dir) if name.endswith(".json")}
+vale_written = {name for name in written if name.startswith("vale_")}
+ours_written = written - vale_written
+
+if roster and set(roster) != ours_written:
+    missing = sorted(set(roster) - ours_written)
+    extra = sorted(ours_written - set(roster))
+    fail(f"the roster and the biome files disagree: {len(missing)} in the rules "
+         f"with no file ({missing[:3]}) and {len(extra)} files the rules do not "
+         f"name ({extra[:3]}) — a biome with no file is one the game reports as "
+         f"unbound, and a file the rules do not name is one nothing proved")
+
+AXES = ["temperature", "humidity", "continentalness", "erosion", "depth",
+        "weirdness"]
+
+drifted = []
+unnamed = []
+for name, parts in sorted(roster.items()):
+    path = os.path.join(over_dir, name + ".json")
+    if not os.path.isfile(path):
+        continue
+    biome = json.loads(open(path, encoding="utf-8").read())
+    effects = biome.get("effects", {})
+    want = {
+        "sky_color": int(parts[2]), "fog_color": int(parts[3]),
+        "water_color": int(parts[4]), "water_fog_color": int(parts[4]),
+        "grass_color": int(parts[5]), "foliage_color": int(parts[6]),
+    }
+    for key, value in want.items():
+        if effects.get(key) != value:
+            drifted.append(f"{name}'s {key} is {effects.get(key)} in the file "
+                           f"and {value} in the rules")
+    if abs(biome.get("temperature", 0.0) - float(parts[7])) > 1e-6:
+        drifted.append(f"{name} is {biome.get('temperature')} warm in the file "
+                       f"and {parts[7]} in the rules")
+    if abs(biome.get("downfall", 0.0) - float(parts[8])) > 1e-6:
+        drifted.append(f"{name} gets {biome.get('downfall')} rain in the file "
+                       f"and {parts[8]} in the rules")
+    if biome.get("has_precipitation") is not (parts[9] == "true"):
+        drifted.append(f"{name} rains in the file and not in the rules, or the "
+                       f"other way about")
+
+    # What it adds of its own, in the step the rules put it in.
+    extras = [one for one in parts[10].split(",") if one]
+    steps = biome.get("features", [])
+    if len(steps) != 11:
+        drifted.append(f"{name} has {len(steps)} generation step(s) and a biome "
+                       f"file has eleven")
+    else:
+        for feature in extras:
+            step = 2 if feature.startswith("boulder_") else 9
+            if f"{NS}:{feature}" not in steps[step]:
+                drifted.append(f"{name} is meant to add {feature} in step {step} "
+                               f"and the file does not")
+        listed = [one for step in steps for one in step
+                  if one.startswith(NS + ":")]
+        if listed != [f"{NS}:{one}" for one in extras]:
+            drifted.append(f"{name} adds {listed} and the rules say {extras}")
+
+    # And it decorates like the vanilla biome the rules name.
+    model = "minecraft:" + parts[1]
+    if model not in vanilla_decoration:
+        drifted.append(f"{name} decorates like {model}, which the dump does not "
+                       f"have")
+    elif len(steps) == 11:
+        for step, wanted in vanilla_decoration[model].items():
+            got = [one for one in steps[step] if not one.startswith(NS + ":")]
+            if got != wanted:
+                drifted.append(f"{name} copies {model}'s step {step} as {got[:2]} "
+                               f"and the game's own is {wanted[:2]}")
+                break
+
+    # Spawners: the two numbers the right way round, every time.
+    for kind, rows in biome.get("spawners", {}).items():
+        for row in rows:
+            if row.get("minCount", 0) > row.get("maxCount", 0):
+                drifted.append(f"{name} wants at least {row.get('minCount')} "
+                               f"{row.get('type')} and at most "
+                               f"{row.get('maxCount')}; the game drops the "
+                               f"spawner, logs a line, and the biome is empty")
+
+if drifted:
+    fail(f"{len(drifted)} thing(s) written are not what the rules work out, "
+         f"first five:\n    " + "\n    ".join(drifted[:5]))
+
+# Every one of them has a name a player reads.
+lang = json.loads(read(RES, "assets", NS, "lang/en_us.json")) \
+    if os.path.isfile(os.path.join(RES, "assets", NS, "lang/en_us.json")) else {}
+for name in sorted(roster):
+    if f"biome.{NS}.{name}" not in lang:
+        unnamed.append(name)
+if unnamed:
+    fail(f"{len(unnamed)} biome(s) of ours have no name a player reads, so the "
+         f"compass lists them by their id: {unnamed[:5]}")
+
+# Our own features, both halves of each.
+our_features = sorted(set(re.findall(r'"([a-z_]+)"', re.search(
+    r"(?<![A-Z_])OURS\s*=\s*List\.of\((.*?)\);", over_src, re.S).group(1)))) \
+    if re.search(r"(?<![A-Z_])OURS\s*=\s*List\.of\((.*?)\);", over_src, re.S) \
+    else []
+if not our_features:
+    fail("the rules no longer say which features are ours, so a biome of ours "
+         "would be a vanilla biome under a name of ours")
+for feature in our_features:
+    for folder in ("configured_feature", "placed_feature"):
+        path = os.path.join(RES, "data", NS, "worldgen", folder, feature + ".json")
+        if not os.path.isfile(path):
+            fail(f"{feature} has no {folder} file, so every biome naming it "
+                 f"comes back unbound and none of them generate")
+    placed = os.path.join(RES, "data", NS, "worldgen/placed_feature",
+                          feature + ".json")
+    if os.path.isfile(placed):
+        body = json.loads(open(placed, encoding="utf-8").read())
+        if body.get("feature") != f"{NS}:{feature}":
+            fail(f"{feature}'s placed half points at {body.get('feature')}")
+        if not body.get("placement"):
+            fail(f"{feature} is placed with no placement at all, which is once "
+                 f"at the corner of every chunk")
+
+# ---------------------------------------------------------------------------
+# The three presets, and what is left of vanilla
+# ---------------------------------------------------------------------------
+
+preset_dir = os.path.join(RES, "data/minecraft/worldgen/world_preset")
+originals = sorted(name for name in os.listdir(VANILLA_PRESETS)
+                   if name.endswith(".json"))
+if not os.path.isdir(preset_dir):
+    fail("no world preset is written at all, so not one of our biomes is in "
+         "anybody's overworld")
+    presets = []
+else:
+    presets = sorted(name for name in os.listdir(preset_dir)
+                     if name.endswith(".json"))
+if presets != originals:
+    fail(f"we write {presets} and vanilla's three that use the overworld's list "
+         f"are {originals}; the ones missing send a player to an overworld with "
+         f"none of our biomes in it")
+
+vanilla_claims = []
+for row in vanilla_rows:
+    parts = row.split("\t")
+    if len(parts) != 14:
+        continue
+    numbers = [int(part) / 10000.0 for part in parts[1:]]
+    vanilla_claims.append((parts[0], numbers))
+
+for name in presets:
+    preset = json.loads(read(preset_dir, name))
+    original = json.loads(read(VANILLA_PRESETS, name))
+
+    # Everything but the overworld goes through untouched.
+    for dimension, body in original["dimensions"].items():
+        if dimension == "minecraft:overworld":
+            continue
+        if preset["dimensions"].get(dimension) != body:
+            fail(f"{name} rewrites {dimension} on the way past, and nobody asked "
+                 f"us to touch it")
+    ours_dim = preset["dimensions"].get("minecraft:overworld", {})
+    theirs = original["dimensions"]["minecraft:overworld"]
+    if ours_dim.get("type") != theirs.get("type"):
+        fail(f"{name}'s overworld is not the overworld any more")
+    if ours_dim.get("generator", {}).get("settings") \
+            != theirs.get("generator", {}).get("settings"):
+        fail(f"{name}'s overworld generates with different noise settings, which "
+             f"is a different world shape entirely")
+
+    source = ours_dim.get("generator", {}).get("biome_source", {})
+    if source.get("type") != "minecraft:multi_noise":
+        fail(f"{name}'s overworld does not use the multi-noise source, so the "
+             f"climate this module is entirely about is not consulted")
+        continue
+    if "preset" in source:
+        fail(f"{name} still names a preset, which takes the name of a list the "
+             f"game already has and cannot be added to — not one of our biomes "
+             f"would generate")
+        continue
+    entries = source.get("biomes", [])
+    ours_count = len(roster) * len(re.findall(
+        r"Span\(", re.search(r"STRANGENESS\s*=\s*List\.of\((.*?)\);",
+                             over_src, re.S).group(1))) if roster else 0
+    if len(entries) != ours_count + len(vanilla_claims):
+        fail(f"{name} lists {len(entries)} entries and the rules plus the dump "
+             f"come to {ours_count + len(vanilla_claims)}")
+        continue
+
+    # Ours first. That is not a style choice: ties go to whoever was declared
+    # first, and declared second a box inside vanilla's wins nothing at all.
+    head = entries[:ours_count]
+    tail = entries[ours_count:]
+    stray = [one for one in head if not one["biome"].startswith(NS + ":")]
+    if stray:
+        fail(f"{name} has {len(stray)} entry that is not ours in the half that "
+             f"has to be ours")
+    late = [one for one in tail if one["biome"].startswith(NS + ":")]
+    if late:
+        fail(f"{name} declares {len(late)} of our biomes after vanilla's, and a "
+             f"box inside a box declared first wins nothing anywhere, ever")
+
+    # Vanilla's half, entry for entry, in order, exactly as the game builds it.
+    off = []
+    for at, (biome, numbers) in enumerate(vanilla_claims):
+        got = tail[at]
+        if got["biome"] != biome:
+            off.append(f"entry {at} is {got['biome']} and the game's own is "
+                       f"{biome}")
+            break
+        parameters = got["parameters"]
+        for axis_at, axis in enumerate(AXES):
+            low, high = numbers[axis_at * 2], numbers[axis_at * 2 + 1]
+            if [round(low, 4), round(high, 4)] != parameters.get(axis):
+                off.append(f"{biome}'s {axis} is {parameters.get(axis)} and the "
+                           f"game's own is {[low, high]}")
+                break
+        if off:
+            break
+    if off:
+        fail(f"{name} does not carry vanilla's own list through untouched: "
+             + off[0])
+
+# And the thing the whole design rests on: vanilla keeps every one of its
+# biomes. Entry by entry, because "we only took half" is an argument and this
+# is a fact.
+if presets:
+    ours_boxes = []
+    for name, parts in roster.items():
+        numbers = [float(one) for one in parts[11:]]
+        for at in range(0, len(numbers), 12):
+            ours_boxes.append(numbers[at:at + 12])
+
+    def swallowed(numbers):
+        """Whether one of vanilla's entries sits wholly inside one of ours."""
+        for box in ours_boxes:
+            inside = True
+            for axis in range(6):
+                if numbers[axis * 2] < box[axis * 2] \
+                        or numbers[axis * 2 + 1] > box[axis * 2 + 1]:
+                    inside = False
+                    break
+            if inside:
+                return True
+        return False
+
+    kept = set()
+    lost = {}
+    for biome, numbers in vanilla_claims:
+        if swallowed(numbers):
+            lost[biome] = lost.get(biome, 0) + 1
+        else:
+            kept.add(biome)
+    erased = sorted(set(lost) - kept)
+    if erased:
+        fail(f"{len(erased)} vanilla biome(s) have every entry inside a claim of "
+             f"ours, so they stop generating anywhere in the world and nothing "
+             f"reports it: {erased[:5]}")
+    if not lost:
+        fail("not one of vanilla's entries falls inside a claim of ours, which "
+             "means our 140 biomes are taking their ground from somewhere this "
+             "check cannot see — or from nowhere, and none of them generate")
+
+    print(f"the overworld      : {len(roster)} biome(s) of ours in "
+          f"{len(presets)} preset(s), declared ahead of vanilla's "
+          f"{len(vanilla_claims)}, every one of vanilla's {len(kept)} biomes "
+          f"still with ground of its own, and every colour, spawn and feature "
+          f"in the files the arithmetic that was proved")
 
 print("the seam           : the rules pointed at every dimension file in the "
       "repository, a world with no row an error rather than a pass, and every "
