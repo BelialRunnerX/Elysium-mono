@@ -31,7 +31,7 @@ def write(path, body):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     if isinstance(body, (dict, list)):
         body = json.dumps(body, indent=2) + "\n"
-    open(path, "w", encoding="utf-8").write(body)
+    open(path, "w", encoding="utf-8", newline="\n").write(body)
 
 
 def load(name):

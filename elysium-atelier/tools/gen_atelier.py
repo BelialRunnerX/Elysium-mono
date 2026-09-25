@@ -30,7 +30,7 @@ RULES = os.path.join(MOD, "src/main/java/com/elysium/atelier/rules/AtelierRules.
 
 def write(path, obj):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as handle:
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(obj, handle, indent=2)
         handle.write("\n")
 

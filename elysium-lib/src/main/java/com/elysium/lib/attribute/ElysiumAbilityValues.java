@@ -1,10 +1,11 @@
-package com.elysium.lib.ability;
+package com.elysium.lib.attribute;
 
-import com.elysium.lib.attribute.ElysiumAttributeValues;
 import net.minecraft.world.entity.LivingEntity;
 
 /**
- * The two numbers an active ability reads off its wielder. The library owns
+ * The two numbers an active ability reads off its wielder. Beside the
+ * attribute readers rather than in the ability package, because that package
+ * is pure arithmetic other modules compile without a game. The library owns
  * them so that a dash on a katana and a dash on a relic are the same dash,
  * scaled by the same attribute, and a trinket that lengthens one lengthens
  * both.

@@ -22,6 +22,9 @@ repository.
   5. THE SEAM, and the check at the root that uses all of it.
 """
 import os
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+import samefile  # noqa: E402
 import re
 import subprocess
 import sys
@@ -525,7 +528,7 @@ if os.path.isfile(GENERATOR):
                         shipped = os.path.join(here, os.path.relpath(fresh, there))
                         if not os.path.isfile(shipped):
                             drifted.append(os.path.relpath(fresh, there) + " (missing)")
-                        elif open(fresh, "rb").read() != open(shipped, "rb").read():
+                        elif not samefile.same(fresh, shipped):
                             drifted.append(os.path.relpath(fresh, there))
             for name in drifted[:12]:
                 fail(f"{name} is not what the generator produces, so it was edited by "

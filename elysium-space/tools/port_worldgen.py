@@ -107,7 +107,7 @@ def main():
         target = DIMENSIONS.get(name, rename(name)) if kind == "dimension" else rename(name)
         path = os.path.join(OUT, kind, target + ".json")
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
             json.dump(data, f, indent=2)
             f.write("\n")
     print(f"ported {len(done)} files for {len(DIMENSIONS)} worlds")

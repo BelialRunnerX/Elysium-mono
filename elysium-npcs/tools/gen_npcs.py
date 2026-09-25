@@ -1045,7 +1045,7 @@ def write_lang():
         lang[f"elysiumnpcs.title.{kind}"] = TITLES[kind]
     path = RES / "lang/en_us.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as handle:
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(lang, handle, indent=2, ensure_ascii=False, sort_keys=True)
     return len(lang)
 
@@ -1055,7 +1055,7 @@ def write_models():
     written = 0
     path = RES / "models/item/writ_of_amnesty.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as handle:
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump({"parent": "minecraft:item/generated",
                    "textures": {"layer0": "elysiumnpcs:item/writ_of_amnesty"}},
                   handle, indent=2)
@@ -1063,7 +1063,7 @@ def write_models():
     for kind in NAMES:
         path = RES / f"models/item/{kind}_summons.json"
         path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as handle:
+        with open(path, "w", encoding="utf-8", newline="\n") as handle:
             json.dump({"parent": "minecraft:item/generated",
                        "textures": {"layer0": f"elysiumnpcs:item/{kind}_summons"}},
                       handle, indent=2)

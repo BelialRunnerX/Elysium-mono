@@ -186,7 +186,28 @@ else:
 # ---------------------------------------------------------------------------
 # 3. All JSON parses
 # ---------------------------------------------------------------------------
-json_files = {}
+class _NormalisedPaths(dict):
+    """A path-keyed dict that reads the same file whichever separator built the key.
+
+    os.walk hands back native separators and os.path.join keeps the slashes it
+    was given, so on Windows the same file had two spellings and every lookup
+    below missed. Every key is normalised on the way in and on the way out.
+    """
+
+    def __setitem__(self, key, value):
+        super().__setitem__(os.path.normpath(key), value)
+
+    def __getitem__(self, key):
+        return super().__getitem__(os.path.normpath(key))
+
+    def __contains__(self, key):
+        return super().__contains__(os.path.normpath(key))
+
+    def get(self, key, default=None):
+        return super().get(os.path.normpath(key), default)
+
+
+json_files = _NormalisedPaths()
 for dirpath, _, filenames in os.walk(RES):
     for filename in filenames:
         if filename.endswith(".json"):

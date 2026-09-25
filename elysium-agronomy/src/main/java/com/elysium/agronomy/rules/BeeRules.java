@@ -238,7 +238,31 @@ public final class BeeRules {
             resource("starsteel", "stainless", "platinum"),
             place("aurora", "end_highlands", "chorus_wax", "voidtouched", "skylark"),
             product("experience", "experience_dust", "ender", "sculk"),
-            product("netherite", "netherite_scrap", "wither_bound", "void_steel"));
+            product("netherite", "netherite_scrap", "wither_bound", "void_steel"),
+            // The Cordon's (elysium-ores' CordonMaterials, priced in
+            // elysium-foundry): every material the foundry makes has a bee,
+            // and these are bred from the bees of what they are made of.
+            resource("cobalt", "iron", "lapis"),
+            resource("pearlium", "quartz", "tide"),
+            resource("jade", "emerald", "stone"),
+            resource("pyratite", "gunpowder", "sootfall"),
+            resource("amber", "forest", "ember"),
+            resource("ruby", "redstone_dust", "mountainside"),
+            resource("sapphire", "lapis", "water"),
+            resource("null_amethyst", "amethyst", "voidtouched"),
+            resource("ember_slag", "sootfall", "blaze"),
+            resource("bio_culture", "slimy", "meadow"),
+            resource("pressure_shell", "prismarine", "tide"),
+            resource("blight_crystal", "bone", "sculk"),
+            resource("null_shard", "voidtouched", "ender"),
+            resource("relic_shard", "hollow", "obsidian"),
+            resource("nightgold", "gold", "cobalt"),
+            resource("relicsteel", "relic_shard", "steel"),
+            resource("slagsteel", "cobalt", "ember_slag"),
+            resource("biolith", "cobalt", "bio_culture"),
+            resource("bathysteel", "cobalt", "pressure_shell"),
+            resource("hemalite", "nightgold", "blight_crystal"),
+            resource("nullsteel", "nightgold", "null_shard"));
 
     private static final Map<String, Bee> BY_ID = new LinkedHashMap<>();
 

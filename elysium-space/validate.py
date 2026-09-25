@@ -180,7 +180,28 @@ PROCESSORS = re.findall(r'TYPES\.register\("([a-z_]+)"',
 COMPONENTS = re.findall(r'COMPONENTS\.register\("([a-z_]+)"',
                         strip_comments(open(os.path.join(SRC, "registry/SpaceData.java"), encoding="utf-8").read()))
 ITEMS += [n + "_bucket" for n in LIQUIDS]
-json_files = {}
+class _NormalisedPaths(dict):
+    """A path-keyed dict that reads the same file whichever separator built the key.
+
+    os.walk hands back native separators and os.path.join keeps the slashes it
+    was given, so on Windows the same file had two spellings and every lookup
+    below missed. Every key is normalised on the way in and on the way out.
+    """
+
+    def __setitem__(self, key, value):
+        super().__setitem__(os.path.normpath(key), value)
+
+    def __getitem__(self, key):
+        return super().__getitem__(os.path.normpath(key))
+
+    def __contains__(self, key):
+        return super().__contains__(os.path.normpath(key))
+
+    def get(self, key, default=None):
+        return super().get(os.path.normpath(key), default)
+
+
+json_files = _NormalisedPaths()
 for d, _, fs in os.walk(RES):
     for f in fs:
         if f.endswith(".json"):
@@ -218,7 +239,7 @@ for path, data in json_files.items():
         if "stellaris:" in s:
             fail(f"{rel} still names {s!r}; the port renames every Stellaris id")
         m = re.fullmatch(r"(#?)elysiumspace:([a-z0-9_/]+)", s)
-        if not m or "/models/" in path or "/blockstates/" in path:
+        if not m or "/models/" in path.replace(os.sep, "/") or "/blockstates/" in path.replace(os.sep, "/"):
             continue
         refs += 1
         tag, name = m.group(1), m.group(2)
@@ -480,7 +501,7 @@ if ns.get("default_block", {}).get("Name") != "minecraft:deepslate":
 if ns.get("ore_veins_enabled"):
     fail("the Bastion has ore veins on; their filler is granite and tuff, not deepslate")
 bastion_files = [p for p in json_files if "emerald_bastion" in os.path.basename(p)
-                 or "/emerald_bastion/" in p]
+                 or "/emerald_bastion/" in p.replace(os.sep, "/")]
 for p in bastion_files:
     for s in strings(json_files[p]):
         if s in ("minecraft:stone", "minecraft:cobblestone", "minecraft:grass_block", "minecraft:dirt"):
@@ -488,7 +509,7 @@ for p in bastion_files:
 counts = {}
 for p in bastion_files:
     m = re.search(r"emerald_bastion_ore_(\w+)\.json$", p)
-    if m and "/placed_feature/" in p:
+    if m and "/placed_feature/" in p.replace(os.sep, "/"):
         for step in json_files[p]["placement"]:
             if step.get("type") == "minecraft:count":
                 counts[m.group(1)] = step["count"]
@@ -565,7 +586,7 @@ for mob in _rigged + ["cinderling"]:
             cls = open(os.path.join(SRC, "entity/mob", _class_of[mob] + ".java"), encoding="utf-8").read()
             if f'"{state}".equals(state)' not in cls or "implements Animated" not in cls and "Animated" not in cls:
                 fail(f"{_class_of[mob]} never gives the rig its {state} animation state")
-for bp in [p for p in json_files if "/worldgen/biome/" in p]:
+for bp in [p for p in json_files if "/worldgen/biome/" in p.replace(os.sep, "/")]:
     for cat, lst in json_files[bp].get("spawners", {}).items():
         for sp in lst:
             t = sp["type"]
@@ -580,7 +601,7 @@ if "spawnGolemIfNeeded" not in moon or "MOONFOLK.get().create" not in moon:
 # Skies (S7): every space dimension type names our effects, each has a sky file the client registers.
 _sky_src = strip_comments(open(os.path.join(SRC, "client/sky/SpaceSkies.java"), encoding="utf-8").read())
 _SKY_WORLDS = re.findall(r'"([a-z_]+)"', re.search(r"WORLDS = \{(.*?)\}", _sky_src, re.S).group(1))
-for dp in sorted(p for p in json_files if "/dimension_type/" in p):
+for dp in sorted(p for p in json_files if "/dimension_type/" in p.replace(os.sep, "/")):
     eff = json_files[dp].get("effects", "")
     world = os.path.basename(dp)[:-5]
     if eff.startswith(NS + ":"):
@@ -608,13 +629,13 @@ _classes = os.environ.get("ELYSIUM_OUT", "/tmp/elysium-classes") + "/elysium-spa
 _baked = "skipped (no Minecraft classpath)"
 if os.path.isfile(_cp) and os.path.isdir(_classes):
     with tempfile.TemporaryDirectory() as out:
-        cp = open(_cp).read().strip() + ":" + _classes + ":" + os.path.join(WORK, "src/main/resources")
+        cp = os.pathsep.join([open(_cp).read().strip(), _classes, os.path.join(WORK, "src/main/resources")])
         r = subprocess.run(["javac", "-nowarn", "-cp", cp, "-d", out, os.path.join(WORK, "tools/GeometryCheck.java")],
                            capture_output=True, text=True)
         if r.returncode != 0:
             fail("GeometryCheck does not compile: " + r.stderr[-500:])
         else:
-            r = subprocess.run(["java", "-cp", cp + ":" + out, "com.elysium.space.tools.GeometryCheck"]
+            r = subprocess.run(["java", "-cp", cp + os.pathsep + out, "com.elysium.space.tools.GeometryCheck"]
                                + _rigged + ["piglin:cinderling"] + ["sky:" + w for w in _SKY_WORLDS],
                                capture_output=True, text=True)
             if r.returncode != 0:

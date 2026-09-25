@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:hemalite_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:hemalite_comb",
+    "count": 9
+  }
+}

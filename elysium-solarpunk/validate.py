@@ -1448,7 +1448,7 @@ else:
     _annotations = os.environ.get(
         "ELYSIUM_ANNOTATIONS", "/opt/gradle-8.14.3/lib/annotations-24.0.1.jar")
     if os.path.isfile(_annotations):
-        _cp += ":" + _annotations
+        _cp += os.pathsep + _annotations
 
     with tempfile.TemporaryDirectory() as scratch:
         _module = os.path.join(scratch, "module")
@@ -1458,9 +1458,9 @@ else:
         _steps = [
             ["javac", "-nowarn", "-proc:none", "-cp", _cp, "-d", _module]
             + _sources,
-            ["javac", "-nowarn", "-proc:none", "-cp", _cp + ":" + _module,
+            ["javac", "-nowarn", "-proc:none", "-cp", _cp + os.pathsep + _module,
              "-d", _tools, str(_harness)],
-            ["java", "-cp", ":".join([_cp, _module, _tools]),
+            ["java", "-cp", os.pathsep.join([_cp, _module, _tools]),
              "com.elysium.solarpunk.machine.MachineHarness"],
         ]
         _summary = ""

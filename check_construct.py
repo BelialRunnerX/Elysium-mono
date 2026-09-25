@@ -50,12 +50,20 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TOOLS = os.path.join(HERE, "tools", "construct")
-CLASSPATH_FILE = "/tmp/mc/cp.txt"
-LIBS = "/tmp/mc/libs"
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+import mcpath  # noqa: E402
+CLASSPATH_FILE = os.path.join(mcpath.libs(), "cp.txt")
+LIBS = os.path.join(mcpath.libs(), "libs")
 
 LOG4J = ["log4j-api-2.19.0.jar", "log4j-core-2.19.0.jar", "log4j-slf4j2-impl-2.19.0.jar"]
 EXTRA = ["asm-9.10.1.jar", "asm-analysis-9.10.1.jar", "asm-commons-9.10.1.jar",
-         "asm-tree-9.10.1.jar", "asm-util-9.10.1.jar", "commons-io-2.15.1.jar"]
+         "asm-tree-9.10.1.jar", "asm-util-9.10.1.jar", "commons-io-2.15.1.jar",
+         # The game's own assets and data (its default language file above
+         # all): Bootstrap reads them off the classpath, and a classpath built
+         # from a dev artifact has the classes without them. An assets-only
+         # copy of the client jar, so nothing obfuscated shadows a class.
+         "vanilla-assets.jar"]
 
 #: Modules whose classes need another mod on the classpath to load at all.
 #: elysium-colonies is the only one, and it is deliberately not in the merged
@@ -84,19 +92,19 @@ missing = [n for n in LOG4J if not os.path.isfile(os.path.join(LIBS, n))]
 if missing:
     skip(f"log4j is not in {LIBS}, and the game cannot start without it")
 
-classpath = open(CLASSPATH_FILE, encoding="utf-8").read().strip()
+classpath = mcpath.join(mcpath.classpath(CLASSPATH_FILE))
 
 # The same swap check_loadtest.py makes, and for the same reason: one jar was
 # remapped after it was signed, so a plain JVM throws a digest error on any
 # class it actually verifies. The launcher never notices.
 UNSIGNED = os.path.join(LIBS, "mapped-at-unsigned.jar")
 if os.path.isfile(UNSIGNED):
-    classpath = ":".join(UNSIGNED if part.endswith("mapped-at.jar") else part
-                         for part in classpath.split(":"))
+    classpath = os.pathsep.join(UNSIGNED if part.endswith("mapped-at.jar") else part
+                                for part in classpath.split(os.pathsep))
 for name in LOG4J + EXTRA:
     jar = os.path.join(LIBS, name)
     if os.path.isfile(jar):
-        classpath += ":" + jar
+        classpath += os.pathsep + jar
 
 # The same two additions compile.sh makes: the annotations jar every module
 # imports @Nullable from, and the compile-only jars the gear bridge is written
@@ -105,7 +113,7 @@ for name in LOG4J + EXTRA:
 ANNOTATIONS = os.environ.get("ELYSIUM_ANNOTATIONS",
                              "/opt/gradle-8.14.3/lib/annotations-24.0.1.jar")
 if os.path.isfile(ANNOTATIONS):
-    classpath += ":" + ANNOTATIONS
+    classpath += os.pathsep + mcpath.native(ANNOTATIONS)
 
 import glob as _glob
 COMPAT = os.environ.get("ELYSIUM_COMPAT_LIBS", "/tmp/mods")
@@ -114,7 +122,7 @@ for pattern in ("silent-gear-*.jar", "silent-lib-*.jar", "Apotheosis-*.jar",
                 "blockui-*.jar"):
     found = sorted(_glob.glob(os.path.join(COMPAT, pattern)))
     if found:
-        classpath += ":" + found[0]
+        classpath += os.pathsep + found[0]
 
 # Every registry class in the tree, found rather than listed: a module that
 # adds a registry class and is not named here would be a module nothing builds.
@@ -178,7 +186,7 @@ with tempfile.TemporaryDirectory() as tmp:
         skips = os.path.join(TOOLS, "skip.txt")
         command = ["java",
                    "-Dlog4j.configurationFile=" + os.path.join(TOOLS, "log4j2.xml"),
-                   "-cp", out + ":" + classpath, "Construct", names]
+                   "-cp", out + os.pathsep + classpath, "Construct", names]
         # `out` is first, so the stand-in wins over the real loader.
         if os.path.isfile(skips):
             command.append(skips)

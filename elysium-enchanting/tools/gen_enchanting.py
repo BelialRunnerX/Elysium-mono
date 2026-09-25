@@ -542,7 +542,7 @@ EXCLUSIVE_SETS = {
 
 def write(path, obj):
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as handle:
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(obj, handle, indent=2)
         handle.write("\n")
 

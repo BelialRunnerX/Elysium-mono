@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "elysiumagronomy:block/pressure_shell_comb_block"
+  }
+}

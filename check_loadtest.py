@@ -39,8 +39,11 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TOOLS = os.path.join(HERE, "tools", "loadtest")
-CLASSPATH_FILE = "/tmp/mc/cp.txt"
-LIBS = "/tmp/mc/libs"
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+import mcpath  # noqa: E402
+CLASSPATH_FILE = os.path.join(mcpath.libs(), "cp.txt")
+LIBS = os.path.join(mcpath.libs(), "libs")
 OUT = "/tmp/elysium-loadtest"
 
 LOG4J = ["log4j-api-2.19.0.jar", "log4j-core-2.19.0.jar", "log4j-slf4j2-impl-2.19.0.jar"]
@@ -49,7 +52,12 @@ LOG4J = ["log4j-api-2.19.0.jar", "log4j-core-2.19.0.jar", "log4j-slf4j2-impl-2.1
 #: is not here the worldgen and loot halves still run, and only recipes and
 #: tags are skipped.
 EXTRA = ["asm-9.10.1.jar", "asm-analysis-9.10.1.jar", "asm-commons-9.10.1.jar",
-         "asm-tree-9.10.1.jar", "asm-util-9.10.1.jar", "commons-io-2.15.1.jar"]
+         "asm-tree-9.10.1.jar", "asm-util-9.10.1.jar", "commons-io-2.15.1.jar",
+         # The game's own assets and data (its default language file above
+         # all): Bootstrap reads them off the classpath, and a classpath built
+         # from a dev artifact has the classes without them. An assets-only
+         # copy of the client jar, so nothing obfuscated shadows a class.
+         "vanilla-assets.jar"]
 
 
 problems = []
@@ -70,7 +78,7 @@ missing = [name for name in LOG4J if not os.path.isfile(os.path.join(LIBS, name)
 if missing:
     skip(f"log4j is not in {LIBS} ({', '.join(missing)}) — the game cannot start without it")
 
-classpath = open(CLASSPATH_FILE, encoding="utf-8").read().strip()
+classpath = mcpath.join(mcpath.classpath(CLASSPATH_FILE))
 
 # One jar on the classpath carries a stale signature manifest — it was
 # remapped after signing — and any class the verifier actually checks throws
@@ -81,12 +89,12 @@ if os.path.isfile(UNSIGNED):
     # Swapped in where the signed one sat, not put in front of it: the order
     # of this classpath decides which copy of a shared class wins, and moving
     # a jar to the front quietly changes the game we are compiling against.
-    classpath = ":".join(UNSIGNED if part.endswith("mapped-at.jar") else part
-                         for part in classpath.split(":"))
+    classpath = os.pathsep.join(UNSIGNED if part.endswith("mapped-at.jar") else part
+                                for part in classpath.split(os.pathsep))
 for name in LOG4J + EXTRA:
     jar = os.path.join(LIBS, name)
     if os.path.isfile(jar):
-        classpath += ":" + jar
+        classpath += os.pathsep + jar
 
 modules = sorted(name for name in os.listdir(HERE)
                  if name.startswith("elysium-")
@@ -132,12 +140,12 @@ if built.returncode != 0:
 
 # NeoForge's own data pack, which the game always has. Its jar is on the
 # classpath already; here it is handed over as a pack as well.
-modded = [part for part in classpath.split(":") if "neoforge-" in os.path.basename(part)]
+modded = [part for part in classpath.split(os.pathsep) if "neoforge-" in os.path.basename(part)]
 
 ran = None if problems else subprocess.run(
     ["java", "-Dlog4j.configurationFile=" + os.path.join(TOOLS, "log4j2.xml"),
-     "-Delysium.moddedPack=" + ":".join(modded),
-     "-cp", os.path.join(OUT, "classes") + ":" + classpath,
+     "-Delysium.moddedPack=" + os.pathsep.join(modded),
+     "-cp", os.path.join(OUT, "classes") + os.pathsep + classpath,
      "LoadTest", ids, str(plain)] + resources,
     capture_output=True, text=True)
 

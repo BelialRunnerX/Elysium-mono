@@ -271,7 +271,7 @@ def write_models(entries):
             # the hand.
             parent = ("minecraft:item/handheld" if piece in SHAPES
                       else "minecraft:item/generated")
-            with open(path, "w", encoding="utf-8") as handle:
+            with open(path, "w", encoding="utf-8", newline="\n") as handle:
                 json.dump({"parent": parent,
                            "textures": {"layer0": "elysium:item/" + item}},
                           handle, indent=2)
@@ -320,7 +320,7 @@ def write_recipes(entries):
             key = {"M": {"tag": tag}}
             if "S" in "".join(PATTERNS[piece]):
                 key["S"] = {"item": "minecraft:stick"}
-            with open(path, "w", encoding="utf-8") as handle:
+            with open(path, "w", encoding="utf-8", newline="\n") as handle:
                 json.dump({
                     "type": "minecraft:crafting_shaped",
                     "category": "equipment",
@@ -352,7 +352,7 @@ def write_lang(entries):
                 continue
             lang[key] = "%s %s" % (display, titles[piece])
             added += 1
-    json.dump(lang, open(LANG, "w", encoding="utf-8"),
+    json.dump(lang, open(LANG, "w", encoding="utf-8", newline="\n"),
               indent=2, ensure_ascii=False, sort_keys=True)
     return added
 

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "elysiumagronomy:block/null_shard_comb_block"
+  }
+}

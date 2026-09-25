@@ -71,7 +71,7 @@ def main():
             reskin_file(src, dst, ours)        # each world seen from afar in its own palette (S8)
     for theirs, ours in WORLDS.items():
         sky = port(json.load(open(os.path.join(SRC, theirs + ".json"))))
-        json.dump(sky, open(os.path.join(ASSETS, "skies", ours + ".json"), "w"), indent=2)
+        json.dump(sky, open(os.path.join(ASSETS, "skies", ours + ".json"), "w", newline="\n"), indent=2)
         print(f"{ours:12s} sun {sky['sun']['size']:.0f}, {sky['stars']['count']} stars, "
               f"{len(sky['objects'])} objects, moon {'moon' in sky}, clouds {sky['clouds']}")
 

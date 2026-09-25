@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:bio_culture_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:bio_culture_comb",
+    "count": 9
+  }
+}

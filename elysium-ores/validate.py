@@ -29,6 +29,9 @@ checks are ordered by how much damage a lapse would do.
 """
 import json
 import os
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+import samefile  # noqa: E402
 import re
 import subprocess
 import sys
@@ -646,7 +649,7 @@ else:
                     made = os.path.join(root, name)
                     rel = os.path.relpath(made, scratch)
                     have = os.path.join(WORK, rel)
-                    if not os.path.isfile(have) or not filecmp.cmp(made, have, shallow=False):
+                    if not samefile.same(made, have):
                         drift.append(name)
             if drift:
                 fail(f"the shipped material sprites are not what tools/gen_material_art.py draws: {drift[:5]}")

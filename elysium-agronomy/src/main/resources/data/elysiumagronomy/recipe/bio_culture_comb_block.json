@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CCC",
+    "CCC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "elysiumagronomy:bio_culture_comb"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:bio_culture_comb_block",
+    "count": 1
+  }
+}

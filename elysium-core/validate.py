@@ -1984,7 +1984,7 @@ for _mod in os.listdir(_modules_root):
         for _dp, _dn, _fn in os.walk(_tagdir):
             for _f in _fn:
                 if _f.endswith(".json"):
-                    _rel = os.path.relpath(os.path.join(_dp, _f), _tagdir)[:-5]
+                    _rel = os.path.relpath(os.path.join(_dp, _f), _tagdir)[:-5].replace(os.sep, "/")
                     _shipped_tags.add(f"{_ns}:{_rel}")
 _unresolved = {}
 _recipe_dir = os.path.join(RES, "data/elysium/recipe")

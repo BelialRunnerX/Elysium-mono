@@ -38,7 +38,10 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CLASSPATH_FILE = "/tmp/mc/cp.txt"
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+import mcpath  # noqa: E402
+CLASSPATH_FILE = os.path.join(mcpath.libs(), "cp.txt")
 
 problems = []
 
@@ -51,7 +54,7 @@ if not os.path.isfile(CLASSPATH_FILE):
     print(f"datapack           : skipped, no {CLASSPATH_FILE} to ask")
     sys.exit(0)
 
-CLASSPATH = open(CLASSPATH_FILE, encoding="utf-8").read().strip()
+CLASSPATH = mcpath.join(mcpath.classpath(CLASSPATH_FILE))
 
 
 def javap(fqcn):

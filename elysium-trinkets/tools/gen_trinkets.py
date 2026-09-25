@@ -496,7 +496,7 @@ def write_potion_charm():
         tag = json.load(open(charm_tag, encoding="utf-8"))
         if f"{MOD}:potion_charm" not in tag.get("values", []):
             tag["values"] = sorted(set(tag.get("values", [])) | {f"{MOD}:potion_charm"})
-            with open(charm_tag, "w", encoding="utf-8") as handle:
+            with open(charm_tag, "w", encoding="utf-8", newline="\n") as handle:
                 json.dump(tag, handle, indent=2)
                 handle.write("\n")
             written += 1

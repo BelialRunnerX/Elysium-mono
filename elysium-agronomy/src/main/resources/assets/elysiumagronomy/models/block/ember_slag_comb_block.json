@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "elysiumagronomy:block/ember_slag_comb_block"
+  }
+}

@@ -464,7 +464,7 @@ EXCLUSIVE_PAIRS = [
 def write(rel, obj):
     path = OUT / rel
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as handle:
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(obj, handle, indent=2, ensure_ascii=False)
         handle.write("\n")
 
@@ -594,7 +594,7 @@ def build():
     # directory does not exist when this runs as part of regen.sh. It only
     # ever worked by hand because the directory happened to be there.
     CONFIG.parent.mkdir(parents=True, exist_ok=True)
-    with open(CONFIG, "w", encoding="utf-8") as handle:
+    with open(CONFIG, "w", encoding="utf-8", newline="\n") as handle:
         json.dump({"version": CONFIG_VERSION, "categories": [CATEGORY]},
                   handle, indent=2)
         handle.write("\n")
@@ -732,7 +732,7 @@ def write_ore_tags():
     ids = [f"{NS}:{name}" for name in EMPIRE_ORES]
     for path in (EMPIRE_ORE_TAG, COMMON_ORE_TAG):
         path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as handle:
+        with open(path, "w", encoding="utf-8", newline="\n") as handle:
             json.dump({"replace": False, "values": ids}, handle, indent=2)
             handle.write("\n")
 
@@ -758,7 +758,7 @@ if __name__ == "__main__":
     lang_path = RES / f"assets/{NS}/lang/en_us.json"
     existing = json.load(open(lang_path, encoding="utf-8"))
     existing.update(lang())
-    with open(lang_path, "w", encoding="utf-8") as handle:
+    with open(lang_path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(existing, handle, indent=2, ensure_ascii=False)
         handle.write("\n")
 

@@ -17,6 +17,9 @@ with Age I runs one way and cannot be looped for free energy.
 """
 import json
 import os
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+import samefile  # noqa: E402
 import re
 import subprocess
 import sys
@@ -421,7 +424,7 @@ else:
                     kept = os.path.join(RES, os.path.relpath(made_path, fresh))
                     if not os.path.isfile(kept):
                         drifted.append(os.path.relpath(made_path, fresh) + " (missing)")
-                    elif open(made_path, "rb").read() != open(kept, "rb").read():
+                    elif not samefile.same(made_path, kept):
                         drifted.append(os.path.relpath(made_path, fresh))
             if drifted:
                 fail(f"{len(drifted)} generated file(s) differ from what the generator "

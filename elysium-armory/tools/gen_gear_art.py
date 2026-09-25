@@ -223,7 +223,7 @@ def plans(tex, models, lang):
 
     for name in ("blueprint_paper", "blueprint", "template", "mod_kit",
                  "affix_essence", "sheet_metal", "plan_book"):
-        json.dump(model(name, [name]), open(os.path.join(models, name + ".json"), "w"), indent=2)
+        json.dump(model(name, [name]), open(os.path.join(models, name + ".json"), "w", newline="\n"), indent=2)
         lang[f"item.{NS}.{name}"] = title(name)
     # The bench: a plated top on a dark frame, drawn as a 16x16 block face.
     top = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
@@ -332,7 +332,7 @@ def data(root, lang):
     """Blockstate, models, loot and recipes for the bench and the plans."""
     def write(path, obj):
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        json.dump(obj, open(path, "w"), indent=2)
+        json.dump(obj, open(path, "w", newline="\n"), indent=2)
 
     assets = os.path.join(root, "assets", NS)
     data_dir = os.path.join(root, "data", NS)
@@ -445,7 +445,7 @@ def main():
             draw(os.path.join(tex, part + "_grip.png"), wood, WOOD)
             layers.append(part + "_grip")
         os.makedirs(models, exist_ok=True)
-        json.dump(model(part, layers), open(os.path.join(models, part + ".json"), "w"), indent=2)
+        json.dump(model(part, layers), open(os.path.join(models, part + ".json"), "w", newline="\n"), indent=2)
         lang[f"item.{NS}.{part}"] = title(part)
         drawn += 1
     for gear, (head, haft) in GEAR.items():
@@ -457,7 +457,7 @@ def main():
         if haft:
             draw(os.path.join(tex, gear + "_grip.png"), haft, WOOD)
             layers.append(gear + "_grip")
-        json.dump(model(gear, layers), open(os.path.join(models, gear + ".json"), "w"), indent=2)
+        json.dump(model(gear, layers), open(os.path.join(models, gear + ".json"), "w", newline="\n"), indent=2)
         lang[f"item.{NS}.{gear}"] = title(gear)
         drawn += 1
     plans(tex, models, lang)
@@ -471,7 +471,7 @@ def main():
     path = os.path.join(ASSETS, "lang/en_us.json")
     current = json.load(open(path, encoding="utf-8")) if os.path.isfile(path) else {}
     current.update(lang)
-    json.dump(dict(sorted(current.items())), open(path, "w"), indent=2)
+    json.dump(dict(sorted(current.items())), open(path, "w", newline="\n"), indent=2)
     print(f"drew {drawn} sprites with models and names")
 
 

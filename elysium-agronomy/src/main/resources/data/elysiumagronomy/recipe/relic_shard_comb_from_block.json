@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:relic_shard_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:relic_shard_comb",
+    "count": 9
+  }
+}

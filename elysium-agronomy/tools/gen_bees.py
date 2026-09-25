@@ -39,7 +39,7 @@ except ImportError:
 
 def write(path, obj):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as handle:
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(obj, handle, indent=2)
         handle.write("\n")
 

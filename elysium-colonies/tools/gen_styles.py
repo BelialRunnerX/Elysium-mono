@@ -313,7 +313,7 @@ def main():
             "mods": style["mods"],
             "version": 1,
             "pack-format": 1,
-        }, open(os.path.join(root, "pack.json"), "w", encoding="utf-8"), indent=2)
+        }, open(os.path.join(root, "pack.json"), "w", encoding="utf-8", newline="\n"), indent=2)
         size = sum(os.path.getsize(os.path.join(base, f))
                    for base, _, names in os.walk(root) for f in names)
         print(f"{style['name']:12s} {len(files):4d} blueprints from "

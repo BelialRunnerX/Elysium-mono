@@ -169,7 +169,7 @@ SELF_DROPS = [block for block in BLOCKS
 def write(path, obj):
     full = os.path.join(ROOT, path)
     os.makedirs(os.path.dirname(full), exist_ok=True)
-    with open(full, "w", encoding="utf-8") as handle:
+    with open(full, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(obj, handle, indent=2)
         handle.write("\n")
 
@@ -609,7 +609,7 @@ lang.update({
 })
 
 os.makedirs(os.path.join(ROOT, f"assets/{NS}/lang"), exist_ok=True)
-with open(os.path.join(ROOT, f"assets/{NS}/lang/en_us.json"), "w", encoding="utf-8") as handle:
+with open(os.path.join(ROOT, f"assets/{NS}/lang/en_us.json"), "w", encoding="utf-8", newline="\n") as handle:
     json.dump(lang, handle, indent=2, sort_keys=True)
     handle.write("\n")
 

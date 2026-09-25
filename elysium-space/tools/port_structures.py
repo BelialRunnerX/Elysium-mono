@@ -210,14 +210,14 @@ def main():
         data = port_json(json.load(open(os.path.join(SRC, kind, name + ".json"))), todo)
         out = os.path.join(OUT, kind, rename_path(name) + ".json")
         os.makedirs(os.path.dirname(out), exist_ok=True)
-        json.dump(data, open(out, "w"), indent=2)
+        json.dump(data, open(out, "w", newline="\n"), indent=2)
     for body in sorted(loots):
         src = os.path.join(SRC, "loot_table", body + ".json")
         if not os.path.isfile(src):
             continue
         out = os.path.join(OUT, "loot_table", rename_path(body) + ".json")
         os.makedirs(os.path.dirname(out), exist_ok=True)
-        json.dump(port_json(port_loot(json.load(open(src))), []), open(out, "w"), indent=2)
+        json.dump(port_json(port_loot(json.load(open(src))), []), open(out, "w", newline="\n"), indent=2)
     # the biome tags the structures ask for, in our biomes
     tags = {
         "pale_moon_biomes": [f"{NS}:pale_moon_desert", f"{NS}:pale_moon_caves"],
@@ -230,7 +230,7 @@ def main():
     for name, values in tags.items():
         out = os.path.join(OUT, "tags/worldgen/biome", name + ".json")
         os.makedirs(os.path.dirname(out), exist_ok=True)
-        json.dump({"replace": False, "values": values}, open(out, "w"), indent=2)
+        json.dump({"replace": False, "values": values}, open(out, "w", newline="\n"), indent=2)
     print(f"ported {len(done)} structure files and {len(loots)} loot tables")
     if unmapped:
         print("UNMAPPED (placed as stone):", sorted(unmapped))

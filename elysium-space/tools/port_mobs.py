@@ -314,7 +314,7 @@ def main():
         geo = run(cls)
         if ours in RIGS:
             geo["rig"] = RIGS[ours]
-        json.dump(geo, open(os.path.join(OUT, ours + ".json"), "w"), indent=1)
+        json.dump(geo, open(os.path.join(OUT, ours + ".json"), "w", newline="\n"), indent=1)
         print(f"{ours:15s} {len(geo['parts']):3d} parts, "
               f"{sum(len(p['cubes']) for p in geo['parts'].values()):3d} boxes, texture {geo['texture']}")
     import shutil
@@ -330,7 +330,7 @@ def main():
         os.makedirs(os.path.join(ANIM_OUT, ours), exist_ok=True)
         for name, anim in anims.items():
             snake = re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()     # shakeHead -> shake_head
-            json.dump(neoforge_anim(anim), open(os.path.join(ANIM_OUT, ours, snake + ".json"), "w"), indent=1)
+            json.dump(neoforge_anim(anim), open(os.path.join(ANIM_OUT, ours, snake + ".json"), "w", newline="\n"), indent=1)
         print(f"{ours:15s} animations " + ", ".join(f"{k} ({len(v['channels'])} channels, {v['length']}s)"
                                                    for k, v in anims.items()))
 

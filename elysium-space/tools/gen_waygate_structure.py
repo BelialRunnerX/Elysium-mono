@@ -162,7 +162,7 @@ def build(size):
 
 def write(path, body):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    open(path, "w", encoding="utf-8").write(json.dumps(body, indent=2) + "\n")
+    open(path, "w", encoding="utf-8", newline="\n").write(json.dumps(body, indent=2) + "\n")
 
 
 def main():

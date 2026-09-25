@@ -73,7 +73,7 @@ def write(path, content):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     if isinstance(content, (dict, list)):
         content = json.dumps(content, indent=2) + "\n"
-    open(path, "w", encoding="utf-8").write(content)
+    open(path, "w", encoding="utf-8", newline="\n").write(content)
 
 
 def clean():
