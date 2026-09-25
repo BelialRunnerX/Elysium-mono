@@ -92,6 +92,18 @@ def body_of(src, signature):
     return src[open_at + 1:]
 
 
+def harness_trouble(output):
+    """The lines of a harness run that say what went wrong.
+
+    The validator used to call this without defining it, so the first harness
+    failure this module ever had crashed the validator with a NameError instead
+    of being reported — found by a negative test, which is what they are for.
+    """
+    lines = [line for line in output.splitlines()
+             if line.strip().startswith("FAIL:") or "failure(s)" in line]
+    return "\n".join(lines or output.strip().splitlines()[-12:])[:2000]
+
+
 def java_files():
     for root, _, names in os.walk(SRC):
         for name in names:
