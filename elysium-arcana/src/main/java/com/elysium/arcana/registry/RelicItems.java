@@ -3,6 +3,11 @@ package com.elysium.arcana.registry;
 import com.elysium.arcana.ElysiumArcana;
 import com.elysium.arcana.rules.RelicRules;
 import com.elysium.lib.ability.ElysiumAbilityRules;
+import com.elysium.lib.ability.act.ElysiumAbilityUse;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -79,6 +84,58 @@ public final class RelicItems {
         /** Which relic this is. */
         public RelicRules.Relic relic() {
             return relic;
+        }
+
+        /**
+         * Press the button and the thing happens.
+         *
+         * <p>For a while this class had no {@code use} at all: thirty relics,
+         * every ability priced, the harness passing, and nothing bound to the
+         * right mouse button. The library now says what each ability does and
+         * where; all this has to know is which of a relic's abilities is the
+         * one you press, and that a relic with none is a relic you wear.
+         */
+        @Override
+        public InteractionResultHolder<ItemStack> use(Level level, Player player,
+                                                      InteractionHand hand) {
+            ItemStack held = player.getItemInHand(hand);
+            ElysiumAbilityRules.Ability active = activeOf(player.isShiftKeyDown());
+            if (active == null) {
+                return InteractionResultHolder.pass(held);
+            }
+            if (player.getCooldowns().isOnCooldown(this)) {
+                return InteractionResultHolder.fail(held);
+            }
+            if (!ElysiumAbilityUse.perform(active, player)) {
+                return InteractionResultHolder.fail(held);
+            }
+            // The cooldown is the ability's own, off the roster. A number
+            // typed here would be a second cooldown for a player to discover
+            // disagrees with the tooltip.
+            player.getCooldowns().addCooldown(this, active.cooldown());
+            return InteractionResultHolder.sidedSuccess(held, level.isClientSide);
+        }
+
+        /**
+         * The ability this relic fires on this press, or null.
+         *
+         * <p>A relic carries a short list and at most one of them is an
+         * active on each of the two presses, which is what
+         * {@code cannotShareAnItem} has always guaranteed and is the reason
+         * this can be a lookup rather than a menu.
+         */
+        public ElysiumAbilityRules.Ability activeOf(boolean sneaking) {
+            String wanted = sneaking ? "on_sneak_use" : "on_use";
+            for (String name : relic.abilities()) {
+                ElysiumAbilityRules.Ability ability =
+                        ElysiumAbilityRules.ability(name);
+                if (ability != null
+                        && ElysiumAbilityRules.ACTIVE.equals(ability.kind())
+                        && wanted.equals(ability.trigger())) {
+                    return ability;
+                }
+            }
+            return null;
         }
 
         @Override

@@ -740,6 +740,70 @@ print("in the world       : every beast, attribute, spawn rule, renderer and egg
 # ---------------------------------------------------------------------------
 
 print("-" * 70)
+# ---------------------------------------------------------------------------
+# The two entities the ability system cannot happen without
+# ---------------------------------------------------------------------------
+#
+# Three of the library's thirty abilities throw or summon something, and until
+# this module existed nothing in the pack was that something: the ability was
+# priced, the relic carried it, every check in every module passed, and
+# pressing the button did nothing. That is the state this section makes
+# impossible to return to.
+
+SUMMONS = read(SRC, "registry/SummonEntities.java")
+SHAPES_SRC = read(os.path.join(ROOT, "elysium-lib/src/main/java/com/elysium/lib",
+                               "ability/ElysiumAbilityShapes.java"))
+if not SUMMONS:
+    fail("nothing here fills in what a thrown or summoned ability throws or "
+         "summons, so three of the library's abilities are silent")
+elif not SHAPES_SRC:
+    fail("the library no longer says which ability shapes need something in "
+         "the world, so this module cannot know what it owes")
+else:
+    needed = re.findall(r'List<String> NEED_AN_ENTITY = List\.of\(([^;]*)\);',
+                        re.sub(r"\s+", " ", SHAPES_SRC))
+    needed = re.findall(r"[A-Z]+", needed[0]) if needed else []
+    if len(needed) < 2:
+        fail("the library names fewer than two shapes as needing an entity, "
+             "so this check is checking nothing")
+    for shape in needed:
+        if f"ElysiumAbilityEntities.{shape.lower()}(" not in re.sub(
+                r"\s+", " ", strip_comments(SUMMONS)):
+            fail(f"nothing hands the library something for a {shape.lower()} "
+                 f"ability, so every ability of that shape does nothing and "
+                 f"says nothing")
+    _fill = squashed(body_of(strip_comments(SUMMONS),
+                             "public static void fillIn("))
+    if "event.enqueueWork(() -> { ElysiumAbilityEntities.bolt(BOLT::get);" \
+            not in _fill:
+        fail("the entity types are handed over outside enqueueWork, so they "
+             "are asked for before their registry is frozen — which is a "
+             "crash on somebody else's machine and not on this one")
+    if "ElysiumAbilityEntities.missing().isEmpty()" not in _fill:
+        fail("nothing checks, after this module has registered, that every "
+             "shape needing an entity has one; a shape left empty would ship "
+             "as a relic that does nothing")
+    for name, why in (("RelicBoltEntity", "there is nothing to throw"),
+                      ("ShadeEntity", "there is nothing to summon")):
+        if not os.path.isfile(os.path.join(SRC, "entity", name + ".java")):
+            fail(f"{name} is not here, so {why}")
+    # Both of them go out on their own. A summon that stayed is a mob a player
+    # farms rather than an ability with a cooldown, and a bolt that lies on
+    # the ground is a pile of arrows.
+    for name in ("RelicBoltEntity", "ShadeEntity"):
+        body = strip_comments(read(SRC, "entity", name + ".java"))
+        if "discard();" not in body:
+            fail(f"{name} never goes out, so an ability with a cooldown is a "
+                 f"way of filling a world with entities")
+        if "LASTS" not in body:
+            fail(f"{name} does not say how long it lasts")
+
+    print(f"the summons        : {len(needed)} shape(s) of ability that cannot "
+          f"happen without something in the world, each given one here, each "
+          f"going out on its own, and a check after registration that none of "
+          f"them was left empty")
+
+
 if problems:
     print(f"{len(problems)} problem(s):")
     for problem in problems:

@@ -1,0 +1,11 @@
+-nowarn
+-d
+/tmp/tmpaf89vi5w/out
+/tmp/tmpaf89vi5w/src/ElysiumAbilityUse.java
+/tmp/tmpaf89vi5w/src/ElysiumAbilityRules.java
+/tmp/tmpaf89vi5w/src/GeodeRules.java
+/tmp/tmpaf89vi5w/src/ArcanaHarness.java
+/tmp/tmpaf89vi5w/src/ElysiumAbilityShapes.java
+/tmp/tmpaf89vi5w/src/ArcanaRules.java
+/tmp/tmpaf89vi5w/src/ElysiumAbilityEntities.java
+/tmp/tmpaf89vi5w/src/RelicRules.java

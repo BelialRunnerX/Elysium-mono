@@ -770,6 +770,37 @@ if missing_relics:
     fail(f"{len(missing_relics)} thing(s) a relic needs are not there: "
          + ", ".join(missing_relics[:8]) + (" ..." if len(missing_relics) > 8 else ""))
 
+# A relic you press does something.
+#
+# For a while this was the whole gap: thirty relics, every ability priced, the
+# harness passing, and nothing bound to the right mouse button. A system that
+# is complete and inert passes every check there is, which is why this one had
+# to be written down.
+
+RELIC_ITEMS = strip_comments(read(SRC, "registry/RelicItems.java"))
+_use = squashed(body_of(RELIC_ITEMS,
+                        "public InteractionResultHolder<ItemStack> use("))
+if not _use:
+    fail("a relic does nothing when you press it, so every relic in this "
+         "module is a tooltip")
+else:
+    if "ElysiumAbilityUse.perform(active, player)" not in _use:
+        fail("a relic does its own thing on use rather than asking the library "
+             "that knows what an ability is, so what a relic does and what it "
+             "is priced at can come apart")
+    if "player.getCooldowns().addCooldown(this, active.cooldown());" not in _use:
+        fail("a relic's cooldown is not the ability's own, so the tooltip says "
+             "one number and the item obeys another")
+    if "player.getCooldowns().isOnCooldown(this)" not in _use:
+        fail("a relic can be pressed again while it is on cooldown, so the "
+             "cooldown is a line in a tooltip")
+_active = squashed(body_of(RELIC_ITEMS,
+                           "public ElysiumAbilityRules.Ability activeOf("))
+if "ElysiumAbilityRules.ACTIVE.equals(ability.kind())" not in _active:
+    fail("a relic fires whichever of its abilities it finds first rather than "
+         "the one that is an active, so pressing it could set off something "
+         "that is always on")
+
 print(f"relics             : {len(relic_ids)} across "
       f"{len({row[1] for row in relic_rows})} slot(s), carrying every one of "
       f"{len(library_abilities)} abilities the library defines, each list legal by "

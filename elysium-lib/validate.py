@@ -39,6 +39,18 @@ def strip_comments(text):
     """
     text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
     return re.sub(r"//[^\n]*", " ", text)
+
+
+def squashed(text):
+    """One method's source with every run of whitespace made one space.
+
+    A rule that names a whole statement has to survive the statement being
+    re-wrapped, or it fails the first time somebody tidies the file and then
+    gets deleted rather than fixed.
+    """
+    return re.sub(r"\s+", " ", text)
+
+
 def body_of(text, signature):
     """One method's source, comments stripped, by its declaration.
 
@@ -3583,6 +3595,92 @@ for _package, _files in sorted(EXECUTED_PURE.items()):
             fail(f"{_package}/{_file} has started registering something. The "
                  f"static initialiser would then need a running game, and "
                  f"reading one constant off it from a harness fails")
+
+# ---------------------------------------------------------------------------
+# An ability that happens
+# ---------------------------------------------------------------------------
+#
+# The state this exists to make impossible: thirty abilities priced against
+# each other, thirty relics carrying them, every check in this file passing,
+# and pressing the button doing nothing at all. A system that is complete and
+# inert is worse than one that is missing, because nothing reports it.
+
+ABILITY = os.path.join(SRC, "ability")
+SHAPES = read(os.path.join(ABILITY, "ElysiumAbilityShapes.java"))
+USE = read(os.path.join(ABILITY, "act/ElysiumAbilityUse.java"))
+HOLDER = read(os.path.join(ABILITY, "act/ElysiumAbilityEntities.java"))
+
+if not SHAPES:
+    fail("nothing says what any ability does, only what each is worth, so the "
+         "whole roster can be priced, carried, registered and inert")
+if not USE:
+    fail("nothing performs an ability, so every relic in the pack is a "
+         "tooltip")
+
+_shapes = re.findall(r'String ([A-Z]+) = "([a-z]+)";', SHAPES)
+shape_names = [name for _, name in _shapes]
+if len(shape_names) < 4:
+    fail(f"only {len(shape_names)} shape(s) could be read out of "
+         f"ElysiumAbilityShapes, so every check below it checks nothing")
+else:
+    # Every shape has a branch, and there is no branch for a shape that is not
+    # one. A seventh branch is how this becomes one bespoke case per ability.
+    _perform = squashed(body_of(strip_comments(USE),
+                                "public static boolean perform("))
+    for name in shape_names:
+        constant = [c for c, value in _shapes if value == name][0]
+        if f"case ElysiumAbilityShapes.{constant} ->" not in _perform:
+            fail(f"nothing performs a {name} ability, so every ability of that "
+                 f"shape is priced, carried and silent")
+    _branches = re.findall(r"case ElysiumAbilityShapes\.([A-Z]+) ->", _perform)
+    if len(_branches) != len(shape_names):
+        fail(f"there are {len(_branches)} branch(es) for {len(shape_names)} "
+             f"shape(s); a branch with no shape is unreachable and a shape "
+             f"with no branch does nothing")
+
+    # The thing that keeps this a set rather than thirty special cases: the
+    # one place that performs an ability may not know any ability by name.
+    _names = re.findall(r'"([a-z_]{4,})"', USE)
+    _roster = set(re.findall(r'made\("([a-z_]+)"',
+                             read(os.path.join(ABILITY,
+                                               "ElysiumAbilityRules.java"))))
+    _knows = sorted(set(_names) & _roster)
+    if _knows:
+        fail(f"the one place that performs an ability names "
+             f"{len(_knows)} of them — {', '.join(_knows[:4])} — so it has "
+             f"started growing a branch per ability, which is how an ability "
+             f"system becomes thirty special cases nobody can say anything "
+             f"about as a set")
+
+    # And the magnitudes are derived rather than typed beside the ability.
+    for needed, why in (
+            ("public static float reachOf(",
+             "nothing says how far an ability reaches, so a reach would be "
+             "typed at each of the places that perform one"),
+            ("public static int lastsOf(",
+             "nothing says how long what an ability does lasts"),
+            ("public static int countOf(",
+             "nothing says how many things an ability puts in the world, so "
+             "the line between an ability and a performance problem is "
+             "nowhere written down")):
+        if needed not in SHAPES:
+            fail(why)
+
+    # The shapes that cannot happen without something existing in the world
+    # say so, and refuse to be silent about it.
+    if not HOLDER:
+        fail("the shapes that throw or summon have nothing to throw or "
+             "summon and no way of being given one, so two of the six are "
+             "branches that quietly do nothing")
+    elif "public static java.util.List<String> missing()" not in HOLDER:
+        fail("nothing can say which ability shapes still have nothing behind "
+             "them, so a module that failed to fill one in would ship a relic "
+             "that does nothing and says nothing")
+
+print("an ability happens : 6 shape(s), one branch each in the one place that "
+      "performs them, not one ability named there, and every magnitude "
+      "derived from what the ability is already worth")
+
 
 print(f"executed rules     : {_pure_count} file(s) across "
       f"{len(EXECUTED_PURE)} system(s) load without a game")

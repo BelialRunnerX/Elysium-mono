@@ -1,0 +1,11 @@
+-nowarn
+-d
+/tmp/tmp9ub1b2bc/out
+/tmp/tmp9ub1b2bc/src/ElysiumAbilityUse.java
+/tmp/tmp9ub1b2bc/src/ElysiumAbilityRules.java
+/tmp/tmp9ub1b2bc/src/GeodeRules.java
+/tmp/tmp9ub1b2bc/src/ArcanaHarness.java
+/tmp/tmp9ub1b2bc/src/ElysiumAbilityShapes.java
+/tmp/tmp9ub1b2bc/src/ArcanaRules.java
+/tmp/tmp9ub1b2bc/src/ElysiumAbilityEntities.java
+/tmp/tmp9ub1b2bc/src/RelicRules.java

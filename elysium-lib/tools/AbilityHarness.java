@@ -43,6 +43,7 @@ public final class AbilityHarness {
         theBalance();
         theItem();
         theControls();
+        theShapes();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -51,7 +52,9 @@ public final class AbilityHarness {
         System.out.println(checks + " checks: " + ElysiumAbilityRules.ABILITIES.size()
                 + " abilities across " + ElysiumAbilityRules.domains().size()
                 + " domains, none of them pointless, none of them worth more than "
-                + "the ceiling, and no item able to carry the same one twice");
+                + "the ceiling, no item able to carry the same one twice, and "
+                + "every one of them saying what it does rather than only what "
+                + "it is worth");
     }
 
     // ==================================================================
@@ -203,5 +206,173 @@ public final class AbilityHarness {
                         + "things, so something that happens on every hit can make "
                         + "something that happens on a kill pointless");
         check(!strong.dominates(strong), "an ability makes itself pointless");
+    }
+
+    /**
+     * What each ability does, as opposed to what it is worth.
+     *
+     * <p>This is the section that exists because the whole system was once
+     * complete and inert: thirty abilities priced against each other, thirty
+     * relics carrying them, every check passing, and pressing the button did
+     * nothing. A rule that a thing is worth 3.2 says nothing about whether it
+     * happens.
+     */
+    private static void theShapes() {
+        java.util.List<String> faults = ElysiumAbilityShapes.faults();
+        check(faults.isEmpty(), "something wrong with the shapes: " + faults);
+
+        // Total, both ways.
+        int covered = 0;
+        for (ElysiumAbilityRules.Ability ability : ElysiumAbilityRules.ABILITIES) {
+            String shape = ElysiumAbilityShapes.shapeOf(ability.id());
+            check(!shape.isEmpty(), ability.id() + " does nothing at all");
+            check(ElysiumAbilityShapes.SHAPES.contains(shape),
+                    ability.id() + " is a " + shape + ", which is not a shape");
+            covered++;
+        }
+        check(covered == ElysiumAbilityRules.ABILITIES.size(),
+                "only " + covered + " ability(ies) were asked what they do");
+        int accounted = 0;
+        for (String shape : ElysiumAbilityShapes.SHAPES) {
+            int here = ElysiumAbilityShapes.ofShape(shape).size();
+            check(here > 0, "nothing is a " + shape + ", so one of the six "
+                    + "ways an ability can happen is a branch nothing reaches");
+            accounted += here;
+        }
+        check(accounted == ElysiumAbilityRules.ABILITIES.size(),
+                "the shapes account for " + accounted + " ability(ies) and "
+                        + "there are " + ElysiumAbilityRules.ABILITIES.size());
+
+        // The magnitudes are derived, and derived monotonically: a costlier
+        // ability does more because it is costlier and not because somebody
+        // remembered to type a bigger number.
+        int compared = 0;
+        for (ElysiumAbilityRules.Ability one : ElysiumAbilityRules.ABILITIES) {
+            float reach = ElysiumAbilityShapes.reachOf(one);
+            check(reach >= ElysiumAbilityShapes.LEAST_REACH - 1.0E-3F
+                            && reach <= ElysiumAbilityShapes.MOST_REACH + 1.0E-3F,
+                    one.id() + " reaches " + reach + " blocks");
+            float where = ElysiumAbilityShapes.fraction(one);
+            check(where >= 0.0F && where <= 1.0F, one.id() + " sits at " + where
+                    + " between the floor and the ceiling");
+            int lasts = ElysiumAbilityShapes.lastsOf(one);
+            check(lasts >= 0, one.id() + " lasts " + lasts + " ticks");
+            check(ElysiumAbilityRules.PASSIVE.equals(one.kind())
+                            ? lasts == 0
+                            : lasts >= ElysiumAbilityShapes.LEAST_TICKS,
+                    one.id() + " is a " + one.kind() + " and lasts " + lasts
+                            + " ticks");
+            check(ElysiumAbilityShapes.hurtOf(one) >= 0.0F,
+                    one.id() + " does negative damage");
+            check(ElysiumAbilityShapes.HURTS.contains(one.domain())
+                            == (ElysiumAbilityShapes.hurtOf(one) > 0.0F),
+                    one.id() + " is in the " + one.domain() + " domain and "
+                            + "hurts " + ElysiumAbilityShapes.hurtOf(one));
+            for (ElysiumAbilityRules.Ability other : ElysiumAbilityRules.ABILITIES) {
+                compared++;
+                if (one.worth() <= other.worth() + 1.0E-3F) {
+                    continue;
+                }
+                check(ElysiumAbilityShapes.reachOf(one)
+                                >= ElysiumAbilityShapes.reachOf(other) - 1.0E-3F,
+                        one.id() + " is worth more than " + other.id()
+                                + " and reaches less far");
+            }
+        }
+        check(compared == ElysiumAbilityRules.ABILITIES.size()
+                        * ElysiumAbilityRules.ABILITIES.size(),
+                "only " + compared + " pair(s) were compared");
+
+        // The three that need something to exist in the world before they can
+        // happen at all. Named, because "using an active does nothing" was
+        // the state this whole section is here to end.
+        java.util.List<String> needing = ElysiumAbilityShapes.needingAnEntity();
+        check(!needing.isEmpty(),
+                "nothing throws or summons anything, so two of the six shapes "
+                        + "are branches nothing reaches");
+        for (String id : needing) {
+            ElysiumAbilityRules.Ability ability = ElysiumAbilityRules.ability(id);
+            check(ability != null, id + " needs an entity and is not an ability");
+            if (ability == null) {
+                continue;
+            }
+            check(ElysiumAbilityShapes.countOf(ability) >= 1,
+                    id + " throws or summons nothing at all");
+            check(ElysiumAbilityShapes.countOf(ability)
+                            <= ElysiumAbilityShapes.MOST_AT_ONCE,
+                    id + " puts more than " + ElysiumAbilityShapes.MOST_AT_ONCE
+                            + " things in the world at once");
+        }
+
+        // Controls, built to be caught, because over this roster every rule
+        // above can only ever answer no.
+        java.util.List<ElysiumAbilityRules.Ability> one =
+                java.util.List.of(ElysiumAbilityRules.ABILITIES.get(0));
+        check(!ElysiumAbilityShapes.faultsInEachShape(one, java.util.Map.of())
+                        .isEmpty(),
+                "an ability nothing says anything about is not reported, so "
+                        + "the whole roster could go back to being priced and "
+                        + "inert");
+        check(!ElysiumAbilityShapes.faultsInEachShape(one, java.util.Map.of(
+                        one.get(0).id(), "wibble")).isEmpty(),
+                "an ability that is a shape nothing can perform is not "
+                        + "reported");
+        check(ElysiumAbilityShapes.faultsInEachShape(one, java.util.Map.of(
+                        one.get(0).id(), ElysiumAbilityShapes.SELF)).isEmpty(),
+                "an ability with a shape it really has is reported as faulty");
+        check(!ElysiumAbilityShapes.faultsInOrphans(one, java.util.Map.of(
+                        one.get(0).id(), ElysiumAbilityShapes.SELF,
+                        "not_an_ability", ElysiumAbilityShapes.SELF)).isEmpty(),
+                "a shape given to something that is not an ability is not "
+                        + "reported");
+        check(ElysiumAbilityShapes.faultsInOrphans(one, java.util.Map.of(
+                        one.get(0).id(), ElysiumAbilityShapes.SELF)).isEmpty(),
+                "a table naming only real abilities is reported as faulty");
+        check(!ElysiumAbilityShapes.faultsInCoverage(
+                        ElysiumAbilityRules.ABILITIES,
+                        java.util.Map.of("blink", ElysiumAbilityShapes.STEP))
+                        .isEmpty(),
+                "a roster where five of the six shapes are nothing at all is "
+                        + "not reported");
+        check(ElysiumAbilityShapes.faultsInCoverage(
+                        ElysiumAbilityRules.ABILITIES,
+                        ElysiumAbilityShapes.SHAPE_OF).isEmpty(),
+                "the shapes this library ships leave one of the six empty");
+        check(ElysiumAbilityShapes.faultsInShapes(ElysiumAbilityRules.ABILITIES,
+                        ElysiumAbilityShapes.SHAPE_OF).isEmpty(),
+                "the shapes this library ships are reported as faulty");
+        check(!ElysiumAbilityShapes.faultsInThrowing(java.util.List.of(
+                        ElysiumAbilityRules.ability("gravewake")),
+                        java.util.Map.of("gravewake", 0)).isEmpty(),
+                "a summoning ability that summons nothing is not reported, so "
+                        + "a relic could go on being pressed and doing "
+                        + "nothing");
+        check(!ElysiumAbilityShapes.faultsInThrowing(java.util.List.of(
+                        ElysiumAbilityRules.ability("steadfast")),
+                        java.util.Map.of("steadfast", 3)).isEmpty(),
+                "an always-on ability counted as putting three things in the "
+                        + "world is not reported");
+        check(ElysiumAbilityShapes.faultsInThrowing(
+                        ElysiumAbilityRules.ABILITIES,
+                        ElysiumAbilityShapes.counts(
+                                ElysiumAbilityRules.ABILITIES)).isEmpty(),
+                "the throwing this library ships is reported as faulty");
+        check(ElysiumAbilityShapes.faultsInCeiling(
+                        ElysiumAbilityRules.ABILITIES).isEmpty(),
+                "the counts this library ships are over the ceiling");
+        check(ElysiumAbilityShapes.faultsInCount(ElysiumAbilityRules.ABILITIES)
+                        .isEmpty(),
+                "the counts this library ships are reported as faulty");
+        check(ElysiumAbilityShapes.faultsInReach(ElysiumAbilityRules.ABILITIES)
+                        .isEmpty(),
+                "the reaches this library ships are reported as faulty");
+
+        System.out.println("  the shapes: all "
+                + ElysiumAbilityRules.ABILITIES.size() + " abilities say what "
+                + "they do across " + ElysiumAbilityShapes.SHAPES.size()
+                + " shapes, every magnitude derived from what the ability is "
+                + "already worth rather than typed beside it, and "
+                + needing.size() + " of them needing something in the world "
+                + "before they can happen at all");
     }
 }
