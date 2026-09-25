@@ -4,6 +4,8 @@
     "elysiumindustry:copper_wire",
     "elysiumindustry:gold_wire",
     "elysiumindustry:steel_wire",
+    "elysiumindustry:coke_brick",
+    "elysiumindustry:blast_brick",
     "elysiumindustry:transformer",
     "elysiumindustry:crusher",
     "elysiumindustry:rolling_mill",
@@ -12,6 +14,8 @@
     "elysiumindustry:alternator",
     "elysiumindustry:motor",
     "elysiumindustry:steam_turbine",
-    "elysiumindustry:diesel_engine"
+    "elysiumindustry:diesel_engine",
+    "elysiumindustry:coke_oven",
+    "elysiumindustry:blast_furnace"
   ]
 }

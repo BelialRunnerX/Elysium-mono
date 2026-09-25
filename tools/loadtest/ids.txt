@@ -9351,6 +9351,10 @@ item	elysiumfoundry:zinc_nugget
 item	elysiumfoundry:zinc_plate	
 block	elysiumindustry:alternator	axis=x,y,z
 block	elysiumindustry:arc_furnace	
+block	elysiumindustry:blast_brick	
+block	elysiumindustry:blast_furnace	formed=false,true
+block	elysiumindustry:coke_brick	
+block	elysiumindustry:coke_oven	formed=false,true
 block	elysiumindustry:copper_wire	
 block	elysiumindustry:crusher	
 block	elysiumindustry:diesel_engine	lit=false,true
@@ -9363,6 +9367,11 @@ block	elysiumindustry:steel_wire
 block	elysiumindustry:transformer	
 item	elysiumindustry:alternator	
 item	elysiumindustry:arc_furnace	
+item	elysiumindustry:blast_brick	
+item	elysiumindustry:blast_furnace	
+item	elysiumindustry:coke	
+item	elysiumindustry:coke_brick	
+item	elysiumindustry:coke_oven	
 item	elysiumindustry:copper_plate	
 item	elysiumindustry:copper_wire	
 item	elysiumindustry:crusher	

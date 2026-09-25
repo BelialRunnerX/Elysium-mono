@@ -73,6 +73,16 @@ def harness_trouble(output):
     return "\n".join(lines or output.strip().splitlines()[-12:])[:2000]
 
 
+def squashed(text):
+    """One method's source with every run of whitespace made one space.
+
+    A rule that names a whole statement has to survive the statement being
+    re-wrapped, or it is a rule that fails the first time somebody tidies the
+    file and then gets deleted rather than fixed.
+    """
+    return re.sub(r"\s+", " ", text)
+
+
 def body_of(text, signature):
     start = text.find(signature)
     if start < 0:
@@ -423,10 +433,32 @@ blocks_src = read(SRC, "registry/IndustryBlocks.java")
 items_src = read(SRC, "registry/IndustryItems.java")
 registered = re.findall(r'BLOCKS\.register\("([a-z_]+)"', strip_comments(blocks_src, True))
 parts = re.findall(r'part\("([a-z_]+)"\)', strip_comments(items_src, True))
+GRID_BLOCKS = len(registered)
 
-if len(registered) != 12:
-    fail(f"Age II has {len(registered)} block(s); the spec says twelve — three wires and "
-         f"a transformer, two engines, two spindles and four machines")
+# The bricks and the two machines built out of them are registered from a loop
+# over FurnaceRules rather than named one at a time, so a reading that walks
+# literal register("...") calls cannot see them. That blind spot once let five
+# hundred blocks go unchecked in another module; it is closed here by parsing
+# the rules.
+FURNACE_RULES = strip_comments(read(SRC, "rules/FurnaceRules.java"),
+                               keep_strings=True)
+_fflat = re.sub(r"\s+", " ", FURNACE_RULES)
+bricks = re.findall(r'String (?:COKE_BRICK|BLAST_BRICK) = "([a-z_]+)"',
+                    FURNACE_RULES)
+shape_ids = re.findall(r'new ShapeRules\.Shape\( "([a-z_]+)"', _fflat)
+coke = re.search(r'String COKE = "([a-z_]+)"', FURNACE_RULES)
+if len(bricks) != 2 or len(shape_ids) != 2 or not coke:
+    fail(f"FurnaceRules no longer says what the brick machines are; this file "
+         f"read {len(bricks)} brick(s) and {len(shape_ids)} shape(s), and every "
+         f"check below it is then checking nothing")
+registered = registered + bricks + shape_ids
+if coke:
+    parts = parts + [coke.group(1)]
+
+if GRID_BLOCKS != 12:
+    fail(f"Age II has {GRID_BLOCKS} block(s) on the grid; the spec says twelve — "
+         f"three wires and a transformer, two engines, two spindles and four "
+         f"machines")
 if not parts:
     fail("Age II makes nothing of its own, so the arc furnace has no purpose and the "
          "top tier of wire has nothing to be made of")
@@ -448,12 +480,31 @@ pick_path = os.path.join(RES, "data/minecraft/tags/block/mineable/pickaxe.json")
 if os.path.isfile(pick_path):
     mineable = json.load(open(pick_path, encoding="utf-8")).get("values", [])
 
+BRICKWORK = set(bricks) | set(shape_ids)
+
+# What the creative tab actually shows, read out of the one lambda that builds
+# it rather than out of the whole file. A roster named anywhere in the registry
+# would otherwise satisfy a rule about being *in the tab*, which is the same
+# mistake as naming a call where a statement was meant.
+_display = re.search(r"displayItems\(\(parameters, output\) -> \{(.*?)\}\)",
+                     squashed(strip_comments(items_src, True)))
+_shown = _display.group(1) if _display else ""
+if not _shown:
+    fail("the creative tab shows whatever the registry happened to list, so "
+         "nothing below can say a block is missing from it")
+
 for name in registered:
     constant_name = name.upper()
-    if constant_name not in block_items:
+    # The brickwork is registered from a loop, so it has no literal item line
+    # and no literal name in the tab's order; the tab reaches for the whole
+    # roster instead and the count check in the registry catches a missing one.
+    if constant_name not in block_items and name not in BRICKWORK:
         fail(f"{name} has no item, so it exists only to a command")
-    if constant_name not in in_tab:
+    if constant_name not in in_tab and name not in BRICKWORK:
         fail(f"{name} is in no creative tab, so nobody in a creative world can find it")
+    if name in BRICKWORK and "BRICKWORK" not in _shown:
+        fail(f"{name} is registered from a roster and the tab does not reach for "
+             f"that roster, so it is a block nobody in a creative world can find")
     for kind, where in (("blockstates", f"blockstates/{name}.json"),
                         ("a model", f"models/block/{name}.json"),
                         ("an item model", f"models/item/{name}.json")):
@@ -717,6 +768,88 @@ for tag in sorted(OUR_TAGS):
              f"to load")
     elif not json.load(open(where, encoding="utf-8")).get("values"):
         fail(f"{tag} is empty, so every recipe that asks for it fails to load")
+
+# ---------------------------------------------------------------------------
+# The multiblocks, and the sentence a player gets when one has not formed
+# ---------------------------------------------------------------------------
+
+SHAPE_RULES = strip_comments(read(SRC, "rules/ShapeRules.java"), keep_strings=True)
+FURNACE_BLOCK = strip_comments(read(SRC, "block/FurnaceBlock.java"),
+                               keep_strings=True)
+if not SHAPE_RULES:
+    fail("there is no shape arithmetic, so a multiblock is a block that reads "
+         "the world and decides for itself, which is where every unformable "
+         "multiblock in every mod comes from")
+for needed, why in (
+        ("public static String wrongAt(",
+         "nothing can say where a build stopped being the shape, and a "
+         "multiblock that only says no is twenty minutes a player spends "
+         "counting bricks"),
+        ("public static List<char[][][]> orientations(",
+         "nothing turns a shape, so a machine built facing the wrong way is a "
+         "machine that does not work and does not say why"),
+        ("public static List<String> faultsInSet(",
+         "nothing asks whether two shapes are the same arrangement, so a "
+         "machine could be built by accident while building a different one"),
+        ("public static Map<String, Integer> billOf(",
+         "nothing says what a shape is built out of, so breaking one could "
+         "give back most of it")):
+    if needed not in SHAPE_RULES:
+        fail(why)
+
+# The block asks the arithmetic. A block that walked the world itself would be
+# a block the harness has never run, and the harness is the only thing that
+# sweeps every mutation of every orientation.
+if "ShapeRules.orientations(shape)" not in squashed(FURNACE_BLOCK):
+    fail("the controller does not try every orientation, so a machine built "
+         "facing the wrong way is a machine that does not work")
+_look = squashed(body_of(FURNACE_BLOCK, "public void look("))
+if "if (ShapeRules.sameAs(want, found)) {" not in _look:
+    fail("the controller decides for itself whether the bricks are the shape "
+         "rather than asking the arithmetic that is swept against every "
+         "one-block mutation of it")
+if "wrong = best == null" not in _look:
+    fail("the controller throws away what it found wrong, so the one thing "
+         "this block exists to do — say which brick — is not done")
+if "elysiumindustry.furnace.unformed" not in FURNACE_BLOCK:
+    fail("there is no sentence for a multiblock that has not formed, so the "
+         "answer is the worst one there is: nothing happens")
+
+# Every brick a shape names is a block this module registers, or the shape is
+# a set of instructions nobody can follow.
+for one in re.findall(r"Map\.of\(('[A-Z]', [A-Z_]+(?:, )?)+\)", _fflat):
+    pass
+for named in re.findall(r"Map\.of\([^)]*\)", _fflat):
+    for symbol, value in re.findall(r"'(.)', ([A-Z_]+|\"[a-z_]+\")", named):
+        want = value.strip('"')
+        if want.isupper():
+            continue
+        if want not in registered:
+            fail(f"a shape names {want} and nothing registers a block by that "
+                 f"name, so it is a machine a player is told to build out of "
+                 f"something that does not exist")
+
+# And the jobs: everything they make is something that exists.
+firings = re.findall(
+    r'new Firing\("([a-z_]+)", "([#a-z_:]+)", (\d+), "([a-z_:]+)", (\d+), ',
+    _fflat)
+if len(firings) < 2:
+    fail(f"the brick machines have {len(firings)} job(s) between them, which "
+         f"is not two machines")
+for shape, given, count, made, makes in firings:
+    if shape not in shape_ids:
+        fail(f"a job is fired in a {shape}, which is not one of the shapes")
+    for one in (given, made):
+        if one.startswith("#") or one.startswith("minecraft:"):
+            continue
+        if one not in OURS:
+            fail(f"a brick machine names {one}, which this module does not make")
+
+print(f"the brick machines : {len(shape_ids)} multiblock(s) out of "
+      f"{len(bricks)} brick(s), every orientation accepted and every "
+      f"one-block mutation of every one of them refused by name, and "
+      f"{len(firings)} job(s) that want no wire at all")
+
 
 print(f"the age in the world: {len(registered)} block(s) and {len(parts)} part(s), each "
       f"modelled, dropped, named and craftable; "

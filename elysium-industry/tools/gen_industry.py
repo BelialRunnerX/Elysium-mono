@@ -14,6 +14,7 @@ repository, and a coil of wire is a rectangle with bands on it.
 """
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -244,6 +245,63 @@ def plate(ramp):
     return image
 
 
+# ---------------------------------------------------------------------------
+# The bricks, read out of the shapes that are built from them
+# ---------------------------------------------------------------------------
+
+FURNACE_SOURCE = open(os.path.join(
+    MOD, "src/main/java/com/elysium/industry/rules/FurnaceRules.java"),
+    encoding="utf-8").read()
+_flat_furnace = re.sub(r"\s+", " ", FURNACE_SOURCE)
+BRICKS = re.findall(r'String (?:COKE_BRICK|BLAST_BRICK) = "([a-z_]+)"',
+                    FURNACE_SOURCE)
+SHAPE_IDS = re.findall(r'new ShapeRules\.Shape\(\s*"([a-z_]+)"', FURNACE_SOURCE)
+COKE = re.search(r'String COKE = "([a-z_]+)"', FURNACE_SOURCE)
+if len(BRICKS) != 2 or len(SHAPE_IDS) != 2 or not COKE:
+    print(f"FurnaceRules no longer has the shape this reads: {len(BRICKS)} "
+          f"brick(s), {len(SHAPE_IDS)} shape(s)")
+    sys.exit(2)
+COKE = COKE.group(1)
+COKING = int(re.search(r"COKING_TICKS = ([\d_]+);", FURNACE_SOURCE)
+             .group(1).replace("_", ""))
+BLASTING = int(re.search(r"BLASTING_TICKS = ([\d_]+);", FURNACE_SOURCE)
+               .group(1).replace("_", ""))
+
+
+def brick(base, mortar):
+    """A course of brick, drawn rather than tinted from vanilla's."""
+    image = Image.new("RGBA", (16, 16), mortar + (255,))
+    draw = ImageDraw.Draw(image)
+    for row in range(4):
+        offset = 0 if row % 2 == 0 else 4
+        for column in range(-1, 3):
+            x0 = column * 8 + offset
+            draw.rectangle([x0, row * 4, x0 + 6, row * 4 + 2],
+                           fill=base + (255,))
+    return image
+
+
+def furnace_face(accent, lit):
+    """A brick face with a mouth in it, so the controller is findable."""
+    image = brick((132, 74, 58), (96, 86, 78))
+    draw = ImageDraw.Draw(image)
+    mouth = accent if lit else tuple(max(0, part - 70) for part in accent)
+    draw.rectangle([4, 6, 11, 13], fill=(40, 34, 30, 255),
+                   outline=(70, 62, 56, 255))
+    draw.rectangle([6, 9, 9, 12], fill=mouth + (255,))
+    return image
+
+
+def coke_sprite():
+    """A lump: coal that has been through an oven, so paler and drier."""
+    image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.polygon([(4, 11), (3, 6), (7, 3), (12, 5), (13, 10), (9, 13)],
+                 fill=(64, 60, 58, 255), outline=(38, 36, 34, 255))
+    draw.polygon([(6, 8), (8, 5), (10, 7), (8, 10)], fill=(104, 98, 94, 255))
+    return image
+
+
 BLOCK_SPRITES = {
     "copper_wire": lambda: cable(COPPER),
     "copper_wire_end": lambda: cable_end(COPPER),
@@ -268,6 +326,12 @@ BLOCK_SPRITES = {
     "rolling_mill_top": mill_top,
     "arc_furnace_top": arc_top,
     "separator_top": separator_top,
+    BRICKS[0]: lambda: brick((84, 74, 66), (58, 52, 48)),
+    BRICKS[1]: lambda: brick((150, 96, 70), (96, 80, 70)),
+    SHAPE_IDS[0]: lambda: furnace_face((232, 150, 60), False),
+    SHAPE_IDS[0] + "_on": lambda: furnace_face((232, 150, 60), True),
+    SHAPE_IDS[1]: lambda: furnace_face((120, 190, 232), False),
+    SHAPE_IDS[1] + "_on": lambda: furnace_face((120, 190, 232), True),
 }
 
 ITEM_SPRITES = {
@@ -277,6 +341,7 @@ ITEM_SPRITES = {
     "copper_plate": lambda: plate(COPPER),
     "gold_plate": lambda: plate(GOLD),
     "steel_plate": lambda: plate(STEEL),
+    COKE: coke_sprite,
 }
 
 
@@ -358,6 +423,8 @@ WIRE_BOX = (6, 10)
 
 #: Blocks whose model is a full cube, as (top, side) sprites.
 CUBES = {
+    BRICKS[0]: (BRICKS[0], BRICKS[0]),
+    BRICKS[1]: (BRICKS[1], BRICKS[1]),
     "transformer": ("transformer_top", "transformer"),
     "crusher": ("crusher_top", "machine_side"),
     "rolling_mill": ("rolling_mill_top", "machine_side"),
@@ -457,6 +524,22 @@ def models_and_states():
         write(os.path.join(ASSETS, "models/item", name + ".json"),
               {"parent": f"{NS}:block/{name}"})
         written += 1
+    # The two controllers, which are drawn lit when the bricks around them
+    # are the machine. A multiblock that looks the same formed and unformed
+    # is a multiblock whose one piece of feedback is a message you have to
+    # ask for.
+    for name in SHAPE_IDS:
+        write(os.path.join(ASSETS, "models/block", name + ".json"),
+              cube(BRICKS[SHAPE_IDS.index(name)], name))
+        write(os.path.join(ASSETS, "models/block", name + "_on.json"),
+              cube(BRICKS[SHAPE_IDS.index(name)], name + "_on"))
+        write(os.path.join(ASSETS, "blockstates", name + ".json"), {"variants": {
+            "formed=false": {"model": f"{NS}:block/{name}"},
+            "formed=true": {"model": f"{NS}:block/{name}_on"},
+        }})
+        write(os.path.join(ASSETS, "models/item", name + ".json"),
+              {"parent": f"{NS}:block/{name}"})
+        written += 1
     for name in ITEM_SPRITES:
         write(os.path.join(ASSETS, "models/item", name + ".json"),
               {"parent": "item/generated", "textures": {"layer0": f"{NS}:item/{name}"}})
@@ -468,7 +551,7 @@ def models_and_states():
 # Loot, tags and crafting
 # ---------------------------------------------------------------------------
 
-BLOCKS = list(WIRES) + list(CUBES) + list(SPINDLES) + list(ENGINES)
+BLOCKS = list(WIRES) + list(CUBES) + list(SPINDLES) + list(ENGINES) + SHAPE_IDS
 
 
 def drop_itself(name):
@@ -498,6 +581,28 @@ STEEL_TAG = TAG("c:ingots/steel")
 #: ingots. Everything above them wants plate, and plate wants a rolling mill,
 #: so a factory is a thing you build with a factory; but the first grid is not,
 #: because a first grid you cannot build is a wall rather than a ladder.
+#: The bricks and the two machines built out of them.
+#:
+#: A coke brick is a brick and a lump of clay fired harder; a blast brick is
+#: the same with iron in it. Both are cheap on purpose — a multiblock's cost
+#: is time and space rather than materials, and thirty bricks that each want
+#: an ingot would make these two blocks a mid-game project rather than the
+#: first thing Age II builds.
+BRICK_RECIPES = {
+    BRICKS[0]: shaped(["BCB", "CBC", "BCB"], {
+        "B": ITEM("minecraft:brick"), "C": ITEM("minecraft:clay_ball")},
+        BRICKS[0], 4),
+    BRICKS[1]: shaped(["BIB", "IBI", "BIB"], {
+        "B": ITEM("minecraft:brick"), "I": ITEM("minecraft:iron_nugget")},
+        BRICKS[1], 4),
+    SHAPE_IDS[0]: shaped(["BBB", "BFB", "BBB"], {
+        "B": ITEM(f"{NS}:{BRICKS[0]}"), "F": ITEM("minecraft:furnace")},
+        SHAPE_IDS[0]),
+    SHAPE_IDS[1]: shaped(["BBB", "BFB", "BBB"], {
+        "B": ITEM(f"{NS}:{BRICKS[1]}"), "F": ITEM("minecraft:blast_furnace")},
+        SHAPE_IDS[1]),
+}
+
 RECIPES = {
     "copper_wire": shaped(["CCC"], {"C": ITEM("minecraft:copper_ingot")}, "copper_wire", 8),
     "gold_wire": shaped(["GGG"], {"G": ITEM("minecraft:gold_ingot")}, "gold_wire", 8),
@@ -595,9 +700,20 @@ def data_files():
     for name in BLOCKS:
         write(os.path.join(DATA, "loot_table/blocks", name + ".json"), drop_itself(name))
         written += 1
-    for name, recipe in RECIPES.items():
+    for name, recipe in list(RECIPES.items()) + list(BRICK_RECIPES.items()):
         write(os.path.join(DATA, "recipe", name + ".json"), recipe)
         written += 1
+
+    # The two brick machines' jobs are NOT written out as data.
+    #
+    # Every other machine in this module reads a datapack recipe, and that is
+    # right for them: they have catalogues, and a catalogue is a thing a pack
+    # maker changes. These two have three jobs between them and all three are
+    # structural — coal into coke, wood into charcoal, iron into steel — so
+    # the block reads FurnaceRules directly and there is no file in between to
+    # drift from it. A serializer written for three rows nobody will add to is
+    # a fourth place for the same numbers to live.
+
     for kind, table in KINDS:
         for name, (item, result, count, ticks) in table.items():
             write(os.path.join(DATA, "recipe", kind, name + ".json"), {
@@ -644,6 +760,10 @@ NAMES = {
     "rolling_mill": "Rolling Mill",
     "arc_furnace": "Arc Furnace",
     "separator": "Separator",
+    BRICKS[0]: "Coke Brick",
+    BRICKS[1]: "Blast Brick",
+    SHAPE_IDS[0]: "Coke Oven",
+    SHAPE_IDS[1]: "Blast Furnace",
 }
 
 ITEM_NAMES = {
@@ -652,6 +772,7 @@ ITEM_NAMES = {
     "copper_plate": "Copper Plate",
     "gold_plate": "Gold Plate",
     "steel_plate": "Steel Plate",
+    COKE: "Coke",
 }
 
 LINES = {
@@ -667,6 +788,10 @@ LINES = {
     "elysiumindustry.alternator.making": "Making %s at %s rpm.",
     "elysiumindustry.motor.dark": "No power reaching it.",
     "elysiumindustry.motor.turning": "Fed %s, turning the line at %s rpm.",
+    "elysiumindustry.furnace.unformed":
+        "Not a %s yet. Relative to this block, %s.",
+    "elysiumindustry.furnace.empty": "Built, and empty.",
+    "elysiumindustry.furnace.working": "Firing: %s tick(s) in.",
 }
 
 #: What each machine says, in its own words.

@@ -46,6 +46,25 @@ public final class IndustryHarness {
                 + " characters in all)";
     }
 
+    /**
+     * A list of faults, reported one at a time.
+     *
+     * <p>A single check handed a whole list concatenates it into one
+     * complaint and {@link #trimmed} cuts everything past the first fault
+     * away, so a section with three things wrong shows one of them and a
+     * reader fixes it three times.
+     */
+    private static void none(List<String> faults, String what) {
+        check(faults.isEmpty(),
+                what + ": " + (faults.isEmpty() ? "" : faults.get(0)));
+        for (int at = 1; at < faults.size(); at++) {
+            checks++;
+            failures++;
+            System.out.println("  FAIL: " + trimmed(what + ": "
+                    + faults.get(at)));
+        }
+    }
+
     private static void near(float got, float want, float slack, String what) {
         check(Math.abs(got - want) <= slack,
                 what + ": expected about " + want + ", got " + got);
@@ -59,6 +78,7 @@ public final class IndustryHarness {
         theBridge();
         theShaft();
         theAge();
+        theShapes();
         theWork();
         theReserve();
         theLoop();
@@ -587,5 +607,289 @@ public final class IndustryHarness {
                         + "power than four turbines would and the rung is not a rung");
         check(IndustryRules.DIESEL_HASTE > 1,
                 "a diesel engine is no hastier than a turbine");
+    }
+
+    /**
+     * The multiblocks, and the four things one has to be.
+     *
+     * <p>Every one of these is a sweep rather than an assertion, because a
+     * multiblock checker is the one piece of code in a tech mod whose bugs
+     * all look identical from outside: you put the last block in and nothing
+     * happens. So: every orientation of every shape is built and accepted,
+     * and then every one-block mutation of every one of those is built and
+     * refused, with the refusal read to check it names the block that is
+     * wrong rather than shrugging.
+     */
+    private static void theShapes() {
+        none(FurnaceRules.faults(), "the brick machines");
+
+        int built = 0;
+        int refused = 0;
+        for (ShapeRules.Shape shape : FurnaceRules.SHAPES) {
+            List<char[][][]> ways = ShapeRules.orientations(shape);
+            check(!ways.isEmpty(), shape.id() + " can be stood up no way at all");
+            check(ways.size() <= 8, shape.id() + " has " + ways.size()
+                    + " orientation(s) and four turns times two hands is eight");
+            for (char[][][] one : ways) {
+                built++;
+                // The positive control, and it is the one that matters most:
+                // a checker that refuses everything passes every other check
+                // in this method.
+                check(ShapeRules.matches(shape, one), shape.id()
+                        + " does not recognise one of its own orientations, so "
+                        + "a player who built it facing the wrong way is told "
+                        + "nothing at all");
+            }
+
+            // Every one-block mutation of the shape as written: one block
+            // missing, one block wrong, one block moved.
+            char[][][] right = ShapeRules.gridOf(shape);
+            for (int layer = 0; layer < right.length; layer++) {
+                for (int row = 0; row < right[0].length; row++) {
+                    for (int column = 0; column < right[0][0].length; column++) {
+                        char here = right[layer][row][column];
+                        if (here == ShapeRules.NOTHING) {
+                            continue;
+                        }
+                        // missing
+                        char[][][] gone = copied(right);
+                        gone[layer][row][column] = '?';
+                        refused++;
+                        check(!ShapeRules.matches(shape, gone), shape.id()
+                                + " is accepted with the block at " + layer
+                                + "/" + row + "/" + column + " missing");
+                        String said = ShapeRules.wrongAt(shape, gone);
+                        check(said != null && said.contains("layer " + layer)
+                                        && said.contains("row " + row)
+                                        && said.contains("column " + column),
+                                shape.id() + " refuses a build with the block "
+                                        + "at " + layer + "/" + row + "/"
+                                        + column + " missing and says \""
+                                        + said + "\", which does not name "
+                                        + "where it went wrong");
+                        // wrong
+                        char[][][] swapped = copied(right);
+                        swapped[layer][row][column] =
+                                here == 'B' ? ShapeRules.CONTROLLER : 'B';
+                        refused++;
+                        check(!ShapeRules.matches(shape, swapped), shape.id()
+                                + " is accepted with the wrong block at "
+                                + layer + "/" + row + "/" + column);
+                        check(ShapeRules.wrongAt(shape, swapped) != null,
+                                shape.id() + " says nothing is wrong with a "
+                                        + "build that has the wrong block in "
+                                        + "it");
+                    }
+                }
+            }
+
+            // And a block moved: taken from where it belongs and put where
+            // the shape says there is nothing.
+            int[] hollow = firstHollow(right);
+            if (hollow != null) {
+                char[][][] moved = copied(right);
+                int[] where = ShapeRules.controllerOf(shape);
+                moved[where[0]][where[1]][where[2]] = '?';
+                moved[hollow[0]][hollow[1]][hollow[2]] = ShapeRules.CONTROLLER;
+                refused++;
+                check(!ShapeRules.matches(shape, moved), shape.id()
+                        + " is accepted with its controller moved into the "
+                        + "space inside it");
+            }
+
+            // The bill: as many blocks as there are marks in the grid, and
+            // every one of them something the key names.
+            check(ShapeRules.blocksIn(shape) > 0, shape.id() + " costs nothing");
+            int counted = 0;
+            for (char[][] layer : right) {
+                for (char[] row : layer) {
+                    for (char part : row) {
+                        if (part != ShapeRules.NOTHING) {
+                            counted++;
+                        }
+                    }
+                }
+            }
+            check(ShapeRules.blocksIn(shape) == counted, shape.id()
+                    + " is built out of " + counted + " block(s) and its bill "
+                    + "comes to " + ShapeRules.blocksIn(shape)
+                    + ", so breaking one would not give everything back");
+            check(ShapeRules.controllerOf(shape) != null, shape.id()
+                    + " has no controller anywhere in it");
+        }
+        check(built >= 4, "only " + built + " orientation(s) were built");
+        check(refused >= 100, "only " + refused + " mutation(s) were refused");
+
+        // A turn is a turn and a mirror is a mirror. Both are checked against
+        // a grid with no symmetry in it at all, because a symmetric one is
+        // unchanged by either and would let a turn that is really a transpose
+        // — or a mirror that does nothing — go straight through. The check
+        // that catches a transpose is the one about turning twice: two
+        // quarter turns have to be a half turn, and a transpose done twice is
+        // no turn at all.
+        char[][][] lop = new char[][][] {{"XB?".toCharArray(),
+                "C  ".toCharArray()}};
+        char[][][] half = ShapeRules.turned(ShapeRules.turned(lop));
+        for (int row = 0; row < lop[0].length; row++) {
+            for (int column = 0; column < lop[0][0].length; column++) {
+                check(half[0][row][column]
+                                == lop[0][lop[0].length - 1 - row][lop[0][0].length - 1 - column],
+                        "two quarter turns are not a half turn, so what this "
+                                + "calls turning is some other rearrangement "
+                                + "that happens to come back after four of "
+                                + "them");
+            }
+        }
+        check(!ShapeRules.written(ShapeRules.turned(lop))
+                        .equals(ShapeRules.written(lop)),
+                "turning a shape with no symmetry in it leaves it alone, so "
+                        + "nothing is ever turned");
+        check(ShapeRules.written(ShapeRules.turned(ShapeRules.turned(
+                        ShapeRules.turned(ShapeRules.turned(lop)))))
+                        .equals(ShapeRules.written(lop)),
+                "four quarter turns do not come back to where they started");
+        char[][][] flipped = ShapeRules.mirrored(lop);
+        check(!ShapeRules.written(flipped).equals(ShapeRules.written(lop)),
+                "mirroring a shape with no symmetry in it leaves it alone, so "
+                        + "a machine built left-handed is a machine that is "
+                        + "refused and nothing says why");
+        for (int row = 0; row < lop[0].length; row++) {
+            for (int column = 0; column < lop[0][0].length; column++) {
+                check(flipped[0][row][column]
+                                == lop[0][row][lop[0][0].length - 1 - column],
+                        "a mirror does not put west where east was");
+            }
+        }
+        check(ShapeRules.written(ShapeRules.mirrored(flipped))
+                        .equals(ShapeRules.written(lop)),
+                "mirroring twice does not come back to where it started");
+        check(ShapeRules.orientations(new ShapeRules.Shape("control",
+                        List.of("XB?\nC  "), java.util.Map.of('B', "b",
+                                'C', "c", '?', "q",
+                                ShapeRules.CONTROLLER, "control"))).size() == 8,
+                "a shape with no symmetry at all has fewer than eight ways of "
+                        + "being stood up, so some of them are being lost");
+
+        // Two shapes that are the same arrangement, built to be caught.
+        ShapeRules.Shape one = new ShapeRules.Shape("control_one",
+                List.of("BB\nBX"), java.util.Map.of('B', "brick",
+                        ShapeRules.CONTROLLER, "control_one"));
+        ShapeRules.Shape two = new ShapeRules.Shape("control_two",
+                List.of("BX\nBB"), java.util.Map.of('B', "brick",
+                        ShapeRules.CONTROLLER, "control_two"));
+        check(!ShapeRules.faultsInSet(List.of(one, two)).isEmpty(),
+                "two shapes that are one arrangement turned a quarter turn "
+                        + "are not reported, so a machine could be built by "
+                        + "accident while building a different one");
+        check(ShapeRules.faultsInSet(FurnaceRules.SHAPES).isEmpty(),
+                "the shapes this module ships collide with each other");
+        // A mirrored pair that is genuinely not a rotation of itself: an S
+        // and a Z. An L reflected is an L turned, so a pair built out of one
+        // would be caught by the rule about turning and would prove nothing
+        // about the rule about mirroring.
+        ShapeRules.Shape ess = new ShapeRules.Shape("control_s",
+                List.of(" XB\nBB "), java.util.Map.of('B', "brick",
+                        ShapeRules.CONTROLLER, "control_s"));
+        ShapeRules.Shape zed = new ShapeRules.Shape("control_z",
+                List.of("BX \n BB"), java.util.Map.of('B', "brick",
+                        ShapeRules.CONTROLLER, "control_z"));
+        check(!ShapeRules.faultsInSet(List.of(ess, zed)).isEmpty(),
+                "two shapes that are one arrangement mirrored are not "
+                        + "reported, so a machine could be built left-handed "
+                        + "and be a different machine");
+        check(ShapeRules.faultsInSet(List.of(one)).isEmpty(),
+                "one shape on its own collides with itself");
+
+        // And a shape with nothing right about it.
+        check(!ShapeRules.faultsInShape(new ShapeRules.Shape("control",
+                        List.of("BB\nBB"), java.util.Map.of('B', "brick")))
+                        .isEmpty(),
+                "a shape with no controller is not reported");
+        check(!ShapeRules.faultsInShape(new ShapeRules.Shape("control",
+                        List.of("XX\nBB"), java.util.Map.of('B', "brick",
+                                ShapeRules.CONTROLLER, "control"))).isEmpty(),
+                "a shape with two controllers is not reported");
+        check(!ShapeRules.faultsInShape(new ShapeRules.Shape("control",
+                        List.of("XB\nBQ"), java.util.Map.of('B', "brick",
+                                ShapeRules.CONTROLLER, "control"))).isEmpty(),
+                "a shape using a mark its key does not name is not reported");
+        check(!ShapeRules.faultsInShape(new ShapeRules.Shape("control",
+                        List.of("XB\nBB"), java.util.Map.of('B', "brick",
+                                'Q', "quartz", ShapeRules.CONTROLLER, "control")))
+                        .isEmpty(),
+                "a shape whose key names something it never uses is not "
+                        + "reported");
+        check(!ShapeRules.faultsInShape(new ShapeRules.Shape("control",
+                        List.of("XBB\nBB"), java.util.Map.of('B', "brick",
+                                ShapeRules.CONTROLLER, "control"))).isEmpty(),
+                "a ragged shape is not reported");
+        check(!ShapeRules.faultsInShape(new ShapeRules.Shape("control",
+                        List.of("X"), java.util.Map.of(ShapeRules.CONTROLLER,
+                                "control"))).isEmpty(),
+                "a one-block multiblock is not reported");
+        for (ShapeRules.Shape shape : FurnaceRules.SHAPES) {
+            check(ShapeRules.faultsInShape(shape).isEmpty(),
+                    shape.id() + " is reported as faulty");
+        }
+
+        // The jobs, and the lump of coke they turn on.
+        none(FurnaceRules.faultsInFirings(FurnaceRules.FIRINGS,
+                        FurnaceRules.SHAPES), "the firings");
+        check(!FurnaceRules.faultsInEachFiring(List.of(
+                        new FurnaceRules.Firing("kiln", "a", 1, "b", 1, 10)),
+                        FurnaceRules.SHAPES).isEmpty(),
+                "a job in a machine this module does not have is not reported");
+        check(!FurnaceRules.faultsInEachFiring(List.of(
+                        new FurnaceRules.Firing("coke_oven", "a", 1, "b", 1, 10),
+                        new FurnaceRules.Firing("coke_oven", "a", 1, "c", 1, 10)),
+                        FurnaceRules.SHAPES).isEmpty(),
+                "two jobs in one machine for the same thing are not reported");
+        check(!FurnaceRules.faultsInEachFiring(List.of(
+                        new FurnaceRules.Firing("coke_oven", "a", 1, "a", 1, 10)),
+                        FurnaceRules.SHAPES).isEmpty(),
+                "a thing fired into itself is not reported");
+        check(!FurnaceRules.faultsInCoverage(List.of(), FurnaceRules.SHAPES)
+                        .isEmpty(),
+                "a machine with nothing to fire is not reported");
+        check(FurnaceRules.faultsInEachFiring(FurnaceRules.FIRINGS,
+                        FurnaceRules.SHAPES).isEmpty(),
+                "the jobs this module ships are reported as faulty");
+        check(!FurnaceRules.faultsInCoke(1_600, 1_600, 24_000).isEmpty(),
+                "coke worth exactly what the coal was worth is not reported");
+        check(!FurnaceRules.faultsInCoke(24_000, 1_600, 24_000).isEmpty(),
+                "coke that beats the thing a refinery makes is not reported");
+        check(FurnaceRules.faultsInCoke(FurnaceRules.COKE_BURN, 1_600, 24_000)
+                        .isEmpty(),
+                "the coke this module makes is reported as not worth making");
+
+        System.out.println("  the shapes: " + FurnaceRules.SHAPES.size()
+                + " multiblock(s), " + built + " orientation(s) built and "
+                + "accepted and " + refused + " one-block mutation(s) refused, "
+                + "every refusal naming the block that is wrong");
+    }
+
+    /** One grid, copied, so a mutation does not scribble on the original. */
+    private static char[][][] copied(char[][][] grid) {
+        char[][][] made = new char[grid.length][grid[0].length][grid[0][0].length];
+        for (int layer = 0; layer < grid.length; layer++) {
+            for (int row = 0; row < grid[0].length; row++) {
+                made[layer][row] = grid[layer][row].clone();
+            }
+        }
+        return made;
+    }
+
+    /** The first position a shape says nothing goes in, or null. */
+    private static int[] firstHollow(char[][][] grid) {
+        for (int layer = 0; layer < grid.length; layer++) {
+            for (int row = 0; row < grid[0].length; row++) {
+                for (int column = 0; column < grid[0][0].length; column++) {
+                    if (grid[layer][row][column] == ShapeRules.NOTHING) {
+                        return new int[] {layer, row, column};
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

@@ -9,9 +9,9 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | count | status | means |
 |---|---|---|
 | 76 | DONE | an Elysium module already replaces it |
-| 14 | SPLIT | spans several modules; see docs/SPLITS.md |
+| 15 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 29 | PLANNED | has a target module, not started |
+| 28 | PLANNED | has a target module, not started |
 | 13 | KEEP | stays in the pack on purpose |
 | 71 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -125,7 +125,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `guideme-21.1.17.jar` | DROP | - | library: goes when the mods needing it go |
 | `handcrafted-neoforge-1.21.1-4.0.3.jar` | DONE | elysium-atelier | the twenty-four furniture shapes in 33 materials, and now upholstered in sixteen colours as well: benches, chairs, stools, tables, shelves, cabinets, counters, sinks, stoves, wardrobes, drawers, nightstands, desks, planters, troughs, racks, screens and posts |
 | `ImmediatelyFast-NeoForge-1.6.11+1.21.1.jar` | DROP | - | performance: not content |
-| `ImmersiveEngineering-1.21.1-12.4.2-194.jar` | PLANNED | elysium-industry | Age II: the Reconstruction |
+| `ImmersiveEngineering-1.21.1-12.4.2-194.jar` | SPLIT | elysium-industry | the multiblocks are in: a coke oven and a blast furnace out of two bricks, every orientation accepted and every one-block mutation refused by name, and neither wants a wire. The rest of the jar is still to come; see docs/SPLITS.md |
 | `industrialforegoing-1.21-3.6.39.jar` | PLANNED | elysium-atomics | bulk automation: the machines that do a farm's work |
 | `integrateddynamics-1.21.1-neoforge-1.34.0.jar` | DONE | elysium-logistics | a logic layer of nineteen operators over four types, typed before it is run so a player who asks the network to add a number to a chest finds out when they write it rather than when a tick throws — and an expression cannot loop, because an arrow that points forwards is not a legal expression at all |
 | `interiors-1.21.1-neoforge-0.6.1.jar` | SPLIT | elysium-atelier | furniture built on Create's fittings; the furniture half goes to the atelier |

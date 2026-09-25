@@ -31,6 +31,36 @@ public final class IndustryBlockEntities {
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ElysiumIndustry.MODID);
 
     /** One type for all three tiers: a wire is a wire, and the block says which. */
+    /** One type for both brick machines: the block says which shape it is. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.industry.block.FurnaceBlock.FurnaceBlockEntity>>
+            FURNACE = TYPES.register("furnace", () -> BlockEntityType.Builder.of(
+                    com.elysium.industry.block.FurnaceBlock.FurnaceBlockEntity::new,
+                    everyFurnace()).build(null));
+
+    /**
+     * Every brick machine's controller.
+     *
+     * <p>A block entity type that does not name a block refuses to attach to
+     * it, and the symptom is a multiblock a player builds perfectly and which
+     * never forms — with nothing wrong anywhere, because nothing went wrong.
+     */
+    private static net.minecraft.world.level.block.Block[] everyFurnace() {
+        java.util.List<net.minecraft.world.level.block.Block> all =
+                new java.util.ArrayList<>();
+        for (com.elysium.industry.rules.ShapeRules.Shape shape
+                : com.elysium.industry.rules.FurnaceRules.SHAPES) {
+            all.add(IndustryBlocks.FURNACES.get(shape.id()).get());
+        }
+        if (all.size()
+                != com.elysium.industry.rules.FurnaceRules.SHAPES.size()) {
+            throw new IllegalStateException("there are "
+                    + com.elysium.industry.rules.FurnaceRules.SHAPES.size()
+                    + " shape(s) and " + all.size()
+                    + " were given a block entity");
+        }
+        return all.toArray(new net.minecraft.world.level.block.Block[0]);
+    }
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WireBlock.WireBlockEntity>>
             WIRE = TYPES.register("wire", () -> BlockEntityType.Builder.of(
                     WireBlock.WireBlockEntity::new,

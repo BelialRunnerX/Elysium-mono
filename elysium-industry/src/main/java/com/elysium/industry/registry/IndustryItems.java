@@ -83,9 +83,35 @@ public final class IndustryItems {
     public static final DeferredItem<Item> GOLD_PLATE = part("gold_plate");
     public static final DeferredItem<Item> STEEL_PLATE = part("steel_plate");
 
+    /** What a coke oven makes: the fuel the blast furnace runs on. */
+    public static final DeferredItem<Item> COKE =
+            part(com.elysium.industry.rules.FurnaceRules.COKE);
+
     /** The parts, in the order the tab shows them. */
     private static final List<DeferredItem<Item>> PARTS = List.of(
-            STEEL_INGOT, IRON_PLATE, COPPER_PLATE, GOLD_PLATE, STEEL_PLATE);
+            STEEL_INGOT, IRON_PLATE, COPPER_PLATE, GOLD_PLATE, STEEL_PLATE, COKE);
+
+    /**
+     * The bricks and the two machines made of them, walked out of the shapes.
+     *
+     * <p>Walked rather than listed for the usual reason: a brick a shape
+     * names and nothing registers is a machine nobody can build, and a hand
+     * list of two is a list that is wrong the day there are three.
+     */
+    private static final List<DeferredItem<BlockItem>> BRICKWORK = brickwork();
+
+    private static List<DeferredItem<BlockItem>> brickwork() {
+        List<DeferredItem<BlockItem>> made = new java.util.ArrayList<>();
+        for (java.util.Map<String, net.neoforged.neoforge.registries.DeferredBlock<
+                net.minecraft.world.level.block.Block>> group
+                : List.of(IndustryBlocks.BRICKS, IndustryBlocks.FURNACES)) {
+            for (net.neoforged.neoforge.registries.DeferredBlock<
+                    net.minecraft.world.level.block.Block> block : group.values()) {
+                made.add(ITEMS.registerSimpleBlockItem(block));
+            }
+        }
+        return List.copyOf(made);
+    }
 
     /** The order the tab shows them in: carry it, make it, trade it, spend it. */
     private static final List<DeferredItem<BlockItem>> ORDER = List.of(
@@ -100,6 +126,9 @@ public final class IndustryItems {
                     .icon(() -> new ItemStack(ALTERNATOR.get()))
                     .displayItems((parameters, output) -> {
                         for (DeferredItem<? extends Item> item : ORDER) {
+                            output.accept(item.get());
+                        }
+                        for (DeferredItem<? extends Item> item : BRICKWORK) {
                             output.accept(item.get());
                         }
                         for (DeferredItem<? extends Item> item : PARTS) {

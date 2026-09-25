@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "formed=false": {
+      "model": "elysiumindustry:block/coke_oven"
+    },
+    "formed=true": {
+      "model": "elysiumindustry:block/coke_oven_on"
+    }
+  }
+}

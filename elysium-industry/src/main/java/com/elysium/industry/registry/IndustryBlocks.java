@@ -99,6 +99,65 @@ public final class IndustryBlocks {
     public static final DeferredBlock<Block> ARC_FURNACE = BLOCKS.register("arc_furnace",
             () -> new ArcFurnaceBlock(heavy()));
 
+    // --- the bricks, and the two machines made of them -----------------
+    //
+    // Registered from the shapes rather than listed, so a shape that names a
+    // brick nothing registers is a shape nobody can build and the count check
+    // below says so on the day it is written.
+
+    public static final java.util.Map<String, DeferredBlock<Block>> BRICKS =
+            registerBricks();
+
+    private static java.util.Map<String, DeferredBlock<Block>> registerBricks() {
+        java.util.Map<String, DeferredBlock<Block>> made =
+                new java.util.LinkedHashMap<>();
+        for (String name : java.util.List.of(
+                com.elysium.industry.rules.FurnaceRules.COKE_BRICK,
+                com.elysium.industry.rules.FurnaceRules.BLAST_BRICK)) {
+            made.put(name, BLOCKS.register(name, () -> new Block(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.BRICKS)
+                            .strength(3.0F))));
+        }
+        return java.util.Map.copyOf(made);
+    }
+
+    public static final java.util.Map<String, DeferredBlock<Block>> FURNACES =
+            registerFurnaces();
+
+    private static java.util.Map<String, DeferredBlock<Block>> registerFurnaces() {
+        java.util.Map<String, DeferredBlock<Block>> made =
+                new java.util.LinkedHashMap<>();
+        for (com.elysium.industry.rules.ShapeRules.Shape shape
+                : com.elysium.industry.rules.FurnaceRules.SHAPES) {
+            made.put(shape.id(), BLOCKS.register(shape.id(),
+                    () -> new com.elysium.industry.block.FurnaceBlock(
+                            BlockBehaviour.Properties.ofFullCopy(Blocks.BRICKS)
+                                    .strength(3.5F), shape.id())));
+        }
+        if (made.size()
+                != com.elysium.industry.rules.FurnaceRules.SHAPES.size()) {
+            throw new IllegalStateException("there are "
+                    + com.elysium.industry.rules.FurnaceRules.SHAPES.size()
+                    + " shape(s) and " + made.size() + " controller(s)");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
+    /**
+     * One of this module's blocks by its plain name, or null.
+     *
+     * <p>What a shape's key holds is a name, because a shape is arithmetic
+     * and arithmetic does not know what a Block is. This is the one place
+     * that turns one into the other.
+     */
+    public static Block byName(String name) {
+        DeferredBlock<Block> found = BRICKS.get(name);
+        if (found == null) {
+            found = FURNACES.get(name);
+        }
+        return found == null ? null : found.get();
+    }
+
     public static final DeferredBlock<Block> SEPARATOR = BLOCKS.register("separator",
             () -> new SeparatorBlock(heavy()));
 }

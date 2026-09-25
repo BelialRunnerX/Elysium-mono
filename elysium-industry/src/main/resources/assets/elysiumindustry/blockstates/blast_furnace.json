@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "formed=false": {
+      "model": "elysiumindustry:block/blast_furnace"
+    },
+    "formed=true": {
+      "model": "elysiumindustry:block/blast_furnace_on"
+    }
+  }
+}
