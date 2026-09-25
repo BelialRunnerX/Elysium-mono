@@ -363,6 +363,51 @@ print(f"where they grow    : {len(placed)} feature(s) across "
       f"{len(os.listdir(modifier_dir)) if os.path.isdir(modifier_dir) else 0} modifier(s)")
 
 # ---------------------------------------------------------------------------
+# Textures the atlas can read
+# ---------------------------------------------------------------------------
+# A block or item texture is one square frame, or a column of square frames
+# with a .png.mcmeta saying so. Crimson stem is five frames in a 16x80 image,
+# and the recolour that made emberwood from it once copied the pixels and not
+# the metadata: the atlas took the whole column as a single frame and squashed
+# it onto every log face. Nothing in the game logs that, so the check is here.
+
+atlas_textures = 0
+for folder in ("textures/block", "textures/item"):
+    root = os.path.join(ASSETS, folder)
+    if not os.path.isdir(root):
+        continue
+    for name in sorted(os.listdir(root)):
+        if not name.endswith(".png"):
+            continue
+        path = os.path.join(root, name)
+        atlas_textures += 1
+        try:
+            from PIL import Image
+            with Image.open(path) as image:
+                width, height = image.size
+        except ImportError:
+            break
+        except Exception as error:
+            fail(f"{folder}/{name} is not a PNG the game can read: {error}")
+            continue
+        meta = os.path.isfile(path + ".mcmeta")
+        if width == height and not meta:
+            continue
+        if not meta:
+            fail(f"{folder}/{name} is {width}x{height} with no .png.mcmeta, so the atlas "
+                 f"squashes the whole column onto one face")
+        elif height % width != 0:
+            fail(f"{folder}/{name} is {width}x{height}, not a whole number of "
+                 f"{width}x{width} frames")
+        else:
+            animation = (load(ASSETS, f"{folder}/{name}.mcmeta") or {}).get("animation")
+            if animation is None:
+                fail(f"{folder}/{name}.mcmeta has no animation section, so its "
+                     f"{height // width} frames are read as one")
+print(f"atlas textures     : {atlas_textures} block and item texture(s), each square or "
+      f"declared frames")
+
+# ---------------------------------------------------------------------------
 # Language
 # ---------------------------------------------------------------------------
 

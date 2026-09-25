@@ -27,9 +27,25 @@ def load(name):
     return Image.open(os.path.join(BASE, name)).convert("RGBA")
 
 
-def save(image, folder, name):
+def save(image, folder, name, source=None):
+    """
+    Write the texture, and its animation metadata when the source has any.
+
+    Crimson stem is five frames stacked in one 16x80 image, and the game only
+    knows that from the .mcmeta beside it. A recolour that copied the pixels
+    and not the metadata shipped a 16x80 "still" that the atlas squashed onto
+    every log face — so whatever the source says about its frames, the copy
+    says too.
+    """
     os.makedirs(os.path.join(OUT, folder), exist_ok=True)
     image.save(os.path.join(OUT, folder, name + ".png"))
+    target = os.path.join(OUT, folder, name + ".png.mcmeta")
+    meta = os.path.join(BASE, source + ".mcmeta") if source else None
+    if meta and os.path.isfile(meta):
+        with open(meta, encoding="utf-8") as src, open(target, "w", encoding="utf-8", newline="\n") as dst:
+            dst.write(src.read())
+    elif os.path.isfile(target):
+        os.remove(target)
 
 
 def recolour(image, hue, saturation=1.0, value=1.0, floor=0.0):
@@ -106,7 +122,7 @@ def wood():
     for row in pairs:
         source, name, hue, saturation, value = row[:5]
         floor = row[5] if len(row) > 5 else 0.0
-        save(recolour(load(source), hue, saturation, value, floor), "block", name)
+        save(recolour(load(source), hue, saturation, value, floor), "block", name, source)
     return len(pairs)
 
 
