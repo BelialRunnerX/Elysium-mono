@@ -79,6 +79,7 @@ public final class IndustryHarness {
         theShaft();
         theAge();
         theShapes();
+        theBooks();
         theWork();
         theReserve();
         theLoop();
@@ -891,5 +892,131 @@ public final class IndustryHarness {
             }
         }
         return null;
+    }
+
+    /**
+     * The books of a grid, swept over grids built at random.
+     *
+     * <p>An energy system that creates power under some arrangement of cables
+     * is found by a player in a day and cannot be fixed afterwards without
+     * breaking their bases. So this is the same shape of statement as a line
+     * that may not gain torque and an engine that may not make energy, and it
+     * is checked the same way: over grids nobody chose.
+     *
+     * <p>What it is really about is the loss down a wire. That number used to
+     * be applied by the block that walks the grid, which meant the arithmetic
+     * never saw it: a constant the whole voltage ladder exists for, swept by
+     * nothing.
+     */
+    private static void theBooks() {
+        java.util.Random random = new java.util.Random(24_601L);
+        List<IndustryRules.Generator> kinds = List.of(
+                IndustryRules.STEAM_TURBINE, IndustryRules.DIESEL_ENGINE,
+                new IndustryRules.Generator(16.0F, IndustryRules.Voltage.LOW),
+                new IndustryRules.Generator(2_048.0F, IndustryRules.Voltage.HIGH));
+        List<IndustryRules.Machine> eaters = List.of(
+                IndustryRules.CRUSHER, IndustryRules.ROLLING_MILL,
+                IndustryRules.ARC_FURNACE, IndustryRules.SEPARATOR);
+        IndustryRules.Voltage[] tiers = IndustryRules.Voltage.values();
+
+        int built = 0;
+        float worst = 0.0F;
+        for (int round = 0; round < 10_000; round++) {
+            List<IndustryRules.Placed<IndustryRules.Generator>> sources =
+                    new ArrayList<>();
+            for (int at = random.nextInt(4); at > 0; at--) {
+                sources.add(new IndustryRules.Placed<>(
+                        kinds.get(random.nextInt(kinds.size())),
+                        random.nextInt(200)));
+            }
+            List<IndustryRules.Placed<IndustryRules.Machine>> loads =
+                    new ArrayList<>();
+            for (int at = random.nextInt(6); at > 0; at--) {
+                loads.add(new IndustryRules.Placed<>(
+                        eaters.get(random.nextInt(eaters.size())),
+                        random.nextInt(200)));
+            }
+            IndustryRules.Voltage wire = tiers[random.nextInt(tiers.length)];
+            IndustryRules.Reserve bank = random.nextInt(3) == 0
+                    ? IndustryRules.Reserve.NOTHING
+                    : new IndustryRules.Reserve(random.nextInt(4_000),
+                            random.nextInt(4_000));
+
+            IndustryRules.Books books =
+                    IndustryRules.books(sources, loads, wire, bank);
+            built++;
+            worst = Math.max(worst, books.apart());
+            check(books.apart() < 1.0E-3F,
+                    "a grid's books do not add up: " + books.made()
+                            + " made and " + books.lent() + " lent against "
+                            + books.lost() + " lost, " + books.used()
+                            + " used, " + books.stored() + " stored and "
+                            + books.spare() + " spare, which is "
+                            + books.apart() + " out");
+            check(books.made() >= 0.0F && books.lost() >= -1.0E-3F
+                            && books.used() >= 0.0F && books.stored() >= 0.0F
+                            && books.spare() >= -1.0E-3F,
+                    "a grid with a negative column in its books: " + books);
+            check(books.lost() <= books.made() + 1.0E-3F,
+                    "a wire lost " + books.lost() + " of " + books.made()
+                            + " made, which is a wire that eats more than went "
+                            + "into it");
+            check(books.used() + books.stored()
+                            <= books.made() + books.lent() + 1.0E-3F,
+                    "a grid handed out " + (books.used() + books.stored())
+                            + " having made " + books.made() + " and borrowed "
+                            + books.lent() + ", which is a machine hall that "
+                            + "makes energy out of cable");
+
+            // And the loss is real: the same grid on a better wire never
+            // delivers less, and a longer one never delivers more.
+            IndustryRules.Books better = IndustryRules.books(sources, loads,
+                    wire.stepUp(), bank);
+            check(better.lost() <= books.lost() + 1.0E-3F,
+                    "stepping a grid up a voltage lost more, so the ladder "
+                            + "runs backwards");
+        }
+        check(built == 10_000, "only " + built + " grid(s) were built");
+
+        // Distance is what the loss is of. A grid with everything at the
+        // generator loses nothing; the same grid strung out loses something.
+        List<IndustryRules.Placed<IndustryRules.Generator>> one = List.of(
+                new IndustryRules.Placed<>(IndustryRules.STEAM_TURBINE, 0));
+        List<IndustryRules.Placed<IndustryRules.Machine>> near = List.of(
+                new IndustryRules.Placed<>(IndustryRules.CRUSHER, 0));
+        List<IndustryRules.Placed<IndustryRules.Machine>> far = List.of(
+                new IndustryRules.Placed<>(IndustryRules.CRUSHER, 150));
+        near(IndustryRules.books(one, near, IndustryRules.Voltage.LOW,
+                        IndustryRules.Reserve.NOTHING).lost(), 0.0F, 1.0E-3F,
+                "a grid with everything bolted to the generator loses power");
+        check(IndustryRules.books(one, far, IndustryRules.Voltage.LOW,
+                        IndustryRules.Reserve.NOTHING).lost() > 0.0F,
+                "a hundred and fifty blocks of wire costs nothing, so the "
+                        + "voltage ladder is decoration and the loss is a "
+                        + "number nothing reads");
+
+        // A control: books built by hand that do not balance.
+        check(new IndustryRules.Books(100.0F, 0.0F, 0.0F, 10.0F, 0.0F, 0.0F)
+                        .apart() > 1.0E-3F,
+                "books showing a hundred made and ten accounted for are "
+                        + "reported as balanced, so the rule that a grid "
+                        + "conserves cannot say no");
+        check(new IndustryRules.Books(100.0F, 0.0F, 10.0F, 40.0F, 25.0F, 25.0F)
+                        .apart() < 1.0E-3F,
+                "books that add up exactly are reported as out");
+        check(new IndustryRules.Books(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F)
+                        .apart() == 0.0F,
+                "a grid with nothing on it is reported as out of balance");
+        check(new IndustryRules.Books(0.0F, 0.0F, 0.0F, 100.0F, 0.0F, 0.0F)
+                        .apart() > 1.0E-3F,
+                "books showing nothing made and a hundred used are reported "
+                        + "as balanced, which is the shape of the bug this "
+                        + "whole method exists for");
+
+        System.out.println("  the books: " + built + " grid(s) built at "
+                + "random, every one of them handing out exactly what it made "
+                + "and borrowed less what the wire took (worst "
+                + String.format("%.2e", worst) + "), and no arrangement of "
+                + "cable anywhere making power");
     }
 }

@@ -770,6 +770,48 @@ for tag in sorted(OUR_TAGS):
         fail(f"{tag} is empty, so every recipe that asks for it fails to load")
 
 # ---------------------------------------------------------------------------
+# The books, and the loss that used to be invisible to them
+# ---------------------------------------------------------------------------
+
+GRID_LINE = strip_comments(read(SRC, "block/GridLine.java"), keep_strings=True)
+for needed, why in (
+        ("public record Books(",
+         "nothing writes out what a grid did, so there is no statement "
+         "anywhere that it hands out what it made — and an energy system that "
+         "creates power under some arrangement of cables is found by a player "
+         "in a day and cannot be fixed afterwards"),
+        ("public record Placed<T>(",
+         "nothing on a grid knows how far along the wire it is, so the loss "
+         "cannot be worked out where the rest of the arithmetic is"),
+        ("public static Books books(",
+         "nothing adds a grid's books up, so the sweep that proves they "
+         "balance has nothing to sweep"),
+        ("public static Flow along(",
+         "nothing settles a grid whose generators are down a wire, so the "
+         "distance loss lives outside the rules again")):
+    if needed not in plain:
+        fail(why)
+
+# The one that matters: the block that walks the grid must not do the
+# discounting itself. It did, and that is exactly why the constant the whole
+# voltage ladder exists for was a constant no harness had ever swept.
+if "IndustryRules.delivered(" in GRID_LINE:
+    fail("the block that walks the grid charges the distance loss itself, so "
+         "the number the whole voltage ladder exists for is applied where no "
+         "harness can sweep it — which is the state this module shipped in "
+         "until the books were written")
+_solve = squashed(body_of(GRID_LINE, "public static IndustryRules.Reading solve("))
+if "IndustryRules.along(generators, machines, found.weakest(), bank);" not in _solve:
+    fail("the grid is settled without its distances, so what a player sees and "
+         "what the books prove are two different models")
+
+print("the books          : a grid hands out what it made and borrowed, less "
+      "what the wire took, on ten thousand grids built at random - and the "
+      "loss is charged where the arithmetic can see it rather than by the "
+      "block that walks the wire")
+
+
+# ---------------------------------------------------------------------------
 # The multiblocks, and the sentence a player gets when one has not formed
 # ---------------------------------------------------------------------------
 

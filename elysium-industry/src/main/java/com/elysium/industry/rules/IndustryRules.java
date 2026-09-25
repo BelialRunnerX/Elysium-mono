@@ -2,7 +2,9 @@ package com.elysium.industry.rules;
 
 import com.elysium.kinetics.rules.KineticRules;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The second age, as arithmetic.
@@ -314,6 +316,140 @@ public final class IndustryRules {
         float carried = Math.max(supply, Math.min(demand, supply + lent) + kept);
         return new Flow(new Reading(supply + lent, demand, burns(wire, carried)),
                 lent, kept);
+    }
+
+    // ==================================================================
+    // The books
+    // ==================================================================
+
+    /**
+     * Something on a grid, and how far along the wire it sits.
+     *
+     * @param what   the generator or the machine
+     * @param blocks how many blocks of wire between it and the far end
+     */
+    public record Placed<T>(T what, int blocks) {
+
+        public Placed {
+            Objects.requireNonNull(what, "something on a grid that is nothing");
+            if (blocks < 0) {
+                throw new IllegalArgumentException("something a negative "
+                        + "number of blocks along a wire");
+            }
+        }
+    }
+
+    /**
+     * What a grid did this tick, written out so that it has to add up.
+     *
+     * <h2>Why this exists</h2>
+     *
+     * The distance loss was real in the world and invisible to the
+     * arithmetic: {@link #delivered} was applied by the block that walks the
+     * grid, and {@link #settle} was handed generators that had already been
+     * discounted. So the one number that makes voltage worth stepping up was
+     * a number no harness had ever swept in context, and there was nothing
+     * anywhere saying that what a grid hands out equals what it made.
+     *
+     * <p>An energy system that creates power under some arrangement of cables
+     * is found by players in a day and cannot be fixed afterwards without
+     * breaking their bases. So it is the same shape of statement as a line
+     * that may not gain torque and an engine that may not make energy: the
+     * books balance, on every grid, at every tick.
+     *
+     * @param made   what the generators produced
+     * @param lent   what storage handed over to make up a shortfall
+     * @param lost   what the wire took between the generators and the far end
+     * @param used   what the machines actually got through
+     * @param stored what went into storage
+     * @param spare  what was generated and had nowhere to go
+     */
+    public record Books(float made, float lent, float lost, float used,
+                        float stored, float spare) {
+
+        /** How far out the books are, as a fraction of the biggest side. */
+        public float apart() {
+            float came = made + lent;
+            float went = lost + used + stored + spare;
+            float size = Math.max(Math.abs(came), Math.abs(went));
+            return size <= 0.0F ? 0.0F : Math.abs(came - went) / size;
+        }
+    }
+
+    /**
+     * Where a grid settles when its generators are somewhere down a wire.
+     *
+     * <p>Named {@code along} rather than {@code settle} because Java erases
+     * the type inside a list and two methods taking a list of two different
+     * things are one method to it.
+     *
+     * <p>Every generator is discounted by the distance to the far end of the
+     * grid, which is where the loss actually is: a grid is one wire and what
+     * comes out of the end of it is what a machine gets, wherever on it the
+     * machine happens to sit. Then the reserve lends or borrows against what
+     * is left, exactly as it always did.
+     *
+     * @param sources the generators, each with its distance
+     * @param loads   the machines, each with its distance
+     * @param wire    the weakest wire anywhere on the grid
+     * @param reserve what everything on the grid could lend or take
+     */
+    public static Flow along(List<Placed<Generator>> sources,
+                             List<Placed<Machine>> loads,
+                             Voltage wire, Reserve reserve) {
+        List<Generator> arriving = new ArrayList<>(sources.size());
+        int furthest = furthestOf(sources, loads);
+        for (Placed<Generator> one : sources) {
+            arriving.add(new Generator(
+                    delivered(wire, one.what().output(), furthest),
+                    one.what().voltage()));
+        }
+        List<Machine> drawing = new ArrayList<>(loads.size());
+        for (Placed<Machine> one : loads) {
+            drawing.add(one.what());
+        }
+        return settle(arriving, drawing, wire, reserve);
+    }
+
+    /** How far the far end of a grid is from its generators. */
+    public static int furthestOf(List<Placed<Generator>> sources,
+                                 List<Placed<Machine>> loads) {
+        int furthest = 0;
+        for (Placed<Machine> one : loads) {
+            furthest = Math.max(furthest, one.blocks());
+        }
+        for (Placed<Generator> one : sources) {
+            furthest = Math.max(furthest, one.blocks());
+        }
+        return furthest;
+    }
+
+    /**
+     * The same settle, written out as books that have to balance.
+     *
+     * <p>Handed the same arguments and working them out the same way, on
+     * purpose: what this adds is not a second answer but the statement that
+     * the first one conserves. A method that returned its own numbers would
+     * be a second model to drift.
+     */
+    public static Books books(List<Placed<Generator>> sources,
+                              List<Placed<Machine>> loads,
+                              Voltage wire, Reserve reserve) {
+        int furthest = furthestOf(sources, loads);
+        float made = 0.0F;
+        float arrived = 0.0F;
+        for (Placed<Generator> one : sources) {
+            made += one.what().output();
+            arrived += delivered(wire, one.what().output(), furthest);
+        }
+        Flow flow = along(sources, loads, wire, reserve);
+        Reading grid = flow.grid();
+        float used = grid.burned() ? 0.0F
+                : Math.min(grid.supply(), grid.demand());
+        float spare = Math.max(0.0F,
+                arrived + flow.fromReserve() - used - flow.toReserve());
+        return new Books(made, flow.fromReserve(), made - arrived, used,
+                flow.toReserve(), spare);
     }
 
     public static Reading settle(List<Generator> generators, List<Machine> machines,

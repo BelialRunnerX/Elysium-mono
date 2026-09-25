@@ -175,9 +175,10 @@ public final class GridLine {
      */
     public static IndustryRules.Reading solve(Level level, BlockPos start) {
         Found found = walk(level, start);
-        List<IndustryRules.Generator> generators = new ArrayList<>();
-        List<IndustryRules.Machine> machines = new ArrayList<>();
-        int furthest = 0;
+        List<IndustryRules.Placed<IndustryRules.Generator>> generators =
+                new ArrayList<>();
+        List<IndustryRules.Placed<IndustryRules.Machine>> machines =
+                new ArrayList<>();
 
         for (Member member : found.members()) {
             GridNode node = nodeAt(level, member.pos());
@@ -186,8 +187,7 @@ public final class GridLine {
             }
             IndustryRules.Machine machine = node.machine();
             if (machine != null) {
-                machines.add(machine);
-                furthest = Math.max(furthest, member.blocks());
+                machines.add(new IndustryRules.Placed<>(machine, member.blocks()));
             }
         }
         for (Member member : found.members()) {
@@ -196,9 +196,14 @@ public final class GridLine {
             if (generator == null) {
                 continue;
             }
-            float arriving = IndustryRules.delivered(found.weakest(), generator.output(),
-                    furthest);
-            generators.add(new IndustryRules.Generator(arriving, generator.voltage()));
+            // Not discounted here. The loss down a wire is the one number
+            // that makes stepping a voltage up worth doing, and it used to be
+            // applied in this method — which meant the arithmetic never saw
+            // it and nothing anywhere said that a grid hands out what it
+            // made. IndustryRules.along does the discounting now, and
+            // IndustryRules.books is swept over ten thousand random grids to
+            // prove it conserves.
+            generators.add(new IndustryRules.Placed<>(generator, member.blocks()));
         }
 
         // Everything on the grid that can lend or borrow, added up. Age II
@@ -217,7 +222,7 @@ public final class GridLine {
         IndustryRules.Reserve bank = new IndustryRules.Reserve(couldGive, couldTake);
 
         IndustryRules.Flow flow =
-                IndustryRules.settle(generators, machines, found.weakest(), bank);
+                IndustryRules.along(generators, machines, found.weakest(), bank);
         IndustryRules.Reading reading = flow.grid();
         // A grid wired across two tiers without a transformer is a grid that
         // has destroyed something. Reported as burned, which is the state a

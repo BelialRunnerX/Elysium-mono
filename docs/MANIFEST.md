@@ -8,10 +8,10 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 76 | DONE | an Elysium module already replaces it |
+| 77 | DONE | an Elysium module already replaces it |
 | 15 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 28 | PLANNED | has a target module, not started |
+| 27 | PLANNED | has a target module, not started |
 | 13 | KEEP | stays in the pack on purpose |
 | 71 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -25,7 +25,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `elysium-atelier` | 7 |
 | `elysium-comforts` | 6 |
 | `elysium-agronomy` | 4 |
-| `elysium-industry` | 4 |
+| `elysium-industry` | 3 |
 | `elysium-wilds` | 2 |
 | `elysium-arcana` | 1 |
 | `elysium-foundry` | 1 |
@@ -177,7 +177,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `polymorph-neoforge-1.1.0+1.21.1.jar` | DROP | - | interface and convenience: not content |
 | `potentials-neoforge-1.21-0.7.1.jar` | DROP | - | interface and convenience: not content |
 | `Powah-6.2.10.jar` | PLANNED | elysium-atomics | reactors and energy cells |
-| `powergrid-mc1.21.1-0.5.5.1.jar` | PLANNED | elysium-industry | transmission on poles |
+| `powergrid-mc1.21.1-0.5.5.1.jar` | DONE | elysium-industry | transmission answered properly: the loss down a wire is now charged inside the arithmetic rather than by the block that walks it, and a grid's books - made and borrowed against lost, used, stored and spare - are swept over ten thousand grids built at random |
 | `prickle-neoforge-1.21.1-21.1.11.jar` | DROP | - | library: goes when the mods needing it go |
 | `productivebees-1.21.1-13.13.5.jar` | DONE | elysium-agronomy | bees: 75 species with combs, comb blocks, nests and a breeding tree whose tier is worked out from its parents rather than written down — and now the machinery around them. Four rungs of housing, seven upgrades of which two add bees or speed and five buy back a chore (flowers, collecting, wandering, breeding, sampling), and a centrifuge that turns a comb into a chunk of what the bee makes, wax and a bottle of honey. A hive may still be worth only a quarter of a mine, and that is now proved over every one of 9,984 combinations of housing, upgrades and tier rather than for the one case somebody looked at: the comb time is solved so the best apiary anybody can build lands exactly on the line and a bare hive sits at a fifth of it. Of its 463 bee entities only 34 name a material this pack makes, and a bee for a metal nothing makes is a row in a registry rather than content |
 | `ProjectE-1.21.1-PE1.1.0.jar` | DONE | elysium-arcana | transmutation, with a price table derived from the pack's own recipes and proved to contain no arrangement that makes value out of nothing |
