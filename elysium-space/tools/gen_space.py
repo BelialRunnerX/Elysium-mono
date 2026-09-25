@@ -829,8 +829,13 @@ def rename_mangrove(obj):
     return obj
 
 
-def from_vanilla(kind, vname, ours):
+def from_vanilla(kind, vname, ours, render_type=None):
     data = rename_mangrove(vjson(f"assets/minecraft/{kind}/{vname}.json"))
+    if render_type:
+        # Vanilla's own blocks are cut out by a table the game keeps for them;
+        # a copy under our name is not in it, and would draw its transparent
+        # pixels black unless the model says which layer it wants.
+        data = dict(data, render_type=render_type)
     folder = {"blockstates": BS, "models/block": BM, "models/item": IM}[kind]
     write(os.path.join(folder, ours + ".json"), data)
 
@@ -862,12 +867,13 @@ def models():
     write(os.path.join(IM, "emgrove_leaves.json"), {"parent": f"{NS}:block/emgrove_leaves"})
     # Roots and the propagule keep vanilla's shapes and states, with our art.
     from_vanilla("blockstates", "mangrove_roots", "emgrove_roots")
-    from_vanilla("models/block", "mangrove_roots", "emgrove_roots")
+    from_vanilla("models/block", "mangrove_roots", "emgrove_roots", "minecraft:cutout")
     write(os.path.join(IM, "emgrove_roots.json"), {"parent": f"{NS}:block/emgrove_roots"})
     from_vanilla("blockstates", "mangrove_propagule", "emgrove_propagule")
-    from_vanilla("models/block", "mangrove_propagule", "emgrove_propagule")
+    from_vanilla("models/block", "mangrove_propagule", "emgrove_propagule", "minecraft:cutout")
     for i in range(5):
-        from_vanilla("models/block", f"mangrove_propagule_hanging_{i}", f"emgrove_propagule_hanging_{i}")
+        from_vanilla("models/block", f"mangrove_propagule_hanging_{i}",
+                     f"emgrove_propagule_hanging_{i}", "minecraft:cutout")
     write(os.path.join(IM, "emgrove_propagule.json"), {"parent": "minecraft:item/generated",
           "textures": {"layer0": f"{NS}:item/emgrove_propagule"}})
 

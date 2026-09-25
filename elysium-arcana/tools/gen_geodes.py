@@ -159,11 +159,17 @@ def solid_sprite(material):
 
 def budding_sprite(material):
     image = solid_sprite(material)
-    draw = ImageDraw.Draw(image)
     core = lighter(tone(material), 60)
+    # The sparkle goes on a layer and is composited down: a soft pixel drawn
+    # straight onto the block wrote its alpha into a solid sprite, and the
+    # block — on the solid layer, as a full cube should be — showed those
+    # five pixels black in the world.
+    sparkle = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(sparkle)
     for spot in ((4, 4), (11, 5), (6, 11), (12, 12), (8, 7)):
         draw.point(spot, fill=core + (255,))
         draw.point((spot[0] + 1, spot[1]), fill=core + (200,))
+    image.alpha_composite(sparkle)
     return image
 
 
@@ -262,9 +268,14 @@ def models_and_states():
     for material in MATERIALS:
         for kind in ("block", "budding", "tinted_glass"):
             name = block_id(material, kind)
-            write(os.path.join(ASSETS, "models/block", name + ".json"),
-                  {"parent": "minecraft:block/cube_all",
-                   "textures": {"all": f"{NS}:block/{name}"}})
+            model = {"parent": "minecraft:block/cube_all",
+                     "textures": {"all": f"{NS}:block/{name}"}}
+            if kind == "tinted_glass":
+                # Every pixel of the pane is part-transparent, and a modded
+                # model draws on the solid layer unless it says otherwise —
+                # which made the glass an opaque block of its tint.
+                model["render_type"] = "minecraft:translucent"
+            write(os.path.join(ASSETS, "models/block", name + ".json"), model)
             write(os.path.join(ASSETS, "blockstates", name + ".json"),
                   {"variants": {"": {"model": f"{NS}:block/{name}"}}})
             write(os.path.join(ASSETS, "models/item", name + ".json"),

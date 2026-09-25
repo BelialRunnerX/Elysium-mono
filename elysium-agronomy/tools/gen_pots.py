@@ -172,8 +172,15 @@ def pot_sprite(material, fitting):
     if fitting == "hopper":
         draw.polygon([(5, 13), (10, 13), (8, 15), (7, 15)], fill=(58, 58, 64, 255))
     elif fitting == "waxed":
-        draw.line([(4, 6), (6, 6)], fill=(255, 245, 205, 190))
-        draw.line([(4, 7), (5, 7)], fill=(255, 245, 205, 140))
+        # Drawn on a layer and composited: ImageDraw would otherwise write the
+        # sheen's alpha into the pot's own pixels and leave the pot see-through
+        # where it should merely shine.
+        sheen = Image.new("RGBA", image.size, (0, 0, 0, 0))
+        shine = ImageDraw.Draw(sheen)
+        shine.line([(4, 6), (6, 6)], fill=(255, 245, 205, 190))
+        shine.line([(4, 7), (5, 7)], fill=(255, 245, 205, 140))
+        image.alpha_composite(sheen)
+        draw = ImageDraw.Draw(image)
     return image
 
 

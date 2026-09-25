@@ -90,6 +90,15 @@ def title(word):
 
 
 # ---------------------------------------------------------------------------
+# A modded block's model draws on the solid layer unless it says otherwise:
+# vanilla's crops and saplings are cut out by a table the game keeps for its
+# own blocks, and ours are not in it. Without "render_type" every transparent
+# pixel of loomflax was black in the world (and fine in the hand, where items
+# are always cut out). Leaves take cutout_mipped, as vanilla's do.
+CUTOUT = "minecraft:cutout"
+CUTOUT_MIPPED = "minecraft:cutout_mipped"
+
+
 def crops():
     for name, gives, per, biomes in CROPS:
         write(os.path.join(ASSETS, f"blockstates/{name}.json"), {
@@ -99,12 +108,14 @@ def crops():
         for age in range(STAGES):
             write(os.path.join(ASSETS, f"models/block/{name}_stage{age}.json"), {
                 "parent": "minecraft:block/crop",
+                "render_type": CUTOUT,
                 "textures": {"crop": f"{NS}:block/{name}_stage{age}"}
             })
         write(os.path.join(ASSETS, f"blockstates/wild_{name}.json"),
               {"variants": {"": {"model": f"{NS}:block/wild_{name}"}}})
         write(os.path.join(ASSETS, f"models/block/wild_{name}.json"), {
             "parent": "minecraft:block/cross",
+            "render_type": CUTOUT,
             "textures": {"cross": f"{NS}:block/wild_{name}"}
         })
         # The wild form's item is the block, drawn flat like a sapling's.
@@ -162,15 +173,17 @@ def wood():
             axis_states(name, name)
             block_item(name)
         elif kind == "cube":
-            write(os.path.join(ASSETS, f"models/block/{name}.json"), {
-                "parent": "minecraft:block/cube_all",
-                "textures": {"all": tex(name)}})
+            model = {"parent": "minecraft:block/cube_all", "textures": {"all": tex(name)}}
+            if name == "emberwood_leaves":
+                model["render_type"] = CUTOUT_MIPPED
+            write(os.path.join(ASSETS, f"models/block/{name}.json"), model)
             write(os.path.join(ASSETS, f"blockstates/{name}.json"),
                   {"variants": {"": {"model": f"{NS}:block/{name}"}}})
             block_item(name)
         elif kind == "cross":
             write(os.path.join(ASSETS, f"models/block/{name}.json"), {
                 "parent": "minecraft:block/cross",
+                "render_type": CUTOUT,
                 "textures": {"cross": tex(name)}})
             write(os.path.join(ASSETS, f"blockstates/{name}.json"),
                   {"variants": {"": {"model": f"{NS}:block/{name}"}}})
@@ -231,6 +244,7 @@ def wood():
                            "_top_right", "_top_right_open"):
                 write(os.path.join(ASSETS, f"models/block/{name}{suffix}.json"), {
                     "parent": f"minecraft:block/door{suffix}",
+                    "render_type": CUTOUT,
                     "textures": {"top": tex(name + "_top"),
                                  "bottom": tex(name + "_bottom")}})
             simple_item(name)
@@ -240,7 +254,8 @@ def wood():
                                    ("_top", "template_orientable_trapdoor_top"),
                                    ("_open", "template_orientable_trapdoor_open")):
                 write(os.path.join(ASSETS, f"models/block/{name}{suffix}.json"),
-                      {"parent": f"minecraft:block/{parent}", "textures": textures})
+                      {"parent": f"minecraft:block/{parent}", "render_type": CUTOUT,
+                       "textures": textures})
             write(os.path.join(ASSETS, f"blockstates/{name}.json"),
                   {"variants": trapdoor_variants(name)})
             block_item(name, f"{NS}:block/{name}_bottom")

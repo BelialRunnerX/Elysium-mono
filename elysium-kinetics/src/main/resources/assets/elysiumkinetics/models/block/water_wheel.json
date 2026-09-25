@@ -1,5 +1,6 @@
 {
   "parent": "block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
     "face": "elysiumkinetics:block/water_wheel",
     "rim": "elysiumkinetics:block/water_wheel_side",

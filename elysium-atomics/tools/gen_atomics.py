@@ -406,6 +406,9 @@ PANEL_HEIGHT = 4
 def panel_model():
     return {
         "parent": "block/block",
+        # The side face reads transparent rows of its sprite; on the solid
+        # layer (a modded model's default) they were black.
+        "render_type": "minecraft:cutout",
         "textures": {"top": f"{NS}:block/solar_panel_top",
                      "side": f"{NS}:block/solar_panel_side",
                      "particle": f"{NS}:block/solar_panel_top"},

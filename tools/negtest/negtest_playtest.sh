@@ -42,6 +42,15 @@ t elysium-kinetics src/main/resources/assets/elysiumkinetics/blockstates/sail.js
 # root: a blockstate model and a model texture that land nowhere
 t . elysium-kinetics/src/main/resources/assets/elysiumkinetics/blockstates/sail.json 'elysiumkinetics:block/sail' 'elysiumkinetics:block/sial' "no such model is shipped"
 t . elysium-flora/src/main/resources/assets/elysiumflora/models/block/emberwood_planks.json 'elysiumflora:block/emberwood_planks' 'elysiumflora:block/emberwood_plank' "no such texture is shipped"
+# root: a crop model that forgets its render layer draws its holes black
+t . elysium-flora/src/main/resources/assets/elysiumflora/models/block/loomflax_stage0.json '"render_type": "minecraft:cutout",' '' "on the solid layer"
+# root: glass that says cutout when every pixel is part-transparent is still wrong only if it says nothing; a shaft whose faces read opaque pixels needs none (no failure expected, so the check must stay quiet)
+cp elysium-kinetics/src/main/resources/assets/elysiumkinetics/models/block/brass_shaft.json /tmp/nb_pt_shaft
+python3 - <<'PY'
+import json; p="elysium-kinetics/src/main/resources/assets/elysiumkinetics/models/block/brass_shaft.json"; m=json.load(open(p,encoding="utf-8")); m.pop("render_type",None); open(p,"w",encoding="utf-8",newline="\n").write(json.dumps(m,indent=2)+"\n")
+PY
+out=$(timeout 1800 python3 check_models.py 2>&1); cp /tmp/nb_pt_shaft elysium-kinetics/src/main/resources/assets/elysiumkinetics/models/block/brass_shaft.json
+if grep -q "brass_shaft" <<<"$out"; then failn=$((failn+1)); echo "MISS : a shaft reading only opaque pixels was flagged"; else pass=$((pass+1)); echo "ok   : a shaft reading only opaque pixels is left alone"; fi
 # lib: the elite class no longer loaded by the constructor
 t elysium-lib src/main/java/com/elysium/lib/ElysiumLib.java '        com.elysium.lib.elite.ElysiumElites.bootstrap();' '' "nothing loads the class before RegisterEvent"
 echo "$pass passed, $failn missed"

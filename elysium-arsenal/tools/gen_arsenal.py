@@ -1208,13 +1208,21 @@ def disc_texture():
     return image
 
 
-def cube(folder, id, texture, sides=None):
-    """A block that is one texture on all six sides, with its item and its drop."""
+def cube(folder, id, texture, sides=None, render_type=None):
+    """
+    A block that is one texture on all six sides, with its item and its drop.
+
+    render_type is named when the texture has transparent pixels: a modded
+    model draws on the solid layer unless it says otherwise, and the solid
+    layer paints transparency black.
+    """
     texture.save(os.path.join(folder, id + ".png"))
     write(os.path.join(ASSETS, "blockstates", id + ".json"),
           {"variants": {"": {"model": f"{NS}:block/{id}"}}})
-    write(os.path.join(ASSETS, "models/block", id + ".json"),
-          {"parent": "block/cube_all", "textures": {"all": f"{NS}:block/{id}"}})
+    model = {"parent": "block/cube_all", "textures": {"all": f"{NS}:block/{id}"}}
+    if render_type:
+        model["render_type"] = render_type
+    write(os.path.join(ASSETS, "models/block", id + ".json"), model)
     write(os.path.join(ASSETS, "models/item", id + ".json"),
           {"parent": f"{NS}:block/{id}"})
     write(os.path.join(DATA, "loot_table/blocks", id + ".json"), drops(id))
@@ -1337,7 +1345,8 @@ def dig_files(brushed, sited, boned, found, stood, whole):
     # ---- the totems --------------------------------------------------------
     for name, kind, _, _, _ in stood:
         if kind == "PLACED":
-            one, two, three = cube(blocks, name, totem_texture(name, False))
+            one, two, three = cube(blocks, name, totem_texture(name, False),
+                                   render_type="minecraft:cutout")
             sprites += one
             made += two
             data += three

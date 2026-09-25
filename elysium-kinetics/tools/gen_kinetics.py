@@ -366,6 +366,11 @@ def draw_all():
 
 AXIS_ROTATION = {"y": {}, "x": {"x": 90, "y": 90}, "z": {"x": 90}}
 
+# Every machine model names "render_type": "minecraft:cutout". A modded model
+# draws on the solid layer unless it says otherwise, and the cogwheels, crank,
+# water wheel and bearing read transparent pixels of their sprites — which the
+# solid layer paints black. (The sail is a full cube of cloth and needs none.)
+
 
 def axis_blockstate(model):
     variants = {}
@@ -382,6 +387,7 @@ def pillar(width, texture, end):
     high = 16 - low
     return {
         "parent": "block/block",
+        "render_type": "minecraft:cutout",
         "textures": {"side": f"{NS}:block/{texture}", "end": f"{NS}:block/{end}",
                      "particle": f"{NS}:block/{texture}"},
         "elements": [{
@@ -405,6 +411,7 @@ def disc(thickness, face, rim):
     high = 16 - low
     return {
         "parent": "block/block",
+        "render_type": "minecraft:cutout",
         "textures": {"face": f"{NS}:block/{face}", "rim": f"{NS}:block/{rim}",
                      "particle": f"{NS}:block/{face}"},
         "elements": [{
@@ -425,6 +432,7 @@ def disc(thickness, face, rim):
 def slab(height, top, side, bottom):
     return {
         "parent": "block/block",
+        "render_type": "minecraft:cutout",
         "textures": {"top": f"{NS}:block/{top}", "side": f"{NS}:block/{side}",
                      "bottom": f"{NS}:block/{bottom}", "particle": f"{NS}:block/{side}"},
         "elements": [{

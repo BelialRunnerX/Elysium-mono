@@ -2,5 +2,6 @@
   "parent": "minecraft:block/cube_all",
   "textures": {
     "all": "elysiumarcana:block/crimson_iron_tinted_glass"
-  }
+  },
+  "render_type": "minecraft:translucent"
 }

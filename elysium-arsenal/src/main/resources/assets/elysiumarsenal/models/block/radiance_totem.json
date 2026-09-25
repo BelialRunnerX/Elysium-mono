@@ -2,5 +2,6 @@
   "parent": "block/cube_all",
   "textures": {
     "all": "elysiumarsenal:block/radiance_totem"
-  }
+  },
+  "render_type": "minecraft:cutout"
 }

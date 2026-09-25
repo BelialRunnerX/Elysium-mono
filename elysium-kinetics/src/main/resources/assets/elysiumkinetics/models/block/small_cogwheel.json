@@ -1,5 +1,6 @@
 {
   "parent": "block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
     "face": "elysiumkinetics:block/small_cogwheel",
     "rim": "elysiumkinetics:block/cogwheel_side",

@@ -1,5 +1,6 @@
 {
   "parent": "block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
     "top": "elysiumatomics:block/solar_panel_top",
     "side": "elysiumatomics:block/solar_panel_side",

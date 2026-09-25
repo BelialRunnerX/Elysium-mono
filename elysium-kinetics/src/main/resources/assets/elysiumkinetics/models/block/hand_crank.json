@@ -1,5 +1,6 @@
 {
   "parent": "block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
     "side": "elysiumkinetics:block/hand_crank",
     "end": "elysiumkinetics:block/timber_shaft_end",
