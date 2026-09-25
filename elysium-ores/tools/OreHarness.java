@@ -51,14 +51,16 @@ public final class OreHarness {
         bands();
         tiers();
         fortune();
+        cordon();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
             System.exit(1);
         }
         System.out.println(checks + " checks: one steel out of five, chosen the same way "
-                + "every load, and a vein that pays more the further from home it is "
-                + "without ever paying always");
+                + "every load, a vein that pays more the further from home it is "
+                + "without ever paying always, and " + CordonMaterials.SETS.size()
+                + " Cordoned gear sets each standing on a material that is dug, made or found");
     }
 
     // ------------------------------------------------------------------
@@ -230,6 +232,86 @@ public final class OreHarness {
         }
         check(OreRules.yield(0, 0.0D) == 1,
                 "tier zero paid more than one, so the curve starts above vanilla");
+    }
+
+    private static void cordon() {
+        check(CordonMaterials.SETS.size() == CordonMaterials.VALORIA_SETS,
+                "Valoria had " + CordonMaterials.VALORIA_SETS + " gear sets and the roster carries "
+                        + CordonMaterials.SETS.size());
+        java.util.Set<String> valoria = new java.util.HashSet<>();
+        for (CordonMaterials.Set set : CordonMaterials.SETS) {
+            check(valoria.add(set.valoria()), set.valoria() + " is listed twice, so two rungs share one set");
+            CordonMaterials.Material material = CordonMaterials.named(set.family());
+            check(material != null, set.valoria() + " stands on " + set.family() + ", which is not a material");
+            if (material == null) {
+                continue;
+            }
+            check(!set.tools() || material.tool() != null,
+                    set.valoria() + " had tools and " + set.family() + " has no tool tier to make them from");
+            check(!set.armour() || material.armour() != null,
+                    set.valoria() + " had armour and " + set.family() + " has no armour material");
+        }
+        java.util.Set<String> families = new java.util.HashSet<>();
+        for (CordonMaterials.Material material : CordonMaterials.MATERIALS) {
+            check(families.add(material.family()), material.family() + " is two materials");
+            check(material.family().matches("[a-z_]+"), material.family() + " is not an id");
+            check(material.colour().matches("#[0-9a-f]{6}"), material.family() + " has no colour to draw from");
+            check(material.band() >= OreRules.COMMON && material.band() <= OreRules.EXOTIC,
+                    material.family() + " is on no band");
+            check(material.dug() == (material.kind() == CordonMaterials.Kind.METAL
+                            || material.kind() == CordonMaterials.Kind.GEM),
+                    material.family() + " is dug and not a metal or a gem, or the other way round");
+            check(material.shipped() != material.items().isEmpty(),
+                    material.family() + " ships nothing, or ships something while being another module's");
+            if (material.kind() == CordonMaterials.Kind.ALLOY) {
+                check(!material.madeOf().isEmpty(), material.family() + " is an alloy of nothing");
+                check(material.yield() >= 1, material.family() + " makes no ingots");
+            } else {
+                check(material.madeOf().isEmpty(), material.family() + " is not an alloy and is made of something");
+            }
+            if (material.tool() != null) {
+                check(material.tool().uses() > 0 && material.tool().speed() > 0.0F
+                                && material.tool().damage() >= 0.0F && material.tool().enchant() > 0,
+                        material.family() + "'s tool tier has a number that is not a number");
+            }
+            if (material.armour() != null) {
+                check(material.armour().protection() > 0 && material.armour().durability() > 0
+                                && material.armour().enchant() > 0 && material.armour().knockback() >= 0.0F
+                                && material.armour().nullDefence() >= 0.0F,
+                        material.family() + "'s armour has a number that is not a number");
+            }
+        }
+        check(CordonMaterials.unmakeable().isEmpty(),
+                "an alloy is made of something above it or of nothing here: " + CordonMaterials.unmakeable());
+        java.util.Set<String> items = new java.util.HashSet<>(CordonMaterials.items());
+        check(items.size() == CordonMaterials.items().size(), "two materials ship one item id");
+        java.util.Set<String> blocks = new java.util.HashSet<>(CordonMaterials.blocks());
+        check(blocks.size() == CordonMaterials.blocks().size(), "two materials ship one block id");
+        for (CordonMaterials.Drop drop : CordonMaterials.DROPS) {
+            boolean eaten = false;
+            for (CordonMaterials.Material material : CordonMaterials.MATERIALS) {
+                eaten |= material.madeOf().containsKey(drop.name());
+            }
+            check(eaten, drop.name() + " is dropped and nothing here is made of it, so it is a thing with no use");
+            check(!drop.from().isEmpty(), drop.name() + " does not say who leaves it");
+        }
+        for (CordonMaterials.Part part : CordonMaterials.PARTS) {
+            CordonMaterials.Material of = CordonMaterials.named(part.family());
+            check(of != null && of.shipped(), part.name() + " is riveted from a material nothing ships");
+            check(part.takes() > 0, part.name() + " is made of nothing");
+        }
+        for (String vanilla : CordonMaterials.CLOTH_MADE_OF.keySet()) {
+            check(vanilla.startsWith("minecraft:"), "the cloth is woven from " + vanilla + ", which is not vanilla's");
+        }
+        check(CordonMaterials.CLOTH_YIELD >= 1, "weaving makes nothing");
+        // The roster is a ladder for the arsenal: harvest levels climb with the tier's damage, on the whole.
+        int best = -1;
+        for (CordonMaterials.Material material : CordonMaterials.MATERIALS) {
+            if (material.tool() != null) {
+                best = Math.max(best, material.tool().level());
+            }
+        }
+        check(best >= 5, "no Cordoned tool tier reaches past netherite, so the rungs add nothing above the game's own");
     }
 
     private static void fortune() {

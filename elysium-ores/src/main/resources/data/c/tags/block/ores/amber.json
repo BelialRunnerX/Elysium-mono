@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_amber_ore",
+    "elysiumores:deepslate_amber_ore",
+    "elysiumores:end_stone_amber_ore",
+    "elysiumores:frost_amber_ore",
+    "elysiumores:netherrack_amber_ore",
+    "elysiumores:pale_amber_ore",
+    "elysiumores:stone_amber_ore"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumores:nightgold_ingot"
+    },
+    {
+      "item": "elysiumores:blight_crystal"
+    },
+    {
+      "item": "minecraft:bone"
+    }
+  ],
+  "result": {
+    "count": 2,
+    "id": "elysiumores:hemalite_ingot"
+  }
+}

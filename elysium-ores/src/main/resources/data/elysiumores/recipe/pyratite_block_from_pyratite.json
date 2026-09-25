@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumores:pyratite"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumores:pyratite_block"
+  }
+}

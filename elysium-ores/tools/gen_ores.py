@@ -107,6 +107,72 @@ FAMILIES = [
 ]
 
 # ---------------------------------------------------------------------------
+# The Cordon's materials (rules/CordonMaterials.java): read, never retyped.
+# ---------------------------------------------------------------------------
+ROSTER_SRC = open(os.path.join(JAVA, "rules/CordonMaterials.java"), encoding="utf-8").read()
+ROSTER_SRC = re.sub(r"//[^\n]*", " ", re.sub(r"/\*.*?\*/", " ", ROSTER_SRC, flags=re.S))
+
+
+def _call_bodies(name):
+    """The argument text of every top-level call `name(...)`, parentheses balanced."""
+    out = []
+    for match in re.finditer(r"\b" + name + r"\(", ROSTER_SRC):
+        depth, at = 0, match.end() - 1
+        while at < len(ROSTER_SRC):
+            if ROSTER_SRC[at] == "(":
+                depth += 1
+            elif ROSTER_SRC[at] == ")":
+                depth -= 1
+                if depth == 0:
+                    break
+            at += 1
+        body = ROSTER_SRC[match.end():at]
+        if body.strip().startswith('"'):
+            out.append(body)
+    return out
+
+
+def roster():
+    """Every material as a dict: family, kind, band, element, colour, made_of, yield."""
+    rows = []
+    for call in ("dug", "alloy", "found"):
+        for body in _call_bodies(call):
+            head = re.match(r'"([a-z_]+)",\s*(?:Kind\.(\w+),\s*)?(?:OreRules\.(\w+),\s*)?Element\.(\w+),\s*"(#[0-9a-f]{6})"', body)
+            if not head:
+                raise SystemExit("cannot read a %s row of CordonMaterials: %s" % (call, body[:60]))
+            family, kind, band, element, colour = head.groups()
+            row = {"family": family, "kind": kind or "ALLOY", "element": element, "colour": colour,
+                   "band": constant(band) if band else EXOTIC, "made_of": {}, "yield": 0}
+            if call == "alloy":
+                tail = body[head.end():]
+                # ... tool, armour, yield, then ("part", count) pairs
+                pairs = re.findall(r'"([a-z_:]+)",\s*(\d+)', tail)
+                row["made_of"] = {part: int(count) for part, count in pairs}
+                yield_match = re.search(r'\),\s*(\d+),\s*"' if "new Plate" in tail or "new Tier" in tail
+                                        else r'null,\s*(\d+),\s*"', tail)
+                row["yield"] = int(yield_match.group(1)) if yield_match else 1
+            rows.append(row)
+    return rows
+
+
+ROSTER = roster()
+DROPS = [{"name": n, "element": e, "colour": c} for n, e, c in
+         re.findall(r'new Drop\("([a-z_]+)",\s*Element\.(\w+),\s*"(#[0-9a-f]{6})"', ROSTER_SRC)]
+PARTS = [{"name": n, "family": f, "colour": c, "takes": int(t)} for n, f, c, t in
+         re.findall(r'new Part\("([a-z_]+)",\s*"([a-z_]+)",\s*"(#[0-9a-f]{6})",\s*(\d+)\)', ROSTER_SRC)]
+_cloth = re.search(r"CLOTH_MADE_OF = Map\.of\((.*?)\);", ROSTER_SRC, re.S)
+CLOTH_MADE_OF = {p: int(n) for p, n in re.findall(r'"([a-z_:]+)",\s*(\d+)', _cloth.group(1))} if _cloth else {}
+CLOTH_YIELD = int(re.search(r"CLOTH_YIELD = (\d+);", ROSTER_SRC).group(1))
+if not ROSTER or not DROPS or not PARTS or not CLOTH_MADE_OF:
+    raise SystemExit("CordonMaterials.java did not parse; the roster's shape changed")
+
+# The dug ones join the families this module fills every stone with. Nothing
+# falls back on vanilla: the family's item is this module's own.
+for _row in ROSTER:
+    if _row["kind"] in ("METAL", "GEM"):
+        FAMILIES.append((_row["family"], _row["band"], None))
+
+# ---------------------------------------------------------------------------
 # The stones the pack is made of.
 #
 # target   - the block or tag a feature replaces to place an ore here
@@ -199,13 +265,13 @@ def write(path, content):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     if isinstance(content, (dict, list)):
         content = json.dumps(content, indent=2) + "\n"
-    open(path, "w", encoding="utf-8").write(content)
+    open(path, "w", encoding="utf-8", newline="\n").write(content)
 
 
 def clean():
     for sub in ("blockstates", "models", "lang"):
         shutil.rmtree(os.path.join(ASSETS, sub), ignore_errors=True)
-    for sub in ("worldgen", "loot_table", "tags", "neoforge"):
+    for sub in ("worldgen", "loot_table", "tags", "neoforge", "recipe"):
         shutil.rmtree(os.path.join(DATA, sub), ignore_errors=True)
     shutil.rmtree(C, ignore_errors=True)
     shutil.rmtree(os.path.join(RES, "data", "neoforge"), ignore_errors=True)
@@ -288,13 +354,194 @@ def ore_blocks():
             }]
         })
 
-    for path, values in (("minecraft/tags/block/mineable/pickaxe.json", mineable),
-                         ("minecraft/tags/block/needs_stone_tool.json", needs_stone),
-                         ("minecraft/tags/block/needs_iron_tool.json", needs_iron),
-                         ("minecraft/tags/block/needs_diamond_tool.json", needs_diamond)):
+    TOOL_TAGS["mineable"].extend(mineable)
+    TOOL_TAGS["stone"].extend(needs_stone)
+    TOOL_TAGS["iron"].extend(needs_iron)
+    TOOL_TAGS["diamond"].extend(needs_diamond)
+    return len(GAPS)
+
+
+TOOL_TAGS = {"mineable": [], "stone": [], "iron": [], "diamond": []}
+
+
+def loot_modifiers():
+    """The one global loot modifier, listed so it runs. clean() removes the directory; this puts it back."""
+    write(os.path.join(RES, "data/neoforge/loot_modifiers/global_loot_modifiers.json"),
+          {"replace": False, "entries": [f"{NS}:unifying"]})
+
+
+def tool_tags():
+    for path, values in (("minecraft/tags/block/mineable/pickaxe.json", TOOL_TAGS["mineable"]),
+                         ("minecraft/tags/block/needs_stone_tool.json", TOOL_TAGS["stone"]),
+                         ("minecraft/tags/block/needs_iron_tool.json", TOOL_TAGS["iron"]),
+                         ("minecraft/tags/block/needs_diamond_tool.json", TOOL_TAGS["diamond"])):
         write(os.path.join(RES, "data", path),
               {"replace": False, "values": sorted(values)})
-    return len(GAPS)
+
+
+# ---------------------------------------------------------------------------
+# Half three: the Cordon's materials, from the roster.
+# ---------------------------------------------------------------------------
+def _item_model(name):
+    write(os.path.join(ASSETS, f"models/item/{name}.json"),
+          {"parent": "minecraft:item/generated", "textures": {"layer0": f"{NS}:item/{name}"}})
+
+
+def _block(name):
+    write(os.path.join(ASSETS, f"blockstates/{name}.json"),
+          {"variants": {"": {"model": f"{NS}:block/{name}"}}})
+    write(os.path.join(ASSETS, f"models/block/{name}.json"),
+          {"parent": "minecraft:block/cube_all", "textures": {"all": f"{NS}:block/{name}"}})
+    write(os.path.join(ASSETS, f"models/item/{name}.json"), {"parent": f"{NS}:block/{name}"})
+    write(os.path.join(DATA, f"loot_table/blocks/{name}.json"), {
+        "type": "minecraft:block",
+        "pools": [{"rolls": 1,
+                   "entries": [{"type": "minecraft:item", "name": f"{NS}:{name}"}],
+                   "conditions": [{"condition": "minecraft:survives_explosion"}]}]})
+
+
+def _ingredient(part):
+    return {"item": part if ":" in part else f"{NS}:{part}"}
+
+
+def _compaction(small, big, count=9):
+    """Nine small make a big, and a big is nine small again."""
+    write(os.path.join(DATA, f"recipe/{big}_from_{small}.json"), {
+        "type": "minecraft:crafting_shaped", "category": "misc",
+        "pattern": ["###", "###", "###"], "key": {"#": {"item": f"{NS}:{small}"}},
+        "result": {"count": 1, "id": f"{NS}:{big}"}})
+    write(os.path.join(DATA, f"recipe/{small}_from_{big}.json"), {
+        "type": "minecraft:crafting_shapeless", "category": "misc",
+        "ingredients": [{"item": f"{NS}:{big}"}],
+        "result": {"count": count, "id": f"{NS}:{small}"}})
+
+
+def _c_tag(kind, family, values, realm="item"):
+    """A c: tag of our own members, merged with whatever unification already wrote there."""
+    path = os.path.join(C, f"tags/{realm}/{kind}/{family}.json")
+    existing = json.load(open(path, encoding="utf-8"))["values"] if os.path.isfile(path) else []
+    for value in values:
+        if value not in existing:
+            existing.append(value)
+    write(path, {"replace": False, "values": existing})
+
+
+def cordon():
+    """Items, blocks, recipes and tags for every material the roster ships."""
+    items = blocks = recipes = 0
+    for row in ROSTER:
+        family, kind, band = row["family"], row["kind"], row["band"]
+        if kind == "EXTERNAL":
+            continue
+        if kind == "METAL":
+            names = [f"raw_{family}", f"{family}_ingot", f"{family}_nugget"]
+            block_names = [f"{family}_block", f"raw_{family}_block"]
+        elif kind == "ALLOY":
+            names = [f"{family}_ingot", f"{family}_nugget"]
+            block_names = [f"{family}_block"]
+        else:
+            names = [family]
+            block_names = [f"{family}_block"]
+        for name in names:
+            _item_model(name)
+            items += 1
+        for name in block_names:
+            _block(name)
+            blocks += 1
+            if kind != "CLOTH":
+                TOOL_TAGS["mineable"].append(f"{NS}:{name}")
+                tier = "diamond" if band >= EXOTIC else "iron" if band >= PRECIOUS else "stone"
+                if kind == "ALLOY":
+                    tier = "iron"
+                TOOL_TAGS[tier].append(f"{NS}:{name}")
+        # recipes
+        if kind == "METAL":
+            for cook, time in (("smelting", 200), ("blasting", 100)):
+                write(os.path.join(DATA, f"recipe/{family}_ingot_from_{cook}.json"), {
+                    "type": f"minecraft:{cook}", "category": "misc",
+                    "ingredient": {"item": f"{NS}:raw_{family}"},
+                    "result": {"id": f"{NS}:{family}_ingot"}, "experience": 0.7, "cookingtime": time})
+                recipes += 1
+            _compaction(f"raw_{family}", f"raw_{family}_block")
+            _compaction(f"{family}_ingot", f"{family}_block")
+            _compaction(f"{family}_nugget", f"{family}_ingot")
+            recipes += 6
+        elif kind == "ALLOY":
+            ingredients = []
+            for part, count in row["made_of"].items():
+                ingredients.extend([_ingredient(part)] * count)
+            write(os.path.join(DATA, f"recipe/{family}_ingot.json"), {
+                "type": "minecraft:crafting_shapeless", "category": "misc",
+                "ingredients": ingredients,
+                "result": {"count": row["yield"], "id": f"{NS}:{family}_ingot"}})
+            _compaction(f"{family}_ingot", f"{family}_block")
+            _compaction(f"{family}_nugget", f"{family}_ingot")
+            recipes += 5
+        elif kind == "CLOTH":
+            ingredients = []
+            for part, count in CLOTH_MADE_OF.items():
+                ingredients.extend([_ingredient(part)] * count)
+            write(os.path.join(DATA, f"recipe/{family}.json"), {
+                "type": "minecraft:crafting_shapeless", "category": "misc",
+                "ingredients": ingredients,
+                "result": {"count": CLOTH_YIELD, "id": f"{NS}:{family}"}})
+            _compaction(family, f"{family}_block")
+            recipes += 3
+        else:
+            _compaction(family, f"{family}_block")
+            recipes += 2
+        # tags: the family's own, so the ore drops it and every recipe against the tag takes it
+        if kind in ("METAL", "ALLOY"):
+            _c_tag("ingots", family, [f"{NS}:{family}_ingot"])
+            _c_tag("nuggets", family, [f"{NS}:{family}_nugget"])
+        if kind == "METAL":
+            _c_tag("raw_materials", family, [f"{NS}:raw_{family}"])
+            _c_tag("storage_blocks", f"raw_{family}", [f"{NS}:raw_{family}_block"])
+            _c_tag("storage_blocks", f"raw_{family}", [f"{NS}:raw_{family}_block"], realm="block")
+        if kind in ("GEM", "SHARD"):
+            _c_tag("gems", family, [f"{NS}:{family}"])
+        _c_tag("storage_blocks", family, [f"{NS}:{family}_block"])
+        _c_tag("storage_blocks", family, [f"{NS}:{family}_block"], realm="block")
+    for drop in DROPS:
+        _item_model(drop["name"])
+        items += 1
+    for part in PARTS:
+        _item_model(part["name"])
+        items += 1
+        side = 2 if part["takes"] == 4 else 3
+        write(os.path.join(DATA, f"recipe/{part['name']}.json"), {
+            "type": "minecraft:crafting_shaped", "category": "misc",
+            "pattern": ["##", "##"] if side == 2 else ["###", "###", "###"],
+            "key": {"#": {"item": f"{NS}:{part['family']}"}},
+            "result": {"count": 1, "id": f"{NS}:{part['name']}"}})
+        _c_tag("plates", part["family"], [f"{NS}:{part['name']}"])
+        recipes += 1
+    return items, blocks, recipes
+
+
+def cordon_language():
+    lang = {}
+    for row in ROSTER:
+        family, kind = row["family"], row["kind"]
+        if kind == "EXTERNAL":
+            continue
+        pretty = title(family)
+        if kind == "METAL":
+            lang[f"item.{NS}.raw_{family}"] = f"Raw {pretty}"
+            lang[f"item.{NS}.{family}_ingot"] = f"{pretty} Ingot"
+            lang[f"item.{NS}.{family}_nugget"] = f"{pretty} Nugget"
+            lang[f"block.{NS}.raw_{family}_block"] = f"Block of Raw {pretty}"
+        elif kind == "ALLOY":
+            lang[f"item.{NS}.{family}_ingot"] = f"{pretty} Ingot"
+            lang[f"item.{NS}.{family}_nugget"] = f"{pretty} Nugget"
+        else:
+            lang[f"item.{NS}.{family}"] = pretty
+        lang[f"block.{NS}.{family}_block"] = f"Block of {pretty}"
+    for drop in DROPS:
+        lang[f"item.{NS}.{drop['name']}"] = title(drop["name"])
+    for part in PARTS:
+        lang[f"item.{NS}.{part['name']}"] = title(part["name"])
+    return lang
 
 
 def features():
@@ -349,6 +596,7 @@ def language():
     for family, host, *_ in GAPS:
         name = name_of(family, host)
         lang[f"block.{NS}.{name}"] = f"{title(host)} {title(family)} Ore"
+    lang.update(cordon_language())
     lang.update({
         "commands.elysiumores.unified": "%s unified into %s",
         "commands.elysiumores.none": "Nothing in this pack needed unifying.",
@@ -424,11 +672,15 @@ def main():
     clean()
     tags = unify_tags()
     ores = ore_blocks()
+    items, blocks, recipes = cordon()
+    tool_tags()
+    loot_modifiers()
     dims = features()
     keys = language()
     rows = catalogue()
     print(f"unification tags  : {tags}")
     print(f"ore blocks        : {ores} across {len(HOSTS)} stones")
+    print(f"cordon materials  : {items} items, {blocks} blocks, {recipes} recipes")
     print(f"biome modifiers   : {dims} worlds")
     print(f"catalogue rows    : {rows}")
     print(f"language keys     : {keys}")

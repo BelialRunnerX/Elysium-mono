@@ -46,6 +46,9 @@ public final class OreItems {
                         for (OreCatalogue.Entry entry : OreCatalogue.ENTRIES) {
                             output.accept(OreBlocks.of(entry.name()).get());
                         }
+                        for (net.neoforged.neoforge.registries.DeferredItem<Item> item : MaterialItems.all()) {
+                            output.accept(item.get());
+                        }
                     })
                     .build());
 

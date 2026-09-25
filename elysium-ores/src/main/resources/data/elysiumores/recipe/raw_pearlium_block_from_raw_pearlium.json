@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumores:raw_pearlium"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumores:raw_pearlium_block"
+  }
+}

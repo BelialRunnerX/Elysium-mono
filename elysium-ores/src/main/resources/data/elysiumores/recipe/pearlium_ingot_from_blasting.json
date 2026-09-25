@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumores:raw_pearlium"
+  },
+  "result": {
+    "id": "elysiumores:pearlium_ingot"
+  },
+  "experience": 0.7,
+  "cookingtime": 100
+}

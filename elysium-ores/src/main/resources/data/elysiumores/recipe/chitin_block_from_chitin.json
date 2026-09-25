@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumores:chitin"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumores:chitin_block"
+  }
+}

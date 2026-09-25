@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_jade_ore",
+    "elysiumores:deepslate_jade_ore",
+    "elysiumores:end_stone_jade_ore",
+    "elysiumores:frost_jade_ore",
+    "elysiumores:netherrack_jade_ore",
+    "elysiumores:pale_jade_ore",
+    "elysiumores:stone_jade_ore"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_pearlium_ore",
+    "elysiumores:deepslate_pearlium_ore",
+    "elysiumores:end_stone_pearlium_ore",
+    "elysiumores:frost_pearlium_ore",
+    "elysiumores:netherrack_pearlium_ore",
+    "elysiumores:pale_pearlium_ore",
+    "elysiumores:stone_pearlium_ore"
+  ]
+}

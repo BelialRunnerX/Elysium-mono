@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_null_amethyst_ore",
+    "elysiumores:deepslate_null_amethyst_ore",
+    "elysiumores:end_stone_null_amethyst_ore",
+    "elysiumores:frost_null_amethyst_ore",
+    "elysiumores:netherrack_null_amethyst_ore",
+    "elysiumores:pale_null_amethyst_ore",
+    "elysiumores:stone_null_amethyst_ore"
+  ]
+}

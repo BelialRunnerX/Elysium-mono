@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_pyratite_ore",
+    "elysiumores:deepslate_pyratite_ore",
+    "elysiumores:end_stone_pyratite_ore",
+    "elysiumores:frost_pyratite_ore",
+    "elysiumores:netherrack_pyratite_ore",
+    "elysiumores:pale_pyratite_ore",
+    "elysiumores:stone_pyratite_ore"
+  ]
+}

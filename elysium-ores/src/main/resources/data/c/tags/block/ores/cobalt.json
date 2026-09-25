@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_cobalt_ore",
+    "elysiumores:deepslate_cobalt_ore",
+    "elysiumores:end_stone_cobalt_ore",
+    "elysiumores:frost_cobalt_ore",
+    "elysiumores:netherrack_cobalt_ore",
+    "elysiumores:pale_cobalt_ore",
+    "elysiumores:stone_cobalt_ore"
+  ]
+}

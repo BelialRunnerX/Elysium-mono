@@ -488,6 +488,160 @@ if "UnifyingModifier.CODEC" not in registry:
     fail("the loot modifier names a serializer nobody registered")
 
 # ---------------------------------------------------------------------------
+# 6. The Cordon's materials (docs/SPLITS.md "Valoria: materials")
+# ---------------------------------------------------------------------------
+#
+# OreHarness walks the roster: seventeen sets, each on a material that is dug,
+# made or found. What it cannot see is whether the roster reached the disk -
+# an item with no model is a purple square, a family with no tag is an ore
+# that drops its own block, a recipe naming a mod that is not here is a
+# datapack error - and whether the Java registers what the roster lists rather
+# than a list of its own.
+
+roster_src = strip_comments(read(PURE, "CordonMaterials.java"), keep_strings=True)
+roster_rows = re.findall(r'\b(dug|alloy|found)\("([a-z_]+)",\s*(?:Kind\.(\w+),\s*)?', roster_src)
+roster = [(family, kind or "ALLOY") for _, family, kind in roster_rows]
+roster_drops = re.findall(r'new Drop\("([a-z_]+)"', roster_src)
+roster_parts = re.findall(r'new Part\("([a-z_]+)",\s*"([a-z_]+)"', roster_src)
+sets = re.findall(r'new Set\("([a-z_]+)",\s*"([a-z_]+)"', roster_src)
+if len(sets) != 17:
+    fail(f"the roster carries {len(sets)} Valoria sets, not the seventeen its language file names")
+for valoria_set, family in sets:
+    if family not in dict(roster):
+        fail(f"Valoria's {valoria_set} stands on {family}, which the roster does not have")
+item_models = os.path.join(ASSETS, "models/item")
+item_tex = os.path.join(ASSETS, "textures/item")
+block_tex = os.path.join(ASSETS, "textures/block")
+recipes = os.path.join(DATA, "recipe")
+shipped_items = []
+shipped_blocks = []
+for family, kind in roster:
+    if kind == "EXTERNAL":
+        for stray in os.listdir(item_models) if os.path.isdir(item_models) else []:
+            if stray.startswith(family + "_") or stray == family + ".json":
+                fail(f"{stray} is shipped for {family}, which is another module's family; "
+                     f"two mods would make two {family}s")
+        continue
+    names = {"METAL": [f"raw_{family}", f"{family}_ingot", f"{family}_nugget"],
+             "ALLOY": [f"{family}_ingot", f"{family}_nugget"]}.get(kind, [family])
+    blocks = [f"{family}_block"] + ([f"raw_{family}_block"] if kind == "METAL" else [])
+    shipped_items += names
+    shipped_blocks += blocks
+    if kind in ("METAL", "GEM"):
+        if family not in families:
+            fail(f"{family} is dug and OreCatalogue has no ore for it, so it is a material with no source")
+    if kind in ("METAL", "ALLOY"):
+        for tag in ("ingots", "nuggets"):
+            body = load(C, f"tags/item/{tag}/{family}.json") or {}
+            if f"{NS}:{family}_{tag[:-1]}" not in body.get("values", []):
+                fail(f"c:{tag}/{family} does not list this module's {family} {tag[:-1]}, so no recipe "
+                     f"against the tag takes it")
+    if kind == "METAL":
+        body = load(C, f"tags/item/raw_materials/{family}.json") or {}
+        if f"{NS}:raw_{family}" not in body.get("values", []):
+            fail(f"c:raw_materials/{family} does not list raw {family}, so the ore resolves to nothing "
+                 f"and drops its own block")
+        for cook in ("smelting", "blasting"):
+            if not os.path.isfile(os.path.join(recipes, f"{family}_ingot_from_{cook}.json")):
+                fail(f"raw {family} has no {cook} recipe, so it is a stone nobody can smelt")
+    if kind in ("GEM", "SHARD"):
+        body = load(C, f"tags/item/gems/{family}.json") or {}
+        if f"{NS}:{family}" not in body.get("values", []):
+            fail(f"c:gems/{family} does not list {family}, so the ore or the drop answers to no family")
+    if kind == "ALLOY":
+        recipe = load(recipes, f"{family}_ingot.json")
+        if recipe is None:
+            fail(f"{family} is an alloy with no recipe, so it is a material nobody can make")
+        else:
+            for ingredient in recipe.get("ingredients", []):
+                item = ingredient.get("item", "")
+                if not item.startswith(("minecraft:", f"{NS}:")):
+                    fail(f"{family} is made of {item}, which is another mod's item; a missing mod would "
+                         f"make the recipe fail to load")
+            if recipe.get("result", {}).get("count", 0) < 1:
+                fail(f"{family}'s recipe makes nothing")
+    if kind == "CLOTH" and not os.path.isfile(os.path.join(recipes, f"{family}.json")):
+        fail(f"{family} is a cloth nobody can weave")
+    body = load(C, f"tags/item/storage_blocks/{family}.json") or {}
+    if f"{NS}:{family}_block" not in body.get("values", []):
+        fail(f"c:storage_blocks/{family} does not list the block")
+    for big in blocks:
+        small = big[:-len("_block")]
+        if kind in ("METAL", "ALLOY") and not small.startswith("raw_"):
+            small += "_ingot"
+        if not os.path.isfile(os.path.join(recipes, f"{big}_from_{small}.json")) \
+                or not os.path.isfile(os.path.join(recipes, f"{small}_from_{big}.json")):
+            fail(f"{big} cannot be made from {small} and back, so a stack of {small} has nowhere to go")
+shipped_items += roster_drops + [name for name, _ in roster_parts]
+for name, family in roster_parts:
+    if not os.path.isfile(os.path.join(recipes, f"{name}.json")):
+        fail(f"{name} has no recipe, so a riveted part is a found part")
+    if family not in dict(roster) or dict(roster)[family] == "EXTERNAL":
+        fail(f"{name} is riveted from {family}, which this module does not ship")
+for name in shipped_items:
+    for what, path in (("model", os.path.join(item_models, name + ".json")),
+                       ("sprite", os.path.join(item_tex, name + ".png"))):
+        if not os.path.isfile(path):
+            fail(f"{name} has no {what}, so it is a purple square in the player's hand")
+    if f"item.{NS}.{name}" not in lang:
+        fail(f"{name} has no name, so a player reads a raw key")
+for name in shipped_blocks:
+    for what, path in (("blockstate", os.path.join(ASSETS, f"blockstates/{name}.json")),
+                       ("block model", os.path.join(ASSETS, f"models/block/{name}.json")),
+                       ("item model", os.path.join(item_models, name + ".json")),
+                       ("texture", os.path.join(block_tex, name + ".png")),
+                       ("loot table", os.path.join(DATA, f"loot_table/blocks/{name}.json"))):
+        if not os.path.isfile(path):
+            fail(f"{name} has no {what}, so it is a block nobody can see or keep")
+    if f"block.{NS}.{name}" not in lang:
+        fail(f"{name} has no name")
+    if not name.startswith("mireweave") and f"{NS}:{name}" not in mineable:
+        fail(f"{name} is not mineable with a pickaxe, and it needs the right tool to drop")
+for drop in roster_drops:
+    eaten = False
+    for name in os.listdir(recipes) if os.path.isdir(recipes) else []:
+        if f'"{NS}:{drop}"' in read(recipes, name):
+            eaten = True
+    if not eaten:
+        fail(f"{drop} is shipped and no recipe here takes it, so it is a thing with no use")
+# The Java registers what the roster lists, not a list of its own.
+material_items = strip_comments(read(SRC, "registry/MaterialItems.java"))
+if "CordonMaterials.items()" not in material_items or "CordonMaterials.blocks()" not in material_items:
+    fail("MaterialItems does not register from CordonMaterials.items() and blocks(); a second list "
+         "is a list that drifts")
+material_blocks = strip_comments(read(SRC, "registry/MaterialBlocks.java"))
+if "CordonMaterials.MATERIALS" not in material_blocks or "material.blocks()" not in material_blocks:
+    fail("MaterialBlocks does not loop over the roster's blocks()")
+main_src = strip_comments(read(SRC, "ElysiumOres.java"))
+for needed in ("MaterialBlocks.register(modEventBus);", "MaterialItems.register(modEventBus);"):
+    if needed not in main_src:
+        fail(f"ElysiumOres never calls {needed}; the roster's items would not exist in the game")
+# Drawn fresh, and drawn the same every time.
+art = os.path.join(WORK, "tools/gen_material_art.py")
+if not os.path.isfile(art):
+    fail("tools/gen_material_art.py is gone; the sprites could be replaced by hand and nothing would say so")
+else:
+    import filecmp
+    with tempfile.TemporaryDirectory() as scratch:
+        drawn = subprocess.run([sys.executable, art], capture_output=True, text=True, cwd=WORK,
+                               env={**os.environ, "ELYSIUM_ORES_OUT": scratch, "PYTHONIOENCODING": "utf-8"})
+        if drawn.returncode != 0:
+            fail(f"tools/gen_material_art.py no longer runs: {drawn.stderr.strip()[-300:]}")
+        else:
+            drift = []
+            for root, _, names in os.walk(scratch):
+                for name in names:
+                    made = os.path.join(root, name)
+                    rel = os.path.relpath(made, scratch)
+                    have = os.path.join(WORK, rel)
+                    if not os.path.isfile(have) or not filecmp.cmp(made, have, shallow=False):
+                        drift.append(name)
+            if drift:
+                fail(f"the shipped material sprites are not what tools/gen_material_art.py draws: {drift[:5]}")
+print(f"the cordon         : {len(sets)} sets on {len([f for f, k in roster if k != 'EXTERNAL'])} materials, "
+      f"{len(shipped_items)} items and {len(shipped_blocks)} blocks, each modelled, drawn, named, tagged and made")
+
+# ---------------------------------------------------------------------------
 # Language
 # ---------------------------------------------------------------------------
 

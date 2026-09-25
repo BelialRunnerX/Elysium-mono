@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_ruby_ore",
+    "elysiumores:deepslate_ruby_ore",
+    "elysiumores:end_stone_ruby_ore",
+    "elysiumores:frost_ruby_ore",
+    "elysiumores:netherrack_ruby_ore",
+    "elysiumores:pale_ruby_ore",
+    "elysiumores:stone_ruby_ore"
+  ]
+}

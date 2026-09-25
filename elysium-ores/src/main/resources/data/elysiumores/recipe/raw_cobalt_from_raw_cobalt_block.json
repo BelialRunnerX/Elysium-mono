@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumores:raw_cobalt_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "id": "elysiumores:raw_cobalt"
+  }
+}

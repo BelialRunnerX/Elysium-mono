@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumores:cobalt_ingot"
+    },
+    {
+      "item": "elysiumores:ember_slag"
+    }
+  ],
+  "result": {
+    "count": 2,
+    "id": "elysiumores:slagsteel_ingot"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumores:nullsteel_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "id": "elysiumores:nullsteel_ingot"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumores:pearlium_ingot"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumores:pearlium_block"
+  }
+}

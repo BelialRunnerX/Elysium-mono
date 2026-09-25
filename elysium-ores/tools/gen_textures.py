@@ -113,6 +113,14 @@ COLOURS = {
 }
 
 
+# The Cordon's dug materials bring their own colours, read from the roster so
+# an ore and the ingot it becomes are one hue.
+ROSTER = open(os.path.join(JAVA, "rules/CordonMaterials.java"), encoding="utf-8").read()
+for _family, _colour in re.findall(r'dug\("([a-z_]+)", Kind\.\w+, OreRules\.\w+, Element\.\w+, "#([0-9a-f]{6})"',
+                                   ROSTER):
+    COLOURS[_family] = tuple(int(_colour[i:i + 2], 16) for i in (0, 2, 4))
+
+
 def load(name):
     return Image.open(os.path.join(BASE, name)).convert("RGBA")
 
@@ -221,8 +229,10 @@ def catalogue():
 
 def main():
     os.makedirs(OUT, exist_ok=True)
+    # Only the ore faces are this generator's; the storage blocks in the same
+    # directory belong to gen_material_art.py.
     for old in os.listdir(OUT):
-        if old.endswith(".png"):
+        if old.endswith("_ore.png"):
             os.remove(os.path.join(OUT, old))
 
     shallow = {name: normalise(shape_of(*pair)) for name, pair in

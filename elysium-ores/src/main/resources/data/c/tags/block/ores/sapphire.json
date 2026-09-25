@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_sapphire_ore",
+    "elysiumores:deepslate_sapphire_ore",
+    "elysiumores:end_stone_sapphire_ore",
+    "elysiumores:frost_sapphire_ore",
+    "elysiumores:netherrack_sapphire_ore",
+    "elysiumores:pale_sapphire_ore",
+    "elysiumores:stone_sapphire_ore"
+  ]
+}

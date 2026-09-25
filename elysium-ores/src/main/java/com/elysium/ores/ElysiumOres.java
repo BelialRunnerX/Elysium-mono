@@ -44,11 +44,17 @@ public class ElysiumOres {
 
     public ElysiumOres(IEventBus modEventBus) {
         com.elysium.ores.registry.OreBlocks.register(modEventBus);
+        // The Cordon's materials (rules/CordonMaterials): the items and blocks
+        // behind Valoria's gear sets, registered from the same roster the ore
+        // rows and the gear modules read.
+        com.elysium.ores.registry.MaterialBlocks.register(modEventBus);
+        com.elysium.ores.registry.MaterialItems.register(modEventBus);
         com.elysium.ores.registry.OreItems.register(modEventBus);
         com.elysium.ores.registry.OrePlacement.register(modEventBus);
         com.elysium.ores.registry.OreLoot.register(modEventBus);
-        LOGGER.info("Elysium Ores ready: {} ores over {} materials",
+        LOGGER.info("Elysium Ores ready: {} ores over {} materials, {} Cordon items",
                 com.elysium.ores.data.OreCatalogue.ENTRIES.size(),
-                com.elysium.ores.data.OreCatalogue.FAMILIES.size());
+                com.elysium.ores.data.OreCatalogue.FAMILIES.size(),
+                com.elysium.ores.rules.CordonMaterials.items().size());
     }
 }
