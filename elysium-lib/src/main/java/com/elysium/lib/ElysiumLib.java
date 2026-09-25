@@ -98,6 +98,11 @@ public class ElysiumLib {
         com.elysium.lib.social.ElysiumMemories.ATTACHMENTS.register(modEventBus);
         com.elysium.lib.medical.ElysiumMedical.ATTACHMENTS.register(modEventBus);
         com.elysium.lib.tier.ElysiumTiers.ATTACHMENTS.register(modEventBus);
+        // Every class that registers onto ElysiumTiers.ATTACHMENTS has to be
+        // loaded before RegisterEvent fires, or its entry is refused when a
+        // mob first spawns. ElysiumTierMobs is loaded by the subscriber scan;
+        // ElysiumElites was loaded by nobody until the first mob was hardened.
+        com.elysium.lib.elite.ElysiumElites.bootstrap();
 
         // Touching the class runs its registrations; without this every
         // handler looks up a kind that is not there and villagers remember

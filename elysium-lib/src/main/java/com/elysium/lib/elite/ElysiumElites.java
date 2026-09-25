@@ -49,6 +49,22 @@ public final class ElysiumElites {
                     () -> AttachmentType.<String>builder(() -> "")
                             .serialize(com.mojang.serialization.Codec.STRING).build());
 
+    /**
+     * Loads the class, and with it the registration above.
+     *
+     * RANK goes onto ElysiumTiers.ATTACHMENTS from this class's static
+     * initialiser, so it exists only once something touches ElysiumElites.
+     * The first thing that did was {@code ElysiumTierMobs.harden()}, from a
+     * mob's FinalizeSpawnEvent — long after RegisterEvent — and
+     * DeferredRegister refused it, which took the server tick down with
+     * "Cannot register new entries to DeferredRegister after RegisterEvent has
+     * been fired". The library's constructor calls this right after it puts
+     * the tier attachments on the bus, so the entry is there before the bus
+     * fires.
+     */
+    public static void bootstrap() {
+    }
+
     /** The rank this creature was promoted to, or ordinary. */
     public static ElysiumEliteRules.Rank rankOf(Mob mob) {
         String name = mob.getData(RANK.get());

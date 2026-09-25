@@ -4212,6 +4212,38 @@ print(f"valoria effects    : the Null field as a sixth hazard with a gauge and a
       f"{len(re.findall(r'\"([a-z_]+)\"', re.search(r'VALORIA_ROWS = List\.of\((.*?)\);', _spec_src, re.S).group(1)))} "
       f"attributes, seven effects and {len(_ench_json)} enchantments, all read by a rule")
 
+# ---------------------------------------------------------------------------
+# Registrations that ride on another class's DeferredRegister
+# ---------------------------------------------------------------------------
+# A static field that calls Owner.REGISTER.register("...") from a class other
+# than Owner is registered only when that class is loaded. If nothing loads it
+# before RegisterEvent, the first use — a mob spawning, say — runs the static
+# initialiser then, and DeferredRegister refuses with "Cannot register new
+# entries ... after RegisterEvent has been fired", which took the server tick
+# down. ElysiumElites.RANK died exactly this way. So every such class is named
+# in the library's constructor (a bootstrap() call is enough) or is a bus
+# subscriber, which the scan loads.
+
+_lib_ctor = strip_comments(_main_src)
+_riders = 0
+for _dir, _, _files in os.walk(SRC):
+    for _file in sorted(_files):
+        if not _file.endswith(".java"):
+            continue
+        _text = strip_comments(open(os.path.join(_dir, _file), encoding="utf-8").read())
+        _here = _file[:-5]
+        for _owner, _reg in re.findall(r'([A-Z]\w+)\.([A-Z_]+)\.register\(\s*"', _text):
+            if _owner == _here:
+                continue
+            _riders += 1
+            if (_here + ".") not in _lib_ctor and "@EventBusSubscriber" not in _text:
+                fail(f"{_file} registers onto {_owner}.{_reg} from its static initialiser and "
+                     f"nothing loads the class before RegisterEvent, so the entry is refused "
+                     f"the first time something touches it; call its bootstrap() from "
+                     f"ElysiumLib's constructor")
+print(f"riding registrations: {_riders} entry(ies) registered from another class, each "
+      f"loaded before the bus fires")
+
 if problems:
     print(f"{len(problems)} PROBLEM(S):")
     for problem in problems:
