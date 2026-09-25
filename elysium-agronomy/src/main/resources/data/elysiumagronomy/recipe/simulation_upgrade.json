@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " W ",
+    "WHW",
+    " W "
+  ],
+  "key": {
+    "W": {
+      "item": "elysiumagronomy:wax"
+    },
+    "H": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:simulation_upgrade",
+    "count": 1
+  }
+}

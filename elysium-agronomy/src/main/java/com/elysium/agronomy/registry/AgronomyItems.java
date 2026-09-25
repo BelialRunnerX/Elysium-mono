@@ -12,6 +12,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -125,17 +126,45 @@ public final class AgronomyItems {
 
     private static Map<String, DeferredItem<Item>> registerChunks() {
         Map<String, DeferredItem<Item>> made = new LinkedHashMap<>();
-        for (String material : com.elysium.agronomy.rules.SeedRules.chunked()) {
+        // The seeds' seventeen and the bees' materials together, walked from
+        // the rules rather than listed. A comb that spins into a chunk nobody
+        // registered is a centrifuge that eats combs and gives nothing back.
+        for (String material : com.elysium.agronomy.rules.ApiaryRules.chunked()) {
             made.put(material, ITEMS.registerSimpleItem(
                     com.elysium.agronomy.rules.SeedRules.chunkOf(material)));
         }
-        if (made.size() != com.elysium.agronomy.rules.SeedRules.chunked().size()) {
+        if (made.size()
+                != com.elysium.agronomy.rules.ApiaryRules.chunked().size()) {
             throw new IllegalStateException("the rules want "
-                    + com.elysium.agronomy.rules.SeedRules.chunked().size()
+                    + com.elysium.agronomy.rules.ApiaryRules.chunked().size()
                     + " chunk(s) and " + made.size() + " were registered");
         }
         return Map.copyOf(made);
     }
+
+    /**
+     * An item by the id the rules name it with, or an empty stack.
+     *
+     * <p>Looked up rather than switched on, so a rule that names something
+     * this pack does not have gives an empty stack a validator can notice
+     * rather than a crash halfway through a tick.
+     */
+    public static net.minecraft.world.item.ItemStack thing(String id) {
+        net.minecraft.resources.ResourceLocation where =
+                net.minecraft.resources.ResourceLocation.tryParse(id);
+        if (where == null) {
+            return net.minecraft.world.item.ItemStack.EMPTY;
+        }
+        Item found = net.minecraft.core.registries.BuiltInRegistries.ITEM
+                .get(where);
+        return found == net.minecraft.world.item.Items.AIR
+                ? net.minecraft.world.item.ItemStack.EMPTY
+                : new net.minecraft.world.item.ItemStack(found);
+    }
+
+    /** Every comb a centrifuge will take. */
+    public static final TagKey<Item> COMB_TAG = ItemTags.create(
+            ResourceLocation.fromNamespaceAndPath(ElysiumAgronomy.MODID, "combs"));
 
     /** The seed that grows a given material. */
     public static DeferredItem<Item> seed(String material) {
@@ -170,6 +199,55 @@ public final class AgronomyItems {
             ITEMS.registerSimpleBlockItem(AgronomyBlocks.DRIVEN_ROCK_GENERATOR);
     public static final DeferredItem<BlockItem> INDUSTRIAL_ROCK_GENERATOR =
             ITEMS.registerSimpleBlockItem(AgronomyBlocks.INDUSTRIAL_ROCK_GENERATOR);
+
+    public static final DeferredItem<BlockItem> CENTRIFUGE =
+            ITEMS.registerSimpleBlockItem(AgronomyBlocks.CENTRIFUGE);
+
+    /** One item per rung of the housing ladder above the plain hive. */
+    public static final java.util.Map<String, DeferredItem<BlockItem>> APIARIES =
+            registerApiaries();
+
+    private static java.util.Map<String, DeferredItem<BlockItem>> registerApiaries() {
+        java.util.Map<String, DeferredItem<BlockItem>> made =
+                new java.util.LinkedHashMap<>();
+        for (java.util.Map.Entry<String, DeferredBlock<net.minecraft.world.level.block.Block>> rung
+                : AgronomyBlocks.APIARIES.entrySet()) {
+            made.put(rung.getKey(), ITEMS.registerSimpleBlockItem(rung.getValue()));
+        }
+        if (made.size() != AgronomyBlocks.APIARIES.size()) {
+            throw new IllegalStateException("there are "
+                    + AgronomyBlocks.APIARIES.size() + " apiary block(s) and "
+                    + made.size() + " item(s) for them");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
+    /**
+     * The upgrades, walked out of the rules.
+     *
+     * <p>They stack to one apiece. An upgrade is a slot, a slot holds one of
+     * a kind, and sixty-four of them in a slot that takes one is a number a
+     * player has to be told does not mean what it says.
+     */
+    public static final java.util.Map<String, DeferredItem<Item>> UPGRADES =
+            registerUpgrades();
+
+    private static java.util.Map<String, DeferredItem<Item>> registerUpgrades() {
+        java.util.Map<String, DeferredItem<Item>> made =
+                new java.util.LinkedHashMap<>();
+        for (com.elysium.agronomy.rules.ApiaryRules.Upgrade upgrade
+                : com.elysium.agronomy.rules.ApiaryRules.UPGRADES) {
+            made.put(upgrade.id(), ITEMS.register(upgrade.id(),
+                    () -> new Item(new Item.Properties().stacksTo(1))));
+        }
+        if (made.size()
+                != com.elysium.agronomy.rules.ApiaryRules.UPGRADES.size()) {
+            throw new IllegalStateException("the rules have "
+                    + com.elysium.agronomy.rules.ApiaryRules.UPGRADES.size()
+                    + " upgrade(s) and " + made.size() + " were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
 
     /** The order the tab shows them in: grow it, hurry it, keep bees, make rock. */
     /**

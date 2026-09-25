@@ -59,10 +59,47 @@ public final class AgronomyBlockEntities {
                     AgronomyBlocks.ACCELERATOR.get())
             .build(null));
 
+    /** One type for the whole housing ladder: the block says which rung it is. */
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<HiveBlock.HiveBlockEntity>>
             HIVE = TYPES.register("hive", () -> BlockEntityType.Builder.of(
-                    HiveBlock.HiveBlockEntity::new, AgronomyBlocks.HIVE.get())
+                    HiveBlock.HiveBlockEntity::new, everyHousing())
             .build(null));
+
+    /**
+     * The plain hive and every rung above it.
+     *
+     * <p>A block entity type that does not name a block refuses to attach to
+     * it, and the symptom is an apiary you can place, fill with bees and
+     * watch do nothing at all — with no error anywhere, because nothing went
+     * wrong. The pots learned this the same way.
+     */
+    private static net.minecraft.world.level.block.Block[] everyHousing() {
+        java.util.List<net.minecraft.world.level.block.Block> all =
+                new java.util.ArrayList<>();
+        all.add(AgronomyBlocks.HIVE.get());
+        for (com.elysium.agronomy.rules.ApiaryRules.Housing housing
+                : com.elysium.agronomy.rules.ApiaryRules.HOUSINGS) {
+            if (!housing.first()) {
+                all.add(AgronomyBlocks.APIARIES.get(housing.id()).get());
+            }
+        }
+        if (all.size() != com.elysium.agronomy.rules.ApiaryRules.HOUSINGS.size()) {
+            throw new IllegalStateException("the ladder has "
+                    + com.elysium.agronomy.rules.ApiaryRules.HOUSINGS.size()
+                    + " rung(s) and " + all.size()
+                    + " were given a block entity");
+        }
+        return all.toArray(new net.minecraft.world.level.block.Block[0]);
+    }
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.agronomy.block.CentrifugeBlock.CentrifugeBlockEntity>>
+            CENTRIFUGE = TYPES.register(
+                    com.elysium.agronomy.rules.ApiaryRules.CENTRIFUGE,
+                    () -> BlockEntityType.Builder.of(
+                            com.elysium.agronomy.block.CentrifugeBlock
+                                    .CentrifugeBlockEntity::new,
+                            AgronomyBlocks.CENTRIFUGE.get())
+                    .build(null));
 
     /** One type for all three rungs: the block says which it is. */
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RockGeneratorBlock.RockGeneratorBlockEntity>>
@@ -94,6 +131,8 @@ public final class AgronomyBlockEntities {
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, HIVE.get(),
                     (entity, side) -> entity.items());
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ROCK_GENERATOR.get(),
+                    (entity, side) -> entity.items());
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, CENTRIFUGE.get(),
                     (entity, side) -> entity.items());
         }
     }

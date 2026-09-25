@@ -354,13 +354,19 @@ public final class BeeRules {
     /**
      * How long the first bee that makes a material takes over one comb.
      *
-     * <p>Four real minutes a bee, twelve bees to a hive: sixty units an hour
-     * against a mine's two hundred and forty. The number is not a taste. It is
-     * {@link #HIVE_AT_MOST} of {@link AgronomyRules#minedPerHour()} solved for
-     * time, and the harness re-solves it on every build, so retuning the mine
-     * moves this rather than quietly breaking the rule.
+     * <p>Not a taste, and no longer a number at all: it is what makes the
+     * best apiary anybody can build land exactly on {@link #HIVE_AT_MOST} of
+     * {@link AgronomyRules#minedPerHour()}, solved on every build by {@link
+     * ApiaryRules#ticksForTheCeiling()}.
+     *
+     * <p>It used to be 14,400 — four real minutes a bee, twelve bees to a
+     * hive, sixty an hour against a mine's two hundred and forty. Which put a
+     * <em>bare</em> hive exactly on the ceiling and left nowhere at all for an
+     * upgrade to go: anything worth fitting put a hive over the line, and an
+     * upgrade not worth fitting is a recipe nobody makes twice. So the ceiling
+     * stayed where it was and the floor came down under it.
      */
-    public static final int FIRST_RESOURCE_TICKS = 14_400;
+    public static final int FIRST_RESOURCE_TICKS = ApiaryRules.ticksForTheCeiling();
 
     /** How long a wild bee takes over a comb of honey, which is not a material. */
     public static final int WILD_TICKS = AgronomyRules.COMB_TICKS;

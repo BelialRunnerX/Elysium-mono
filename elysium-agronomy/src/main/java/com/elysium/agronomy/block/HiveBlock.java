@@ -2,6 +2,7 @@ package com.elysium.agronomy.block;
 
 import com.elysium.agronomy.registry.AgronomyBlockEntities;
 import com.elysium.agronomy.registry.AgronomyItems;
+import com.elysium.agronomy.rules.ApiaryRules;
 import com.elysium.agronomy.rules.AgronomyRules;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -41,10 +42,32 @@ import org.jetbrains.annotations.Nullable;
  */
 public class HiveBlock extends BaseEntityBlock {
 
-    public static final MapCodec<HiveBlock> CODEC = simpleCodec(HiveBlock::new);
+    /** The rung a plain hive is: the one you make before you make anything. */
+    public static final String HOUSING = "hive";
+
+    public static final MapCodec<HiveBlock> CODEC =
+            simpleCodec(properties -> new HiveBlock(properties, HOUSING));
+
+    private final String housing;
 
     public HiveBlock(Properties properties) {
+        this(properties, HOUSING);
+    }
+
+    /**
+     * @param housing which rung of {@link ApiaryRules#HOUSINGS} this block is.
+     *                One class for all four of them, and the block says which:
+     *                four classes differing in two numbers is four places for
+     *                the two numbers to drift apart.
+     */
+    public HiveBlock(Properties properties, String housing) {
         super(properties);
+        this.housing = housing;
+    }
+
+    /** Which rung this is. */
+    public String housing() {
+        return housing;
     }
 
     @Override
@@ -128,7 +151,17 @@ public class HiveBlock extends BaseEntityBlock {
         /** How often it counts them. Gardens do not change by the tick. */
         public static final int COUNTS_EVERY = 100;
 
-        private final ItemStackHandler items = new ItemStackHandler(2) {
+        /**
+         * Bees, combs, then one slot per upgrade the housing takes.
+         *
+         * <p>Sized for the biggest rung there is rather than for this one, so
+         * that a hive broken and replaced by an apiary does not have to move
+         * its contents between two differently shaped inventories. What each
+         * rung actually accepts is {@link #slots()}, and the slots past it
+         * refuse everything.
+         */
+        private final ItemStackHandler items = new ItemStackHandler(FIRST_UPGRADE
+                + mostSlots()) {
             @Override
             protected void onContentsChanged(int slot) {
                 setChanged();
@@ -136,7 +169,15 @@ public class HiveBlock extends BaseEntityBlock {
 
             @Override
             public boolean isItemValid(int slot, ItemStack stack) {
-                return slot == BEES && stack.is(AgronomyItems.BEE_TAG);
+                if (slot == BEES) {
+                    return stack.is(AgronomyItems.BEE_TAG);
+                }
+                if (slot < FIRST_UPGRADE) {
+                    return false;
+                }
+                return slot - FIRST_UPGRADE < slots()
+                        && ApiaryRules.upgrade(idOf(stack)) != null
+                        && !alreadyFitted(idOf(stack), slot);
             }
         };
 
@@ -156,8 +197,83 @@ public class HiveBlock extends BaseEntityBlock {
             return flowers;
         }
 
+        /** Where the upgrade slots start. */
+        public static final int FIRST_UPGRADE = 2;
+
+        /** How many slots the deepest rung of the ladder takes. */
+        public static int mostSlots() {
+            int most = 0;
+            for (ApiaryRules.Housing one : ApiaryRules.HOUSINGS) {
+                most = Math.max(most, one.slots());
+            }
+            return most;
+        }
+
+        /** Which rung this block entity is sitting in. */
+        public ApiaryRules.Housing housing() {
+            ApiaryRules.Housing found = null;
+            if (getBlockState().getBlock() instanceof HiveBlock hive) {
+                found = ApiaryRules.housing(hive.housing());
+            }
+            return found != null ? found : ApiaryRules.HOUSINGS.get(0);
+        }
+
+        /** How many upgrades this rung takes. */
+        public int slots() {
+            return housing().slots();
+        }
+
+        /** What is fitted, in the order the slots hold it. */
+        public java.util.List<ApiaryRules.Upgrade> fitted() {
+            java.util.List<ApiaryRules.Upgrade> found = new java.util.ArrayList<>();
+            for (int slot = 0; slot < slots(); slot++) {
+                ApiaryRules.Upgrade one =
+                        ApiaryRules.upgrade(idOf(items.getStackInSlot(
+                                FIRST_UPGRADE + slot)));
+                if (one != null && !found.contains(one)) {
+                    found.add(one);
+                }
+            }
+            return found;
+        }
+
+        private boolean alreadyFitted(String id, int besides) {
+            for (int slot = 0; slot < slots(); slot++) {
+                if (FIRST_UPGRADE + slot == besides) {
+                    continue;
+                }
+                if (id.equals(idOf(items.getStackInSlot(FIRST_UPGRADE + slot)))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static String idOf(ItemStack stack) {
+            if (stack.isEmpty()) {
+                return "";
+            }
+            net.minecraft.resources.ResourceLocation where =
+                    net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(
+                            stack.getItem());
+            return where.getNamespace().equals(
+                    com.elysium.agronomy.ElysiumAgronomy.MODID)
+                    ? where.getPath() : "";
+        }
+
+        /** Whether a chore has been bought back here. */
+        public boolean bought(String chore) {
+            for (ApiaryRules.Upgrade one : fitted()) {
+                if (one.attention().equals(chore)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public int bees() {
-            return Math.min(AgronomyRules.MOST_BEES, items.getStackInSlot(BEES).getCount());
+            return Math.min(ApiaryRules.beesIn(housing(), fitted()),
+                    items.getStackInSlot(BEES).getCount());
         }
 
         public boolean offer(ItemStack held) {
@@ -177,15 +293,54 @@ public class HiveBlock extends BaseEntityBlock {
         }
 
         public SimpleContainer spill() {
-            return new SimpleContainer(items.getStackInSlot(BEES),
-                    items.getStackInSlot(OUT));
+            ItemStack[] held = new ItemStack[items.getSlots()];
+            for (int slot = 0; slot < held.length; slot++) {
+                held[slot] = items.getStackInSlot(slot);
+            }
+            return new SimpleContainer(held);
+        }
+
+        /**
+         * How many flowers this hive counts as having.
+         *
+         * <p>The flowering upgrade does not conjure flowers; it makes the
+         * hive stop needing them, which is the same arithmetic and a very
+         * different sentence. Enough for every bee in it, whatever is
+         * actually planted outside.
+         */
+        public int flowering() {
+            return bought("planting flowers")
+                    ? Math.max(flowers, bees() * AgronomyRules.FLOWERS_PER_BEE)
+                    : flowers;
+        }
+
+        /** Combs an hour, with the housing, the upgrades and the garden. */
+        public float rate() {
+            float crowded = AgronomyRules.combsPerHour(bees(), flowering());
+            float bare = AgronomyRules.combsPerHour(bees(),
+                    bees() * AgronomyRules.FLOWERS_PER_BEE);
+            float share = bare <= 0.0F ? 0.0F : crowded / bare;
+            return ApiaryRules.perHour(1, housing(), fitted()) * share
+                    * ratio();
+        }
+
+        /**
+         * How much of a full hive this one is.
+         *
+         * <p>{@link ApiaryRules#perHour} is a full house; a hive with three
+         * bees in it is three bees' worth of that, and without this a single
+         * bee in an industrial apiary would earn what twenty-four do.
+         */
+        private float ratio() {
+            int full = ApiaryRules.beesIn(housing(), fitted());
+            return full <= 0 ? 0.0F : (float) bees() / full;
         }
 
         public Component says(Level level, BlockPos pos) {
             if (bees() <= 0) {
                 return Component.translatable("elysiumagronomy.hive.empty");
             }
-            float rate = AgronomyRules.combsPerHour(bees(), flowers);
+            float rate = AgronomyRules.combsPerHour(bees(), flowering());
             float roomy = AgronomyRules.combsPerHour(bees(),
                     bees() * AgronomyRules.FLOWERS_PER_BEE);
             if (rate < roomy) {
@@ -204,7 +359,7 @@ public class HiveBlock extends BaseEntityBlock {
                 since = 0;
                 flowers = countFlowers(level, pos);
             }
-            float perHour = AgronomyRules.combsPerHour(bees(), flowers);
+            float perHour = rate();
             if (perHour <= 0.0F) {
                 return;
             }

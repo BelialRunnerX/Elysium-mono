@@ -58,6 +58,47 @@ public final class AgronomyBlocks {
     public static final DeferredBlock<Block> HIVE = BLOCKS.register("hive",
             () -> new HiveBlock(timber()));
 
+    /**
+     * The rest of the housing ladder, walked from the rules.
+     *
+     * <p>Three more rungs, each holding more bees than the one below and
+     * taking more upgrades. Registered from {@link ApiaryRules#HOUSINGS}
+     * rather than listed here, so a rung added to the ladder is a rung that
+     * exists the same day — and the count check at the end is what catches
+     * the one somebody forgot.
+     */
+    public static final java.util.Map<String, DeferredBlock<Block>> APIARIES =
+            registerApiaries();
+
+    private static java.util.Map<String, DeferredBlock<Block>> registerApiaries() {
+        java.util.Map<String, DeferredBlock<Block>> made =
+                new java.util.LinkedHashMap<>();
+        for (com.elysium.agronomy.rules.ApiaryRules.Housing housing
+                : com.elysium.agronomy.rules.ApiaryRules.HOUSINGS) {
+            if (housing.first()) {
+                continue;
+            }
+            made.put(housing.id(), BLOCKS.register(housing.id(),
+                    () -> new HiveBlock(
+                            housing.slots() >= 4 ? steel().strength(3.5F)
+                                    : timber().strength(2.5F),
+                            housing.id())));
+        }
+        int wanted = com.elysium.agronomy.rules.ApiaryRules.HOUSINGS.size() - 1;
+        if (made.size() != wanted) {
+            throw new IllegalStateException("the ladder has " + wanted
+                    + " rung(s) above the plain hive and " + made.size()
+                    + " were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
+    /** What a comb is actually for. */
+    public static final DeferredBlock<Block> CENTRIFUGE =
+            BLOCKS.register(com.elysium.agronomy.rules.ApiaryRules.CENTRIFUGE,
+                    () -> new com.elysium.agronomy.block.CentrifugeBlock(
+                            steel().strength(3.5F)));
+
     public static final DeferredBlock<Block> ROCK_GENERATOR =
             BLOCKS.register("rock_generator",
                     () -> new RockGeneratorBlock(BlockBehaviour.Properties

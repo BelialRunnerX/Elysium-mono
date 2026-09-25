@@ -64,6 +64,7 @@ public final class AgronomyHarness {
         theFrontier();
         theRoster();
         theApiary();
+        theMachinery();
         theFish();
         theCast();
         thePots();
@@ -546,6 +547,219 @@ public final class AgronomyHarness {
         check(BeeRules.combTicks(0) < BeeRules.combTicks(1),
                 "a wild bee is no faster than a bee that makes metal, which leaves "
                         + "nothing to like about the ones you can actually find");
+    }
+
+
+    // ==================================================================
+
+    /**
+     * The apiaries, the upgrades and the one line none of them may cross.
+     *
+     * <p>Not the best case. Every case: four housings, seven upgrades, every
+     * way of filling the slots, every tier carrying a resource bee. An
+     * upgrade system written as arithmetic can be asked "does anything at all
+     * out-earn a mine"; one written as a handful of block entities can only
+     * be asked whether somebody thought the top one looked about right.
+     */
+    private static void theMachinery() {
+        check(ApiaryRules.faults().isEmpty(),
+                "something wrong with the machinery itself: " + ApiaryRules.faults());
+        check(ApiaryRules.outMining().isEmpty(),
+                ApiaryRules.outMining().size() + " housing-and-fitting(s) out-earn "
+                        + "a mine, first: " + (ApiaryRules.outMining().isEmpty()
+                        ? "" : ApiaryRules.outMining().get(0)));
+
+        // The sweep itself, counted, because a sweep that visits nothing
+        // passes exactly as loudly as one that visits everything.
+        int swept = 0;
+        for (BeeRules.Bee bee : BeeRules.ofKind(BeeRules.RESOURCE)) {
+            int tier = BeeRules.tierOf(bee.id());
+            if (tier == BeeRules.A_CYCLE) {
+                continue;
+            }
+            for (ApiaryRules.Housing housing : ApiaryRules.HOUSINGS) {
+                for (java.util.List<ApiaryRules.Upgrade> fitted
+                        : ApiaryRules.everyFitting(housing)) {
+                    swept++;
+                    check(ApiaryRules.underTheCeiling(tier, housing, fitted),
+                            housing.id() + " at tier " + tier + " with "
+                                    + fitted.size() + " upgrade(s) earns "
+                                    + ApiaryRules.perHour(tier, housing, fitted)
+                                    + " an hour and the ceiling is "
+                                    + ApiaryRules.ceiling());
+                    check(ApiaryRules.beesIn(housing, fitted) >= housing.bees(),
+                            "fitting upgrades to " + housing.id() + " took bees "
+                                    + "out of it");
+                    check(ApiaryRules.speedIn(fitted) >= 1.0F,
+                            "fitting upgrades to " + housing.id() + " made it "
+                                    + "slower");
+                }
+            }
+        }
+        check(swept > 5_000, "only " + swept + " housing-and-fitting(s) were "
+                + "swept, and there are four housings, seven upgrades and a "
+                + "roster of resource bees behind them");
+
+        // The ladder is a ladder: every rung better than the one under it,
+        // and every rung built out of it.
+        for (int at = 1; at < ApiaryRules.HOUSINGS.size(); at++) {
+            ApiaryRules.Housing over = ApiaryRules.HOUSINGS.get(at);
+            ApiaryRules.Housing under = ApiaryRules.HOUSINGS.get(at - 1);
+            check(over.from().equals(under.id()), over.id() + " is built out of "
+                    + over.from() + " and the rung below it is " + under.id());
+            check(ApiaryRules.perHour(1, over, java.util.List.of())
+                            > ApiaryRules.perHour(1, under, java.util.List.of()),
+                    over.id() + " bare earns no more than " + under.id()
+                            + " bare, so nobody would ever build it");
+            check(over.slots() >= under.slots(), over.id() + " takes fewer "
+                    + "upgrades than " + under.id());
+        }
+
+        // The two ends of it, against the line.
+        ApiaryRules.Housing top = ApiaryRules.best();
+        float reached = ApiaryRules.perHour(1, top, ApiaryRules.fittable(top));
+        check(Math.abs(reached - ApiaryRules.ceiling()) < 0.01F,
+                "the best apiary anybody can build earns " + reached
+                        + " an hour and the ceiling is " + ApiaryRules.ceiling()
+                        + "; the whole point of solving for the ticks is that "
+                        + "those two are the same number");
+        float bare = ApiaryRules.perHour(1, ApiaryRules.HOUSINGS.get(0),
+                java.util.List.of());
+        check(bare < ApiaryRules.ceiling() * ApiaryRules.BARE_AT_MOST,
+                "a hive nobody has built anything for earns " + bare
+                        + " against a ceiling of " + ApiaryRules.ceiling()
+                        + ", so there is no room under the line for the ladder");
+
+        // Five of the seven buy attention rather than output, which is what
+        // the jar this replaces is actually for.
+        int earns = ApiaryRules.earning().size();
+        check(earns >= 1 && earns < ApiaryRules.UPGRADES.size(),
+                earns + " of " + ApiaryRules.UPGRADES.size() + " upgrades change "
+                        + "what comes out of a hive; if it is none the ladder is "
+                        + "decoration and if it is all of them nothing buys back "
+                        + "any of the attention this is for");
+        java.util.Set<String> chores = new java.util.LinkedHashSet<>();
+        for (ApiaryRules.Upgrade one : ApiaryRules.UPGRADES) {
+            if (!one.attention().isEmpty()) {
+                check(chores.add(one.attention()),
+                        "two upgrades take away " + one.attention());
+            }
+        }
+        check(chores.size() >= 4, "only " + chores.size() + " chore(s) can be "
+                + "bought back, and the jar this replaces is mostly about that");
+
+        // What a comb comes apart into. A resource comb gives its material; a
+        // comb of honey does not, and a check that cannot tell them apart is
+        // one that would happily ship a honey bee that makes iron.
+        for (BeeRules.Bee bee : BeeRules.BEES) {
+            java.util.List<String> out = ApiaryRules.spun(bee);
+            java.util.List<Integer> counts = ApiaryRules.spunCounts(bee);
+            check(out.size() == counts.size(), bee.id() + "'s comb comes apart "
+                    + "into " + out.size() + " thing(s) counted " + counts.size()
+                    + " way(s)");
+            check(!out.isEmpty(), bee.id() + "'s comb comes apart into nothing");
+            for (int count : counts) {
+                check(count > 0, bee.id() + "'s comb gives none of something");
+            }
+            boolean resource = BeeRules.RESOURCE.equals(bee.kind());
+            String chunk = ApiaryRules.OURS + ":"
+                    + ApiaryRules.chunkOf(bee.produce());
+            check(out.contains(chunk) == resource,
+                    bee.id() + " is a " + bee.kind() + " bee and its comb "
+                            + (resource ? "does not give " : "gives ") + chunk);
+            for (String id : out) {
+                check(id.indexOf(':') > 0, bee.id() + "'s comb gives " + id
+                        + ", which is not an item id anything can look up");
+                check(id.startsWith(ApiaryRules.OURS + ":")
+                                || id.startsWith(ApiaryRules.VANILLA + ":"),
+                        bee.id() + "'s comb gives " + id + ", and this module "
+                                + "may only hand over its own items and the "
+                                + "game's — anything else is a module reaching "
+                                + "up into the one above it");
+            }
+            if (resource) {
+                check(ApiaryRules.chunked().contains(bee.produce()),
+                        bee.id() + " makes " + bee.produce() + " and no chunk of "
+                                + "it is registered, so its comb spins into "
+                                + "nothing");
+            }
+        }
+        check(ApiaryRules.SPIN_TICKS > 0, "a comb comes apart instantly");
+        check(ApiaryRules.SPINNER.draw() > 0.0F,
+                "the centrifuge runs on nothing at all, which is free work");
+
+        // A hive built to be over the line, so the rule that says nothing is
+        // over it has been shown able to say otherwise. Every real housing is
+        // under the ceiling by construction — the comb time is solved for
+        // exactly that — so without this the rule could be `return true` and
+        // every check in this file would still pass.
+        ApiaryRules.Housing absurd =
+                new ApiaryRules.Housing("control", 10_000, 0, "hive");
+        check(!ApiaryRules.underTheCeiling(1, absurd, java.util.List.of()),
+                "a hive holding ten thousand bees is not reported as over the "
+                        + "line, so the ceiling check cannot say no and the one "
+                        + "rule this whole system exists to keep is a comment");
+        check(ApiaryRules.underTheCeiling(1, ApiaryRules.HOUSINGS.get(0),
+                        java.util.List.of()),
+                "a bare hive is reported as over the line, which is the rule "
+                        + "backwards");
+
+        // Controls: a ladder and a set of upgrades built to be caught.
+        check(!ApiaryRules.faultsInLadder(java.util.List.of(
+                        new ApiaryRules.Housing("control", 12, 0, ""),
+                        new ApiaryRules.Housing("control_two", 8, 0, "control")))
+                        .isEmpty(),
+                "a rung that holds fewer bees and no more upgrades than the one "
+                        + "below it is not reported, so a block nobody would ever "
+                        + "build would ship");
+        check(!ApiaryRules.faultsInLadder(java.util.List.of(
+                        new ApiaryRules.Housing("control", 12, 0, ""),
+                        new ApiaryRules.Housing("control_two", 16, 2, "nowhere")))
+                        .isEmpty(),
+                "a rung built out of something that is not the rung below it is "
+                        + "not reported, so the ladder has a step nobody climbs");
+        check(ApiaryRules.faultsInLadder(java.util.List.of(
+                        new ApiaryRules.Housing("control", 12, 0, ""),
+                        new ApiaryRules.Housing("control_two", 16, 2, "control")))
+                        .isEmpty(),
+                "an ordinary two-rung ladder is reported as faulty: "
+                        + ApiaryRules.faultsInLadder(java.util.List.of(
+                                new ApiaryRules.Housing("control", 12, 0, ""),
+                                new ApiaryRules.Housing("control_two", 16, 2,
+                                        "control"))));
+        check(!ApiaryRules.faultsInUpgrades(java.util.List.of(
+                        new ApiaryRules.Upgrade("control", 0, 1.0F, "")))
+                        .isEmpty(),
+                "an upgrade that earns nothing and takes no chore away is not "
+                        + "reported, and it is a recipe that costs something and "
+                        + "does nothing");
+        check(!ApiaryRules.faultsInUpgrades(java.util.List.of(
+                        new ApiaryRules.Upgrade("control", 4, 1.0F, "planting")))
+                        .isEmpty(),
+                "an upgrade that both earns and buys attention is not reported, "
+                        + "and the whole ceiling argument is that those are two "
+                        + "different kinds of thing");
+
+        java.util.List<String> allowed = new java.util.ArrayList<>();
+        try {
+            new ApiaryRules.Upgrade("control", 0, 0.5F, "");
+            allowed.add("an upgrade that makes a hive slower");
+        } catch (IllegalArgumentException expected) {
+            checks++;
+        }
+        try {
+            new ApiaryRules.Housing("control", 0, 0, "");
+            allowed.add("a housing that holds no bees");
+        } catch (IllegalArgumentException expected) {
+            checks++;
+        }
+        check(allowed.isEmpty(), "the machinery allows what it says it forbids: "
+                + allowed);
+
+        System.out.println("  the apiary: " + swept + " housing-and-fitting(s) "
+                + "swept, none over the line, a bare hive at "
+                + Math.round(bare / ApiaryRules.ceiling() * 100) + "% of it and "
+                + "the best one anybody can build exactly on it");
     }
 
     // ==================================================================

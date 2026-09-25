@@ -698,3 +698,57 @@ and the price of that is the same price the room grammar pays. What is bought
 is that every one of them provably generates, that none of them is a
 duplicate of another under a different name, and that no vanilla biome was
 quietly deleted to make room.
+
+---
+
+## 13. The apiary, and the ceiling it is not allowed to cross
+
+`productivebees` is the largest jar left in agronomy and the module already
+has the half of it that matters: 75 species, combs, comb blocks, nests, and a
+breeding tree whose tier is derived from its parents rather than written down.
+What is missing is the machinery — the apiaries, the upgrades that go in them,
+and the centrifuge that turns a comb into the thing it is a comb of.
+
+### The rule that makes this awkward, and is worth keeping anyway
+
+`BeeRules.HIVE_AT_MOST` says a hive may be worth a quarter of a mine and no
+more. It is the same rule crops are held to and it exists for the same reason:
+the moment a farm out-earns a mine, the ore ladder three ages are built on
+stops mattering. A hive wants no light, no water, no replanting and no
+attention at all, so the only honest way to price it is to make it slow.
+
+The trouble is that a bare hive *already sat exactly on that ceiling*. Twelve
+bees, one comb every four minutes, sixty units an hour against a mine's two
+hundred and forty. Which left no room at all: any upgrade worth fitting would
+put a hive over the line, and an upgrade not worth fitting is a recipe nobody
+makes twice.
+
+### The decision: keep the ceiling, lower the floor
+
+The ceiling does not move. What moves is where a *bare* hive sits under it. A
+hive nobody has built anything for now runs at roughly a fifth of the ceiling,
+and the ladder — apiary, advanced apiary, industrial apiary, and the upgrades
+that go in their slots — earns the rest of it back. A fully fitted industrial
+apiary lands exactly on the line and not a comb over it.
+
+`FIRST_RESOURCE_TICKS` stops being a number somebody chose and becomes the
+answer to "what makes the best possible apiary equal the ceiling" — solved on
+every build, so retuning the mine moves the whole ladder rather than quietly
+breaking the rule at the top of it.
+
+### What the sweep has to cover
+
+Not the best case. *Every* case: four housings, seven upgrades, every way of
+filling the slots, every tier of bee. That is the point of an upgrade system
+being expressed as arithmetic rather than as a handful of block entities —
+"no combination of anything out-earns a mine" is a sentence a harness can
+check, and "we think the top one is about right" is not.
+
+### What an upgrade is allowed to be
+
+Two of the seven touch throughput at all: one adds bees, one makes combs come
+faster. The other five buy back *attention* — flowers that no longer have to
+be planted, combs that no longer have to be collected by hand, bees that no
+longer wander off, breeding that happens in the box rather than in a field.
+That is what the jar being replaced is actually for, and none of it is
+priced against the ore ladder because none of it produces anything.

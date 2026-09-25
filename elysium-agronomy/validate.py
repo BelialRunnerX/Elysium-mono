@@ -16,7 +16,6 @@ already stopped mining.
   5. THE SEAM. What it declares.
 """
 import json
-import json
 import os
 import re
 import subprocess
@@ -472,9 +471,16 @@ if "pots <= 0 ? null" not in drawing:
          "walled off is a permanent cost with no effect")
 
 hive = strip_comments(read(SRC, "block/HiveBlock.java"))
-if "AgronomyRules.combsPerHour(" not in body_of(hive, "public void work("):
-    fail("a hive works out its own rate, so crowding is decided somewhere the harness "
-         "cannot execute it")
+if "AgronomyRules.combsPerHour(" not in body_of(hive, "public float rate()"):
+    fail("a hive works out its own crowding, so how a full hive slows is decided "
+         "somewhere the harness cannot execute it")
+if "ApiaryRules.perHour(" not in body_of(hive, "public float rate()"):
+    fail("a hive works out its own rate rather than asking the rules for it, so the "
+         "one line a hive may not cross is enforced over arithmetic the block does "
+         "not use")
+if "rate()" not in body_of(hive, "public void work("):
+    fail("a hive at work does not use the rate it works out, so the upgrades fitted "
+         "to it change a number nobody reads")
 if "BlockTags.FLOWERS" not in hive:
     fail("a hive does not count the flowers around it, so 'why is my hive slow' has no "
          "answer a player can walk outside and look at")
@@ -728,6 +734,41 @@ def ingredients(recipe):
                 out.append("#" + one["tag"])
     return out
 
+
+APIARY_RULES = read(SRC, "rules/ApiaryRules.java")
+apiary_source = strip_comments(APIARY_RULES, True)
+
+housings = [(one[0], one[1], int(one[2]), one[3]) for one in re.findall(
+    r'new Housing\("([a-z_]+)",\s*(AgronomyRules\.MOST_BEES|\d+),\s*(\d+),'
+    r'\s*"([a-z_]*)"\)', apiary_source)]
+upgrades = [(one[0], int(one[1]), float(one[2]), one[3]) for one in re.findall(
+    r'new Upgrade\("([a-z_]+)",\s*(\d+),\s*([\d.]+)F,\s*"([a-z ]*)"\)',
+    apiary_source)]
+centrifuge = re.search(r'CENTRIFUGE = "([a-z_]+)"', apiary_source)
+centrifuge = centrifuge.group(1) if centrifuge else ""
+
+if len(housings) < 2:
+    fail(f"the housing ladder reads as {len(housings)} rung(s), which is not a "
+         f"ladder — and every check below it is then checking nothing")
+if not upgrades:
+    fail("no upgrade can be read out of ApiaryRules, so the slots in every "
+         "apiary are slots nothing goes in")
+if not centrifuge:
+    fail("ApiaryRules no longer says what the centrifuge is called, and a comb "
+         "with nothing to put it in is a production chain that stops one block "
+         "short of producing anything")
+
+# Ours, so a recipe naming one of them is not a recipe naming somebody else's.
+OURS |= {f"{NS}:{one[0]}" for one in housings}
+OURS |= {f"{NS}:{one[0]}" for one in upgrades}
+if centrifuge:
+    OURS |= {f"{NS}:{centrifuge}"}
+bee_materials = [bee for bee, in re.findall(
+    r'resource\("([a-z_]+)",\s*"[a-z_]+",\s*"[a-z_]+"\)', BEE_RULES)] \
+    if False else re.findall(
+        r'resource\("([a-z_]+)", "[a-z_]+", "[a-z_]+"\)',
+        strip_comments(BEE_RULES, True))
+OURS |= {f"{NS}:{material}_chunk" for material in bee_materials}
 
 for name in registered:
     if name not in crafted:
@@ -1475,6 +1516,132 @@ if f"item.{NS}.food_book" not in lang:
 for line in ("elysiumagronomy.diet.read", "elysiumagronomy.diet.tip"):
     if line not in lang:
         fail(f"the book says {line}, which is not translated, so it shows the key")
+
+
+# ---------------------------------------------------------------------------
+# The apiary: the ladder, the upgrades, and the centrifuge at the end of it
+# ---------------------------------------------------------------------------
+
+
+# The ceiling, which is the whole reason this system is arithmetic.
+if "public static int ticksForTheCeiling()" not in apiary_source:
+    fail("the ticks a comb takes are no longer solved against the ceiling, so "
+         "the top of the ladder is a number somebody chose and the rule it is "
+         "meant to respect is a comment")
+if "ApiaryRules.ticksForTheCeiling()" not in strip_comments(BEE_RULES, True):
+    fail("BeeRules no longer takes its first resource comb from the ceiling, so "
+         "retuning the mine leaves the best apiary over the line and nothing "
+         "anywhere says so")
+if "float ticks = BeeRules.combTicks(tier) / speedIn(fitted);" not in apiary_source:
+    fail("a speed upgrade multiplies the bees rather than shortening the comb, "
+         "which is the same number today and a different one the moment a comb "
+         "yields more than one of anything")
+
+# Every rung, every upgrade and the centrifuge: a block or an item, a model, a
+# name and a recipe. A rung with no recipe is a rung nobody climbs.
+lang_file = json.loads(read(RES, "assets", NS, "lang/en_us.json"))
+for name, _, slots, built in housings:
+    if not built:
+        continue
+    for folder, kind in (("models/block", "block model"),
+                         ("models/item", "item model"),
+                         ("blockstates", "blockstate")):
+        if not os.path.isfile(os.path.join(RES, "assets", NS, folder,
+                                           name + ".json")):
+            fail(f"{name} has no {kind}, so a rung of the ladder is a purple "
+                 f"cube")
+    if not os.path.isfile(os.path.join(RES, "data", NS, "recipe",
+                                       name + ".json")):
+        fail(f"{name} has no recipe, so a rung of the ladder is a block only "
+             f"the creative menu has")
+    else:
+        recipe = json.loads(read(RES, "data", NS, "recipe", name + ".json"))
+        asked = json.dumps(recipe.get("key", {}))
+        if f"{NS}:{built}" not in asked:
+            fail(f"{name} is built out of {built} in the rules and its recipe "
+                 f"does not ask for one, so the ladder in the rules and the "
+                 f"ladder a player climbs are two different ladders")
+    if not os.path.isfile(os.path.join(RES, "data", NS, "loot_table/blocks",
+                                       name + ".json")):
+        fail(f"{name} drops nothing when it is broken, so an apiary full of "
+             f"bees is one misclick from gone")
+    if f"block.{NS}.{name}" not in lang_file:
+        fail(f"{name} has no name a player reads")
+
+for name, bees, faster, attention in upgrades:
+    if not os.path.isfile(os.path.join(RES, "assets", NS, "models/item",
+                                       name + ".json")):
+        fail(f"{name} has no model")
+    if not os.path.isfile(os.path.join(RES, "data", NS, "recipe",
+                                       name + ".json")):
+        fail(f"{name} has no recipe, so an upgrade slot is a slot nothing goes "
+             f"in")
+    if f"item.{NS}.{name}" not in lang_file:
+        fail(f"{name} has no name a player reads")
+    if bees == 0 and faster == 1.0 and not attention:
+        fail(f"{name} earns nothing and takes no chore away, so it is a recipe "
+             f"that costs something and does nothing")
+
+if centrifuge:
+    for folder in ("models/block", "models/item", "blockstates"):
+        if not os.path.isfile(os.path.join(RES, "assets", NS, folder,
+                                           centrifuge + ".json")):
+            fail(f"the centrifuge has no {folder.split('/')[-1]}")
+    if not os.path.isfile(os.path.join(RES, "data", NS, "recipe",
+                                       centrifuge + ".json")):
+        fail("the centrifuge has no recipe")
+
+# Every comb a centrifuge takes, in the tag it reads, walked from the roster.
+combs_tag = os.path.join(RES, "data", NS, "tags/item/combs.json")
+if not os.path.isfile(combs_tag):
+    fail("there is no tag of combs, so the centrifuge accepts nothing at all "
+         "and every comb in the pack stays a thing you look at")
+else:
+    listed = set(json.loads(read(combs_tag)).get("values", []))
+    missing = [bid for bid in bee_ids if f"{NS}:{bid}_comb" not in listed]
+    if missing:
+        fail(f"{len(missing)} comb(s) are not in the tag the centrifuge reads, "
+             f"so those bees produce something with nothing to put it in: "
+             f"{missing[:5]}")
+
+# Every material a comb spins into has a chunk, a sprite and a name.
+for material in bee_materials:
+    chunk = material + "_chunk"
+    if not os.path.isfile(os.path.join(RES, "assets", NS, "models/item",
+                                       chunk + ".json")):
+        fail(f"{material} is what a bee makes and there is no {chunk} model, so "
+             f"its comb spins into an item the game draws as a purple cube")
+    if f"item.{NS}.{chunk}" not in lang_file:
+        fail(f"{chunk} has no name a player reads")
+    tag = os.path.join(RES, "data/c/tags/item/raw_materials", material + ".json")
+    if not os.path.isfile(tag):
+        fail(f"{chunk} carries no raw-material tag, so a comb of {material} "
+             f"and an ore of {material} end up in two different furnaces")
+
+# The block itself: it must ask the rules what comes out rather than decide.
+spinner = strip_comments(read(SRC, "block/CentrifugeBlock.java"))
+spinning = body_of(spinner, "protected void serverTick(")
+if "ApiaryRules.spun(bee)" not in spinning:
+    fail("the centrifuge decides for itself what a comb comes apart into, which "
+         "is a second opinion about what a bee produces and one opinion too many")
+if "ApiaryRules.spunCounts(bee)" not in spinning:
+    fail("the centrifuge decides for itself how much a comb is worth, so the "
+         "yield a validator checks and the yield a player gets are two numbers")
+if "share() <= 0.0F || burned()" not in spinner:
+    fail("a centrifuge spins with no power or with a burned grid, so the one "
+         "cost of running it is optional")
+if "items.getStackInSlot(IN).isEmpty() ? null" not in spinner:
+    fail("a centrifuge with nothing in it still taxes the grid, so one somebody "
+         "walled off is a permanent cost with no effect")
+if "if (!room(bee)) {" not in spinner:
+    fail("a centrifuge spins a comb without checking there is room for what "
+         "comes out, so a full output slot is a comb destroyed")
+
+print(f"the apiary         : {len(housings)} rung(s) of housing, "
+      f"{len(upgrades)} upgrade(s) of which "
+      f"{len([u for u in upgrades if u[1] or u[2] > 1.0])} earn and the rest buy "
+      f"attention, a centrifuge, and {len(bee_materials)} material(s) a comb "
+      f"comes apart into")
 
 print(f"the diet             : {constant('FOODS_FOR_FULL', kind='int')} different "
       f"foods for {constant('MOST_EXTRA_HEARTS', kind='int')} hearts, kept as a set, "

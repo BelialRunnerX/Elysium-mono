@@ -62,8 +62,8 @@ edit $R 'place("canopy", "jungle", "sap", "forest", "marsh"),' 'place("canopy", 
 expect "a place bee with nowhere to live" "nowhere to live"
 
 echo "the economy"
-edit $R 'public static final int FIRST_RESOURCE_TICKS = 14_400;' 'public static final int FIRST_RESOURCE_TICKS = 1_400;'
-expect "a hive that out-earns a mine" "out-earns a mine"
+edit $R 'public static final int FIRST_RESOURCE_TICKS = ApiaryRules.ticksForTheCeiling();' 'public static final int FIRST_RESOURCE_TICKS = 1_400;'
+expect "a comb time chosen rather than solved against the ceiling" "BeeRules no longer takes its first resource comb from the ceiling"
 
 edit $R 'public static final float HIVE_AT_MOST = 0.25F;' 'public static final float HIVE_AT_MOST = 0.9F;'
 expect "a hive allowed as large a share of a mine as a farm" "runs itself while a farm does not"

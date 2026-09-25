@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "III",
+    "IHI",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "H": {
+      "item": "elysiumagronomy:hive"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:apiary",
+    "count": 1
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "III",
+    "IHI",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:copper_block"
+    },
+    "H": {
+      "item": "elysiumagronomy:advanced_apiary"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:industrial_apiary",
+    "count": 1
+  }
+}
