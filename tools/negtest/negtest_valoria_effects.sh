@@ -14,9 +14,8 @@ PY
     cp /tmp/nb_ve "$1"
     if grep -q "$4" <<<"$out"; then pass=$((pass+1)); echo "ok   : $4"; else failn=$((failn+1)); echo "MISS : $4"; fi
 }
-t $S/nihil/ElysiumNullRules.java 'import java.util.Random;' 'import java.util.Random;' "executed without a game"
-t $S/nihil/ElysiumNullRules.java 'public final class ElysiumNullRules {' 'public final class ElysiumNullRules {
-    private static final net.minecraft.world.entity.LivingEntity NOPE = null;' "executed without a game"
+t $S/nihil/ElysiumNullRules.java 'package com.elysium.lib.nihil;' 'package com.elysium.lib.nihil;
+import net.minecraft.world.entity.LivingEntity;' "executed without a game"
 t $S/nihil/ElysiumNullRules.java 'public static final float COLLAPSE = 0.95F;' 'public static final float COLLAPSE = 0.40F;' "FAIL"
 t $S/nihil/ElysiumNullRules.java 'public static final double WARD_POINTS_FOR_ALL = 32.0D;' 'public static final double WARD_POINTS_FOR_ALL = 8.0D;' "FAIL"
 t $S/nihil/ElysiumNull.java 'ElysiumElements.VOID, 0.0F)' 'ElysiumElements.VOID, 1.0F)' "hurts twice"
