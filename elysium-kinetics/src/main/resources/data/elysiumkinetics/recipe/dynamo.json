@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CCC",
+    "CGC",
+    "IBI"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "G": {
+      "item": "elysiumkinetics:small_cogwheel"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "elysiumkinetics:brass_shaft"
+    }
+  },
+  "result": {
+    "id": "elysiumkinetics:dynamo",
+    "count": 1
+  }
+}

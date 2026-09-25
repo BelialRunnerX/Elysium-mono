@@ -335,7 +335,8 @@ a player cannot plan around.
 | The readout: prod any block, hear what the line is doing | **done** |
 | Clutches and a way to stop a line without breaking it | planned |
 | Contraptions (moving structures) | planned |
-| The dynamo (torque → FE, badly) | planned — the numbers are in `KineticRules` |
+| Fuel engines and the refinery (a ladder of six fuels, three engines) | **done** |
+| The dynamo (torque → FE, badly) | **done** |
 
 **How two blocks connect**, since every later age inherits it. Three rules and
 no more:
@@ -357,6 +358,34 @@ which recipes they read — so `MachineBlock` holds everything else and a fifth
 machine is a subclass with three answers in it. Likewise `KineticRecipe` is one
 class carrying a `Kind`, with four registered types, so a saw recipe still will
 not run in a press but there is one codec rather than four that drift.
+
+**The seam**, which is the one place this age touches the next one's subject.
+A dynamo is a load like any other and turns rotation into FE at a rate that is
+deliberately poor. The number that makes both directions checkable lives in
+`SeamRules.WORTH_OF_A_TORQUE_RPM` — what one torque-rpm of mechanical power is
+worth in FE — and **every later age reads it rather than choosing its own**.
+Age II's motor charges exactly that to go back the other way, so the round trip
+out through a dynamo and home through a motor returns
+
+    (DYNAMO_FE_PER_RPM / DYNAMO.draw) / WORTH_OF_A_TORQUE_RPM  =  0.5
+
+of the mechanical power that left. Under one by arithmetic rather than by
+anybody remembering, which is what stops the pack having a generator made of
+two blocks and a shaft. A later age that invents its own exchange rate breaks
+this, and `elysium-kinetics/validate.py` fails if this one drifts above a half.
+
+**The gearing a dynamo wants is solved, not guessed.** A dynamo geared up by
+`r` through `n` stages reflects onto the line as a load of `D·r/k`, so the line
+settles slower as the dynamo turns faster and the product has a peak:
+
+    r*   = k·s / (2·D)
+    rpm* = k · s·f/4 / D  =  k · powerAt(f/2) / D
+
+which is the sentence worth keeping: **the best a dynamo can ever do is to hold
+its source at half its free speed**, where a source makes the most power it
+will ever make. Gear past that and the line slows more than the dynamo gains.
+The harness sweeps five hundred ratios per source per stage count against that
+closed form.
 
 **The windmill** is a thing you build rather than a block you place: a bearing,
 and sailcloth flood-filled out from it in the plane it turns in. Sails add

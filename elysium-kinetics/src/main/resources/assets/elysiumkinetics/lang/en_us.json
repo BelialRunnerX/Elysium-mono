@@ -1,6 +1,7 @@
 {
   "block.elysiumkinetics.brass_shaft": "Brass Shaft",
   "block.elysiumkinetics.distillate_engine": "Distillate Engine",
+  "block.elysiumkinetics.dynamo": "Dynamo",
   "block.elysiumkinetics.furnace_engine": "Furnace Engine",
   "block.elysiumkinetics.gearbox": "Gearbox",
   "block.elysiumkinetics.hand_crank": "Hand Crank",
@@ -16,6 +17,9 @@
   "block.elysiumkinetics.timber_shaft": "Timber Shaft",
   "block.elysiumkinetics.water_wheel": "Water Wheel",
   "block.elysiumkinetics.windmill_bearing": "Windmill Bearing",
+  "elysiumkinetics.dynamo.making": "%s FE/t. Holding %s of %s.",
+  "elysiumkinetics.dynamo.slow": "Turning at %s rpm; it needs %s before it makes anything. Gear it up.",
+  "elysiumkinetics.dynamo.still": "Nothing is turning it.",
   "elysiumkinetics.engine.burning": "Burning: %s second(s) left, at %s rpm.",
   "elysiumkinetics.engine.empty": "Nothing in the hopper.",
   "elysiumkinetics.engine.wrongfuel": "This engine will not burn that; it wants something further up the ladder.",

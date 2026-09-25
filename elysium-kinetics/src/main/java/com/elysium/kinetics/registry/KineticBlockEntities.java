@@ -127,6 +127,13 @@ public final class KineticBlockEntities {
         return all.toArray(new net.minecraft.world.level.block.Block[0]);
     }
 
+    /** The dynamo, which is a load on one side and an FE store on the other. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.kinetics.block.DynamoBlock.DynamoBlockEntity>>
+            DYNAMO = TYPES.register(com.elysium.kinetics.block.DynamoBlock.NAME,
+                    () -> BlockEntityType.Builder.of(
+                            com.elysium.kinetics.block.DynamoBlock.DynamoBlockEntity::new,
+                            KineticBlocks.DYNAMO.get()).build(null));
+
     /**
      * Every machine's two slots, so a hopper can feed one and a hopper under
      * it can take what comes out.
@@ -149,6 +156,10 @@ public final class KineticBlockEntities {
             }
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ENGINE.get(),
                     (entity, side) -> entity.items());
+            // And the seam: the one block here that offers Forge Energy at
+            // all, which is how Age II's cables ever reach Age I.
+            event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, DYNAMO.get(),
+                    (entity, side) -> entity.energy());
         }
     }
 }

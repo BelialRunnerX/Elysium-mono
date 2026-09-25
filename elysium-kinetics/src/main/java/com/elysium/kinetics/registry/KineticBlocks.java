@@ -131,4 +131,9 @@ public final class KineticBlocks {
 
     public static final DeferredBlock<Block> MIXER = BLOCKS.register("mixer",
             () -> new MixerBlock(brass().strength(3.5F)));
+
+    /** The one place this age makes electricity, and it is bad at it. */
+    public static final DeferredBlock<Block> DYNAMO = BLOCKS.register(
+            com.elysium.kinetics.block.DynamoBlock.NAME,
+            () -> new com.elysium.kinetics.block.DynamoBlock(brass()));
 }

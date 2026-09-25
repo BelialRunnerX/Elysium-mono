@@ -390,6 +390,17 @@ public final class KineticRules {
     /** Burning something. The end of Age I and the door into Age II. */
     public static final Source STEAM_ENGINE = new Source(128.0F, 40.0F);
 
+    /**
+     * Every source this age has, so that anything asking a question about
+     * "a source" can walk them rather than naming three of the four.
+     *
+     * <p>A check written against a hand-written list is a check that goes on
+     * passing the day a fifth source is added, and the symptom is one block
+     * that quietly does not obey a rule everything else obeys.
+     */
+    public static final List<Source> EVERY_SOURCE =
+            List.of(HAND_CRANK, WATER_WHEEL, SAIL, STEAM_ENGINE);
+
     // Loads, cheapest first. leastRpm is the speed below which the machine is
     // a decoration: it is what makes a line that has been dragged slow fail in
     // a way a player can read.

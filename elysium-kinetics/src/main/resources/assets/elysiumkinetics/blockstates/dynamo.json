@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "elysiumkinetics:block/dynamo"
+    },
+    "axis=x": {
+      "model": "elysiumkinetics:block/dynamo",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "elysiumkinetics:block/dynamo",
+      "x": 90
+    }
+  }
+}

@@ -341,6 +341,9 @@ def draw_all():
     refinery_face(False).save(os.path.join(out, REFINERY + ".png"))
     refinery_face(True).save(os.path.join(out, REFINERY + "_top.png"))
     drawn += 2
+    dynamo_face(False).save(os.path.join(out, DYNAMO + ".png"))
+    dynamo_face(True).save(os.path.join(out, DYNAMO + "_top.png"))
+    drawn += 2
     for name in OUR_FUELS:
         fuel_sprite(name).save(os.path.join(items, name + ".png"))
         drawn += 1
@@ -460,6 +463,17 @@ REFINING_TICKS = int(REFINING_TICKS.group(1))
 OUR_FUELS = [one["id"].split(":", 1)[1] for one in FUELS
              if one["id"].startswith(NS + ":")]
 
+# The seam: the one block in this age that makes electricity. Its name is read
+# out of the block rather than typed here, for the same reason every other name
+# in this file is.
+DYNAMO = re.search(r'String NAME = "([a-z_]+)";', open(os.path.join(
+    MOD, "src/main/java/com/elysium/kinetics/block/DynamoBlock.java"),
+    encoding="utf-8").read())
+if not DYNAMO:
+    print("DynamoBlock no longer says what it is called")
+    sys.exit(2)
+DYNAMO = DYNAMO.group(1)
+
 
 def engine_face(engine, top):
     """
@@ -503,6 +517,32 @@ def refinery_face(top):
     return image
 
 
+def dynamo_face(top):
+    """
+    A dynamo: a coil of copper round a core, with a terminal on the side.
+
+    The one block in this age that is about electricity, so it is the one
+    block drawn in copper rather than in brass or timber — a player scanning
+    a machine hall should be able to find it without reading anything.
+    """
+    body = (104, 100, 96)
+    dark = tuple(max(0, part - 44) for part in body)
+    copper = (192, 118, 78)
+    spark = (238, 214, 120)
+    image = Image.new("RGBA", (16, 16), body + (255,))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 15], outline=dark + (255,))
+    if top:
+        draw.ellipse([2, 2, 13, 13], fill=copper + (255,), outline=dark + (255,))
+        draw.ellipse([6, 6, 9, 9], fill=dark + (255,))
+        return image
+    for at in range(3):
+        draw.rectangle([2, 2 + at * 4, 13, 4 + at * 4], fill=copper + (255,),
+                       outline=dark + (255,))
+    draw.rectangle([11, 13, 13, 14], fill=spark + (255,))
+    return image
+
+
 def fuel_sprite(name):
     """A fuel, darker and oilier the further up the ladder it is."""
     rung = OUR_FUELS.index(name)
@@ -538,8 +578,13 @@ for _engine in ENGINES:
     BLOCKS[_engine["id"]] = slab(16, _engine["id"] + "_top",
                                  _engine["id"], _engine["id"] + "_top")
 BLOCKS[REFINERY] = slab(16, REFINERY + "_top", REFINERY, REFINERY + "_top")
+BLOCKS[DYNAMO] = slab(14, DYNAMO + "_top", DYNAMO, DYNAMO + "_top")
 
 #: Which blocks a placement can lay on any axis. A millstone cannot.
+#:
+#: The dynamo is not among them: it takes the axis it is placed against, like
+#: a cogwheel, because a dynamo is bolted onto the end of whatever shaft
+#: happens to be there and a fixed one would need a gearbox to reach.
 FIXED = {"millstone", "sail", "press", "mixer", REFINERY}
 
 
@@ -764,6 +809,21 @@ def data_files():
     })
     machines += 1
 
+    # The dynamo. Copper and a cogwheel, because what it is is a coil and a
+    # thing that turns, and both of those are Age I items a player already has
+    # by the time they want one.
+    write(os.path.join(DATA, "recipe", DYNAMO + ".json"), {
+        "type": "minecraft:crafting_shaped",
+        "category": "building",
+        "pattern": ["CCC", "CGC", "IBI"],
+        "key": {"C": {"item": "minecraft:copper_ingot"},
+                "G": {"item": f"{NS}:small_cogwheel"},
+                "I": {"item": "minecraft:iron_ingot"},
+                "B": {"item": f"{NS}:brass_shaft"}},
+        "result": {"id": f"{NS}:{DYNAMO}", "count": 1},
+    })
+    machines += 1
+
     # One refining recipe per step up the ladder that this module makes.
     #
     # Walked from the ladder rather than written out, so a fuel added to it is
@@ -792,6 +852,7 @@ def data_files():
                                   "windmill_bearing", "press", "mixer")]
     pick += [f"{NS}:{one['id']}" for one in ENGINES]
     pick.append(f"{NS}:{REFINERY}")
+    pick.append(f"{NS}:{DYNAMO}")
     write(os.path.join(tags, "mineable/axe.json"), {"replace": False, "values": axe})
     write(os.path.join(tags, "mineable/pickaxe.json"), {"replace": False, "values": pick})
     return len(BLOCKS) + len(RECIPES) + machines + 2
@@ -869,6 +930,11 @@ def language():
     entries[f"{NS}.refinery.slow"] = "Turning at %s rpm; it needs %s to distil."
     entries[f"{NS}.refinery.empty"] = "Turning at %s rpm, with an empty vessel."
     entries[f"{NS}.refinery.working"] = "Distilling, at %s rpm."
+    entries[f"block.{NS}.{DYNAMO}"] = DYNAMO.capitalize()
+    entries[f"{NS}.{DYNAMO}.still"] = "Nothing is turning it."
+    entries[f"{NS}.{DYNAMO}.slow"] = \
+        "Turning at %s rpm; it needs %s before it makes anything. Gear it up."
+    entries[f"{NS}.{DYNAMO}.making"] = "%s FE/t. Holding %s of %s."
     write(os.path.join(ASSETS, "lang/en_us.json"), dict(sorted(entries.items())))
     return len(entries)
 

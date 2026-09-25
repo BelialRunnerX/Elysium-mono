@@ -80,6 +80,7 @@ public final class KineticHarness {
         pace();
         work();
         theDynamo();
+        theSeam();
         theTree();
         theBooks();
         theEngines();
@@ -445,6 +446,214 @@ public final class KineticHarness {
         check(fe < 40.0F,
                 "a single Age I dynamo makes " + fe + " FE/t, which is a power plant; Age II "
                         + "has nothing left to be about");
+    }
+
+    /**
+     * The seam: rotation into Forge Energy, and the two things that crossing
+     * has to be.
+     *
+     * <p>It has to lose — or the loop out through a dynamo and back through
+     * Age II's motor is a generator — and the closed form for the best a
+     * dynamo can be geared to has to actually be the best, which is the kind
+     * of algebra that is written once and then trusted forever with a sign
+     * in it the wrong way round.
+     */
+    private static void theSeam() {
+        none(SeamRules.faults(), "the seam");
+
+        // The crossing loses, and loses enough to be the bad bargain the spec
+        // promises.
+        check(SeamRules.crossingReturns() < 1.0F,
+                "rotation into FE and back into rotation comes home with "
+                        + SeamRules.crossingReturns() + " of what it left "
+                        + "with, which is a perpetual motion machine");
+        check(SeamRules.crossingReturns() <= SeamRules.WORST_WORTH_HAVING,
+                "the seam comes home with " + SeamRules.crossingReturns()
+                        + " and Age I's electricity is meant to be a "
+                        + "curiosity");
+        check(SeamRules.crossingReturns() > 0.0F,
+                "the seam returns nothing at all, so a dynamo is a load with "
+                        + "no product");
+
+        // The solved gearing against a sweep. The closed form says a dynamo
+        // does best when the source is held at half its free speed; this
+        // takes every source there is, tries five hundred ratios at every
+        // stage count, and checks that none of them beats it.
+        int swept = 0;
+        for (KineticRules.Source source : SeamRules.everySource()) {
+            for (int stages = 0; stages <= 4; stages++) {
+                float solved = SeamRules.bestRpm(source, stages);
+                float kept = KineticRules.kept(stages);
+                float best = 0.0F;
+                float bestAt = 0.0F;
+                for (int step = 1; step <= 500; step++) {
+                    float ratio = SeamRules.bestRatio(source, stages)
+                            * step / 250.0F;
+                    KineticRules.Load reflected =
+                            KineticRules.DYNAMO.through(ratio, stages);
+                    KineticRules.Reading settled = KineticRules.settle(
+                            List.of(source), List.of(reflected),
+                            KineticRules.Shaft.ASCENDANT);
+                    if (!settled.running()) {
+                        continue;
+                    }
+                    float turning = settled.rpm() * ratio;
+                    swept++;
+                    if (turning > best) {
+                        best = turning;
+                        bestAt = ratio;
+                    }
+                    check(turning <= solved + Math.max(1.0E-3F, solved * 1.0E-3F),
+                            "a dynamo geared by " + ratio + " through "
+                                    + stages + " stage(s) turns at " + turning
+                                    + " and the solved best is " + solved
+                                    + ", so the closed form for the best "
+                                    + "gearing is not the best");
+                }
+                check(Math.abs(best - solved) <= solved * 0.01F,
+                        "the best of five hundred ratios is " + best
+                                + " and the solved best is " + solved
+                                + ", so the closed form is a ceiling nothing "
+                                + "reaches rather than a peak");
+                near(bestAt, SeamRules.bestRatio(source, stages),
+                        SeamRules.bestRatio(source, stages) * 0.02F,
+                        "the ratio the sweep found best and the ratio the "
+                                + "algebra solves for disagree");
+                // And the source really is being held at half its free speed
+                // there, which is the sentence the algebra collapses to.
+                near(solved / bestAt, source.freeSpeed() / 2.0F,
+                        source.freeSpeed() * 0.01F,
+                        "at its best gearing the line is not at half the "
+                                + "source's free speed");
+                check(kept > 0.0F, "a gearing that keeps nothing");
+            }
+        }
+        check(swept > 5_000, "only " + swept + " gearing(s) were swept");
+
+        // No line anywhere makes more FE than the rotation put into it is
+        // worth. This is the conservation statement, and it is about solved
+        // lines rather than about the formula: the teeth are paid, the line
+        // settles where it settles, and the dynamo is asked what it made.
+        int lines = 0;
+        for (KineticRules.Source source : SeamRules.everySource()) {
+            for (int count = 1; count <= 3; count++) {
+                for (int stages = 0; stages <= 4; stages++) {
+                    for (int step = 1; step <= 60; step++) {
+                        float ratio = step / 8.0F;
+                        KineticRules.Load reflected =
+                                KineticRules.DYNAMO.through(ratio, stages);
+                        KineticRules.Reading settled = KineticRules.settle(
+                                sources(source, count), List.of(reflected),
+                                KineticRules.Shaft.ASCENDANT);
+                        if (!settled.running()) {
+                            continue;
+                        }
+                        lines++;
+                        float turning = settled.rpm() * ratio;
+                        float made = SeamRules.output(turning);
+                        float taken = SeamRules.taking(turning);
+                        check(made <= taken * SeamRules.WORTH_OF_A_TORQUE_RPM
+                                        + 1.0E-3F,
+                                "a machine hall that makes energy: a dynamo "
+                                        + "geared by " + ratio + " made "
+                                        + made + " FE from " + taken
+                                        + " torque-rpm, and a torque-rpm is "
+                                        + "worth "
+                                        + SeamRules.WORTH_OF_A_TORQUE_RPM);
+                        // And what the source delivered is at least what the
+                        // dynamo consumed: the teeth cannot be a profit.
+                        float delivered = source.torqueAt(settled.rpm())
+                                * settled.rpm() * count;
+                        check(delivered >= taken - 1.0E-2F,
+                                "a dynamo took " + taken + " torque-rpm out "
+                                        + "of a line delivering " + delivered
+                                        + ", so the teeth gave power back");
+                    }
+                }
+            }
+        }
+        check(lines > 2_000, "only " + lines + " line(s) with a dynamo on them "
+                + "were built");
+
+        // Controls, built to be caught, because over the numbers this module
+        // ships every rule above can only ever answer no.
+        // Controls, built to be caught, because over the numbers this module
+        // ships every rule above can only ever answer no. Each one is pointed
+        // at its own rule: a control aimed at the whole crossing is answered
+        // by whichever of the three rules happens to fire first, and two of
+        // them could then be deleted with every check still green.
+        float worth = SeamRules.WORTH_OF_A_TORQUE_RPM;
+        check(!SeamRules.faultsInLoop(worth, worth).isEmpty(),
+                "a dynamo paying exactly what a motor charges is not "
+                        + "reported, so the rule that the seam loses cannot "
+                        + "say no");
+        check(!SeamRules.faultsInLoop(worth * 2.0F, worth).isEmpty(),
+                "a dynamo paying twice what a motor charges is not reported");
+        check(SeamRules.faultsInLoop(worth * 0.1F, worth).isEmpty(),
+                "a crossing that loses nine tenths is reported as a loop");
+        check(!SeamRules.faultsInBargain(worth * 0.9F, worth).isEmpty(),
+                "a crossing that comes home with nine tenths is not "
+                        + "reported, so Age I could quietly become a power "
+                        + "plant while still losing");
+        check(SeamRules.faultsInBargain(worth * 0.4F, worth).isEmpty(),
+                "a crossing that comes home with two fifths is reported as "
+                        + "too good");
+        check(!SeamRules.faultsInRates(0.0F, worth).isEmpty(),
+                "a dynamo that makes nothing is not reported");
+        check(!SeamRules.faultsInRates(KineticRules.DYNAMO_FE_PER_RPM, 0.0F)
+                        .isEmpty(),
+                "a torque-rpm worth nothing is not reported");
+        check(SeamRules.faultsInRates(KineticRules.DYNAMO_FE_PER_RPM, worth)
+                        .isEmpty(),
+                "the two rates this module ships are reported as faulty");
+        check(SeamRules.faultsInCrossing(KineticRules.DYNAMO_FE_PER_RPM,
+                        KineticRules.DYNAMO.draw(), worth).isEmpty(),
+                "the crossing this module ships is reported as faulty");
+
+        // And the gearing, handed a pair that does not agree — which is the
+        // only way this rule can ever be shown able to say yes, because a
+        // solved ratio and a solved speed always agree with each other.
+        KineticRules.Source control = KineticRules.WATER_WHEEL;
+        check(!SeamRules.faultsInAgreement(control,
+                        SeamRules.bestRatio(control, 0) * 2.0F,
+                        SeamRules.bestRpm(control, 0)).isEmpty(),
+                "a gearing twice what the solved speed needs is not reported, "
+                        + "so the ratio and the speed could drift apart");
+        check(!SeamRules.faultsInAgreement(control,
+                        SeamRules.bestRatio(control, 0),
+                        SeamRules.bestRpm(control, 0) * 0.5F).isEmpty(),
+                "a speed half what the solved gearing gives is not reported");
+        check(!SeamRules.faultsInAgreement(control, -1.0F,
+                        SeamRules.bestRpm(control, 0)).isEmpty(),
+                "a gearing that is not a gearing is not reported");
+        check(!SeamRules.faultsInAgreement(control,
+                        SeamRules.bestRatio(control, 0), 0.0F).isEmpty(),
+                "a dynamo that does not turn is not reported");
+        check(SeamRules.faultsInAgreement(control,
+                        SeamRules.bestRatio(control, 0),
+                        SeamRules.bestRpm(control, 0)).isEmpty(),
+                "the solved pair for a water wheel is reported as disagreeing");
+        check(SeamRules.faultsInGearing(SeamRules.everySource()).isEmpty(),
+                "the sources this module ships are reported as ungearable");
+
+        // The buffer is solved off the roster and is big enough to hold what
+        // the best dynamo anywhere makes while nothing is taking it.
+        check(SeamRules.buffer() > 0, "a dynamo with no tank at all");
+        float bestAnywhere = 0.0F;
+        for (KineticRules.Source source : SeamRules.everySource()) {
+            bestAnywhere = Math.max(bestAnywhere, SeamRules.bestOutput(source, 0));
+        }
+        check(SeamRules.buffer() >= Math.round(bestAnywhere),
+                "a dynamo's tank holds " + SeamRules.buffer()
+                        + " FE and the best dynamo anywhere makes "
+                        + bestAnywhere + " a tick, so it throws away what it "
+                        + "made whenever nothing is there to take it");
+
+        System.out.println("  the seam: " + swept + " gearing(s) swept against "
+                + "the closed form and " + lines + " line(s) with a dynamo on "
+                + "them, none of them making more FE than the rotation was "
+                + "worth, and a round trip through Age II coming home with "
+                + String.format("%.2f", SeamRules.crossingReturns()));
     }
 
     /**

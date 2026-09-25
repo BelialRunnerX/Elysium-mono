@@ -1,0 +1,44 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "top": "elysiumkinetics:block/dynamo_top",
+    "side": "elysiumkinetics:block/dynamo",
+    "bottom": "elysiumkinetics:block/dynamo_top",
+    "particle": "elysiumkinetics:block/dynamo"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        14,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#bottom",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        }
+      }
+    }
+  ]
+}

@@ -10,6 +10,7 @@
     "elysiumkinetics:furnace_engine",
     "elysiumkinetics:oil_engine",
     "elysiumkinetics:distillate_engine",
-    "elysiumkinetics:refinery"
+    "elysiumkinetics:refinery",
+    "elysiumkinetics:dynamo"
   ]
 }

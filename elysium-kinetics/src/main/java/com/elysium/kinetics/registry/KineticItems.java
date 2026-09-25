@@ -99,6 +99,10 @@ public final class KineticItems {
     public static final DeferredItem<BlockItem> REFINERY =
             ITEMS.registerSimpleBlockItem(KineticBlocks.REFINERY);
 
+    /** The dynamo, which is where the next age starts. */
+    public static final DeferredItem<BlockItem> DYNAMO =
+            ITEMS.registerSimpleBlockItem(KineticBlocks.DYNAMO);
+
     /** The order the tab shows them in: carry it, change it, make it, spend it. */
     private static final java.util.List<DeferredItem<BlockItem>> ORDER = order();
 
@@ -110,6 +114,7 @@ public final class KineticItems {
                         WINDMILL_BEARING, SAIL, MILLSTONE, PRESS, SAW, MIXER));
         made.addAll(ENGINES.values());
         made.add(REFINERY);
+        made.add(DYNAMO);
         return java.util.List.copyOf(made);
     }
 

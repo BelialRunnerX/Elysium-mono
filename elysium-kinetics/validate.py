@@ -76,6 +76,16 @@ def harness_trouble(output):
     return "\n".join(lines or output.strip().splitlines()[-12:])[:2000]
 
 
+def squashed(text):
+    """One method's source with every run of whitespace made one space.
+
+    A rule that names a whole statement has to survive the statement being
+    re-wrapped by a formatter, or it is a rule that fails the first time
+    somebody tidies the file and then gets deleted rather than fixed.
+    """
+    return re.sub(r"\s+", " ", text)
+
+
 def body_of(text, signature):
     """One method's or record's source, brace-matched from its declaration."""
     start = text.find(signature)
@@ -541,7 +551,24 @@ if not engine_ids or not fuel_ids or not refinery:
     fail(f"EngineRules no longer says what the engines are; this file read "
          f"{len(engine_ids)} engine(s) and {len(fuel_ids)} fuel(s), and every "
          f"check below it is then checking nothing")
-registered = sorted(set(registered) | set(engine_ids) | {refinery})
+# The dynamo is registered under a name held in the block rather than typed
+# into the registry, so a reading that walks literal register("...") calls
+# cannot see it either. Read it out of the block.
+DYNAMO_BLOCK = strip_comments(read(SRC, "block/DynamoBlock.java"),
+                              keep_strings=True)
+_dynamo = re.search(r'String NAME = "([a-z_]+)";', DYNAMO_BLOCK)
+dynamo = _dynamo.group(1) if _dynamo else ""
+if not dynamo:
+    fail("DynamoBlock no longer says what it is called, so the seam is a block "
+         "nothing below it can find")
+elif f"BLOCKS.register(\n            com.elysium.kinetics.block.DynamoBlock.NAME" \
+        not in read(SRC, "registry/KineticBlocks.java") \
+        and "DynamoBlock.NAME" not in registry:
+    fail("the dynamo is not registered from its own name, so the name in the "
+         "block and the name in the world can drift apart")
+
+registered = sorted(set(registered) | set(engine_ids) | {refinery}
+                    | ({dynamo} if dynamo else set()))
 
 # What the tab shows, read out of the one method that builds it.
 #
@@ -740,11 +767,98 @@ print(f"the hall's contents: {len(registered)} block(s), each modelled, named, d
       f"{recipes} machine recipe(s) across {len(KINDS)} machine(s) and "
       f"{len(paces)} pace(s)")
 
+spec_text = read(SPEC)
+
+
+# ---------------------------------------------------------------------------
+# The dynamo, and the one crossing this age makes
+# ---------------------------------------------------------------------------
+
+SEAM_RULES = strip_comments(read(SRC, "rules/SeamRules.java"), keep_strings=True)
+if not SEAM_RULES:
+    fail("there is no SeamRules, so the exchange rate between rotation and FE "
+         "is whatever each age that needs one decides for itself, and two ages "
+         "that disagree about it is a loop that makes energy")
+
+for needed, why in (
+        ("WORTH_OF_A_TORQUE_RPM",
+         "nothing says what a torque-rpm is worth in FE, so the crossing "
+         "cannot be checked in either direction"),
+        ("faultsInCrossing(",
+         "nothing asks whether the crossing loses; a dynamo paying what a "
+         "motor charges is a perpetual motion machine made of two blocks"),
+        ("bestRatio(",
+         "nothing solves the gearing a dynamo wants, so the one puzzle the "
+         "block sets has no answer anybody has checked")):
+    if needed not in SEAM_RULES:
+        fail(why)
+
+# The crossing has to lose, and the validator works it out from the constants
+# rather than trusting the method: a method and a validator that agree because
+# one calls the other agree about nothing.
+_fe = constant("DYNAMO_FE_PER_RPM")
+_worth = re.search(r"WORTH_OF_A_TORQUE_RPM\s*=\s*([\d.]+)F", SEAM_RULES)
+_draw = load_of("DYNAMO")
+if not _fe or not _worth or not _draw:
+    fail("the seam's three numbers are no longer where this file reads them")
+else:
+    home = (float(_fe.rstrip("F")) / _draw[0]) / float(_worth.group(1))
+    if home >= 1.0:
+        fail(f"rotation into FE and back into rotation comes home with {home}"
+             f" of what it left with, which is a perpetual motion machine "
+             f"arrived at through the seam rather than through a gearbox")
+    if home > 0.5:
+        fail(f"the crossing comes home with {home}, and Age I's electricity is "
+             f"meant to be a curiosity rather than a power plant with an extra "
+             f"step")
+
+# The block asks the rules what it made. A block that multiplies the constant
+# itself is a block the harness has never run — and naming the whole statement
+# rather than the call is the fourteen-times-bitten lesson: "SeamRules.output("
+# is still there in `if (false) x = SeamRules.output(...)`.
+_tick = squashed(body_of(DYNAMO_BLOCK, "protected void serverTick("))
+if "making = running() ? SeamRules.output(rpm()) : 0.0F;" not in _tick:
+    fail("the dynamo works out its own output rather than asking the rules for "
+         "it, so the number a player sees is a number no harness has ever "
+         "executed")
+if "DYNAMO_FE_PER_RPM" in DYNAMO_BLOCK:
+    fail("the dynamo reads the FE constant directly, which is the second place "
+         "that arithmetic lives and the one that will drift")
+_receive = squashed(body_of(DYNAMO_BLOCK, "public boolean canReceive("))
+if "return false;" not in _receive:
+    fail("a dynamo can be charged from outside, so two of them facing each "
+         "other are a battery that fills itself and the seam's arithmetic says "
+         "nothing about the pair")
+if "Capabilities.EnergyStorage.BLOCK, DYNAMO.get()" not in re.sub(
+        r"\s+", " ", strip_comments(read(SRC, "registry/KineticBlockEntities.java"),
+                                    keep_strings=True)):
+    fail("the dynamo offers no energy capability, so it makes FE that nothing "
+         "in any age can take out of it")
+
+# And the spec states the contract, because Age II builds its alternator and
+# its motor against it. Mentioning the dynamo is not enough — what a later age
+# has to be able to read is the exchange rate itself, by name.
+if "WORTH_OF_A_TORQUE_RPM" not in spec_text:
+    fail("the spec does not name the constant that fixes what a torque-rpm is "
+         "worth in FE, so a later age has nothing to read and will choose its "
+         "own rate; two ages that disagree about it is a loop that makes "
+         "energy")
+if "half its free speed" not in spec_text:
+    fail("the spec does not say what the best gearing for a dynamo is, so the "
+         "one puzzle this block sets has an answer only this module's harness "
+         "knows")
+
+print(f"the seam           : one dynamo, bad on purpose - a round trip out "
+      f"through it and back through Age II's motor comes home with "
+      f"{home:.0%} of what it left with, and the gearing that gets the most "
+      f"out of it is solved rather than guessed")
+
+
 # ---------------------------------------------------------------------------
 # 7. The seam
 # ---------------------------------------------------------------------------
 
-spec = read(SPEC)
+spec = spec_text
 if not spec:
     fail("docs/SPEC_TECH.md is gone; it is the contract Ages II to IV are built against")
 else:
