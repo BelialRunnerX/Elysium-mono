@@ -530,6 +530,23 @@ registered = re.findall(r'BLOCKS\.register\(\s*"([a-z_]+)"', re.sub(r"\s+", " ",
 if not registered:
     fail("no blocks are registered, so Age I is a rules class")
 
+# A blockstate names the variants the block actually has. A sail is a plain
+# Block with no properties, so its one state is ""; the machines carry AXIS
+# from KineticBlock. The sail shipped with axis=x/y/z variants and the game
+# logged "missing model for variant: 'elysiumkinetics:sail#'" at resource
+# reload and drew the missing model — a WARN line nothing else repeats.
+_flat_registry = re.sub(r"\s+", " ", registry)
+for name in registered:
+    plain = re.search(rf'BLOCKS\.register\( ?"{name}" ?, ?\(\) ?-> ?new Block\(',
+                      _flat_registry) is not None
+    state = json.loads(read(RES, f"assets/{NS}/blockstates/{name}.json") or "{}")
+    keys = set(state.get("variants", {}))
+    if plain and keys != {""}:
+        fail(f"{name} is a plain Block with one state, but its blockstate has variants "
+             f"{sorted(keys)} rather than the empty one, so the game finds no model for it")
+    if not plain and keys and not all(key.startswith("axis=") for key in keys):
+        fail(f"{name} carries AXIS, but its blockstate has variants {sorted(keys)}")
+
 items = re.sub(r"\s+", " ", strip_comments(read(SRC, "registry/KineticItems.java"),
                                           keep_strings=True))
 # The one list the tab shows, read out of its own declaration rather than by

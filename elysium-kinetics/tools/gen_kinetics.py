@@ -642,6 +642,11 @@ for _anchor in ANCHORS:
 #: a cogwheel, because a dynamo is bolted onto the end of whatever shaft
 #: happens to be there and a fixed one would need a gearbox to reach.
 FIXED = {"millstone", "sail", "press", "mixer", REFINERY}
+#: Registered as a plain Block: no AXIS, one state, so the blockstate has the
+#: one empty variant. The sail shipped with axis=x/y/z and the game logged
+#: "missing model for variant: 'elysiumkinetics:sail#'" and drew the missing
+#: model in its place.
+PLAIN = {"sail"}
 
 
 ANCHOR_IDS = {one["id"]: one for one in ANCHORS}
@@ -669,6 +674,9 @@ def models_and_states():
         if name in ANCHOR_IDS:
             write(os.path.join(ASSETS, "blockstates", name + ".json"),
                   anchor_blockstate(name))
+        elif name in PLAIN:
+            write(os.path.join(ASSETS, "blockstates", name + ".json"),
+                  {"variants": {"": {"model": f"{NS}:block/{name}"}}})
         elif name in FIXED:
             write(os.path.join(ASSETS, "blockstates", name + ".json"),
                   {"variants": {"axis=x": {"model": f"{NS}:block/{name}"},
