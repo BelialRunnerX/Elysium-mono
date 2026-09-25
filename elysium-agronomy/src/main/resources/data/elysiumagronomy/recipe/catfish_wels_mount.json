@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:catfish_wels"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:catfish_wels_mount",
+    "count": 1
+  }
+}

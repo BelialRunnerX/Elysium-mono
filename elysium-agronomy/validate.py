@@ -795,6 +795,26 @@ OURS |= {f"{NS}:{one}" for one in ALTAR_BLOCKS}
 OURS |= {f"{NS}:{INSANIUM}"}
 OURS |= {f"{NS}:awakened_{material}_seed" for material in seeds}
 
+TACKLE_RULES = read(SRC, "rules/TackleRules.java")
+tackle_source = strip_comments(TACKLE_RULES, True)
+hooks = [(one[0], int(one[1]), int(one[2]), one[3]) for one in re.findall(
+    r'new Hook\("([a-z_]+)", (\d+), (\d+), (true|false)\)', tackle_source)]
+bobbers = [(one[0], int(one[1]), one[2], float(one[3])) for one in re.findall(
+    r'new Bobber\("([a-z_]+)", (\d+), (true|false), ([\d.]+)F\)', tackle_source)]
+worm_farm = re.search(r'WORM_FARM = "([a-z_]+)"', tackle_source)
+tackle_box = re.search(r'TACKLE_BOX = "([a-z_]+)"', tackle_source)
+worm_farm = worm_farm.group(1) if worm_farm else ""
+tackle_box = tackle_box.group(1) if tackle_box else ""
+if not hooks or not bobbers or not worm_farm or not tackle_box:
+    fail(f"TackleRules no longer says what goes on a rod; this file read "
+         f"{len(hooks)} hook(s) and {len(bobbers)} bobber(s), and every check "
+         f"below is then checking nothing")
+
+OURS |= {f"{NS}:{one[0]}" for one in hooks}
+OURS |= {f"{NS}:{one[0]}" for one in bobbers}
+OURS |= {f"{NS}:{worm_farm}", f"{NS}:{tackle_box}"}
+OURS |= {f"{NS}:{fid}_mount" for fid in fish_ids}
+
 for name in registered:
     if name not in crafted:
         fail(f"{name} has no crafting recipe, so it can only be given")
@@ -1791,6 +1811,97 @@ if "AltarRules.AWAKENED_YIELD" not in seed_item:
 print(f"the altar          : {len(ALTAR_BLOCKS)} block(s), "
       f"{len(seeds) + 1} awakening(s), a sixth rung made rather than grown, and "
       f"an awakened farm of half the plots earning what a whole one does")
+
+
+# ---------------------------------------------------------------------------
+# The tackle: what goes on a rod, and the blocks around the water
+# ---------------------------------------------------------------------------
+
+if "for (FishRules.Chance chance : FishRules.table(reached, luck, bait)) {" \
+        not in tackle_source:
+    fail("a fitted rod no longer reads the same table a bare one does, so the "
+         "three things FishRules proves about every cast are proved about a "
+         "cast nobody makes")
+if "made.add(where);" not in body_of(tackle_source,
+                                     "public static List<FishRules.Water> reaches("):
+    fail("a bobber does not reach the water the player is standing in, which "
+         "is the one water they meant to fish")
+if "public static List<String> hurtBetween(" not in tackle_source:
+    fail("the rule that a better hook never makes the rare fish harder to get "
+         "cannot be handed two tables, so it can only ever be asked about a "
+         "healthy roster and has never been shown able to say yes")
+
+for name, luck, catches, holds in hooks:
+    if not os.path.isfile(os.path.join(RES, "assets", NS, "models/item",
+                                       name + ".json")):
+        fail(f"{name} has no model")
+    if not os.path.isfile(os.path.join(RES, "data", NS, "recipe",
+                                       name + ".json")):
+        fail(f"{name} has no recipe, so a hook is an item only the creative "
+             f"menu has")
+    if f"item.{NS}.{name}" not in lang_file:
+        fail(f"{name} has no name a player reads")
+    if luck == 0 and catches == 1 and holds == "false":
+        fail(f"{name} is the bare end of a line with a name on it")
+
+for name, deeper, anytime, sooner in bobbers:
+    if not os.path.isfile(os.path.join(RES, "assets", NS, "models/item",
+                                       name + ".json")):
+        fail(f"{name} has no model")
+    if not os.path.isfile(os.path.join(RES, "data", NS, "recipe",
+                                       name + ".json")):
+        fail(f"{name} has no recipe")
+    if f"item.{NS}.{name}" not in lang_file:
+        fail(f"{name} has no name a player reads")
+    if deeper == 0 and anytime == "false" and sooner <= 0.0:
+        fail(f"{name} does nothing at all")
+
+missing_mounts = []
+for fid in fish_ids:
+    mount = fid + "_mount"
+    for folder in ("models/block", "models/item", "blockstates"):
+        if not os.path.isfile(os.path.join(RES, "assets", NS, folder,
+                                           mount + ".json")):
+            missing_mounts.append(mount)
+            break
+    if not os.path.isfile(os.path.join(RES, "data", NS, "recipe",
+                                       mount + ".json")):
+        missing_mounts.append(mount)
+    if not os.path.isfile(os.path.join(RES, "data", NS, "loot_table/blocks",
+                                       mount + ".json")):
+        missing_mounts.append(mount)
+    if f"block.{NS}.{mount}" not in lang_file:
+        missing_mounts.append(mount)
+if missing_mounts:
+    fail(f"{len(set(missing_mounts))} fish have no mount to go on a wall, and "
+         f"the one player who finds that hole is holding the fish: "
+         f"{sorted(set(missing_mounts))[:5]}")
+
+for name in (worm_farm, tackle_box):
+    if not name:
+        continue
+    for folder in ("models/block", "blockstates"):
+        if not os.path.isfile(os.path.join(RES, "assets", NS, folder,
+                                           name + ".json")):
+            fail(f"{name} has no {folder.split('/')[-1]}")
+    if not os.path.isfile(os.path.join(RES, "data", NS, "recipe",
+                                       name + ".json")):
+        fail(f"{name} has no recipe")
+    if f"block.{NS}.{name}" not in lang_file:
+        fail(f"{name} has no name a player reads")
+
+# A mount is a trophy: the fish goes in and does not come out.
+for fid in fish_ids[:1] if fish_ids else []:
+    path = os.path.join(RES, "data", NS, "recipe", fid + "_mount.json")
+    if os.path.isfile(path):
+        recipe = json.loads(read(path))
+        if f"{NS}:{fid}" not in json.dumps(recipe.get("key", {})):
+            fail(f"{fid}'s mount is not made out of the fish, so it is a plaque "
+                 f"anybody can craft without ever catching one")
+
+print(f"the tackle         : {len(hooks)} hook(s), {len(bobbers)} bobber(s), "
+      f"{len(fish_ids)} mount(s) and two stations, none of them taking a fish "
+      f"away and no hook making the rare one harder to get")
 
 print(f"the diet             : {constant('FOODS_FOR_FULL', kind='int')} different "
       f"foods for {constant('MOST_EXTRA_HEARTS', kind='int')} hearts, kept as a set, "

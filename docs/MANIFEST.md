@@ -8,10 +8,10 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 65 | DONE | an Elysium module already replaces it |
-| 6 | SPLIT | spans several modules; see docs/SPLITS.md |
+| 66 | DONE | an Elysium module already replaces it |
+| 7 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 52 | PLANNED | has a target module, not started |
+| 50 | PLANNED | has a target module, not started |
 | 13 | KEEP | stays in the pack on purpose |
 | 67 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -23,8 +23,8 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `elysium-kinetics` | 19 |
 | `elysium-atomics` | 9 |
 | `elysium-bestiary` | 7 |
-| `elysium-agronomy` | 6 |
 | `elysium-comforts` | 6 |
+| `elysium-agronomy` | 5 |
 | `elysium-industry` | 4 |
 | `elysium-atelier` | 3 |
 | `elysium-arcana` | 1 |
@@ -45,7 +45,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `ApothicSpawners-1.21.1-1.4.0.jar` | DONE | elysium-spawners | ownable, tunable spawners |
 | `Applied-Mekanistics-1.6.3.jar` | PLANNED | elysium-atomics | chemical storage in the network |
 | `appliedenergistics2-19.2.17.jar` | DONE | elysium-logistics | its devices folded onto the flat network; its channels, cable tiers, P2P tunnels and spatial storage deliberately deleted, and docs/CONVERSION.md section 10 says so plainly rather than leaving it to be discovered |
-| `Aquaculture-1.21.1-2.7.21.jar` | PLANNED | elysium-agronomy | fishing: covered by the same 105-fish roster; the fish mounts, tackle box, worm farm and neptunium gear do not exist |
+| `Aquaculture-1.21.1-2.7.21.jar` | SPLIT | elysium-agronomy | fishing: the same 105-fish roster, and now a mount for every one of them — made out of the fish, so it is a trophy rather than a plaque anybody can craft — plus a worm farm whose bait is capped, because bait a player can have as much of as they like is a rod that always catches what it is pointed at, and a tackle box to keep it all in. Its neptunium gear is a tool and armour set and belongs to elysium-arsenal and elysium-armory; see docs/SPLITS.md |
 | `architectury-13.0.11-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `athena-neoforge-1.21.1-4.0.6.jar` | DROP | - | library: goes when the mods needing it go |
 | `azurelib-neo-1.21.1-3.1.11.jar` | DROP | - | library: goes when the mods needing it go |
@@ -219,7 +219,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `structurize-1.0.832-1.21.1.jar` | KEEP | elysium-colonies | MineColonies' own dependencies |
 | `supplementaries-1.21.1-3.8.8-neoforge.jar` | SPLIT | elysium-atelier | four mods in a trench coat: fittings here, machines to logistics, comforts to comforts. See docs/SPLITS.md |
 | `tfmg-1.2.2.jar` | PLANNED | elysium-industry | heavy industry, oil and steel |
-| `tide-neoforge-1.21.1-2.1.1.jar` | PLANNED | elysium-agronomy | fishing: 105 fish with items, buckets, eggs, five rods and a bait per habitat exist; bobbers, hooks and the fishing blocks do not |
+| `tide-neoforge-1.21.1-2.1.1.jar` | DONE | elysium-agronomy | fishing: 105 fish in 11 families, five rods and a bait apiece, and now what goes on the end of the line. Four hooks and four bobbers, every one of them a stated change to a cast rather than a special case in a block — and three rules swept over every water, every rod and all twenty-five ways of fitting a rod: nothing fitted ever takes a fish away, nothing fitted ever empties a water that had fish in it, and a better hook never makes the rare fish harder to get relative to the common one. That last is the rule a modifier system comes undone on, because nobody can see a probability |
 | `titanium-1.21-4.0.43.jar` | DROP | - | library: goes when the mods needing it go |
 | `towntalk-1.2.0.jar` | PLANNED | elysium-comforts | quality of life |
 | `Tridot-1.21.1-1.0.169.jar` | DROP |  | Valoria's own library; goes when Valoria does |

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:black_swallower"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:black_swallower_mount",
+    "count": 1
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:reed_perch"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:reed_perch_mount",
+    "count": 1
+  }
+}

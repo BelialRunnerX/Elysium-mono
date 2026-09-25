@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:mahi_mahi"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:mahi_mahi_mount",
+    "count": 1
+  }
+}

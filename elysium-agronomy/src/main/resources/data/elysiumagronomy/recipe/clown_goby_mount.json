@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:clown_goby"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:clown_goby_mount",
+    "count": 1
+  }
+}

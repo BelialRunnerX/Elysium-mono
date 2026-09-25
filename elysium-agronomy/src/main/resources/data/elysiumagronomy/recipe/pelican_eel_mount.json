@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:pelican_eel"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:pelican_eel_mount",
+    "count": 1
+  }
+}

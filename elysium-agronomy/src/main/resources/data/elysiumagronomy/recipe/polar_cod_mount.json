@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:polar_cod"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:polar_cod_mount",
+    "count": 1
+  }
+}

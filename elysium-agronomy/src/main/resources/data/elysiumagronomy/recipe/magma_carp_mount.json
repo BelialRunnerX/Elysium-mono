@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:magma_carp"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:magma_carp_mount",
+    "count": 1
+  }
+}

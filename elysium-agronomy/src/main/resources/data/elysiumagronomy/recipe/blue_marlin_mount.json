@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:blue_marlin"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:blue_marlin_mount",
+    "count": 1
+  }
+}

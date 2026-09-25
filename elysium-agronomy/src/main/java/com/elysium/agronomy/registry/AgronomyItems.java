@@ -226,6 +226,25 @@ public final class AgronomyItems {
     public static final DeferredItem<BlockItem> CENTRIFUGE =
             ITEMS.registerSimpleBlockItem(AgronomyBlocks.CENTRIFUGE);
 
+    /** One item per block around the water. */
+    public static final java.util.Map<String, DeferredItem<BlockItem>> TACKLE =
+            registerTackleItems();
+
+    private static java.util.Map<String, DeferredItem<BlockItem>> registerTackleItems() {
+        java.util.Map<String, DeferredItem<BlockItem>> made =
+                new java.util.LinkedHashMap<>();
+        for (java.util.Map.Entry<String, DeferredBlock<net.minecraft.world.level.block.Block>> one
+                : AgronomyBlocks.TACKLE.entrySet()) {
+            made.put(one.getKey(), ITEMS.registerSimpleBlockItem(one.getValue()));
+        }
+        if (made.size() != AgronomyBlocks.TACKLE.size()) {
+            throw new IllegalStateException("there are "
+                    + AgronomyBlocks.TACKLE.size() + " block(s) around the water "
+                    + "and " + made.size() + " item(s) for them");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
     /** The sixth rung, which is made rather than grown. */
     public static final DeferredItem<Item> INSANIUM =
             ITEMS.registerSimpleItem(

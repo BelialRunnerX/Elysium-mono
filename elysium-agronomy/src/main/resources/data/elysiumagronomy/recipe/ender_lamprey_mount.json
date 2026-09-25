@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:ender_lamprey"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:ender_lamprey_mount",
+    "count": 1
+  }
+}

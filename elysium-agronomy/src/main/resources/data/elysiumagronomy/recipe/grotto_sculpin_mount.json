@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:grotto_sculpin"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:grotto_sculpin_mount",
+    "count": 1
+  }
+}

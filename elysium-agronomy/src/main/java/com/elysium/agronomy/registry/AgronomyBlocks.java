@@ -127,6 +127,36 @@ public final class AgronomyBlocks {
         return java.util.Map.copyOf(made);
     }
 
+    /**
+     * The blocks around the water: a worm farm, a tackle box, and a mount for
+     * every fish in the roster.
+     *
+     * <p>A hundred and seven of them, walked from {@link
+     * com.elysium.agronomy.rules.TackleRules#blocks()} rather than listed,
+     * because a mount for a hundred and four of a hundred and five fish is a
+     * hole exactly one player ever finds and they find it holding the fish.
+     */
+    public static final java.util.Map<String, DeferredBlock<Block>> TACKLE =
+            registerTackle();
+
+    private static java.util.Map<String, DeferredBlock<Block>> registerTackle() {
+        java.util.Map<String, DeferredBlock<Block>> made =
+                new java.util.LinkedHashMap<>();
+        for (String name : com.elysium.agronomy.rules.TackleRules.blocks()) {
+            made.put(name, BLOCKS.register(name, () -> new Block(timber()
+                    .strength(name.endsWith("_mount") ? 0.8F : 2.0F)
+                    .noOcclusion())));
+        }
+        if (made.size()
+                != com.elysium.agronomy.rules.TackleRules.blocks().size()) {
+            throw new IllegalStateException("the rules have "
+                    + com.elysium.agronomy.rules.TackleRules.blocks().size()
+                    + " block(s) around the water and " + made.size()
+                    + " were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
     /** What a comb is actually for. */
     public static final DeferredBlock<Block> CENTRIFUGE =
             BLOCKS.register(com.elysium.agronomy.rules.ApiaryRules.CENTRIFUGE,

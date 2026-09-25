@@ -135,6 +135,30 @@ public final class FishItems {
     }
 
     /** One bait per family, so every habitat can be fished for on purpose. */
+    /**
+     * The hooks and the bobbers, walked out of the rules.
+     *
+     * <p>They stack to one. A hook is a thing fitted to a rod, and sixty-four
+     * of them in a slot that takes one is a number a player has to be told
+     * does not mean what it says.
+     */
+    public static final Map<String, DeferredItem<Item>> TACKLE = registerTackle();
+
+    private static Map<String, DeferredItem<Item>> registerTackle() {
+        Map<String, DeferredItem<Item>> made = new java.util.LinkedHashMap<>();
+        for (String name : com.elysium.agronomy.rules.TackleRules.items()) {
+            made.put(name, ITEMS.register(name,
+                    () -> new Item(new Item.Properties().stacksTo(1))));
+        }
+        if (made.size() != com.elysium.agronomy.rules.TackleRules.items().size()) {
+            throw new IllegalStateException("the rules have "
+                    + com.elysium.agronomy.rules.TackleRules.items().size()
+                    + " piece(s) of tackle and " + made.size()
+                    + " were registered");
+        }
+        return Map.copyOf(made);
+    }
+
     public static final Map<String, DeferredItem<Item>> BAITS = registerBaits();
 
     private static Map<String, DeferredItem<Item>> registerBaits() {

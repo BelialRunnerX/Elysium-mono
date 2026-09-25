@@ -78,6 +78,34 @@ if not FISH:
     print("no fish were read out of FishRules.java — the roster's shape has changed")
     sys.exit(2)
 
+# ---------------------------------------------------------------------------
+# The tackle, read out of its own rules
+# ---------------------------------------------------------------------------
+
+TACKLE_SOURCE = read(os.path.join(
+    MOD, "src/main/java/com/elysium/agronomy/rules/TackleRules.java"))
+
+HOOKS = [{"id": one[0], "luck": int(one[1]), "catches": int(one[2]),
+          "holds": one[3] == "true"}
+         for one in re.findall(
+             r'new Hook\("([a-z_]+)", (\d+), (\d+), (true|false)\)',
+             TACKLE_SOURCE)]
+BOBBERS = [{"id": one[0], "deeper": int(one[1]), "anytime": one[2] == "true",
+            "sooner": float(one[3])}
+           for one in re.findall(
+               r'new Bobber\("([a-z_]+)", (\d+), (true|false), ([\d.]+)F\)',
+               TACKLE_SOURCE)]
+WORM_FARM = re.search(r'WORM_FARM = "([a-z_]+)"', TACKLE_SOURCE)
+TACKLE_BOX = re.search(r'TACKLE_BOX = "([a-z_]+)"', TACKLE_SOURCE)
+if not HOOKS or not BOBBERS or not WORM_FARM or not TACKLE_BOX:
+    print(f"TackleRules no longer says what goes on a rod; read {len(HOOKS)} "
+          f"hook(s) and {len(BOBBERS)} bobber(s)")
+    sys.exit(2)
+WORM_FARM = WORM_FARM.group(1)
+TACKLE_BOX = TACKLE_BOX.group(1)
+TACKLE_BLOCKS = [WORM_FARM, TACKLE_BOX]
+MOUNTS = [one["id"] + "_mount" for one in FISH]
+
 
 def java_hash(text):
     value = 0
@@ -216,6 +244,86 @@ def tool_sprite(name):
     return image
 
 
+def hook_sprite(hook):
+    """
+    A hook, drawn from what it does.
+
+    <p>Warmer the more rod it is worth, barbed if it holds, forked if it
+    brings up two. A player fitting one wants to know which it is without
+    reading a tooltip.
+    """
+    from PIL import Image, ImageDraw
+    warm = min(3, hook["luck"])
+    metal = (150 + warm * 26, 146 + warm * 14, 140 - warm * 30)
+    edge = darker(metal, 60)
+    image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.line([(8, 2), (8, 8)], fill=metal + (255,))
+    draw.arc([4, 6, 12, 13], start=0, end=180, fill=metal + (255,))
+    draw.point((4, 9), fill=edge + (255,))
+    if hook["holds"]:
+        draw.line([(10, 9), (12, 7)], fill=edge + (255,))
+    if hook["catches"] > 1:
+        draw.arc([2, 6, 10, 13], start=0, end=180, fill=metal + (255,))
+    return image
+
+
+def bobber_sprite(bobber):
+    """A float: red over white, lit if it works at night, weighted if it sinks."""
+    from PIL import Image, ImageDraw
+    top = (206, 68, 62) if not bobber["anytime"] else (238, 206, 110)
+    bottom = (226, 226, 222) if not bobber["deeper"] else (96, 96, 104)
+    edge = darker(top, 60)
+    image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.ellipse([3, 3, 12, 12], fill=bottom + (255,), outline=edge + (255,))
+    draw.pieslice([3, 3, 12, 12], start=180, end=360, fill=top + (255,),
+                  outline=edge + (255,))
+    draw.line([(8, 0), (8, 3)], fill=edge + (255,))
+    if bobber["sooner"] > 0.0:
+        draw.point((6, 6), fill=(255, 255, 255, 255))
+        draw.point((10, 6), fill=(255, 255, 255, 255))
+    return image
+
+
+def mount_sprite(one):
+    """A fish on a board, in the fish's own colours."""
+    from PIL import Image, ImageDraw
+    board = (128, 98, 62)
+    grain = darker(board, 34)
+    image = Image.new("RGBA", (16, 16), board + (255,))
+    draw = ImageDraw.Draw(image)
+    for row in range(0, 16, 4):
+        draw.line([(0, row), (15, row)], fill=grain + (255,))
+    body = skin(one)
+    draw.ellipse([3, 6, 11, 10], fill=body + (255,), outline=darker(body) + (255,))
+    draw.polygon([(11, 8), (14, 5), (14, 11)], fill=body + (255,))
+    draw.point((5, 8), fill=(20, 20, 24, 255))
+    return image
+
+
+def station_sprite(name):
+    """The worm farm and the tackle box, told apart by what is on the lid."""
+    from PIL import Image, ImageDraw
+    base = (118, 92, 58) if name == WORM_FARM else (88, 96, 110)
+    edge = darker(base, 44)
+    lid = lighter_colour(base, 40)
+    image = Image.new("RGBA", (16, 16), base + (255,))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 15], outline=edge + (255,))
+    draw.rectangle([2, 2, 13, 7], fill=lid + (255,), outline=edge + (255,))
+    if name == WORM_FARM:
+        draw.arc([4, 9, 11, 14], start=200, end=340, fill=(196, 130, 130, 255))
+    else:
+        draw.line([(4, 11), (11, 11)], fill=edge + (255,))
+        draw.rectangle([7, 9, 8, 13], fill=edge + (255,))
+    return image
+
+
+def lighter_colour(colour, by=34):
+    return tuple(min(255, part + by) for part in colour)
+
+
 def save(image, *parts):
     path = os.path.join(*parts)
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -234,6 +342,15 @@ def draw_all():
              family["name"] + "_bait.png")
     for tool in ("fillet_knife", "measuring_line"):
         save(tool_sprite(tool), ASSETS, "textures/item", tool + ".png")
+    for hook in HOOKS:
+        save(hook_sprite(hook), ASSETS, "textures/item", hook["id"] + ".png")
+    for bobber in BOBBERS:
+        save(bobber_sprite(bobber), ASSETS, "textures/item", bobber["id"] + ".png")
+    for one in FISH:
+        save(mount_sprite(one), ASSETS, "textures/block",
+             one["id"] + "_mount.png")
+    for name in TACKLE_BLOCKS:
+        save(station_sprite(name), ASSETS, "textures/block", name + ".png")
 
 
 def flat(texture):
@@ -261,6 +378,91 @@ def models():
            "textures": {"layer0": f"{NS}:item/fillet_knife"}})
     write(os.path.join(ASSETS, "models/item", "measuring_line.json"),
           flat("measuring_line"))
+    for piece in HOOKS + BOBBERS:
+        write(os.path.join(ASSETS, "models/item", piece["id"] + ".json"),
+              flat(piece["id"]))
+    for name in MOUNTS + TACKLE_BLOCKS:
+        write(os.path.join(ASSETS, "models/block", name + ".json"),
+              {"parent": "minecraft:block/cube_all",
+               "textures": {"all": f"{NS}:block/{name}"}})
+        write(os.path.join(ASSETS, "blockstates", name + ".json"),
+              {"variants": {"": {"model": f"{NS}:block/{name}"}}})
+        write(os.path.join(ASSETS, "models/item", name + ".json"),
+              {"parent": f"{NS}:block/{name}"})
+
+
+def tackle_data():
+    """
+    Loot and recipes for everything around the water.
+
+    <p>A mount is made of the fish and a plank: it is a trophy, so the fish
+    goes into it and does not come back, and the recipe says so rather than a
+    tooltip saying so.
+    """
+    data = os.path.join(OUT, "src/main/resources/data", NS)
+    written = 0
+    for name in MOUNTS + TACKLE_BLOCKS:
+        write(os.path.join(data, "loot_table/blocks", name + ".json"), {
+            "type": "minecraft:block",
+            "pools": [{
+                "rolls": 1,
+                "entries": [{"type": "minecraft:item", "name": f"{NS}:{name}"}],
+                "conditions": [{"condition": "minecraft:survives_explosion"}],
+            }],
+        })
+        written += 1
+    for one in FISH:
+        write(os.path.join(data, "recipe", one["id"] + "_mount.json"), {
+            "type": "minecraft:crafting_shaped",
+            "category": "building",
+            "pattern": ["PPP", "PFP", "PPP"],
+            "key": {"P": {"tag": "minecraft:planks"},
+                    "F": {"item": f"{NS}:{one['id']}"}},
+            "result": {"id": f"{NS}:{one['id']}_mount", "count": 1},
+        })
+        written += 1
+    write(os.path.join(data, "recipe", WORM_FARM + ".json"), {
+        "type": "minecraft:crafting_shaped",
+        "category": "building",
+        "pattern": ["PPP", "PDP", "PPP"],
+        "key": {"P": {"tag": "minecraft:planks"},
+                "D": {"item": "minecraft:dirt"}},
+        "result": {"id": f"{NS}:{WORM_FARM}", "count": 1},
+    })
+    write(os.path.join(data, "recipe", TACKLE_BOX + ".json"), {
+        "type": "minecraft:crafting_shaped",
+        "category": "building",
+        "pattern": ["III", "PCP", "PPP"],
+        "key": {"P": {"tag": "minecraft:planks"},
+                "I": {"item": "minecraft:iron_nugget"},
+                "C": {"item": "minecraft:chest"}},
+        "result": {"id": f"{NS}:{TACKLE_BOX}", "count": 1},
+    })
+    written += 2
+    for hook in HOOKS:
+        metal = "minecraft:iron_nugget" if hook["luck"] < 2 \
+            else "minecraft:gold_ingot"
+        write(os.path.join(data, "recipe", hook["id"] + ".json"), {
+            "type": "minecraft:crafting_shaped",
+            "category": "equipment",
+            "pattern": [" M ", "M M", " M "],
+            "key": {"M": {"item": metal}},
+            "result": {"id": f"{NS}:{hook['id']}", "count": 1},
+        })
+        written += 1
+    for bobber in BOBBERS:
+        heart = "minecraft:glowstone_dust" if bobber["anytime"] \
+            else ("minecraft:lead" if bobber["deeper"] else "minecraft:string")
+        write(os.path.join(data, "recipe", bobber["id"] + ".json"), {
+            "type": "minecraft:crafting_shaped",
+            "category": "equipment",
+            "pattern": [" W ", "WHW", " W "],
+            "key": {"W": {"item": "minecraft:white_wool"},
+                    "H": {"item": heart}},
+            "result": {"id": f"{NS}:{bobber['id']}", "count": 1},
+        })
+        written += 1
+    return written
 
 
 def a_name(text):
@@ -281,6 +483,12 @@ def lang():
         words[f"item.{NS}.{family['name']}_bait"] = a_name(family["name"]) + " Bait"
     words[f"item.{NS}.fillet_knife"] = "Fillet Knife"
     words[f"item.{NS}.measuring_line"] = "Measuring Line"
+    for piece in HOOKS + BOBBERS:
+        words[f"item.{NS}.{piece['id']}"] = a_name(piece["id"])
+    for one in FISH:
+        words[f"block.{NS}.{one['id']}_mount"] = a_name(one["id"]) + " Mount"
+    for name in TACKLE_BLOCKS:
+        words[f"block.{NS}.{name}"] = a_name(name)
 
     committed = os.path.join(MOD, "src/main/resources/assets", NS, "lang/en_us.json")
     path = os.path.join(ASSETS, "lang/en_us.json")
@@ -292,6 +500,9 @@ def lang():
     ours |= {f"item.{NS}.{name}" for name in ROD_NAMES}
     ours |= {f"item.{NS}.{f['name']}_bait" for f in FAMILIES.values()}
     ours |= {f"item.{NS}.fillet_knife", f"item.{NS}.measuring_line"}
+    ours |= {f"item.{NS}.{piece['id']}" for piece in HOOKS + BOBBERS}
+    ours |= {f"block.{NS}.{one['id']}_mount" for one in FISH}
+    ours |= {f"block.{NS}.{name}" for name in TACKLE_BLOCKS}
     for key in ours:
         existing.pop(key, None)
     existing.update(words)
@@ -301,10 +512,14 @@ def lang():
 def main():
     draw_all()
     models()
+    files = tackle_data()
     lang()
     print(f"fish: {len(FISH)} species across {len(FAMILIES)} families, "
           f"{len(ROD_NAMES)} rod(s), {len(FAMILIES)} bait(s), "
-          f"{len(FISH) * 3 + len(ROD_NAMES) + len(FAMILIES) + 2} texture(s)")
+          f"{len(FISH) * 3 + len(ROD_NAMES) + len(FAMILIES) + 2} texture(s); "
+          f"the tackle is {len(HOOKS)} hook(s), {len(BOBBERS)} bobber(s), "
+          f"{len(MOUNTS)} mount(s) and {len(TACKLE_BLOCKS)} station(s) in "
+          f"{files} file(s)")
 
 
 if __name__ == "__main__":

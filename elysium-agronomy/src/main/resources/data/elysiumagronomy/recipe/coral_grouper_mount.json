@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:coral_grouper"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:coral_grouper_mount",
+    "count": 1
+  }
+}

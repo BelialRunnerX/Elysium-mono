@@ -67,6 +67,7 @@ public final class AgronomyHarness {
         theMachinery();
         theAltar();
         theFish();
+        theTackle();
         theCast();
         thePots();
         theVeins();
@@ -923,6 +924,201 @@ public final class AgronomyHarness {
                 + " awakening(s), " + AltarRules.AROUND.size()
                 + " blocks around a centre, and an awakened farm of half the "
                 + "plots earning what a whole one does");
+    }
+
+
+    // ==================================================================
+
+    /**
+     * What goes on the end of a rod.
+     *
+     * <p>Three rules, every one of them swept over every water, every rod and
+     * all twenty-five ways of fitting a line: nothing fitted ever takes a
+     * fish away, nothing fitted ever empties a water that had fish in it, and
+     * a better hook never makes the rare fish harder to get relative to the
+     * common one. That last is the same question {@link
+     * FishRules#luckThatHurts} settled for rods, asked again of hooks,
+     * because a modifier system is exactly where it comes undone.
+     */
+    private static void theTackle() {
+        check(TackleRules.faults().isEmpty(),
+                "something wrong with the tackle itself: " + TackleRules.faults());
+        check(TackleRules.takenAway().isEmpty(),
+                TackleRules.takenAway().size() + " fish stop coming up when "
+                        + "something is fitted, first: "
+                        + (TackleRules.takenAway().isEmpty() ? ""
+                                : TackleRules.takenAway().get(0)));
+        check(TackleRules.deadWith().isEmpty(),
+                "fitting something empties a water that had fish in it: "
+                        + TackleRules.deadWith());
+        check(TackleRules.hooksThatHurt().isEmpty(),
+                TackleRules.hooksThatHurt().size() + " case(s) where a better "
+                        + "hook makes the rare fish harder to get, first: "
+                        + (TackleRules.hooksThatHurt().isEmpty() ? ""
+                                : TackleRules.hooksThatHurt().get(0)));
+
+        // The sweep, counted. A sweep that visits nothing passes as loudly as
+        // one that visits everything.
+        int swept = 0;
+        for (FishRules.Water where : FishRules.fishableWaters()) {
+            for (int rod = 0; rod < FishRules.RODS; rod++) {
+                for (TackleRules.Tackle tackle : TackleRules.everyTackle()) {
+                    swept++;
+                    java.util.List<FishRules.Chance> table =
+                            TackleRules.table(where, rod, FishRules.NOTHING, tackle);
+                    check(!table.isEmpty(), "a cast into " + where.kind()
+                            + " band " + where.band() + " with "
+                            + tackle.hook().id() + " and " + tackle.bobber().id()
+                            + " brings up nothing at all");
+                    double total = 0.0D;
+                    for (FishRules.Chance chance : table) {
+                        check(chance.share() > 0.0D, chance.fish()
+                                + " is in a table with no share of it");
+                        total += chance.share();
+                    }
+                    check(Math.abs(total - 1.0D) < 1.0E-9D,
+                            "a table for " + where.kind() + " band "
+                                    + where.band() + " adds to " + total);
+                }
+            }
+        }
+        check(swept > 500, "only " + swept + " cast(s) were swept, and there are "
+                + FishRules.fishableWaters().size() + " water(s), "
+                + FishRules.RODS + " rod(s) and "
+                + TackleRules.everyTackle().size() + " way(s) of fitting a line");
+
+        // A bobber adds reach and never trades it.
+        for (FishRules.Water where : FishRules.everyWater()) {
+            for (TackleRules.Bobber bobber : TackleRules.BOBBERS) {
+                java.util.List<FishRules.Water> reached =
+                        TackleRules.reaches(where, bobber);
+                check(reached.get(0).equals(where), bobber.id()
+                        + " does not reach the water the player is standing in, "
+                        + "which is the water they meant to fish");
+                check(reached.size() >= 1, bobber.id() + " reaches nowhere");
+                for (FishRules.Water one : reached) {
+                    check(one.kind().equals(where.kind()), bobber.id()
+                            + " reaches out of the water it was cast into");
+                    check(one.band() >= where.band(), bobber.id()
+                            + " reaches a shallower band than the one it was "
+                            + "cast into, which is a bobber that takes fish "
+                            + "away");
+                }
+            }
+            check(TackleRules.reaches(where, TackleRules.PLAIN).size() == 1,
+                    "a bare line reaches more than the water it is in");
+        }
+
+        // Every mount, every hook and every bobber accounted for.
+        check(TackleRules.mounts().size() == FishRules.FISH.size(),
+                "there are " + FishRules.FISH.size() + " fish and "
+                        + TackleRules.mounts().size() + " mount(s)");
+        java.util.Set<String> named = new java.util.LinkedHashSet<>();
+        for (String name : TackleRules.blocks()) {
+            check(named.add(name), name + " names two blocks");
+        }
+        for (String name : TackleRules.items()) {
+            check(named.add(name), name + " names two things");
+        }
+        check(TackleRules.baitPerHour() <= TackleRules.MOST_BAIT_PER_HOUR,
+                "a worm farm makes " + TackleRules.baitPerHour()
+                        + " bait an hour and the ceiling is "
+                        + TackleRules.MOST_BAIT_PER_HOUR);
+        // And the rule asked about a farm built to be caught, because the real
+        // one is under the ceiling by design and the rule could be deleted.
+        check(!TackleRules.faultsInBait(1_000.0F, 72.0F).isEmpty(),
+                "a worm farm making a thousand bait an hour against a ceiling "
+                        + "of seventy-two is not reported, so the rule that "
+                        + "bait is a convenience rather than a switch cannot "
+                        + "say no");
+        check(TackleRules.faultsInBait(10.0F, 72.0F).isEmpty(),
+                "an ordinary worm farm is reported as over the ceiling");
+
+        // Controls, built to be caught.
+        check(!TackleRules.faultsInHooks(java.util.List.of(
+                        new TackleRules.Hook("control", 0, 1, false))).isEmpty(),
+                "a hook that is the bare end of a line with a name on it is not "
+                        + "reported");
+        check(!TackleRules.faultsInHooks(java.util.List.of(
+                        new TackleRules.Hook("control", 1, 1, false),
+                        new TackleRules.Hook("control_two", 1, 1, false)))
+                        .isEmpty(),
+                "two hooks that do exactly the same thing are not reported");
+        check(TackleRules.faultsInHooks(java.util.List.of(
+                        new TackleRules.Hook("control", 1, 1, false))).isEmpty(),
+                "an ordinary hook is reported as faulty: "
+                        + TackleRules.faultsInHooks(java.util.List.of(
+                                new TackleRules.Hook("control", 1, 1, false))));
+        check(!TackleRules.faultsInBobbers(java.util.List.of(
+                        new TackleRules.Bobber("control", 0, false, 0.0F)))
+                        .isEmpty(),
+                "a bobber that does nothing at all is not reported");
+        check(!TackleRules.faultsInBobbers(java.util.List.of(
+                        new TackleRules.Bobber("control", FishRules.BANDS, false,
+                                0.0F))).isEmpty(),
+                "a bobber that reaches every band is not reported, and then "
+                        + "every water is every other water");
+
+        // And the hook rule over two tables built to be caught, because over a
+        // healthy roster it can only ever answer no.
+        FishRules.Water anywhere = FishRules.fishableWaters().get(0);
+        FishRules.Fish rare = null;
+        FishRules.Fish common = null;
+        for (FishRules.Chance chance
+                : TackleRules.table(anywhere, 0, FishRules.NOTHING,
+                        TackleRules.NONE)) {
+            FishRules.Fish one = FishRules.fish(chance.fish());
+            if (one == null) {
+                continue;
+            }
+            if (rare == null || one.rarity() > rare.rarity()) {
+                rare = one;
+            }
+            if (common == null || one.rarity() < common.rarity()) {
+                common = one;
+            }
+        }
+        if (rare != null && common != null && rare != common) {
+            java.util.List<FishRules.Chance> before = java.util.List.of(
+                    new FishRules.Chance(rare.id(), 0.5D),
+                    new FishRules.Chance(common.id(), 0.5D));
+            java.util.List<FishRules.Chance> after = java.util.List.of(
+                    new FishRules.Chance(rare.id(), 0.1D),
+                    new FishRules.Chance(common.id(), 0.9D));
+            check(!TackleRules.hurtBetween(before, after, anywhere,
+                            TackleRules.HOOKS.get(0)).isEmpty(),
+                    "a hook that takes the rare fish from half a table to a "
+                            + "tenth of it is not reported, so the rule that a "
+                            + "better hook never makes the rare fish harder to "
+                            + "get cannot say no");
+            check(TackleRules.hurtBetween(before, before, anywhere,
+                            TackleRules.HOOKS.get(0)).isEmpty(),
+                    "a hook that changes nothing is reported as hurting");
+        } else {
+            check(false, "there is no water with two rarities of fish in it, so "
+                    + "the hook rule has nothing it could ever be asked about");
+        }
+
+        java.util.List<String> allowed = new java.util.ArrayList<>();
+        try {
+            new TackleRules.Hook("control", -1, 1, false);
+            allowed.add("a hook worth less than nothing");
+        } catch (IllegalArgumentException expected) {
+            checks++;
+        }
+        try {
+            new TackleRules.Bobber("control", -1, false, 0.0F);
+            allowed.add("a bobber that makes water shallower");
+        } catch (IllegalArgumentException expected) {
+            checks++;
+        }
+        check(allowed.isEmpty(), "the tackle allows what it says it forbids: "
+                + allowed);
+
+        System.out.println("  the tackle: " + swept + " cast(s) swept over "
+                + TackleRules.everyTackle().size() + " way(s) of fitting a line, "
+                + "nothing taken away, no water emptied, and no hook making the "
+                + "rare fish harder to get");
     }
 
     // ==================================================================

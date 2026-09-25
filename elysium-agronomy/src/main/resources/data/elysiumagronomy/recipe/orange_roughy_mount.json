@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:orange_roughy"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:orange_roughy_mount",
+    "count": 1
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "PPP",
+    "PFP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "F": {
+      "item": "elysiumagronomy:atlantic_cod"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:atlantic_cod_mount",
+    "count": 1
+  }
+}
