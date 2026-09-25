@@ -735,6 +735,73 @@ def ingredients(recipe):
     return out
 
 
+# ---------------------------------------------------------------------------
+# The game's own, against the game
+# ---------------------------------------------------------------------------
+#
+# KitchenRules.THE_GAMES_OWN is an allowlist: names a recipe here may use
+# because the game already has them. It was taken on trust, and three of the
+# names in it were items from a mod this pack does not have — a barley sheaf,
+# a bread slice and a pumpkin slice. Three cutting recipes named them, none of
+# the three could ever fire, and nothing said so, because an allowlist that is
+# never checked is a list of whatever somebody believed on the day they wrote
+# it. So it is checked, against the game's own language file, which names
+# every item and every block the game ships.
+
+VANILLA_JAR = os.path.join(os.environ.get("ELYSIUM_MC_LIBS", "/tmp/mc"),
+                           "vanilla.jar")
+kitchen_own = re.search(r'THE_GAMES_OWN = Set\.of\(([^;]*?)\);', kitchen_source)
+kitchen_own = set(re.findall(r'"([a-z_]+)"', kitchen_own.group(1))) \
+    if kitchen_own else set()
+if not kitchen_own:
+    fail("KitchenRules declares nothing as the game's own, so every recipe here "
+         "that names a vanilla ingredient reads as naming nothing")
+
+if not os.path.isfile(VANILLA_JAR):
+    print("the game's own     : the game's jar is not here, so the allowlist was "
+          "not checked against it")
+else:
+    import zipfile
+    with zipfile.ZipFile(VANILLA_JAR) as jar:
+        _lang = json.loads(jar.read("assets/minecraft/lang/en_us.json"))
+    THE_GAME_HAS = {key.split(".", 2)[2] for key in _lang
+                    if key.startswith(("item.minecraft.", "block.minecraft."))}
+    # The game ships something over two thousand items and blocks between
+    # them. A list much shorter than that is a list that has stopped reading
+    # one of the two, and the symptom would be every block in the allowlist
+    # reading as invented rather than the check plainly not working.
+    if len(THE_GAME_HAS) < 2_000:
+        fail(f"only {len(THE_GAME_HAS)} name(s) could be read out of the game's "
+             f"language file, so the check below is checking nothing")
+    else:
+        invented = sorted(name for name in kitchen_own
+                          if name not in THE_GAME_HAS)
+        if invented:
+            fail(f"{len(invented)} name(s) are allowed as the game's own and the "
+                 f"game does not have them, so every recipe naming one is a "
+                 f"recipe that can never fire: " + ", ".join(invented))
+        # And the other direction: every ingredient a cut names is either ours
+        # or the game's. A cut whose input does not exist is a knife that can
+        # never be used; a cut whose output does not exist is worse, because a
+        # recipe book shows it.
+        loose = []
+        for cut in re.findall(
+                r'new Cut\("([a-z_]+)", "([a-z_]+)", Map\.of\(([^)]*)\)\)',
+                kitchen_source):
+            named = [cut[0]] + re.findall(r'"([a-z_]+)"', cut[2])
+            for one in named:
+                if f"{NS}:{one}" in OURS or one in THE_GAME_HAS:
+                    continue
+                loose.append(f"{cut[0]} -> {one}")
+        if loose:
+            fail(f"{len(loose)} cutting recipe(s) name something neither this "
+                 f"module makes nor the game ships: " + ", ".join(loose[:6]))
+        print(f"the game's own     : {len(kitchen_own)} vanilla ingredient(s) "
+              f"allowed by name, every one of them checked against the "
+              f"{len(THE_GAME_HAS)} the game actually ships, and every cutting "
+              f"recipe naming only things that exist")
+
+
 APIARY_RULES = read(SRC, "rules/ApiaryRules.java")
 apiary_source = strip_comments(APIARY_RULES, True)
 

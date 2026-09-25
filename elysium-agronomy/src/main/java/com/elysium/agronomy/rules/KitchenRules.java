@@ -251,17 +251,30 @@ public final class KitchenRules {
             new Cut("tomato", "knife", Map.of("tomato_paste", 2)),
             new Cut("wheat", "knife", Map.of("dough", 1)),
             new Cut("milk_bucket", "knife", Map.of("cream", 2, "butter", 1)),
-            new Cut("pumpkin", "knife", Map.of("pumpkin_slice", 4)),
-            new Cut("bread", "knife", Map.of("bread_slice", 2)),
-            new Cut("barley_sheaf", "knife", Map.of("barley", 2, "rice", 1)));
+            // A bale is bound with twine, so a knife is exactly the tool, and
+            // what falls out of it is the two grains this module grows.
+            // Nine wheat went into it and three of ours come out, so it is a
+            // way of turning a harvest into a different harvest rather than a
+            // way of getting more of one.
+            new Cut("hay_block", "knife", Map.of("barley", 2, "rice", 1)));
 
-    /** Things the game already has that a recipe here may name. */
+    /**
+     * Things the game already has that a recipe here may name.
+     *
+     * <p>Every one of these is checked against the game's own item list by
+     * {@code validate.py} rather than taken on trust. It was taken on trust
+     * for a while, and three of the names in it — a barley sheaf, a bread
+     * slice and a pumpkin slice — were items from a mod this pack does not
+     * have. The three recipes naming them could never fire, and nothing said
+     * so, because an allowlist that is never checked is a list of whatever
+     * somebody believed on the day they wrote it.
+     */
     public static final Set<String> THE_GAMES_OWN = Set.of(
-            "apple", "barley_sheaf", "beef", "bone",
-            "bread", "bread_slice", "brown_mushroom", "carrot",
+            "apple", "beef", "bone",
+            "bread", "brown_mushroom", "carrot",
             "chicken", "cocoa_beans", "cod", "egg",
-            "honey_bottle", "milk_bucket", "mutton", "porkchop",
-            "potato", "pumpkin", "pumpkin_slice", "red_mushroom",
+            "hay_block", "honey_bottle", "milk_bucket", "mutton", "porkchop",
+            "potato", "pumpkin", "red_mushroom",
             "salmon", "sugar", "sweet_berries", "wheat");
 
     private static final Map<String, Ingredient> INGREDIENT_BY_ID =

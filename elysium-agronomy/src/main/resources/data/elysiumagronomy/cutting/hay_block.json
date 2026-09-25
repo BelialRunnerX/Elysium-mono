@@ -1,5 +1,5 @@
 {
-  "input": "minecraft:barley_sheaf",
+  "input": "minecraft:hay_block",
   "tool": "knife",
   "yields": [
     {
