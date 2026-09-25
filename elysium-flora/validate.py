@@ -407,6 +407,26 @@ for folder in ("textures/block", "textures/item"):
 print(f"atlas textures     : {atlas_textures} block and item texture(s), each square or "
       f"declared frames")
 
+# Every texture a model names has to exist. The block side of this was always
+# checked through the wood list; the item side was not, and the door item
+# (minecraft:item/generated over item/emberwood_door) shipped without its
+# texture — a purple-and-black door in every hand, and only a WARN line at
+# resource reload to say so.
+model_textures = 0
+for folder in ("models/block", "models/item"):
+    root = os.path.join(ASSETS, folder)
+    for name in sorted(os.listdir(root)) if os.path.isdir(root) else []:
+        model = load(ASSETS, f"{folder}/{name}") or {}
+        for reference in model.get("textures", {}).values():
+            if not reference.startswith(f"{NS}:"):
+                continue
+            model_textures += 1
+            texture = os.path.join(ASSETS, "textures", reference.split(":", 1)[1] + ".png")
+            if not os.path.isfile(texture):
+                fail(f"{folder}/{name} names {reference} and no such texture is shipped")
+print(f"model textures     : {model_textures} reference(s) from block and item models, each "
+      f"to a shipped file")
+
 # ---------------------------------------------------------------------------
 # Language
 # ---------------------------------------------------------------------------

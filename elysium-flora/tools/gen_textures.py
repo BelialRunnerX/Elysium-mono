@@ -133,9 +133,13 @@ def items():
         ("item_string.png", "downbloom_tuft", DOWNBLOOM_HUE, 0.35, 1.15),
         ("item_wheat_seeds.png", "downbloom_seeds", DOWNBLOOM_HUE, 0.50, 1.05),
         ("item_charcoal.png", "emberwood_charcoal", EMBER_BARK_HUE, 0.40, 0.95),
+        # The door in the hand: the item model is minecraft:item/generated over
+        # item/emberwood_door, and without this the hotbar showed the missing
+        # texture while the placed door was fine.
+        ("item_crimson_door.png", "emberwood_door", EMBER_BARK_HUE, 0.55, 1.10),
     ]
     for source, name, hue, saturation, value in pairs:
-        save(recolour(load(source), hue, saturation, value), "item", name)
+        save(recolour(load(source), hue, saturation, value), "item", name, source)
     return len(pairs)
 
 
