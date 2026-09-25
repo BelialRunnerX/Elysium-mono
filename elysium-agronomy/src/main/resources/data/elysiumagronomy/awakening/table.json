@@ -1,0 +1,223 @@
+{
+  "pedestals": 4,
+  "relays": 4,
+  "awakenings": [
+    {
+      "id": "insanium_essence",
+      "takes": "",
+      "each": 4,
+      "essence": "ascendant_essence",
+      "makes": "insanium_essence"
+    },
+    {
+      "id": "awakened_coal_seed",
+      "takes": "coal_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_coal_seed"
+    },
+    {
+      "id": "awakened_copper_seed",
+      "takes": "copper_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_copper_seed"
+    },
+    {
+      "id": "awakened_tin_seed",
+      "takes": "tin_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_tin_seed"
+    },
+    {
+      "id": "awakened_zinc_seed",
+      "takes": "zinc_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_zinc_seed"
+    },
+    {
+      "id": "awakened_iron_seed",
+      "takes": "iron_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_iron_seed"
+    },
+    {
+      "id": "awakened_lead_seed",
+      "takes": "lead_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_lead_seed"
+    },
+    {
+      "id": "awakened_redstone_seed",
+      "takes": "redstone_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_redstone_seed"
+    },
+    {
+      "id": "awakened_nickel_seed",
+      "takes": "nickel_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_nickel_seed"
+    },
+    {
+      "id": "awakened_silver_seed",
+      "takes": "silver_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_silver_seed"
+    },
+    {
+      "id": "awakened_aluminum_seed",
+      "takes": "aluminum_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_aluminum_seed"
+    },
+    {
+      "id": "awakened_lithium_seed",
+      "takes": "lithium_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_lithium_seed"
+    },
+    {
+      "id": "awakened_lapis_seed",
+      "takes": "lapis_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_lapis_seed"
+    },
+    {
+      "id": "awakened_quartz_seed",
+      "takes": "quartz_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_quartz_seed"
+    },
+    {
+      "id": "awakened_glowstone_seed",
+      "takes": "glowstone_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_glowstone_seed"
+    },
+    {
+      "id": "awakened_gold_seed",
+      "takes": "gold_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_gold_seed"
+    },
+    {
+      "id": "awakened_osmium_seed",
+      "takes": "osmium_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_osmium_seed"
+    },
+    {
+      "id": "awakened_amethyst_seed",
+      "takes": "amethyst_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_amethyst_seed"
+    },
+    {
+      "id": "awakened_fluorite_seed",
+      "takes": "fluorite_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_fluorite_seed"
+    },
+    {
+      "id": "awakened_certus_quartz_seed",
+      "takes": "certus_quartz_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_certus_quartz_seed"
+    },
+    {
+      "id": "awakened_obsidian_seed",
+      "takes": "obsidian_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_obsidian_seed"
+    },
+    {
+      "id": "awakened_crimson_iron_seed",
+      "takes": "crimson_iron_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_crimson_iron_seed"
+    },
+    {
+      "id": "awakened_platinum_seed",
+      "takes": "platinum_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_platinum_seed"
+    },
+    {
+      "id": "awakened_uranium_seed",
+      "takes": "uranium_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_uranium_seed"
+    },
+    {
+      "id": "awakened_uraninite_seed",
+      "takes": "uraninite_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_uraninite_seed"
+    },
+    {
+      "id": "awakened_bort_seed",
+      "takes": "bort_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_bort_seed"
+    },
+    {
+      "id": "awakened_rime_shard_seed",
+      "takes": "rime_shard_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_rime_shard_seed"
+    },
+    {
+      "id": "awakened_azure_silver_seed",
+      "takes": "azure_silver_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_azure_silver_seed"
+    },
+    {
+      "id": "awakened_diamond_seed",
+      "takes": "diamond_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_diamond_seed"
+    },
+    {
+      "id": "awakened_emerald_seed",
+      "takes": "emerald_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_emerald_seed"
+    },
+    {
+      "id": "awakened_netherite_seed",
+      "takes": "netherite_seed",
+      "each": 4,
+      "essence": "insanium_essence",
+      "makes": "awakened_netherite_seed"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "top": "elysiumagronomy:block/essence_pedestal_top",
+    "side": "elysiumagronomy:block/essence_pedestal_side",
+    "bottom": "elysiumagronomy:block/essence_pedestal_side",
+    "particle": "elysiumagronomy:block/essence_pedestal_side"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#bottom"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        }
+      }
+    }
+  ]
+}

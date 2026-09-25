@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " S ",
+    "SES",
+    " S "
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:stone_bricks"
+    },
+    "E": {
+      "item": "elysiumagronomy:faint_essence"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:essence_relay",
+    "count": 4
+  }
+}

@@ -8,10 +8,10 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 63 | DONE | an Elysium module already replaces it |
-| 5 | SPLIT | spans several modules; see docs/SPLITS.md |
+| 65 | DONE | an Elysium module already replaces it |
+| 6 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 55 | PLANNED | has a target module, not started |
+| 52 | PLANNED | has a target module, not started |
 | 13 | KEEP | stays in the pack on purpose |
 | 67 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -22,8 +22,8 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 |---|---|
 | `elysium-kinetics` | 19 |
 | `elysium-atomics` | 9 |
-| `elysium-agronomy` | 8 |
 | `elysium-bestiary` | 7 |
+| `elysium-agronomy` | 6 |
 | `elysium-comforts` | 6 |
 | `elysium-industry` | 4 |
 | `elysium-atelier` | 3 |
@@ -164,8 +164,8 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `moonlight-1.21.1-3.3.3-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `MouseTweaks-neoforge-mc1.21-2.26.1.jar` | DROP | - | interface and convenience: not content |
 | `multipiston-1.2.58-1.21.1.jar` | KEEP | elysium-colonies | MineColonies' own dependencies |
-| `MysticalAgradditions-1.21.1-8.0.14.jar` | PLANNED | elysium-agronomy | growing resources: the tier-6 crops and insanium are not started |
-| `MysticalAgriculture-1.21.1-8.0.27.jar` | PLANNED | elysium-agronomy | growing resources: 30 seeds across 5 rungs, one per material the ground gives you, with a chunk item for the 17 the foundry makes ingots of. No seed grows an alloy, which is checked against the foundry's own list. Its tools, armour, awakening altars and augments do not exist |
+| `MysticalAgradditions-1.21.1-8.0.14.jar` | DONE | elysium-agronomy | the sixth rung, and it is not a crop. Its tier-6 crops grow nether stars and dragon eggs — things a boss drops rather than things the ground gives you — and a seed that grows what is made rather than mined competes with the whole age that was built to supply it. So insanium is made at an awakening altar out of four of the fifth rung instead: a centre, four pedestals on the diagonals and four relays on the axes, a shape proved symmetric under a quarter turn so an altar cannot work facing one way and not another. What insanium buys is an awakened seed for every one of the thirty, and what awakening buys is **space**: double the yield a plot, half the plots allowed, the same metal an hour out of half the ground. That is the one cost of a resource farm no other rule here prices, and it costs the economy nothing |
+| `MysticalAgriculture-1.21.1-8.0.27.jar` | SPLIT | elysium-agronomy | 30 seeds across 5 rungs, one per material the ground gives you, with a chunk item for the 17 the foundry makes ingots of; no seed grows an alloy, checked against the foundry's own list. The awakening altar and the sixth rung are built. Its tools, armour and augments are weapons and armour, which belong to elysium-arsenal and elysium-armory — see docs/SPLITS.md |
 | `mythsandlegends-0.0.8.6.jar` | DONE | elysium-arsenal | 24 named weapons smithed from their own shape and tier, carrying abilities priced by the shared library, none over its tier's band |
 | `naturalist-2.0.2-neoforge-1.21.1.jar` | PLANNED | elysium-bestiary | passive fauna, ambience and a field guide; the bestiary is hostile mobs only and has nothing that does not attack you |
 | `NaturesCompass-1.21.1-3.4.0-neoforge.jar` | DONE | elysium-wilds | a biome compass with a needle and a list you type into, on one bounded search that costs the same for anything; no adjustable radius, on purpose |

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "S S",
+    " E ",
+    "SSS"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:stone_bricks"
+    },
+    "E": {
+      "item": "elysiumagronomy:ascendant_essence"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:essence_pedestal",
+    "count": 4
+  }
+}

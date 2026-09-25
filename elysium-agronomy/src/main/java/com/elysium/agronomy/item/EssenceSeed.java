@@ -17,11 +17,32 @@ public class EssenceSeed extends Item {
 
     private final int tier;
     private final Supplier<Item> essence;
+    private final boolean awakened;
 
     public EssenceSeed(Properties properties, int tier, Supplier<Item> essence) {
+        this(properties, tier, essence, false);
+    }
+
+    /**
+     * @param awakened whether this one came off an altar.
+     *                 An awakened seed yields more per plot and is allowed
+     *                 fewer plots, so a farm of them earns what a farm of the
+     *                 ordinary ones does out of half the ground. The arithmetic
+     *                 is {@link com.elysium.agronomy.rules.AltarRules}' and
+     *                 not this class's: a second opinion about what a plot is
+     *                 worth is one opinion too many.
+     */
+    public EssenceSeed(Properties properties, int tier, Supplier<Item> essence,
+                       boolean awakened) {
         super(properties);
         this.tier = Math.max(1, Math.min(AgronomyRules.TIERS, tier));
         this.essence = essence;
+        this.awakened = awakened;
+    }
+
+    /** Whether this one came off an altar. */
+    public boolean awakened() {
+        return awakened;
     }
 
     /** Which rung of the ladder, and therefore how slowly it grows. */
@@ -41,6 +62,9 @@ public class EssenceSeed extends Item {
 
     /** How many come out of one harvest. */
     public int yield() {
-        return AgronomyRules.cropAt(tier).yield();
+        int plain = AgronomyRules.cropAt(tier).yield();
+        return awakened
+                ? plain * com.elysium.agronomy.rules.AltarRules.AWAKENED_YIELD
+                : plain;
     }
 }

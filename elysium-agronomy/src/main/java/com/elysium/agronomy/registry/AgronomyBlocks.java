@@ -93,6 +93,40 @@ public final class AgronomyBlocks {
         return java.util.Map.copyOf(made);
     }
 
+    /**
+     * The three blocks an altar is made of, walked from the rules.
+     *
+     * <p>Stone, because an altar is the one thing in this module that is not
+     * machinery: it wants no power, it ticks nothing, and it does what it
+     * does when somebody presses it.
+     */
+    public static final java.util.Map<String, DeferredBlock<Block>> ALTAR =
+            registerAltar();
+
+    private static java.util.Map<String, DeferredBlock<Block>> registerAltar() {
+        java.util.Map<String, DeferredBlock<Block>> made =
+                new java.util.LinkedHashMap<>();
+        BlockBehaviour.Properties stone = BlockBehaviour.Properties
+                .ofFullCopy(Blocks.STONE_BRICKS)
+                .mapColor(MapColor.STONE)
+                .sound(SoundType.STONE)
+                .strength(3.0F)
+                .noOcclusion();
+        for (String name : com.elysium.agronomy.rules.AltarRules.everything()) {
+            made.put(name, BLOCKS.register(name, () -> name.equals(
+                    com.elysium.agronomy.rules.AltarRules.CENTRE)
+                    ? new com.elysium.agronomy.block.AwakeningAltarBlock(stone)
+                    : new com.elysium.agronomy.block.AltarBlock(stone, name)));
+        }
+        if (made.size()
+                != com.elysium.agronomy.rules.AltarRules.everything().size()) {
+            throw new IllegalStateException("an altar is "
+                    + com.elysium.agronomy.rules.AltarRules.everything().size()
+                    + " block(s) and " + made.size() + " were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
     /** What a comb is actually for. */
     public static final DeferredBlock<Block> CENTRIFUGE =
             BLOCKS.register(com.elysium.agronomy.rules.ApiaryRules.CENTRIFUGE,

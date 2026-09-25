@@ -770,6 +770,31 @@ bee_materials = [bee for bee, in re.findall(
         strip_comments(BEE_RULES, True))
 OURS |= {f"{NS}:{material}_chunk" for material in bee_materials}
 
+ALTAR_RULES = read(SRC, "rules/AltarRules.java")
+altar_source = strip_comments(ALTAR_RULES, True)
+
+
+def altar_word(name):
+    found = re.search(name + r'\s*=\s*"([a-z_0-9]+)"', altar_source)
+    return found.group(1) if found else ""
+
+
+CENTRE = altar_word("CENTRE")
+PEDESTAL = altar_word("PEDESTAL")
+RELAY = altar_word("RELAY")
+INSANIUM = altar_word("INSANIUM")
+TOP_ESSENCE = altar_word("TOP_ESSENCE")
+ALTAR_BLOCKS = [one for one in (CENTRE, PEDESTAL, RELAY) if one]
+if len(ALTAR_BLOCKS) != 3 or not INSANIUM or not TOP_ESSENCE:
+    fail("AltarRules no longer says what an altar is made of or what the sixth "
+         "rung is called, and every check below it is then checking nothing")
+
+# The sixth rung and every awakened seed are ours, registered from a loop and
+# so invisible to the reading that walks literal register("...") calls.
+OURS |= {f"{NS}:{one}" for one in ALTAR_BLOCKS}
+OURS |= {f"{NS}:{INSANIUM}"}
+OURS |= {f"{NS}:awakened_{material}_seed" for material in seeds}
+
 for name in registered:
     if name not in crafted:
         fail(f"{name} has no crafting recipe, so it can only be given")
@@ -1642,6 +1667,130 @@ print(f"the apiary         : {len(housings)} rung(s) of housing, "
       f"{len([u for u in upgrades if u[1] or u[2] > 1.0])} earn and the rest buy "
       f"attention, a centrifuge, and {len(bee_materials)} material(s) a comb "
       f"comes apart into")
+
+
+# ---------------------------------------------------------------------------
+# The altar: the sixth rung, and the thing awakening is not
+# ---------------------------------------------------------------------------
+
+# The one name this file has to state twice. AltarRules cannot read the
+# registry — the registry imports the game and the rules may not — so the top
+# essence is written in both and checked here.
+if TOP_ESSENCE and essences and TOP_ESSENCE != essences[-1]:
+    fail(f"AltarRules says the top of the essence ladder is {TOP_ESSENCE} and "
+         f"the registry's last essence is {essences[-1]}; the altar would ask "
+         f"for an item that has never existed and nothing in the game would "
+         f"say which of the two was wrong")
+
+if "public static List<String> faultsInEconomy()" not in altar_source:
+    fail("the altar no longer checks what awakening costs, and doubling a "
+         "yield without halving the plots is a farm that beats a mine")
+if "float allowed = AgronomyRules.minedPerHour() * AgronomyRules.FARM_AT_MOST;" \
+        not in altar_source:
+    fail("an awakened farm's allowance is not worked out from the same margin "
+         "an ordinary farm's is, so the two can drift and only one of them is "
+         "the rule")
+if "Place turning = one;" not in altar_source:
+    fail("the altar's shape is typed out rather than turned, and then the "
+         "symmetry check is checking what somebody typed rather than what the "
+         "shape is")
+
+for name in ALTAR_BLOCKS:
+    for folder in ("models/block", "models/item", "blockstates"):
+        if not os.path.isfile(os.path.join(RES, "assets", NS, folder,
+                                           name + ".json")):
+            fail(f"{name} has no {folder.split('/')[-1]}, so a block of the "
+                 f"altar is a purple cube")
+    if not os.path.isfile(os.path.join(RES, "data", NS, "recipe",
+                                       name + ".json")):
+        fail(f"{name} has no recipe, so the altar is a structure only the "
+             f"creative menu can build")
+    if not os.path.isfile(os.path.join(RES, "data", NS, "loot_table/blocks",
+                                       name + ".json")):
+        fail(f"{name} drops nothing when it is broken")
+    if f"block.{NS}.{name}" not in lang_file:
+        fail(f"{name} has no name a player reads")
+
+if INSANIUM:
+    if not os.path.isfile(os.path.join(RES, "assets", NS, "models/item",
+                                       INSANIUM + ".json")):
+        fail(f"{INSANIUM} has no model, so the sixth rung is a purple cube")
+    if f"item.{NS}.{INSANIUM}" not in lang_file:
+        fail(f"{INSANIUM} has no name a player reads")
+    if os.path.isfile(os.path.join(RES, "data", NS, "recipe",
+                                   INSANIUM + ".json")):
+        fail(f"{INSANIUM} has a crafting recipe, and the whole reason the sixth "
+             f"rung is made at an altar is that a seed may only grow what the "
+             f"ground gives you")
+
+for material in seeds:
+    awakened = f"awakened_{material}_seed"
+    if not os.path.isfile(os.path.join(RES, "assets", NS, "models/item",
+                                       awakened + ".json")):
+        fail(f"{awakened} has no model")
+    if f"item.{NS}.{awakened}" not in lang_file:
+        fail(f"{awakened} has no name a player reads")
+
+# The table, against the rules that produced it.
+table_path = os.path.join(RES, "data", NS, "awakening/table.json")
+if not os.path.isfile(table_path):
+    fail("there is no table of what an altar can do, so the thirty-one things "
+         "it makes are in Java and nowhere a player or a wiki can read them")
+else:
+    table = json.loads(read(table_path))
+    listed = table.get("awakenings", [])
+    if len(listed) != len(seeds) + 1:
+        fail(f"the altar's table has {len(listed)} row(s) for {len(seeds)} "
+             f"seed(s) and the sixth rung; a seed the altar has never heard of "
+             f"is a seed nobody can awaken and nothing reports it")
+    made = [row.get("makes") for row in listed]
+    if INSANIUM not in made:
+        fail("nothing in the altar's table makes the sixth rung, so it is a "
+             "name with no way up to it")
+    if len(set(made)) != len(made):
+        fail("two rows of the altar's table make the same thing, so one of "
+             "them is a recipe the altar will never reach")
+    for row in listed:
+        if row.get("each", 0) <= 0:
+            fail(f"{row.get('id')} swallows no essence, so the altar is free")
+        if row.get("makes") == row.get("takes"):
+            fail(f"{row.get('id')} hands back what it took")
+        if row.get("essence") not in (INSANIUM, TOP_ESSENCE):
+            fail(f"{row.get('id')} is fed {row.get('essence')}, which is neither "
+                 f"the top of the ladder nor the rung above it")
+    if table.get("pedestals", 0) <= 0 or table.get("relays", 0) <= 0:
+        fail("the altar's table says it has no pedestals or no relays")
+
+# The blocks themselves: they read the rules rather than holding an opinion.
+altar_block = strip_comments(read(SRC, "block/AwakeningAltarBlock.java"))
+if "AltarRules.AWAKENINGS" not in altar_block:
+    fail("the altar decides for itself what a seed awakens into, which is a "
+         "second opinion about the ladder three ages are built on")
+if "for (AltarRules.Place place : AltarRules.AROUND) {" \
+        not in body_of(altar_block, "public boolean built("):
+    fail("the altar's shape in the world is not walked from the rules, so the "
+         "shape the harness proved symmetric and the shape a player builds are "
+         "two different shapes")
+if "if (!built(level, centre)) {" not in body_of(altar_block,
+                                                "public Component awaken("):
+    fail("an altar fires without being built, so its pedestals are decoration")
+if "stand.spend(one.each());" not in altar_block:
+    fail("an altar fires without spending the essence on its pedestals, which "
+         "is a machine for making essence out of nothing")
+
+stand_block = strip_comments(read(SRC, "block/AltarBlock.java"))
+if "public boolean offer(ItemStack coming) {" not in stand_block:
+    fail("nothing can be put on a pedestal, so an altar cannot be fed")
+
+seed_item = strip_comments(read(SRC, "item/EssenceSeed.java"))
+if "AltarRules.AWAKENED_YIELD" not in seed_item:
+    fail("an awakened seed decides for itself how much it yields, so the "
+         "arithmetic the harness proved and the arithmetic a plot uses are two "
+         "different arithmetics")
+
+print(f"the altar          : {len(ALTAR_BLOCKS)} block(s), "
+      f"{len(seeds) + 1} awakening(s), a sixth rung made rather than grown, and "
+      f"an awakened farm of half the plots earning what a whole one does")
 
 print(f"the diet             : {constant('FOODS_FOR_FULL', kind='int')} different "
       f"foods for {constant('MOST_EXTRA_HEARTS', kind='int')} hearts, kept as a set, "

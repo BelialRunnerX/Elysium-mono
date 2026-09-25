@@ -79,6 +79,43 @@ CHUNKED = sorted(material for material, (tier, makes) in SEEDS.items()
 BLOCKS = ["pot", "accelerator", "hive",
           "rock_generator", "driven_rock_generator", "industrial_rock_generator"]
 
+# ---------------------------------------------------------------------------
+# The altar, read out of the rules rather than listed here
+# ---------------------------------------------------------------------------
+
+def _source(name):
+    with open(os.path.join(MOD, "src/main/java/com/elysium/agronomy/rules", name),
+              encoding="utf-8") as handle:
+        return handle.read()
+
+
+ALTAR_RULES = _source("AltarRules.java")
+
+
+def altar_word(name):
+    found = re.search(name + r'\s*=\s*"([a-z_]+)"', ALTAR_RULES)
+    if not found:
+        print(f"AltarRules no longer says what {name} is")
+        sys.exit(2)
+    return found.group(1)
+
+
+CENTRE = altar_word("CENTRE")
+PEDESTAL = altar_word("PEDESTAL")
+RELAY = altar_word("RELAY")
+INSANIUM = altar_word("INSANIUM")
+TOP_ESSENCE = altar_word("TOP_ESSENCE")
+ALTAR_BLOCKS = [CENTRE, PEDESTAL, RELAY]
+
+PER_INSANIUM = re.search(r"PER_INSANIUM = AgronomyRules\.ESSENCE_PER_STEP",
+                         ALTAR_RULES)
+if not PER_INSANIUM:
+    print("the sixth rung no longer costs what a rung of the ladder costs, and "
+          "this generator writes the recipe that says it does")
+    sys.exit(2)
+PER_INSANIUM = int(re.search(r"ESSENCE_PER_STEP = (\d+);",
+                             _source("AgronomyRules.java")).group(1))
+
 #: How many steps of growth a pot's blockstate carries.
 AGES = 4
 
@@ -102,6 +139,10 @@ RUNGS = [
     [(30, 86, 46), (46, 130, 68), (76, 182, 100), (146, 224, 162)],
     [(98, 62, 16), (150, 100, 28), (206, 148, 50), (244, 200, 108)],
     [(84, 30, 96), (128, 48, 146), (176, 84, 196), (222, 154, 238)],
+    # The sixth. Not a rung of the seed ladder — there is no tier-six seed,
+    # because a seed may only grow what the ground gives you — but the rung
+    # an altar makes out of the fifth, and it wants to look like one.
+    [(120, 18, 26), (176, 34, 44), (224, 76, 84), (255, 158, 162)],
 ]
 CLEAR = (0, 0, 0, 0)
 
@@ -248,11 +289,54 @@ for rung in range(3):
     BLOCK_SPRITES[f"rock_side_{rung}"] = (lambda r=rung: rock_side(r))
 BLOCK_SPRITES["rock_top"] = lambda: machine_top(STONE, STONE)
 
+
+def altar_face(kind, top):
+    """
+    A block of the altar, drawn from what it is for.
+
+    <p>Stone, with a groove that says how far out it stands: the centre has a
+    full ring, a pedestal a short one, a relay a line. Three blocks a player
+    lays out in a pattern want to be told apart across a room.
+    """
+    from PIL import Image, ImageDraw
+    base = (126, 124, 118)
+    cut = (86, 84, 80)
+    lit = (196, 186, 150) if kind == CENTRE else (150, 146, 138)
+    image = Image.new("RGBA", (16, 16), base + (255,))
+    draw = ImageDraw.Draw(image)
+    for row in (0, 15):
+        draw.line([(0, row), (15, row)], fill=cut + (255,))
+    for column in (0, 15):
+        draw.line([(column, 0), (column, 15)], fill=cut + (255,))
+    if not top:
+        draw.rectangle([3, 5, 12, 10], fill=cut + (255,))
+        return image
+    if kind == CENTRE:
+        draw.ellipse([2, 2, 13, 13], outline=lit + (255,))
+        draw.ellipse([5, 5, 10, 10], fill=lit + (255,))
+    elif kind == PEDESTAL:
+        draw.rectangle([4, 4, 11, 11], outline=lit + (255,))
+        draw.rectangle([6, 6, 9, 9], fill=lit + (255,))
+    else:
+        draw.line([(3, 8), (12, 8)], fill=lit + (255,))
+        draw.line([(8, 3), (8, 12)], fill=lit + (255,))
+    return image
+
+
+for _kind in ALTAR_BLOCKS:
+    BLOCK_SPRITES[f"{_kind}_top"] = (lambda k=_kind: altar_face(k, True))
+    BLOCK_SPRITES[f"{_kind}_side"] = (lambda k=_kind: altar_face(k, False))
+
 ITEM_SPRITES = {"bee": bee, "comb": comb, "wax": wax}
 for rung, name in enumerate(ESSENCES):
     ITEM_SPRITES[name] = (lambda r=rung: essence(r))
 for material, (tier, _) in SEEDS.items():
     ITEM_SPRITES[material + "_seed"] = (lambda t=tier: seed(t - 1))
+# The sixth rung, drawn one step past the fifth so the ladder reads as a
+# ladder, and an awakened seed for every ordinary one.
+ITEM_SPRITES[INSANIUM] = lambda: essence(len(ESSENCES))
+for material, (tier, _) in SEEDS.items():
+    ITEM_SPRITES[f"awakened_{material}_seed"] = (lambda t=tier: seed(t - 1))
 
 
 #: The seventeen chunks, drawn from the material's own name so two never look
@@ -357,6 +441,8 @@ def models_and_states():
         "driven_rock_generator": ("rock_top", "rock_side_1"),
         "industrial_rock_generator": ("rock_top", "rock_side_2"),
     }
+    for kind in ALTAR_BLOCKS:
+        simple[kind] = (f"{kind}_top", f"{kind}_side")
     for name, (top, side) in simple.items():
         write(os.path.join(ASSETS, "models/block", name + ".json"),
               box_model(FULL, top, side))
@@ -439,6 +525,15 @@ RECIPES = {
     "industrial_rock_generator": shaped(["PPP", "PGP", "PWP"], {
         "P": TAG("c:plates/steel"), "G": ITEM(f"{NS}:driven_rock_generator"),
         "W": ITEM(f"{IND}:gold_wire")}, f"{NS}:industrial_rock_generator"),
+    CENTRE: shaped(["SES", "EOE", "SES"], {
+        "S": ITEM("minecraft:stone_bricks"), "E": ITEM(f"{NS}:{ESSENCES[-1]}"),
+        "O": ITEM("minecraft:obsidian")}, f"{NS}:{CENTRE}"),
+    PEDESTAL: shaped(["S S", " E ", "SSS"], {
+        "S": ITEM("minecraft:stone_bricks"),
+        "E": ITEM(f"{NS}:{ESSENCES[-1]}")}, f"{NS}:{PEDESTAL}", 4),
+    RELAY: shaped([" S ", "SES", " S "], {
+        "S": ITEM("minecraft:stone_bricks"),
+        "E": ITEM(f"{NS}:{ESSENCES[0]}")}, f"{NS}:{RELAY}", 4),
     "bee": shapeless([ITEM("minecraft:honeycomb"), TAG("minecraft:small_flowers"),
                       ITEM("minecraft:sugar")], f"{NS}:bee"),
     "wax": shapeless([ITEM(f"{NS}:comb"), ITEM(f"{NS}:comb")], f"{NS}:wax"),
@@ -468,8 +563,48 @@ def ladder_recipes():
     return made
 
 
-def data_files():
+def altar_files():
+    """
+    What the altar can do, written out as data.
+
+    <p>Not recipes the game reads — the altar is a block that checks what is
+    standing on it against AltarRules, and the game has no recipe type for a
+    ring of pedestals. This is the same table in a form a player's recipe
+    book, a wiki page and this repository's own validator can all read, and
+    the validator checks it against the rules rather than against itself.
+    """
     written = 0
+    top = ESSENCES[-1]
+    table = [{
+        "id": INSANIUM,
+        "takes": "",
+        "each": PER_INSANIUM,
+        "essence": top,
+        "makes": INSANIUM,
+    }]
+    for material in SEEDS:
+        table.append({
+            "id": f"awakened_{material}_seed",
+            "takes": f"{material}_seed",
+            "each": PER_INSANIUM,
+            "essence": INSANIUM,
+            "makes": f"awakened_{material}_seed",
+        })
+    write(os.path.join(DATA, "awakening/table.json"), {
+        "pedestals": 4,
+        "relays": 4,
+        "awakenings": table,
+    })
+    written += 1
+    for name in ALTAR_BLOCKS:
+        write(os.path.join(DATA, "loot_table/blocks", name + ".json"),
+              drop_itself(name))
+        written += 1
+    return written
+
+
+def data_files():
+    written = altar_files()
     for name in BLOCKS:
         write(os.path.join(DATA, "loot_table/blocks", name + ".json"), drop_itself(name))
         written += 1
@@ -511,6 +646,9 @@ NAMES = {
     "rock_generator": "Rock Generator",
     "driven_rock_generator": "Driven Rock Generator",
     "industrial_rock_generator": "Industrial Rock Generator",
+    CENTRE: "Awakening Altar",
+    PEDESTAL: "Essence Pedestal",
+    RELAY: "Essence Relay",
 }
 
 ITEM_NAMES = {
@@ -523,11 +661,21 @@ ITEM_NAMES = {
     "radiant_essence": "Radiant Essence",
     "ascendant_essence": "Ascendant Essence",
 }
+ITEM_NAMES[INSANIUM] = "Insanium Essence"
 for material in SEEDS:
     ITEM_NAMES[material + "_seed"] = material.replace("_", " ").title() + " Seed"
+    ITEM_NAMES[f"awakened_{material}_seed"] = \
+        "Awakened " + material.replace("_", " ").title() + " Seed"
 
 LINES = {
     "itemGroup.elysiumagronomy": "Elysium Agronomy",
+    "elysiumagronomy.altar.bare": "Nothing on it",
+    "elysiumagronomy.altar.unbuilt":
+        "Not an altar yet: %s pedestals on the diagonals and %s relays on the "
+        "axes, all flat and all around the middle",
+    "elysiumagronomy.altar.notready":
+        "Nothing here to awaken, or not enough essence to do it with",
+    "elysiumagronomy.altar.awoke": "Awoken: %s",
     "elysiumagronomy.diet.read": "%s of %s different foods eaten: %s extra hearts.",
     "elysiumagronomy.diet.tip":
         "Eat %s different foods for %s extra hearts. Eating the same thing twice "

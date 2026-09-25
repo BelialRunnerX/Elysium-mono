@@ -24,6 +24,9 @@ wiki, so a piece cannot be missed by being forgotten.
 | `Quark: the worldgen` | DONE | elysium-wilds | 23 biomes and 9 features, answered by the overworld overlay rather than one at a time: 140 biomes of ours in half of the inland surface, declared ahead of vanilla's 7,593 entries so each of them wins its own cell outright |
 | `Quark: the decoration` | PLANNED | elysium-atelier | 815 blocks and 106 items, most of them vertical slabs, shingles, thatch, framed glass and hedges — the roster this module already generates, in materials it already has |
 | `Quark: the rest` | PLANNED | elysium-kinetics | the automation half: pipes, crates, hoppers, the pistons that push more than twelve, and the 16 entities |
+| `MysticalAgriculture: the farm` | DONE | elysium-agronomy | 30 seeds on 5 rungs, the awakening altar, the sixth rung and an awakened seed for every ordinary one |
+| `MysticalAgriculture: the gear` | PLANNED | elysium-arsenal | the essence tools: five rungs of sword, pickaxe, axe, shovel and hoe, each made of the essence of its own rung. Needs the augment slots below it |
+| `MysticalAgriculture: the armour` | PLANNED | elysium-armory | the essence armour of the same five rungs, and the augments that slot into it |
 | `supplementaries: the fittings` | PLANNED | elysium-atelier | sconces, item shelves, signposts, flags, planters, bellows and ash — the part of the jar that is decoration, in the materials this module already has |
 | `supplementaries: the machines` | PLANNED | elysium-logistics | hourglasses, pulleys, cages, jars, safes and the blocks that move or hold things |
 | `supplementaries: the comforts` | PLANNED | elysium-comforts | candle holders, lanterns, the doormat, the rope and what they do to a room |

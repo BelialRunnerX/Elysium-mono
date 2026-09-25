@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SES",
+    "EOE",
+    "SES"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:stone_bricks"
+    },
+    "E": {
+      "item": "elysiumagronomy:ascendant_essence"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:awakening_altar",
+    "count": 1
+  }
+}

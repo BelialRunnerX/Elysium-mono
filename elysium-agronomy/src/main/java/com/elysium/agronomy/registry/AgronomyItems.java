@@ -101,6 +101,10 @@ public final class AgronomyItems {
 
     private static final Map<String, DeferredItem<Item>> SOWN = new LinkedHashMap<>();
 
+    /** One per seed, off an altar. */
+    private static final Map<String, DeferredItem<Item>> AWOKEN =
+            new LinkedHashMap<>();
+
     static {
         for (Map.Entry<String, Integer> seed : SEEDS.entrySet()) {
             int tier = seed.getValue();
@@ -112,6 +116,25 @@ public final class AgronomyItems {
             throw new IllegalStateException("there are " + SEEDS.size()
                     + " seeds and " + SOWN.size() + " were registered");
         }
+        for (Map.Entry<String, Integer> seed : SEEDS.entrySet()) {
+            int tier = seed.getValue();
+            AWOKEN.put(seed.getKey(), ITEMS.register(
+                    com.elysium.agronomy.rules.AltarRules.awakenedSeed(
+                            seed.getKey()),
+                    () -> new EssenceSeed(new Item.Properties(), tier,
+                            () -> essence(tier).get(), true)));
+        }
+        if (AWOKEN.size() != SEEDS.size()) {
+            throw new IllegalStateException("there are " + SEEDS.size()
+                    + " seeds and " + AWOKEN.size()
+                    + " awakened ones; a seed nobody can awaken is a seed the "
+                    + "altar has never heard of");
+        }
+    }
+
+    /** The awakened seed of a material. */
+    public static DeferredItem<Item> awakened(String material) {
+        return AWOKEN.get(material);
     }
 
     /**
@@ -202,6 +225,31 @@ public final class AgronomyItems {
 
     public static final DeferredItem<BlockItem> CENTRIFUGE =
             ITEMS.registerSimpleBlockItem(AgronomyBlocks.CENTRIFUGE);
+
+    /** The sixth rung, which is made rather than grown. */
+    public static final DeferredItem<Item> INSANIUM =
+            ITEMS.registerSimpleItem(
+                    com.elysium.agronomy.rules.AltarRules.INSANIUM);
+
+    /** The three blocks an altar is made of. */
+    public static final java.util.Map<String, DeferredItem<BlockItem>> ALTAR =
+            registerAltar();
+
+    private static java.util.Map<String, DeferredItem<BlockItem>> registerAltar() {
+        java.util.Map<String, DeferredItem<BlockItem>> made =
+                new java.util.LinkedHashMap<>();
+        for (String name : com.elysium.agronomy.rules.AltarRules.everything()) {
+            made.put(name, ITEMS.registerSimpleBlockItem(
+                    AgronomyBlocks.ALTAR.get(name)));
+        }
+        if (made.size()
+                != com.elysium.agronomy.rules.AltarRules.everything().size()) {
+            throw new IllegalStateException("an altar is "
+                    + com.elysium.agronomy.rules.AltarRules.everything().size()
+                    + " block(s) and " + made.size() + " item(s) were made");
+        }
+        return java.util.Map.copyOf(made);
+    }
 
     /** One item per rung of the housing ladder above the plain hive. */
     public static final java.util.Map<String, DeferredItem<BlockItem>> APIARIES =

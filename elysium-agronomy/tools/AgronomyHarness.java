@@ -65,6 +65,7 @@ public final class AgronomyHarness {
         theRoster();
         theApiary();
         theMachinery();
+        theAltar();
         theFish();
         theCast();
         thePots();
@@ -760,6 +761,168 @@ public final class AgronomyHarness {
                 + "swept, none over the line, a bare hive at "
                 + Math.round(bare / ApiaryRules.ceiling() * 100) + "% of it and "
                 + "the best one anybody can build exactly on it");
+    }
+
+
+    // ==================================================================
+
+    /**
+     * The altar, the sixth rung, and the thing awakening is not.
+     *
+     * <p>The one worth watching is the economy. Doubling a yield is a
+     * satisfying reward to write and it is a farm that beats a mine; the
+     * difference between the two is a single line about how many plots are
+     * allowed, and nothing in the game would ever say which of the two had
+     * been shipped.
+     */
+    private static void theAltar() {
+        check(AltarRules.faults().isEmpty(),
+                "something wrong with the altar itself: " + AltarRules.faults());
+
+        // Awakening buys space and nothing else, at every tier.
+        for (int tier = 1; tier <= AgronomyRules.TIERS; tier++) {
+            check(AltarRules.sameEarnings(tier),
+                    "an awakened farm of tier " + tier + " at its largest earns "
+                            + AltarRules.awakenedAtItsLargest(tier)
+                            + " and an ordinary one "
+                            + AltarRules.ordinaryAtItsLargest(tier));
+            check(AltarRules.awakenedPlotsBefore(tier)
+                            < AgronomyRules.plotsBefore(tier),
+                    "an awakened farm of tier " + tier + " may be as large as an "
+                            + "ordinary one, so awakening buys nothing");
+            check(AltarRules.awakenedAtItsLargest(tier)
+                            <= AgronomyRules.minedPerHour()
+                                    * AgronomyRules.FARM_AT_MOST + 0.001F,
+                    "an awakened farm of tier " + tier + " at its largest earns "
+                            + AltarRules.awakenedAtItsLargest(tier)
+                            + " and the margin against the mine is "
+                            + AgronomyRules.minedPerHour()
+                                    * AgronomyRules.FARM_AT_MOST);
+            // And a sweep under the allowed size, because "at its largest" is
+            // one number and the rule is about every farm anybody builds.
+            for (int plots = 1; plots <= AltarRules.awakenedPlotsBefore(tier);
+                    plots = plots < 16 ? plots + 1 : plots * 2) {
+                check(AltarRules.awakenedPerHour(tier, plots)
+                                <= AgronomyRules.minedPerHour()
+                                        * AgronomyRules.FARM_AT_MOST + 0.001F,
+                        "an awakened farm of tier " + tier + " with " + plots
+                                + " plot(s) earns "
+                                + AltarRules.awakenedPerHour(tier, plots));
+            }
+        }
+
+        // A farm built to be over the line, so the rule has been shown able to
+        // say no. Every allowed size is under it by construction.
+        check(AltarRules.awakenedPerHour(1, AgronomyRules.plotsBefore(1) * 4)
+                        > AgronomyRules.minedPerHour() * AgronomyRules.FARM_AT_MOST,
+                "an awakened farm four times the ordinary allowance is still "
+                        + "under the margin, so the margin is not what is "
+                        + "limiting anything");
+
+        // The shape.
+        check(AltarRules.pedestals() == 4, "an altar has "
+                + AltarRules.pedestals() + " pedestal(s)");
+        check(AltarRules.relays() == 4, "an altar has " + AltarRules.relays()
+                + " relay(s)");
+        for (AltarRules.Place one : AltarRules.AROUND) {
+            check(one.reach() <= AltarRules.THE_BOX, one.kind() + " is "
+                    + one.reach() + " out and the altar claims "
+                    + AltarRules.THE_BOX);
+            check(one.reach() > 0, one.kind() + " stands on the centre");
+            AltarRules.Place round = one.turned().turned().turned().turned();
+            check(round.east() == one.east() && round.north() == one.north(),
+                    "four quarter turns do not bring " + one.kind() + " at "
+                            + one.east() + "," + one.north() + " back to where "
+                            + "it started, so the turn is not a turn");
+        }
+
+        // The awakenings.
+        check(AltarRules.howMany() == SeedRules.SEEDS.size() + 1,
+                "there are " + AltarRules.howMany() + " awakening(s) for "
+                        + SeedRules.SEEDS.size() + " seed(s) and the sixth rung");
+        java.util.Set<String> made = new java.util.LinkedHashSet<>();
+        for (AltarRules.Awakening one : AltarRules.AWAKENINGS) {
+            check(made.add(one.makes()), "two awakenings both make "
+                    + one.makes() + ", so one of them is a recipe the altar "
+                    + "will never reach");
+            check(one.essences() > 0, one.id() + " swallows no essence");
+            check(!one.makes().equals(one.takes()), one.id()
+                    + " hands back what it took");
+        }
+        check(AltarRules.AWAKENINGS.get(0).makes().equals(AltarRules.INSANIUM),
+                "the first thing an altar can do is not making the sixth rung, "
+                        + "and everything else needs it");
+        for (SeedRules.Seed seed : SeedRules.SEEDS) {
+            check(AltarRules.awakenedSeeds()
+                            .contains(AltarRules.awakenedSeed(seed.material())),
+                    seed.material() + " has no awakened seed");
+        }
+        check(AltarRules.PER_INSANIUM >= AgronomyRules.ESSENCE_PER_STEP,
+                "the sixth rung costs less than a rung, so the altar is a "
+                        + "discount on the ladder it sits on top of");
+        check(AltarRules.ticksPerInsanium()
+                        >= AgronomyRules.ticksAt(AgronomyRules.TIERS),
+                "one of the sixth rung costs less farm time than one of the "
+                        + "fifth, which is essence out of nothing");
+
+        // Controls: shapes and awakenings built to be caught.
+        // Each rule asked on its own. A single far-out pedestal is also
+        // asymmetric and a doubled one is also asymmetric, so asking the
+        // heap of three would let any one of them be deleted with every
+        // control still green.
+        check(!AltarRules.faultsInBox(java.util.List.of(
+                        new AltarRules.Place(AltarRules.PEDESTAL, 40, 0)))
+                        .isEmpty(),
+                "a pedestal forty blocks out is not reported, so an altar may "
+                        + "reach into the chunk next door");
+        check(AltarRules.faultsInBox(AltarRules.AROUND).isEmpty(),
+                "the altar's own blocks are reported as outside its box");
+        check(!AltarRules.faultsInDoubles(java.util.List.of(
+                        new AltarRules.Place(AltarRules.PEDESTAL, 2, 2),
+                        new AltarRules.Place(AltarRules.RELAY, 2, 2)))
+                        .isEmpty(),
+                "two blocks of the altar in one place are not reported");
+        check(AltarRules.faultsInDoubles(AltarRules.AROUND).isEmpty(),
+                "the altar's own blocks are reported as standing in each other");
+        check(!AltarRules.faultsInSymmetry(java.util.List.of(
+                        new AltarRules.Place(AltarRules.PEDESTAL, 2, 2)))
+                        .isEmpty(),
+                "an altar with one pedestal and no mirror images of it is not "
+                        + "reported, so it would work facing one way and not "
+                        + "another and nothing would say which");
+        check(AltarRules.faultsInSymmetry(AltarRules.AROUND).isEmpty(),
+                "the altar's own shape is reported as unsymmetric");
+        // And the earnings rule, over two numbers built to be caught: over a
+        // healthy ladder it can only ever answer yes.
+        check(!AltarRules.sameEarnings(200.0F, 100.0F, 1.0F),
+                "a farm earning twice what another earns is reported as earning "
+                        + "the same, so the rule that awakening buys space "
+                        + "rather than output cannot say no");
+        check(AltarRules.sameEarnings(100.0F, 100.5F, 1.0F),
+                "two farms a fraction of a plot apart are reported as earning "
+                        + "differently, which would fail on every rounding");
+        check(AltarRules.faultsInShape(AltarRules.AROUND).isEmpty(),
+                "the altar's own shape is reported as faulty: "
+                        + AltarRules.faultsInShape(AltarRules.AROUND));
+        check(!AltarRules.faultsInAwakenings(java.util.List.of(
+                        new AltarRules.Awakening("control", "iron_seed", 4,
+                                AltarRules.INSANIUM, "iron_seed"))).isEmpty(),
+                "an awakening that hands back what it took is not reported");
+
+        java.util.List<String> allowed = new java.util.ArrayList<>();
+        try {
+            new AltarRules.Awakening("control", "", 0, "x", "y");
+            allowed.add("an awakening that swallows no essence");
+        } catch (IllegalArgumentException expected) {
+            checks++;
+        }
+        check(allowed.isEmpty(), "the altar allows what it says it forbids: "
+                + allowed);
+
+        System.out.println("  the altar: " + AltarRules.howMany()
+                + " awakening(s), " + AltarRules.AROUND.size()
+                + " blocks around a centre, and an awakened farm of half the "
+                + "plots earning what a whole one does");
     }
 
     // ==================================================================

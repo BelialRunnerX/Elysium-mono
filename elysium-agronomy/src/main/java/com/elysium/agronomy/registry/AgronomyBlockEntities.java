@@ -111,6 +111,32 @@ public final class AgronomyBlockEntities {
                             AgronomyBlocks.INDUSTRIAL_ROCK_GENERATOR.get())
             .build(null));
 
+    /** The middle of an altar. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.agronomy.block.AwakeningAltarBlock.AltarBlockEntity>>
+            ALTAR = TYPES.register(
+                    com.elysium.agronomy.rules.AltarRules.CENTRE,
+                    () -> BlockEntityType.Builder.of(
+                            com.elysium.agronomy.block.AwakeningAltarBlock
+                                    .AltarBlockEntity::new,
+                            AgronomyBlocks.ALTAR.get(
+                                    com.elysium.agronomy.rules.AltarRules.CENTRE)
+                                    .get())
+                    .build(null));
+
+    /** One type for both stands: the block says which it is. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.agronomy.block.AltarBlock.HeldBlockEntity>>
+            ALTAR_STAND = TYPES.register("altar_stand",
+                    () -> BlockEntityType.Builder.of(
+                            com.elysium.agronomy.block.AltarBlock
+                                    .HeldBlockEntity::new,
+                            AgronomyBlocks.ALTAR.get(
+                                    com.elysium.agronomy.rules.AltarRules.PEDESTAL)
+                                    .get(),
+                            AgronomyBlocks.ALTAR.get(
+                                    com.elysium.agronomy.rules.AltarRules.RELAY)
+                                    .get())
+                    .build(null));
+
     /**
      * Every slot a hopper can reach.
      *
@@ -134,6 +160,10 @@ public final class AgronomyBlockEntities {
                     (entity, side) -> entity.items());
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, CENTRIFUGE.get(),
                     (entity, side) -> entity.items());
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ALTAR.get(),
+                    (entity, side) -> entity.items());
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK,
+                    ALTAR_STAND.get(), (entity, side) -> entity.items());
         }
     }
 }
