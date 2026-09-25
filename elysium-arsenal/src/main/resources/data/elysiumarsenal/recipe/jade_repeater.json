@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "MSM",
+    "MMM",
+    " S "
+  ],
+  "key": {
+    "M": {
+      "tag": "c:gems/jade"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:jade_repeater",
+    "count": 1
+  }
+}

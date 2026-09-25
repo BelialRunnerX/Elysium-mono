@@ -1,0 +1,42 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/bathysteel",
+    "categories": [
+      "metal",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Bathysteel"
+  },
+  "properties": {
+    "main": {
+      "durability": 3256.0,
+      "armor_durability": 72.0,
+      "harvest_tier": "netherite",
+      "harvest_speed": 18.0,
+      "attack_damage": 9.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 4.5,
+      "armor": 60.0,
+      "armor/helmet": 8.0,
+      "armor/chestplate": 24.0,
+      "armor/leggings": 20.0,
+      "armor/boots": 8.0,
+      "armor_toughness": 2.0,
+      "knockback_resistance": 0.1,
+      "magic_armor": 0.0,
+      "enchantment_value": 16.0,
+      "charging_value": 1.0,
+      "rarity": 85.0,
+      "traits": [
+        {
+          "trait": "aquatic",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

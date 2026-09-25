@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/nullsteel_repeater",
+  "textures": {
+    "layer0": "elysiumarsenal:item/nullsteel_repeater_pulling_1"
+  }
+}

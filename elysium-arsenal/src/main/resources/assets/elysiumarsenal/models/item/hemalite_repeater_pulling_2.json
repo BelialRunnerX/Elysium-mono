@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/hemalite_repeater",
+  "textures": {
+    "layer0": "elysiumarsenal:item/hemalite_repeater_pulling_2"
+  }
+}

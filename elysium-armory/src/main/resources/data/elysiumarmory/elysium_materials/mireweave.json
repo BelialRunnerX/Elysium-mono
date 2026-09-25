@@ -1,0 +1,43 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "elysiumores:mireweave",
+    "categories": [
+      "organic",
+      "cloth",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Mireweave"
+  },
+  "properties": {
+    "main": {
+      "durability": 928.0,
+      "armor_durability": 58.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 6.0,
+      "attack_damage": 1.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 0.5,
+      "armor": 20.0,
+      "armor/helmet": 2.5,
+      "armor/chestplate": 8.0,
+      "armor/leggings": 6.5,
+      "armor/boots": 2.5,
+      "armor_toughness": 0.0,
+      "knockback_resistance": 0.0,
+      "magic_armor": 0.0,
+      "enchantment_value": 12.0,
+      "charging_value": 1.0,
+      "rarity": 70.0,
+      "traits": [
+        {
+          "trait": "flexible",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

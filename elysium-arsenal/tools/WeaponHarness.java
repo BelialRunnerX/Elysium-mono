@@ -36,6 +36,7 @@ public final class WeaponHarness {
         theCatalogue();
         theDomination();
         theCrowns();
+        theRungs();
         theLadder();
         theGame();
 
@@ -166,6 +167,74 @@ public final class WeaponHarness {
                 + "best against one thing never more than "
                 + Math.round(WeaponRules.WIDEST_SPREAD * 100) / 100.0
                 + " times the worst");
+    }
+
+    private static void theRungs() {
+        java.util.Set<String> names = new HashSet<>();
+        for (WeaponRules.Rung rung : WeaponRules.RUNGS) {
+            check(names.add(rung.name()), rung.name() + " is two rungs");
+            check(WeaponRules.TIER_SHARE.containsKey(rung.name())
+                            && WeaponRules.TIER_HASTE.containsKey(rung.name()),
+                    rung.name() + " is a rung with no numbers, so every weapon at it is whatever "
+                            + "the last one was");
+            if (rung.cordon()) {
+                check(rung.uses() > 0 && rung.speed() > 0.0F && rung.enchant() > 0 && rung.level() >= 2,
+                        rung.name() + "'s tier has a number that is not a number");
+                check(rung.material().startsWith("c:"),
+                        rung.name() + " is made of " + rung.material() + ", which is not a common tag, "
+                                + "so its weapons would need one exact item");
+                check(rung.colour().matches("#[0-9a-f]{6}"), rung.name() + " has no hue to draw in");
+            }
+        }
+        check(WeaponRules.TIERS.size() == WeaponRules.RUNGS.size(), "a rung is not a tier");
+        check(WeaponRules.CORDON.size() == 10, "the Cordon brought " + WeaponRules.CORDON.size()
+                + " tiers, not the ten sets that had tools");
+        for (WeaponRules.Cordon cordon : WeaponRules.CORDON) {
+            check(WeaponRules.rung(cordon.name()) != null, cordon.name() + " was never placed");
+        }
+        // The ladder climbs, at every step, by more than reforging can be worth.
+        for (int rung = 1; rung < WeaponRules.LADDER.size(); rung++) {
+            float below = WeaponRules.TIER_SHARE.get(WeaponRules.LADDER.get(rung - 1));
+            float above = WeaponRules.TIER_SHARE.get(WeaponRules.LADDER.get(rung));
+            check(above > below, WeaponRules.LADDER.get(rung) + " is no better than the rung below it");
+            check(above / below >= 1.10F, WeaponRules.LADDER.get(rung) + " is only " + (above / below)
+                    + " of the rung below, a step a reforge could be worth");
+        }
+        check(Math.abs(WeaponRules.smallestStep() - 1.12F) < 0.01F,
+                "the smallest step is " + WeaponRules.smallestStep() + ", so the Cordon's rungs moved "
+                        + "reforging's ceiling");
+        // Every side-grade trades: less damage than the rung above it, and quicker.
+        float top = WeaponRules.TIER_SHARE.get(WeaponRules.LADDER.get(WeaponRules.LADDER.size() - 1));
+        for (WeaponRules.Rung rung : WeaponRules.RUNGS) {
+            if (rung.onLadder()) {
+                continue;
+            }
+            check(rung.haste() > 1.0F, rung.name() + " sits beside the ladder and is not quicker, so "
+                    + "it is simply a worse rung and nobody makes one");
+            check(rung.share() < top, rung.name() + " beside the ladder out-damages the top of it");
+            boolean beside = false;
+            for (String on : WeaponRules.LADDER) {
+                beside |= WeaponRules.TIER_SHARE.get(on) == rung.share();
+            }
+            check(beside, rung.name() + " has a share no rung has, so it is a rung in all but name");
+        }
+        // Gold is what every side-grade copies: iron's speed and a rung less damage.
+        check(WeaponRules.TIER_SHARE.get("golden") < WeaponRules.TIER_SHARE.get("iron")
+                        && WeaponRules.TIER_HASTE.get("golden") > 1.0F,
+                "gold is not quick and weak, which is what it is in the game this is in");
+        // The placing is by damage, and a tie is a side-grade of the rung it ties.
+        check(!WeaponRules.rung("lunite").onLadder() && WeaponRules.rung("lunite").share()
+                        == WeaponRules.TIER_SHARE.get("iron"),
+                "lunite, at the game's diamond damage, is not diamond's side-grade with iron's share");
+        check(WeaponRules.rung("relicsteel").onLadder() && !WeaponRules.rung("phasium").onLadder(),
+                "two Cordon tiers at one damage did not become a rung and its side-grade");
+        check(WeaponRules.rung("nullsteel").share() > WeaponRules.rung("hemalite").share()
+                        && WeaponRules.rung("hemalite").share() > WeaponRules.rung("jade").share(),
+                "the Cordon's ladder is not in Valoria's order");
+        System.out.println("  the rungs: " + WeaponRules.RUNGS.size() + " tiers, "
+                + WeaponRules.LADDER.size() + " on the ladder and "
+                + (WeaponRules.RUNGS.size() - WeaponRules.LADDER.size()) + " beside it, the smallest "
+                + "step still diamond to netherite");
     }
 
     private static void theLadder() {

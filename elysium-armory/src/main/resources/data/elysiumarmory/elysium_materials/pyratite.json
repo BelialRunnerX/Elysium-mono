@@ -1,0 +1,42 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:gems/pyratite",
+    "categories": [
+      "gem",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Pyratite"
+  },
+  "properties": {
+    "main": {
+      "durability": 3112.0,
+      "armor_durability": 72.0,
+      "harvest_tier": "netherite",
+      "harvest_speed": 24.0,
+      "attack_damage": 13.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 6.5,
+      "armor": 62.0,
+      "armor/helmet": 8.5,
+      "armor/chestplate": 25.0,
+      "armor/leggings": 20.5,
+      "armor/boots": 8.5,
+      "armor_toughness": 0.0,
+      "knockback_resistance": 0.0,
+      "magic_armor": 1.5,
+      "enchantment_value": 12.0,
+      "charging_value": 1.0,
+      "rarity": 90.0,
+      "traits": [
+        {
+          "trait": "sturdy",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

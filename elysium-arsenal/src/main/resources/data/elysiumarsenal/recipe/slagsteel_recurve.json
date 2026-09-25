@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SMS",
+    "M M",
+    "SMS"
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/slagsteel"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:slagsteel_recurve",
+    "count": 1
+  }
+}

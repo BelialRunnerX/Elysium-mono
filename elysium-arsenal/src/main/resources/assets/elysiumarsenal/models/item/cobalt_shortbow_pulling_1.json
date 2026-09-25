@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/cobalt_shortbow",
+  "textures": {
+    "layer0": "elysiumarsenal:item/cobalt_shortbow_pulling_1"
+  }
+}

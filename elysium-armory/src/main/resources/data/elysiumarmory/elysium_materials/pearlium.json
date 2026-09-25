@@ -1,0 +1,42 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/pearlium",
+    "categories": [
+      "metal",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Pearlium"
+  },
+  "properties": {
+    "main": {
+      "durability": 425.0,
+      "armor_durability": 26.5,
+      "harvest_tier": "iron",
+      "harvest_speed": 7.0,
+      "attack_damage": 2.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 1.0,
+      "armor": 6.0,
+      "armor/helmet": 1.0,
+      "armor/chestplate": 2.5,
+      "armor/leggings": 2.0,
+      "armor/boots": 1.0,
+      "armor_toughness": 0.0,
+      "knockback_resistance": 0.0,
+      "magic_armor": 0.0,
+      "enchantment_value": 6.0,
+      "charging_value": 1.0,
+      "rarity": 70.0,
+      "traits": [
+        {
+          "trait": "malleable",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

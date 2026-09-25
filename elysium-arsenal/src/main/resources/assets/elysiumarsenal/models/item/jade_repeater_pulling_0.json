@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/jade_repeater",
+  "textures": {
+    "layer0": "elysiumarsenal:item/jade_repeater_pulling_0"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/phasium_longbow",
+  "textures": {
+    "layer0": "elysiumarsenal:item/phasium_longbow_pulling_1"
+  }
+}

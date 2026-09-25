@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/relicsteel_recurve",
+  "textures": {
+    "layer0": "elysiumarsenal:item/relicsteel_recurve_pulling_2"
+  }
+}

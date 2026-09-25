@@ -1,0 +1,42 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/slagsteel",
+    "categories": [
+      "metal",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Slagsteel"
+  },
+  "properties": {
+    "main": {
+      "durability": 4256.0,
+      "armor_durability": 76.0,
+      "harvest_tier": "netherite",
+      "harvest_speed": 20.0,
+      "attack_damage": 10.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 5.0,
+      "armor": 65.0,
+      "armor/helmet": 8.5,
+      "armor/chestplate": 26.0,
+      "armor/leggings": 21.5,
+      "armor/boots": 8.5,
+      "armor_toughness": 2.0,
+      "knockback_resistance": 0.12,
+      "magic_armor": 0.0,
+      "enchantment_value": 14.0,
+      "charging_value": 1.0,
+      "rarity": 85.0,
+      "traits": [
+        {
+          "trait": "fireproof",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

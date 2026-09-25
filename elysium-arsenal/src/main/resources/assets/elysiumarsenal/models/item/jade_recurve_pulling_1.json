@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/jade_recurve",
+  "textures": {
+    "layer0": "elysiumarsenal:item/jade_recurve_pulling_1"
+  }
+}

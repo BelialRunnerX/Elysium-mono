@@ -1,0 +1,42 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/nightgold",
+    "categories": [
+      "metal",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Nightgold"
+  },
+  "properties": {
+    "main": {
+      "durability": 880.0,
+      "armor_durability": 55.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 6.0,
+      "attack_damage": 1.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 0.5,
+      "armor": 20.0,
+      "armor/helmet": 2.5,
+      "armor/chestplate": 8.0,
+      "armor/leggings": 6.5,
+      "armor/boots": 2.5,
+      "armor_toughness": 0.0,
+      "knockback_resistance": 0.0,
+      "magic_armor": 0.0,
+      "enchantment_value": 20.0,
+      "charging_value": 1.0,
+      "rarity": 70.0,
+      "traits": [
+        {
+          "trait": "lustrous",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

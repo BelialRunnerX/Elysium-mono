@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/biolith_shortbow",
+  "textures": {
+    "layer0": "elysiumarsenal:item/biolith_shortbow_pulling_1"
+  }
+}

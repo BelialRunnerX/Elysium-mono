@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/nullsteel_sling",
+  "textures": {
+    "layer0": "elysiumarsenal:item/nullsteel_sling_pulling_2"
+  }
+}

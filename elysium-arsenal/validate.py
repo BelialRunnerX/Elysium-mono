@@ -472,6 +472,74 @@ print("generated          : every sprite, model, recipe and name written by the 
       "generator")
 
 # ---------------------------------------------------------------------------
+# 5c. The Cordon's rungs, and the roster they are read from
+# ---------------------------------------------------------------------------
+#
+# WeaponHarness proves the ladder still climbs with the new rungs on it. What
+# it cannot see is whether the rungs are the materials elysium-ores actually
+# ships: "the gear and the materials agree" is the check that matters, and it
+# is a check between two modules, so it lives here and reads the other's file.
+
+cordon_rungs = re.findall(r'new Cordon\("([a-z_]+)", (\d+), (\d+), ([\d.]+)F, ([\d.]+)F, (\d+), '
+                          r'"(c:[a-z_/]+)", "(#[0-9a-f]{6})"\)',
+                          strip_comments(read(PURE, "WeaponRules.java"), True))
+if not cordon_rungs:
+    fail("WeaponRules names no Cordon rungs, so Valoria's gear has no tiers here")
+roster_path = os.path.join(os.path.dirname(WORK),
+                           "elysium-ores/src/main/java/com/elysium/ores/rules/CordonMaterials.java")
+roster_src = strip_comments(read(roster_path), keep_strings=True)
+if not roster_src:
+    fail("elysium-ores' CordonMaterials.java is missing, so the Cordon's rungs stand on nothing")
+else:
+    tool_sets = {}
+    for valoria, family in re.findall(r'new Set\("([a-z_]+)", "([a-z_]+)", true,', roster_src):
+        tool_sets[family] = valoria
+    tiers_in_roster = {}
+    for family, level, uses, speed, damage, enchant in re.findall(
+            r'"([a-z_]+)", (?:Kind\.\w+, )?(?:OreRules\.\w+, )?Element\.\w+, "#[0-9a-f]{6}",\s*'
+            r'(?:null|new Tier\((\d+), (\d+), ([\d.]+)F, ([\d.]+)F, (\d+)\))', roster_src):
+        if level:
+            tiers_in_roster[family] = (int(level), int(uses), float(speed), float(damage), int(enchant))
+    colours_in_roster = dict(re.findall(r'\b(?:dug|alloy|found)\("([a-z_]+)",(?:[^"]*"[^"]*")*?[^"]*?"(#[0-9a-f]{6})"',
+                                        roster_src))
+    ours = {row[0]: row for row in cordon_rungs}
+    for family, valoria in sorted(tool_sets.items()):
+        if family not in ours:
+            fail(f"Valoria's {valoria} set had tools and stands on {family}, and the arsenal has no "
+                 f"rung for it; the gear and the materials disagree")
+            continue
+        _, level, uses, speed, damage, enchant, material, colour = ours[family]
+        wanted_tier = tiers_in_roster.get(family)
+        if wanted_tier is None:
+            fail(f"{family} is a rung here and has no tool tier in the roster")
+        elif wanted_tier != (int(level), int(uses), float(speed), float(damage), int(enchant)):
+            fail(f"{family}'s tier is {(int(level), int(uses), float(speed), float(damage), int(enchant))} "
+                 f"here and {wanted_tier} in elysium-ores; two lists typed twice have stopped agreeing")
+        if colours_in_roster.get(family) != colour:
+            fail(f"{family} is drawn in {colour} here and {colours_in_roster.get(family)} in elysium-ores, "
+                 f"so a Cordon sword is not the colour of the ingot it is made of")
+        stem = material.split("/")[-1]
+        if stem != family:
+            fail(f"{family}'s weapons are made of {material}, which is another material's tag")
+    for family in ours:
+        if family not in tool_sets:
+            fail(f"{family} is a rung here and no Valoria set with tools stands on it in the roster")
+    # Every rung has every weapon and every bow in the game, and the durability the bows need.
+    ranged_items_src = strip_comments(read(SRC, "registry/RangedItems.java"), True)
+    if "if (rung.cordon()) { made.put(rung.name(), rung.uses()); }" not in squashed(ranged_items_src):
+        fail("the Cordon's bows have no durability, so every one of them would be unbreakable — or "
+             "the registry would refuse to start")
+    arsenal_items_src = squashed(strip_comments(read(SRC, "registry/ArsenalItems.java"), True))
+    if "new SimpleTier(incorrectFor(rung.level()), rung.uses(), rung.speed(), rung.damage(), rung.enchant()," \
+            not in arsenal_items_src:
+        fail("a Cordon rung's Tier is not built from the rung's own numbers")
+    if "if (made.size() != WeaponRules.RUNGS.size()) {" not in arsenal_items_src:
+        fail("nothing counts the tiers built against the rungs, so a rung can go without a Tier and "
+             "every weapon at it would throw on registration")
+    print(f"the cordon's rungs : {len(ours)} tiers from elysium-ores' roster, each with Valoria's own "
+          f"numbers, its material's tag and its ingot's colour")
+
+# ---------------------------------------------------------------------------
 # 6. The seam
 # ---------------------------------------------------------------------------
 
@@ -572,10 +640,18 @@ print("the weapons        : none of them beaten on every axis by another, each t
 models = os.path.join(RES, "assets", NS, "models/item")
 bow_shapes = set(re.findall(r'new Bow\("([a-z_]+)"',
                             strip_comments(read(PURE, "RangedRules.java"), True)))
-# The one declaration of the tiers, which WeaponRules and RangedRules both
-# alias. Reading it from the aliases would find "ArsenalRules.TIERS" and no
-# tiers at all, and a set of no ids makes every check below vacuous.
-bow_ids = {f"{tier}_{shape}" for tier in tiers for shape in bow_shapes}
+# The rungs a weapon or a bow comes in: the game's six and the Cordon's,
+# read off WeaponRules the way the generator reads them. The broad tools stay
+# on ArsenalRules' six.
+weapon_tiers = re.findall(r'game\("([a-z]+)",', strip_comments(read(PURE, "WeaponRules.java"), True))
+cordon_rungs = re.findall(r'new Cordon\("([a-z_]+)", (\d+), (\d+), ([\d.]+)F, ([\d.]+)F, (\d+), '
+                          r'"(c:[a-z_/]+)", "(#[0-9a-f]{6})"\)',
+                          strip_comments(read(PURE, "WeaponRules.java"), True))
+weapon_tiers += [row[0] for row in cordon_rungs]
+if len(weapon_tiers) < 7:
+    fail("WeaponRules names fewer rungs than the game's six and one of the Cordon's, so the "
+         "roster was not read at all")
+bow_ids = {f"{tier}_{shape}" for tier in weapon_tiers for shape in bow_shapes}
 unique_rows = re.findall(r'unique\("([a-z_]+)", "([a-z_]+)", "([a-z]+)"',
                          strip_comments(read(PURE, "UniqueRules.java"), True))
 for id, shape, _ in unique_rows:
@@ -600,9 +676,14 @@ shot_rows = re.findall(
     r'new Shot\("([a-z_]+)", ([\d.]+)F, "([a-z]*)", (true|false)\)', ranged_src)
 
 wanted = []
-for tier in tiers:
+for tier in weapon_tiers:
     for shape in sorted(bow_shapes):
         wanted.append((f"{tier}_{shape}", True))
+melee_kinds = [k for k in re.findall(r'new Weapon\("([a-z_]+)"',
+                                     strip_comments(read(PURE, "WeaponRules.java"), True)) if k != "sword"]
+for tier in weapon_tiers:
+    for kind in melee_kinds:
+        wanted.append((f"{tier}_{kind}", False))
 for name, _, _, _ in shot_rows:
     wanted.append((name, False))
 for id, shape, _ in unique_rows:
@@ -752,7 +833,7 @@ if ("nearest.hurt(level.damageSources().indirectMagic(arrow, shooter), "
     fail("the second target of a chain is hit by something other than the chain, so "
          "it can chain again and a herd is one arrow")
 
-print(f"the bows and names : {len(tiers) * len(bow_shapes)} bow(s) in "
+print(f"the bows and names : {len(weapon_tiers) * len(bow_shapes)} bow(s) in "
       f"{len(bow_shapes)} kinds, {len(shot_rows)} kind(s) of ammunition and "
       f"{len(unique_rows)} named weapon(s), every one drawn, modelled, named, "
       f"smithed or crafted, registered and counted")

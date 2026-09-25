@@ -1,0 +1,42 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/biolith",
+    "categories": [
+      "metal",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Biolith"
+  },
+  "properties": {
+    "main": {
+      "durability": 2651.0,
+      "armor_durability": 66.0,
+      "harvest_tier": "netherite",
+      "harvest_speed": 16.0,
+      "attack_damage": 8.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 4.0,
+      "armor": 55.0,
+      "armor/helmet": 7.5,
+      "armor/chestplate": 22.0,
+      "armor/leggings": 18.5,
+      "armor/boots": 7.5,
+      "armor_toughness": 2.0,
+      "knockback_resistance": 0.1,
+      "magic_armor": 0.0,
+      "enchantment_value": 16.0,
+      "charging_value": 1.0,
+      "rarity": 80.0,
+      "traits": [
+        {
+          "trait": "renew",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

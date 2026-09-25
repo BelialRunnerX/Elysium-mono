@@ -205,6 +205,59 @@ for trait_file in trait_files:
 print(f"data               : {len(material_files)} materials, {len(part_files)} parts and "
       f"{len(trait_files)} traits, exactly what the inventory states")
 
+# ---------------------------------------------------------------------------
+# 3b. The Cordon's materials (docs/SPLITS.md "Valoria: armour")
+# ---------------------------------------------------------------------------
+#
+# Valoria's armour sets stand on elysium-ores' roster, and the materials here
+# are generated from it. The drift check above proves the files are what the
+# generator writes; this proves the generator read the roster that is there,
+# so a set added to the roster is a material here and a number changed there
+# is a number changed here.
+_roster = os.path.join(WORK, "..", "elysium-ores", "src", "main", "java", "com", "elysium", "ores",
+                       "rules", "CordonMaterials.java")
+_roster_src = open(_roster, encoding="utf-8").read() if os.path.isfile(_roster) else ""
+_roster_src = re.sub(r"//[^\n]*", " ", re.sub(r"/\*.*?\*/", " ", _roster_src, flags=re.S))
+if not _roster_src:
+    fail("elysium-ores' CordonMaterials.java is missing, so the Cordon's armour stands on nothing")
+_cordon = re.findall(r'\b(?:dug|alloy|found)\("([a-z_]+)",\s*(?:Kind\.(\w+),\s*)?(?:OreRules\.\w+,\s*)?'
+                     r'Element\.\w+,\s*"#[0-9a-f]{6}",\s*(null|new Tier\((\d+), (\d+), [\d.]+F, [\d.]+F, \d+\)),'
+                     r'\s*(null|new Plate\((\d+), (\d+), (\d+), ([\d.]+)F, ([\d.]+)F\))', _roster_src)
+_armour_sets = dict(re.findall(r'new Set\("([a-z_]+)", "([a-z_]+)", (?:true|false), true\)', _roster_src))
+_cordon_files = 0
+for family, kind, tool, level, uses, plate, protection, durability, enchant, knockback, null_defence in _cordon:
+    if tool == "null" and plate == "null":
+        continue
+    path = os.path.join(MATERIALS, family + ".json")
+    if not os.path.isfile(path):
+        fail(f"{family} is in the roster and has no material here, so its gear cannot be made")
+        continue
+    _cordon_files += 1
+    body = json.load(open(path, encoding="utf-8"))
+    main = body.get("properties", {}).get("main", {})
+    if plate != "null":
+        if main.get("armor") != float(protection):
+            fail(f"{family}'s armour is {main.get('armor')} here and {protection} in the roster")
+        if main.get("armor_durability") != float(durability):
+            fail(f"{family}'s armour durability is {main.get('armor_durability')} here and {durability} in the roster")
+        if main.get("knockback_resistance") != float(knockback):
+            fail(f"{family}'s knockback resistance disagrees with the roster")
+    if tool != "null" and main.get("durability") != float(uses):
+        fail(f"{family}'s durability is {main.get('durability')} here and {uses} in the roster")
+    if "cordon" not in body.get("crafting", {}).get("categories", []):
+        fail(f"{family} is not in the cordon category, so nothing can ask for the Cordon's materials as a group")
+    if not main.get("traits"):
+        fail(f"{family} grants no trait, so its set is a stat block and not a reason to wear it")
+    else:
+        for trait in main["traits"]:
+            if not os.path.isfile(os.path.join(TRAITS, trait["trait"] + ".json")):
+                fail(f"{family} grants {trait['trait']}, a trait that does not exist")
+for valoria_set, family in _armour_sets.items():
+    if not os.path.isfile(os.path.join(MATERIALS, family + ".json")):
+        fail(f"Valoria's {valoria_set} set had armour and its family {family} has no material here")
+print(f"the cordon         : {_cordon_files} of Valoria's materials, each armoured as Valoria numbered it, "
+      f"in the cordon category, granting a trait that exists")
+
 mc_libs = os.environ.get("ELYSIUM_MC_LIBS", "/tmp/mc")
 classpath_file = os.path.join(mc_libs, "cp.txt")
 _out_root = os.environ.get("ELYSIUM_OUT", "/tmp/elysium-classes")
@@ -219,8 +272,10 @@ elif not (os.path.isfile(classpath_file) and os.path.isdir(classes)):
     print(f"material harness   : not run, no compiled classes or classpath ({classpath_file})")
 else:
     with tempfile.TemporaryDirectory() as out:
-        cp = (open(classpath_file, encoding="utf-8").read().strip()
-              + ":" + classes + ":" + lib_classes)
+        # Joined with the platform's separator, so the harness runs wherever
+        # the classpath file was written for.
+        cp = os.pathsep.join([open(classpath_file, encoding="utf-8").read().strip(),
+                              classes, lib_classes])
         compiled = subprocess.run(["javac", "-nowarn", "-cp", cp, "-d", out, MATERIAL_HARNESS],
                                   capture_output=True, text=True)
         if compiled.returncode != 0:
@@ -228,7 +283,7 @@ else:
                  + "\n      ".join(l for l in (compiled.stdout + compiled.stderr).splitlines()
                                    if "JAVA_TOOL_OPTIONS" not in l)[:800])
         else:
-            ran = subprocess.run(["java", "-cp", cp + ":" + out,
+            ran = subprocess.run(["java", "-cp", cp + os.pathsep + out,
                                   "com.elysium.armory.material.MaterialHarness", MATERIALS],
                                  capture_output=True, text=True)
             lines = [l for l in (ran.stdout + ran.stderr).splitlines()

@@ -31,7 +31,7 @@ except ImportError:
 
 def write(path, obj):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as handle:
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(obj, handle, indent=2)
         handle.write("\n")
 
@@ -48,6 +48,24 @@ def catalogue():
     tiers = re.findall(r'"([a-z]+)"',
                        re.search(r"TIERS =\s*List\.of\(([^)]*)\)", source).group(1))
     return broads, tiers
+
+
+def weapon_tiers():
+    """Every rung a weapon or a bow comes in, read out of WeaponRules: the
+    game's six by name, then the Cordon's in the order the rules place them
+    (by Valoria's damage, ties keeping their declaration order). Returns
+    (names, {name: (material tag, colour)} for the Cordon's)."""
+    source = open(WEAPON_RULES, encoding="utf-8").read()
+    game = re.findall(r'game\("([a-z]+)", [\d.]+F, [A-Z_\d.]+F?, (?:true|false)\)', source)
+    cordon = re.findall(r'new Cordon\("([a-z_]+)", (\d+), (\d+), ([\d.]+)F, ([\d.]+)F, (\d+), '
+                        r'"(c:[a-z_/]+)", "(#[0-9a-f]{6})"\)', source)
+    if len(game) != 6 or not cordon:
+        print("the rungs could not be read out of WeaponRules.java; something was wrapped")
+        sys.exit(1)
+    cordon.sort(key=lambda row: float(row[4]))
+    names = game + [row[0] for row in cordon]
+    details = {row[0]: (row[6], row[7]) for row in cordon}
+    return names, details
 
 
 def weapons():
@@ -87,6 +105,22 @@ HEADS = {
 }
 HANDLE = [(62, 44, 26), (96, 70, 42), (126, 94, 58), (156, 124, 82)]
 CLEAR = (0, 0, 0, 0)
+
+
+def shades_of(colour):
+    """Four shades from one hue, for a rung the game has no palette for."""
+    base = tuple(int(colour[i:i + 2], 16) for i in (1, 3, 5))
+
+    def step(factor):
+        return tuple(max(0, min(255, round(channel * factor))) for channel in base)
+    return [step(0.5), step(0.75), step(1.0), step(1.3)]
+
+
+# The Cordon's rungs join the six palettes, the materials and the names, read
+# off the rules so a rung added there is a rung here.
+WEAPON_TIERS, CORDON_DETAILS = weapon_tiers()
+for _name, (_material, _colour) in CORDON_DETAILS.items():
+    HEADS[_name] = shades_of(_colour)
 
 
 def rgba(colour):
@@ -212,6 +246,8 @@ WEAPON_MATERIAL = {
     "diamond": {"item": "minecraft:diamond"},
     "netherite": {"item": "minecraft:netherite_ingot"},
 }
+for _name, (_material, _colour) in CORDON_DETAILS.items():
+    WEAPON_MATERIAL[_name] = {"tag": _material}
 
 WEAPON_NAMES = {"sabre": "Sabre", "longsword": "Longsword",
                 "greatsword": "Greatsword", "spear": "Spear",
@@ -336,14 +372,17 @@ SHAPE_NAMES = {"hammer": "Hammer", "excavator": "Excavator", "scythe": "Scythe",
                "paxel": "Paxel"}
 TIER_NAMES = {"wooden": "Wooden", "stone": "Stone", "iron": "Iron",
               "golden": "Golden", "diamond": "Diamond", "netherite": "Netherite"}
+for _name in CORDON_DETAILS:
+    TIER_NAMES[_name] = _name.replace("_", " ").title()
 
 
-def language(broads, tiers, kinds):
+def language(broads, tiers, kinds, weapon_tiers=None):
     entries = {"itemGroup.elysiumarsenal": "Elysium Arsenal"}
     for tier in tiers:
         for shape, _ in broads:
             entries[f"item.{NS}.{tier}_{shape}"] = \
                 f"{TIER_NAMES[tier]} {SHAPE_NAMES[shape]}"
+    for tier in (weapon_tiers or tiers):
         for row in kinds:
             entries[f"item.{NS}.{tier}_{row[0]}"] = \
                 f"{TIER_NAMES[tier]} {WEAPON_NAMES[row[0]]}"
@@ -1477,9 +1516,12 @@ if __name__ == "__main__":
     sprites = draw_all(broads, tiers)
     made = models(broads, tiers)
     data = data_files(broads, tiers)
-    sprites += draw_weapons(kinds, tiers)
-    made += len(kinds) * len(tiers)
-    data += weapon_data(kinds, tiers)
+    # Weapons and bows come in every rung, the Cordon's included; the broad
+    # tools stay on the game's six, because each is built out of the vanilla
+    # tool it replaces.
+    sprites += draw_weapons(kinds, WEAPON_TIERS)
+    made += len(kinds) * len(WEAPON_TIERS)
+    data += weapon_data(kinds, WEAPON_TIERS)
 
     # The bows, their ammunition and the twenty-four that have names.
     kinds_ranged = bows()
@@ -1523,7 +1565,7 @@ if __name__ == "__main__":
                   f"{tier} {shape}, so one of them cannot be made")
             sys.exit(1)
         seated[(shape, tier)] = id
-    more_sprites, more_models, more_data = ranged_files(kinds_ranged, tiers,
+    more_sprites, more_models, more_data = ranged_files(kinds_ranged, WEAPON_TIERS,
                                                         ammunition)
     sprites += more_sprites
     made += more_models
@@ -1560,8 +1602,8 @@ if __name__ == "__main__":
     made += more_models
     data += more_data
 
-    entries = language(broads, tiers, kinds)
-    entries = ranged_language(entries, kinds_ranged, tiers, ammunition, named)
+    entries = language(broads, tiers, kinds, WEAPON_TIERS)
+    entries = ranged_language(entries, kinds_ranged, WEAPON_TIERS, ammunition, named)
     entries = forge_language(entries, smiths, graded, kinds_of_gear)
 
     # The digging.

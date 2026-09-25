@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/phasium_recurve",
+  "textures": {
+    "layer0": "elysiumarsenal:item/phasium_recurve_pulling_2"
+  }
+}

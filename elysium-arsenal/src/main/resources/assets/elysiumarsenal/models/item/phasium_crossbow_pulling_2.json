@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/phasium_crossbow",
+  "textures": {
+    "layer0": "elysiumarsenal:item/phasium_crossbow_pulling_2"
+  }
+}

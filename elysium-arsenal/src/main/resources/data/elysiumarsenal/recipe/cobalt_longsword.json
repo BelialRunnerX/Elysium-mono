@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  M",
+    " M ",
+    " S "
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/cobalt"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:cobalt_longsword",
+    "count": 1
+  }
+}

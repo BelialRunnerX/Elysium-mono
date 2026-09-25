@@ -1,0 +1,42 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/nullsteel",
+    "categories": [
+      "metal",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Nullsteel"
+  },
+  "properties": {
+    "main": {
+      "durability": 5248.0,
+      "armor_durability": 80.0,
+      "harvest_tier": "netherite",
+      "harvest_speed": 30.0,
+      "attack_damage": 17.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 8.5,
+      "armor": 70.0,
+      "armor/helmet": 9.5,
+      "armor/chestplate": 28.0,
+      "armor/leggings": 23.5,
+      "armor/boots": 9.5,
+      "armor_toughness": 3.0,
+      "knockback_resistance": 0.15,
+      "magic_armor": 7.5,
+      "enchantment_value": 10.0,
+      "charging_value": 1.0,
+      "rarity": 85.0,
+      "traits": [
+        {
+          "trait": "void_ward",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

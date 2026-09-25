@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/jade_crossbow",
+  "textures": {
+    "layer0": "elysiumarsenal:item/jade_crossbow_pulling_2"
+  }
+}

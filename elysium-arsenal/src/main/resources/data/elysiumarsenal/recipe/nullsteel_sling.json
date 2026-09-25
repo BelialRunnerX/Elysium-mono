@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "S S",
+    " M ",
+    " M "
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/nullsteel"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:nullsteel_sling",
+    "count": 1
+  }
+}

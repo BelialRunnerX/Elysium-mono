@@ -188,7 +188,7 @@ def merge_lang(entries):
     current = json.load(open(path, encoding="utf-8")) if os.path.isfile(path) else {}
     current.update(entries)
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(dict(sorted(current.items())), f, indent=2, ensure_ascii=False)
         f.write("\n")
 
@@ -207,7 +207,7 @@ def main(out=OUT):
         trait["effects"] = parsed
         coded += any(e["type"] == "code" for e in parsed)
         os.makedirs(out, exist_ok=True)
-        with open(os.path.join(out, tid + ".json"), "w", encoding="utf-8") as f:
+        with open(os.path.join(out, tid + ".json"), "w", encoding="utf-8", newline="\n") as f:
             json.dump(trait, f, indent=2)
             f.write("\n")
         lang[f"{NS}.trait.{tid}"] = name

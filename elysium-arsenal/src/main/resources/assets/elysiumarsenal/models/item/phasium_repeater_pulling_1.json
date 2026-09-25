@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/phasium_repeater",
+  "textures": {
+    "layer0": "elysiumarsenal:item/phasium_repeater_pulling_1"
+  }
+}

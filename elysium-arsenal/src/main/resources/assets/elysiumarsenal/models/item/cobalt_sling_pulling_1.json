@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/cobalt_sling",
+  "textures": {
+    "layer0": "elysiumarsenal:item/cobalt_sling_pulling_1"
+  }
+}

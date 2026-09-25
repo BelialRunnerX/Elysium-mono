@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "S S",
+    " M ",
+    " M "
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/biolith"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:biolith_sling",
+    "count": 1
+  }
+}

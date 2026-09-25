@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "MSM",
+    "MMM",
+    " S "
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/biolith"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:biolith_repeater",
+    "count": 1
+  }
+}

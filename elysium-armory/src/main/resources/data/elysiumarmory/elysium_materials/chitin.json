@@ -1,0 +1,42 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:gems/chitin",
+    "categories": [
+      "gem",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Chitin"
+  },
+  "properties": {
+    "main": {
+      "durability": 2831.0,
+      "armor_durability": 68.0,
+      "harvest_tier": "netherite",
+      "harvest_speed": 22.0,
+      "attack_damage": 11.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 5.5,
+      "armor": 50.0,
+      "armor/helmet": 6.5,
+      "armor/chestplate": 20.0,
+      "armor/leggings": 16.5,
+      "armor/boots": 6.5,
+      "armor_toughness": 2.0,
+      "knockback_resistance": 0.1,
+      "magic_armor": 2.5,
+      "enchantment_value": 14.0,
+      "charging_value": 1.0,
+      "rarity": 85.0,
+      "traits": [
+        {
+          "trait": "venom",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

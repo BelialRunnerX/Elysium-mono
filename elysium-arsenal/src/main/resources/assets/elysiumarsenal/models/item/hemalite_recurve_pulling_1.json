@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/hemalite_recurve",
+  "textures": {
+    "layer0": "elysiumarsenal:item/hemalite_recurve_pulling_1"
+  }
+}

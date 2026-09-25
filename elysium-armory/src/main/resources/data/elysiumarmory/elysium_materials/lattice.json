@@ -1,0 +1,42 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:gems/lattice",
+    "categories": [
+      "gem",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Lattice"
+  },
+  "properties": {
+    "main": {
+      "durability": 6428.0,
+      "armor_durability": 85.0,
+      "harvest_tier": "netherite",
+      "harvest_speed": 35.0,
+      "attack_damage": 20.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 10.0,
+      "armor": 80.0,
+      "armor/helmet": 10.5,
+      "armor/chestplate": 32.0,
+      "armor/leggings": 26.5,
+      "armor/boots": 10.5,
+      "armor_toughness": 5.0,
+      "knockback_resistance": 0.25,
+      "magic_armor": 10.0,
+      "enchantment_value": 12.0,
+      "charging_value": 1.0,
+      "rarity": 85.0,
+      "traits": [
+        {
+          "trait": "void_ward",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

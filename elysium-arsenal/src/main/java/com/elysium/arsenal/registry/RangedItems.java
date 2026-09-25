@@ -3,6 +3,7 @@ package com.elysium.arsenal.registry;
 import com.elysium.arsenal.ElysiumArsenal;
 import com.elysium.arsenal.item.BowItem;
 import com.elysium.arsenal.rules.RangedRules;
+import com.elysium.arsenal.rules.WeaponRules;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -38,6 +39,13 @@ public final class RangedItems {
         made.put("iron", 320);
         made.put("diamond", 780);
         made.put("netherite", 1_400);
+        // The Cordon's: a bow lasts as long as Valoria's tool of the same
+        // tier did, which is the one number for it anybody has played.
+        for (WeaponRules.Rung rung : WeaponRules.RUNGS) {
+            if (rung.cordon()) {
+                made.put(rung.name(), rung.uses());
+            }
+        }
         return Map.copyOf(made);
     }
 

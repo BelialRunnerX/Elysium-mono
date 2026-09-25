@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/phasium_sling",
+  "textures": {
+    "layer0": "elysiumarsenal:item/phasium_sling_pulling_0"
+  }
+}

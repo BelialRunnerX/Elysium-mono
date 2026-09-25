@@ -163,59 +163,208 @@ public final class WeaponRules {
             // The answer to a target in full plate, and to nothing else.
             new Weapon("estoc", 6.0F, 1.3F, 0.5F, 1, 0.5F));
 
-    /** The tiers, which are the game's own. */
-    public static final List<String> TIERS = ArsenalRules.TIERS;
+    // ==================================================================
+    // The rungs
+    // ==================================================================
 
     /**
-     * How much of a diamond weapon each tier is, in damage.
+     * One rung: a tier every weapon and bow comes in.
      *
-     * <p>The game's own numbers. Its tool tiers add 0, 1, 2 and 3 to a sword
-     * and netherite adds 4 — and <b>gold adds nothing at all</b>, the same as
-     * wood. A gold sword is not a rung between iron and diamond however the
-     * registry lists it, and a ladder written from the registry order dips in
-     * the middle. The first version of this file did exactly that and the
-     * check below caught it.
+     * <p>The game's six carry only a share and a haste; the game supplies
+     * their durability. The Cordon's carry Valoria's own tier numbers, the
+     * tag their weapons are made of and the hue their art is drawn in, all of
+     * which elysium-ores' {@code CordonMaterials} states first and the
+     * validator holds this file to — the roster is one list, read twice.
+     *
+     * @param name     what it is called
+     * @param share    how much of a diamond weapon's damage it does
+     * @param haste    how much faster than one it swings; one for a rung
+     * @param onLadder whether it climbs, or sits beside the ladder as gold does
+     * @param level    the harvest level (the game's 0..4 scale), 0 for the game's own
+     * @param uses     durability; 0 for the game's own, whose Tier the game supplies
+     * @param speed    mining speed, likewise
+     * @param damage   the tier's bonus damage, the number that places it
+     * @param enchant  enchantability
+     * @param material the {@code c:} tag its weapons are made of; empty for the game's
+     * @param colour   its base hue; empty for the game's, whose palettes are drawn by hand
      */
-    public static final Map<String, Float> TIER_SHARE = share();
+    public record Rung(String name, float share, float haste, boolean onLadder, int level,
+                       int uses, float speed, float damage, int enchant, String material,
+                       String colour) {
 
-    private static Map<String, Float> share() {
-        Map<String, Float> made = new LinkedHashMap<>();
-        made.put("wooden", 0.55F);
-        made.put("stone", 0.70F);
-        made.put("golden", 0.55F);
-        made.put("iron", 0.85F);
-        made.put("diamond", 1.00F);
-        made.put("netherite", 1.12F);
-        return Map.copyOf(made);
+        public Rung {
+            if (share <= 0.0F || haste <= 0.0F) {
+                throw new IllegalArgumentException(name + " is a rung that does nothing");
+            }
+        }
+
+        /** Whether this is one of the Cordon's, as opposed to the game's. */
+        public boolean cordon() {
+            return !material.isEmpty();
+        }
+    }
+
+    /** What gold swings at against iron, and what every side-grade beside the ladder swings at. */
+    public static final float SIDE_HASTE = 1.25F;
+
+    /**
+     * Each new rung above the game's top does this much more than the one
+     * below it. Fifteen percent: over reforging's ceiling, which is the
+     * smallest step of this ladder (ForgeRules.smallestLadderStep, twelve
+     * percent at diamond to netherite), so a new rung never makes a reforge
+     * worth a tier.
+     */
+    public static final float RUNG_STEP = 1.15F;
+
+    /** Where the game's own rungs sit on Valoria's damage scale, which is the game's tool bonus. */
+    private static final float[] GAME_DAMAGE = {0.0F, 1.0F, 2.0F, 3.0F, 4.0F};
+
+    private static Rung game(String name, float share, float haste, boolean onLadder) {
+        return new Rung(name, share, haste, onLadder, 0, 0, 0.0F, 0.0F, 0, "", "");
+    }
+
+    /** The Cordon's tier as Valoria numbered it, before it is placed. */
+    public record Cordon(String name, int level, int uses, float speed, float damage, int enchant,
+                         String material, String colour) {
     }
 
     /**
-     * And how much faster each tier swings.
-     *
-     * <p>One, everywhere but gold. What gold is in this game is <em>quick and
-     * disposable</em>, which is a side-grade rather than a rung, and giving it
-     * the damage of iron to make the list tidy would be making the list tidy
-     * at the cost of being wrong about the game.
+     * Valoria's tool tiers for the sets that had tools, in Elysium's names
+     * (docs/SPEC_VALORIA.md; elysium-ores' CordonMaterials.SETS with tools).
+     * Order here does not matter: they are placed by damage.
      */
-    public static final Map<String, Float> TIER_HASTE = haste();
+    public static final List<Cordon> CORDON = List.of(
+            new Cordon("lunite", 2, 1450, 6.0F, 3.0F, 8, "c:ingots/lunite", "#d8cce8"),
+            new Cordon("cobalt", 3, 1750, 12.0F, 4.0F, 12, "c:ingots/cobalt", "#4a7fc4"),
+            new Cordon("relicsteel", 2, 1250, 8.0F, 5.0F, 7, "c:ingots/relicsteel", "#b0a070"),
+            new Cordon("phasium", 3, 2025, 14.0F, 5.0F, 15, "c:gems/phasium", "#9ad0e0"),
+            new Cordon("biolith", 4, 2651, 16.0F, 8.0F, 17, "c:ingots/biolith", "#6aa04a"),
+            new Cordon("bathysteel", 5, 3256, 18.0F, 9.0F, 18, "c:ingots/bathysteel", "#3a8ab0"),
+            new Cordon("slagsteel", 5, 4256, 20.0F, 10.0F, 19, "c:ingots/slagsteel", "#b04a2a"),
+            new Cordon("jade", 5, 4112, 22.0F, 11.0F, 20, "c:gems/jade", "#4fbf6a"),
+            new Cordon("hemalite", 5, 2431, 24.0F, 15.0F, 15, "c:ingots/hemalite", "#a02a3a"),
+            new Cordon("nullsteel", 5, 5248, 30.0F, 17.0F, 20, "c:ingots/nullsteel", "#3a2a5a"));
 
-    private static Map<String, Float> haste() {
+    /**
+     * Every rung, the game's six and then the Cordon's, each placed by its
+     * damage against what is already there.
+     *
+     * <p>The game's own numbers first: its tool tiers add 0, 1, 2 and 3 to a
+     * sword and netherite adds 4 — and <b>gold adds nothing at all</b>, the
+     * same as wood. A gold sword is not a rung between iron and diamond
+     * however the registry lists it; it is quick and disposable, a side-grade,
+     * and a ladder written from the registry order dips in the middle. The
+     * first version of this file did exactly that and the check below caught
+     * it.
+     *
+     * <p>Then Valoria's, by the same rule gold obeys. A Cordon tier whose
+     * bonus damage equals a rung already placed is a side-grade of it: it
+     * takes the share of the rung <em>below</em> and swings at
+     * {@link #SIDE_HASTE}, so it trades damage for speed exactly as gold does
+     * against iron and dominates nothing. One whose damage is new is a new
+     * rung, {@link #RUNG_STEP} above the last, so the ladder climbs at every
+     * step by more than reforging can ever be worth.
+     */
+    public static final List<Rung> RUNGS = rungs();
+
+    private static List<Rung> rungs() {
+        List<Rung> made = new ArrayList<>(List.of(
+                game("wooden", 0.55F, 1.0F, true),
+                game("stone", 0.70F, 1.0F, true),
+                game("iron", 0.85F, 1.0F, true),
+                game("golden", 0.55F, SIDE_HASTE, false),
+                game("diamond", 1.00F, 1.0F, true),
+                game("netherite", 1.12F, 1.0F, true)));
+        // The ladder so far, as (damage, share), climbing.
+        List<float[]> ladder = new ArrayList<>();
+        int at = 0;
+        for (Rung rung : made) {
+            if (rung.onLadder()) {
+                ladder.add(new float[] {GAME_DAMAGE[at++], rung.share()});
+            }
+        }
+        List<Cordon> placed = new ArrayList<>(CORDON);
+        placed.sort((a, b) -> Float.compare(a.damage(), b.damage()));
+        for (Cordon c : placed) {
+            int tie = -1;
+            for (int i = 0; i < ladder.size(); i++) {
+                if (ladder.get(i)[0] == c.damage()) {
+                    tie = i;
+                }
+            }
+            if (tie >= 0) {
+                float beside = ladder.get(Math.max(0, tie - 1))[1];
+                made.add(new Rung(c.name(), beside, SIDE_HASTE, false, c.level(), c.uses(),
+                        c.speed(), c.damage(), c.enchant(), c.material(), c.colour()));
+            } else {
+                float share = ladder.get(ladder.size() - 1)[1] * RUNG_STEP;
+                made.add(new Rung(c.name(), share, 1.0F, true, c.level(), c.uses(),
+                        c.speed(), c.damage(), c.enchant(), c.material(), c.colour()));
+                ladder.add(new float[] {c.damage(), share});
+            }
+        }
+        return List.copyOf(made);
+    }
+
+    /** The rung of that name, or null. */
+    public static Rung rung(String name) {
+        for (Rung rung : RUNGS) {
+            if (rung.name().equals(name)) {
+                return rung;
+            }
+        }
+        return null;
+    }
+
+    /** Every tier a weapon comes in: the game's six and the Cordon's, in rung order. */
+    public static final List<String> TIERS = names(false);
+
+    /** How much of a diamond weapon each tier is, in damage. */
+    public static final Map<String, Float> TIER_SHARE = shares();
+
+    /** And how much faster each tier swings: one, everywhere but beside the ladder. */
+    public static final Map<String, Float> TIER_HASTE = hastes();
+
+    /**
+     * The tiers that are a ladder, in the order they climb. Gold and every
+     * other side-grade are beside it rather than on it.
+     */
+    public static final List<String> LADDER = names(true);
+
+    private static List<String> names(boolean onLadderOnly) {
+        List<String> out = new ArrayList<>();
+        for (Rung rung : RUNGS) {
+            if (!onLadderOnly || rung.onLadder()) {
+                out.add(rung.name());
+            }
+        }
+        return List.copyOf(out);
+    }
+
+    private static Map<String, Float> shares() {
         Map<String, Float> made = new LinkedHashMap<>();
-        for (String tier : TIER_SHARE.keySet()) {
-            made.put(tier, "golden".equals(tier) ? 1.25F : 1.0F);
+        for (Rung rung : RUNGS) {
+            made.put(rung.name(), rung.share());
         }
         return Map.copyOf(made);
     }
 
-    /**
-     * The tiers that are a ladder, in the order they climb.
-     *
-     * <p>Gold is not in it, and that is the point rather than an omission: it
-     * is a side-grade, and a check that walks the registry's order instead
-     * reports every weapon in the module as broken at gold.
-     */
-    public static final List<String> LADDER =
-            List.of("wooden", "stone", "iron", "diamond", "netherite");
+    private static Map<String, Float> hastes() {
+        Map<String, Float> made = new LinkedHashMap<>();
+        for (Rung rung : RUNGS) {
+            made.put(rung.name(), rung.haste());
+        }
+        return Map.copyOf(made);
+    }
+
+    /** The smallest step up the ladder, as a ratio of damage; what a reforge may never be worth. */
+    public static float smallestStep() {
+        float smallest = Float.MAX_VALUE;
+        for (int rung = 1; rung < LADDER.size(); rung++) {
+            smallest = Math.min(smallest, TIER_SHARE.get(LADDER.get(rung)) / TIER_SHARE.get(LADDER.get(rung - 1)));
+        }
+        return smallest;
+    }
 
     /** One kind at one tier. */
     public static Weapon at(Weapon kind, String tier) {

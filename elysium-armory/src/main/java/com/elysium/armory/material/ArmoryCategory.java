@@ -18,7 +18,9 @@ import java.util.Set;
  */
 public enum ArmoryCategory {
     METAL, ROCK, GEM, ORGANIC, WOOD, CLOTH, FIBER, DUST, SHEET, SLIME,
-    BASIC, INTERMEDIATE, ADVANCED, ENDGAME, INTANGIBLE;
+    BASIC, INTERMEDIATE, ADVANCED, ENDGAME, INTANGIBLE,
+    /** The Cordoned Planet's (docs/SPEC_VALORIA.md): what Valoria's gear sets are made of, as a group a recipe can ask for. */
+    CORDON;
 
     /** The lower-case id used in material files. */
     public String id() {

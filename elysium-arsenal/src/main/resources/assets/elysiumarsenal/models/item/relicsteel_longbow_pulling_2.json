@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/relicsteel_longbow",
+  "textures": {
+    "layer0": "elysiumarsenal:item/relicsteel_longbow_pulling_2"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "MS ",
+    "MS ",
+    "MS "
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/biolith"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:biolith_longbow",
+    "count": 1
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/biolith_sling",
+  "textures": {
+    "layer0": "elysiumarsenal:item/biolith_sling_pulling_1"
+  }
+}

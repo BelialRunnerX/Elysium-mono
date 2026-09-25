@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/hemalite_longbow",
+  "textures": {
+    "layer0": "elysiumarsenal:item/hemalite_longbow_pulling_1"
+  }
+}

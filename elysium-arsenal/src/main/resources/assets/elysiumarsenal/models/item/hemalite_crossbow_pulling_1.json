@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/hemalite_crossbow",
+  "textures": {
+    "layer0": "elysiumarsenal:item/hemalite_crossbow_pulling_1"
+  }
+}

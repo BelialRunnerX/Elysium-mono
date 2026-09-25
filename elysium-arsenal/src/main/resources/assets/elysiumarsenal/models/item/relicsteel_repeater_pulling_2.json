@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/relicsteel_repeater",
+  "textures": {
+    "layer0": "elysiumarsenal:item/relicsteel_repeater_pulling_2"
+  }
+}

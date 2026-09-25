@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/slagsteel_recurve",
+  "textures": {
+    "layer0": "elysiumarsenal:item/slagsteel_recurve_pulling_0"
+  }
+}

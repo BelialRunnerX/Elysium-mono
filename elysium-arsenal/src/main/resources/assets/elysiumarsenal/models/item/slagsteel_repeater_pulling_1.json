@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/slagsteel_repeater",
+  "textures": {
+    "layer0": "elysiumarsenal:item/slagsteel_repeater_pulling_1"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/hemalite",
+    "categories": [
+      "metal",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Hemalite"
+  },
+  "properties": {
+    "main": {
+      "durability": 2431.0,
+      "armor_durability": 72.0,
+      "harvest_tier": "netherite",
+      "harvest_speed": 24.0,
+      "attack_damage": 15.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 7.5,
+      "armor": 68.0,
+      "armor/helmet": 9.0,
+      "armor/chestplate": 27.0,
+      "armor/leggings": 22.5,
+      "armor/boots": 9.0,
+      "armor_toughness": 0.0,
+      "knockback_resistance": 0.0,
+      "magic_armor": 3.5,
+      "enchantment_value": 12.0,
+      "charging_value": 1.0,
+      "rarity": 85.0,
+      "traits": [
+        {
+          "trait": "jagged",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " MS",
+    "M S",
+    " MS"
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/nullsteel"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:nullsteel_shortbow",
+    "count": 1
+  }
+}

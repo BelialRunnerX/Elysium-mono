@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "MSM",
+    "SMS",
+    " M "
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/hemalite"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:hemalite_crossbow",
+    "count": 1
+  }
+}

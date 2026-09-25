@@ -1,0 +1,42 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:gems/jade",
+    "categories": [
+      "gem",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Jade"
+  },
+  "properties": {
+    "main": {
+      "durability": 4112.0,
+      "armor_durability": 257.0,
+      "harvest_tier": "netherite",
+      "harvest_speed": 22.0,
+      "attack_damage": 11.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 5.5,
+      "armor": 33.0,
+      "armor/helmet": 4.5,
+      "armor/chestplate": 13.0,
+      "armor/leggings": 11.0,
+      "armor/boots": 4.5,
+      "armor_toughness": 0.0,
+      "knockback_resistance": 0.0,
+      "magic_armor": 0.0,
+      "enchantment_value": 20.0,
+      "charging_value": 1.0,
+      "rarity": 85.0,
+      "traits": [
+        {
+          "trait": "brilliant",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

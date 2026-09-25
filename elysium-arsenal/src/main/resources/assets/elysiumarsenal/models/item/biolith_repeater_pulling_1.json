@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/biolith_repeater",
+  "textures": {
+    "layer0": "elysiumarsenal:item/biolith_repeater_pulling_1"
+  }
+}

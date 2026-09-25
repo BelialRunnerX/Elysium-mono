@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/biolith_recurve",
+  "textures": {
+    "layer0": "elysiumarsenal:item/biolith_recurve_pulling_0"
+  }
+}

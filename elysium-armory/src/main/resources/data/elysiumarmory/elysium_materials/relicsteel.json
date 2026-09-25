@@ -1,0 +1,42 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:ingots/relicsteel",
+    "categories": [
+      "metal",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Relicsteel"
+  },
+  "properties": {
+    "main": {
+      "durability": 1250.0,
+      "armor_durability": 55.0,
+      "harvest_tier": "iron",
+      "harvest_speed": 8.0,
+      "attack_damage": 5.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 2.5,
+      "armor": 35.0,
+      "armor/helmet": 4.5,
+      "armor/chestplate": 14.0,
+      "armor/leggings": 11.5,
+      "armor/boots": 4.5,
+      "armor_toughness": 3.0,
+      "knockback_resistance": 0.15,
+      "magic_armor": 0.0,
+      "enchantment_value": 16.0,
+      "charging_value": 1.0,
+      "rarity": 70.0,
+      "traits": [
+        {
+          "trait": "ancient",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

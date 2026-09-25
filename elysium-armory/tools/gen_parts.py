@@ -72,7 +72,7 @@ def main(out=OUT):
             part["upgrade"] = {"gear_types": [t.strip() for t in targets.split(",") if t.strip()],
                                "match_children": "+children" in applies}
         os.makedirs(OUT, exist_ok=True)
-        with open(os.path.join(out, pid + ".json"), "w", encoding="utf-8") as f:
+        with open(os.path.join(out, pid + ".json"), "w", encoding="utf-8", newline="\n") as f:
             json.dump(part, f, indent=2)
             f.write("\n")
         written += 1

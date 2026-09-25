@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "MS ",
+    "MS ",
+    "MS "
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/slagsteel"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:slagsteel_longbow",
+    "count": 1
+  }
+}

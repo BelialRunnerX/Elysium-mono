@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/nullsteel_recurve",
+  "textures": {
+    "layer0": "elysiumarsenal:item/nullsteel_recurve_pulling_0"
+  }
+}

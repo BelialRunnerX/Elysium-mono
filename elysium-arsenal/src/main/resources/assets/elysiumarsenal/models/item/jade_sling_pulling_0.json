@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/jade_sling",
+  "textures": {
+    "layer0": "elysiumarsenal:item/jade_sling_pulling_0"
+  }
+}

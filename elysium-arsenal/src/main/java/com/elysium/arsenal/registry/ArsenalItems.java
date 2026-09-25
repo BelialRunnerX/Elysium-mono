@@ -15,8 +15,13 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.Tiers;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.common.SimpleTier;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -48,15 +53,52 @@ public final class ArsenalItems {
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ElysiumArsenal.MODID);
 
     /**
-     * The vanilla tier behind each of our tier names, in the rules' order.
+     * The tier behind each of our tier names, in the rules' order: the game's
+     * own for the game's six, and one built from Valoria's numbers for each
+     * of the Cordon's, repaired with the tag its weapons are made of.
      *
-     * <p>Public because the uniques are built on the same six tiers and a
-     * second copy of this map is a second copy that can drift.
+     * <p>Public because the uniques are built on the same tiers and a second
+     * copy of this map is a second copy that can drift.
      */
-    public static final Map<String, Tier> TIERS = Map.of(
+    public static final Map<String, Tier> TIERS = tiers();
+
+    private static final Map<String, Tier> GAME = Map.of(
             "wooden", Tiers.WOOD, "stone", Tiers.STONE, "iron", Tiers.IRON,
             "golden", Tiers.GOLD, "diamond", Tiers.DIAMOND,
             "netherite", Tiers.NETHERITE);
+
+    private static Map<String, Tier> tiers() {
+        Map<String, Tier> made = new LinkedHashMap<>();
+        for (WeaponRules.Rung rung : WeaponRules.RUNGS) {
+            if (!rung.cordon()) {
+                Tier game = GAME.get(rung.name());
+                if (game == null) {
+                    throw new IllegalStateException(rung.name() + " is one of the game's rungs "
+                            + "and the game has no tier of that name");
+                }
+                made.put(rung.name(), game);
+                continue;
+            }
+            TagKey<Item> repair = TagKey.create(Registries.ITEM, ResourceLocation.parse(rung.material()));
+            made.put(rung.name(), new SimpleTier(incorrectFor(rung.level()), rung.uses(),
+                    rung.speed(), rung.damage(), rung.enchant(), () -> Ingredient.of(repair)));
+        }
+        if (made.size() != WeaponRules.RUNGS.size()) {
+            throw new IllegalStateException("the rules list " + WeaponRules.RUNGS.size()
+                    + " rungs and " + made.size() + " tiers were built");
+        }
+        return Map.copyOf(made);
+    }
+
+    /** What a tool of that harvest level cannot mine, on the game's own scale. */
+    private static TagKey<Block> incorrectFor(int level) {
+        return switch (Math.min(4, Math.max(0, level))) {
+            case 0, 1 -> BlockTags.INCORRECT_FOR_STONE_TOOL;
+            case 2 -> BlockTags.INCORRECT_FOR_IRON_TOOL;
+            case 3 -> BlockTags.INCORRECT_FOR_DIAMOND_TOOL;
+            default -> BlockTags.INCORRECT_FOR_NETHERITE_TOOL;
+        };
+    }
 
     /**
      * How hard a pickaxe of each tier hits, which is what a hammer copies.

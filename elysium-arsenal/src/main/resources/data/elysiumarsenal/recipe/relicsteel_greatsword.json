@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " MM",
+    "MM ",
+    "S  "
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/relicsteel"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:relicsteel_greatsword",
+    "count": 1
+  }
+}

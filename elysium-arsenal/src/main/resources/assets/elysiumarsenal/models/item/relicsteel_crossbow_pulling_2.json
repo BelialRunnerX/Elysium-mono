@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/relicsteel_crossbow",
+  "textures": {
+    "layer0": "elysiumarsenal:item/relicsteel_crossbow_pulling_2"
+  }
+}

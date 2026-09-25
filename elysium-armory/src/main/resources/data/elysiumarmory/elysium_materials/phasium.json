@@ -1,0 +1,42 @@
+{
+  "type": "simple",
+  "crafting": {
+    "ingredient": "#c:gems/phasium",
+    "categories": [
+      "gem",
+      "cordon"
+    ]
+  },
+  "display": {
+    "name": "Phasium"
+  },
+  "properties": {
+    "main": {
+      "durability": 2025.0,
+      "armor_durability": 60.0,
+      "harvest_tier": "diamond",
+      "harvest_speed": 14.0,
+      "attack_damage": 5.0,
+      "attack_speed": 0.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 2.5,
+      "armor": 50.0,
+      "armor/helmet": 6.5,
+      "armor/chestplate": 20.0,
+      "armor/leggings": 16.5,
+      "armor/boots": 6.5,
+      "armor_toughness": 2.0,
+      "knockback_resistance": 0.1,
+      "magic_armor": 0.0,
+      "enchantment_value": 18.0,
+      "charging_value": 1.0,
+      "rarity": 75.0,
+      "traits": [
+        {
+          "trait": "kitty_vision",
+          "level": 1
+        }
+      ]
+    }
+  }
+}

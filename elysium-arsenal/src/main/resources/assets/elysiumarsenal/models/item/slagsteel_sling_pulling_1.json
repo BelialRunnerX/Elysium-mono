@@ -1,0 +1,6 @@
+{
+  "parent": "elysiumarsenal:item/slagsteel_sling",
+  "textures": {
+    "layer0": "elysiumarsenal:item/slagsteel_sling_pulling_1"
+  }
+}

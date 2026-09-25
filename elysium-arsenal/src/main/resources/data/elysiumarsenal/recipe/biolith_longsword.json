@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  M",
+    " M ",
+    " S "
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/biolith"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:biolith_longsword",
+    "count": 1
+  }
+}
