@@ -53,7 +53,21 @@ public final class FoundryItems {
      * supply a second copy of.
      */
     public static final Set<String> SOMEBODY_ELSE_SUPPLIES =
-            Set.of("iron", "copper", "gold", "steel", "uranium", "redstone_dust");
+            Set.of("iron", "copper", "gold", "steel", "uranium", "redstone_dust",
+                    "jade", "pyratite", "amber", "ruby", "sapphire", "null_amethyst",
+                    "ember_slag", "bio_culture", "pressure_shell", "blight_crystal", "null_shard", "relic_shard");
+
+    /**
+     * The Cordon's metals: elysium-ores ships the raw form, ingot, nugget and
+     * block; this age ships only the worked forms and prices the whole
+     * (docs/SPEC_FOUNDRY.md §4).
+     */
+    public static final Set<String> CORDON_METALS =
+            Set.of("cobalt", "pearlium", "nightgold", "relicsteel", "slagsteel", "biolith",
+                    "bathysteel", "hemalite", "nullsteel");
+
+    /** What is worked here from a metal whose ingot is somebody else's. */
+    public static final List<String> WORKED_ONLY = List.of("dust", "plate");
 
     /**
      * Materials that exist in exactly one shape, named after themselves.
@@ -97,6 +111,7 @@ public final class FoundryItems {
             }
             List<String> forms = ONE_FORM.containsKey(material.name())
                     ? List.of(ONE_FORM.get(material.name()))
+                    : CORDON_METALS.contains(material.name()) ? WORKED_ONLY
                     : material.mined() ? MINED_FORMS : ALLOY_FORMS;
             for (String form : forms) {
                 String name = nameOf(material.name(), form);
@@ -127,6 +142,9 @@ public final class FoundryItems {
     public static final DeferredItem<BlockItem> ALLOY_SMELTER =
             ITEMS.registerSimpleBlockItem(FoundryBlocks.ALLOY_SMELTER);
 
+    public static final DeferredItem<BlockItem> REFINERY =
+            ITEMS.registerSimpleBlockItem(FoundryBlocks.REFINERY);
+
     private static final Map<Integer, DeferredItem<BlockItem>> CASINGS =
             new LinkedHashMap<>();
 
@@ -145,6 +163,7 @@ public final class FoundryItems {
     private static List<DeferredItem<? extends Item>> order() {
         List<DeferredItem<? extends Item>> shown = new ArrayList<>();
         shown.add(ALLOY_SMELTER);
+        shown.add(REFINERY);
         shown.addAll(CASINGS.values());
         shown.addAll(MADE.values());
         return shown;

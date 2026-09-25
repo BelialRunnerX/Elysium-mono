@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "tag": "c:ingots/hemalite"
+  },
+  "result": {
+    "id": "elysiumfoundry:hemalite_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

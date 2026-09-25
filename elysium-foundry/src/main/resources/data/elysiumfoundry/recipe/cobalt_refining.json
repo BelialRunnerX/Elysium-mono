@@ -1,0 +1,15 @@
+{
+  "type": "elysiumfoundry:refining",
+  "input": {
+    "tag": "c:raw_materials/cobalt"
+  },
+  "result": {
+    "id": "elysiumores:cobalt_ingot",
+    "count": 3
+  },
+  "byproduct": {
+    "id": "elysiumfoundry:nickel_nugget",
+    "count": 3
+  },
+  "ticks": 200
+}

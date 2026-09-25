@@ -211,7 +211,35 @@ public final class FoundryRules {
 
             // Tier 3 — the top, and each wants something the third age makes.
             alloy("void_steel", 3, "stainless", UNIT, "uranium", UNIT),
-            alloy("starsteel", 3, "stainless", 2 * UNIT, "platinum", UNIT));
+            alloy("starsteel", 3, "stainless", 2 * UNIT, "platinum", UNIT),
+
+            // The Cordon's (docs/SPEC_FOUNDRY.md §4; elysium-ores'
+            // CordonMaterials is the roster). Two dug metals, six gems dug
+            // whole, six things a creature or a ruin leaves — roots, because
+            // they cannot be made — and seven alloys, each of two things.
+            // elysium-ores ships the ingots; this age prices them and ships
+            // the worked forms.
+            mined("cobalt", 0),
+            mined("pearlium", 0),
+            mined("jade", 0),
+            mined("pyratite", 0),
+            mined("amber", 0),
+            mined("ruby", 0),
+            mined("sapphire", 0),
+            mined("null_amethyst", 0),
+            mined("ember_slag", 0),
+            mined("bio_culture", 0),
+            mined("pressure_shell", 0),
+            mined("blight_crystal", 0),
+            mined("null_shard", 0),
+            mined("relic_shard", 0),
+            alloy("nightgold", 1, "gold", UNIT, "cobalt", UNIT),
+            alloy("relicsteel", 1, "relic_shard", 4 * UNIT),
+            alloy("slagsteel", 2, "cobalt", UNIT, "ember_slag", UNIT),
+            alloy("biolith", 2, "cobalt", UNIT, "bio_culture", UNIT),
+            alloy("bathysteel", 2, "cobalt", UNIT, "pressure_shell", UNIT),
+            alloy("hemalite", 3, "nightgold", UNIT, "blight_crystal", UNIT),
+            alloy("nullsteel", 3, "nightgold", UNIT, "null_shard", UNIT));
 
     private static final Map<String, Material> BY_NAME = new HashMap<>();
 
@@ -389,6 +417,73 @@ public final class FoundryRules {
     public static boolean fitsIn(String material, int tier) {
         Material made = BY_NAME.get(material);
         return made != null && made.tier() <= Math.max(0, tier);
+    }
+
+    // ==================================================================
+    // Recovery: what the fourth age alone gets back (docs/SPEC_FOUNDRY.md §3)
+    // ==================================================================
+
+    /**
+     * How much of an ore's companion the refinery gets back per ore, in
+     * nuggets. A third of a unit: the second and last exception to "no matter
+     * out of nothing", bounded here and checked to stay under a unit.
+     */
+    public static final int RECOVERY_NUGGETS = 3;
+
+    /** How long a refinery takes over one ore at a full share. */
+    public static final int REFINE_TICKS = 200;
+
+    /** The casing a refinery is built to; its draw is the refinery's. */
+    public static final int REFINERY_TIER = 3;
+
+    /**
+     * Each dug metal's companion: the metal the rock held beside it, which
+     * Ages I to III throw away. One each, never itself, always a metal the
+     * chain has a nugget of. Gems, dusts and uraninite have none.
+     */
+    public static final Map<String, String> COMPANIONS = companions();
+
+    private static Map<String, String> companions() {
+        Map<String, String> made = new LinkedHashMap<>();
+        made.put("iron", "nickel");
+        made.put("copper", "gold");
+        made.put("gold", "silver");
+        made.put("tin", "zinc");
+        made.put("zinc", "tin");
+        made.put("nickel", "platinum");
+        made.put("silver", "lead");
+        made.put("lead", "silver");
+        made.put("aluminum", "lithium");
+        made.put("lithium", "aluminum");
+        made.put("osmium", "platinum");
+        made.put("platinum", "osmium");
+        made.put("uranium", "lead");
+        made.put("crimson_iron", "iron");
+        made.put("azure_silver", "silver");
+        made.put("cobalt", "nickel");
+        made.put("pearlium", "silver");
+        return Map.copyOf(made);
+    }
+
+    /** The companion of a dug metal, or null for something with none. */
+    public static String companionOf(String name) {
+        return COMPANIONS.get(name);
+    }
+
+    /** Whether the refinery takes this ore at all. */
+    public static boolean refinable(String name) {
+        Material material = BY_NAME.get(name);
+        return material != null && material.mined() && COMPANIONS.containsKey(name);
+    }
+
+    /** What one ore recovers, in units: under one, always. */
+    public static int recoveredPerOre() {
+        return RECOVERY_NUGGETS * Form.NUGGET.worth();
+    }
+
+    /** What a refinery asks the grid for: the third casing's draw. */
+    public static IndustryRules.Machine refineryDraw() {
+        return casing(REFINERY_TIER).draw();
     }
 
     /** Every material of a given tier, in the order they were declared. */

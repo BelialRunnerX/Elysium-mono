@@ -9,7 +9,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** One recipe type, because this module has one machine. */
+/** Two recipe types, one per machine: alloying and refining. */
 public final class FoundryRecipes {
 
     private FoundryRecipes() {
@@ -28,4 +28,13 @@ public final class FoundryRecipes {
 
     public static final DeferredHolder<RecipeSerializer<?>, AlloyRecipe.Serializer>
             SERIALIZER = SERIALIZERS.register("alloying", AlloyRecipe.Serializer::new);
+
+    /** Raw ore to the metal and its companion: the refinery's (docs/SPEC_FOUNDRY.md §3). */
+    public static final DeferredHolder<RecipeType<?>, RecipeType<com.elysium.foundry.recipe.RefineRecipe>> REFINING =
+            TYPES.register("refining", () -> RecipeType.simple(
+                    ResourceLocation.fromNamespaceAndPath(ElysiumFoundry.MODID, "refining")));
+
+    public static final DeferredHolder<RecipeSerializer<?>, com.elysium.foundry.recipe.RefineRecipe.Serializer>
+            REFINE_SERIALIZER = SERIALIZERS.register("refining",
+                    com.elysium.foundry.recipe.RefineRecipe.Serializer::new);
 }

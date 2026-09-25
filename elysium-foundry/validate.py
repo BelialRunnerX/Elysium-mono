@@ -167,7 +167,7 @@ for path in java_files:
 toml = read(RES, "META-INF/neoforge.mods.toml")
 declared = set(re.findall(r'modId="([^"]+)"', toml))
 allowed = {"${mod_id}", "neoforge", "minecraft", "elysiumlib", "elysiumkinetics",
-           "elysiumindustry", "elysiumatomics"}
+           "elysiumindustry", "elysiumatomics", "elysiumores"}
 for mod in declared - allowed:
     fail(f"the module declares a dependency on {mod}; it needs the game, the library, "
          f"and the grid its machines hang off")
@@ -377,6 +377,121 @@ if java_skips != table_skips:
     fail(f"the Java skips {sorted(java_skips)} and the generator skips "
          f"{sorted(table_skips)}; whichever is wrong either registers a second copy of "
          f"somebody else's metal or leaves an item with no model")
+
+# ---------------------------------------------------------------------------
+# 4b. Recovery, and the Cordon's metals (docs/SPEC_FOUNDRY.md §3, §4, §5)
+# ---------------------------------------------------------------------------
+#
+# FoundryHarness executes the companions and the amount. What it cannot see is
+# whether the generator wrote the same table, whether the refinery is wired
+# into the game, whether the design document still says what the rules say,
+# and whether the Cordon's metals are worked here without being shipped twice.
+
+java_companions = dict(re.findall(r'made\.put\("([a-z_]+)", "([a-z_]+)"\);',
+                                  strip_comments(rules, keep_strings=True)))
+table_block = re.search(r"COMPANIONS = \{(.*?)\}", generator, re.S)
+table_companions = dict(re.findall(r'"([a-z_]+)": "([a-z_]+)"', table_block.group(1))) if table_block else {}
+if not java_companions:
+    fail("the rules name no companions, so the refinery recovers nothing anywhere")
+if java_companions != table_companions:
+    fail(f"the companions differ between the rules and the generator: "
+         f"{sorted(set(java_companions.items()) ^ set(table_companions.items()))}")
+for name in ("RECOVERY_NUGGETS", "REFINE_TICKS"):
+    in_java = constant(name, kind="int")
+    in_table = re.search(name + r" = (\d+)", generator)
+    if in_table is None or in_java != in_table.group(1):
+        fail(f"{name} is {in_java} in the rules and {in_table.group(1) if in_table else 'absent'} "
+             f"in the generator; what an ore recovers depends on which file you read")
+
+java_cordon = set(re.findall(r'"([a-z_]+)"', re.search(
+    r'CORDON_METALS\s*=\s*Set\.of\(([^;]*)\);', items_src).group(1)))
+table_cordon = set(re.findall(r'"([a-z_]+)"', re.search(
+    r'CORDON_METALS = \{([^}]*)\}', generator).group(1)))
+if java_cordon != table_cordon:
+    fail(f"the Cordon's metals differ between the Java ({sorted(java_cordon)}) and the generator "
+         f"({sorted(table_cordon)}); one of them ships an ingot elysium-ores already ships")
+for metal in sorted(java_cordon):
+    for form in ("ingot", "nugget", "raw"):
+        stray = os.path.join(RES, "assets", NS, "models/item",
+                             ("raw_" + metal if form == "raw" else metal + "_" + form) + ".json")
+        if os.path.isfile(stray):
+            fail(f"{os.path.basename(stray)} is shipped here and elysium-ores ships the same thing; "
+                 f"two {metal} ingots is the duplication the ores module exists to remove")
+    for form in ("dust", "plate"):
+        if not os.path.isfile(os.path.join(RES, "assets", NS, "models/item", f"{metal}_{form}.json")):
+            fail(f"{metal} has no {form} here, so the Cordon's metal cannot be worked")
+
+recipe_dir = os.path.join(RES, "data", NS, "recipe")
+OK_NAMESPACES = ("minecraft:", f"{NS}:", f"{IND_NS}:", "elysiumatomics:", "elysiumores:", "c:")
+for ore, companion in sorted(java_companions.items()):
+    body = json.loads(read(recipe_dir, f"{ore}_refining.json") or "{}")
+    if not body:
+        fail(f"{ore} has a companion and no refining recipe, so the refinery refuses it")
+        continue
+    spoken = json.dumps(body)
+    for literal in re.findall(r'"([a-z_]+:[a-z_/]+)"', spoken):
+        if not literal.startswith(OK_NAMESPACES):
+            fail(f"{ore}_refining names {literal}, which is a mod this module does not declare")
+    entry = body.get("input", {})
+    if not (entry.get("tag", "").startswith("c:raw_materials/") or "raw_" in entry.get("item", "")):
+        fail(f"{ore}_refining takes {entry}, which is not a raw form; anything but raw ore in the "
+             f"refinery is a loop that makes a companion out of an ingot")
+    if body.get("result", {}).get("count") != 3:
+        fail(f"{ore}_refining gives {body.get('result', {}).get('count')} units, not Age III's three")
+    if body.get("byproduct", {}).get("count") != int(constant("RECOVERY_NUGGETS", kind="int")):
+        fail(f"{ore}_refining recovers a different amount from the one the rules state")
+if not os.path.isfile(os.path.join(recipe_dir, "refinery.json")):
+    fail("there is no recipe for the refinery, so recovery is a creative-only machine")
+
+blocks_src = strip_comments(read(SRC, "registry/FoundryBlocks.java"), keep_strings=True)
+if 'BLOCKS.register("refinery"' not in blocks_src:
+    fail("FoundryBlocks does not register the refinery")
+recipes_src = strip_comments(read(SRC, "registry/FoundryRecipes.java"), keep_strings=True)
+if 'TYPES.register("refining"' not in recipes_src or 'SERIALIZERS.register("refining"' not in recipes_src:
+    fail("the refining recipe type or its serializer is not on the bus, so every refining recipe "
+         "fails to load")
+refinery_src = strip_comments(read(SRC, "block/RefineryBlock.java"))
+refine_tick = body_of(refinery_src, "protected void serverTick(")
+if "items.extractItem(IN, 1, false);" not in refine_tick:
+    fail("the refinery never consumes the ore it refines, which is a fourth unit out of nothing")
+if "items.insertItem(RECOVERED, recovered, true).isEmpty()" not in refine_tick:
+    fail("the refinery does not check there is room for the companion before running, so it is lost")
+if "FoundryRules.refineryDraw()" not in body_of(refinery_src, "public IndustryRules.Machine machine()"):
+    fail("the refinery draws something other than what the rules say its casing draws")
+if "return slot == IN;" not in body_of(refinery_src, "public boolean isItemValid("):
+    fail("a hopper can push into the refinery's output slots, so what comes out can be overwritten")
+if "theRecovery();" not in read(HARNESS):
+    fail("the harness never runs theRecovery, so the companions are checked by reading")
+
+# The design document's price list is held to the rules.
+def deep(name, depth=0):
+    tier, parts = java_chain.get(name, (0, {}))
+    if not parts or depth > 12:
+        return 9
+    return sum(count * deep(part, depth + 1) // 9 for part, count in parts.items())
+
+
+spec = read(ROOT, "docs/SPEC_FOUNDRY.md")
+if "## 5." not in spec or "## 6." not in spec:
+    fail("docs/SPEC_FOUNDRY.md has no priced chain (section 5), so the design says nothing checkable")
+else:
+    priced = dict((name, (int(tier), int(cost))) for name, tier, cost in
+                  re.findall(r"^\| ([a-z_]+) \| (\d+) \| (\d+) \|$",
+                             spec[spec.index("## 5."):spec.index("## 6.")], re.M))
+    for name, (tier, parts) in sorted(java_chain.items()):
+        if not parts:
+            continue
+        if name not in priced:
+            fail(f"docs/SPEC_FOUNDRY.md does not price {name}, which the chain makes")
+        elif priced[name] != (tier, deep(name)):
+            fail(f"docs/SPEC_FOUNDRY.md says {name} is tier {priced[name][0]} at {priced[name][1]} units "
+                 f"and the rules make it tier {tier} at {deep(name)}")
+    for name in priced:
+        if name not in java_chain:
+            fail(f"docs/SPEC_FOUNDRY.md prices {name}, which the chain does not make")
+print(f"recovery           : {len(java_companions)} companions, a third of a unit each, the refinery "
+      f"wired and fed only raw ore; {len(java_cordon)} Cordon metals worked, none shipped twice; "
+      f"the design's {len(priced) if 'priced' in dir() else 0} prices held to the rules")
 
 casings_java = dict(re.findall(r'new Casing\((\d+), "([a-z_]+)"',
                                  strip_comments(rules, keep_strings=True)))

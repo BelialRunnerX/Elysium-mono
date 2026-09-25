@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "tag": "c:ingots/nullsteel"
+  },
+  "result": {
+    "id": "elysiumfoundry:nullsteel_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

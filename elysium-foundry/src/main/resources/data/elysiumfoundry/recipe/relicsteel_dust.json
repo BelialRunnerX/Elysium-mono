@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "tag": "c:ingots/relicsteel"
+  },
+  "result": {
+    "id": "elysiumfoundry:relicsteel_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

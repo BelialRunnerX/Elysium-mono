@@ -1,0 +1,16 @@
+{
+  "type": "elysiumfoundry:alloying",
+  "first": {
+    "tag": "c:ingots/gold"
+  },
+  "first_count": 1,
+  "second": {
+    "tag": "c:ingots/cobalt"
+  },
+  "second_count": 1,
+  "result": {
+    "id": "elysiumores:nightgold_ingot",
+    "count": 1
+  },
+  "ticks": 160
+}

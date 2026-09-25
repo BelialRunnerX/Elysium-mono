@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "tag": "c:ingots/bathysteel"
+  },
+  "result": {
+    "id": "elysiumfoundry:bathysteel_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

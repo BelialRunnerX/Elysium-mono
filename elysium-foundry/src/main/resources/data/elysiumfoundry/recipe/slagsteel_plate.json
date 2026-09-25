@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "tag": "c:ingots/slagsteel"
+  },
+  "result": {
+    "id": "elysiumfoundry:slagsteel_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

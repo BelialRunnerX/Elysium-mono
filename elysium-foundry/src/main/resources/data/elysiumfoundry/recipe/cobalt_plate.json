@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "tag": "c:ingots/cobalt"
+  },
+  "result": {
+    "id": "elysiumfoundry:cobalt_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

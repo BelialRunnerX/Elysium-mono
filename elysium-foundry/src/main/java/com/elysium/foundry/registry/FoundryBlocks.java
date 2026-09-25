@@ -39,6 +39,10 @@ public final class FoundryBlocks {
     public static final DeferredBlock<Block> ALLOY_SMELTER =
             BLOCKS.register("alloy_smelter", () -> new AlloySmelterBlock(metal(4.5F)));
 
+    /** The second and last machine: recovery (docs/SPEC_FOUNDRY.md §3). */
+    public static final DeferredBlock<Block> REFINERY =
+            BLOCKS.register("refinery", () -> new com.elysium.foundry.block.RefineryBlock(metal(5.5F)));
+
     private static final Map<Integer, DeferredBlock<Block>> CASINGS = new LinkedHashMap<>();
 
     static {

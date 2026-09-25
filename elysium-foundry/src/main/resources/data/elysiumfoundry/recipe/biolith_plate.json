@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "tag": "c:ingots/biolith"
+  },
+  "result": {
+    "id": "elysiumfoundry:biolith_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "tag": "c:ingots/nullsteel"
+  },
+  "result": {
+    "id": "elysiumfoundry:nullsteel_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

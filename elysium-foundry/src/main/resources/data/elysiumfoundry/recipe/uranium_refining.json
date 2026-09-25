@@ -1,0 +1,15 @@
+{
+  "type": "elysiumfoundry:refining",
+  "input": {
+    "tag": "c:raw_materials/uranium"
+  },
+  "result": {
+    "id": "elysiumatomics:uranium_ingot",
+    "count": 3
+  },
+  "byproduct": {
+    "id": "elysiumfoundry:lead_nugget",
+    "count": 3
+  },
+  "ticks": 200
+}

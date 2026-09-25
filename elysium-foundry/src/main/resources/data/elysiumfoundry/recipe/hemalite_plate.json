@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "tag": "c:ingots/hemalite"
+  },
+  "result": {
+    "id": "elysiumfoundry:hemalite_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "tag": "c:ingots/cobalt"
+  },
+  "result": {
+    "id": "elysiumfoundry:cobalt_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

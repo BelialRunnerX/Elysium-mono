@@ -11,7 +11,7 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** One block entity, because this module has one machine. */
+/** Two block entities, one per machine: the smelter and the refinery. */
 public final class FoundryBlockEntities {
 
     private FoundryBlockEntities() {
@@ -25,6 +25,13 @@ public final class FoundryBlockEntities {
                     () -> BlockEntityType.Builder.of(
                             AlloySmelterBlock.AlloySmelterBlockEntity::new,
                             FoundryBlocks.ALLOY_SMELTER.get())
+            .build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.foundry.block.RefineryBlock.RefineryBlockEntity>>
+            REFINERY = TYPES.register("refinery",
+                    () -> BlockEntityType.Builder.of(
+                            com.elysium.foundry.block.RefineryBlock.RefineryBlockEntity::new,
+                            FoundryBlocks.REFINERY.get())
             .build(null));
 
     /**
@@ -42,6 +49,8 @@ public final class FoundryBlockEntities {
         @SubscribeEvent
         public static void onCapabilities(RegisterCapabilitiesEvent event) {
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ALLOY_SMELTER.get(),
+                    (entity, side) -> entity.items());
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, REFINERY.get(),
                     (entity, side) -> entity.items());
         }
     }

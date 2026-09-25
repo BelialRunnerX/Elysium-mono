@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "tag": "c:ingots/pearlium"
+  },
+  "result": {
+    "id": "elysiumfoundry:pearlium_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

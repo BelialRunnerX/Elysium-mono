@@ -1,0 +1,16 @@
+{
+  "type": "elysiumfoundry:alloying",
+  "first": {
+    "tag": "c:ingots/nightgold"
+  },
+  "first_count": 1,
+  "second": {
+    "item": "elysiumores:blight_crystal"
+  },
+  "second_count": 1,
+  "result": {
+    "id": "elysiumores:hemalite_ingot",
+    "count": 1
+  },
+  "ticks": 280
+}

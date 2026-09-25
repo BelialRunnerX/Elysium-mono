@@ -32,7 +32,7 @@ except ImportError:
 
 def write(path, obj):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as handle:
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(obj, handle, indent=2)
         handle.write("\n")
 
@@ -83,11 +83,57 @@ MATERIALS = {
     "hardened_bronze": (2, {"bronze": 2 * UNIT, "invar": UNIT}, (168, 118, 74)),
     "void_steel": (3, {"stainless": UNIT, "uranium": UNIT}, (84, 88, 112)),
     "starsteel": (3, {"stainless": 2 * UNIT, "platinum": UNIT}, (176, 206, 226)),
+    # The Cordon's (docs/SPEC_FOUNDRY.md §4). Colours are elysium-ores' roster's.
+    "cobalt": (0, {}, (74, 127, 196)),
+    "pearlium": (0, {}, (217, 207, 224)),
+    "jade": (0, {}, (79, 191, 106)),
+    "pyratite": (0, {}, (224, 160, 48)),
+    "amber": (0, {}, (232, 162, 58)),
+    "ruby": (0, {}, (208, 48, 74)),
+    "sapphire": (0, {}, (58, 95, 208)),
+    "null_amethyst": (0, {}, (138, 79, 214)),
+    "ember_slag": (0, {}, (208, 96, 32)),
+    "bio_culture": (0, {}, (96, 192, 96)),
+    "pressure_shell": (0, {}, (96, 160, 192)),
+    "blight_crystal": (0, {}, (192, 48, 96)),
+    "null_shard": (0, {}, (106, 58, 176)),
+    "relic_shard": (0, {}, (192, 176, 128)),
+    "nightgold": (1, {"gold": UNIT, "cobalt": UNIT}, (106, 90, 48)),
+    "relicsteel": (1, {"relic_shard": 4 * UNIT}, (176, 160, 112)),
+    "slagsteel": (2, {"cobalt": UNIT, "ember_slag": UNIT}, (176, 74, 42)),
+    "biolith": (2, {"cobalt": UNIT, "bio_culture": UNIT}, (106, 160, 74)),
+    "bathysteel": (2, {"cobalt": UNIT, "pressure_shell": UNIT}, (58, 138, 176)),
+    "hemalite": (3, {"nightgold": UNIT, "blight_crystal": UNIT}, (160, 42, 58)),
+    "nullsteel": (3, {"nightgold": UNIT, "null_shard": UNIT}, (58, 42, 90)),
 }
+
+#: Each dug metal's companion, mirrored from FoundryRules.COMPANIONS; the
+#: validator compares the two.
+COMPANIONS = {
+    "iron": "nickel", "copper": "gold", "gold": "silver", "tin": "zinc", "zinc": "tin",
+    "nickel": "platinum", "silver": "lead", "lead": "silver", "aluminum": "lithium",
+    "lithium": "aluminum", "osmium": "platinum", "platinum": "osmium", "uranium": "lead",
+    "crimson_iron": "iron", "azure_silver": "silver", "cobalt": "nickel", "pearlium": "silver",
+}
+RECOVERY_NUGGETS = 3
+REFINE_TICKS = 200
+ORES = "elysiumores"
 
 #: Materials another module already supplies, which this one must not supply a
 #: second copy of. Mirrored from FoundryItems.SOMEBODY_ELSE_SUPPLIES.
-SOMEBODY_ELSE = {"iron", "copper", "gold", "steel", "uranium", "redstone_dust"}
+SOMEBODY_ELSE = {"iron", "copper", "gold", "steel", "uranium", "redstone_dust",
+                 "jade", "pyratite", "amber", "ruby", "sapphire", "null_amethyst",
+                 "ember_slag", "bio_culture", "pressure_shell", "blight_crystal", "null_shard", "relic_shard"}
+
+#: The Cordon's metals: elysium-ores ships the ingot, nugget, raw form and
+#: block; this module works only dust and plate from them. Mirrored from
+#: FoundryItems.CORDON_METALS and WORKED_ONLY.
+CORDON_METALS = {"cobalt", "pearlium", "nightgold", "relicsteel", "slagsteel", "biolith",
+                 "bathysteel", "hemalite", "nullsteel"}
+WORKED_ONLY = ["dust", "plate"]
+
+#: The things a creature or a ruin leaves, which have no c: family: a recipe names the item.
+DROPS = {"ember_slag", "bio_culture", "pressure_shell", "blight_crystal", "null_shard", "relic_shard"}
 
 #: Materials that exist in exactly one shape, named after themselves. Coal dust
 #: is a dust and nothing else; calling its dust form "coal_dust_dust" would be
@@ -105,7 +151,20 @@ CONCRETE = {
     "steel": f"{IND}:steel_ingot",
     "uranium": "elysiumatomics:uranium_ingot",
     "redstone_dust": "minecraft:redstone",
+    "cobalt": f"{ORES}:cobalt_ingot",
+    "pearlium": f"{ORES}:pearlium_ingot",
+    "nightgold": f"{ORES}:nightgold_ingot",
+    "relicsteel": f"{ORES}:relicsteel_ingot",
+    "slagsteel": f"{ORES}:slagsteel_ingot",
+    "biolith": f"{ORES}:biolith_ingot",
+    "bathysteel": f"{ORES}:bathysteel_ingot",
+    "hemalite": f"{ORES}:hemalite_ingot",
+    "nullsteel": f"{ORES}:nullsteel_ingot",
 }
+
+#: The one nugget a recovery has to name, for the companions whose nugget is
+#: not this module's: vanilla's two.
+CONCRETE_NUGGET = {"iron": "minecraft:iron_nugget", "gold": "minecraft:gold_nugget"}
 
 MINED_FORMS = ["raw", "ingot", "nugget", "dust", "plate"]
 ALLOY_FORMS = ["ingot", "nugget", "dust", "plate"]
@@ -139,6 +198,10 @@ def ours():
         if material in ONE_FORM:
             made.append((material, ONE_FORM[material]))
             continue
+        if material in CORDON_METALS:
+            for form in WORKED_ONLY:
+                made.append((material, form))
+            continue
         for form in (MINED_FORMS if mined(material) else ALLOY_FORMS):
             made.append((material, form))
     for material in CASINGS.values():
@@ -160,6 +223,8 @@ def refer(material, form):
         MADE = set(ours())
     if (material, form) in MADE:
         return {"item": f"{NS}:{named(material, form)}"}
+    if material in DROPS:
+        return {"item": f"{ORES}:{material}"}
     if material in CONCRETE and form == "ingot":
         stem = "coal" if material == "coal_dust" else material
         return {"tag": f"c:ingots/{stem}"}
@@ -175,6 +240,10 @@ def concrete(material, form):
         MADE = set(ours())
     if (material, form) in MADE:
         return f"{NS}:{named(material, form)}"
+    if form == "nugget" and material in CONCRETE_NUGGET:
+        return CONCRETE_NUGGET[material]
+    if material in DROPS:
+        return f"{ORES}:{material}"
     return CONCRETE.get(material, f"{NS}:{named(material, form)}")
 
 
@@ -327,14 +396,35 @@ def draw_all():
         drawn += 1
     smelter_texture(False).save(os.path.join(blocks, "alloy_smelter.png"))
     smelter_texture(True).save(os.path.join(blocks, "alloy_smelter_top.png"))
-    return drawn + 2
+    refinery_texture(False).save(os.path.join(blocks, "refinery.png"))
+    refinery_texture(True).save(os.path.join(blocks, "refinery_top.png"))
+    return drawn + 4
+
+
+def refinery_texture(top):
+    """Stainless plate, a hopper mouth on top, two outlets on the side: what it does, at a glance."""
+    ramp = shades(MATERIALS[CASINGS[3]][2])
+    metal = shades((124, 128, 134))
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 15], fill=rgba(ramp[1]))
+    draw.rectangle([1, 1, 14, 14], fill=rgba(ramp[2]), outline=rgba(ramp[0]))
+    if top:
+        draw.rectangle([4, 4, 11, 11], fill=rgba(metal[0]), outline=rgba(ramp[0]))
+        draw.rectangle([6, 6, 9, 9], fill=rgba(metal[1]))
+    else:
+        draw.rectangle([3, 4, 6, 11], fill=rgba(metal[1]), outline=rgba(ramp[0]))
+        draw.rectangle([9, 4, 12, 11], fill=rgba(metal[1]), outline=rgba(ramp[0]))
+        draw.line([(4, 10), (5, 10)], fill=rgba((226, 118, 24)))
+        draw.line([(10, 10), (11, 10)], fill=rgba(ramp[3]))
+    return image
 
 
 # ---------------------------------------------------------------------------
 # Models, blockstates, loot
 # ---------------------------------------------------------------------------
 
-BLOCKS = ["alloy_smelter"] + [f"tier_{tier}_casing" for tier in sorted(CASINGS)]
+BLOCKS = ["alloy_smelter", "refinery"] + [f"tier_{tier}_casing" for tier in sorted(CASINGS)]
 
 
 def cube(top, side):
@@ -365,7 +455,7 @@ def models_and_states():
               {"parent": "item/generated", "textures": {"layer0": f"{NS}:item/{name}"}})
         written += 1
     for name in BLOCKS:
-        top = "alloy_smelter_top" if name == "alloy_smelter" else name
+        top = name + "_top" if name in ("alloy_smelter", "refinery") else name
         write(os.path.join(ASSETS, "models/block", name + ".json"), cube(top, name))
         write(os.path.join(ASSETS, "blockstates", name + ".json"),
               {"variants": {"": {"model": f"{NS}:block/{name}"}}})
@@ -465,8 +555,8 @@ def recipes():
 
     # The alloys themselves, read straight off the chain.
     for material, (tier, parts, _) in MATERIALS.items():
-        if not parts:
-            continue
+        if len(parts) != 2:
+            continue                          # dug, or riveted from one thing elsewhere
         (first, first_units), (second, second_units) = list(parts.items())
         made[f"{material}_alloy"] = alloying(
             refer(first, "dust" if first in ONE_FORM else "ingot"),
@@ -475,6 +565,20 @@ def recipes():
                   or second == "redstone_dust" else "ingot"),
             second_units // UNIT,
             concrete(material, "ingot"), 1, 100 + 60 * tier)
+
+    # Recovery: raw ore to Age III's three units and a third of a unit of the
+    # companion (docs/SPEC_FOUNDRY.md §3). Only raw forms go in.
+    for ore, companion in COMPANIONS.items():
+        made[f"{ore}_refining"] = {
+            "type": f"{NS}:refining",
+            "input": refer(ore, "raw"),
+            "result": {"id": concrete(ore, "ingot"), "count": 3},
+            "byproduct": {"id": concrete(companion, "nugget"), "count": RECOVERY_NUGGETS},
+            "ticks": REFINE_TICKS}
+    made["refinery"] = shaped(["PGP", "CSC", "PGP"], {
+        "P": refer(CASINGS[3], "plate"), "G": refer(CASINGS[3], "gear"),
+        "C": {"item": f"{NS}:tier_3_casing"}, "S": {"item": f"{IND}:separator"}},
+        f"{NS}:refinery")
 
     # The casings, and the machine that makes the alloys for them.
     for tier, material in CASINGS.items():
@@ -530,6 +634,9 @@ LINES = {
     "elysiumfoundry.smelter.dark": "No power reaching it.",
     "elysiumfoundry.smelter.waiting": "Running at %s, and it wants two things in it.",
     "elysiumfoundry.smelter.melting": "Melting, at %s.",
+    "elysiumfoundry.refinery.dark": "No power reaching it.",
+    "elysiumfoundry.refinery.waiting": "Running at %s, and it wants raw ore in it.",
+    "elysiumfoundry.refinery.refining": "Refining, at %s.",
 }
 
 
@@ -545,6 +652,7 @@ def language():
                  else pretty(material))
         entries[f"item.{NS}.{named(material, form)}"] = shown
     entries[f"block.{NS}.alloy_smelter"] = "Alloy Smelter"
+    entries[f"block.{NS}.refinery"] = "Refinery"
     for tier, material in CASINGS.items():
         entries[f"block.{NS}.tier_{tier}_casing"] = f"{pretty(material)} Casing"
     write(os.path.join(ASSETS, "lang/en_us.json"), dict(sorted(entries.items())))

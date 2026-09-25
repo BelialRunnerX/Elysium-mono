@@ -1,0 +1,15 @@
+{
+  "type": "elysiumfoundry:refining",
+  "input": {
+    "item": "elysiumfoundry:raw_zinc"
+  },
+  "result": {
+    "id": "elysiumfoundry:zinc_ingot",
+    "count": 3
+  },
+  "byproduct": {
+    "id": "elysiumfoundry:tin_nugget",
+    "count": 3
+  },
+  "ticks": 200
+}

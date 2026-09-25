@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "tag": "c:ingots/bathysteel"
+  },
+  "result": {
+    "id": "elysiumfoundry:bathysteel_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

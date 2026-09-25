@@ -54,6 +54,7 @@ public final class FoundryHarness {
         theCycles();
         theConservation();
         theCasings();
+        theRecovery();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -61,8 +62,9 @@ public final class FoundryHarness {
         }
         System.out.println(checks + " checks: no material is made of itself however far "
                 + "down, no alloy costs less than what goes into it, every material is "
-                + "reachable from something a player can dig up, and no casing is made "
-                + "of anything above its own rung");
+                + "reachable from something a player can dig up, no casing is made "
+                + "of anything above its own rung, and recovery gets back under a unit of "
+                + "a companion that is never the ore itself");
     }
 
     // ==================================================================
@@ -216,6 +218,52 @@ public final class FoundryHarness {
         check(deepest >= FoundryRules.UNIT * 6,
                 "the most expensive material in the chain is " + worst + " at " + deepest
                         + " units, which is not a supply problem, it is a crafting recipe");
+    }
+
+    private static void theRecovery() {
+        check(FoundryRules.recoveredPerOre() < FoundryRules.UNIT,
+                "the refinery recovers " + FoundryRules.recoveredPerOre() + " units per ore, a whole "
+                        + "unit or more, which is a fourth rung on a ladder Age III ended");
+        check(FoundryRules.recoveredPerOre() > 0, "the refinery recovers nothing, so it is a slower enricher");
+        check(FoundryRules.REFINE_TICKS > 0, "a refinery finishes before it starts");
+        check(!FoundryRules.COMPANIONS.isEmpty(), "no ore has a companion, so nothing is recovered anywhere");
+        for (Map.Entry<String, String> pair : FoundryRules.COMPANIONS.entrySet()) {
+            FoundryRules.Material ore = FoundryRules.material(pair.getKey());
+            FoundryRules.Material companion = FoundryRules.material(pair.getValue());
+            check(ore != null && ore.mined(),
+                    pair.getKey() + " has a companion and is not a dug metal, so the refinery "
+                            + "would take something a recipe can make and loop");
+            check(companion != null && companion.mined(),
+                    pair.getKey() + "'s companion " + pair.getValue() + " is not a dug metal");
+            check(!pair.getKey().equals(pair.getValue()),
+                    pair.getKey() + " is its own companion, which is a fourth unit of itself");
+            check(FoundryRules.refinable(pair.getKey()), pair.getKey() + " has a companion and is not refinable");
+        }
+        for (FoundryRules.Material material : FoundryRules.MATERIALS) {
+            if (!material.mined()) {
+                check(!FoundryRules.refinable(material.name()),
+                        material.name() + " is an alloy and the refinery takes it, so recovery loops");
+            }
+        }
+        check(FoundryRules.refinable("iron") && !FoundryRules.refinable("jade")
+                        && !FoundryRules.refinable("steel") && !FoundryRules.refinable("nothing"),
+                "refinable() answers wrong for iron, a gem, an alloy or nothing");
+        FoundryRules.Casing third = FoundryRules.casing(FoundryRules.REFINERY_TIER);
+        check(third != null && FoundryRules.refineryDraw() == third.draw(),
+                "the refinery does not draw what its casing's tier draws");
+        check(FoundryRules.refineryDraw().draw() > FoundryRules.casing(1).draw().draw(),
+                "the refinery draws no more than the smelter, so recovery costs nothing to reach");
+        // The Cordon's rows: every alloy of theirs is two things, and cheap
+        // for the reason the design gives — the scarcity is in the drop.
+        for (String name : new String[] {"nightgold", "slagsteel", "biolith", "bathysteel", "hemalite", "nullsteel"}) {
+            FoundryRules.Material alloy = FoundryRules.material(name);
+            check(alloy != null && alloy.madeOf().size() == 2, name + " is not an alloy of exactly two things");
+            check(alloy != null && FoundryRules.deepCost(name) <= 3 * FoundryRules.UNIT,
+                    name + " costs more than three units deep; its scarcity was meant to be in the drop");
+        }
+        check(FoundryRules.material("relicsteel") != null
+                        && FoundryRules.deepCost("relicsteel") == 4 * FoundryRules.UNIT,
+                "relicsteel is not four shards");
     }
 
     private static void theCasings() {

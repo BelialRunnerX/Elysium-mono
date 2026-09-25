@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "tag": "c:ingots/pearlium"
+  },
+  "result": {
+    "id": "elysiumfoundry:pearlium_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

@@ -1,0 +1,15 @@
+{
+  "type": "elysiumfoundry:refining",
+  "input": {
+    "tag": "c:raw_materials/pearlium"
+  },
+  "result": {
+    "id": "elysiumores:pearlium_ingot",
+    "count": 3
+  },
+  "byproduct": {
+    "id": "elysiumfoundry:silver_nugget",
+    "count": 3
+  },
+  "ticks": 200
+}

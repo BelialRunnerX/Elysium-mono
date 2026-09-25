@@ -1,0 +1,16 @@
+{
+  "type": "elysiumfoundry:alloying",
+  "first": {
+    "tag": "c:ingots/cobalt"
+  },
+  "first_count": 1,
+  "second": {
+    "item": "elysiumores:bio_culture"
+  },
+  "second_count": 1,
+  "result": {
+    "id": "elysiumores:biolith_ingot",
+    "count": 1
+  },
+  "ticks": 220
+}

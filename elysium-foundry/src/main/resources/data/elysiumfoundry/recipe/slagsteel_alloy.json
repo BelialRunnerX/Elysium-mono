@@ -1,0 +1,16 @@
+{
+  "type": "elysiumfoundry:alloying",
+  "first": {
+    "tag": "c:ingots/cobalt"
+  },
+  "first_count": 1,
+  "second": {
+    "item": "elysiumores:ember_slag"
+  },
+  "second_count": 1,
+  "result": {
+    "id": "elysiumores:slagsteel_ingot",
+    "count": 1
+  },
+  "ticks": 220
+}

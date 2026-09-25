@@ -63,3 +63,12 @@ ${mod_description}
     versionRange="[1.0.0,)"
     ordering="AFTER"
     side="BOTH"
+
+# The Cordon's metals: their ingots are elysium-ores', and the chain's alloy
+# and refining recipes name them (docs/SPEC_FOUNDRY.md §4).
+[[dependencies.${mod_id}]]
+    modId="elysiumores"
+    type="required"
+    versionRange="[1.0.0,)"
+    ordering="AFTER"
+    side="BOTH"

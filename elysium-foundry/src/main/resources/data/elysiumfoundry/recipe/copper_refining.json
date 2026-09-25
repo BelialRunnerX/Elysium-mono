@@ -1,0 +1,15 @@
+{
+  "type": "elysiumfoundry:refining",
+  "input": {
+    "tag": "c:raw_materials/copper"
+  },
+  "result": {
+    "id": "minecraft:copper_ingot",
+    "count": 3
+  },
+  "byproduct": {
+    "id": "minecraft:gold_nugget",
+    "count": 3
+  },
+  "ticks": 200
+}

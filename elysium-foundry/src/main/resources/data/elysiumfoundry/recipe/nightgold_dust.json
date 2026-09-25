@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "tag": "c:ingots/nightgold"
+  },
+  "result": {
+    "id": "elysiumfoundry:nightgold_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

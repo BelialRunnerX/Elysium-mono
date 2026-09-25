@@ -1,0 +1,16 @@
+{
+  "type": "elysiumfoundry:alloying",
+  "first": {
+    "tag": "c:ingots/cobalt"
+  },
+  "first_count": 1,
+  "second": {
+    "item": "elysiumores:pressure_shell"
+  },
+  "second_count": 1,
+  "result": {
+    "id": "elysiumores:bathysteel_ingot",
+    "count": 1
+  },
+  "ticks": 220
+}

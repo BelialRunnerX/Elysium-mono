@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "tag": "c:ingots/biolith"
+  },
+  "result": {
+    "id": "elysiumfoundry:biolith_dust",
+    "count": 1
+  },
+  "ticks": 100
+}
