@@ -173,8 +173,14 @@ expect "a smoked bee upset anyway" "the smoker buys nothing"
 edit $S/registry/BeeBlocks.java '() -> new com.elysium.agronomy.block.NestBlock(nesting(), home)' '() -> new Block(nesting())'
 expect "nests as plain blocks" "nests are plain blocks"
 
-edit $S/block/NestBlock.java 'level.scheduleTick(pos, this, KeepingRules.NEST_REFILL_TICKS);' ''
-expect "a nest that never grows a bee back" "grow its bees back"
+edit $S/block/NestBlock.java 'level.scheduleTick(pos, this, KeepingRules.NEST_REFILL_TICKS);
+        Keeping.robbed(level, pos, player);' 'Keeping.robbed(level, pos, player);'
+expect "a nest that never grows a bee back" "once one is taken"
+
+edit $S/block/NestBlock.java 'if (now + 1 < KeepingRules.NEST_BEES) {
+            level.scheduleTick(pos, this, KeepingRules.NEST_REFILL_TICKS);
+        }' ''
+expect "a nest that grows back one bee and stops" "past the first"
 
 edit $S/registry/BeeItems.java 'new com.elysium.agronomy.item.BeeJarItem(' 'new Item('
 expect "a jar that is a plain item" "the bee_jar is a plain item"

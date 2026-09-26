@@ -2409,8 +2409,15 @@ if "jar.set(AgronomyComponents.SPECIES.get(), bee.species());" not in body_of(
 fb_nest = FB_SOURCES["block/NestBlock.java"]
 if "held.set(AgronomyComponents.SPECIES.get(), wild.id());" not in fb_nest:
     fail("a jar used on a nest does not take its wild bee")
-if "level.scheduleTick(pos, this, KeepingRules.NEST_REFILL_TICKS);" not in fb_nest:
-    fail("a nest does not grow its bees back at the rules' rate")
+# Both places: the jar starts the regrowth and each regrown bee starts the next.
+# Checked per method, because the statement appears twice and a file-wide rule
+# goes on passing when either one is deleted.
+fb_nest_take = body_of(fb_nest, "protected ItemInteractionResult useItemOn(")
+fb_nest_grow = body_of(fb_nest, "protected void tick(")
+if "level.scheduleTick(pos, this, KeepingRules.NEST_REFILL_TICKS);" not in fb_nest_take:
+    fail("a nest does not grow its bees back at the rules' rate once one is taken")
+if "level.scheduleTick(pos, this, KeepingRules.NEST_REFILL_TICKS);" not in fb_nest_grow:
+    fail("a nest does not grow its bees back at the rules' rate past the first")
 if "() -> new com.elysium.agronomy.block.NestBlock(nesting(), home)" \
         not in FB_SOURCES["registry/BeeBlocks.java"]:
     fail("the nests are plain blocks, so no wild bee is ever taken from one")
