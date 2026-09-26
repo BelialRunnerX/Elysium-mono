@@ -216,6 +216,86 @@ MYTH_LEAVINGS = {one["id"]: LEAVINGS[at % len(LEAVINGS)]
                  for at, one in enumerate(MYTHS)}
 
 
+# The eleven companions, read out of CompanionRules: which block's job each
+# does and what keeping one costs are rules, and what colour it is, is art.
+COMPANION_SOURCE = read(os.path.join(
+    MOD, "src/main/java/com/elysium/bestiary/rules/CompanionRules.java"))
+COMPANIONS = [
+    {"id": one[0], "gift": one[1], "rivals": one[2], "tamed": one[3] == "true",
+     "upkeep": int(one[4]), "weight": int(one[7])}
+    for one in re.findall(
+        r'new Companion\("([a-z_]+)", (\w+), "([\w:]+)", (true|false), (\d+),'
+        r' ([\d.]+)D, (\d+), (\d+)\)', re.sub(r"\s+", " ", COMPANION_SOURCE))
+]
+if len(COMPANIONS) != 11:
+    print("CompanionRules reads as %d companion(s) rather than eleven"
+          % len(COMPANIONS))
+    sys.exit(2)
+
+#: One sentence per thing a companion does, because "this creature is useful"
+#: with no sentence is a creature a player keeps by accident and never uses.
+GIFT_WORDS = {
+    "SHOWS_DARK": "It points at ground dark enough for something to stand on.",
+    "REACH": "Stand near one and you can reach further.",
+    "HOLDS": "Give it something and it will hold it where it stands.",
+    "PRESSES": "Tell it what to press and it presses it.",
+    "BLOOMS": "Flowers come up where it has been.",
+    "DIGS": "Stand near one and the ground gives way faster.",
+    "HIDES": "Find it three times and it pays out.",
+    "CHILLS": "What is fighting you slows down near it.",
+    "DOUBLES": "There appear to be several of you.",
+    "BITES": "It goes for whatever is going for you.",
+    "BURNS": "What stands too close to it catches.",
+}
+
+#: And what each looks like. Art, not a rule.
+GIFT_SHADES = {
+    "SHOWS_DARK": ((226, 214, 128), (96, 88, 44)),
+    "REACH": ((198, 122, 96), (94, 52, 38)),
+    "HOLDS": ((132, 128, 120), (62, 60, 56)),
+    "PRESSES": ((188, 122, 78), (86, 52, 30)),
+    "BLOOMS": ((222, 196, 208), (120, 86, 104)),
+    "DIGS": ((134, 108, 84), (62, 48, 36)),
+    "HIDES": ((150, 130, 96), (70, 58, 40)),
+    "CHILLS": ((172, 206, 226), (78, 104, 126)),
+    "DOUBLES": ((146, 132, 178), (66, 58, 88)),
+    "BITES": ((120, 104, 88), (56, 46, 38)),
+    "BURNS": ((216, 132, 60), (104, 50, 20)),
+}
+_unshaded = sorted({one["gift"] for one in COMPANIONS} - set(GIFT_SHADES))
+_unworded = sorted({one["gift"] for one in COMPANIONS} - set(GIFT_WORDS))
+if _unshaded or _unworded:
+    print("no shades for %s and no sentence for %s" % (_unshaded, _unworded))
+    sys.exit(2)
+
+
+def companion_skin(one):
+    """A companion, on the fauna's own 64x32 sheet.
+
+    Two shades from what it does rather than from its name, so that two
+    companions doing the same job would look alike -- which the rules forbid,
+    and which this would make obvious if they ever stopped forbidding it.
+    """
+    light, dark = GIFT_SHADES[one["gift"]]
+    solid_light = light + (255,)
+    solid_dark = dark + (255,)
+    image = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 63, 31], fill=solid_light)
+    seed = sum(ord(letter) for letter in one["id"])
+    for y in range(32):
+        for x in range(64):
+            if (x * 9 + y * 5 + seed) % 13 < 3:
+                draw.point((x, y), fill=solid_dark)
+    # A collar on the ones that have to be earned, so that which of them is
+    # yours reads across a room.
+    if one["tamed"]:
+        draw.rectangle([0, 6, 23, 7], fill=(214, 168, 72, 255))
+    draw.rectangle([3, 2, 5, 4], fill=(240, 240, 232, 255))
+    draw.rectangle([9, 2, 11, 4], fill=(240, 240, 232, 255))
+    return image
+
+
 def myth_skin(myth):
     """A myth, on the same 64x64 sheet every creature in this module uses.
 
@@ -913,6 +993,42 @@ def main():
                       "maxCount": 2 if myth["bane"] != "NUMBERS" else 4,
                   }],
               })
+
+    # The eleven companions.
+    for one in COMPANIONS:
+        companion_skin(one).save(
+            os.path.join(entity_textures, one["id"] + ".png"))
+
+        write(os.path.join(ASSETS, "models/item", one["id"] + "_spawn_egg.json"),
+              {"parent": "minecraft:item/template_spawn_egg"})
+
+        write(os.path.join(DATA, "loot_table/entities", one["id"] + ".json"), {
+            "type": "minecraft:entity",
+            "pools": [{
+                "rolls": 1,
+                "entries": [{"type": "minecraft:item", "name": "minecraft:string"}],
+                "conditions": [{"condition": "minecraft:killed_by_player"}],
+            }],
+        })
+
+        write(os.path.join(DATA, "neoforge/biome_modifier",
+                           "add_%s_spawns.json" % one["id"]),
+              {
+                  "type": "neoforge:add_spawns",
+                  "biomes": "#minecraft:is_overworld",
+                  "spawners": [{
+                      "type": "%s:%s" % (NS, one["id"]),
+                      "weight": one["weight"],
+                      "minCount": 1,
+                      "maxCount": 2,
+                  }],
+              })
+
+        lang["entity.%s.%s" % (NS, one["id"])] = titled(one["id"])
+        lang["item.%s.%s_spawn_egg" % (NS, one["id"])] = \
+            titled(one["id"]) + " Spawn Egg"
+        lang["bestiary.%s.gift.%s" % (NS, one["id"])] = GIFT_WORDS[one["gift"]]
+        lang["bestiary.%s.rivals.%s" % (NS, one["id"])] = one["rivals"]
 
     for summon_id in SUMMON_IDS:
         summon_skin(summon_id).save(

@@ -9,24 +9,19 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | count | status | means |
 |---|---|---|
 | 86 | DONE | an Elysium module already replaces it |
-| 22 | SPLIT | spans several modules; see docs/SPLITS.md |
+| 23 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 6 | PLANNED | has a target module, not started |
+| 5 | PLANNED | has a target module, not started |
 | 14 | KEEP | stays in the pack on purpose |
-| 74 | DROP | library or performance: nothing to convert |
+| 75 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
 
 ## Work remaining, by module
 
 | module | mods to absorb |
 |---|---|
-| `elysium-bestiary` | 7 |
-| `elysium-atelier` | 7 |
-| `elysium-agronomy` | 4 |
-| `elysium-industry` | 3 |
-| `elysium-wilds` | 2 |
-| `elysium-atomics` | 2 |
-| `elysium-arsenal` | 1 |
+| `elysium-bestiary` | 3 |
+| `elysium-agronomy` | 1 |
 | `elysium-foundry` | 1 |
 
 ## Every jar
@@ -111,7 +106,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `fastleafdecay-35.jar` | DROP | - | performance: not content |
 | `ferritecore-7.0.3-neoforge.jar` | DROP | - | performance: not content |
 | `FluxNetworks-1.21.1-8.0.0.jar` | DROP | elysium-industry | wireless power, which this pack deliberately does not have: a grid's books are made, lent, lost, used, stored and spare, and 'lost' is distance down a wire. Power that arrives without travelling would make the one number the voltage ladder exists for a number nothing reads |
-| `friendsandfoes-neoforge-4.0.27+mc1.21.1.jar` | PLANNED | elysium-bestiary | 14 creatures, each built around exactly one mechanic — a copper golem that presses buttons, a glare that shows you where the dark is, an iceologer that drops a cloud on your head. The system that makes that possible now exists here: nine verbs over nine beasts, one each and none spare, every magnitude derived from what the beast already is. What is left is the creatures, not the idea |
+| `friendsandfoes-neoforge-4.0.27+mc1.21.1.jar` | SPLIT | elysium-bestiary | ten creatures, 29 blocks, six items and a villager profession: four different jobs in one jar, so it is split rather than given one module. The creatures are done. See docs/SPLITS.md |
 | `ftb-library-neoforge-2101.1.35.jar` | DROP | - | library: goes when the mods needing it go |
 | `ftb-ultimine-neoforge-2101.1.15.jar` | DROP | - | interface and convenience: not content |
 | `functionalstorage-1.21.1-1.5.8.jar` | DONE | elysium-logistics | three drawer tiers, a bus, and a controller that indexes the lot |

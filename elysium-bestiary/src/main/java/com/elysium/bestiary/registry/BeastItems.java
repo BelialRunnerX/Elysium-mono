@@ -58,6 +58,31 @@ public final class BeastItems {
         return Map.copyOf(made);
     }
 
+    /** One egg per companion, counted on its own for the same reason. */
+    public static final Map<String, DeferredItem<DeferredSpawnEggItem>>
+            COMPANION_EGGS = registerCompanions();
+
+    private static Map<String, DeferredItem<DeferredSpawnEggItem>>
+            registerCompanions() {
+        Map<String, DeferredItem<DeferredSpawnEggItem>> made = new LinkedHashMap<>();
+        for (com.elysium.bestiary.rules.CompanionRules.Companion one
+                : com.elysium.bestiary.rules.CompanionRules.COMPANIONS) {
+            made.put(one.id(), ITEMS.register(one.id() + "_spawn_egg",
+                    () -> new DeferredSpawnEggItem(
+                            () -> com.elysium.bestiary.registry.CompanionEntities
+                                    .ALL.get(one.id()).get(),
+                            0x6E7F5C, 0xD6C48A, new Item.Properties())));
+        }
+        if (made.size()
+                != com.elysium.bestiary.rules.CompanionRules.COMPANIONS.size()) {
+            throw new IllegalStateException("the rules name "
+                    + com.elysium.bestiary.rules.CompanionRules.COMPANIONS.size()
+                    + " companion(s) and " + made.size()
+                    + " spawn egg(s) were registered");
+        }
+        return Map.copyOf(made);
+    }
+
     /**
      * One egg per myth, on the same register as the beasts'.
      *
@@ -102,6 +127,10 @@ public final class BeastItems {
                         for (com.elysium.bestiary.rules.MythRules.Myth myth
                                 : com.elysium.bestiary.rules.MythRules.MYTHS) {
                             output.accept(MYTH_EGGS.get(myth.id()).get());
+                        }
+                        for (com.elysium.bestiary.rules.CompanionRules.Companion one
+                                : com.elysium.bestiary.rules.CompanionRules.COMPANIONS) {
+                            output.accept(COMPANION_EGGS.get(one.id()).get());
                         }
                     })
                     .build());

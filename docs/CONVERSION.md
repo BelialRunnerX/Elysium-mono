@@ -435,6 +435,31 @@ run against the 172 remaining jars on the device and both came back clean:
 * **Tag entries** — no tag file in any remaining jar names a
   `mobs_of_mythology:` id at all, required or optional.
 
+### The fifth prune that did not happen, 2026-09-26
+
+**friendsandfoes stays**, and it is worth writing down why, because the jar
+looks ready to go: `elysium-bestiary` now carries every one of its creatures.
+
+It carries nothing else, and the jar is four mods in a trench coat. Reading
+its own language file rather than a memory of it: ten creatures, **29 blocks**
+(eleven wooden beehives, fifteen of copper button and lightning rod across the
+oxidation states, the buttercup and its pot, the crab egg), **six items** that
+are not spawn eggs (two totems, the wildfire crown and its fragment, the crab
+claw, a disc), and a **villager profession** with five tiers of trades, a
+job-site point of interest, three village house variants and a hero-of-the-
+village gift.
+
+So the row became **SPLIT** rather than DONE, with six pieces in
+`docs/SPLITS.md` and one of them finished. `tools/prune.py` will not offer the
+jar until every piece is, which is the behaviour it already had and the reason
+the status column is what prune reads rather than a judgement made at the time.
+
+Both pre-checks were run anyway, against the 176 remaining jars, so that
+whoever finishes the split does not have to: **nothing declares
+`friendsandfoes` a required dependency**, and **no tag file in any remaining
+jar names a `friendsandfoes:` id at all**. 7,210 tag files scanned. When the
+last piece lands the jar can go without a second look.
+
 ### The third thing, which is not automatic
 
 Other mods ship **integration recipes** against the jar being removed, and

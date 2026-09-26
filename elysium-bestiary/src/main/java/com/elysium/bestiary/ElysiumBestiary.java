@@ -57,10 +57,13 @@ public class ElysiumBestiary {
         // and the symptom of getting it wrong is eight creatures that simply
         // are not in the game, with nothing in the log saying so.
         com.elysium.bestiary.registry.MythEntities.ALL.size();
+        com.elysium.bestiary.registry.CompanionEntities.ALL.size();
         com.elysium.bestiary.registry.SummonEntities.BOLT.getId();
-        LOGGER.info("Elysium Bestiary ready: {} beast(s), {} animal(s) and {} myth(s)",
+        LOGGER.info("Elysium Bestiary ready: {} beast(s), {} animal(s), {} myth(s) "
+                        + "and {} companion(s)",
                 com.elysium.bestiary.rules.BeastRules.BEASTS.size(),
                 com.elysium.bestiary.rules.FaunaRules.ANIMALS.size(),
-                com.elysium.bestiary.rules.MythRules.MYTHS.size());
+                com.elysium.bestiary.rules.MythRules.MYTHS.size(),
+                com.elysium.bestiary.rules.CompanionRules.COMPANIONS.size());
     }
 }

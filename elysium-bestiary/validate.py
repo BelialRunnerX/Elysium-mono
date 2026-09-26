@@ -1976,6 +1976,194 @@ else:
           f"module already had, and not one carrying a number of its own")
 
 
+# ---------------------------------------------------------------------------
+# Eleven creatures that do a block's job
+# ---------------------------------------------------------------------------
+#
+# A glare tells you where the dark is, a crab lets you reach further, a tuff
+# golem holds a thing. None of them is a fight; every one of them is a block's
+# job done by something alive — which is exactly the danger. A companion that
+# does a block's job better than the block ends the block, quietly, one category
+# at a time, and by the time anybody notices nobody can say when.
+#
+# So the two things this section is for are that the block each one competes
+# with is a block the pack really makes, and that nothing about a companion is a
+# number typed twice.
+
+print("-" * 70)
+
+COMPANION = strip_comments(read(SRC, "rules/CompanionRules.java"), keep_strings=True)
+COMPANION_ENTITY = strip_comments(read(SRC, "entity/CompanionEntity.java"),
+                                  keep_strings=True)
+GIFTS = strip_comments(read(SRC, "entity/act/CompanionGifts.java"), keep_strings=True)
+COMPANION_REG = strip_comments(read(SRC, "registry/CompanionEntities.java"),
+                               keep_strings=True)
+if not COMPANION:
+    fail("nothing says what a companion does or what keeping one costs, so "
+         "eleven creatures could quietly do every block's job for free")
+else:
+    _companion = squashed(COMPANION)
+    companions = re.findall(
+        r'new Companion\("([a-z_]+)", (\w+), "([\w:]+)", (true|false), (\d+),'
+        r' ([\d.]+)D, (\d+), (\d+)\)', _companion)
+    gifts = re.findall(r'public static final String ([A-Z_]+) = "([a-z_]+)";',
+                       COMPANION)
+    if len(companions) < 2:
+        fail(f"only {len(companions)} companion(s) could be read out of the "
+             f"rules, so every check below is walking a short list and passing")
+
+    for row in companions:
+        name = row[0]
+        for kind, where in (
+                ("texture", f"assets/{NS}/textures/entity/{name}.png"),
+                ("spawn egg model",
+                 f"assets/{NS}/models/item/{name}_spawn_egg.json"),
+                ("loot table", f"data/{NS}/loot_table/entities/{name}.json"),
+                ("spawn rule",
+                 f"data/{NS}/neoforge/biome_modifier/add_{name}_spawns.json")):
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} has no {kind}, so it is a creature the rules "
+                     f"describe and the world never shows")
+        for key, why in (
+                (f"entity.{NS}.{name}",
+                 "reads as its own translation key wherever the game names it"),
+                (f"bestiary.{NS}.gift.{name}",
+                 "has no sentence saying what it does, which is a creature a "
+                 "player keeps by accident and never uses")):
+            if key not in lang:
+                fail(f"{name} {why}")
+
+    # The block it competes with has to be a block. This is the check the
+    # section exists for: a companion measured against something that does not
+    # exist is a companion measured against nothing.
+    if THE_PACK_HAS or THE_GAME_MAKES:
+        known = set(THE_PACK_HAS) | set(THE_GAME_MAKES)
+        for row in companions:
+            name, rivals = row[0], row[2]
+            if rivals not in known:
+                fail(f"{name} is held under {rivals} and nothing makes one of "
+                     f"those, so what it is measured against does not exist and "
+                     f"it is free to replace whatever it likes")
+
+    if not COMPANION_REG:
+        fail("nothing registers the companions, so all eleven are rows")
+    else:
+        _reg = squashed(COMPANION_REG)
+        _register = squashed(body_of(COMPANION_REG, "register() {"))
+        if "for (CompanionRules.Companion one : CompanionRules.COMPANIONS) {" \
+                not in _register:
+            fail("the companions are named by hand rather than walked from the "
+                 "rules, so a twelfth is a row nothing registers")
+        if "made.size() != CompanionRules.COMPANIONS.size()" not in _reg:
+            fail("nothing counts the companions that were registered, so a "
+                 "roster that half registers is a roster that half exists")
+        if "MobCategory.CREATURE" not in _reg:
+            fail("the companions are registered in the monster bucket, and the "
+                 "game counts the two against separate caps — so eleven "
+                 "harmless things would crowd out everything a player is meant "
+                 "to be afraid of")
+    MODCLASS = squashed(strip_comments(read(SRC, "ElysiumBestiary.java")))
+    if "CompanionEntities.ALL.size()" not in MODCLASS:
+        fail("the companions' register is never touched while the mod is being "
+             "built, so whether eleven creatures exist depends on when FML "
+             "happens to load the class")
+
+    _client = squashed(strip_comments(read(SRC, "client/BestiaryClient.java")))
+    if "CompanionRenderer::new" not in _client:
+        fail("the companions have no renderer registered, so the first one a "
+             "player meets takes the client down with it")
+    if "event.registerLayerDefinition(CompanionModel.LAYER," not in _client:
+        fail("the companions' model layer is never registered, so baking it "
+             "throws and the renderer that was registered cannot be built")
+
+    # One branch per gift, and no creature named in any of them.
+    if not GIFTS:
+        fail("nothing makes a companion's one thing happen, so all eleven are "
+             "animals that wander")
+    else:
+        _gifts = squashed(GIFTS)
+        for shorthand, gift in gifts:
+            if f"CompanionRules.{shorthand}" not in _gifts:
+                fail(f"nothing happens for {gift}, so whatever does it is a "
+                     f"creature whose point is a sentence in a language file")
+        for row in companions:
+            if re.search(r'"%s"' % row[0], _gifts):
+                fail(f"{row[0]} is named in the gifts, so the module has "
+                     f"started growing a branch per creature and the whole "
+                     f"roster will follow it there")
+        if "switch (row.gift())" not in _gifts:
+            fail("what a companion does is not chosen by which gift it is, so "
+                 "whatever chooses it is something a validator cannot read")
+        # And the one number no branch is allowed to set for itself.
+        _lasting = squashed(body_of(GIFTS, "private static void lasting("))
+        if "LINGERS" not in _lasting:
+            fail("how long a companion's gift lasts is not decided in one "
+                 "place, so a branch could hand out something permanent and "
+                 "the rule that forbids it would be about a field nothing "
+                 "reads")
+        for typed in re.findall(r"new MobEffectInstance\(\s*\w[\w.]*,\s*(\d+),",
+                                _gifts):
+            fail(f"a gift lasts {typed} ticks by a number typed into the "
+                 f"branch, which is a second set of dials beside the one place "
+                 f"that is supposed to decide it")
+
+    if not COMPANION_ENTITY:
+        fail("there is no companion entity, so nothing the rules describe is "
+             "alive")
+    else:
+        _entity = squashed(COMPANION_ENTITY)
+        if "CompanionRules.companion(name)" not in _entity:
+            fail("a companion does not find its own row by the name it was "
+                 "registered under, so whatever it is storing instead can be "
+                 "stored wrong")
+        # Two places read whether a companion has to be earned, and each gets
+        # its own guard: one check covering both is one check a control can
+        # answer with the occurrence it did not break.
+        _willing = squashed(body_of(COMPANION_ENTITY, "public boolean willing()"))
+        if "companion().tamed()" not in _willing:
+            fail("whether a companion will do its one thing at all is not the "
+                 "row's own, so the rule that stops one working before it is "
+                 "earned is about a field nothing reads")
+        _feed = squashed(body_of(COMPANION_ENTITY, "public net.minecraft.world.InteractionResult mobInteract("))
+        if "companion().tamed()" not in _feed:
+            fail("what it takes to earn a companion is not the row's own, so a "
+                 "creature the rules say must be tamed can be owned by handing "
+                 "it anything, or nothing")
+        # And the same again for reach. Four calls in give() are handed a
+        # distance; every one of them has to be the row's, because a single
+        # `row.reach() in the file` check is answered by the three a control
+        # left alone.
+        _give = squashed(body_of(GIFTS, "public static void give("))
+        if not _give:
+            fail("nothing in the gifts is handed a companion's row, so how far "
+                 "one reaches is decided somewhere a validator cannot read")
+        for _call, _arg in re.findall(
+                r"\b(nearby|monsters)\(self, ((?:[^()]|\([^()]*\))*)\)", _give):
+            if _arg != "row.reach()":
+                fail(f"a companion's gift gathers who it is for with "
+                     f"{_call}(self, {_arg}), which is a distance that is not "
+                     f"the row's own — so the band the harness held it to is "
+                     f"not the band the game keeps")
+
+    # Every rule the file declares is added up.
+    _sum = squashed(body_of(COMPANION, "public static List<String> faults()"))
+    _rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(",
+                            COMPANION))
+    _added = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _sum))
+    if len(_rules) < 7:
+        fail(f"only {len(_rules)} companion rule(s) are declared at all, so the "
+             f"check below is checking nothing")
+    for _rule in sorted(_rules - _added):
+        fail(f"{_rule} is written, compiled and never added up by the "
+             f"companions' faults(), so it answers the harness's controls and "
+             f"is never once asked about what this module ships")
+
+    print(f"the companions      : {len(companions)} creature(s) over "
+          f"{len(gifts)} job(s) a block would otherwise do, one each and none "
+          f"spare, every one of them held under a block the pack really makes, "
+          f"and not one doing its job for free")
+
+
 if problems:
     print(f"{len(problems)} problem(s):")
     for problem in problems:

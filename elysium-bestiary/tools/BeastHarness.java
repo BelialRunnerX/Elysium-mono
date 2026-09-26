@@ -69,6 +69,7 @@ public final class BeastHarness {
         theBehaviours();
         theSummons();
         theMyths();
+        theCompanions();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -1267,5 +1268,154 @@ public final class BeastHarness {
                 + "armour, one each and none spare, each answered by something "
                 + "nothing else answers, " + swept + " rosters swept, and not "
                 + "one of them also the hardest thing on its own rung");
+    }
+
+    /**
+     * Eleven creatures that do a block's job.
+     *
+     * <p>The property worth proving is that none of them does it for free. A
+     * block sits there, and that is the whole of what a block has over
+     * something alive; a companion that is neither tamed nor fed nor kept close
+     * is strictly better than the thing it replaces, and the thing it replaces
+     * stops being built — quietly, one category at a time, with nothing in the
+     * pack saying when.
+     */
+    private static void theCompanions() {
+        List<String> faults = CompanionRules.faults();
+        check(faults.isEmpty(), "something wrong with the companions: " + faults);
+
+        CompanionRules.Companion first = CompanionRules.COMPANIONS.get(0);
+
+        check(!CompanionRules.faultsInNames(List.of(first, first)).isEmpty(),
+                "two companions written under one name are not reported");
+        check(CompanionRules.faultsInNames(CompanionRules.COMPANIONS).isEmpty(),
+                "the companions this module ships are reported as doubled");
+
+        check(!CompanionRules.faultsInGifts(List.of(new CompanionRules.Companion(
+                        "control", "wibble", "minecraft:stone", false, 0, 4.0D,
+                        0, 20)), CompanionRules.GIFTS).isEmpty(),
+                "a companion doing something nothing here has heard of is not "
+                        + "reported");
+        check(CompanionRules.faultsInGifts(CompanionRules.COMPANIONS,
+                        CompanionRules.GIFTS).isEmpty(),
+                "the gifts this module ships are reported as unknown");
+
+        check(!CompanionRules.faultsInGiftNames(List.of(first,
+                        new CompanionRules.Companion("control", first.gift(),
+                                "minecraft:stone", false, 0, 4.0D, 0, 20)))
+                        .isEmpty(),
+                "two companions doing the same job are not reported, and "
+                        + "whichever is easier to keep is the one everybody "
+                        + "keeps");
+        check(CompanionRules.faultsInGiftNames(CompanionRules.COMPANIONS).isEmpty(),
+                "the companions this module ships are reported as sharing a job");
+
+        check(!CompanionRules.faultsInGaps(List.of(), CompanionRules.GIFTS)
+                        .isEmpty(),
+                "a job nothing does is not reported, so a thing this module "
+                        + "knows how to do is written down and never happens");
+        check(CompanionRules.faultsInGaps(CompanionRules.COMPANIONS,
+                        CompanionRules.GIFTS).isEmpty(),
+                "the companions this module ships leave a job undone");
+
+        // The rule the file exists for.
+        check(!CompanionRules.faultsInCost(List.of(new CompanionRules.Companion(
+                        "control", CompanionRules.REACH, "minecraft:scaffolding",
+                        false, 0, 400.0D, 0, 20)), CompanionRules.MOST_REACH)
+                        .isEmpty(),
+                "a companion that does a block's job for free — neither tamed "
+                        + "nor fed nor kept close — is not reported, so nobody "
+                        + "would build one of those again");
+        check(CompanionRules.faultsInCost(CompanionRules.COMPANIONS,
+                        CompanionRules.MOST_REACH).isEmpty(),
+                "the companions this module ships are reported as free");
+
+        check(!CompanionRules.faultsInReach(List.of(new CompanionRules.Companion(
+                        "control", CompanionRules.REACH, "minecraft:scaffolding",
+                        false, 0, 0.5D, 0, 20)), CompanionRules.LEAST_REACH,
+                        CompanionRules.MOST_REACH).isEmpty(),
+                "a companion you have to stand on is not reported");
+        check(!CompanionRules.faultsInReach(List.of(new CompanionRules.Companion(
+                        "control", CompanionRules.REACH, "minecraft:scaffolding",
+                        false, 0, 900.0D, 0, 20)), CompanionRules.LEAST_REACH,
+                        CompanionRules.MOST_REACH).isEmpty(),
+                "a companion that works from anywhere is not reported, and that "
+                        + "is a permanent effect with a mob somewhere behind it");
+        check(CompanionRules.faultsInReach(CompanionRules.COMPANIONS,
+                        CompanionRules.LEAST_REACH, CompanionRules.MOST_REACH)
+                        .isEmpty(),
+                "the reaches this module ships are reported as out of band");
+
+        check(!CompanionRules.faultsInFading(List.of(
+                        new CompanionRules.Companion("control",
+                                CompanionRules.REACH, "minecraft:scaffolding",
+                                false, 0, 4.0D, 100_000, 20)),
+                        CompanionRules.LONGEST_FADE).isEmpty(),
+                "a gift that outlasts the creature is not reported, and a stat "
+                        + "a player keeps is a thing they will kill it for");
+        check(CompanionRules.faultsInFading(CompanionRules.COMPANIONS,
+                        CompanionRules.LONGEST_FADE).isEmpty(),
+                "the gifts this module ships are reported as permanent");
+
+        check(!CompanionRules.faultsInRarity(CompanionRules.COMPANIONS, 1_000)
+                        .isEmpty(),
+                "a creature nobody ever meets is not reported");
+        check(CompanionRules.faultsInRarity(CompanionRules.COMPANIONS,
+                        CompanionRules.LEAST_WEIGHT).isEmpty(),
+                "the companions this module ships are reported as too rare");
+
+        check(!CompanionRules.faultsInUpkeep(List.of(
+                        new CompanionRules.Companion("control",
+                                CompanionRules.REACH, "minecraft:scaffolding",
+                                false, 3, 20.0D, 0, 20))).isEmpty(),
+                "something fed but neither tamed nor kept underfoot is not "
+                        + "reported, so a player feeds what is free to wander "
+                        + "off with it");
+        check(CompanionRules.faultsInUpkeep(CompanionRules.COMPANIONS).isEmpty(),
+                "the upkeep this module ships is reported as paid to nothing");
+
+        check(threwOn(() -> new CompanionRules.Companion("control",
+                        CompanionRules.REACH, "minecraft:stone", false, 0, 0.0D,
+                        0, 20)),
+                "a companion that works from nowhere is accepted");
+        check(threwOn(() -> new CompanionRules.Companion("control",
+                        CompanionRules.REACH, "minecraft:stone", false, -1, 4.0D,
+                        0, 20)),
+                "a companion that costs less than nothing to keep is accepted");
+        check(threwOn(() -> new CompanionRules.Companion("control",
+                        CompanionRules.REACH, "minecraft:stone", false, 0, 4.0D,
+                        0, 0)),
+                "a companion nothing ever spawns is accepted");
+        check(threwOn(() -> new CompanionRules.Companion("control",
+                        CompanionRules.REACH, "", false, 0, 4.0D, 0, 20)),
+                "a companion that competes with nothing is accepted, so nothing "
+                        + "would hold it under anything");
+
+        // And the sweep: every combination of what a companion might cost.
+        int swept = 0;
+        for (boolean tamed : new boolean[]{false, true}) {
+            for (int upkeep : new int[]{0, 1, 5}) {
+                for (double reach : new double[]{4.0D, 20.0D, 24.0D, 25.0D,
+                        100.0D}) {
+                    CompanionRules.Companion made = new CompanionRules.Companion(
+                            "c" + swept, CompanionRules.REACH,
+                            "minecraft:scaffolding", tamed, upkeep, reach, 0, 20);
+                    boolean free = !tamed && upkeep <= 0
+                            && reach > CompanionRules.MOST_REACH;
+                    check(free == !CompanionRules.faultsInCost(List.of(made),
+                                    CompanionRules.MOST_REACH).isEmpty(),
+                            "a companion " + (tamed ? "tamed" : "wild")
+                                    + ", fed " + upkeep + ", working from "
+                                    + reach + " is reported wrongly");
+                    swept++;
+                }
+            }
+        }
+
+        System.out.println("  the companions: " + CompanionRules.COMPANIONS.size()
+                + " creature(s) over " + CompanionRules.GIFTS.size() + " job(s) "
+                + "a block would otherwise do, one each and none spare, " + swept
+                + " ways of costing nothing swept, and not one of this module's "
+                + "own doing its job for free");
     }
 }
