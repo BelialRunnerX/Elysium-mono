@@ -96,22 +96,26 @@ public final class BeeItems {
     // The four things you work a hive with
     // ------------------------------------------------------------------
 
-    /** Takes a comb out of a hive without upsetting anybody. */
+    /** Takes a finished comb off a bee: that species' own comb. */
     public static final DeferredItem<Item> SCOOP =
-            ITEMS.register("bee_scoop", () -> new Item(new Item.Properties()
-                    .durability(128)));
+            ITEMS.register("bee_scoop", () -> new com.elysium.agronomy.item.BeeScoopItem(
+                    new Item.Properties().durability(128)));
 
     /** Calms a hive long enough to open it. */
     public static final DeferredItem<Item> SMOKER =
-            ITEMS.register("bee_smoker", () -> new Item(new Item.Properties()
-                    .durability(64)));
+            ITEMS.register("bee_smoker", () -> new com.elysium.agronomy.item.BeeSmokerItem(
+                    new Item.Properties().durability(64)));
 
-    /** Carries a bee from one hive to another. */
+    /** Carries a bee out of the world, or out of a hive, and into a hive. */
     public static final DeferredItem<Item> JAR =
-            ITEMS.register("bee_jar", () -> new Item(new Item.Properties()
-                    .stacksTo(1)));
+            ITEMS.register("bee_jar", () -> new com.elysium.agronomy.item.BeeJarItem(
+                    new Item.Properties().stacksTo(1)));
 
-    /** Persuades two bees in one hive to make a third. */
+    /**
+     * Persuades two bees in one hive to make a third: the child of the pair
+     * if the hive holds a pair {@link BeeRules} breeds, and one more of the
+     * hive's own otherwise.
+     */
     public static final DeferredItem<Item> TREAT =
             ITEMS.register("bee_treat", () -> new Item(new Item.Properties()));
 }

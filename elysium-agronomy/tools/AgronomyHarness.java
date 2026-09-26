@@ -74,6 +74,8 @@ public final class AgronomyHarness {
         theVeins();
         theKitchen();
         theSeeds();
+        theWaters();
+        theKeeping();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -90,7 +92,10 @@ public final class AgronomyHarness {
                 + AgronomyRules.VEINS.size() + " generators none of which beats a "
                 + "mine, and "
                 + KitchenRules.MEALS.size() + " meals of which none is pointless, and "
-                + SeedRules.SEEDS.size() + " seeds none of which grows an alloy");
+                + SeedRules.SEEDS.size() + " seeds none of which grows an alloy, and "
+                + WaterRules.wildFamilies().size() + " families of fish in the water "
+                + "without a rod, and every one of " + BeeRules.BEES.size()
+                + " bees a thing a jar can hold");
     }
 
     // ==================================================================
@@ -1741,5 +1746,370 @@ public final class AgronomyHarness {
                 "every seed grows something this module has to invent an item for, "
                         + "which means none of them grows anything the game or the "
                         + "pack already has");
+    }
+
+    // ==================================================================
+
+    /**
+     * The water a cast lands in, and the fish in it without a rod.
+     *
+     * <p>Three claims: every family that swims on its own has a biome to
+     * swim in and the one that does not has none; a deeper pond is never a
+     * shallower band; and the rarer fish is the rarer sight in the water as
+     * well as on the line. Then the whole of it walked once more, every
+     * family from some rod in some water, so a family is a habitat rather
+     * than a label.
+     */
+    private static void theWaters() {
+        check(WaterRules.faults().isEmpty(),
+                "something wrong with the water: " + WaterRules.faults());
+        check(WaterRules.familiesNeverFished().isEmpty(),
+                "families no rod ever brings up: " + WaterRules.familiesNeverFished());
+        check(WaterRules.homeless().isEmpty(),
+                "families with nowhere to swim, or a void family given somewhere: "
+                        + WaterRules.homeless());
+
+        // Every wild family placed, the void family not, and the count says so.
+        int placed = 0;
+        for (FishRules.Family family : FishRules.FAMILIES) {
+            if (WaterRules.spawnsWild(family)) {
+                check(!WaterRules.hauntOf(family).isEmpty(),
+                        family.name() + " swims wild and haunts nowhere");
+                placed++;
+            } else {
+                check(WaterRules.hauntOf(family).isEmpty(),
+                        family.name() + " is rod-only and haunts " + WaterRules.hauntOf(family));
+                check(FishRules.VOID.equals(family.water()),
+                        family.name() + " is rod-only and is not a void family");
+            }
+        }
+        check(placed == WaterRules.wildFamilies().size(),
+                placed + " families placed and " + WaterRules.wildFamilies().size()
+                        + " said to be wild");
+        check(placed >= FishRules.FAMILIES.size() - 1,
+                "more than one family is rod-only, and only the void has no water");
+
+        // Bands by depth: monotone, starting at the surface, reaching the abyss.
+        int last = -1;
+        for (int depth = 0; depth <= WaterRules.deepestFloor() + 5; depth++) {
+            int band = WaterRules.bandOf(depth);
+            check(band >= last, "a pond " + depth + " deep is band " + band
+                    + " and one " + (depth - 1) + " deep is band " + last);
+            check(band >= 0 && band < FishRules.BANDS, "depth " + depth
+                    + " is band " + band + ", which is no band");
+            last = band;
+        }
+        check(WaterRules.bandOf(0) == 0, "a puddle is not the surface band");
+        check(WaterRules.bandOf(WaterRules.deepestFloor()) == FishRules.BANDS - 1,
+                "the deepest floor is not the deepest band");
+        check(WaterRules.bandOf(1_000) == FishRules.BANDS - 1,
+                "a bottomless pond is a band past the last");
+        check(WaterRules.bandOf(-5) == 0, "a pond of negative depth is not the surface");
+        // Every band reachable by some depth, or a family's water is a water
+        // no pond can be.
+        Set<Integer> reached = new HashSet<>();
+        for (int depth = 0; depth <= WaterRules.deepestFloor(); depth++) {
+            reached.add(WaterRules.bandOf(depth));
+        }
+        check(reached.size() == FishRules.BANDS, "only " + reached.size() + " of "
+                + FishRules.BANDS + " bands can be fished, so some family lives in "
+                + "water no pond is");
+
+        // Controls for the band rule, built to be caught.
+        check(!WaterRules.faultsInBands(new int[]{0, 3, 3, 15}).isEmpty(),
+                "two bands starting at the same depth are not reported");
+        check(!WaterRules.faultsInBands(new int[]{2, 3, 7, 15}).isEmpty(),
+                "a surface band that starts under the surface is not reported");
+        check(!WaterRules.faultsInBands(new int[]{0, 3, 7}).isEmpty(),
+                "a band with no floor is not reported");
+        check(WaterRules.faultsInBands(WaterRules.BAND_FLOORS).isEmpty(),
+                "the real bands are reported as faulty: "
+                        + WaterRules.faultsInBands(WaterRules.BAND_FLOORS));
+
+        // Spawn weights fall with rarity and never reach nothing.
+        for (int rarity = FishRules.COMMONEST; rarity <= FishRules.RAREST; rarity++) {
+            check(WaterRules.spawnWeight(rarity) >= 1,
+                    "rarity " + rarity + " spawns with no weight at all");
+            if (rarity > FishRules.COMMONEST) {
+                check(WaterRules.spawnWeight(rarity) < WaterRules.spawnWeight(rarity - 1),
+                        "rarity " + rarity + " is as common a sight as rarity "
+                                + (rarity - 1));
+            }
+        }
+        check(WaterRules.weightsThatHurt().isEmpty(),
+                "spawn weights that make the rare fish the common sight: "
+                        + WaterRules.weightsThatHurt());
+
+        // Timing: a bobber that says sooner is sooner, a hook that holds holds.
+        check(WaterRules.faultsInTiming().isEmpty(),
+                "something wrong with how long a cast takes: "
+                        + WaterRules.faultsInTiming());
+        for (TackleRules.Bobber bobber : TackleRules.BOBBERS) {
+            int bare = WaterRules.waitFor(WaterRules.WAIT_MOST_TICKS, TackleRules.PLAIN);
+            int with = WaterRules.waitFor(WaterRules.WAIT_MOST_TICKS, bobber);
+            check(with <= bare, bobber.id() + " makes the wait longer");
+            check(with > 0, bobber.id() + " makes the wait nothing");
+            if (bobber.sooner() > 0.0F) {
+                check(with < bare, bobber.id() + " says sooner and is not");
+            }
+        }
+        check(WaterRules.waitFor(WaterRules.WAIT_MOST_TICKS, TackleRules.PLAIN)
+                        == WaterRules.WAIT_MOST_TICKS,
+                "a bare line changes the wait");
+        boolean anyHolds = false;
+        for (TackleRules.Hook hook : TackleRules.HOOKS) {
+            int lasts = WaterRules.nibbleFor(WaterRules.NIBBLE_LEAST_TICKS, hook);
+            if (hook.holds()) {
+                anyHolds = true;
+                check(lasts > WaterRules.NIBBLE_MOST_TICKS,
+                        hook.id() + " holds and a bite on it ends like any other");
+            } else {
+                check(lasts == WaterRules.NIBBLE_LEAST_TICKS,
+                        hook.id() + " does not hold and changes the bite anyway");
+            }
+        }
+        check(anyHolds, "no hook holds, so the property that a held bite lasts has "
+                + "nothing to be true of");
+
+        // Bait on a rod: something, and used up.
+        check(WaterRules.MOST_BAIT_ON_ROD >= WaterRules.BAIT_PER_CATCH,
+                "a rod cannot carry enough bait for one catch");
+        check(WaterRules.BAIT_PER_CATCH >= 1, "a catch uses no bait, so bait is for ever");
+        check(WaterRules.VOID_DEPTH > 0, "the void's surface is not under the world");
+
+        // The worm farm feeds on the roster: every fish makes its own
+        // family's bait and a name no fish has makes nothing.
+        for (FishRules.Fish one : FishRules.FISH) {
+            check(one.family().name().equals(TackleRules.baitFor(one.id())),
+                    one.id() + " fed to a farm makes " + TackleRules.baitFor(one.id()));
+        }
+        check(TackleRules.baitFor("notafish").isEmpty(), "a farm fed nothing makes bait");
+        check(TackleRules.WORM_FARM_HOLDS >= 1, "a worm farm holds nothing");
+        int tackle = 0;
+        for (String id : TackleRules.items()) {
+            check(TackleRules.isTackle(id), id + " is not tackle to the box");
+            tackle++;
+        }
+        for (FishRules.Family family : FishRules.FAMILIES) {
+            check(TackleRules.isTackle(family.name() + "_bait"),
+                    family.name() + " bait is not tackle to the box");
+            tackle++;
+        }
+        check(!TackleRules.isTackle("cobblestone"), "cobblestone is tackle to the box");
+        check(!TackleRules.isTackle(""), "nothing at all is tackle to the box");
+        check(tackle == TackleRules.items().size() + FishRules.FAMILIES.size(),
+                "the sweep over tackle visited " + tackle);
+
+        // Every table a real rod can draw from, as the game draws: every
+        // water with fish in it, every rung, no bait and each family's bait,
+        // every way of fitting the rod. Each share is a positive, finite
+        // number and the shares sum to one; a zero or a NaN in a weighted
+        // pick is a fish that silently never comes up, or a draw that
+        // always returns the last row.
+        int tables = 0;
+        java.util.List<String> baits = new java.util.ArrayList<>();
+        baits.add(FishRules.NOTHING);
+        for (FishRules.Family family : FishRules.FAMILIES) {
+            baits.add(family.name());
+        }
+        Set<String> familiesDrawn = new HashSet<>();
+        for (FishRules.Water where : FishRules.fishableWaters()) {
+            for (int rod = 0; rod < FishRules.RODS; rod++) {
+                for (String bait : baits) {
+                    for (TackleRules.Tackle fitted : TackleRules.everyTackle()) {
+                        List<FishRules.Chance> table = TackleRules.table(where, rod, bait,
+                                fitted);
+                        check(!table.isEmpty(), where + " at rung " + rod + " with "
+                                + fitted + " and bait '" + bait + "' draws from nothing");
+                        double sum = 0.0D;
+                        for (FishRules.Chance chance : table) {
+                            check(chance.share() > 0.0D && !Double.isNaN(chance.share())
+                                            && !Double.isInfinite(chance.share()),
+                                    chance.fish() + " has share " + chance.share() + " in "
+                                            + where + " at rung " + rod);
+                            sum += chance.share();
+                            familiesDrawn.add(FishRules.fish(chance.fish()).family().name());
+                        }
+                        check(Math.abs(sum - 1.0D) < 1.0E-9D, where + " at rung " + rod
+                                + " sums to " + sum);
+                        tables++;
+                    }
+                }
+            }
+        }
+        check(tables == FishRules.fishableWaters().size() * FishRules.RODS * baits.size()
+                        * TackleRules.everyTackle().size(),
+                "the sweep over tables visited " + tables);
+        // Every family reachable by some rod in some water.
+        for (FishRules.Family family : FishRules.FAMILIES) {
+            check(familiesDrawn.contains(family.name()),
+                    family.name() + " never comes up on any rod in any water");
+        }
+        // Luck monotone in the rung: a better rod, the same everything else,
+        // never makes the rarer of two fish harder to get relative to the
+        // commoner. The hook's own ladder is TackleRules.hooksThatHurt.
+        int rungPairs = 0;
+        for (FishRules.Water where : FishRules.fishableWaters()) {
+            for (String bait : baits) {
+                for (int rod = 0; rod + 1 < FishRules.RODS; rod++) {
+                    List<String> hurt = TackleRules.hurtBetween(
+                            TackleRules.table(where, rod, bait, TackleRules.NONE),
+                            TackleRules.table(where, rod + 1, bait, TackleRules.NONE),
+                            where, TackleRules.BARE);
+                    check(hurt.isEmpty(), "rung " + (rod + 1) + " makes a rarer fish "
+                            + "harder to get than rung " + rod + ": " + hurt);
+                    rungPairs++;
+                }
+            }
+            for (TackleRules.Tackle fitted : TackleRules.everyTackle()) {
+                for (int rod = 0; rod + 1 < FishRules.RODS; rod++) {
+                    check(TackleRules.hurtBetween(
+                                    TackleRules.table(where, rod, FishRules.NOTHING, fitted),
+                                    TackleRules.table(where, rod + 1, FishRules.NOTHING,
+                                            fitted), where, fitted.hook()).isEmpty(),
+                            "with " + fitted + " a better rod makes a rarer fish harder "
+                                    + "to get in " + where);
+                    rungPairs++;
+                }
+            }
+        }
+        check(rungPairs > 0, "no pair of rungs was compared");
+        // A control: the rule handed a pair built to be caught says so.
+        FishRules.Water anyWater = FishRules.fishableWaters().get(0);
+        check(!TackleRules.hurtBetween(
+                        TackleRules.table(anyWater, FishRules.RODS - 1, FishRules.NOTHING,
+                                TackleRules.NONE),
+                        TackleRules.table(anyWater, 0, FishRules.NOTHING, TackleRules.NONE),
+                        anyWater, TackleRules.BARE).isEmpty()
+                        || FishRules.countRarities(anyWater) < 2,
+                "the best rod read as a downgrade to the worst is not reported");
+
+        System.out.println("  the water: " + WaterRules.wildFamilies().size() + " of "
+                + FishRules.FAMILIES.size() + " families in the water without a rod, "
+                + FishRules.BANDS + " bands by depth, and the rarer fish the rarer "
+                + "sight");
+    }
+
+    // ==================================================================
+
+    /**
+     * Keeping bees: the route from a biome to every comb in the roster.
+     *
+     * <p>{@link BeeRules#unreachable} is a claim about parent lists. This is
+     * the same claim about the mechanics: a wild bee has a biome and a nest,
+     * a hive of one species and a jar of another give the child the rules
+     * name, and so every bee is one a jar can hold. Walked, not listed.
+     */
+    private static void theKeeping() {
+        check(KeepingRules.faults().isEmpty(),
+                "something wrong with keeping bees: " + KeepingRules.faults());
+        check(KeepingRules.unobtainable().isEmpty(),
+                "bees no jar can ever hold, by the game's own route: "
+                        + KeepingRules.unobtainable());
+        check(KeepingRules.homeless().isEmpty(),
+                "homes with no biome, or biomes for no home: " + KeepingRules.homeless());
+        check(KeepingRules.faultsInBreeding().isEmpty(),
+                "the hive and the roster disagree about a child: "
+                        + KeepingRules.faultsInBreeding());
+
+        // Every home has a biome, every wild home a nest, and the counts agree.
+        int homes = 0;
+        for (String home : BeeRules.homes()) {
+            check(!KeepingRules.biomeOf(home).isEmpty(), home + " means no biome");
+            homes++;
+        }
+        check(homes == BeeRules.homes().size(), "the sweep over homes visited " + homes);
+        int wild = 0;
+        for (BeeRules.Bee bee : BeeRules.ofKind(BeeRules.WILD)) {
+            check(KeepingRules.nested().contains(bee.home()),
+                    bee.id() + " is wild and its home " + bee.home() + " has no nest");
+            check(bee.equals(KeepingRules.wildAt(bee.home())),
+                    bee.home() + " nests " + KeepingRules.wildAt(bee.home())
+                            + " rather than " + bee.id());
+            wild++;
+        }
+        check(wild == KeepingRules.nested().size(),
+                wild + " wild bees and " + KeepingRules.nested().size() + " nest(s)");
+        for (String home : BeeRules.homes()) {
+            if (KeepingRules.wildAt(home) == null) {
+                check(!KeepingRules.nested().contains(home),
+                        home + " has a nest and no wild bee, so a bred bee is found "
+                                + "in the world and the tree has a shortcut");
+            }
+        }
+
+        // Breeding through the hive: every bred bee from its parents either
+        // way round, and a pair that breeds nothing says so.
+        int bred = 0;
+        for (BeeRules.Bee bee : BeeRules.BEES) {
+            if (bee.found()) {
+                continue;
+            }
+            check(bee.id().equals(KeepingRules.childOf(bee.parents().get(0),
+                            bee.parents().get(1))),
+                    bee.id() + " is not what its parents breed");
+            check(bee.id().equals(KeepingRules.childOf(bee.parents().get(1),
+                            bee.parents().get(0))),
+                    bee.id() + " depends on which hand the jar is in");
+            bred++;
+        }
+        check(bred == BeeRules.BEES.size() - wild, "the sweep over bred bees visited "
+                + bred + " of " + (BeeRules.BEES.size() - wild));
+        check(KeepingRules.childOf("meadow", "meadow") == null,
+                "two of the same bee breed something");
+        check(KeepingRules.childOf("notabee", "meadow") == null,
+                "a bee that does not exist breeds something");
+        check(KeepingRules.childOf(null, "meadow") == null, "nothing breeds something");
+
+        // The nest against its ceiling, and the rule shown able to say no.
+        check(KeepingRules.nestBeesPerHour() <= KeepingRules.MOST_NEST_BEES_PER_HOUR,
+                "a nest grows " + KeepingRules.nestBeesPerHour() + " bees an hour "
+                        + "back and the ceiling is " + KeepingRules.MOST_NEST_BEES_PER_HOUR);
+        check(!KeepingRules.faultsInNest(1_000.0F, 12.0F).isEmpty(),
+                "a nest growing a thousand bees an hour is not reported");
+        check(KeepingRules.faultsInNest(6.0F, 12.0F).isEmpty(),
+                "an ordinary nest is reported as over the ceiling");
+        check(KeepingRules.NEST_BEES >= 1, "a nest holds no bees");
+        check(KeepingRules.NEST_REFILL_TICKS >= BeeRules.WILD_TICKS,
+                "a nest grows a bee back faster than a wild bee makes a comb, so the "
+                        + "nest is the farm");
+
+        // Temper: the smoke outlasts the anger and reaches everything it would
+        // upset, and the rule shown able to say no each way.
+        check(KeepingRules.faultsInTemper(KeepingRules.STING_DAMAGE,
+                        KeepingRules.ANGER_TICKS, KeepingRules.SMOKE_TICKS,
+                        KeepingRules.SMOKE_RANGE, KeepingRules.UPSET_RANGE).isEmpty(),
+                "the bees' temper is wrong: " + KeepingRules.faultsInTemper(
+                        KeepingRules.STING_DAMAGE, KeepingRules.ANGER_TICKS,
+                        KeepingRules.SMOKE_TICKS, KeepingRules.SMOKE_RANGE,
+                        KeepingRules.UPSET_RANGE));
+        check(KeepingRules.SMOKE_TICKS > KeepingRules.ANGER_TICKS,
+                "the bees come round before the smoke does");
+        check(KeepingRules.SMOKE_RANGE >= KeepingRules.UPSET_RANGE,
+                "bees outside the smoke are upset anyway");
+        check(KeepingRules.STING_DAMAGE > 0.0F && KeepingRules.STING_DAMAGE < 20.0F,
+                "a sting is nothing or everything");
+        check(!KeepingRules.faultsInTemper(0.0F, 400, 1_200, 8, 6).isEmpty(),
+                "a sting that costs nothing is not reported");
+        check(!KeepingRules.faultsInTemper(2.0F, 400, 400, 8, 6).isEmpty(),
+                "smoke that lasts exactly as long as anger is not reported");
+        check(!KeepingRules.faultsInTemper(2.0F, 400, 1_200, 4, 6).isEmpty(),
+                "smoke that reaches less far than a robbery upsets is not reported");
+        check(!KeepingRules.faultsInTemper(40.0F, 400, 1_200, 8, 6).isEmpty(),
+                "a sting that kills is not reported");
+        check(KeepingRules.faultsInTemper(2.0F, 400, 1_200, 8, 6).isEmpty(),
+                "an ordinary temper is reported as wrong");
+
+        // The wild spawns are something and come in a group that is a group.
+        check(KeepingRules.WILD_SPAWN_WEIGHT >= 1, "wild bees never spawn");
+        check(KeepingRules.WILD_SPAWN_LEAST >= 1
+                        && KeepingRules.WILD_SPAWN_MOST >= KeepingRules.WILD_SPAWN_LEAST,
+                "a group of wild bees is " + KeepingRules.WILD_SPAWN_LEAST + " to "
+                        + KeepingRules.WILD_SPAWN_MOST);
+
+        System.out.println("  the keeping: " + KeepingRules.nested().size()
+                + " nest(s) for " + wild + " wild bees in " + BeeRules.homes().size()
+                + " named homes, " + bred + " bees bred through the hive, and every "
+                + "one of " + BeeRules.BEES.size() + " a thing a jar can hold");
     }
 }

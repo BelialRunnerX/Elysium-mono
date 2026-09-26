@@ -2,6 +2,7 @@ package com.elysium.agronomy.entity;
 
 import com.elysium.agronomy.registry.BeeEntities;
 import com.elysium.agronomy.rules.BeeRules;
+import com.elysium.agronomy.rules.KeepingRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -53,8 +54,24 @@ public class BeeEntity extends Animal {
 
     private int worked;
 
+    /** The game time until which smoke keeps this bee calm. */
+    private long calmUntil;
+
+    /** Who upset it, and until when; null when nobody has. */
+    @Nullable
+    private java.util.UUID upsetBy;
+    private long upsetUntil;
+
     public BeeEntity(EntityType<? extends BeeEntity> type, Level level) {
         super(type, level);
+        // One type per species, so the type says which bee this is. Without
+        // this every bee that spawned on its own or out of an egg was the
+        // first bee in the roster wearing another's name.
+        String path = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE
+                .getKey(type).getPath();
+        if (path.endsWith("_bee")) {
+            setSpecies(path.substring(0, path.length() - "_bee".length()));
+        }
         this.moveControl = new FlyingMoveControl(this, 20, true);
         this.setPathfindingMalus(PathType.WATER, -1.0F);
         this.setPathfindingMalus(PathType.DANGER_FIRE, -1.0F);
@@ -137,6 +154,7 @@ public class BeeEntity extends Animal {
         super.addAdditionalSaveData(tag);
         tag.putString("Species", species());
         tag.putInt("Worked", this.worked);
+        tag.putLong("CalmUntil", this.calmUntil);
     }
 
     @Override
@@ -146,6 +164,7 @@ public class BeeEntity extends Animal {
             setSpecies(tag.getString("Species"));
         }
         this.worked = tag.getInt("Worked");
+        this.calmUntil = tag.getLong("CalmUntil");
     }
 
     @Override
@@ -153,7 +172,57 @@ public class BeeEntity extends Animal {
         super.aiStep();
         if (!this.level().isClientSide) {
             this.worked = Math.min(this.worked + 1, Integer.MAX_VALUE - 1);
+            sting();
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Temper
+    // ------------------------------------------------------------------
+
+    /** Whether smoke is keeping this one calm. */
+    public boolean calm() {
+        return this.level().getGameTime() < this.calmUntil;
+    }
+
+    /** Smoke it: calm for {@link KeepingRules#SMOKE_TICKS}, and no longer upset. */
+    public void smoke() {
+        this.calmUntil = this.level().getGameTime() + KeepingRules.SMOKE_TICKS;
+        this.upsetBy = null;
+    }
+
+    /**
+     * Upset it: for {@link KeepingRules#ANGER_TICKS} it goes after whoever
+     * did it and stings them once. A smoked bee does not notice.
+     */
+    public void upset(Player by) {
+        if (calm() || by.getAbilities().instabuild) {
+            return;
+        }
+        this.upsetBy = by.getUUID();
+        this.upsetUntil = this.level().getGameTime() + KeepingRules.ANGER_TICKS;
+    }
+
+    /** Whether it is upset with somebody right now. */
+    public boolean upset() {
+        return this.upsetBy != null && this.level().getGameTime() < this.upsetUntil;
+    }
+
+    private void sting() {
+        if (this.upsetBy == null) {
+            return;
+        }
+        Player target = this.level().getPlayerByUUID(this.upsetBy);
+        if (!upset() || calm() || target == null || !target.isAlive()) {
+            this.upsetBy = null;
+            return;
+        }
+        if (distanceToSqr(target) < 2.25D) {
+            target.hurt(damageSources().sting(this), KeepingRules.STING_DAMAGE);
+            this.upsetBy = null;
+            return;
+        }
+        getNavigation().moveTo(target, 1.4D);
     }
 
     /** How far through its current comb it is, from zero to one. */

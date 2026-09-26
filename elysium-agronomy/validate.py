@@ -2108,6 +2108,376 @@ print(f"the diet             : {constant('FOODS_FOR_FULL', kind='int')} differen
       f"foods for {constant('MOST_EXTRA_HEARTS', kind='int')} hearts, kept as a set, "
       f"surviving death, and applied as one modifier that replaces itself")
 
+
+# ===========================================================================
+# BEGIN fishing and bees in the world (agro-fishbees)
+# ===========================================================================
+#
+# A rod is a rod, a catch is a draw from the table the harness proved, the
+# fish are in the water and the bees are in their biomes, and every comb in
+# the roster is a thing a player can hold. Each rule below names a whole
+# statement, never a bare call.
+
+FB_FISH_RULES = strip_comments(read(SRC, "rules/FishRules.java"), True)
+FB_WATER_RULES = strip_comments(read(SRC, "rules/WaterRules.java"), True)
+FB_KEEPING_RULES = strip_comments(read(SRC, "rules/KeepingRules.java"), True)
+FB_BEE_RULES = strip_comments(read(SRC, "rules/BeeRules.java"), True)
+FB_LANG = json.loads(read(RES, "assets", NS, "lang/en_us.json") or "{}")
+
+FB_SOURCES = {name: squashed(read(SRC, name)) for name in (
+    "item/ElysiumRodItem.java", "entity/ElysiumHook.java", "event/FishingEvents.java",
+    "event/Casts.java", "event/Keeping.java", "block/WormFarmBlock.java",
+    "block/TackleBoxBlock.java", "block/NestBlock.java", "block/HiveBlock.java",
+    "item/BeeJarItem.java", "item/BeeScoopItem.java", "item/BeeSmokerItem.java",
+    "entity/BeeEntity.java", "entity/FishEntity.java", "registry/FishItems.java",
+    "registry/FishEntities.java", "registry/BeeItems.java", "registry/BeeBlocks.java",
+    "registry/AgronomyBlocks.java", "registry/FishingBlockEntities.java",
+    "ElysiumAgronomy.java")}
+for fb_name, fb_text in FB_SOURCES.items():
+    if not fb_text:
+        fail(f"{fb_name} is gone, so the fishing and bees it carried are gone with it")
+
+# --- the rods ---------------------------------------------------------------
+
+fb_rod = FB_SOURCES["item/ElysiumRodItem.java"]
+fb_registering_rods = body_of(FB_SOURCES["registry/FishItems.java"], "registerRods() {")
+if ("() -> new com.elysium.agronomy.item.ElysiumRodItem(held, "
+        "new Item.Properties().durability(uses))") not in fb_registering_rods:
+    fail("the rods are registered as something other than ElysiumRodItem, so a rod "
+         "is a stick with durability that casts nothing")
+if "public class ElysiumRodItem extends FishingRodItem {" not in fb_rod:
+    fail("ElysiumRodItem is not a fishing rod, so the game's float, its line and its "
+         "bite are not what it casts")
+fb_rod_use = body_of(fb_rod, "public InteractionResultHolder<ItemStack> use(")
+if ("server.addFreshEntity(new ElysiumHook(player, level, lure, rung, "
+        "AgronomyComponents.tackleOn(rod), AgronomyComponents.baitOn(rod)));") \
+        not in fb_rod_use:
+    fail("a rod does not cast a float that carries its rung, its tackle and its bait, "
+         "so every rung of the ladder and everything fitted fishes like a bare line")
+if "int damage = player.fishing.retrieve(rod);" not in fb_rod_use:
+    fail("reeling a rod in does not retrieve the float, so nothing is ever caught")
+if "fit(rod, part, player);" not in fb_rod_use:
+    fail("a rod used sneaking with a part in the other hand does not fit it, so a hook "
+         "or a bobber is an item with no way onto a rod")
+fb_fit = body_of(fb_rod, "public static boolean fit(")
+for fb_statement, fb_what in (
+        ("rod.set(AgronomyComponents.HOOK.get(), id);", "a hook"),
+        ("rod.set(AgronomyComponents.BOBBER.get(), id);", "a bobber"),
+        ("rod.set(AgronomyComponents.BAIT.get(), family);", "bait"),
+        ("rod.set(AgronomyComponents.BAIT_COUNT.get(), count + taken);", "a count of bait")):
+    if fb_statement not in fb_fit:
+        fail(f"fitting {fb_what} to a rod does not put it on the rod, so it is used up "
+             f"and changes nothing")
+if "int taken = Math.min(part.getCount(), WaterRules.MOST_BAIT_ON_ROD - count);" \
+        not in fb_fit:
+    fail("a rod takes bait without the rules' limit, so one rod carries as much bait "
+         "as a player owns")
+fb_tooltip = body_of(fb_rod, "public void appendHoverText(")
+for fb_part in ("hook", "bobber", "bait"):
+    if f'Component.translatable("elysiumagronomy.rod.{fb_part}"' not in fb_tooltip:
+        fail(f"a rod's tooltip does not name its {fb_part}, so what is fitted is a thing "
+             f"a player has to remember")
+
+# --- the catch --------------------------------------------------------------
+
+fb_events = FB_SOURCES["event/FishingEvents.java"]
+fb_on_fished = body_of(fb_events, "public static void onFished(ItemFishedEvent event) {")
+if "@SubscribeEvent public static void onFished(ItemFishedEvent event) {" not in fb_events:
+    fail("nothing listens for a fish being caught, so every catch is the game's own "
+         "cod and salmon and none of the roster comes up on a line")
+for fb_statement, fb_why in (
+        ("rung = ours.rung();", "the rod's rung"),
+        ("tackle = ours.tackle();", "the fitted hook and bobber"),
+        ("bait = ours.bait();", "the bait"),
+        ("List<ItemStack> drops = Casts.pick(level, Casts.liquidUnder(level, "
+         "hook.blockPosition()), rung, tackle, bait, level.getRandom());",
+         "the table for the water the float is in"),
+        ("event.setCanceled(true);", "replacing the game's loot"),
+        ("Casts.deliver(level, hook, player, drops);", "handing the catch over"),
+        ("Casts.spendBait(rod);", "using bait up")):
+    if fb_statement not in fb_on_fished:
+        fail(f"a catch in water is drawn without {fb_why}")
+fb_casts = FB_SOURCES["event/Casts.java"]
+fb_pick = body_of(fb_casts, "public static List<ItemStack> pick(")
+if "List<FishRules.Chance> table = TackleRules.table(where, rod, bait, tackle);" \
+        not in fb_pick:
+    fail("a cast does not draw from TackleRules.table, so what comes up is decided "
+         "somewhere the harness never looked")
+if "for (int caught = 0; caught < tackle.hook().catches(); caught++) {" not in fb_pick:
+    fail("a hook that brings up two fish brings up one")
+if "&& FishRules.lives(fish, where);" not in body_of(fb_casts, "public static boolean suits("):
+    fail("a fish spawns in water it would never be caught from, so what swims and "
+         "what bites are two different rosters")
+
+# --- lava and the void ------------------------------------------------------
+
+fb_hook = FB_SOURCES["entity/ElysiumHook.java"]
+if "public class ElysiumHook extends net.minecraft.world.entity.projectile.FishingHook {" \
+        not in fb_hook:
+    fail("ElysiumHook is not the game's float, so it has no line, no owner and no bite")
+if "List<ItemStack> drops = Casts.pick(server, judgedAt(), rung, tackle, bait, random);" \
+        not in body_of(fb_hook, "public int retrieve("):
+    fail("a float in lava or the void catches nothing, so the nether and end "
+         "families are unobtainable on a line")
+fb_float = body_of(fb_hook, "private void floatOn() {")
+if "surface = lava.getY() + fluid.getHeight(level(), lava);" not in fb_float:
+    fail("the float does not float on lava, so it sinks and the lava family is a "
+         "row in the roster")
+if "surface = voidSurface();" not in fb_float:
+    fail("the float does not stop in the End's void, so it falls out of the world")
+fb_bend = body_of(fb_hook, "private void bend(")
+if "write(LURED, WaterRules.waitFor(lured, tackle.bobber()));" not in fb_bend:
+    fail("a bobber does not shorten the wait in water, so its whole stated change is a "
+         "tooltip")
+if "write(NIBBLE, WaterRules.nibbleFor(nibble, tackle.hook()));" not in fb_bend:
+    fail("a hook that holds lets a fish go like any other")
+
+# --- the worm farm and the tackle box ----------------------------------------
+
+fb_farm = FB_SOURCES["block/WormFarmBlock.java"]
+fb_work = body_of(fb_farm, "public void work() {")
+if "if (family.isEmpty() || held >= TackleRules.WORM_FARM_HOLDS) {" not in fb_work:
+    fail("a worm farm does not stop when it is full, so a farm left for a week is a "
+         "warehouse of bait")
+if "if (++worked >= TackleRules.WORM_TICKS) {" not in fb_work:
+    fail("a worm farm makes bait at a rate that is not the rules' rate, which the "
+         "harness holds under the ceiling")
+fb_blocks = FB_SOURCES["registry/AgronomyBlocks.java"]
+if "return new com.elysium.agronomy.block.WormFarmBlock(timber().noOcclusion());" \
+        not in fb_blocks:
+    fail("the worm farm is a plain block, so it makes no bait")
+if "return new com.elysium.agronomy.block.TackleBoxBlock(timber().noOcclusion());" \
+        not in fb_blocks:
+    fail("the tackle box is a plain block, so it holds nothing")
+fb_box = FB_SOURCES["block/TackleBoxBlock.java"]
+if "super(MenuType.GENERIC_9x3, id);" not in fb_box:
+    fail("the tackle box opens on a menu type of its own, which needs a screen nobody "
+         "drew")
+if "return container.canPlaceItem(getContainerSlot(), stack);" not in fb_box:
+    fail("the tackle box's slots take anything, so it is a chest with a fish on it")
+if "return TackleRules.isTackle(AgronomyComponents.ourId(stack));" \
+        not in body_of(fb_box, "public static boolean holds("):
+    fail("what the tackle box holds is not the rules' idea of tackle")
+fb_main = FB_SOURCES["ElysiumAgronomy.java"]
+for fb_register in ("com.elysium.agronomy.registry.AgronomyComponents.TYPES.register(modEventBus);",
+                    "com.elysium.agronomy.registry.FishingBlockEntities.TYPES.register(modEventBus);"):
+    if fb_register not in fb_main:
+        fail(f"the mod does not register {fb_register.split('.TYPES')[0].split('.')[-1]}, "
+             f"so the game crashes the first time a rod is fitted or a farm is placed")
+
+# --- fish in the water -------------------------------------------------------
+
+fb_families = {}
+for fb_const, fb_name, fb_water in re.findall(
+        r'public static final Family ([A-Z]+) = new Family\("([a-z_]+)", ([A-Z]+),',
+        FB_FISH_RULES):
+    fb_families[fb_const] = {"name": fb_name, "water": fb_water.lower()}
+fb_fish = re.findall(r'fish\("([a-z_]+)", ([A-Z]+), (\d+),', FB_FISH_RULES)
+fb_haunts = {fb_families.get(c, {}).get("name", c): b for c, b in re.findall(
+    r'haunt\(FishRules\.([A-Z]+), "([^"]+)"\)', FB_WATER_RULES)}
+fb_divisor = re.search(r"SPAWN_WEIGHT_DIVISOR = ([\d.]+)D;", FB_WATER_RULES)
+fb_least = re.search(r"SCHOOL_LEAST = (\d+);", FB_WATER_RULES)
+fb_most = re.search(r"SCHOOL_MOST = (\d+);", FB_WATER_RULES)
+if not fb_families or not fb_fish or not fb_divisor or not fb_least or not fb_most:
+    fail("FishRules or WaterRules no longer reads as a roster and a spawn table, so "
+         "nothing below checked where the fish swim")
+else:
+    fb_div = float(fb_divisor.group(1))
+    fb_placed = 0
+    for fb_family in fb_families.values():
+        fb_path = os.path.join(RES, "data", NS, "neoforge/biome_modifier",
+                               "fish_spawn_" + fb_family["name"] + ".json")
+        if fb_family["water"] == "void":
+            if os.path.isfile(fb_path):
+                fail(f"{fb_family['name']} fish are spawned into a dimension with no "
+                     f"water")
+            continue
+        if not os.path.isfile(fb_path):
+            fail(f"{fb_family['name']} fish are never in the water, so they are only "
+                 f"ever seen on a line")
+            continue
+        fb_body = json.loads(read(fb_path))
+        if fb_body.get("type") != "neoforge:add_spawns":
+            fail(f"{fb_family['name']}'s spawn modifier adds no spawns")
+        if fb_body.get("biomes") != fb_haunts.get(fb_family["name"]):
+            fail(f"{fb_family['name']} fish spawn in {fb_body.get('biomes')} and "
+                 f"WaterRules says {fb_haunts.get(fb_family['name'])}")
+        fb_members = {fid: int(r) for fid, c, r in fb_fish
+                      if fb_families.get(c, {}).get("name") == fb_family["name"]}
+        fb_spawners = {s.get("type", "").split(":")[-1]: s
+                       for s in fb_body.get("spawners", [])}
+        if set(fb_spawners) != set(fb_members):
+            fail(f"{fb_family['name']}'s spawns are "
+                 f"{sorted(set(fb_spawners) ^ set(fb_members))[:4]} off the roster")
+        for fid, rarity in fb_members.items():
+            spawner = fb_spawners.get(fid)
+            if spawner is None:
+                continue
+            want = max(1, int(64.0 / (2 ** (rarity - 1)) / fb_div + 0.5))
+            if spawner.get("weight") != want:
+                fail(f"{fid} spawns with weight {spawner.get('weight')} and its rarity "
+                     f"says {want}, so the rarer fish is not the rarer sight")
+            if spawner.get("minCount") != int(fb_least.group(1)) \
+                    or spawner.get("maxCount") != int(fb_most.group(1)):
+                fail(f"{fid} schools in a size WaterRules did not say")
+        fb_placed += 1
+    if fb_placed != len([f for f in fb_families.values() if f["water"] != "void"]):
+        fail(f"{fb_placed} famil(ies) of fish are in the water, which is not every "
+             f"family that swims on its own")
+
+fb_spawn_placing = body_of(FB_SOURCES["registry/FishEntities.java"],
+                           "public static void onSpawnPlacement(")
+if ("(type, level, reason, pos, random) -> Casts.suits(one, level, pos), "
+        "RegisterSpawnPlacementsEvent.Operation.REPLACE);") not in fb_spawn_placing:
+    fail("a fish has no spawn placement, so the biome's spawn list names it and the "
+         "game never finds anywhere to put it")
+if "molten ? SpawnPlacementTypes.IN_LAVA : SpawnPlacementTypes.IN_WATER" \
+        not in fb_spawn_placing:
+    fail("lava fish are placed as water fish, so the nether's list names them and no "
+         "lava is ever water")
+if "setAirSupply(getMaxAirSupply());" not in body_of(
+        FB_SOURCES["entity/FishEntity.java"], "protected void handleAirSupply("):
+    fail("a lava fish drowns in lava")
+if "setSpecies(net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE .getKey(type).getPath());" \
+        not in FB_SOURCES["entity/FishEntity.java"]:
+    fail("a fish that spawns does not take its species from its type, so every wild "
+         "fish is the first fish in the roster")
+
+# --- bees in the world -------------------------------------------------------
+
+fb_biome_of = dict(re.findall(r'biome\("([a-z_]+)", "([^"]+)"\);', FB_KEEPING_RULES))
+fb_wild = re.findall(r'wild\("([a-z_]+)", "([a-z_]+)", "([a-z_]+)"\)', FB_BEE_RULES)
+fb_all_bees = set(re.findall(r'(?:wild|resource|place|product)\("([a-z_]+)"', FB_BEE_RULES))
+if not fb_wild or not fb_biome_of:
+    fail("BeeRules or KeepingRules no longer reads as wild bees and their biomes, so "
+         "nothing below checked where the bees are")
+fb_nested = sorted({home for _, _, home in fb_wild})
+for fb_bee, _, fb_home in fb_wild:
+    fb_path = os.path.join(RES, "data", NS, "neoforge/biome_modifier",
+                           f"bee_spawn_{fb_bee}.json")
+    if not os.path.isfile(fb_path):
+        fail(f"the {fb_bee} bee is wild and never spawns, so every bee bred from it is "
+             f"unobtainable")
+        continue
+    fb_body = json.loads(read(fb_path))
+    if fb_body.get("type") != "neoforge:add_spawns":
+        fail(f"the {fb_bee} bee's spawn modifier adds no spawns")
+    if fb_body.get("biomes") != fb_biome_of.get(fb_home):
+        fail(f"the {fb_bee} bee spawns in {fb_body.get('biomes')} and its home "
+             f"{fb_home} is {fb_biome_of.get(fb_home)}")
+    if [s.get("type") for s in fb_body.get("spawners", [])] != [f"{NS}:{fb_bee}_bee"]:
+        fail(f"the {fb_bee} bee's spawn modifier spawns something else")
+for fb_bee in sorted(fb_all_bees - {b for b, _, _ in fb_wild}):
+    if os.path.isfile(os.path.join(RES, "data", NS, "neoforge/biome_modifier",
+                                   f"bee_spawn_{fb_bee}.json")):
+        fail(f"the {fb_bee} bee is bred and also spawns wild, so the breeding tree has "
+             f"a shortcut")
+for fb_home in fb_nested:
+    fb_name = fb_home + "_nest"
+    fb_conf = os.path.join(RES, "data", NS, "worldgen/configured_feature", fb_name + ".json")
+    fb_placed_path = os.path.join(RES, "data", NS, "worldgen/placed_feature", fb_name + ".json")
+    fb_mod = os.path.join(RES, "data", NS, "neoforge/biome_modifier", fb_name + ".json")
+    if not (os.path.isfile(fb_conf) and os.path.isfile(fb_placed_path)
+            and os.path.isfile(fb_mod)):
+        fail(f"the {fb_name} is generated nowhere, so its wild bee has no nest to be "
+             f"taken from")
+        continue
+    if f'"Name": "{NS}:{fb_name}"' not in read(fb_conf):
+        fail(f"the {fb_name}'s feature places some other block")
+    if json.loads(read(fb_placed_path)).get("feature") != f"{NS}:{fb_name}":
+        fail(f"the {fb_name}'s placement places another feature")
+    fb_body = json.loads(read(fb_mod))
+    if fb_body.get("type") != "neoforge:add_features" \
+            or fb_body.get("features") != f"{NS}:{fb_name}" \
+            or fb_body.get("biomes") != fb_biome_of.get(fb_home):
+        fail(f"the {fb_name} is not added to {fb_biome_of.get(fb_home)}, the biome its "
+             f"bee lives in")
+
+# --- working bees ------------------------------------------------------------
+
+fb_scoop = body_of(FB_SOURCES["item/BeeScoopItem.java"],
+                   "public InteractionResult interactLivingEntity(")
+if "if (!bee.harvest()) {" not in fb_scoop:
+    fail("the scoop does not ask the bee whether its comb is done, so BeeEntity."
+         "harvest has no caller and a comb is free for the clicking")
+if "ItemStack comb = new ItemStack(BeeItems.COMBS.get(bee.species()).get());" not in fb_scoop:
+    fail("the scoop does not give the bee's own comb, so the centrifuge's outputs are "
+         "unreachable")
+if "jar.set(AgronomyComponents.SPECIES.get(), bee.species());" not in body_of(
+        FB_SOURCES["item/BeeJarItem.java"], "public InteractionResult interactLivingEntity("):
+    fail("a jar does not hold the species of the bee it caught")
+fb_nest = FB_SOURCES["block/NestBlock.java"]
+if "held.set(AgronomyComponents.SPECIES.get(), wild.id());" not in fb_nest:
+    fail("a jar used on a nest does not take its wild bee")
+if "level.scheduleTick(pos, this, KeepingRules.NEST_REFILL_TICKS);" not in fb_nest:
+    fail("a nest does not grow its bees back at the rules' rate")
+if "() -> new com.elysium.agronomy.block.NestBlock(nesting(), home)" \
+        not in FB_SOURCES["registry/BeeBlocks.java"]:
+    fail("the nests are plain blocks, so no wild bee is ever taken from one")
+fb_bee_items = FB_SOURCES["registry/BeeItems.java"]
+for fb_tool, fb_class in (("bee_scoop", "BeeScoopItem"), ("bee_smoker", "BeeSmokerItem"),
+                          ("bee_jar", "BeeJarItem")):
+    if not re.search(r'ITEMS\.register\("' + fb_tool + r'", \(\) -> new com\.elysium\.'
+                     r'agronomy\.item\.' + fb_class + r'\( new Item\.Properties\(\)',
+                     fb_bee_items):
+        fail(f"the {fb_tool} is a plain item, so it does nothing")
+fb_hive = FB_SOURCES["block/HiveBlock.java"]
+if "ItemStack comb = combOf();" not in body_of(fb_hive, "public void work("):
+    fail("a hive makes the plain comb whatever lives in it, so none of the roster's "
+         "combs comes out of a hive")
+if "return new ItemStack(BeeItems.COMBS.get(here).get());" not in body_of(
+        fb_hive, "public ItemStack combOf() {"):
+    fail("a hive of one species makes some other comb")
+if "String child = KeepingRules.childOf(here, brought);" not in body_of(
+        fb_hive, "public Component offerJar("):
+    fail("a hive takes a second species it cannot breed with, or never takes one")
+fb_treat = body_of(fb_hive, "public Component treat(")
+if "String child = KeepingRules.childOf(here, mate);" not in fb_treat:
+    fail("a treat in a hive does not breed the pair the rules name")
+if "player.getInventory().placeItemBackInInventory(beeOf(child));" not in fb_treat:
+    fail("a treat breeds a child nobody receives")
+fb_hive_use = body_of(fb_hive, "protected ItemInteractionResult useItemOn(")
+if "player.displayClientMessage(hive.offerJar(held), true);" not in fb_hive_use:
+    fail("a jar used on a hive does nothing")
+if "player.displayClientMessage(hive.treat(held, player), true);" not in fb_hive_use:
+    fail("a treat used on a hive does nothing")
+if "int calmed = Keeping.smoke(server, player.blockPosition());" not in body_of(
+        FB_SOURCES["item/BeeSmokerItem.java"], "public InteractionResultHolder<ItemStack> use("):
+    fail("the smoker calms nothing")
+fb_bee_entity = FB_SOURCES["entity/BeeEntity.java"]
+if "this.calmUntil = this.level().getGameTime() + KeepingRules.SMOKE_TICKS;" \
+        not in body_of(fb_bee_entity, "public void smoke() {"):
+    fail("smoke calms a bee for a time that is not the rules' time")
+if "if (calm() || by.getAbilities().instabuild) {" not in body_of(
+        fb_bee_entity, "public void upset("):
+    fail("a smoked bee is upset anyway, so the smoker buys nothing")
+if "target.hurt(damageSources().sting(this), KeepingRules.STING_DAMAGE);" \
+        not in body_of(fb_bee_entity, "private void sting() {"):
+    fail("an upset bee stings for an amount the rules did not say")
+if 'setSpecies(path.substring(0, path.length() - "_bee".length()));' not in fb_bee_entity:
+    fail("a bee that spawns does not take its species from its type, so every wild "
+         "bee is the first bee in the roster")
+
+# --- every key the new code says, named ---------------------------------------
+
+fb_said = set()
+for fb_text in FB_SOURCES.values():
+    fb_said |= set(re.findall(r'Component\.translatable\("(elysiumagronomy\.[a-z_.]+)"',
+                              fb_text))
+fb_unnamed = sorted(key for key in fb_said if key not in FB_LANG)
+if fb_unnamed:
+    fail(f"{len(fb_unnamed)} thing(s) the rods, the farm and the bees say have no words, "
+         f"so a player reads the key: {fb_unnamed[:4]}")
+
+print(f"fishing and bees   : {len([f for f in fb_families.values() if f['water'] != 'void'])} "
+      f"famil(ies) of fish in the water, {len(fb_wild)} wild bee(s) in {len(fb_nested)} "
+      f"nest biome(s), rods that cast their tackle, and every comb off a bee or out of "
+      f"a hive of its own")
+
+# ===========================================================================
+# END fishing and bees in the world (agro-fishbees)
+# ===========================================================================
+
 if problems:
     print(f"{len(problems)} PROBLEM(S):")
     for problem in problems:

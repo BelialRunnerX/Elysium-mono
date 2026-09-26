@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_plains",
+  "spawners": [
+    {
+      "type": "elysiumagronomy:meadow_bee",
+      "weight": 6,
+      "minCount": 1,
+      "maxCount": 3
+    }
+  ]
+}

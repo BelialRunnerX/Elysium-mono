@@ -73,7 +73,7 @@ public final class BeeBlocks {
         Map<String, DeferredBlock<Block>> made = new LinkedHashMap<>();
         for (String home : BeeRules.homes()) {
             DeferredBlock<Block> block = BLOCKS.register(home + "_nest",
-                    () -> new Block(nesting()));
+                    () -> new com.elysium.agronomy.block.NestBlock(nesting(), home));
             ITEMS.register(home + "_nest",
                     () -> new BlockItem(block.get(), new Item.Properties()));
             made.put(home, block);

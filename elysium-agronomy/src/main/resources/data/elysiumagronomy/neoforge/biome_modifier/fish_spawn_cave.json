@@ -1,0 +1,42 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_cave",
+  "spawners": [
+    {
+      "type": "elysiumagronomy:blind_cavefish",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:stone_loach",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:grotto_sculpin",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:pale_salamander_fish",
+      "weight": 2,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:deepslate_char",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:dripstone_minnow",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    }
+  ]
+}

@@ -107,6 +107,81 @@ TACKLE_BLOCKS = [WORM_FARM, TACKLE_BOX]
 MOUNTS = [one["id"] + "_mount" for one in FISH]
 
 
+# ---------------------------------------------------------------------------
+# The water the fish swim in without a rod, read out of WaterRules
+# ---------------------------------------------------------------------------
+
+WATER_SOURCE = read(os.path.join(
+    MOD, "src/main/java/com/elysium/agronomy/rules/WaterRules.java"))
+
+HAUNTS = {}
+for const, biomes in re.findall(r'haunt\(FishRules\.([A-Z]+), "([^"]+)"\)',
+                                WATER_SOURCE):
+    if const not in FAMILIES:
+        print("WaterRules gives a haunt to a family FishRules does not declare:",
+              const)
+        sys.exit(2)
+    HAUNTS[FAMILIES[const]["name"]] = biomes
+
+
+def water_number(name):
+    found = re.search(r"public static final (?:int|double) " + name
+                      + r" = ([\d.]+)D?;", WATER_SOURCE)
+    if not found:
+        print("WaterRules no longer says", name)
+        sys.exit(2)
+    return float(found.group(1))
+
+
+SPAWN_DIVISOR = water_number("SPAWN_WEIGHT_DIVISOR")
+SCHOOL_LEAST = int(water_number("SCHOOL_LEAST"))
+SCHOOL_MOST = int(water_number("SCHOOL_MOST"))
+
+#: The void is the one family nothing swims in on its own: WaterRules.spawnsWild.
+WILD_FAMILIES = [family for family in FAMILIES.values()
+                 if family["water"] != "void"]
+if not HAUNTS or set(HAUNTS) != {family["name"] for family in WILD_FAMILIES}:
+    print("the families with a haunt are not the families that swim on their own: "
+          f"{sorted(HAUNTS)} against "
+          f"{sorted(family['name'] for family in WILD_FAMILIES)}")
+    sys.exit(2)
+
+
+def spawn_weight(rarity):
+    """WaterRules.spawnWeight: the cast weight, divided down, never nothing."""
+    weight = 64.0
+    for _ in range(1, rarity):
+        weight /= 2.0
+    # Math.round, which rounds a half up; Python's round() would not.
+    return max(1, int(weight / SPAWN_DIVISOR + 0.5))
+
+
+def spawns():
+    """
+    One add-spawns biome modifier per family that swims on its own.
+
+    <p>The biomes are the family's haunt and the spawners are every fish in
+    it at the weight its rarity gives, so the rarer fish is the rarer sight.
+    Where in those biomes a fish may actually appear &mdash; the liquid, the
+    depth, the hour &mdash; is FishEntities' spawn placement, which asks the
+    same question a cast does.
+    """
+    written = 0
+    for family in WILD_FAMILIES:
+        members = [one for one in FISH if one["family"]["name"] == family["name"]]
+        write(os.path.join(DATA, "neoforge/biome_modifier",
+                           "fish_spawn_" + family["name"] + ".json"), {
+            "type": "neoforge:add_spawns",
+            "biomes": HAUNTS[family["name"]],
+            "spawners": [{"type": f"{NS}:{one['id']}",
+                          "weight": spawn_weight(one["rarity"]),
+                          "minCount": SCHOOL_LEAST,
+                          "maxCount": SCHOOL_MOST} for one in members],
+        })
+        written += 1
+    return written
+
+
 def java_hash(text):
     value = 0
     for char in text:
@@ -465,6 +540,20 @@ def tackle_data():
     return written
 
 
+#: What a rod's tooltip and the worm farm say.
+SAYINGS = {
+    f"{NS}.rod.rung": "Rung %s of %s",
+    f"{NS}.rod.hook": "Hook: %s",
+    f"{NS}.rod.bobber": "Bobber: %s",
+    f"{NS}.rod.bait": "Bait: %s x%s",
+    f"{NS}.rod.bare": "Nothing fitted: sneak-use with a hook, bobber or bait in the "
+                      "other hand",
+    f"{NS}.worm_farm.fed": "The farm will make %s",
+    f"{NS}.worm_farm.hungry": "Feed it a fish, and it makes that fish's bait",
+    f"{NS}.worm_farm.working": "Making %s: %s of %s",
+}
+
+
 def a_name(text):
     return " ".join(word.capitalize() for word in text.split("_"))
 
@@ -489,6 +578,7 @@ def lang():
         words[f"block.{NS}.{one['id']}_mount"] = a_name(one["id"]) + " Mount"
     for name in TACKLE_BLOCKS:
         words[f"block.{NS}.{name}"] = a_name(name)
+    words.update(SAYINGS)
 
     # The base is the language file as it stands in the output tree if one is
     # there, and the committed one otherwise.
@@ -517,6 +607,7 @@ def lang():
     ours |= {f"item.{NS}.{piece['id']}" for piece in HOOKS + BOBBERS}
     ours |= {f"block.{NS}.{one['id']}_mount" for one in FISH}
     ours |= {f"block.{NS}.{name}" for name in TACKLE_BLOCKS}
+    ours |= set(SAYINGS)
     for key in ours:
         existing.pop(key, None)
     existing.update(words)
@@ -527,6 +618,7 @@ def main():
     draw_all()
     models()
     files = tackle_data()
+    files += spawns()
     lang()
     print(f"fish: {len(FISH)} species across {len(FAMILIES)} families, "
           f"{len(ROD_NAMES)} rod(s), {len(FAMILIES)} bait(s), "

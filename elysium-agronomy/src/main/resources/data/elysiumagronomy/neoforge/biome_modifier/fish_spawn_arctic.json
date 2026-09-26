@@ -1,0 +1,54 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_aquatic_icy",
+  "spawners": [
+    {
+      "type": "elysiumagronomy:arctic_char",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:polar_cod",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:capelin",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:greenland_halibut",
+      "weight": 2,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:wolffish",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:lumpsucker",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:icefish",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:navaga",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    }
+  ]
+}

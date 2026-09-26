@@ -122,8 +122,10 @@ public final class FishItems {
         String[] names = {"reed_rod", "oak_rod", "iron_rod", "steel_rod", "starsteel_rod"};
         for (int rung = 0; rung < FishRules.RODS; rung++) {
             final int uses = ROD_USES[Math.min(ROD_USES.length - 1, rung)];
+            final int held = rung;
             made.put(rung, ITEMS.register(names[Math.min(names.length - 1, rung)],
-                    () -> new Item(new Item.Properties().durability(uses))));
+                    () -> new com.elysium.agronomy.item.ElysiumRodItem(held,
+                            new Item.Properties().durability(uses))));
         }
         // One rod per rung, or a rung of the ladder the rules describe cannot
         // be held and the tilt at that step does nothing.
