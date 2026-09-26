@@ -36,6 +36,8 @@ FAUNA_MODEL = os.path.join(MOD,
                            "src/main/java/com/elysium/bestiary/client/FaunaModel.java")
 FAUNA_RULES = os.path.join(MOD,
                            "src/main/java/com/elysium/bestiary/rules/FaunaRules.java")
+BEHAVIOURS = os.path.join(
+    MOD, "src/main/java/com/elysium/bestiary/rules/BehaviourRules.java")
 
 try:
     from PIL import Image, ImageDraw
@@ -65,6 +67,7 @@ MODEL_SOURCE = read(MODEL)
 SHARED_SOURCE = read(SHARED)
 FAUNA_MODEL_SOURCE = read(FAUNA_MODEL)
 FAUNA_RULES_SOURCE = read(FAUNA_RULES)
+BEHAVIOUR_SOURCE = read(BEHAVIOURS)
 
 FAMILY = {}
 for name, value in re.findall(
@@ -634,6 +637,41 @@ def titled_fauna(name):
     return " ".join(word.capitalize() for word in name.split("_"))
 
 
+# What each beast does, read out of BehaviourRules. The words a player sees
+# are here because they are words; which beast does which is not, because that
+# is a rule and a rule written in a generator is a rule no harness has seen.
+_VERB_NAME = dict(re.findall(
+    r'public static final String (SPLIT|LEAP|STALK|ANCHOR|SUNDER|CHARGE|DRIFT'
+    r'|CHILL|CALL) = "(\w+)";', BEHAVIOUR_SOURCE))
+if len(_VERB_NAME) != 9:
+    print("BehaviourRules names %d verb(s) rather than nine" % len(_VERB_NAME))
+    sys.exit(2)
+DOES = dict(re.findall(r'made\.put\("([a-z_]+)", (\w+)\);',
+                       re.sub(r"\s+", " ", BEHAVIOUR_SOURCE)))
+DOES = {beast: _VERB_NAME[verb] for beast, verb in DOES.items()
+        if verb in _VERB_NAME}
+if sorted(DOES) != sorted(beast["id"] for beast in BEASTS):
+    print("BehaviourRules gives something to do to %s and the bestiary is %s"
+          % (sorted(DOES), sorted(b["id"] for b in BEASTS)))
+    sys.exit(2)
+
+VERB_WORDS = {
+    "split": "Comes apart when it dies, and the pieces keep coming.",
+    "leap": "Jumps the gap you were counting on.",
+    "stalk": "Stops dead when you look at it. Moves when you do not.",
+    "anchor": "Will not be pushed, and pushes hard.",
+    "sunder": "Goes through the wall rather than round it.",
+    "charge": "Winds up, then crosses the room in one line.",
+    "drift": "Walks to where you are going rather than where you are.",
+    "chill": "What it touches gets slower and colder.",
+    "call": "Calls up one more of its own family.",
+}
+if sorted(VERB_WORDS) != sorted(_VERB_NAME.values()):
+    print("there are words for %s and verbs for %s"
+          % (sorted(VERB_WORDS), sorted(_VERB_NAME.values())))
+    sys.exit(2)
+
+
 def main():
     entity_textures = os.path.join(ASSETS, "textures/entity")
     os.makedirs(entity_textures, exist_ok=True)
@@ -658,6 +696,11 @@ def main():
 
     for family in sorted(SHAPES):
         lang["bestiary.%s.family.%s" % (NS, family)] = titled(family)
+
+    for verb, words in sorted(VERB_WORDS.items()):
+        lang["bestiary.%s.does.%s" % (NS, verb)] = words
+    for beast_id, verb in sorted(DOES.items()):
+        lang["bestiary.%s.mechanic.%s" % (NS, beast_id)] = titled(verb)
 
     # One modifier per beast rather than one per family.
     #

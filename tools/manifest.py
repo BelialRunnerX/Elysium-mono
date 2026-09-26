@@ -212,9 +212,10 @@ DECISIONS = [
     (r"^friendsandfoes", "PLANNED", "elysium-bestiary",
      "14 creatures, each built around exactly one mechanic — a copper golem that "
      "presses buttons, a glare that shows you where the dark is, an iceologer "
-     "that drops a cloud on your head. The bestiary has three behaviours across "
-     "nine beasts, so this is the jar that says a mob is a verb and not a stat "
-     "block"),
+     "that drops a cloud on your head. The system that makes that possible now "
+     "exists here: nine verbs over nine beasts, one each and none spare, every "
+     "magnitude derived from what the beast already is. What is left is the "
+     "creatures, not the idea"),
     (r"^knightquest", "SPLIT", "elysium-bestiary",
      "four mods in a trench coat: 173 of its 200 items are gear and only 13 of "
      "its keys are creatures, so the armour belongs where the armour is. See "

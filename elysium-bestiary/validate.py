@@ -1451,6 +1451,149 @@ else:
           f"game really makes, and not one of them registered by hand")
 
 
+# ---------------------------------------------------------------------------
+# A mechanic apiece
+# ---------------------------------------------------------------------------
+#
+# Nine beasts on three sets of family goals is nine rows of numbers and three
+# fights. This section is the proof that it is nine fights: one verb each,
+# none spare, one branch apiece to happen in, and every magnitude worked out
+# from what the beast already is rather than typed beside it.
+
+print("-" * 70)
+
+BEHAVIOURS = strip_comments(read(SRC, "rules/BehaviourRules.java"), keep_strings=True)
+ACTS = strip_comments(read(SRC, "entity/act/BeastActs.java"), keep_strings=True)
+if not BEHAVIOURS:
+    fail("nothing says what any beast does, so meeting a stalker and meeting a "
+         "ripper are the same fight with a different model on it — which is "
+         "what four of the jars this module is meant to replace exist to fix")
+else:
+    VERB_NAMES = dict(re.findall(
+        r'public static final String (SPLIT|LEAP|STALK|ANCHOR|SUNDER|CHARGE'
+        r'|DRIFT|CHILL|CALL) = "(\w+)";', BEHAVIOURS))
+    _one_line = re.sub(r"\s+", " ", BEHAVIOURS)
+    _verbs = re.search(r"List<String> VERBS = List\.of\((.*?)\); ", _one_line)
+    verbs = [VERB_NAMES.get(one, one)
+             for one in re.findall(r"[A-Z_]+", _verbs.group(1) if _verbs else "")]
+    does = {beast: VERB_NAMES.get(verb, verb) for beast, verb in
+            re.findall(r'made\.put\("([a-z_]+)", (\w+)\);', _one_line)}
+
+    if len(verbs) < 3:
+        fail(f"only {len(verbs)} verb(s) could be read out of the rules, so "
+             f"everything below is checking an empty list and passing")
+    # One each, and none spare. Both directions, because a verb given to two
+    # beasts and a verb given to none are two different mistakes and this is
+    # the only place that can tell them apart from outside.
+    if len(does) != len(beasts):
+        fail(f"{len(does)} beast(s) are given something to do and there are "
+             f"{len(beasts)}, so one of them fights like whichever family goal "
+             f"set it happens to have")
+    if len(set(does.values())) != len(does):
+        fail("two beasts do the same thing, so two of them are one fight "
+             "wearing two skins")
+    for verb in verbs:
+        if verb not in does.values():
+            fail(f"{verb} is a thing nothing does, so it is a mechanic that "
+                 f"was written, given a branch to happen in, and will never "
+                 f"once be performed")
+
+    # Every rule the file declares is added up.
+    _sum = squashed(body_of(BEHAVIOURS, "public static List<String> faults()"))
+    _rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(",
+                            BEHAVIOURS))
+    _added = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _sum))
+    if len(_rules) < 5:
+        fail(f"only {len(_rules)} behaviour rule(s) are declared at all, so the "
+             f"check below is checking nothing")
+    for _rule in sorted(_rules - _added):
+        fail(f"{_rule} is written, compiled and never added up by the "
+             f"behaviours' faults(), so it answers the harness's controls and "
+             f"is never once asked about the roster this pack ships")
+
+    # The one place it happens.
+    if not ACTS:
+        fail("nothing performs any of it, so every verb in the rules is a word "
+             "in a table and no beast does anything at all")
+    else:
+        _perform = squashed(body_of(ACTS, "public static boolean perform("))
+        CONSTANT_OF = {word: name for name, word in VERB_NAMES.items()}
+        for verb in verbs:
+            wanted = f"case BehaviourRules.{CONSTANT_OF.get(verb, verb.upper())} ->"
+            if wanted not in _perform:
+                fail(f"nothing performs {verb}, so every beast that does it is "
+                     f"priced, placed, drawn and inert")
+            elif _perform.count(wanted) != 1:
+                fail(f"{verb} has {_perform.count(wanted)} branches to happen "
+                     f"in, so which one happens is whichever the compiler put "
+                     f"first")
+        # And no beast named in it, ever. The day one is, the module has begun
+        # growing a branch per creature and the rest of the roster follows.
+        for beast in beasts:
+            if f'"{beast["id"]}"' in ACTS:
+                fail(f"{beast['id']} is named in the one place a mechanic "
+                     f"happens, so it has started growing a branch per beast "
+                     f"rather than per verb — which is nine files by the time "
+                     f"anybody notices")
+        # The magnitudes are asked for rather than typed.
+        for named, why in (("BehaviourRules.strengthOf(row, all)",
+                            "how hard a mechanic lands is typed here rather "
+                            "than worked out from the beast"),
+                           ("BehaviourRules.reachOf(row)",
+                            "how far a mechanic reaches is typed here rather "
+                            "than worked out from how big the beast is")):
+            if named not in _perform:
+                fail(why)
+
+    # The clock is the rules' clock, and a thing that happens on death cannot
+    # happen on a clock at all.
+    _step = squashed(body_of(BEAST_ENTITY, "public void aiStep()"))
+    if "com.elysium.bestiary.rules.BehaviourRules.waitsOf(beast(), " \
+            "BeastRules.BEASTS);" not in _step:
+        fail("how often a beast does what it does is not the number the rules "
+             "worked out, so the mechanic is a second set of dials beside the "
+             "first and the two will disagree the day anybody edits one")
+    if "com.elysium.bestiary.entity.act.BeastActs.perform(this, getTarget())" \
+            not in _step:
+        fail("nothing asks a beast to do what it does while it is alive, so "
+             "every mechanic in the roster is a branch nothing reaches")
+    _die = squashed(body_of(BEAST_ENTITY, "public void die("))
+    if "BeastActs.perform(this, getTarget());" not in _die:
+        fail("nothing asks a beast to do what it does when it dies, so the one "
+             "verb that can only happen then never happens")
+
+    # A piece is half a beast and cannot itself come apart. Either half of
+    # that missing is a bug you meet as a server that stops.
+    _piece = squashed(body_of(BEAST_ENTITY, "public void becomeAPiece()"))
+    if "beast().health() / 2.0D" not in _piece:
+        fail("a piece of a beast has as much health as the beast it came off, "
+             "so one mob is worth two and the ladder is out by a factor")
+    if "this.xpReward = 0;" not in _piece:
+        fail("a piece of a beast is worth experience, so the thing that comes "
+             "apart is the best thing in the pack to farm")
+    if "beast.piece()" not in squashed(ACTS):
+        fail("nothing stops a piece coming apart into more pieces, which is a "
+             "room that fills until the server stops answering")
+    if "beast.called() >= MOST_CALLED" not in squashed(ACTS):
+        fail("nothing caps how many of its family a beast may call up, which "
+             "is the same room and the same server")
+
+    # And what a player is told about it.
+    for beast in beasts:
+        if f"bestiary.{NS}.mechanic.{beast['id']}" not in lang:
+            fail(f"{beast['id']}'s mechanic has no name, so the almanac prints "
+                 f"a translation key at a player")
+    for verb in verbs:
+        if f"bestiary.{NS}.does.{verb}" not in lang:
+            fail(f"{verb} has no description, so a player meets it and is told "
+                 f"nothing about what happened")
+
+    print(f"a mechanic apiece  : {len(verbs)} verb(s) over {len(does)} beast(s), "
+          f"one each and none spare, each with exactly one branch to happen in, "
+          f"no beast named in it, and every magnitude asked of the rules rather "
+          f"than typed")
+
+
 if problems:
     print(f"{len(problems)} problem(s):")
     for problem in problems:

@@ -63,6 +63,7 @@ public final class BeastHarness {
         theDark();
         theHaunts();
         theFauna();
+        theBehaviours();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -730,5 +731,167 @@ public final class BeastHarness {
                 + swept + " derivations swept, every bigger yield a longer wait, "
                 + "no pen that feeds itself and nothing in one that something in "
                 + "the dark already drops");
+    }
+
+    // ==================================================================
+
+    /**
+     * A mechanic apiece, and every one of its magnitudes worked out.
+     *
+     * <p>The claim that matters is not that these nine verbs are spread
+     * correctly over these nine beasts — that would go on being true until
+     * somebody added a tenth. It is that the derivation cannot produce a
+     * beast whose mechanic is weaker than an easier beast's: a harder thing
+     * always lands harder and always lands more often, whatever roster it is
+     * put in. Anything added tomorrow inherits that.
+     */
+    private static void theBehaviours() {
+        java.util.List<String> faults = BehaviourRules.faults();
+        check(faults.isEmpty(), "something wrong with the behaviours: " + faults);
+
+        // The derivation, over rosters nobody wrote.
+        Random random = new Random(4_471_909L);
+        int swept = 0;
+        for (int round = 0; round < 100_000; round++) {
+            int many = 2 + random.nextInt(6);
+            List<BeastRules.Beast> made = new ArrayList<>(many);
+            for (int at = 0; at < many; at++) {
+                made.add(new BeastRules.Beast("b" + at, BeastRules.BRUTE,
+                        1 + random.nextInt(3), 1.0D + random.nextInt(400),
+                        random.nextInt(60), 0.05D + random.nextDouble(),
+                        random.nextInt(20), 1 + random.nextInt(100), 1.0F, 1.0F));
+            }
+            List<BeastRules.Beast> order = new ArrayList<>(made);
+            order.sort((first, second) -> Double.compare(first.threat(), second.threat()));
+            swept++;
+            for (int at = 1; at < order.size(); at++) {
+                BeastRules.Beast below = order.get(at - 1);
+                BeastRules.Beast above = order.get(at);
+                if (above.threat() <= below.threat()) {
+                    continue;
+                }
+                // Not strictly harder: two threats a hair apart round onto
+                // one float, and a rule that demanded otherwise would be a
+                // rule about floating point rather than about the bestiary.
+                // Strictness is the ladder's job, over a roster somebody
+                // actually wrote.
+                check(BehaviourRules.strengthOf(above, made)
+                                >= BehaviourRules.strengthOf(below, made),
+                        "a more dangerous beast's mechanic lands softer than a "
+                                + "less dangerous one's, so the mechanic is a "
+                                + "second set of dials that disagrees with the "
+                                + "first");
+                check(BehaviourRules.waitsOf(above, made)
+                                <= BehaviourRules.waitsOf(below, made),
+                        "a more dangerous beast does what it does less often than "
+                                + "a less dangerous one");
+            }
+            for (BeastRules.Beast one : made) {
+                check(BehaviourRules.strengthOf(one, made) >= BehaviourRules.LEAST_STRENGTH
+                                && BehaviourRules.strengthOf(one, made)
+                                        <= BehaviourRules.MOST_STRENGTH,
+                        "a strength outside its own band came out of the derivation");
+                check(BehaviourRules.waitsOf(one, made) >= BehaviourRules.SOONEST
+                                && BehaviourRules.waitsOf(one, made)
+                                        <= BehaviourRules.LATEST,
+                        "a wait outside its own band came out of the derivation");
+            }
+        }
+
+        // Controls, built to be caught.
+        BeastRules.Beast first = BeastRules.BEASTS.get(0);
+        BeastRules.Beast second = BeastRules.BEASTS.get(1);
+
+        check(!BehaviourRules.faultsInSilence(BeastRules.BEASTS,
+                        java.util.Map.of()).isEmpty(),
+                "a roster where nothing does anything in particular is not "
+                        + "reported, so every beast in the pack could be the "
+                        + "same fight with a different model on it");
+        check(BehaviourRules.faultsInSilence(BeastRules.BEASTS,
+                        BehaviourRules.DOES).isEmpty(),
+                "the beasts this module ships are reported as doing nothing");
+        check(!BehaviourRules.faultsInCoverage(java.util.List.of(first),
+                        java.util.Map.of(first.id(), "wibble")).isEmpty(),
+                "a beast that does something nothing can perform is not reported");
+        check(!BehaviourRules.faultsInCoverage(java.util.List.of(first, second),
+                        java.util.Map.of(first.id(), BehaviourRules.LEAP,
+                                second.id(), BehaviourRules.LEAP)).isEmpty(),
+                "two beasts that do the same thing are not reported, so two of "
+                        + "the nine are one fight wearing two skins");
+        check(BehaviourRules.faultsInCoverage(BeastRules.BEASTS,
+                        BehaviourRules.DOES).isEmpty(),
+                "the behaviours this module ships are reported as faulty");
+
+        check(!BehaviourRules.faultsInSpares(BehaviourRules.VERBS,
+                        java.util.Map.of(first.id(), BehaviourRules.LEAP)).isEmpty(),
+                "a verb nothing does is not reported, so a mechanic could be "
+                        + "written, branched and never once performed");
+        check(!BehaviourRules.faultsInSpares(java.util.List.of(),
+                        java.util.Map.of("not_a_beast", BehaviourRules.LEAP)).isEmpty(),
+                "something that is not a beast being given something to do is "
+                        + "not reported");
+        check(BehaviourRules.faultsInSpares(BehaviourRules.VERBS,
+                        BehaviourRules.DOES).isEmpty(),
+                "the verbs this module ships are reported as spare");
+
+        check(!BehaviourRules.faultsInTimings(BeastRules.BEASTS,
+                        BehaviourRules.LATEST, BehaviourRules.LATEST).isEmpty(),
+                "a mechanic that happens oftener than a player can react to is "
+                        + "not reported");
+        check(!BehaviourRules.faultsInTimings(BeastRules.BEASTS,
+                        BehaviourRules.SOONEST, BehaviourRules.SOONEST).isEmpty(),
+                "a mechanic most fights end before is not reported");
+        check(BehaviourRules.faultsInTimings(BeastRules.BEASTS,
+                        BehaviourRules.SOONEST, BehaviourRules.LATEST).isEmpty(),
+                "the waits this module ships are reported as outside their band");
+
+        check(!BehaviourRules.faultsInStrengths(BeastRules.BEASTS,
+                        BehaviourRules.MOST_STRENGTH,
+                        BehaviourRules.MOST_STRENGTH).isEmpty(),
+                "a mechanic that lands under its own floor is not reported");
+        check(!BehaviourRules.faultsInStrengths(BeastRules.BEASTS,
+                        BehaviourRules.LEAST_STRENGTH,
+                        BehaviourRules.LEAST_STRENGTH).isEmpty(),
+                "a mechanic that lands over its own ceiling is not reported");
+        check(BehaviourRules.faultsInStrengths(BeastRules.BEASTS,
+                        BehaviourRules.LEAST_STRENGTH,
+                        BehaviourRules.MOST_STRENGTH).isEmpty(),
+                "the strengths this module ships are reported as outside their band");
+
+        check(!BehaviourRules.faultsInReaches(BeastRules.BEASTS,
+                        BehaviourRules.MOST_REACH, BehaviourRules.MOST_REACH).isEmpty(),
+                "a reach under its own floor is not reported");
+        check(!BehaviourRules.faultsInReaches(java.util.List.of(
+                        new BeastRules.Beast("control", BeastRules.BRUTE, 1, 10.0D,
+                                2.0D, 0.2D, 0.0D, 10, 40.0F, 2.0F)),
+                        BehaviourRules.LEAST_REACH, BehaviourRules.MOST_REACH).isEmpty(),
+                "a beast wider than anything its mechanic can touch is not "
+                        + "reported, so it would stand against you and miss");
+        check(BehaviourRules.faultsInReaches(BeastRules.BEASTS,
+                        BehaviourRules.LEAST_REACH, BehaviourRules.MOST_REACH).isEmpty(),
+                "the reaches this module ships are reported as outside their band");
+
+        List<BeastRules.Beast> upsideDown = java.util.List.of(
+                new BeastRules.Beast("control", BeastRules.BRUTE, 1, 400.0D,
+                        50.0D, 0.9D, 19.0D, 10, 1.0F, 1.0F),
+                new BeastRules.Beast("control_two", BeastRules.BRUTE, 2, 10.0D,
+                        1.0D, 0.1D, 0.0D, 9, 1.0F, 1.0F));
+        check(!BehaviourRules.faultsInLadder(upsideDown).isEmpty(),
+                "a tier-two beast whose mechanic is weaker than its tier-one "
+                        + "family-mate's is not reported, so climbing a ladder "
+                        + "could buy a bigger health bar and nothing else");
+        check(!BehaviourRules.faultsInPace(upsideDown).isEmpty(),
+                "a tier-two beast whose mechanic happens less often than its "
+                        + "tier-one family-mate's is not reported");
+        check(BehaviourRules.faultsInLadder(BeastRules.BEASTS).isEmpty(),
+                "the ladder this module ships is reported as flat");
+        check(BehaviourRules.faultsInPace(BeastRules.BEASTS).isEmpty(),
+                "the pace this module ships is reported as flat");
+
+        System.out.println("  the behaviours: " + BehaviourRules.VERBS.size()
+                + " verb(s) over " + BeastRules.BEASTS.size() + " beast(s), one "
+                + "each and none spare, " + swept + " rosters swept, and in every "
+                + "one of them the more dangerous thing's mechanic never landed "
+                + "softer and never landed less often");
     }
 }
