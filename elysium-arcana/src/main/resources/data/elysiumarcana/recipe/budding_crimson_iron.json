@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:crimson_iron_block"
+    },
+    {
+      "item": "elysiumarcana:crimson_iron_block"
+    },
+    {
+      "item": "elysiumarcana:crimson_iron_block"
+    },
+    {
+      "item": "elysiumarcana:crimson_iron_block"
+    },
+    {
+      "item": "elysiumarcana:crimson_iron_block"
+    },
+    {
+      "item": "elysiumarcana:crimson_iron_block"
+    },
+    {
+      "item": "elysiumarcana:crimson_iron_block"
+    },
+    {
+      "item": "elysiumarcana:crimson_iron_block"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_crimson_iron",
+    "count": 1
+  }
+}

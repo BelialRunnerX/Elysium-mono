@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:lead_block"
+    },
+    {
+      "item": "elysiumarcana:lead_block"
+    },
+    {
+      "item": "elysiumarcana:lead_block"
+    },
+    {
+      "item": "elysiumarcana:lead_block"
+    },
+    {
+      "item": "elysiumarcana:lead_block"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_lead",
+    "count": 1
+  }
+}

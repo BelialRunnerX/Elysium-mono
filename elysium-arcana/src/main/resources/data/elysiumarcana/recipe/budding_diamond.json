@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:diamond_block"
+    },
+    {
+      "item": "elysiumarcana:diamond_block"
+    },
+    {
+      "item": "elysiumarcana:diamond_block"
+    },
+    {
+      "item": "elysiumarcana:diamond_block"
+    },
+    {
+      "item": "minecraft:glow_ink_sac"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_diamond",
+    "count": 1
+  }
+}

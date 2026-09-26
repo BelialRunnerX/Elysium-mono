@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:azure_silver_block"
+    },
+    {
+      "item": "elysiumarcana:azure_silver_block"
+    },
+    {
+      "item": "elysiumarcana:azure_silver_block"
+    },
+    {
+      "item": "elysiumarcana:azure_silver_block"
+    },
+    {
+      "item": "elysiumarcana:azure_silver_block"
+    },
+    {
+      "item": "elysiumarcana:azure_silver_block"
+    },
+    {
+      "item": "elysiumarcana:azure_silver_block"
+    },
+    {
+      "item": "elysiumarcana:azure_silver_block"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_azure_silver",
+    "count": 1
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:aluminum_block"
+    },
+    {
+      "item": "elysiumarcana:aluminum_block"
+    },
+    {
+      "item": "elysiumarcana:aluminum_block"
+    },
+    {
+      "item": "elysiumarcana:aluminum_block"
+    },
+    {
+      "item": "elysiumarcana:aluminum_block"
+    },
+    {
+      "item": "elysiumarcana:aluminum_block"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_aluminum",
+    "count": 1
+  }
+}

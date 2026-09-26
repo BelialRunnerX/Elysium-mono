@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:ancient_debris_block"
+    },
+    {
+      "item": "elysiumarcana:ancient_debris_block"
+    },
+    {
+      "item": "elysiumarcana:ancient_debris_block"
+    },
+    {
+      "item": "elysiumarcana:ancient_debris_block"
+    },
+    {
+      "item": "minecraft:glow_ink_sac"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_ancient_debris",
+    "count": 1
+  }
+}

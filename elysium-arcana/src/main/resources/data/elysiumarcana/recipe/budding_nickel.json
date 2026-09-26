@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:nickel_block"
+    },
+    {
+      "item": "elysiumarcana:nickel_block"
+    },
+    {
+      "item": "elysiumarcana:nickel_block"
+    },
+    {
+      "item": "elysiumarcana:nickel_block"
+    },
+    {
+      "item": "elysiumarcana:nickel_block"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_nickel",
+    "count": 1
+  }
+}

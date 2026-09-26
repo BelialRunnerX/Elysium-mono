@@ -112,7 +112,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `fusion-1.3.12-neoforge-mc1.21.1.jar` | DROP | elysium-atelier | connected textures: a client-side rendering feature, not content a player obtains |
 | `fzzy_config-0.7.6+1.21+neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `geckolib-neoforge-1.21.1-4.9.2.jar` | DROP | - | library: goes when the mods needing it go |
-| `GeOre-1.21.1-6.2.2.jar` | DONE | elysium-arcana | geodes: 210 blocks and 60 items across 30 materials — 20 the foundry mines and 10 the game digs up — each with a whole growth chain. NOT yet removable: oritech ships compat recipes naming geore items, so the third pre-check fails until those are handled |
+| `GeOre-1.21.1-6.2.2.jar` | DONE | elysium-arcana | geodes: 210 blocks and 60 items across 30 materials — 20 the foundry mines and 10 the game digs up — each with a whole growth chain, and a way of seeding a budding block rather than only finding one. Retired to mods/_superseded on 26 September, once that last piece existed: the thirty-two oritech compat recipes it was waiting on are replaced |
 | `Glodium-1.21-2.2-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `gravestone-neoforge-1.21.1-1.0.38.jar` | DONE | elysium-comforts | a grave sized to what a player was actually carrying, so nothing an inventory mod added is lost |
 | `guideme-21.1.17.jar` | DROP | - | library: goes when the mods needing it go |

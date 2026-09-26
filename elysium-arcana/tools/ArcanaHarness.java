@@ -27,12 +27,27 @@ public final class ArcanaHarness {
         }
     }
 
+    /**
+     * Whether building that threw, which is how a compact constructor is
+     * tested: a record that refuses to exist is a whole class of bad row that
+     * no rule below ever has to be written for.
+     */
+    private static boolean threwOn(Runnable building) {
+        try {
+            building.run();
+            return false;
+        } catch (RuntimeException refused) {
+            return true;
+        }
+    }
+
     public static void main(String[] args) {
         theSeeds();
         theDerivation();
         theDirections();
         theWalk();
         theGeodes();
+        theBudding();
         theRelics();
 
         if (failures > 0) {
@@ -406,5 +421,172 @@ public final class ArcanaHarness {
                         .isEmpty(),
                 "the library allows one item to carry the same ability twice, so the "
                         + "check every relic above passed through finds nothing");
+    }
+
+    /**
+     * How a budding block is made.
+     *
+     * <p>The claim under test is the short loop: that breaking a seeded block
+     * never returns what seeding it cost. The long loop — a block that grows
+     * for ever — is the thing the player is buying and is supposed to pay off,
+     * so no amount of sampling would ever show it to be wrong. The short one is
+     * pure arithmetic, so it is swept rather than sampled.
+     */
+    private static void theBudding() {
+        List<String> faults = BuddingRules.faults();
+        check(faults.isEmpty(), "something wrong with the seedings: " + faults);
+
+        BuddingRules.Budding first = BuddingRules.BUDDINGS.get(0);
+
+        check(!BuddingRules.faultsInNames(List.of(first, first)).isEmpty(),
+                "a material priced twice is not reported");
+        check(BuddingRules.faultsInNames(BuddingRules.BUDDINGS).isEmpty(),
+                "the materials this module prices are reported as doubled");
+
+        check(!BuddingRules.faultsInCoverage(List.of(first),
+                        GeodeRules.materials()).isEmpty(),
+                "a geode with no way to seed it is not reported");
+        check(BuddingRules.faultsInCoverage(BuddingRules.BUDDINGS,
+                        GeodeRules.materials()).isEmpty(),
+                "a geode this module ships cannot be seeded");
+
+        check(!BuddingRules.faultsInStrangers(List.of(new BuddingRules.Budding(
+                        "unobtainium", "unobtainium", 12, "minecraft:stone")),
+                GeodeRules.materials()).isEmpty(),
+                "a price for a geode this module does not have is not reported");
+        check(BuddingRules.faultsInStrangers(BuddingRules.BUDDINGS,
+                        GeodeRules.materials()).isEmpty(),
+                "this module prices a geode it does not ship");
+
+        // The rule the file is arranged around: a multiplier, not a source.
+        check(!BuddingRules.faultsInBootstrap(List.of(new BuddingRules.Budding(
+                        "platinum", "coal", 32, "minecraft:glow_ink_sac")))
+                .isEmpty(),
+                "a geode seeded out of another material's shards is not "
+                        + "reported, and that makes every ore in the pack "
+                        + "obtainable from whichever one is cheapest");
+        check(BuddingRules.faultsInBootstrap(BuddingRules.BUDDINGS).isEmpty(),
+                "something this module prices is a source rather than a multiplier");
+
+        check(!BuddingRules.faultsInSmuggling(List.of(new BuddingRules.Budding(
+                        "platinum", "platinum", 32, "elysiumarcana:coal_shard")),
+                GeodeRules.materials()).isEmpty(),
+                "a catalyst that is another material's shard is not reported, "
+                        + "and that is the same back door through the other "
+                        + "ingredient");
+        check(BuddingRules.faultsInSmuggling(BuddingRules.BUDDINGS,
+                        GeodeRules.materials()).isEmpty(),
+                "a catalyst this module names is another material's shard");
+
+        check(!BuddingRules.faultsInWholeBlocks(List.of(new BuddingRules.Budding(
+                        "coal", "coal", 10, "minecraft:glow_ink_sac")),
+                BuddingRules.CLUSTER_GIVES).isEmpty(),
+                "a price that is not a whole number of blocks is not reported");
+        check(BuddingRules.faultsInWholeBlocks(BuddingRules.BUDDINGS,
+                        BuddingRules.CLUSTER_GIVES).isEmpty(),
+                "a price this module sets is not a whole number of blocks");
+
+        check(!BuddingRules.faultsInGrid(List.of(new BuddingRules.Budding(
+                        "coal", "coal", 400, "minecraft:glow_ink_sac")),
+                BuddingRules.CLUSTER_GIVES, BuddingRules.GRID).isEmpty(),
+                "a recipe too big for the grid is not reported, and the game "
+                        + "drops those at load without saying anything");
+        check(BuddingRules.faultsInGrid(BuddingRules.BUDDINGS,
+                        BuddingRules.CLUSTER_GIVES, BuddingRules.GRID).isEmpty(),
+                "a recipe this module writes is too big for the grid");
+
+        check(!BuddingRules.faultsInPayback(List.of(new BuddingRules.Budding(
+                        "coal", "coal", 4, "minecraft:stone")),
+                BuddingRules.LEAST_CYCLES, BuddingRules.MOST_CYCLES).isEmpty(),
+                "a seeding that pays for itself in one cluster is not reported");
+        check(!BuddingRules.faultsInPayback(List.of(new BuddingRules.Budding(
+                        "coal", "coal", 4_000, "minecraft:stone")),
+                BuddingRules.LEAST_CYCLES, BuddingRules.MOST_CYCLES).isEmpty(),
+                "a seeding nobody would ever do is not reported");
+        check(BuddingRules.faultsInPayback(BuddingRules.BUDDINGS,
+                        BuddingRules.LEAST_CYCLES,
+                        BuddingRules.MOST_CYCLES).isEmpty(),
+                "something this module prices is outside the wait it allows");
+
+        check(!BuddingRules.faultsInLadder(List.of(
+                        new BuddingRules.Budding("coal", "coal", 32, "minecraft:stone"),
+                        new BuddingRules.Budding("iron", "iron", 8, "minecraft:stone")),
+                GeodeRules.MINED, GeodeRules.THE_GAMES_OWN).isEmpty(),
+                "a mined material seeded cheaper than a given one is not "
+                        + "reported, and that is a way round the ladder four "
+                        + "other modules are priced against");
+        check(BuddingRules.faultsInLadder(BuddingRules.BUDDINGS,
+                        GeodeRules.MINED, GeodeRules.THE_GAMES_OWN).isEmpty(),
+                "this module seeds something mined cheaper than something given");
+
+        check(!BuddingRules.faultsInCatalysts(List.of(new BuddingRules.Budding(
+                        "coal", "coal", 8, "a shard"))).isEmpty(),
+                "a catalyst that is not the name of anything is not reported");
+        check(BuddingRules.faultsInCatalysts(BuddingRules.BUDDINGS).isEmpty(),
+                "this module names a catalyst that is not a name");
+
+        check(threwOn(() -> new BuddingRules.Budding("coal", "coal", 0,
+                        "minecraft:stone")),
+                "a seeding that costs nothing is accepted");
+        check(threwOn(() -> new BuddingRules.Budding("coal", "coal", 8, "")),
+                "a seeding gated only by the thing it makes is accepted");
+        check(threwOn(() -> new BuddingRules.Budding("coal", "", 8,
+                        "minecraft:stone")),
+                "a seeding out of nothing in particular is accepted");
+
+        // The sweep: every price against the grid and the blocks, checked
+        // against the division rather than against a table. The bootstrap rule
+        // is not swept because it is a string comparison with nothing to get
+        // wrong; the arithmetic is where the mistakes live.
+        int swept = 0;
+        int overGrid = 0;
+        int ragged = 0;
+        java.util.Random random = new java.util.Random(30_7717L);
+        for (int round = 0; round < 200_000; round++) {
+            int shards = 1 + random.nextInt(80);
+            BuddingRules.Budding made = new BuddingRules.Budding("coal", "coal",
+                    shards, "minecraft:glow_ink_sac");
+            int blocks = (shards + BuddingRules.CLUSTER_GIVES - 1)
+                    / BuddingRules.CLUSTER_GIVES;
+            boolean tooBig = blocks + 1 > BuddingRules.GRID;
+            boolean notWhole = shards % BuddingRules.CLUSTER_GIVES != 0;
+            check(tooBig == !BuddingRules.faultsInGrid(List.of(made),
+                            BuddingRules.CLUSTER_GIVES,
+                            BuddingRules.GRID).isEmpty(),
+                    "a seeding of " + shards + " shard(s) is reported wrongly "
+                            + "against the grid");
+            check(notWhole == !BuddingRules.faultsInWholeBlocks(List.of(made),
+                            BuddingRules.CLUSTER_GIVES).isEmpty(),
+                    "a seeding of " + shards + " shard(s) is reported wrongly "
+                            + "against the block");
+            check(made.cycles() * BuddingRules.CLUSTER_GIVES >= shards,
+                    "a seeding costing " + shards + " is said to pay for itself "
+                            + "in " + made.cycles() + " cluster(s) of "
+                            + BuddingRules.CLUSTER_GIVES);
+            check(made.cycles() >= 1,
+                    "a seeding costing " + shards + " pays for itself in no "
+                            + "clusters at all");
+            if (tooBig) {
+                overGrid++;
+            }
+            if (notWhole) {
+                ragged++;
+            }
+            swept++;
+        }
+        check(overGrid > 0 && ragged > 0,
+                "the sweep never built a recipe too big for the grid or never "
+                        + "built a ragged price, so it is reporting that none of "
+                        + "them are while never having tried one that is");
+
+        System.out.println("  the seeding: " + BuddingRules.BUDDINGS.size()
+                + " material(s), every geode this module ships able to be seeded "
+                + "and nothing priced that it does not ship, every one paying for "
+                + "itself in between " + BuddingRules.LEAST_CYCLES + " and "
+                + BuddingRules.MOST_CYCLES + " cluster(s), nothing the foundry "
+                + "mines cheaper than anything the game hands you, every one "
+                + "of them paid in its own shards, and " + swept + " price(s) swept "
+                + "against the grid with " + overGrid + " too big for it and "
+                + ragged + " not a whole number of blocks — none of them ours");
     }
 }

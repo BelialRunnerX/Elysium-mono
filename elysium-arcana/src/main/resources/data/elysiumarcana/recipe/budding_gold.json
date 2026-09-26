@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:gold_block"
+    },
+    {
+      "item": "elysiumarcana:gold_block"
+    },
+    {
+      "item": "elysiumarcana:gold_block"
+    },
+    {
+      "item": "elysiumarcana:gold_block"
+    },
+    {
+      "item": "elysiumarcana:gold_block"
+    },
+    {
+      "item": "elysiumarcana:gold_block"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_gold",
+    "count": 1
+  }
+}

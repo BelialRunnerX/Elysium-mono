@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:fluorite_block"
+    },
+    {
+      "item": "elysiumarcana:fluorite_block"
+    },
+    {
+      "item": "elysiumarcana:fluorite_block"
+    },
+    {
+      "item": "elysiumarcana:fluorite_block"
+    },
+    {
+      "item": "elysiumarcana:fluorite_block"
+    },
+    {
+      "item": "elysiumarcana:fluorite_block"
+    },
+    {
+      "item": "elysiumarcana:fluorite_block"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_fluorite",
+    "count": 1
+  }
+}

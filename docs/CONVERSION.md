@@ -484,6 +484,32 @@ Whoever takes them should read the jar's own language file first and split
 before starting, rather than converting a roster and discovering the rest
 afterwards — which is the order this session did it in twice.
 
+### The fifth prune, 2026-09-26
+
+**GeOre** moved to `mods/_superseded/` in both instances. It has been marked
+DONE for some time and stayed in the pack anyway, and the reason is the one
+this section is about: `oritech` ships thirty-two compat recipes that assemble
+a `geore:budding_x` out of two `geore:x_shard`. Take the jar out and those
+recipes name items that do not exist, the game drops them at load, and a
+feature is gone with nothing saying so.
+
+Both scripted pre-checks were clean and had been for weeks — **nothing declares
+`GeOre` a required dependency** and **no tag file in any remaining jar names a
+`geore:` id** (6,961 tag files scanned across 176 jars). It was always the
+third thing, the one that is not automatic, that held it.
+
+What unblocked it was noticing what those thirty-two recipes actually *are*:
+the only way in the whole pack to get a budding block other than finding one.
+`elysium-arcana` ships thirty materials with a full growth chain each and never
+had a way to start one. It does now — `BuddingRules`, thirty seedings, paid in
+the material's own blocks — and the capability is ours rather than a third
+party's, which is the whole programme.
+
+The one thing genuinely lost: oritech's recipes ran in its *assembler*, and the
+replacement is a crafting table. A player who had automated budding blocks now
+crafts them. `oritech: the machines` is still PLANNED for `elysium-industry`;
+when that lands, the assembler is ours and can have the recipe too.
+
 ### The third thing, which is not automatic
 
 Other mods ship **integration recipes** against the jar being removed, and

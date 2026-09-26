@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:certus_quartz_block"
+    },
+    {
+      "item": "elysiumarcana:certus_quartz_block"
+    },
+    {
+      "item": "elysiumarcana:certus_quartz_block"
+    },
+    {
+      "item": "elysiumarcana:certus_quartz_block"
+    },
+    {
+      "item": "elysiumarcana:certus_quartz_block"
+    },
+    {
+      "item": "elysiumarcana:certus_quartz_block"
+    },
+    {
+      "item": "elysiumarcana:certus_quartz_block"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_certus_quartz",
+    "count": 1
+  }
+}

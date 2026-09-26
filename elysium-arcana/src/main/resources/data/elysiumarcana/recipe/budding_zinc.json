@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:zinc_block"
+    },
+    {
+      "item": "elysiumarcana:zinc_block"
+    },
+    {
+      "item": "elysiumarcana:zinc_block"
+    },
+    {
+      "item": "elysiumarcana:zinc_block"
+    },
+    {
+      "item": "elysiumarcana:zinc_block"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_zinc",
+    "count": 1
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:rime_shard_block"
+    },
+    {
+      "item": "elysiumarcana:rime_shard_block"
+    },
+    {
+      "item": "elysiumarcana:rime_shard_block"
+    },
+    {
+      "item": "elysiumarcana:rime_shard_block"
+    },
+    {
+      "item": "elysiumarcana:rime_shard_block"
+    },
+    {
+      "item": "elysiumarcana:rime_shard_block"
+    },
+    {
+      "item": "elysiumarcana:rime_shard_block"
+    },
+    {
+      "item": "elysiumarcana:rime_shard_block"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_rime_shard",
+    "count": 1
+  }
+}

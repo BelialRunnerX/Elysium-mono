@@ -375,9 +375,10 @@ DECISIONS = [
      "to contain no arrangement that makes value out of nothing"),
     (r"^GeOre", "DONE", "elysium-arcana",
      "geodes: 210 blocks and 60 items across 30 materials — 20 the foundry "
-     "mines and 10 the game digs up — each with a whole growth chain. NOT yet "
-     "removable: oritech ships compat recipes naming geore items, so the third "
-     "pre-check fails until those are handled"),
+     "mines and 10 the game digs up — each with a whole growth chain, and a "
+     "way of seeding a budding block rather than only finding one. Retired to "
+     "mods/_superseded on 26 September, once that last piece existed: the "
+     "thirty-two oritech compat recipes it was waiting on are replaced"),
     (r"^relics", "DONE", "elysium-arcana",
      "30 relics across 8 slots, carrying all 30 abilities of the shared "
      "ability system in elysium-lib — the same system the arsenal's uniques "
