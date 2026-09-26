@@ -80,7 +80,11 @@ CP="$(cat "$MC/cp.txt")"
 COMPAT="${ELYSIUM_COMPAT_LIBS:-/tmp/mods}"
 COMPAT_JARS=""
 missing_compat=""
-for glob in "silent-gear-*.jar" "silent-lib-*.jar" "Apotheosis-*.jar" "Placebo-*.jar" "minecolonies-*.jar" "structurize-*.jar" "blockui-*.jar"; do
+# Curios is on the list because elysium-trinkets imports its API outright (a
+# hard dependency, bundled below), not behind a ModList check; before it was
+# named here the type-check only passed when the Minecraft classpath happened
+# to carry an installed copy, and failed the day cp.txt was rebuilt without it.
+for glob in "silent-gear-*.jar" "silent-lib-*.jar" "Apotheosis-*.jar" "Placebo-*.jar" "minecolonies-*.jar" "structurize-*.jar" "blockui-*.jar" "curios-neoforge-*.jar"; do
     found="$(ls "$COMPAT"/$glob 2>/dev/null | head -1)"
     if [ -n "$found" ]; then
         COMPAT_JARS="$COMPAT_JARS:$found"
