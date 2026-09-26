@@ -42,6 +42,10 @@ public final class BestiaryClient {
         // whose layer was never registered is a bake that throws, which takes
         // the renderer with it.
         for (String form : com.elysium.bestiary.rules.MythRules.forms()) {
+            event.registerLayerDefinition(WardModel.LAYERS.get(form),
+                    () -> WardModel.createLayer(form));
+        }
+        for (String form : com.elysium.bestiary.rules.MythRules.forms()) {
             event.registerLayerDefinition(CourtModel.LAYERS.get(form),
                     () -> CourtModel.createLayer(form));
         }
@@ -81,6 +85,14 @@ public final class BestiaryClient {
                     com.elysium.bestiary.registry.MythEntities.ALL
                             .get(myth.id()).get(),
                     context -> new MythRenderer(context, myth.form()));
+        }
+        for (com.elysium.bestiary.rules.WardRules.Warded one
+                : com.elysium.bestiary.rules.WardRules.WARDED) {
+            event.registerEntityRenderer(
+                    com.elysium.bestiary.registry.WardEntities.ALL
+                            .get(one.id()).get(),
+                    context -> new WardRenderer(context,
+                            com.elysium.bestiary.rules.WardRules.shapeOf(one)));
         }
         for (com.elysium.bestiary.rules.CourtRules.Member one
                 : com.elysium.bestiary.rules.CourtRules.MEMBERS) {

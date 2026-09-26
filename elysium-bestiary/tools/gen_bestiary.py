@@ -462,6 +462,88 @@ if _unshaded_court or _unworded_role:
     sys.exit(2)
 
 
+# The thirteen that exist to be fought with particular gear, read out of
+# WardRules: which protection answers each, and what it does with and without
+# it, are rules and are proved about; what colour it is, is art.
+WARD_SOURCE = read(os.path.join(
+    MOD, "src/main/java/com/elysium/bestiary/rules/WardRules.java"))
+WARDED = [
+    {"id": one[0], "ward": one[1], "answer": one[2], "tier": int(one[3]),
+     "bite": float(one[5]), "blunted": float(one[6]), "weight": int(one[8])}
+    for one in re.findall(
+        r'new Warded\("([a-z_]+)", (\w+), "([\w:]+)", (\d+), ([\d.]+)D,'
+        r' ([\d.]+)D, ([\d.]+)D, ([\d.]+)D, (\d+)\)',
+        re.sub(r"\s+", " ", WARD_SOURCE))
+]
+if len(WARDED) != 13:
+    print("WardRules reads as %d creature(s) rather than thirteen" % len(WARDED))
+    sys.exit(2)
+
+#: What each leaves behind, worked out the way the rules work it out.
+_ward_leavings = re.search(r"List<String> LEAVINGS = List\.of\((.*?)\);",
+                           re.sub(r"\s+", " ", WARD_SOURCE))
+WARD_LEAVING_LIST = (re.findall(r'"([\w:]+)"', _ward_leavings.group(1))
+                     if _ward_leavings else [])
+if not WARD_LEAVING_LIST:
+    print("WardRules names nothing that anything leaves behind")
+    sys.exit(2)
+WARD_LEAVINGS = {one["id"]: WARD_LEAVING_LIST[at % len(WARD_LEAVING_LIST)]
+                 for at, one in enumerate(WARDED)}
+
+#: One sentence per kind of protection, because "bring the right gear" is only
+#: advice if the player is told which gear.
+WARD_WORDS = {
+    "FLAME": "It burns. Bring what does not.",
+    "SHOT": "It hits from range. Bring something to put in the way.",
+    "BLAST": "It goes off. Bring something that spreads a blow out.",
+    "ROT": "It leaves something in you. Bring what refuses it.",
+    "FROST": "It takes the warmth. Bring what keeps it.",
+    "CURSE": "It works on you rather than on your armour. Bring something charmed.",
+}
+
+#: And what each kind looks like.
+WARD_SHADES = {
+    "FLAME": ((214, 118, 58), (100, 52, 22)),
+    "SHOT": ((156, 150, 138), (72, 68, 62)),
+    "BLAST": ((186, 168, 96), (88, 78, 42)),
+    "ROT": ((126, 146, 92), (56, 66, 40)),
+    "FROST": ((172, 202, 220), (78, 96, 108)),
+    "CURSE": ((136, 104, 160), (60, 46, 74)),
+}
+_unshaded_ward = sorted({one["ward"] for one in WARDED} - set(WARD_SHADES))
+_unworded_ward = sorted({one["ward"] for one in WARDED} - set(WARD_WORDS))
+if _unshaded_ward or _unworded_ward:
+    print("no shades for %s and no sentence for %s"
+          % (_unshaded_ward, _unworded_ward))
+    sys.exit(2)
+
+
+def ward_skin(one):
+    """A warded creature, on the same 64x64 sheet every creature here uses.
+
+    The colour is the ward's, so that what to bring reads off the creature
+    rather than off a wiki, and the bar down the side is how much of itself it
+    leaves to somebody carrying that -- short for a fight the gear barely helps
+    with, long for one it nearly solves. Every bar in this module is between a
+    third and four fifths of the sheet, which is the claim drawn rather than
+    written.
+    """
+    light, dark = WARD_SHADES[one["ward"]]
+    image = Image.new("RGBA", (64, 64), light + (255,))
+    draw = ImageDraw.Draw(image)
+    seed = sum(ord(letter) for letter in one["id"])
+    for y in range(64):
+        for x in range(64):
+            if (x * 11 + y * 7 + seed) % 15 < 4:
+                draw.point((x, y), fill=dark + (255,))
+    left = (1.0 + one["blunted"]) / (1.0 + one["bite"])
+    bar = max(1, min(62, int(round(left * 62))))
+    draw.rectangle([61, 63 - bar, 63, 63], fill=(240, 234, 196, 255))
+    draw.rectangle([6, 8, 9, 11], fill=(246, 246, 240, 255))
+    draw.rectangle([14, 8, 17, 11], fill=(246, 246, 240, 255))
+    return image
+
+
 def court_skin(one):
     """A court member, on the same 64x64 sheet every creature here uses.
 
@@ -1280,6 +1362,48 @@ def main():
                       "maxCount": 2 if myth["bane"] != "NUMBERS" else 4,
                   }],
               })
+
+    # The thirteen that exist to be fought with particular gear.
+    for one in WARDED:
+        ward_skin(one).save(os.path.join(entity_textures, one["id"] + ".png"))
+
+        write(os.path.join(ASSETS, "models/item", one["id"] + "_spawn_egg.json"),
+              {"parent": "minecraft:item/template_spawn_egg"})
+
+        write(os.path.join(DATA, "loot_table/entities", one["id"] + ".json"), {
+            "type": "minecraft:entity",
+            "pools": [{
+                "rolls": 1,
+                "entries": [{"type": "minecraft:item",
+                             "name": WARD_LEAVINGS[one["id"]]}],
+                "conditions": [{"condition": "minecraft:killed_by_player"}],
+            }],
+        })
+
+        write(os.path.join(DATA, "neoforge/biome_modifier",
+                           "add_%s_spawns.json" % one["id"]),
+              {
+                  "type": "neoforge:add_spawns",
+                  "biomes": "#minecraft:is_overworld",
+                  "spawners": [{
+                      "type": "%s:%s" % (NS, one["id"]),
+                      "weight": one["weight"],
+                      "minCount": 1,
+                      "maxCount": 2,
+                  }],
+              })
+
+        lang["entity.%s.%s" % (NS, one["id"])] = titled(one["id"])
+        lang["item.%s.%s_spawn_egg" % (NS, one["id"])] = \
+            titled(one["id"]) + " Spawn Egg"
+        lang["bestiary.%s.ward.%s" % (NS, one["id"])] = WARD_WORDS[one["ward"]]
+        # What to bring is the row's own, so that the tooltip and the arithmetic
+        # cannot come apart.
+        lang["bestiary.%s.bring.%s" % (NS, one["id"])] = one["answer"]
+
+    for ward_name in sorted({one["ward"] for one in WARDED}):
+        lang["bestiary.%s.protection.%s" % (NS, ward_name.lower())] = \
+            titled(ward_name.lower())
 
     # The fifty-eight in eight courts.
     for one in COURT_MEMBERS:

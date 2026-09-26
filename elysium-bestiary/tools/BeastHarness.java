@@ -73,6 +73,7 @@ public final class BeastHarness {
         theKindred();
         theFarm2();
         theCourts();
+        theWarded();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -1970,5 +1971,167 @@ public final class BeastHarness {
                 + "of its own rung, every court worth no more than the head it "
                 + "stands behind, " + swept + " courts swept against that division, "
                 + "and not one second phase answered the same way as its first");
+    }
+
+    /**
+     * Thirteen creatures that exist to be fought with particular gear.
+     *
+     * <p>Two failures, pulling in opposite directions, and the sweep below is
+     * the only thing that catches both at once: a creature the right set
+     * trivialises is a door, and one the right set barely helps against makes
+     * the set a texture. Both look like content from inside a single fight —
+     * the player with the gear never learns there was a fight, and the player
+     * without it reads being stopped as difficulty.
+     */
+    private static void theWarded() {
+        List<String> faults = WardRules.faults();
+        check(faults.isEmpty(), "something wrong with the warded: " + faults);
+
+        WardRules.Warded first = WardRules.WARDED.get(0);
+
+        check(!WardRules.faultsInNames(List.of(first, first)).isEmpty(),
+                "two creatures written under one name are not reported");
+        check(WardRules.faultsInNames(WardRules.WARDED).isEmpty(),
+                "the creatures this module ships are reported as doubled");
+
+        check(!WardRules.faultsInWards(List.of(new WardRules.Warded("control",
+                        "damp", "minecraft:stone", 1, 10.0D, 2.0D, 1.0D, 0.3D, 20)),
+                WardRules.WARDS).isEmpty(),
+                "a creature answered by a kind of protection this module does not "
+                        + "have is not reported");
+        check(WardRules.faultsInWards(WardRules.WARDED, WardRules.WARDS).isEmpty(),
+                "the creatures this module ships want protection it does not have");
+
+        check(!WardRules.faultsInGaps(List.of(first), WardRules.WARDS).isEmpty(),
+                "a kind of protection nothing in the roster asks for is not reported");
+        check(WardRules.faultsInGaps(WardRules.WARDED, WardRules.WARDS).isEmpty(),
+                "the roster this module ships leaves a kind of protection unasked for");
+
+        // The two ends of the band.
+        check(!WardRules.faultsInDoors(List.of(new WardRules.Warded("control",
+                        WardRules.FLAME, "minecraft:stone", 1,
+                        10.0D, 9.0D, 0.0D, 0.3D, 20)),
+                WardRules.LEAST_LEFT).isEmpty(),
+                "a creature the right gear trivialises is not reported, and that "
+                        + "is a door rather than a fight");
+        check(WardRules.faultsInDoors(WardRules.WARDED,
+                        WardRules.LEAST_LEFT).isEmpty(),
+                "something this module ships is a door");
+
+        check(!WardRules.faultsInDecoration(List.of(new WardRules.Warded("control",
+                        WardRules.FLAME, "minecraft:stone", 1,
+                        10.0D, 3.0D, 2.95D, 0.3D, 20)),
+                WardRules.MOST_LEFT).isEmpty(),
+                "a creature the right gear barely helps against is not reported, "
+                        + "and that is a set of armour that is a texture");
+        check(WardRules.faultsInDecoration(WardRules.WARDED,
+                        WardRules.MOST_LEFT).isEmpty(),
+                "something this module ships makes its own gear decoration");
+
+        // And the roster-wide one.
+        List<WardRules.Warded> oneWard = new java.util.ArrayList<>();
+        for (int at = 0; at < 5; at++) {
+            oneWard.add(new WardRules.Warded("control" + at, WardRules.FLAME,
+                    "minecraft:stone", 1, 10.0D, 3.0D, 2.0D, 0.3D, 20));
+        }
+        check(!WardRules.faultsInSpread(oneWard, WardRules.MOST_COVERED).isEmpty(),
+                "one kind of protection answering most of the roster is not "
+                        + "reported, so the player would have one decision rather "
+                        + "than one per creature");
+        check(WardRules.faultsInSpread(WardRules.WARDED,
+                        WardRules.MOST_COVERED).isEmpty(),
+                "one kind of protection answers too much of what this module ships");
+
+        check(!WardRules.faultsInStanding(List.of(new WardRules.Warded("control",
+                        WardRules.FLAME, "minecraft:stone", 1,
+                        900.0D, 90.0D, 80.0D, 0.9D, 20)),
+                BeastRules.BEASTS).isEmpty(),
+                "something out-fighting the beast of its own rung unwarded is not "
+                        + "reported");
+        check(!WardRules.faultsInStanding(List.of(new WardRules.Warded("control",
+                        WardRules.FLAME, "minecraft:stone", 9,
+                        10.0D, 2.0D, 1.0D, 0.3D, 20)),
+                BeastRules.BEASTS).isEmpty(),
+                "something on a rung with no beast on it is not reported");
+        check(WardRules.faultsInStanding(WardRules.WARDED,
+                        BeastRules.BEASTS).isEmpty(),
+                "something this module ships out-fights its own rung unwarded");
+
+        check(!WardRules.faultsInAnswers(List.of(new WardRules.Warded("control",
+                        WardRules.FLAME, "a shield", 1, 10.0D, 2.0D, 1.0D, 0.3D, 20)))
+                .isEmpty(),
+                "an answer that is not the name of anything is not reported");
+        check(WardRules.faultsInAnswers(WardRules.WARDED).isEmpty(),
+                "something this module ships names an answer that is not a name");
+
+        check(!WardRules.faultsInRarity(WardRules.WARDED, 1_000).isEmpty(),
+                "a roster nobody could meet is not reported");
+        check(WardRules.faultsInRarity(WardRules.WARDED,
+                        WardRules.LEAST_WEIGHT).isEmpty(),
+                "the creatures this module ships are reported as too rare");
+
+        check(WardRules.faultsInShapes(WardRules.WARDED,
+                        MythRules.forms()).isEmpty(),
+                "something this module ships is drawn with a shape it does not have");
+        check(WardRules.faultsInLeavings(WardRules.WARDED).isEmpty(),
+                "something this module ships leaves nothing behind");
+
+        check(threwOn(() -> new WardRules.Warded("control", "", "minecraft:stone",
+                        1, 10.0D, 2.0D, 1.0D, 0.3D, 20)),
+                "a creature about no kind of protection is accepted");
+        check(threwOn(() -> new WardRules.Warded("control", WardRules.FLAME, "",
+                        1, 10.0D, 2.0D, 1.0D, 0.3D, 20)),
+                "a creature naming nothing that carries its ward is accepted");
+        check(threwOn(() -> new WardRules.Warded("control", WardRules.FLAME,
+                        "minecraft:stone", 1, 10.0D, -1.0D, 1.0D, 0.3D, 20)),
+                "a creature that heals what it hits is accepted");
+
+        // The sweep: every pair of numbers a row could carry, against the band.
+        // This is where the two failures are caught together, which is the only
+        // way either of them is ever caught -- each looks like the other's
+        // correction from inside a single fight.
+        int swept = 0;
+        int doors = 0;
+        int textures = 0;
+        java.util.Random random = new java.util.Random(13_6611L);
+        for (int round = 0; round < 200_000; round++) {
+            double bite = random.nextDouble() * 12.0D;
+            double blunted = random.nextDouble() * 12.0D;
+            WardRules.Warded made = new WardRules.Warded("w" + round,
+                    WardRules.FLAME, "minecraft:stone", 1, 20.0D, bite, blunted,
+                    0.3D, 20);
+            boolean door = made.left() < WardRules.LEAST_LEFT;
+            boolean texture = made.left() > WardRules.MOST_LEFT;
+            check(door == !WardRules.faultsInDoors(List.of(made),
+                            WardRules.LEAST_LEFT).isEmpty(),
+                    "a creature leaving " + Math.round(made.left() * 100.0D)
+                            + "% of itself is reported wrongly at the floor");
+            check(texture == !WardRules.faultsInDecoration(List.of(made),
+                            WardRules.MOST_LEFT).isEmpty(),
+                    "a creature leaving " + Math.round(made.left() * 100.0D)
+                            + "% of itself is reported wrongly at the ceiling");
+            if (door) {
+                doors++;
+            }
+            if (texture) {
+                textures++;
+            }
+            swept++;
+        }
+        check(doors > 0 && textures > 0,
+                "the sweep never built a door or never built a texture, so it is "
+                        + "walking one side of the band and reporting that both "
+                        + "sides hold");
+
+        System.out.println("  the warded: " + WardRules.WARDED.size()
+                + " creature(s) over " + WardRules.WARDS.size() + " kind(s) of "
+                + "protection, none of them answering more than "
+                + WardRules.MOST_COVERED + " of the roster, every one of them "
+                + "leaving between " + Math.round(WardRules.LEAST_LEFT * 100.0D)
+                + "% and " + Math.round(WardRules.MOST_LEFT * 100.0D) + "% of "
+                + "itself to somebody carrying the right thing, " + swept
+                + " pairs swept against that band with " + doors + " door(s) and "
+                + textures + " texture(s) among them, and not one of this module's "
+                + "own at either end");
     }
 }

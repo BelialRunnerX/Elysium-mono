@@ -2847,6 +2847,184 @@ else:
 
 
 
+# ---------------------------------------------------------------------------
+# The warded
+# ---------------------------------------------------------------------------
+#
+# The section about gear rather than about creatures. What a thing does to
+# somebody carrying the right item, and to somebody carrying nothing, is a pair
+# of numbers the rules prove a band about — and the one way that proof goes
+# stale without anything reporting it is for the game to use a third number.
+# So most of what is checked here is that nothing in the world decides how hard
+# one of these hits except the row it came from.
+
+print("-" * 70)
+
+WARD_SRC = strip_comments(read(SRC, "rules/WardRules.java"), keep_strings=True)
+WARD_ENTITY = strip_comments(read(SRC, "entity/WardEntity.java"), keep_strings=True)
+WARD_ACTS = strip_comments(read(SRC, "entity/act/WardActs.java"), keep_strings=True)
+WARD_REG = strip_comments(read(SRC, "registry/WardEntities.java"), keep_strings=True)
+
+if not WARD_SRC:
+    fail("nothing says what gear any of this is about, so a creature could be a "
+         "door for the player who brought the set and a wall for the one who "
+         "did not, with nothing reporting either")
+else:
+    _ward = squashed(WARD_SRC)
+    warded = re.findall(
+        r'new Warded\("([a-z_]+)", (\w+), "([\w:]+)", (\d+), ([\d.]+)D,'
+        r' ([\d.]+)D, ([\d.]+)D, ([\d.]+)D, (\d+)\)', _ward)
+    wards = re.findall(r'public static final String ([A-Z_]+) = "([a-z]+)";', WARD_SRC)
+    if len(warded) < 4:
+        fail(f"only {len(warded)} creature(s) could be read out of the ward rules, "
+             f"so every check below is walking a short list and passing")
+
+    for row in warded:
+        name = row[0]
+        for kind, where in (
+                ("texture", f"assets/{NS}/textures/entity/{name}.png"),
+                ("spawn egg model",
+                 f"assets/{NS}/models/item/{name}_spawn_egg.json"),
+                ("loot table", f"data/{NS}/loot_table/entities/{name}.json"),
+                ("spawn rule",
+                 f"data/{NS}/neoforge/biome_modifier/add_{name}_spawns.json")):
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} has no {kind}, so it is a creature the rules "
+                     f"describe and the world never shows")
+        for key, why in (
+                (f"entity.{NS}.{name}",
+                 "reads as its own translation key wherever the game names it"),
+                (f"bestiary.{NS}.ward.{name}",
+                 "has no sentence saying what to bring, and 'bring the right "
+                 "gear' is only advice if the player is told which gear")):
+            if key not in lang:
+                fail(f"{name} {why}")
+
+    # What the player is told to bring has to be a thing the pack or the game
+    # really makes, the way a myth's answer does.
+    if THE_PACK_HAS or THE_GAME_MAKES:
+        known = set(THE_PACK_HAS) | set(THE_GAME_MAKES)
+        for row in warded:
+            if row[2] not in known:
+                fail(f"{row[0]} is answered by {row[2]} and nothing makes one of "
+                     f"those, so what the player is told to bring is a word in a "
+                     f"table")
+
+    # And the tooltip has to name the row's own answer, because a tooltip and an
+    # arithmetic that came apart is a player brought the wrong thing on purpose.
+    for row in warded:
+        said = lang.get(f"bestiary.{NS}.bring.{row[0]}")
+        if said is not None and said != row[2]:
+            fail(f"{row[0]} is answered by {row[2]} in the rules and the game "
+                 f"tells the player to bring {said}, so the advice and the "
+                 f"arithmetic have already come apart")
+
+    # One branch per ward, and no creature named.
+    if not WARD_ACTS:
+        fail("nothing looks for a ward, so every one of these hits for its "
+             "unwarded number whatever the player brought — which makes the band "
+             "the rules prove a fact about a table")
+    else:
+        _acts = squashed(WARD_ACTS)
+        _looks = squashed(body_of(WARD_ACTS, "public static boolean warded("))
+        for shorthand, ward in wards:
+            if f"WardRules.{shorthand}" not in _looks:
+                fail(f"nothing decides whether a player is protected from {ward}, "
+                     f"so whichever creatures are about it hit for their unwarded "
+                     f"number always")
+        for row in warded:
+            if re.search(r'"%s"' % row[0], _acts):
+                fail(f"{row[0]} is named where the ward is looked for, so the "
+                     f"module has started asking the same question about the "
+                     f"player thirteen slightly different ways")
+        if "switch (row.ward())" not in _looks:
+            fail("which ward to look for is not chosen by the row's own ward, so "
+                 "whatever chooses it is something a validator cannot read")
+        # The line the whole feature is about: the amount is the row's, either
+        # way. A number typed here leaves the band passing and the game hitting
+        # for something else.
+        _bites = squashed(body_of(WARD_ACTS, "public static float bites("))
+        if "warded(who, row) ? row.blunted() : row.bite()" not in _bites:
+            fail("what one of these takes off is not the row's own pair of "
+                 "numbers, so the proof that every creature leaves between a "
+                 "third and four fifths of itself is about a table and the game "
+                 "hits for something else")
+        for typed in re.findall(r"return \(float\) ([\d.]+)", _bites):
+            fail(f"a creature takes off {typed} by a number typed into the branch, "
+                 f"which is a third number beside the two the rules prove a band "
+                 f"about")
+
+    if not WARD_ENTITY:
+        fail("there is no entity for the warded, so nothing the rules describe "
+             "is alive")
+    else:
+        _wentity = squashed(WARD_ENTITY)
+        if "WardRules.warded(name)" not in _wentity:
+            fail("a creature does not find its own row by the name it was "
+                 "registered under, so whatever it is storing instead can be "
+                 "stored wrong")
+        _hurt = squashed(body_of(WARD_ENTITY, "public boolean doHurtTarget("))
+        if "WardActs.bites(this, hurt, row);" not in _hurt:
+            fail("nothing asks what a hit should take off, so the attack "
+                 "attribute lands whatever the player is carrying and the ward "
+                 "is a note in a table")
+        # The attribute is the worst case on purpose. Set to the warded number,
+        # a bug in the warding makes every fight free rather than hard.
+        _attrs = squashed(body_of(WARD_ENTITY, "public static AttributeSupplier.Builder attributes("))
+        if "Attributes.ATTACK_DAMAGE, row.bite()" not in _attrs:
+            fail("the attack attribute is not the unwarded number, so a bug in "
+                 "the warding makes every one of these fights free rather than "
+                 "hard — and free is the one that nobody reports")
+
+    if not WARD_REG:
+        fail("nothing registers the warded, so all thirteen are rows")
+    else:
+        _wreg = squashed(WARD_REG)
+        _wregister = squashed(body_of(WARD_REG, "register() {"))
+        if "for (WardRules.Warded one : WardRules.WARDED) {" not in _wregister:
+            fail("the warded are named by hand rather than walked from the "
+                 "rules, so a fourteenth is a row nothing registers")
+        if "made.size() != WardRules.WARDED.size()" not in _wreg:
+            fail("nothing counts the creatures that were registered, so a roster "
+                 "that half registers is a roster that half exists")
+
+    _wmod = squashed(strip_comments(read(SRC, "ElysiumBestiary.java")))
+    if "WardEntities.ALL.size()" not in _wmod:
+        fail("the warded's register is never touched while the mod is being "
+             "built, so whether thirteen creatures exist depends on when FML "
+             "happens to load the class")
+
+    _wclient = squashed(strip_comments(read(SRC, "client/BestiaryClient.java")))
+    if "new WardRenderer(context," not in _wclient:
+        fail("the warded have no renderer registered, so the first one a player "
+             "meets takes the client down with it")
+    if "event.registerLayerDefinition(WardModel.LAYERS.get(form)," not in _wclient:
+        fail("the warded's model layers are never registered, so baking one "
+             "throws and the renderer that was registered cannot be built")
+
+    # Every rule the file declares is added up, and faults() is a list.
+    _wsum = squashed(body_of(WARD_SRC, "public static List<String> faults()"))
+    _wrules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", WARD_SRC))
+    _wadded = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _wsum))
+    if len(_wrules) < 8:
+        fail(f"only {len(_wrules)} ward rule(s) are declared at all, so the check "
+             f"below is checking nothing")
+    if re.search(r"\bif\s*\(", _wsum):
+        fail("the warded's faults() has a condition in it, so some rule is added "
+             "up only sometimes")
+    for _wrule in sorted(_wrules - _wadded):
+        fail(f"{_wrule} is written, compiled and never added up by the warded's "
+             f"faults(), so it answers the harness's controls and is never once "
+             f"asked about what this module ships")
+
+    print(f"the warded          : {len(warded)} creature(s) over {len(wards)} "
+          f"kind(s) of protection, every one of them answered by something the "
+          f"pack really makes, told to the player as the row's own answer rather "
+          f"than a second copy of it, and what each takes off asked of its row "
+          f"both with the gear and without")
+
+
+
 if problems:
     print(f"{len(problems)} problem(s):")
     for problem in problems:
