@@ -90,6 +90,26 @@ def units():
     return dict(left)
 
 
+def finished_module(module):
+    """Whether this is a module that exists but has nothing left to convert.
+
+    The board's units come from the rows still to convert, so a module leaves
+    it the moment its last row is marked DONE. That is right for conversion
+    and wrong for everything after it: a finished module still gets bugs
+    found in it, numbers re-balanced, and -- the case that produced this
+    function -- a whole roster re-themed. Under the old rule such a module
+    could never be claimed again, so `ownership.py` called every edit to it a
+    trespass, and the only ways forward were to ignore the tool or to fake a
+    row in the manifest. Both are worse than letting somebody hold a finished
+    module and say so.
+
+    It is still a claim: two agents cannot revise the same finished module at
+    once, which is the whole point of the board.
+    """
+    return os.path.isdir(os.path.join(ROOT, module)) \
+        and module.startswith("elysium-")
+
+
 def claim_path(module):
     return os.path.join(CLAIMS, module + ".json")
 
@@ -204,10 +224,10 @@ def main():
     if not args.module or not args.who:
         print("claim, release and done each need a module and --as <name>")
         return 2
-    if args.module != "shared" and args.module not in units() \
-            and args.what == "claim":
-        print(f"{args.module} has nothing left to absorb, so there is nothing to "
-              f"claim. `list` shows what there is.")
+    if args.what == "claim" and args.module != "shared" \
+            and args.module not in units() and not finished_module(args.module):
+        print(f"{args.module} is not a module and has nothing to convert, so "
+              f"there is nothing to claim. `list` shows what there is.")
         return 1
     if args.what == "claim":
         return claim(args.module, args.who)
