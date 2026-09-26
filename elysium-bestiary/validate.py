@@ -2612,6 +2612,241 @@ else:
 
 
 
+# ---------------------------------------------------------------------------
+# The courts
+# ---------------------------------------------------------------------------
+#
+# The largest roster this module has, and the one where a validator earns most:
+# fifty-eight creatures of which nineteen do the same job under different names.
+# What is checked here is the half of the claim no pure rule can see — that the
+# spawn rule on disk allows as many of a thing as the budget was computed
+# against, and that nothing in the world can put more of a court on the floor
+# than the arithmetic was told about.
+
+print("-" * 70)
+
+COURT_SRC = strip_comments(read(SRC, "rules/CourtRules.java"), keep_strings=True)
+COURT_ENTITY = strip_comments(read(SRC, "entity/CourtEntity.java"), keep_strings=True)
+ROLES_SRC = strip_comments(read(SRC, "entity/act/CourtRoles.java"), keep_strings=True)
+COURT_REG = strip_comments(read(SRC, "registry/CourtEntities.java"), keep_strings=True)
+
+if not COURT_SRC:
+    fail("nothing says what a court is, so a boss could be a wall and its "
+         "minions could be the whole fight with nothing reporting either")
+else:
+    _court = squashed(COURT_SRC)
+    members = re.findall(
+        r'new Member\("([a-z_]+)", "([a-z_]+)", (\w+), (\d+), ([\d.]+)D,'
+        r' ([\d.]+)D, ([\d.]+)D, (\d+), (\d+), "([\w:]*)", "([\w:]*)"\)', _court)
+    roles = re.findall(r'public static final String ([A-Z_]+) = "([a-z]+)";', COURT_SRC)
+    if len(members) < 6:
+        fail(f"only {len(members)} creature(s) could be read out of the court "
+             f"rules, so every check below is walking a short list and passing")
+
+    in_court = {}
+    for row in members:
+        in_court.setdefault(row[1], []).append(row)
+
+    for row in members:
+        name = row[0]
+        for kind, where in (
+                ("texture", f"assets/{NS}/textures/entity/{name}.png"),
+                ("spawn egg model",
+                 f"assets/{NS}/models/item/{name}_spawn_egg.json"),
+                ("loot table", f"data/{NS}/loot_table/entities/{name}.json"),
+                ("spawn rule",
+                 f"data/{NS}/neoforge/biome_modifier/add_{name}_spawns.json")):
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} has no {kind}, so it is a creature the rules "
+                     f"describe and the world never shows")
+        for key, why in (
+                (f"entity.{NS}.{name}",
+                 "reads as its own translation key wherever the game names it"),
+                (f"bestiary.{NS}.role.{name}",
+                 "has no sentence saying what it is in its court, which on a "
+                 "roster of fifty-eight is the difference between a fight and "
+                 "another skeleton")):
+            if key not in lang:
+                fail(f"{name} {why}")
+
+    # The check no pure rule can make. The budget that holds a court under its
+    # head counts what can be standing at once; a spawn rule that puts more of
+    # something on the floor than its row allows makes that number a fact about
+    # a table rather than about the game.
+    for row in members:
+        where = os.path.join(RES, f"data/{NS}/neoforge/biome_modifier",
+                             f"add_{row[0]}_spawns.json")
+        if not os.path.isfile(where):
+            continue
+        try:
+            written = json.loads(read(os.path.dirname(where),
+                                      os.path.basename(where)))
+        except ValueError:
+            fail(f"{row[0]}'s spawn rule is not readable as JSON, so the game "
+                 f"refuses the whole data pack over one creature")
+            continue
+        for spawner in written.get("spawners", []):
+            if spawner.get("maxCount") != int(row[7]):
+                fail(f"{row[0]} may have {row[7]} standing at once in the rules "
+                     f"and {spawner.get('maxCount')} in its spawn rule, so the "
+                     f"budget that holds its court under its head was computed "
+                     f"against a number the world does not use")
+            if spawner.get("weight") != int(row[8]):
+                fail(f"{row[0]} is chosen {row[8]} times in the rules and "
+                     f"{spawner.get('weight')} times on disk")
+
+    # Exactly one head per court, checked against what is on disk rather than
+    # only in the table.
+    for court_name, court_members in in_court.items():
+        heads = [row[0] for row in court_members if row[2] == "HEAD"]
+        if not heads:
+            fail(f"the {court_name} court has no head on disk, so everything in "
+                 f"it is held under nothing")
+        if len(heads) > 1:
+            fail(f"the {court_name} court has {len(heads)} heads — "
+                 f"{', '.join(heads)} — so its budget is spent twice")
+
+    # A second phase has to be answered by something that exists, the way a
+    # myth's bane is. An answer nothing makes is a wall wearing an answer.
+    if THE_PACK_HAS or THE_GAME_MAKES:
+        known = set(THE_PACK_HAS) | set(THE_GAME_MAKES)
+        for row in members:
+            for answer, which in ((row[9], "first phase"), (row[10], "second phase")):
+                if answer and answer not in known:
+                    fail(f"{row[0]}'s {which} is answered by {answer} and nothing "
+                         f"makes one of those, so what the player is told to bring "
+                         f"is a name in a table")
+
+    # One branch per role, and no creature named in any of them.
+    if not ROLES_SRC:
+        fail("nothing makes a creature's place in its court happen, so all "
+             "fifty-eight are mobs that walk at you")
+    else:
+        _roles = squashed(ROLES_SRC)
+        _happen = squashed(body_of(ROLES_SRC, "public static void happen("))
+        _contact = squashed(body_of(ROLES_SRC, "public static void onContact("))
+        for shorthand, role in roles:
+            if f"CourtRules.{shorthand}" not in _happen:
+                fail(f"nothing decides what a {role} does on the clock, so "
+                     f"whatever fills that place in a court is a creature whose "
+                     f"point is a sentence in a language file")
+        for shorthand, role in roles:
+            if f"CourtRules.{shorthand}" not in _contact:
+                fail(f"nothing decides what a {role} does when it reaches you, so "
+                     f"whether it lands at all is whatever the default branch "
+                     f"happens to be")
+        for row in members:
+            if re.search(r'"%s"' % row[0], _roles):
+                fail(f"{row[0]} is named in the roles, so the module has started "
+                     f"growing a branch per creature — on a roster where nineteen "
+                     f"of them do the same job, which is fifty-eight places for "
+                     f"one bug")
+        for named, _where in (("happen", _happen), ("onContact", _contact)):
+            if "switch (row.role())" not in _where:
+                fail(f"what a creature does in {named} is not chosen by which "
+                     f"role it is, so whatever chooses it is something a "
+                     f"validator cannot read")
+        # The cap the whole budget depends on.
+        if "self.roomFor() > 0" not in _happen:
+            fail("a herald calls without asking whether there is room, so what a "
+                 "court can have standing is unbounded — and the rule that holds "
+                 "it under its head becomes a fact about a table")
+        # And the moment, which is not a role.
+        if "public static void turns(" not in ROLES_SRC:
+            fail("nothing happens when a two-phased head turns, so the second "
+                 "phase is a flag nothing in the world reflects")
+
+    if not COURT_ENTITY:
+        fail("there is no entity for the courts, so nothing the rules describe "
+             "is alive")
+    else:
+        _centity = squashed(COURT_ENTITY)
+        if "CourtRules.member(name)" not in _centity:
+            fail("a creature does not find its own row by the name it was "
+                 "registered under, so whatever it is storing instead can be "
+                 "stored wrong")
+        _room = squashed(body_of(COURT_ENTITY, "public int roomFor()"))
+        if "member().most()" not in _room:
+            fail("how many of a thing may be standing is not the row's own, so "
+                 "the number the court's budget was computed against and the "
+                 "number the game keeps are two different numbers")
+        _answered = squashed(body_of(COURT_ENTITY, "public String answeredBy()"))
+        for named, why in (
+                ("row.then()", "a head that has turned is still answered by what "
+                               "answered its first phase, so the second phase is "
+                               "the same fight with more health"),
+                ("row.first()", "a head that has not turned is answered by its "
+                                "second phase's answer, so the fight starts where "
+                                "it was meant to end")):
+            if named not in _answered:
+                fail(why)
+        _step = squashed(body_of(COURT_ENTITY, "public void aiStep()"))
+        if "CourtRoles.happen(this, row);" not in _step:
+            fail("nothing hands a creature to the roles on the clock, so no "
+                 "court ever does anything")
+        if "getHealth() <= getMaxHealth() * TURNS_AT" not in _step:
+            fail("nothing turns a two-phased head, so its second phase is a "
+                 "field nothing ever sets")
+
+    if not COURT_REG:
+        fail("nothing registers the courts, so all fifty-eight are rows")
+    else:
+        _creg = squashed(COURT_REG)
+        _cregister = squashed(body_of(COURT_REG, "register() {"))
+        if "for (CourtRules.Member one : CourtRules.MEMBERS) {" not in _cregister:
+            fail("the courts are named by hand rather than walked from the "
+                 "rules, so a fifty-ninth is a row nothing registers — and on a "
+                 "roster where nineteen creatures do one job, a pasted line "
+                 "reads correct while pointing at the wrong row")
+        if "made.size() != CourtRules.MEMBERS.size()" not in _creg:
+            fail("nothing counts the creatures that were registered, so a roster "
+                 "that half registers is a roster that half exists")
+        if "MobCategory.MONSTER" not in _creg:
+            fail("the courts are registered in the harmless bucket, and the game "
+                 "counts the two against separate caps")
+        if "one.head() ? HEADS_ARE" not in _creg:
+            fail("a head is the same size as the things around it, so which one "
+                 "the fight is cannot be told from inside the room — and the "
+                 "whole arrangement of this module is invisible there")
+
+    _cmod = squashed(strip_comments(read(SRC, "ElysiumBestiary.java")))
+    if "CourtEntities.ALL.size()" not in _cmod:
+        fail("the courts' register is never touched while the mod is being "
+             "built, so whether fifty-eight creatures exist depends on when FML "
+             "happens to load the class")
+
+    _cclient = squashed(strip_comments(read(SRC, "client/BestiaryClient.java")))
+    if "new CourtRenderer(context," not in _cclient:
+        fail("the courts have no renderer registered, so the first one a player "
+             "meets takes the client down with it")
+    if "event.registerLayerDefinition(CourtModel.LAYERS.get(form)," not in _cclient:
+        fail("the courts' model layers are never registered, so baking one "
+             "throws and the renderer that was registered cannot be built")
+
+    # Every rule the file declares is added up, and faults() is a list.
+    _csum = squashed(body_of(COURT_SRC, "public static List<String> faults()"))
+    _crules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", COURT_SRC))
+    _cadded = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _csum))
+    if len(_crules) < 9:
+        fail(f"only {len(_crules)} court rule(s) are declared at all, so the "
+             f"check below is checking nothing")
+    if re.search(r"\bif\s*\(", _csum):
+        fail("the courts' faults() has a condition in it, so some rule is added "
+             "up only sometimes")
+    for _crule in sorted(_crules - _cadded):
+        fail(f"{_crule} is written, compiled and never added up by the courts' "
+             f"faults(), so it answers the harness's controls and is never once "
+             f"asked about what this module ships")
+
+    print(f"the courts          : {len(members)} creature(s) in {len(in_court)} "
+          f"court(s) over {len(roles)} role(s), one head each, every one of them "
+          f"allowed on the floor in exactly the numbers its court's budget was "
+          f"computed against, every phase answered by something the pack really "
+          f"makes, and not one of them named in the branch that makes its role "
+          f"happen")
+
+
+
 if problems:
     print(f"{len(problems)} problem(s):")
     for problem in problems:

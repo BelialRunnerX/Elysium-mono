@@ -72,6 +72,7 @@ public final class BeastHarness {
         theCompanions();
         theKindred();
         theFarm2();
+        theCourts();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -1774,5 +1775,200 @@ public final class BeastHarness {
                 + "the player's credit still proved to push it to "
                 + Math.round(credited * 1000.0D) / 1000.0D + " against "
                 + BeastRules.WIDEST_SPREAD);
+    }
+
+    /**
+     * Eight mini-bosses and the courts around them.
+     *
+     * <p>The claim under test is the one a boss mod breaks by addition: that a
+     * court is support rather than the fight. Nobody ever decides that the
+     * minions should be the fight — somebody adds a ninth kind of skeleton, and
+     * the budget was never written down, so nothing says when it happened.
+     *
+     * <p>Hence the sweep: a hundred thousand courts built out of random parts,
+     * each one checked against the division rather than against a table.
+     */
+    private static void theCourts() {
+        List<String> faults = CourtRules.faults();
+        check(faults.isEmpty(), "something wrong with the courts: " + faults);
+
+        CourtRules.Member first = CourtRules.MEMBERS.get(0);
+
+        check(!CourtRules.faultsInNames(List.of(first, first)).isEmpty(),
+                "two creatures written under one name are not reported");
+        check(CourtRules.faultsInNames(CourtRules.MEMBERS).isEmpty(),
+                "the creatures this module ships are reported as doubled");
+
+        CourtRules.Member headless = new CourtRules.Member("control", "control",
+                CourtRules.SWARM, 1, 10.0D, 1.0D, 0.3D, 1, 20, "", "");
+        check(!CourtRules.faultsInHeads(List.of(headless)).isEmpty(),
+                "a court with no head is not reported, so everything in it is "
+                        + "held under nothing");
+        CourtRules.Member oneHead = new CourtRules.Member("control2", "control",
+                CourtRules.HEAD, 1, 10.0D, 1.0D, 0.3D, 1, 20, "minecraft:stone", "");
+        CourtRules.Member twoHead = new CourtRules.Member("control3", "control",
+                CourtRules.HEAD, 1, 10.0D, 1.0D, 0.3D, 1, 20, "minecraft:stone", "");
+        check(!CourtRules.faultsInHeads(List.of(oneHead, twoHead)).isEmpty(),
+                "a court with two heads is not reported");
+        check(CourtRules.faultsInHeads(CourtRules.MEMBERS).isEmpty(),
+                "the courts this module ships are reported as headless or two-headed");
+
+        check(!CourtRules.faultsInRoles(List.of(new CourtRules.Member("control",
+                        "control", "juggles", 1, 10.0D, 1.0D, 0.3D, 1, 20, "", "")),
+                CourtRules.ROLES).isEmpty(),
+                "a creature filling a role no court has is not reported");
+        check(CourtRules.faultsInRoles(CourtRules.MEMBERS,
+                        CourtRules.ROLES).isEmpty(),
+                "the creatures this module ships fill roles a court does not have");
+
+        check(!CourtRules.faultsInGaps(List.of(first), CourtRules.ROLES).isEmpty(),
+                "a role no court fills is not reported");
+        check(CourtRules.faultsInGaps(CourtRules.MEMBERS,
+                        CourtRules.ROLES).isEmpty(),
+                "the roster this module ships leaves a role unfilled");
+
+        // Two healers is a fight whose difficulty the player cannot affect.
+        check(!CourtRules.faultsInCrowding(List.of(oneHead,
+                        new CourtRules.Member("control4", "control",
+                                CourtRules.HEALER, 1, 2.0D, 0.0D, 0.3D, 2, 20, "", "")))
+                .isEmpty(),
+                "a court with two healers standing at once is not reported, and "
+                        + "that is a head gaining health faster than a player takes "
+                        + "it off");
+        check(CourtRules.faultsInCrowding(CourtRules.MEMBERS).isEmpty(),
+                "the courts this module ships crowd a role they may have one of");
+
+        check(!CourtRules.faultsInRank(List.of(oneHead,
+                        new CourtRules.Member("control5", "control",
+                                CourtRules.SHIELD, 1, 900.0D, 9.0D, 0.9D, 1, 20, "", "")))
+                .isEmpty(),
+                "something worth more than its own head is not reported");
+        check(CourtRules.faultsInRank(CourtRules.MEMBERS).isEmpty(),
+                "something this module ships outranks the head of its own court");
+
+        // The rule this file is for.
+        check(!CourtRules.faultsInCourt(List.of(oneHead,
+                        new CourtRules.Member("control6", "control",
+                                CourtRules.SWARM, 1, 9.0D, 1.0D, 0.3D, 40, 20, "", "")),
+                CourtRules.COURT_SHARE).isEmpty(),
+                "a court worth more than the head it stands behind is not "
+                        + "reported, and that is the head becoming the thing you "
+                        + "ignore while you deal with the real fight");
+        check(CourtRules.faultsInCourt(CourtRules.MEMBERS,
+                        CourtRules.COURT_SHARE).isEmpty(),
+                "a court this module ships is worth more than its own head");
+
+        check(!CourtRules.faultsInStature(List.of(new CourtRules.Member("control",
+                        "control", CourtRules.HEAD, 1, 9000.0D, 90.0D, 0.9D, 1, 20,
+                        "minecraft:stone", "")),
+                BeastRules.BEASTS, CourtRules.BOSS_OVER_BEAST).isEmpty(),
+                "a head past what this pack calls a boss is not reported");
+        check(!CourtRules.faultsInStature(List.of(new CourtRules.Member("control",
+                        "control", CourtRules.HEAD, 9, 10.0D, 1.0D, 0.3D, 1, 20,
+                        "minecraft:stone", "")),
+                BeastRules.BEASTS, CourtRules.BOSS_OVER_BEAST).isEmpty(),
+                "a head on a rung with no beast on it is not reported");
+        check(CourtRules.faultsInStature(CourtRules.MEMBERS, BeastRules.BEASTS,
+                        CourtRules.BOSS_OVER_BEAST).isEmpty(),
+                "a head this module ships is past what it calls a boss");
+
+        // And the rule that makes the ceiling load-bearing rather than a
+        // preference: three times is the largest ceiling under which a
+        // tier-one head still loses to a tier-two beast.
+        check(!CourtRules.faultsInLadder(List.of(new CourtRules.Member("control",
+                        "control", CourtRules.HEAD, 1, 200.0D, 8.0D, 0.4D, 1, 20,
+                        "minecraft:stone", "")),
+                BeastRules.BEASTS).isEmpty(),
+                "a tier-one head out-fighting a tier-two beast is not reported, "
+                        + "so the ladder the whole pack is built on has stopped "
+                        + "predicting anything");
+        check(CourtRules.faultsInLadder(CourtRules.MEMBERS,
+                        BeastRules.BEASTS).isEmpty(),
+                "a head this module ships out-fights the rung above its own");
+
+        check(!CourtRules.faultsInTiers(List.of(first,
+                        new CourtRules.Member("control", first.court(),
+                                CourtRules.SWARM, first.tier() + 1, 4.0D, 1.0D,
+                                0.3D, 1, 20, "", ""))).isEmpty(),
+                "a court straddling two rungs is not reported");
+        check(CourtRules.faultsInTiers(CourtRules.MEMBERS).isEmpty(),
+                "a court this module ships straddles two rungs");
+
+        check(!CourtRules.faultsInPhases(List.of(new CourtRules.Member("control",
+                        "control", CourtRules.HEAD, 1, 10.0D, 1.0D, 0.3D, 1, 20,
+                        "", ""))).isEmpty(),
+                "a head nothing answers is not reported, which is a wall rather "
+                        + "than a fight");
+        check(!CourtRules.faultsInPhases(List.of(new CourtRules.Member("control",
+                        "control", CourtRules.HEAD, 1, 10.0D, 1.0D, 0.3D, 1, 20,
+                        "minecraft:stone", "minecraft:stone"))).isEmpty(),
+                "a second phase answered by the same thing as the first is not "
+                        + "reported, and the player has already spent that answer");
+        check(!CourtRules.faultsInPhases(List.of(new CourtRules.Member("control",
+                        "control", CourtRules.SWARM, 1, 10.0D, 1.0D, 0.3D, 1, 20,
+                        "minecraft:stone", "minecraft:bow"))).isEmpty(),
+                "something that is not a head having two phases is not reported");
+        check(CourtRules.faultsInPhases(CourtRules.MEMBERS).isEmpty(),
+                "a head this module ships fights its second phase the same way");
+
+        check(!CourtRules.faultsInRarity(CourtRules.MEMBERS, 1_000).isEmpty(),
+                "a roster nobody could meet is not reported");
+        check(CourtRules.faultsInRarity(CourtRules.MEMBERS,
+                        CourtRules.LEAST_WEIGHT).isEmpty(),
+                "the creatures this module ships are reported as too rare");
+
+        check(CourtRules.faultsInShapes(CourtRules.MEMBERS,
+                        MythRules.forms()).isEmpty(),
+                "a court this module ships is drawn with a shape it does not have");
+        check(CourtRules.faultsInLeavings(CourtRules.MEMBERS).isEmpty(),
+                "something this module ships leaves nothing behind");
+
+        // What the compact constructor will not build at all.
+        check(threwOn(() -> new CourtRules.Member("control", "", CourtRules.SWARM,
+                        1, 10.0D, 1.0D, 0.3D, 1, 20, "", "")),
+                "a creature belonging to no court is accepted");
+        check(threwOn(() -> new CourtRules.Member("control", "control",
+                        CourtRules.SWARM, 1, 10.0D, 1.0D, 0.3D, 0, 20, "", "")),
+                "a creature that may have none of it standing is accepted");
+        check(threwOn(() -> new CourtRules.Member("control", "control",
+                        CourtRules.SWARM, 1, 10.0D, 1.0D, 0.3D, 1, 0, "", "")),
+                "a creature nothing ever spawns is accepted");
+
+        // The sweep: courts built out of random parts, checked against the
+        // division rather than against a table. This is where the rule earns
+        // its keep, because the failure it catches arrives by addition and no
+        // fixed set of examples contains the addition nobody has made yet.
+        int swept = 0;
+        java.util.Random random = new java.util.Random(58_8821L);
+        for (int round = 0; round < 100_000; round++) {
+            CourtRules.Member head = new CourtRules.Member("h" + round, "control",
+                    CourtRules.HEAD, 1, 20.0D + random.nextInt(200), 5.0D,
+                    0.26D, 1, 20, "minecraft:stone", "");
+            List<CourtRules.Member> built = new java.util.ArrayList<>();
+            built.add(head);
+            double standing = 0.0D;
+            int members = 1 + random.nextInt(6);
+            for (int at = 0; at < members; at++) {
+                CourtRules.Member one = new CourtRules.Member("m" + round + "_" + at,
+                        "control", CourtRules.SWARM, 1, 2.0D + random.nextInt(60),
+                        1.0D, 0.3D, 1 + random.nextInt(4), 20, "", "");
+                built.add(one);
+                standing += one.standing();
+            }
+            boolean over = standing > head.threat() * CourtRules.COURT_SHARE;
+            check(over == !CourtRules.faultsInCourt(built,
+                            CourtRules.COURT_SHARE).isEmpty(),
+                    "a court standing " + Math.round(standing) + " behind a head of "
+                            + Math.round(head.threat()) + " is reported wrongly");
+            swept++;
+        }
+
+        System.out.println("  the courts: " + CourtRules.MEMBERS.size()
+                + " creature(s) in " + CourtRules.courts(CourtRules.MEMBERS).size()
+                + " court(s) over " + CourtRules.ROLES.size() + " role(s), every "
+                + "head at most " + CourtRules.BOSS_OVER_BEAST + " times the beast "
+                + "of its own rung, every court worth no more than the head it "
+                + "stands behind, " + swept + " courts swept against that division, "
+                + "and not one second phase answered the same way as its first");
     }
 }

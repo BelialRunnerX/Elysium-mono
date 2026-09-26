@@ -9,9 +9,9 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | count | status | means |
 |---|---|---|
 | 86 | DONE | an Elysium module already replaces it |
-| 25 | SPLIT | spans several modules; see docs/SPLITS.md |
+| 26 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 3 | PLANNED | has a target module, not started |
+| 2 | PLANNED | has a target module, not started |
 | 14 | KEEP | stays in the pack on purpose |
 | 75 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -20,7 +20,6 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | module | mods to absorb |
 |---|---|
-| `elysium-bestiary` | 1 |
 | `elysium-agronomy` | 1 |
 | `elysium-foundry` | 1 |
 
@@ -50,7 +49,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `blockui-1.0.209-1.21.1.jar` | KEEP | elysium-colonies | MineColonies' own dependencies |
 | `blueprint-1.21.1-8.1.1.jar` | DROP | - | library: goes when the mods needing it go |
 | `bookshelf-neoforge-1.21.1-21.1.81.jar` | DROP | - | library: goes when the mods needing it go |
-| `born_in_chaos_[Neoforge]_1.21.1_1.7.6.jar` | PLANNED | elysium-bestiary | 63 creatures and 23 variants of them, 362 items of which 69 are gear, and a set of mini-bosses — counted out of the jar's own language file rather than guessed. The bestiary's nine are a ladder with a proved reward curve and no boss tier at all, and this is the jar that decides what a boss is here |
+| `born_in_chaos_[Neoforge]_1.21.1_1.7.6.jar` | SPLIT | elysium-bestiary | 58 distinct creatures under 86 entity keys, 240 items, 133 blocks and 61 effects — counted out of the jar's own language file rather than guessed. Seven different jobs, so it is split rather than given one module. The creatures are the mini-bosses and their courts, which is the jar that decides what a boss is here. See docs/SPLITS.md |
 | `botanypots-neoforge-1.21.1-21.1.44.jar` | DONE | elysium-agronomy | pots: 183 working pots across 61 materials — all forty-eight fired clays and thirteen stones — with all three fittings, four growth stages, 14 soils and 28 sprouts as data. It was 55 materials; the six that were missing were andesite, diorite, granite, basalt, dripstone and amethyst, which is to say the six blocks a player has most of and would most obviously reach for. Same count as the jar |
 | `Chimes-v2.1.1-1.21.1-NeoForge.jar` | DONE | elysium-comforts | ninety-six chimes: six materials, each ringing at a note of its own and derived from where it sits in the list rather than typed, in each of the game's sixteen dyes. What they are actually for is the arithmetic: an ambient block goes wrong when the player who likes one hangs eleven more, so the wait between sounds is multiplied by how many are within earshot and a room of two hundred is no louder than a room of one — swept from one chime to two hundred and fifty-six at every strength of wind. The wait doubles as what keeps it cheap: a chime sleeps, sounds, counts its neighbours once, and goes back to sleep, so the cost follows the sounds and the sounds are capped. Height and sky decide the wind, so a roof is still the answer to a noisy one |
 | `chipped-neoforge-1.21.1-4.0.2.jar` | KEEP | elysium-atelier | 250 cosmetic texture variants per block; replacing it needs a retexture generator, which this project has deliberately not built. See docs/CONVERSION.md section 9 — the user's call |

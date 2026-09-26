@@ -59,6 +59,7 @@ public class ElysiumBestiary {
         com.elysium.bestiary.registry.MythEntities.ALL.size();
         com.elysium.bestiary.registry.CompanionEntities.ALL.size();
         com.elysium.bestiary.registry.KinEntities.ALL.size();
+        com.elysium.bestiary.registry.CourtEntities.ALL.size();
         com.elysium.bestiary.registry.FarmBlocks.BLOCKS.register(modEventBus);
         com.elysium.bestiary.registry.FarmBlocks.ITEMS.register(modEventBus);
         com.elysium.bestiary.registry.FarmBlocks.BLOCK_ENTITIES.register(modEventBus);

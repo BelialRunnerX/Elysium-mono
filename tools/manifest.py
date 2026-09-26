@@ -190,12 +190,12 @@ DECISIONS = [
     # It is not their catalogues. Nine is nine. Marking these DONE would take
     # sixty creatures out of the pack and put nine in their place, which is the
     # atelier mistake with fur on it.
-    (r"^born_in_chaos", "PLANNED", "elysium-bestiary",
-     "63 creatures and 23 variants of them, 362 items of which 69 are gear, and "
-     "a set of mini-bosses — counted out of the jar's own language file rather "
-     "than guessed. The bestiary's nine are a ladder with a proved reward curve "
-     "and no boss tier at all, and this is the jar that decides what a boss is "
-     "here"),
+    (r"^born_in_chaos", "SPLIT", "elysium-bestiary",
+     "58 distinct creatures under 86 entity keys, 240 items, 133 blocks and 61 "
+     "effects — counted out of the jar's own language file rather than guessed. "
+     "Seven different jobs, so it is split rather than given one module. The "
+     "creatures are the mini-bosses and their courts, which is the jar that "
+     "decides what a boss is here. See docs/SPLITS.md"),
     (r"^fangs_n_claws", "SPLIT", "elysium-bestiary",
      "27 creatures, four armour sets, ten weapons, six effects, five "
      "enchantments and three blocks: five different jobs in one jar, so it is "

@@ -400,6 +400,97 @@ if _unshaded_kind or _unworded_machine:
     sys.exit(2)
 
 
+# The fifty-eight in eight courts, read out of CourtRules: which court a
+# creature belongs to and what it is in that court are rules, and are proved
+# about; what colour it is, is art.
+COURT_SOURCE = read(os.path.join(
+    MOD, "src/main/java/com/elysium/bestiary/rules/CourtRules.java"))
+COURT_MEMBERS = [
+    {"id": one[0], "court": one[1], "role": one[2], "tier": int(one[3]),
+     "most": int(one[7]), "weight": int(one[8]), "first": one[9], "then": one[10]}
+    for one in re.findall(
+        r'new Member\("([a-z_]+)", "([a-z_]+)", (\w+), (\d+), ([\d.]+)D,'
+        r' ([\d.]+)D, ([\d.]+)D, (\d+), (\d+), "([\w:]*)", "([\w:]*)"\)',
+        re.sub(r"\s+", " ", COURT_SOURCE))
+]
+if len(COURT_MEMBERS) != 58:
+    print("CourtRules reads as %d creature(s) rather than fifty-eight"
+          % len(COURT_MEMBERS))
+    sys.exit(2)
+
+#: What each leaves behind, worked out the way the rules work it out rather
+#: than listed again.
+_court_leavings = re.search(r"List<String> LEAVINGS = List\.of\((.*?)\);",
+                            re.sub(r"\s+", " ", COURT_SOURCE))
+COURT_LEAVING_LIST = (re.findall(r'"([\w:]+)"', _court_leavings.group(1))
+                      if _court_leavings else [])
+if not COURT_LEAVING_LIST:
+    print("CourtRules names nothing that anything leaves behind")
+    sys.exit(2)
+COURT_LEAVINGS = {one["id"]: COURT_LEAVING_LIST[at % len(COURT_LEAVING_LIST)]
+                  for at, one in enumerate(COURT_MEMBERS)}
+
+#: One sentence per role, because on a roster this size "another skeleton" is
+#: what a player sees unless something tells them which one matters.
+ROLE_WORDS = {
+    "HEAD": "The one the rest of them are here for.",
+    "HERALD": "It calls the others up. Kill it first or keep killing.",
+    "SWARM": "There are several, and none of them is the problem.",
+    "SHIELD": "It puts itself between you and what you came for.",
+    "ARTILLERY": "It hits you from where the head is not.",
+    "HEALER": "It puts back what you just took off.",
+    "MOUNT": "Killing it is a decision, not an obstacle.",
+}
+
+#: And what each court looks like. Per court, because a court that looked like
+#: eight unrelated things would not read as a court.
+COURT_SHADES = {
+    "bonescaller": ((214, 210, 196), (108, 104, 96)),
+    "pumpkin": ((222, 138, 54), (106, 62, 20)),
+    "krampus": ((148, 58, 58), (68, 24, 24)),
+    "zombie": ((112, 146, 96), (50, 68, 42)),
+    "spirit": ((166, 196, 214), (74, 92, 104)),
+    "hound": ((128, 110, 92), (58, 50, 40)),
+    "vermin": ((106, 118, 76), (46, 54, 32)),
+    "chaos": ((92, 70, 118), (40, 30, 54)),
+}
+_unshaded_court = sorted({one["court"] for one in COURT_MEMBERS} - set(COURT_SHADES))
+_unworded_role = sorted({one["role"] for one in COURT_MEMBERS} - set(ROLE_WORDS))
+if _unshaded_court or _unworded_role:
+    print("no shades for %s and no sentence for %s"
+          % (_unshaded_court, _unworded_role))
+    sys.exit(2)
+
+
+def court_skin(one):
+    """A court member, on the same 64x64 sheet every creature here uses.
+
+    The colour is the court's, because a court has to read as one thing, and
+    the band across it is the role's -- so that on a roster of fifty-eight the
+    player can tell the herald from the swarm without reading a name. A head
+    gets a crown of the lighter shade, which is the one distinction a fight
+    cannot afford to leave to a health bar.
+    """
+    light, dark = COURT_SHADES[one["court"]]
+    image = Image.new("RGBA", (64, 64), light + (255,))
+    draw = ImageDraw.Draw(image)
+    seed = sum(ord(letter) for letter in one["id"])
+    for y in range(64):
+        for x in range(64):
+            if (x * 3 + y * 13 + seed) % 19 < 5:
+                draw.point((x, y), fill=dark + (255,))
+    at = sorted(ROLE_WORDS).index(one["role"])
+    mark = (70 + at * 26, 210 - at * 18, 120 + at * 14, 255)
+    draw.rectangle([0, 44 + at * 2, 63, 45 + at * 2], fill=mark)
+    draw.rectangle([6, 8, 9, 11], fill=(246, 246, 240, 255))
+    draw.rectangle([14, 8, 17, 11], fill=(246, 246, 240, 255))
+    if one["role"] == "HEAD":
+        crown = tuple(min(255, channel + 60) for channel in light) + (255,)
+        for step in range(0, 24, 4):
+            draw.rectangle([step, 0, step + 1, 3], fill=crown)
+    return image
+
+
 def machine_skin(one):
     """A machine, on a plain 16x16 block sheet.
 
@@ -1189,6 +1280,52 @@ def main():
                       "maxCount": 2 if myth["bane"] != "NUMBERS" else 4,
                   }],
               })
+
+    # The fifty-eight in eight courts.
+    for one in COURT_MEMBERS:
+        court_skin(one).save(os.path.join(entity_textures, one["id"] + ".png"))
+
+        write(os.path.join(ASSETS, "models/item", one["id"] + "_spawn_egg.json"),
+              {"parent": "minecraft:item/template_spawn_egg"})
+
+        write(os.path.join(DATA, "loot_table/entities", one["id"] + ".json"), {
+            "type": "minecraft:entity",
+            "pools": [{
+                "rolls": 1,
+                "entries": [{"type": "minecraft:item",
+                             "name": COURT_LEAVINGS[one["id"]]}],
+                "conditions": [{"condition": "minecraft:killed_by_player"}],
+            }],
+        })
+
+        # How many of it may appear at once is the row's own `most`. A spawn
+        # rule that put four of something the rules allow one of would make the
+        # budget that holds a court under its head a number about a table.
+        write(os.path.join(DATA, "neoforge/biome_modifier",
+                           "add_%s_spawns.json" % one["id"]),
+              {
+                  "type": "neoforge:add_spawns",
+                  "biomes": "#minecraft:is_overworld",
+                  "spawners": [{
+                      "type": "%s:%s" % (NS, one["id"]),
+                      "weight": one["weight"],
+                      "minCount": 1,
+                      "maxCount": one["most"],
+                  }],
+              })
+
+        lang["entity.%s.%s" % (NS, one["id"])] = titled(one["id"])
+        lang["item.%s.%s_spawn_egg" % (NS, one["id"])] = \
+            titled(one["id"]) + " Spawn Egg"
+        lang["bestiary.%s.role.%s" % (NS, one["id"])] = ROLE_WORDS[one["role"]]
+        lang["bestiary.%s.court.%s" % (NS, one["id"])] = titled(one["court"])
+        if one["first"]:
+            lang["bestiary.%s.answers.%s" % (NS, one["id"])] = one["first"]
+        if one["then"]:
+            lang["bestiary.%s.answers_then.%s" % (NS, one["id"])] = one["then"]
+
+    for court_name in sorted({one["court"] for one in COURT_MEMBERS}):
+        lang["bestiary.%s.thecourt.%s" % (NS, court_name)] = titled(court_name)
 
     # The nine machines a mob farm is made of.
     block_textures = os.path.join(ASSETS, "textures/block")
