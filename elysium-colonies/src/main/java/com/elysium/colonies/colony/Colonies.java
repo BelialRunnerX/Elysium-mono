@@ -413,8 +413,15 @@ public final class Colonies {
         if (colony == null) {
             return false;
         }
-        BuildingEntry entry = IBuildingRegistry.getInstance()
-                .get(ResourceLocation.parse(kind));
+        // The host's registry has no default and throws on a miss rather than
+        // answering null, so a plan naming a building that does not exist
+        // would crash the tick that founds it. Ask first.
+        ResourceLocation kindId = ResourceLocation.parse(kind);
+        if (!IBuildingRegistry.getInstance().containsKey(kindId)) {
+            ElysiumColonies.LOGGER.warn("no such building as {}; the plan names it", kind);
+            return false;
+        }
+        BuildingEntry entry = IBuildingRegistry.getInstance().get(kindId);
         if (entry == null) {
             return false;
         }
@@ -991,8 +998,8 @@ public final class Colonies {
         if (colony == null) {
             return -1;
         }
-        BuildingEntry entry = IBuildingRegistry.getInstance()
-                .get(ResourceLocation.parse(TOWN_HALL));
+        BuildingEntry entry = IBuildingRegistry.getInstance().containsKey(ResourceLocation.parse(TOWN_HALL))
+                ? IBuildingRegistry.getInstance().get(ResourceLocation.parse(TOWN_HALL)) : null;
         AbstractColonyBlock<?> hut = entry == null ? null : entry.getBuildingBlock();
         if (hut != null) {
             net.minecraft.world.level.block.state.BlockState state =

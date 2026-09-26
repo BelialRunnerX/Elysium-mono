@@ -125,14 +125,14 @@ def space_worlds():
 # ---------------------------------------------------------------------------
 PLAN = [
     ("minecolonies:builder", 0),
-    ("minecolonies:home", 0),
+    ("minecolonies:residence", 0),   # MineColonies calls a home a residence
     ("minecolonies:warehouse", 3),
     ("minecolonies:deliveryman", 3),
     ("minecolonies:farmer", 4),
     ("minecolonies:cook", 5),
     ("minecolonies:lumberjack", 6),
     ("minecolonies:miner", 7),
-    ("minecolonies:forester", 8),
+    ("minecolonies:fisherman", 8),   # there is no forester; the fisherman feeds a town of that size
     ("minecolonies:guardtower", 9),
     ("minecolonies:sawmill", 10),
     ("minecolonies:stonemason", 12),

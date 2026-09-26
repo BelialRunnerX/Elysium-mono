@@ -87,6 +87,11 @@ expect "fake player outside the seam" "conjures a fake player outside the seam"
 # a harness that fails is reported, not a crash of the validator
 edit $M/tools/ColonyHarness.java 'check(SettleRules.FROM_SPAWN > 0, ' 'check(SettleRules.FROM_SPAWN < 0, '
 expect "a failing harness is reported" "the colony harness failed"
+# a plan building the host does not have
+edit $D/charter_needs/settlement_plan.json '"minecolonies:residence"' '"minecolonies:home"'
+expect "a plan building the host lacks" "not a building MineColonies has"
+edit $S/colony/Colonies.java 'if (!IBuildingRegistry.getInstance().containsKey(kindId)) {' 'if (false) {'
+expect "registry asked without checking" "throws on a miss"
 # hand-edited generated data
 edit $D/worldgen/template_pool/settlement/seed.json '"fallback": "minecraft:empty"' '"fallback": "minecraft:empty "'
 expect "hand-edited pool" "differ from what tools/gen_settlements.py writes"

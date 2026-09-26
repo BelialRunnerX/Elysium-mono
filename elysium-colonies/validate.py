@@ -1131,6 +1131,36 @@ else:
             if _drift:
                 fail(f"{len(_drift)} settlement file(s) differ from what tools/gen_settlements.py "
                      f"writes: " + ", ".join(sorted(_drift)[:6]))
+# Every building the plan names must be one the host has: its registry throws
+# on a miss, and the first live town crashed the game on "minecolonies:home"
+# (the host calls it a residence). The hut blockstates in the MineColonies jar
+# are the ids, read rather than listed.
+_mc_jar = next((os.path.join(d, f) for d in (os.environ.get("ELYSIUM_COMPAT_LIBS", "/tmp/mods"), "C:/tmp/mods")
+                if os.path.isdir(d) for f in sorted(os.listdir(d)) if f.startswith("minecolonies-") and f.endswith(".jar")), None)
+_plan_ids = [w["building"] for w in json_files.get(os.path.normpath(os.path.join(DATA, "charter_needs/settlement_plan.json")), {}).get("wants", [])]
+if _mc_jar:
+    # The ids are the host's own constants (HOME_ID = "residence", whose hut
+    # block is called citizen), read with javap rather than guessed from names.
+    _jp = subprocess.run(["javap", "-constants", "-cp", _mc_jar,
+                          "com.minecolonies.api.colony.buildings.ModBuildings"],
+                         capture_output=True, text=True)
+    _huts = set(re.findall(r'String \w+_ID = "([a-z_]+)";', _jp.stdout))
+    if not _huts:
+        import zipfile as _zf
+        with _zf.ZipFile(_mc_jar) as _z:
+            _huts = {n.split("/blockhut", 1)[1][:-5] for n in _z.namelist()
+                     if n.startswith("assets/minecolonies/blockstates/blockhut") and n.endswith(".json")}
+    for _want in _plan_ids:
+        if _want.split(":", 1)[1] not in _huts:
+            fail(f"the settlement plan wants {_want}, which is not a building MineColonies has; "
+                 f"the host's registry throws on it and the tick that founds it crashes the game")
+    _plan_note = f"{len(_plan_ids)} plan building(s) all known to the host"
+else:
+    _plan_note = f"{len(_plan_ids)} plan building(s), host jar not found so not checked"
+if "containsKey(kindId)" not in body_of(_seam_src, "public static boolean found(ServerLevel level, int colonyId, String kind"):
+    fail("the seam asks the host's building registry for a kind without checking it exists; the "
+         "registry throws on a miss")
+print(f"settlement plan    : {_plan_note}")
 print(f"settlements        : towns found themselves on {len(_settling) if _set else 0} world(s), "
       f"one site per {_spacing} chunks, in {len(_values) if _tag else 0} biome(s); a steward who is "
       f"nobody, a director that builds whole, and a claim that hands it on")
