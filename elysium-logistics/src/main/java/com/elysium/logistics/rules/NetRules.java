@@ -132,6 +132,72 @@ public final class NetRules {
         return total;
     }
 
+    /**
+     * What these devices cost the grid <em>beyond</em> the one draw every
+     * slot on a controller already pays.
+     *
+     * <p>A drawer is one slot and one draw. A device is one slot too — it
+     * counts against {@link LogisticRules#MOST_DEVICES} exactly once — but a
+     * dear device pays more than one draw for that slot, and this is the
+     * difference. {@link LogisticRules.Network#machine()} adds it to the
+     * slot count so that a network of drawers and devices is one number the
+     * grid can be asked for, and that number is the sum the harness proves.
+     */
+    public static int surcharge(List<Device> devices) {
+        int extra = 0;
+        for (Device one : devices) {
+            extra += one.draws() - 1;
+        }
+        return extra;
+    }
+
+    /**
+     * How often a device does its work, in ticks.
+     *
+     * <p>Once a second rather than every tick. A device is a face on a
+     * network rather than a machine, and a wall of forty importers each
+     * asking a chest what it holds twenty times a second is a server spent
+     * on bookkeeping. A player cannot see the difference between one second
+     * and one twentieth of one on a chest being emptied.
+     */
+    public static final int TICK_EVERY = 20;
+
+    /** The most an importer or exporter moves in one round: one stack. */
+    public static final int MOVES_PER_ROUND = LogisticRules.STACK;
+
+    /**
+     * The counts a detector can be stepped to.
+     *
+     * <p>A ladder rather than a number typed in, because there is no screen
+     * to type it into and the thing a detector is <em>for</em> — "tell me
+     * when I have a stack", "tell me when I have a chest full" — is a
+     * handful of round numbers a player already thinks in.
+     */
+    public static final List<Integer> THRESHOLDS = List.of(1, 16, 64, 256, 1024, 4096);
+
+    /** The threshold a fresh detector starts at. */
+    public static int firstThreshold() {
+        return THRESHOLDS.get(0);
+    }
+
+    /** The next rung up the ladder from {@code now}, back to the first at the top. */
+    public static int nextThreshold(int now) {
+        int at = THRESHOLDS.indexOf(now);
+        if (at < 0) {
+            return firstThreshold();
+        }
+        return THRESHOLDS.get((at + 1) % THRESHOLDS.size());
+    }
+
+    /**
+     * Whether a count has reached a threshold: what a detector's redstone
+     * says, written down once so that the expression the detector actually
+     * runs can be checked against it.
+     */
+    public static boolean reaches(long count, int threshold) {
+        return count >= threshold;
+    }
+
     /** The most a network may draw: every slot filled with the dearest device. */
     public static float mostItCanDraw() {
         int dearest = 1;
@@ -228,6 +294,10 @@ public final class NetRules {
             // could ever be an item and half the operators below would be
             // unreachable.
             new Op("held", List.of(), ITEM),
+            // A number the player stepped to rather than read off the world.
+            // Without it "more than a stack" is not a thing an expression
+            // can say, and a detector has nothing to compare a count with.
+            new Op("constant", List.of(), NUMBER),
             new Op("read_count", List.of(ITEM), NUMBER),
             new Op("read_power", List.of(), NUMBER),
             new Op("read_devices", List.of(), NUMBER),
@@ -469,6 +539,240 @@ public final class NetRules {
                     + "get into an expression from the world at all");
         }
         return List.copyOf(bad);
+    }
+
+    // ==================================================================
+    // Running one
+    // ==================================================================
+
+    /**
+     * What the world looks like to an expression: the four things a reader
+     * can read. The game implements this; the harness implements it with
+     * numbers it chose, which is how the evaluation is proved without a
+     * network to run on.
+     */
+    public interface Readings {
+
+        /** How many of this item the network holds. */
+        long countOf(String item);
+
+        /** What the grid is giving the network, in FE per tick. */
+        long power();
+
+        /** How many things are on the network. */
+        long devices();
+
+        /** Whether the network is making something. */
+        boolean busy();
+
+        /** What a player calls this item, rather than what the registry does. */
+        String nameOf(String item);
+    }
+
+    /**
+     * One worked-out value, tagged with its type.
+     *
+     * <p>One record with a field per type rather than four classes, because
+     * the thing that matters about a value is that it is <em>the type the
+     * expression said</em>, and that is one comparison against
+     * {@link #typesIn} rather than four {@code instanceof}s.
+     */
+    public record Value(String type, long number, boolean truth, String item, String text) {
+
+        public static Value ofNumber(long number) {
+            return new Value(NUMBER, number, false, "", "");
+        }
+
+        public static Value ofTruth(boolean truth) {
+            return new Value(TRUTH, 0, truth, "", "");
+        }
+
+        public static Value ofItem(String item) {
+            return new Value(ITEM, 0, false, item == null ? "" : item, "");
+        }
+
+        public static Value ofText(String text) {
+            return new Value(TEXT, 0, false, "", text == null ? "" : text);
+        }
+    }
+
+    /**
+     * The number a {@code constant} step stands for.
+     *
+     * <p>Lenient on purpose: an unreadable constant is zero rather than an
+     * exception, because the only thing that writes constants is the
+     * detector's threshold ladder and the only thing that could make one
+     * unreadable is a save edited by hand. A tick must not throw over that.
+     */
+    public static long numberIn(String value) {
+        if (value == null || value.isEmpty()) {
+            return 0;
+        }
+        try {
+            return Long.parseLong(value.trim());
+        } catch (NumberFormatException wrong) {
+            return 0;
+        }
+    }
+
+    /**
+     * Work an expression out, or null if it does not work out.
+     *
+     * <p>Typed first and run second, and the typing is the whole of the
+     * safety argument: by the time a step is run every input it names is an
+     * earlier step of exactly the type its operator takes, so there is no
+     * branch in here for "the wrong kind of thing arrived" — there is
+     * nowhere it could have come from. The harness proves that on forty
+     * thousand random expressions: every one that types evaluates, to a value
+     * of the type the typing said.
+     */
+    public static Value evaluate(List<Node> expression, Readings world) {
+        List<String> types = typesIn(expression);
+        if (types == null) {
+            return null;
+        }
+        List<Value> values = new ArrayList<>();
+        for (int at = 0; at < expression.size(); at++) {
+            Node node = expression.get(at);
+            List<Value> in = new ArrayList<>();
+            for (int from : node.inputs()) {
+                in.add(values.get(from));
+            }
+            Value made = step(node, in, world);
+            if (made == null || !made.type().equals(types.get(at))) {
+                return null;
+            }
+            values.add(made);
+        }
+        return values.get(values.size() - 1);
+    }
+
+    /** One step, on inputs the typing has already vouched for. */
+    private static Value step(Node node, List<Value> in, Readings world) {
+        switch (node.op()) {
+            case "held":
+                return Value.ofItem(node.value());
+            case "constant":
+                return Value.ofNumber(numberIn(node.value()));
+            case "read_count":
+                return Value.ofNumber(world.countOf(in.get(0).item()));
+            case "read_power":
+                return Value.ofNumber(world.power());
+            case "read_devices":
+                return Value.ofNumber(world.devices());
+            case "read_busy":
+                return Value.ofTruth(world.busy());
+            case "add":
+                return Value.ofNumber(in.get(0).number() + in.get(1).number());
+            case "subtract":
+                return Value.ofNumber(in.get(0).number() - in.get(1).number());
+            case "multiply":
+                return Value.ofNumber(in.get(0).number() * in.get(1).number());
+            case "smaller_of":
+                return Value.ofNumber(Math.min(in.get(0).number(), in.get(1).number()));
+            case "larger_of":
+                return Value.ofNumber(Math.max(in.get(0).number(), in.get(1).number()));
+            case "equal":
+                return Value.ofTruth(in.get(0).number() == in.get(1).number());
+            case "less":
+                return Value.ofTruth(in.get(0).number() < in.get(1).number());
+            case "greater":
+                return Value.ofTruth(in.get(0).number() > in.get(1).number());
+            case "both":
+                return Value.ofTruth(in.get(0).truth() && in.get(1).truth());
+            case "either":
+                return Value.ofTruth(in.get(0).truth() || in.get(1).truth());
+            case "not":
+                return Value.ofTruth(!in.get(0).truth());
+            case "named":
+                return Value.ofText(world.nameOf(in.get(0).item()));
+            case "spelled":
+                return Value.ofText(Long.toString(in.get(0).number()));
+            case "joined":
+                // With a space between, because the only reason to join two
+                // pieces of text is to read them as one line.
+                return Value.ofText(in.get(0).text() + " " + in.get(1).text());
+            default:
+                return null;
+        }
+    }
+
+    /** Every operator {@link #step} does not know how to run. Must be empty. */
+    public static List<String> unrunnable() {
+        List<String> bad = new ArrayList<>();
+        Readings nothing = new Readings() {
+            @Override
+            public long countOf(String item) {
+                return 0;
+            }
+
+            @Override
+            public long power() {
+                return 0;
+            }
+
+            @Override
+            public long devices() {
+                return 0;
+            }
+
+            @Override
+            public boolean busy() {
+                return false;
+            }
+
+            @Override
+            public String nameOf(String item) {
+                return item;
+            }
+        };
+        for (Op one : OPS) {
+            List<Value> in = new ArrayList<>();
+            for (String type : one.takes()) {
+                in.add(new Value(type, 0, false, "", ""));
+            }
+            if (step(new Node(one.name(), List.of(), "0"), in, nothing) == null) {
+                bad.add(one.name() + " is an operator the network cannot run, so an "
+                        + "expression that uses it types and then does nothing");
+            }
+        }
+        return List.copyOf(bad);
+    }
+
+    // ==================================================================
+    // The two expressions the devices run
+    // ==================================================================
+
+    /**
+     * What a detector asks: <em>does the network hold at least this many of
+     * the thing I was shown?</em>
+     *
+     * <p>Five steps, and they are the reason the logic layer is a thing a
+     * player meets rather than a file: the detector does not compare two
+     * numbers in Java and call it logic, it writes the question down in the
+     * language above and runs it. Change what {@code less} means and every
+     * detector in the world changes with it.
+     */
+    public static List<Node> detectorExpression(String item, int threshold) {
+        return List.of(
+                new Node("held", List.of(), item),
+                new Node("read_count", List.of(0), ""),
+                new Node("constant", List.of(), Integer.toString(threshold)),
+                new Node("less", List.of(1, 2), ""),
+                new Node("not", List.of(3), ""));
+    }
+
+    /**
+     * What a monitor says about the thing it was shown: its name and how
+     * many the network holds, joined into one line of text.
+     */
+    public static List<Node> monitorExpression(String item) {
+        return List.of(
+                new Node("held", List.of(), item),
+                new Node("read_count", List.of(0), ""),
+                new Node("spelled", List.of(1), ""),
+                new Node("named", List.of(0), ""),
+                new Node("joined", List.of(2, 3), ""));
     }
 
     /** Every block id this file adds. */

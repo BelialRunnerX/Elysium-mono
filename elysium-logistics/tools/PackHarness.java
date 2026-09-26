@@ -46,6 +46,9 @@ public final class PackHarness {
         theRemoval();
         theVoiding();
         theSweep();
+        theMonotone();
+        theShowing();
+        theIntake();
         theControls();
 
         if (failures > 0) {
@@ -316,6 +319,197 @@ public final class PackHarness {
         System.out.println("  the sweep: " + rounds + " random bags, fittings, "
                 + "contents and removals, " + refused + " removals refused, and "
                 + "not one item made or destroyed outside a void seal");
+    }
+
+    // ==================================================================
+
+    /** Every set of parts a body can take, however many that is. */
+    private static List<List<PackRules.Part>> everyFitting(PackRules.Body body) {
+        List<List<PackRules.Part>> all = new ArrayList<>();
+        int n = PackRules.PARTS.size();
+        for (int mask = 0; mask < (1 << n); mask++) {
+            if (Integer.bitCount(mask) > body.fittings()) {
+                continue;
+            }
+            List<PackRules.Part> fitted = new ArrayList<>();
+            for (int at = 0; at < n; at++) {
+                if ((mask & (1 << at)) != 0) {
+                    fitted.add(PackRules.PARTS.get(at));
+                }
+            }
+            all.add(fitted);
+        }
+        return all;
+    }
+
+    /**
+     * Capacity monotone in parts: fitting one more part to any fitting a body
+     * can take never makes it hold less, and a pocket makes it hold exactly
+     * its own slots more.
+     */
+    private static void theMonotone() {
+        int pairs = 0;
+        for (PackRules.Body body : PackRules.BODIES) {
+            for (List<PackRules.Part> fitted : everyFitting(body)) {
+                check(PackRules.fits(body, fitted), body.name() + " refused "
+                        + fitted.size() + " different parts inside its limit");
+                int before = PackRules.capacity(body, fitted);
+                for (PackRules.Part more : PackRules.PARTS) {
+                    if (fitted.contains(more)) {
+                        continue;
+                    }
+                    List<PackRules.Part> after = new ArrayList<>(fitted);
+                    after.add(more);
+                    if (!PackRules.fits(body, after)) {
+                        continue;
+                    }
+                    int now = PackRules.capacity(body, after);
+                    check(now >= before, "fitting " + more.name() + " to "
+                            + body.name() + " took it from " + before + " to " + now);
+                    check(now - before == more.slots(), "fitting " + more.name()
+                            + " to " + body.name() + " added " + (now - before)
+                            + " and the part is " + more.slots());
+                    pairs++;
+                }
+            }
+        }
+        check(pairs > 0, "no fitting was ever extended, so monotonicity was never "
+                + "asked about");
+        System.out.println("  the monotone: " + pairs + " fittings extended by one "
+                + "part, and not one of them made a pack hold less");
+    }
+
+    // ==================================================================
+
+    /**
+     * Showing a pack a page at a time: every slot on exactly one page, no page
+     * bigger than the game's largest screen, and every page whole rows.
+     */
+    private static void theShowing() {
+        int shown = 0;
+        int paged = 0;
+        for (PackRules.Body body : PackRules.BODIES) {
+            for (List<PackRules.Part> fitted : everyFitting(body)) {
+                int room = PackRules.capacity(body, fitted);
+                check(room % PackRules.ROW == 0, body.name() + " fitted with "
+                        + fitted.size() + " part(s) holds " + room + ", which is "
+                        + "not whole rows, so the last row shows slots that are not "
+                        + "there");
+                int total = 0;
+                int pages = PackRules.pages(room);
+                for (int page = 0; page < pages; page++) {
+                    int here = PackRules.shownOn(room, page);
+                    check(here > 0 && here <= PackRules.MOST_SHOWN, "page " + page
+                            + " of a pack holding " + room + " shows " + here);
+                    check(PackRules.rowsOn(room, page) >= 1
+                                    && PackRules.rowsOn(room, page) <= 6,
+                            "page " + page + " of " + room + " wants "
+                                    + PackRules.rowsOn(room, page) + " rows and the "
+                                    + "game has screens of one to six");
+                    check(PackRules.firstOn(page) == total, "page " + page
+                            + " starts at " + PackRules.firstOn(page) + " and the "
+                            + "pages before it showed " + total);
+                    total += here;
+                }
+                check(total == room, "the pages of a pack holding " + room
+                        + " show " + total + ", so "
+                        + (total < room ? "some of it can never be reached"
+                        : "some of it is shown twice"));
+                check(PackRules.shownOn(room, pages) == 0,
+                        "there is a page past the last one");
+                int at = 0;
+                Set<Integer> visited = new LinkedHashSet<>();
+                for (int step = 0; step < pages; step++) {
+                    visited.add(at);
+                    at = PackRules.nextPage(room, at);
+                }
+                check(visited.size() == pages && at == 0, "turning the pages of a "
+                        + "pack holding " + room + " visits " + visited.size()
+                        + " of " + pages + " and does not come back to the first");
+                if (pages > 1) {
+                    paged++;
+                }
+                shown++;
+            }
+        }
+        check(paged > 0, "no pack ever needs a second page, so paging is a branch "
+                + "nothing reaches and a cap at one screen would pass unnoticed");
+        System.out.println("  the showing: " + shown + " fittings shown in whole "
+                + "rows of at most " + PackRules.MOST_SHOWN + " a page, " + paged
+                + " of them across more than one page, every slot on exactly one");
+    }
+
+    // ==================================================================
+
+    /**
+     * What may go in, and what the parts do to it: no bag in a bag, a sieve
+     * that only narrows, a seal that only takes what is held, a tin that
+     * never wastes food, a restocker that never overfills, and a press and a
+     * cooker that make nothing out of nothing.
+     */
+    private static void theIntake() {
+        for (PackRules.Body body : PackRules.BODIES) {
+            check(!PackRules.mayHold(body.name()), "a " + body.name() + " may be "
+                    + "put inside a pack, so capacity is a recursion");
+        }
+        for (PackRules.Part one : PackRules.PARTS) {
+            check(PackRules.mayHold(one.name()), one.name() + " may not be carried "
+                    + "in a pack, and a spare part has nowhere else to go");
+        }
+        check(PackRules.mayHold("cobblestone"), "a pack refuses cobblestone");
+
+        PackRules.Part sieve = PackRules.part("sieve_mesh");
+        PackRules.Part seal = PackRules.part("void_seal");
+        check(sieve != null && seal != null, "there is no sieve or no seal");
+        for (boolean held : new boolean[] {false, true}) {
+            check(PackRules.admits(List.of(), held), "a pack with no sieve refused "
+                    + "something");
+            check(PackRules.admits(List.of(sieve), held) == held, "a sieve "
+                    + (held ? "refused what the pack already holds"
+                    : "let in something new"));
+            check(!PackRules.voidsOverflow(List.of(), held), "a pack with no seal "
+                    + "destroyed its overflow");
+            check(PackRules.voidsOverflow(List.of(seal), held) == held, "a seal "
+                    + (held ? "kept the overflow of what it holds"
+                    : "destroyed something the pack did not already hold"));
+        }
+        for (int missing = 0; missing <= 20; missing++) {
+            for (int nutrition = 0; nutrition <= 20; nutrition++) {
+                if (PackRules.worthEating(missing, nutrition)) {
+                    check(nutrition <= missing && nutrition > 0, "food worth "
+                            + nutrition + " was eaten with " + missing + " missing");
+                }
+            }
+            check(!PackRules.worthEating(missing, 0), "nothing was eaten as food");
+        }
+        check(PackRules.worthEating(20, 6), "a starving wearer is not fed bread");
+        for (int most = 1; most <= 64; most++) {
+            check(PackRules.restockWanted(0, most) == 0, "a restocker filled an "
+                    + "empty hand, so it decides what a player holds");
+            for (int held = 1; held <= most; held++) {
+                int wanted = PackRules.restockWanted(held, most);
+                check(wanted >= 0 && held + wanted == most, "a restocker brings "
+                        + wanted + " to a hand of " + held + " of " + most);
+            }
+        }
+        for (int count = 0; count <= 4096; count++) {
+            int[] made = PackRules.pressed(count);
+            check(made[0] * CompressRules.PER_STEP + made[1] == count, "pressing "
+                    + count + " made " + made[0] + " and left " + made[1]);
+            check(made[1] >= 0 && made[1] < CompressRules.PER_STEP, "pressing "
+                    + count + " left " + made[1] + " that could have been pressed");
+        }
+        for (int count = 0; count <= 64; count++) {
+            for (int yield = 0; yield <= 4; yield++) {
+                int cooked = PackRules.cooked(count, yield, 64);
+                check(cooked == 0 || cooked == count * yield, "cooking " + count
+                        + " at " + yield + " each made " + cooked);
+                check(cooked <= 64, "cooking made more than a slot holds");
+            }
+        }
+        System.out.println("  the intake: no body inside a pack, a sieve that only "
+                + "narrows, a seal that only takes what is held, food never "
+                + "wasted, a hand never overfilled, and a press that conserves");
     }
 
     // ==================================================================

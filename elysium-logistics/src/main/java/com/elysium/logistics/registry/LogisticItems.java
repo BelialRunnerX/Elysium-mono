@@ -14,6 +14,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import com.elysium.logistics.rules.CompressRules;
 import com.elysium.logistics.rules.NetRules;
 import com.elysium.logistics.rules.PackRules;
+import com.elysium.logistics.pack.PackItem;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -95,17 +96,30 @@ public final class LogisticItems {
     /**
      * Every body and every part, walked from the same roster the arithmetic is.
      *
-     * <p>A plain item apiece: what a pack <em>is</em> lives in
-     * {@link PackRules}, and a class per bag would be eight places for the
-     * same capacity bug.
+     * <p>A bag is a {@link PackItem}, a crate is the item of its block, and a
+     * part is a plain item; all three are one class apiece for every entry of
+     * their kind, because what a pack <em>is</em> lives in {@link PackRules}
+     * and a class per bag would be eight places for the same capacity bug.
      */
-    public static final Map<String, DeferredItem<Item>> PACKS = packs();
+    public static final Map<String, DeferredItem<? extends Item>> PACKS = packs();
 
-    private static Map<String, DeferredItem<Item>> packs() {
-        Map<String, DeferredItem<Item>> made = new LinkedHashMap<>();
+    private static Map<String, DeferredItem<? extends Item>> packs() {
+        Map<String, DeferredItem<? extends Item>> made = new LinkedHashMap<>();
         for (String name : PackRules.catalogue()) {
-            made.put(name, ITEMS.registerSimpleItem(name,
-                    new Item.Properties().stacksTo(1)));
+            PackRules.Body body = PackRules.body(name);
+            if (body != null && body.carried()) {
+                made.put(name, ITEMS.registerItem(name,
+                        properties -> new PackItem(properties, body),
+                        new Item.Properties().stacksTo(1)));
+            } else if (body != null) {
+                made.put(name, ITEMS.registerItem(name,
+                        properties -> new BlockItem(LogisticBlocks.PLACED.get(name).get(),
+                                properties),
+                        new Item.Properties().stacksTo(1)));
+            } else {
+                made.put(name, ITEMS.registerSimpleItem(name,
+                        new Item.Properties().stacksTo(1)));
+            }
         }
         if (made.size() != PackRules.howMany()) {
             throw new IllegalStateException("the rules list " + PackRules.howMany()

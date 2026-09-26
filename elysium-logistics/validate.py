@@ -1123,6 +1123,295 @@ print(f"the network's face : {len(net_devices)} device(s) filling "
       f"operator(s) in the logic layer, every device drawn as its own thing and "
       f"every one of them built on the bus it hangs off")
 
+# ---------------------------------------------------------------------------
+# The devices at work
+# ---------------------------------------------------------------------------
+#
+# Seven blocks that were plain cubes until they had a block entity. What is
+# checked here is that each does what NetRules says it does, in the statement
+# that does it: a rule that names half a statement survives the edit it was
+# written to catch, so every rule below names a whole one.
+
+
+def need(text, statement, complaint):
+    if statement not in text:
+        fail(complaint)
+
+
+device_src = squashed(read(SRC, "block/DeviceBlock.java"))
+need(device_src, "public class DeviceBlock extends BaseEntityBlock {",
+     "a device is not a block with a block entity, so it is a cube that does nothing")
+ticking = squashed(body_of(strip_comments(read(SRC, "block/DeviceBlock.java"), True),
+                           "void serverTick("))
+need(ticking, "if (++since < NetRules.TICK_EVERY) { return; }",
+     "a device does not wait NetRules.TICK_EVERY between rounds, so a wall of "
+     "importers asks every chest it faces what it holds twenty times a second")
+need(ticking, "findController(level, pos);",
+     "a device never looks for its controller along the bus, so it works with "
+     "none or keeps working after the bus is cut")
+need(ticking, "if (controller.share() <= 0.0F) { return; }",
+     "a device on a dark grid goes on working, so a network nobody feeds moves "
+     "items for nothing")
+for role, statement in (("importer", "case NetRules.IMPORT -> importRound(controller);"),
+                        ("exporter", "case NetRules.EXPORT -> exportRound(controller);"),
+                        ("detector", "case NetRules.SIGNAL -> power(level, pos, state, detects());")):
+    need(ticking, statement, f"the {role} is never run on its tick, so it is a "
+                             f"block that does nothing")
+importing = squashed(body_of(strip_comments(read(SRC, "block/DeviceBlock.java"), True),
+                             "private void importRound("))
+need(importing, "IItemHandler into = controller.asOneInventory();",
+     "an importer pulls into something other than its network")
+need(importing, "if (offered.isEmpty() || !passes(offered)) { continue; }",
+     "an importer ignores its filter, so it empties a chest it was told to take "
+     "one thing out of")
+need(importing, "move(from, slot, into, moved);",
+     "an importer works out what it could move and then moves nothing, or moves it "
+     "some way other than the one path that puts back what did not fit")
+exporting = squashed(body_of(strip_comments(read(SRC, "block/DeviceBlock.java"), True),
+                             "private void exportRound("))
+need(exporting, "if (into == null || filter.isEmpty()) { return; }",
+     "an exporter with no filter pushes anything, so one placed against a chest "
+     "empties the whole network into it")
+need(exporting, "move(from, slot, into, moved);",
+     "an exporter does not move through the one path that puts back what did not "
+     "fit")
+moving = squashed(body_of(strip_comments(read(SRC, "block/DeviceBlock.java"), True),
+                          "private void move("))
+need(moving, "left = from.insertItem(slot, left, false);",
+     "what a device took and could not place is not put back where it came from, "
+     "so a slot that changed under it loses the difference")
+need(device_src, "NetRules.Value said = NetRules.evaluate( NetRules.detectorExpression(idOf(filter), threshold), this);",
+     "a detector compares a count in Java rather than running the expression the "
+     "harness proved, so the logic layer is a file nothing in the world reads")
+need(device_src, "NetRules.Value line = NetRules.evaluate( NetRules.monitorExpression(idOf(filter)), this);",
+     "a monitor does not say what it was shown through the logic layer")
+need(device_src, "threshold = NetRules.nextThreshold(threshold);",
+     "a detector's threshold is not stepped along the ladder in the rules")
+need(device_src, "case NetRules.EXPOSE -> facingHandler();",
+     "a storage bus does not bring the inventory it faces onto the network")
+need(device_src, "case NetRules.LINK -> linked();",
+     "an ender link does not bring the other network onto this one")
+need(device_src, "return controller == null ? null : controller.asOneInventory();",
+     "an interface offers something other than its network to what takes from it")
+need(device_src, "if (linking > 0) { return null; }",
+     "an ender link reaches through another ender link, so two linked networks "
+     "each contain the other and asking either how many slots it has never returns")
+need(device_src, "if (there instanceof ControllerBlock.ControllerBlockEntity "
+                 "|| there instanceof DeviceBlockEntity) { return null; }",
+     "a device may face a controller or another device, so a storage bus pointed "
+     "at its own network makes the network contain itself")
+need(device_src, "gone.leaveChannel();",
+     "a broken ender link stays on its channel, so the other end goes on sharing "
+     "with a block that is not there")
+
+network_src = squashed(read(SRC, "block/LogisticNetwork.java"))
+need(network_src, "devices.add(next.immutable()); continue;",
+     "the network walk finds no devices, or walks through them as if they were bus")
+need(network_src, "return new Found(found, faces, surchargeOf(level, devices), "
+                  "found.size() + faces.size() > LogisticRules.MOST_DEVICES);",
+     "a device does not take a slot on its controller, or pays nothing for it")
+need(squashed(net), "extra += one.draws() - 1;",
+     "a dear device's surcharge is not what it draws beyond a slot")
+need(squashed(rules), "return new IndustryRules.Machine(devices * DEVICE_DRAW "
+                      "+ extra * DEVICE_DRAW, IndustryRules.Voltage.LOW);",
+     "what the devices cost is not billed to the grid, so a network of storage "
+     "buses costs what a network of drawers does")
+need(squashed(read(SRC, "block/ControllerBlock.java")),
+     "IItemHandler brought = device == null ? null : device.store();",
+     "a controller's inventory leaves out what its devices bring, so a storage bus "
+     "and an ender link are faces onto nothing")
+entities_src = squashed(strip_comments(read(SRC, "registry/LogisticBlockEntities.java"), True))
+need(entities_src, "event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, "
+                   "DEVICE.get(), (entity, side) -> entity.exposed());",
+     "an interface or ender link has no item capability, so nothing can take "
+     "from it")
+need(entities_src, "for (NetRules.Device device : NetRules.DEVICES) { blocks[at++] = "
+                   "LogisticBlocks.DEVICES.get(device.name()).get(); }",
+     "the device block entity is not bound to every device on the roster, so an "
+     "eighth device has no block entity and crashes the moment it is placed")
+need(net_src, "() -> new DeviceBlock(steel().noOcclusion(), device)));",
+     "the devices are registered as plain blocks rather than as the device that "
+     "does their job")
+
+wanted_states = {f"facing={f},powered={p}"
+                 for f in ("north", "south", "east", "west", "up", "down")
+                 for p in ("false", "true")}
+for name, role, draws in net_devices:
+    where = os.path.join(RES, "assets", NS, f"blockstates/{name}.json")
+    if os.path.isfile(where):
+        variants = set(json.load(open(where, encoding="utf-8")).get("variants", {}))
+        if variants != wanted_states:
+            fail(f"{name}'s blockstate does not name every facing times both states "
+                 f"of its redstone, so a device hung under a machine is a purple cube")
+            break
+
+# Every sentence a device or a pack says is in the language file.
+spoken = set()
+for path in java_files:
+    spoken |= set(re.findall(r'"(elysiumlogistics\.[a-z_]+\.[a-z_.]+)"',
+                             strip_comments(read(path), True)))
+unsaid = sorted(key for key in spoken if key not in lang)
+if unsaid:
+    fail(f"{len(unsaid)} sentence(s) the blocks say are not in the language file, so "
+         f"a player reads the key: " + ", ".join(unsaid[:6]))
+
+print(f"the devices at work: {len(net_devices)} device(s) each ticking every "
+      f"NetRules.TICK_EVERY on its controller's draw, the detector and monitor "
+      f"running the logic layer's own expressions, and {len(spoken)} sentence(s) "
+      f"all in the language file")
+
+# ---------------------------------------------------------------------------
+# Packs at work
+# ---------------------------------------------------------------------------
+#
+# The harness proves the arithmetic of a pack. What is left for here is that
+# every change a pack can go through in the world is decided by that
+# arithmetic: every insertion, every fitting, every removal, and each of the
+# parts' behaviours.
+
+store_src = squashed(read(SRC, "pack/PackStore.java"))
+need(store_src, "return PackRules.capacity(body, fitted());",
+     "a pack's capacity is not the rules' sum of what is fitted")
+need(store_src, "if (stack.isEmpty() || !mayHold(stack)) { return stack; }",
+     "a pack takes a pack, so capacity is a recursion")
+need(store_src, "return !(ours && !PackRules.mayHold(id.getPath())) "
+                "&& !stack.has(LogisticComponents.CONTENTS.get());",
+     "what a pack may hold is not decided by the rules' roster and by what the "
+     "stack carries, so a bag renamed in an anvil goes inside a bag")
+need(store_src, "if (!chosen && !PackRules.admits(fitted, held)) { return stack; }",
+     "a sieve does not sieve, so a sieved pack takes whatever is picked up")
+need(store_src, "if (PackRules.accepted(body, fitted, stored, 1) != 1) { break; }",
+     "a pack starts new piles without asking the rules whether there is room")
+need(store_src, "if (!left.isEmpty() && PackRules.voidsOverflow(fitted, held)) {",
+     "a pack destroys what does not fit without a seal, or destroys things it "
+     "does not already hold")
+need(store_src, "if (!PackRules.fits(body, after)) {",
+     "a part is fitted without the rules being asked, so a pocket goes in twice")
+need(store_src, "if (!PackRules.mayRemove(body, fitted, going, occupied())) { return null; }",
+     "a part comes out of a pack too full to lose it, and what was in the slots "
+     "that went with it stops existing")
+need(store_src, "if (PackRules.has(fitted, PackRules.COOK)) { cook(level); }",
+     "an ember plate cooks nothing")
+need(store_src, "if (PackRules.has(fitted, PackRules.PRESS)) { press(level); }",
+     "a press screw presses nothing")
+need(store_src, "int made = PackRules.cooked(raw.getCount(), result.getCount(), "
+                "result.getMaxStackSize());",
+     "a pack cooks by arithmetic of its own, so a pile can cook into more than a "
+     "slot holds")
+need(store_src, "int[] made = PackRules.pressed(count);",
+     "a pack presses by arithmetic of its own rather than the compression step")
+need(store_src, "if (!left.isEmpty()) { items = before; continue; }",
+     "a press that cannot place what it made keeps going, and the nine it took "
+     "are gone")
+
+menu_src = squashed(read(SRC, "pack/PackMenu.java"))
+need(menu_src, "return PackStore.mayHold(stack) && super.mayPlace(stack);",
+     "a pack's screen lets a pack be put inside it")
+need(menu_src, "public boolean mayPickup(Player player) { return false; }",
+     "the open bag can be picked up out of its own screen, and whatever is put in "
+     "afterwards is written to a stack that is not there")
+need(menu_src, "if (locked >= 0 && type == ClickType.SWAP && button == locked) { return; }",
+     "a number key swaps the open bag out from under its own screen")
+need(menu_src, "super(typeFor(rows), id);",
+     "a pack's screen is not one of the game's own chest screens")
+need(menu_src, "this.page = new Page(store, PackRules.firstOn(pageNumber), "
+               "PackRules.shownOn(store.capacity(), pageNumber), level, still);",
+     "a pack's screen is not a page the rules laid out, so a big pack is capped "
+     "at one screen and the rest cannot be reached")
+if re.search(r"Registries\.MENU\b|IMenuTypeExtension|new MenuType<",
+             "".join(strip_comments(read(path)) for path in java_files)):
+    fail("the module registers a menu type of its own, which is a new screen; a "
+         "pack opens the game's own chest")
+
+item_src = squashed(read(SRC, "pack/PackItem.java"))
+need(item_src, "bag.set(LogisticComponents.PAGE.get(), PackRules.nextPage(room, page));",
+     "a big bag never turns its page, so everything past the first screen of it "
+     "is unreachable")
+need(item_src, "int locked = hand == InteractionHand.MAIN_HAND ? "
+               "player.getInventory().selected : Inventory.SLOT_OFFHAND;",
+     "the open bag's own slot is not the one locked")
+need(item_src, "new PackMenu(id, inventory, store, shown, level, () -> "
+               "who.getItemInHand(hand) == bag && !bag.isEmpty(), locked)",
+     "a bag's screen stays open after the bag has left the hand it was opened from")
+need(item_src, "player.displayClientMessage(refit(store, player, other), true);",
+     "crouching with a bag does not fit or unfit a part")
+
+events_src = squashed(read(SRC, "pack/PackEvents.java"))
+need(events_src, "@EventBusSubscriber(modid = ElysiumLogistics.MODID, "
+                 "bus = EventBusSubscriber.Bus.GAME)",
+     "the parts' behaviours are not subscribed to the game, so none of them run")
+need(events_src, "if (player.level().isClientSide || entity.hasPickUpDelay() || "
+                 "(entity.getTarget() != null && !entity.getTarget().equals(player.getUUID()))) "
+                 "{ return; }",
+     "a gathering lens takes what was just thrown, or what was meant for somebody else")
+need(events_src, "for (PackStore bag : worn(player, PackRules.GATHER, null)) {",
+     "a gathering lens gathers nothing")
+need(events_src, "coming.setCount(left.getCount());",
+     "what a bag gathered is not taken off the stack on the ground, so it is "
+     "gathered and picked up both")
+need(events_src, "if (worth == null || !PackRules.worthEating(missing, worth.nutrition())) "
+                 "{ continue; }",
+     "a ration tin eats food whose worth is wasted")
+need(events_src, "int wanted = PackRules.restockWanted(held.getCount(), held.getMaxStackSize());",
+     "a restocker overfills a hand or fills an empty one")
+need(events_src, "if (player.tickCount % PackRules.FEED_EVERY == 0) { feed(player, level); }",
+     "a ration tin never feeds anybody")
+need(events_src, "if (player.tickCount % PackRules.RESTOCK_EVERY == 0) { restock(player); }",
+     "a restocker never restocks")
+
+placed_src = squashed(read(SRC, "pack/PackBlock.java"))
+need(placed_src, "Containers.dropContents(level, pos, crate.store().items());",
+     "a broken crate does not drop what is in it, and a container never loses what "
+     "is in it")
+need(placed_src, "Containers.dropContents(level, pos, parts);",
+     "a broken crate destroys the parts fitted to it")
+need(placed_src, "return store().insert(stack, simulate, false, level);",
+     "a hopper reaches a crate some way other than through its rules")
+need(entities_src, "event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, "
+                   "PACK.get(), (entity, side) -> entity.handler());",
+     "a crate has no item capability, so no hopper or storage bus can reach it")
+need(net_src, "if (!body.carried()) { made.put(body.name(), BLOCKS.register(body.name(), "
+              "() -> new PackBlock(timber().strength(2.5F), body))); }",
+     "the placed bodies are not registered as blocks off the roster, so a crate is "
+     "an item that cannot be put down")
+need(net_src, "if (made.size() != PackBlock.placedBodies().size()) {",
+     "nothing counts the placed bodies registered against the roster")
+need(pack_src, "made.put(name, ITEMS.registerItem(name, properties -> new "
+               "PackItem(properties, body), new Item.Properties().stacksTo(1)));",
+     "a bag is a plain item, so using it does nothing")
+need(squashed(main_class), "com.elysium.logistics.registry.LogisticComponents"
+                           ".COMPONENTS.register(modEventBus);",
+     "the components a bag keeps its contents in are never registered, so a bag "
+     "forgets everything the moment it is closed")
+
+axe = []
+axe_path = os.path.join(RES, "data/minecraft/tags/block/mineable/axe.json")
+if os.path.isfile(axe_path):
+    axe = json.load(open(axe_path, encoding="utf-8")).get("values", [])
+placed_bodies = [one for one in pack_bodies if not one[3]]
+missing = []
+for name, slots, fittings, carried in placed_bodies:
+    for where in (f"assets/{NS}/blockstates/{name}.json",
+                  f"assets/{NS}/models/block/{name}.json",
+                  f"data/{NS}/loot_table/blocks/{name}.json"):
+        if not os.path.isfile(os.path.join(RES, where)):
+            missing.append(f"{name} has no {where.rsplit('/', 2)[-2]}")
+    if f"block.{NS}.{name}" not in lang:
+        missing.append(f"{name} has no name as a block")
+    if f"{NS}:{name}" not in axe:
+        missing.append(f"{name} is in no mineable tag")
+if missing:
+    fail(f"{len(missing)} thing(s) a placed body needs are missing: "
+         + ", ".join(missing[:6]))
+if not placed_bodies:
+    fail("this validator found no placed bodies in the rules, so everything above "
+         "about crates checked nothing")
+
+print(f"packs at work      : every insertion, fitting and removal ruled by the "
+      f"rules, {len(placed_bodies)} placed bod(ies) with a block, a drop and a "
+      f"capability, a page at a time in the game's own chest screen, and the "
+      f"parts' behaviours on the game bus")
+
 print("what it declares   : the game, the library, and the grid a network hangs off")
 
 if problems:

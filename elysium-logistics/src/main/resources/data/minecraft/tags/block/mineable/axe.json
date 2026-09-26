@@ -1,6 +1,9 @@
 {
   "replace": false,
   "values": [
-    "elysiumlogistics:timber_drawer"
+    "elysiumlogistics:crate",
+    "elysiumlogistics:strongbox",
+    "elysiumlogistics:timber_drawer",
+    "elysiumlogistics:vault"
   ]
 }

@@ -1,7 +1,50 @@
 {
   "variants": {
-    "": {
+    "facing=north,powered=false": {
       "model": "elysiumlogistics:block/ender_link"
+    },
+    "facing=north,powered=true": {
+      "model": "elysiumlogistics:block/ender_link"
+    },
+    "facing=south,powered=false": {
+      "model": "elysiumlogistics:block/ender_link",
+      "y": 180
+    },
+    "facing=south,powered=true": {
+      "model": "elysiumlogistics:block/ender_link",
+      "y": 180
+    },
+    "facing=west,powered=false": {
+      "model": "elysiumlogistics:block/ender_link",
+      "y": 270
+    },
+    "facing=west,powered=true": {
+      "model": "elysiumlogistics:block/ender_link",
+      "y": 270
+    },
+    "facing=east,powered=false": {
+      "model": "elysiumlogistics:block/ender_link",
+      "y": 90
+    },
+    "facing=east,powered=true": {
+      "model": "elysiumlogistics:block/ender_link",
+      "y": 90
+    },
+    "facing=down,powered=false": {
+      "model": "elysiumlogistics:block/ender_link",
+      "x": 90
+    },
+    "facing=down,powered=true": {
+      "model": "elysiumlogistics:block/ender_link",
+      "x": 90
+    },
+    "facing=up,powered=false": {
+      "model": "elysiumlogistics:block/ender_link",
+      "x": 270
+    },
+    "facing=up,powered=true": {
+      "model": "elysiumlogistics:block/ender_link",
+      "x": 270
     }
   }
 }

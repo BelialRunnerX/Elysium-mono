@@ -43,6 +43,7 @@ public class ElysiumLogistics {
         com.elysium.logistics.registry.LogisticItems.ITEMS.register(modEventBus);
         com.elysium.logistics.registry.LogisticItems.TABS.register(modEventBus);
         com.elysium.logistics.registry.LogisticBlockEntities.TYPES.register(modEventBus);
+        com.elysium.logistics.registry.LogisticComponents.COMPONENTS.register(modEventBus);
         LOGGER.info("Elysium Logistics ready");
     }
 }
