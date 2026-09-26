@@ -122,6 +122,10 @@ Solarpunk: solar condenser, wind capstan (height matters), ceramic kiln, harvest
 - [ ] Atelier: a sample of each roster (roofs, stairs, bridges, furniture, diagonals, openings) places and renders; recipes exist in JEI.
 - [ ] Flora: loomflax and downbloom planted from seeds, wild forms, emberwood set (log animation, door item, sapling grows).
 
+## Third-party jars in the test instances
+
+The E instances carry the NeoForge ports of Tridot and Valoria (built from `C:\ClaudeValoria\Tridot` and `...\Valoria`). On 26 Sep the client's world crashed forty seconds after joining at Dunfield: a Valoria sorcerer cast a spell and Tridot's `AbstractTridotArrow.getDefaultPickupItem` hit a null `arrowItem` during the arrow's construction. The fix (Tridot commit `ded8025`, 24 Sep) was already in the port repo and its `build/libs` jar, but both E instances still had the jar built before it. When a crash report names `tridot` or `valoria`, check the installed jar's date against the port repo's build before filing anything against Elysium.
+
 ## Known gaps (do not file as bugs)
 
 Exporter, storage bus, monitor, detector, interface and ender link are unverified (the importer works on a fuelled grid, 26 Sep); satchel, rucksack, crate, vault inert; kitchen stations: pot and colony verified 26 Sep, skillet and board being verified; a reed rod with a barbed hook catches (26 Sep); bobbers, worm farm and tackle box unverified; fish and bee natural spawns unverified; geodes have no worldgen or recipe; Cordon alloy drops and shards have no survival source; nothing awards trinkets and companions; roadmap items in each module's spec (contraptions, IE wiring, Mekanism chemistry, frontier crops, MysticalAgriculture gear, Quark decoration, and so on).
