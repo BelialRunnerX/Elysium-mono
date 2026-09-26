@@ -1,6 +1,6 @@
 # The negative tests
 
-175 scripts. Each one takes a validator that passes, breaks the thing it
+176 scripts. Each one takes a validator that passes, breaks the thing it
 checks — one way at a time — and proves the validator says so.
 
 They are here because they were not, for most of this project's life. They

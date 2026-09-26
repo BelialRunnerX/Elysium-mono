@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumbestiary:block/quiet_casing"
+    },
+    "facing=east": {
+      "model": "elysiumbestiary:block/quiet_casing",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumbestiary:block/quiet_casing",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumbestiary:block/quiet_casing",
+      "y": 270
+    }
+  }
+}

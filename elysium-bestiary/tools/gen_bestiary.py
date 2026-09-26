@@ -354,6 +354,81 @@ if _unshaded_kin or _unworded_kin:
     sys.exit(2)
 
 
+# The nine machines a mob farm is made of, read out of FarmRules: what each one
+# multiplies is a rule and is proved about; what colour it is, is art.
+FARM_SOURCE = read(os.path.join(
+    MOD, "src/main/java/com/elysium/bestiary/rules/FarmRules.java"))
+MACHINES = [
+    {"id": one[0], "kind": one[1], "orbs": float(one[2]), "drops": float(one[3]),
+     "needs": one[4], "powered": one[5] == "true"}
+    for one in re.findall(
+        r'new Machine\("([a-z_]+)", (\w+), ([\d.]+)D, ([\d.]+)D, "([\w:]+)",'
+        r' (true|false)\)', re.sub(r"\s+", " ", FARM_SOURCE))
+]
+if len(MACHINES) != 9:
+    print("FarmRules reads as %d machine(s) rather than nine" % len(MACHINES))
+    sys.exit(2)
+
+#: One sentence per machine, because a farm block whose tooltip is its own name
+#: is a block a player places once and never works out the point of.
+MACHINE_WORDS = {
+    "mob_fan": "Pushes whatever is in front of it, and nothing else.",
+    "mob_conveyor": "Carries what stands on it, without power.",
+    "grinder_saw": "Kills, and leaves twice what falls and all of the experience.",
+    "grinder_spikes": "Kills slowly, and leaves half the experience a player would get.",
+    "absorption_hopper": "Pulls in what is on the floor and in the air nearby.",
+    "experience_tap": "Hands back what has been gathered, a little at a time.",
+    "experience_press": "The same, faster, and it wants power.",
+    "quiet_casing": "What is inside it is not heard.",
+    "dread_soil": "What spawns on it stays where it spawned.",
+}
+
+#: And what each kind looks like. Per kind rather than per machine, because
+#: what a block does is the thing a player needs to read off it across a room.
+KIND_SHADES = {
+    "MOVES": ((156, 166, 178), (70, 76, 84)),
+    "KILLS": ((188, 96, 84), (88, 42, 36)),
+    "GATHERS": ((148, 134, 96), (68, 62, 42)),
+    "KEEPS": ((126, 182, 126), (56, 84, 56)),
+    "SETTLES": ((110, 100, 118), (50, 44, 54)),
+}
+_unshaded_kind = sorted({one["kind"] for one in MACHINES} - set(KIND_SHADES))
+_unworded_machine = sorted({one["id"] for one in MACHINES} - set(MACHINE_WORDS))
+if _unshaded_kind or _unworded_machine:
+    print("no shades for %s and no sentence for %s"
+          % (_unshaded_kind, _unworded_machine))
+    sys.exit(2)
+
+
+def machine_skin(one):
+    """A machine, on a plain 16x16 block sheet.
+
+    The colour is the kind's, so that what a block does reads across a room,
+    and the bar down the side is how much of a player's experience it leaves --
+    which is the one number in this module that a farm can silently change and
+    the one the whole proof is about. A block that takes the credit away would
+    have no bar at all, which the rules forbid and this would make obvious.
+    """
+    light, dark = KIND_SHADES[one["kind"]]
+    image = Image.new("RGBA", (16, 16), light + (255,))
+    draw = ImageDraw.Draw(image)
+    seed = sum(ord(letter) for letter in one["id"])
+    for y in range(16):
+        for x in range(16):
+            if (x * 5 + y * 3 + seed) % 11 < 3:
+                draw.point((x, y), fill=dark + (255,))
+    draw.rectangle([0, 0, 15, 0], fill=dark + (255,))
+    draw.rectangle([0, 15, 15, 15], fill=dark + (255,))
+    kept = int(round(one["orbs"] * 14))
+    if kept > 0:
+        draw.rectangle([14, 15 - kept, 15, 14], fill=(126, 214, 126, 255))
+    # A dot on the ones that want power, because the difference between a block
+    # that works and one that is waiting is otherwise invisible.
+    if one["powered"]:
+        draw.rectangle([1, 1, 3, 3], fill=(240, 208, 96, 255))
+    return image
+
+
 def kin_skin(one):
     """A creature, on the same 64x64 sheet every beast in this module uses.
 
@@ -1114,6 +1189,69 @@ def main():
                       "maxCount": 2 if myth["bane"] != "NUMBERS" else 4,
                   }],
               })
+
+    # The nine machines a mob farm is made of.
+    block_textures = os.path.join(ASSETS, "textures/block")
+    os.makedirs(block_textures, exist_ok=True)
+    for one in MACHINES:
+        machine_skin(one).save(os.path.join(block_textures, one["id"] + ".png"))
+
+        # One model, four rotations. A machine that looked the same whichever
+        # way it faced would be a fan a player could not aim.
+        write(os.path.join(ASSETS, "blockstates", one["id"] + ".json"),
+              {"variants": {
+                  "facing=%s" % way: dict(
+                      {"model": "%s:block/%s" % (NS, one["id"])},
+                      **({"y": turn} if turn else {}))
+                  for way, turn in (("north", 0), ("east", 90),
+                                    ("south", 180), ("west", 270))}})
+
+        write(os.path.join(ASSETS, "models/block", one["id"] + ".json"), {
+            "parent": "block/block",
+            "textures": {"all": "%s:block/%s" % (NS, one["id"]),
+                         "particle": "%s:block/%s" % (NS, one["id"])},
+            "elements": [{
+                "from": [0, 0, 0],
+                "to": [16, 16, 16],
+                "faces": {face: {"texture": "#all"}
+                          for face in ("down", "up", "north", "south",
+                                       "west", "east")},
+            }],
+        })
+
+        write(os.path.join(ASSETS, "models/item", one["id"] + ".json"),
+              {"parent": "%s:block/%s" % (NS, one["id"])})
+
+        write(os.path.join(DATA, "loot_table/blocks", one["id"] + ".json"), {
+            "type": "minecraft:block",
+            "pools": [{
+                "rolls": 1,
+                "entries": [{"type": "minecraft:item",
+                             "name": "%s:%s" % (NS, one["id"])}],
+                "conditions": [{"condition": "minecraft:survives_explosion"}],
+            }],
+        })
+
+        # What it is made of is the row's own. A recipe that named its
+        # ingredient here would be a second place for the cost of a machine to
+        # live, and the two would disagree the first time one was edited.
+        write(os.path.join(DATA, "recipe", one["id"] + ".json"), {
+            "type": "minecraft:crafting_shaped",
+            "category": "misc",
+            "group": "elysium_farm",
+            "pattern": ["iii", "imi", "iii"] if one["powered"] else ["iii", "i i", "iii"],
+            "key": {
+                "i": {"item": one["needs"]},
+                **({"m": {"item": "minecraft:redstone_block"}} if one["powered"] else {}),
+            },
+            "result": {"id": "%s:%s" % (NS, one["id"]), "count": 1},
+        })
+
+        lang["block.%s.%s" % (NS, one["id"])] = titled(one["id"])
+        lang["bestiary.%s.machine.%s" % (NS, one["id"])] = MACHINE_WORDS[one["id"]]
+
+    for kind in sorted({one["kind"] for one in MACHINES}):
+        lang["bestiary.%s.kind.%s" % (NS, kind.lower())] = titled(kind.lower())
 
     # The twenty-seven in thirteen kindreds.
     for one in KINDRED:

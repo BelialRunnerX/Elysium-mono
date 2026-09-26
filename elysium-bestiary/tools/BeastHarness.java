@@ -71,6 +71,7 @@ public final class BeastHarness {
         theMyths();
         theCompanions();
         theKindred();
+        theFarm2();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -1616,5 +1617,162 @@ public final class BeastHarness {
                 + "game really has, no two of one kindred doing one thing or standing "
                 + "in one place, " + swept + " widths swept, and not one version of "
                 + "something that is really a rung of its own");
+    }
+
+    /**
+     * The machines a mob farm is made of.
+     *
+     * <p>Two sweeps, and the second is the one that matters. The first walks
+     * every <em>subset</em> of the machines this module ships — every farm
+     * anybody could actually build — and checks each one lands inside the band
+     * the bestiary is balanced on. Two machines that each pass alone are not
+     * two machines that pass together, and a farm is a room full of them.
+     *
+     * <p>The second walks the grid of multipliers themselves and checks that
+     * the rule agrees with the division at every point, so that the band is a
+     * thing being computed rather than a thing being asserted.
+     */
+    private static void theFarm2() {
+        List<String> faults = FarmRules.faults();
+        check(faults.isEmpty(), "something wrong with the farm: " + faults);
+
+        Map<String, BeastRules.Reward> rewards = BeastRules.derive(BeastRules.BEASTS);
+        FarmRules.Machine first = FarmRules.MACHINES.get(0);
+
+        check(!FarmRules.faultsInNames(List.of(first, first)).isEmpty(),
+                "two machines written under one name are not reported");
+        check(FarmRules.faultsInNames(FarmRules.MACHINES).isEmpty(),
+                "the machines this module ships are reported as doubled");
+
+        check(!FarmRules.faultsInKinds(List.of(new FarmRules.Machine("control",
+                        "hums", 1.0D, 1.0D, "minecraft:stone", false)),
+                FarmRules.KINDS).isEmpty(),
+                "a machine of a kind nothing here has heard of is not reported");
+        check(FarmRules.faultsInKinds(FarmRules.MACHINES,
+                        FarmRules.KINDS).isEmpty(),
+                "the machines this module ships are of kinds it does not make happen");
+
+        check(!FarmRules.faultsInGaps(List.of(first), FarmRules.KINDS).isEmpty(),
+                "a kind of machine nothing in the roster is, is not reported");
+        check(FarmRules.faultsInGaps(FarmRules.MACHINES,
+                        FarmRules.KINDS).isEmpty(),
+                "the roster this module ships leaves a kind of machine unbuilt");
+
+        // The rule the whole file exists for, from both sides.
+        check(!FarmRules.faultsInCredit(List.of(new FarmRules.Machine("control",
+                        FarmRules.KILLS, 0.0D, 1.0D, "minecraft:stone", false)),
+                FarmRules.KEEPS_ORBS).isEmpty(),
+                "a killer that takes the player's credit away is not reported, and "
+                        + "that is the one thing in this file that reorders the "
+                        + "whole bestiary without touching it");
+        check(!FarmRules.faultsInCredit(List.of(new FarmRules.Machine("control",
+                        FarmRules.KILLS, 0.1D, 1.0D, "minecraft:stone", false)),
+                FarmRules.KEEPS_ORBS).isEmpty(),
+                "a killer leaving less experience than the floor is not reported");
+        check(FarmRules.faultsInCredit(FarmRules.MACHINES,
+                        FarmRules.KEEPS_ORBS).isEmpty(),
+                "the killers this module ships are reported as taking the credit");
+
+        check(!FarmRules.faultsInReaping(List.of(new FarmRules.Machine("control",
+                        FarmRules.KILLS, 1.0D, 40.0D, "minecraft:stone", false)),
+                FarmRules.MOST_LOOTING).isEmpty(),
+                "a machine multiplying drops forty times is not reported");
+        check(FarmRules.faultsInReaping(FarmRules.MACHINES,
+                        FarmRules.MOST_LOOTING).isEmpty(),
+                "the machines this module ships reap past what the band can take");
+
+        check(!FarmRules.faultsInIdleness(List.of(new FarmRules.Machine("control",
+                        FarmRules.MOVES, 0.5D, 1.0D, "minecraft:stone", false)))
+                .isEmpty(),
+                "something that is not a killer changing the experience is not "
+                        + "reported, so what a mob is worth would depend on a block "
+                        + "somewhere else in the room");
+        check(!FarmRules.faultsInIdleness(List.of(new FarmRules.Machine("control",
+                        FarmRules.GATHERS, 1.0D, 2.0D, "minecraft:stone", false)))
+                .isEmpty(),
+                "something that is not a killer changing the drops is not reported");
+        check(FarmRules.faultsInIdleness(FarmRules.MACHINES).isEmpty(),
+                "something this module ships that is not a killer changes a reward");
+
+        check(!FarmRules.faultsInSpread(List.of(new FarmRules.Machine("control",
+                        FarmRules.KILLS, 0.0D, 1.0D, "minecraft:stone", false)),
+                BeastRules.BEASTS, rewards, BeastRules.WIDEST_SPREAD).isEmpty(),
+                "a farm that pushes the spread past the band is not reported");
+        check(FarmRules.faultsInSpread(FarmRules.MACHINES, BeastRules.BEASTS,
+                        rewards, BeastRules.WIDEST_SPREAD).isEmpty(),
+                "the farm this module ships pushes the bestiary past its own band");
+
+        // What the compact constructor will not build at all.
+        check(threwOn(() -> new FarmRules.Machine("control", FarmRules.MOVES,
+                        -1.0D, 1.0D, "minecraft:stone", false)),
+                "a machine that multiplies by a negative number is accepted");
+        check(threwOn(() -> new FarmRules.Machine("control", FarmRules.MOVES,
+                        1.0D, 1.0D, "", false)),
+                "a machine built out of nothing is accepted");
+        check(threwOn(() -> new FarmRules.Machine("control", "",
+                        1.0D, 1.0D, "minecraft:stone", false)),
+                "a machine of no kind at all is accepted");
+
+        // Sweep one: every farm anybody could build out of these machines.
+        int farms = 0;
+        int machines = FarmRules.MACHINES.size();
+        for (int mask = 0; mask < (1 << machines); mask++) {
+            List<FarmRules.Machine> held = new java.util.ArrayList<>();
+            for (int at = 0; at < machines; at++) {
+                if ((mask & (1 << at)) != 0) {
+                    held.add(FarmRules.MACHINES.get(at));
+                }
+            }
+            double[] both = FarmRules.together(held);
+            double through = FarmRules.spreadThrough(BeastRules.BEASTS, rewards,
+                    both[0], both[1]);
+            check(through <= BeastRules.WIDEST_SPREAD,
+                    "a farm of " + held.size() + " machine(s) spreads the reward to "
+                            + Math.round(through * 1000.0D) / 1000.0D
+                            + ", past the band of " + BeastRules.WIDEST_SPREAD);
+            farms++;
+        }
+
+        // Sweep two: the arithmetic itself, so the band is computed and not
+        // asserted. Every point on the grid, and the rule has to agree with
+        // the division at all of them.
+        int points = 0;
+        java.util.Random random = new java.util.Random(9_1877L);
+        for (int round = 0; round < 200_000; round++) {
+            double orbs = random.nextDouble() * 3.0D;
+            double drops = random.nextDouble() * 5.0D;
+            FarmRules.Machine made = new FarmRules.Machine("m" + round,
+                    FarmRules.KILLS, orbs, drops, "minecraft:stone", false);
+            double through = FarmRules.spreadThrough(BeastRules.BEASTS, rewards,
+                    orbs, drops);
+            boolean past = through > BeastRules.WIDEST_SPREAD;
+            check(past == !FarmRules.faultsInSpread(List.of(made), BeastRules.BEASTS,
+                            rewards, BeastRules.WIDEST_SPREAD).isEmpty(),
+                    "a farm of orbs " + Math.round(orbs * 100.0D) / 100.0D
+                            + " and drops " + Math.round(drops * 100.0D) / 100.0D
+                            + " is reported wrongly");
+            points++;
+        }
+
+        // And the finding this file is named after, stated as a check rather
+        // than as a comment, so that a change to the bestiary that made it
+        // untrue would be reported rather than quietly agreed with.
+        double bare = FarmRules.spreadThrough(BeastRules.BEASTS, rewards, 1.0D, 1.0D);
+        double credited = FarmRules.spreadThrough(BeastRules.BEASTS, rewards, 0.0D, 1.0D);
+        check(bare <= BeastRules.WIDEST_SPREAD,
+                "the bestiary is outside its own band before any farm is built");
+        check(credited > BeastRules.WIDEST_SPREAD,
+                "taking the player's credit away no longer breaks the band, so the "
+                        + "rule that forbids it is a rule about nothing — which "
+                        + "would mean the drop share has become uniform and "
+                        + "BeastRules.derive stopped rounding");
+
+        System.out.println("  the farm: " + FarmRules.MACHINES.size()
+                + " machine(s) over " + FarmRules.KINDS.size() + " kind(s), " + farms
+                + " farm(s) anybody could build all inside the bestiary's own band, "
+                + points + " multiplier(s) swept against it, and a killer that takes "
+                + "the player's credit still proved to push it to "
+                + Math.round(credited * 1000.0D) / 1000.0D + " against "
+                + BeastRules.WIDEST_SPREAD);
     }
 }

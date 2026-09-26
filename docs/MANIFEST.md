@@ -9,9 +9,9 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | count | status | means |
 |---|---|---|
 | 86 | DONE | an Elysium module already replaces it |
-| 24 | SPLIT | spans several modules; see docs/SPLITS.md |
+| 25 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 4 | PLANNED | has a target module, not started |
+| 3 | PLANNED | has a target module, not started |
 | 14 | KEEP | stays in the pack on purpose |
 | 75 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -20,7 +20,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | module | mods to absorb |
 |---|---|
-| `elysium-bestiary` | 2 |
+| `elysium-bestiary` | 1 |
 | `elysium-agronomy` | 1 |
 | `elysium-foundry` | 1 |
 
@@ -150,7 +150,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `MekanismGenerators-1.21.1-10.7.19.85.jar` | DONE | elysium-atomics | generators: the solar panel, the servo off an Age I line and the reactor hall between them are what this jar is for, and all three are priced against the grid's books |
 | `MekanismTools-1.21.1-10.7.19.85.jar` | SPLIT | elysium-arsenal | the tools and armour of Mekanism's alloys, which is gear and belongs with the gear; see docs/SPLITS.md |
 | `minecolonies-1.1.1368-1.21.1-snapshot.jar` | KEEP | elysium-colonies | the host this module adds on to |
-| `mob_grinding_utils-1.1.10+mc1.21.1.jar` | PLANNED | elysium-bestiary | farming infrastructure rather than creatures - fans, saws, spawner tooling; it is filed here because it is about mobs and belongs with whatever ends up owning automation of them |
+| `mob_grinding_utils-1.1.10+mc1.21.1.jar` | SPLIT | elysium-bestiary | farming infrastructure rather than creatures — fans, saws, spikes, hoppers, an experience chain and spawner tooling. Two jobs: what a farm is made of, which is the mob economy and belongs where the mob economy is proved, and what makes a mob appear at all, which is the spawner module's. See docs/SPLITS.md |
 | `mobs_of_mythology-neoforge-1.21.1-3.0.0.jar` | DONE | elysium-bestiary | eight creatures that are dangerous in a way better armour does not answer. The nine beasts are a ladder and the answer to every one of them is the same answer, more of it — which is the spine of the pack and should stay a ladder, but a world where every fight has one answer is a world where the fights stop being decisions by about the third hour. A basilisk's stare is not survived by wearing more, a chupacabra taking the top off your health bar is not healed back by eating more, a drake's breath goes through what you are holding up, an automaton is marked by nothing but a blunt weapon, kobolds are braver for each other and their thief takes what is in your hand and runs, a pegasus goes where you cannot follow, and what a sporeling leaves behind is still there when you stop to breathe. Each has exactly one of these and no two share one, because two creatures whose danger is the same danger are one creature with two models. Each names the thing that beats it and no two name the same thing, and the validator holds every one of those names to something the pack really makes — a danger with no counter is not difficulty, it is a wall, and from inside one they feel the same. And none of them is also the hardest thing on its own rung: every myth is held under the beast it stands beside on the plain numbers, so gearing up still answers something. One entity class, one branch per way past armour with no creature named in any of them, and eight shapes borrowed from the beasts and the fauna rather than eight bespoke models. 44 negative tests |
 | `modernfix-neoforge-5.27.20+mc1.21.1.jar` | DROP | - | performance: not content |
 | `modular_backpacks-0.2.7.jar` | DONE | elysium-logistics | five bags and three crates, ten parts in eight kinds, and one part system for both — capacity is the sum of what is fitted and never more, no part goes in twice, no bag goes inside a bag, and pulling a space upgrade out of a full bag is refused rather than quietly shrinking it, which is what every mod of this kind does instead |

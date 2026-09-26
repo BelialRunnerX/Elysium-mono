@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "elysium_farm",
+  "pattern": [
+    "iii",
+    "imi",
+    "iii"
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:piston"
+    },
+    "m": {
+      "item": "minecraft:redstone_block"
+    }
+  },
+  "result": {
+    "id": "elysiumbestiary:experience_press",
+    "count": 1
+  }
+}

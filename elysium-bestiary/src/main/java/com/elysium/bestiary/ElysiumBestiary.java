@@ -59,6 +59,10 @@ public class ElysiumBestiary {
         com.elysium.bestiary.registry.MythEntities.ALL.size();
         com.elysium.bestiary.registry.CompanionEntities.ALL.size();
         com.elysium.bestiary.registry.KinEntities.ALL.size();
+        com.elysium.bestiary.registry.FarmBlocks.BLOCKS.register(modEventBus);
+        com.elysium.bestiary.registry.FarmBlocks.ITEMS.register(modEventBus);
+        com.elysium.bestiary.registry.FarmBlocks.BLOCK_ENTITIES.register(modEventBus);
+        com.elysium.bestiary.registry.FarmBlocks.ALL.size();
         com.elysium.bestiary.registry.SummonEntities.BOLT.getId();
         LOGGER.info("Elysium Bestiary ready: {} beast(s), {} animal(s), {} myth(s) "
                         + "and {} companion(s)",

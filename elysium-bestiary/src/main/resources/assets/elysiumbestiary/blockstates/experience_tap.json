@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumbestiary:block/experience_tap"
+    },
+    "facing=east": {
+      "model": "elysiumbestiary:block/experience_tap",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumbestiary:block/experience_tap",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumbestiary:block/experience_tap",
+      "y": 270
+    }
+  }
+}

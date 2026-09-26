@@ -2397,6 +2397,221 @@ else:
           f"doing one thing or standing in one place on disk, and not one of them "
           f"named in the branch that makes its difference happen")
 
+# ---------------------------------------------------------------------------
+# The farm
+# ---------------------------------------------------------------------------
+#
+# The section that checks a proof rather than a roster. BeastRules spends most
+# of its length proving that no mob is worth farming more than half again as
+# much as any other; a farm is a multiplier on exactly that ratio, and a
+# multiplier can break it without touching a line of the bestiary. So what is
+# checked here is that the numbers the blocks actually use are the row's own,
+# and that nothing in the world can apply a multiplier the rules have not seen.
+
+print("-" * 70)
+
+FARM_SRC = strip_comments(read(SRC, "rules/FarmRules.java"), keep_strings=True)
+FARM_ACTS = strip_comments(read(SRC, "block/act/FarmActs.java"), keep_strings=True)
+FARM_BLOCK = strip_comments(read(SRC, "block/FarmBlock.java"), keep_strings=True)
+FARM_BE = strip_comments(read(SRC, "block/FarmBlockEntity.java"), keep_strings=True)
+FARM_REG = strip_comments(read(SRC, "registry/FarmBlocks.java"), keep_strings=True)
+
+if not FARM_SRC:
+    fail("nothing says what a mob farm multiplies, so a grinder could reorder "
+         "the whole bestiary and the bestiary's own proof would still pass")
+else:
+    _farm = squashed(FARM_SRC)
+    machines = re.findall(
+        r'new Machine\("([a-z_]+)", (\w+), ([\d.]+)D, ([\d.]+)D, "([\w:]+)",'
+        r' (true|false)\)', _farm)
+    kinds = re.findall(r'public static final String ([A-Z_]+) = "([a-z]+)";', FARM_SRC)
+    if len(machines) < 3:
+        fail(f"only {len(machines)} machine(s) could be read out of the farm rules, "
+             f"so every check below is walking a short list and passing")
+
+    for row in machines:
+        name = row[0]
+        for kind, where in (
+                ("texture", f"assets/{NS}/textures/block/{name}.png"),
+                ("blockstate", f"assets/{NS}/blockstates/{name}.json"),
+                ("block model", f"assets/{NS}/models/block/{name}.json"),
+                ("item model", f"assets/{NS}/models/item/{name}.json"),
+                ("loot table", f"data/{NS}/loot_table/blocks/{name}.json"),
+                ("recipe", f"data/{NS}/recipe/{name}.json")):
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} has no {kind}, so it is a machine the rules describe "
+                     f"and a player cannot place")
+        for key, why in (
+                (f"block.{NS}.{name}",
+                 "reads as its own translation key wherever the game names it"),
+                (f"bestiary.{NS}.machine.{name}",
+                 "has no sentence saying what it does, which is a block a player "
+                 "places once and never works out the point of")):
+            if key not in lang:
+                fail(f"{name} {why}")
+
+    # What a machine is built from has to be a thing that exists. This check
+    # exists because it did not: `minecraft:wool` reads like an item, is a tag,
+    # and the recipe naming it was dropped at load with nothing said — one
+    # machine in nine that simply could not be crafted.
+    if THE_PACK_HAS or THE_GAME_MAKES:
+        known = set(THE_PACK_HAS) | set(THE_GAME_MAKES)
+        for row in machines:
+            if row[4] not in known:
+                fail(f"{row[0]} is built out of {row[4]} and nothing makes one of "
+                     f"those, so its recipe is dropped at load and the machine is "
+                     f"a block nobody can craft — with nothing anywhere saying so")
+
+    # And the recipe on disk has to name the row's own ingredient, because a
+    # cost written twice is a cost that disagrees with itself.
+    for row in machines:
+        where = os.path.join(RES, f"data/{NS}/recipe", f"{row[0]}.json")
+        if not os.path.isfile(where):
+            continue
+        try:
+            written = json.loads(read(os.path.dirname(where), os.path.basename(where)))
+        except ValueError:
+            fail(f"{row[0]}'s recipe is not readable as JSON, so the game refuses "
+                 f"the whole data pack over one machine")
+            continue
+        named = {value.get("item") for value in written.get("key", {}).values()
+                 if isinstance(value, dict)}
+        if row[4] not in named:
+            fail(f"{row[0]} is built out of {row[4]} in the rules and out of "
+                 f"{sorted(named)} on disk, so what a machine costs is written in "
+                 f"two places and they have already stopped agreeing")
+
+    # One branch per kind, and no machine named in any of them.
+    if not FARM_ACTS:
+        fail("nothing makes a machine do its one job, so all nine are blocks that "
+             "sit there")
+    else:
+        _acts = squashed(FARM_ACTS)
+        for shorthand, kind in kinds:
+            if f"FarmRules.{shorthand}" not in _acts:
+                fail(f"nothing in the farm {kind}, so whatever is of that kind is a "
+                     f"block whose point is a sentence in a language file")
+        for row in machines:
+            if re.search(r'"%s"' % row[0], _acts):
+                fail(f"{row[0]} is named in the acts, so the module has started "
+                     f"growing a branch per machine and the whole roster will "
+                     f"follow it there")
+        _happen = squashed(body_of(FARM_ACTS, "public static void happen("))
+        if "switch (row.kind())" not in _happen:
+            fail("what a machine does is not chosen by which kind it is, so "
+                 "whatever chooses it is something a validator cannot read")
+        # The line the whole feature is about: the killer's two multipliers are
+        # the row's own. A number typed here would leave the proof passing and
+        # the game doing something else, which is the one failure in this
+        # module that is invisible from inside the game.
+        _strike = squashed(body_of(FARM_ACTS, "private static void strike("))
+        if "strike(self, mob, row.orbs(), row.drops());" not in _happen:
+            fail("the killer is not handed the row's own multipliers, so what a "
+                 "farm actually pays is a number typed into the branch — and the "
+                 "proof that it stays inside the bestiary's band would still pass "
+                 "while the game did something else")
+        if "mob.getExperienceReward(server, mob)" not in _strike:
+            fail("what a kill is worth is not asked of the game, so the share the "
+                 "rules hold a killer to is a share of a number this module made "
+                 "up")
+        for typed in re.findall(r"Math\.round\(mob\.getExperienceReward\("
+                                r"server, mob\) \* ([\d.]+)\)", _strike):
+            fail(f"a killer keeps {typed} of the experience by a number typed into "
+                 f"the branch, which is a second set of dials beside the rules "
+                 f"that are supposed to decide it")
+
+    if not FARM_BLOCK:
+        fail("there is no block for the machines, so nothing the rules describe "
+             "can be placed")
+    else:
+        _block = squashed(FARM_BLOCK)
+        if "FarmRules.machine(name)" not in _block:
+            fail("a machine does not find its own row by the name it was "
+                 "registered under, so whatever it is storing instead can be "
+                 "stored wrong")
+        _ticker = squashed(body_of(FARM_BLOCK, "public <T extends BlockEntity> BlockEntityTicker<T> getTicker("))
+        if "machine().powered()" not in _ticker:
+            fail("every machine ticks whether it has anything to do or not, which "
+                 "is what makes a large farm unplayable — three of the nine have "
+                 "nothing to do on a clock at all")
+
+    if not FARM_BE:
+        fail("machines remember nothing, so what a gatherer has collected is lost "
+             "on the first chunk unload")
+    else:
+        _be = squashed(FARM_BE)
+        for named, why in (
+                ("FarmActs.happen(this, machine());",
+                 "nothing hands a machine to the acts, so no machine ever does "
+                 "anything"),
+                ('tag.putInt("ElysiumHeldOrbs", heldOrbs);',
+                 "what a gatherer has collected is never written down, so it is "
+                 "lost the first time the chunk unloads")):
+            if named not in _be:
+                fail(why)
+
+    if not FARM_REG:
+        fail("nothing registers the machines, so all nine are rows")
+    else:
+        _freg = squashed(FARM_REG)
+        _fregister = squashed(body_of(FARM_REG, "register() {"))
+        if "for (FarmRules.Machine one : FarmRules.MACHINES) {" not in _fregister:
+            fail("the machines are named by hand rather than walked from the "
+                 "rules, so a tenth is a row nothing registers")
+        for named, what in (("register() {", "blocks"), ("items() {", "items")):
+            _body = squashed(body_of(FARM_REG, named))
+            if "made.size() != FarmRules.MACHINES.size()" not in _body:
+                fail(f"nothing counts the machine {what} that were registered, so a "
+                     f"roster that half registers is a roster that half exists — "
+                     f"and half of nine is the kind of number nobody notices")
+        # The block entity type has to cover every block, or placing the one it
+        # missed throws the first time somebody does it.
+        if "ALL.values().stream().map(DeferredBlock::get)" not in _freg:
+            fail("the machines' block entity type is built from a list of names "
+                 "rather than from the register, so a tenth machine throws the "
+                 "first time anybody places one")
+
+    _fmod = squashed(strip_comments(read(SRC, "ElysiumBestiary.java")))
+    for named, why in (
+            ("FarmBlocks.BLOCKS.register(modEventBus);",
+             "the machines' blocks are never handed to the bus, so none of them "
+             "exists"),
+            ("FarmBlocks.ITEMS.register(modEventBus);",
+             "the machines have blocks and no items, so nine blocks exist and "
+             "nothing can place any of them"),
+            ("FarmBlocks.BLOCK_ENTITIES.register(modEventBus);",
+             "the machines' block entity type is never registered, so placing "
+             "one throws")):
+        if named not in _fmod:
+            fail(why)
+
+    # Every rule the file declares is added up.
+    _fsum = squashed(body_of(FARM_SRC, "public static List<String> faults()"))
+    _frules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", FARM_SRC))
+    _fadded = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _fsum))
+    if len(_frules) < 5:
+        fail(f"only {len(_frules)} farm rule(s) are declared at all, so the check "
+             f"below is checking nothing")
+    # And faults() is a list, not a program. A rule added up inside a condition
+    # is a rule the check above still sees the call to, and the condition is
+    # where "we turned that one off for a minute" goes to live for a year.
+    if re.search(r"\bif\s*\(", _fsum):
+        fail("the farm's faults() has a condition in it, so some rule is added up "
+             "only sometimes — and the check that every rule is added up cannot "
+             "tell the difference between that and always")
+    for _frule in sorted(_frules - _fadded):
+        fail(f"{_frule} is written, compiled and never added up by the farm's "
+             f"faults(), so it answers the harness's controls and is never once "
+             f"asked about what this module ships")
+
+    print(f"the farm            : {len(machines)} machine(s) over {len(kinds)} "
+          f"kind(s), every one of them built out of something the game really "
+          f"makes and costing on disk what its row says, not one of them named in "
+          f"the branch that makes its kind happen, and the only numbers that can "
+          f"reorder the bestiary asked of the rules rather than typed")
+
+
+
 if problems:
     print(f"{len(problems)} problem(s):")
     for problem in problems:

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumbestiary:block/mob_conveyor"
+    },
+    "facing=east": {
+      "model": "elysiumbestiary:block/mob_conveyor",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumbestiary:block/mob_conveyor",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumbestiary:block/mob_conveyor",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumbestiary:block/mob_fan"
+    },
+    "facing=east": {
+      "model": "elysiumbestiary:block/mob_fan",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumbestiary:block/mob_fan",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumbestiary:block/mob_fan",
+      "y": 270
+    }
+  }
+}

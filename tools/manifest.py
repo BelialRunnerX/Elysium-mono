@@ -236,10 +236,12 @@ DECISIONS = [
      "four mods in a trench coat: 173 of its 200 items are gear and only 13 of "
      "its keys are creatures, so the armour belongs where the armour is. See "
      "docs/SPLITS.md"),
-    (r"^mob_grinding_utils", "PLANNED", "elysium-bestiary",
-     "farming infrastructure rather than creatures - fans, saws, spawner tooling; "
-     "it is filed here because it is about mobs and belongs with whatever ends up "
-     "owning automation of them"),
+    (r"^mob_grinding_utils", "SPLIT", "elysium-bestiary",
+     "farming infrastructure rather than creatures — fans, saws, spikes, "
+     "hoppers, an experience chain and spawner tooling. Two jobs: what a farm "
+     "is made of, which is the mob economy and belongs where the mob economy "
+     "is proved, and what makes a mob appear at all, which is the spawner "
+     "module's. See docs/SPLITS.md"),
 
     # --- atelier (decoration) ---------------------------------------------
     # Not DONE, and the distinction matters. Twelve shapes in sixteen materials
