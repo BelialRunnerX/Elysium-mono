@@ -5,11 +5,14 @@ import com.elysium.logistics.block.BusBlock;
 import com.elysium.logistics.block.AssemblerBlock;
 import com.elysium.logistics.block.AssemblyCoreBlock;
 import com.elysium.logistics.block.ControllerBlock;
+import com.elysium.logistics.block.DeviceBlock;
 import com.elysium.logistics.block.DrawerBlock;
 import com.elysium.logistics.block.TerminalBlock;
 import com.elysium.logistics.rules.CompressRules;
 import com.elysium.logistics.rules.LogisticRules;
 import com.elysium.logistics.rules.NetRules;
+import com.elysium.logistics.rules.PackRules;
+import com.elysium.logistics.pack.PackBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -88,7 +91,7 @@ public final class LogisticBlocks {
         Map<String, DeferredBlock<Block>> made = new LinkedHashMap<>();
         for (NetRules.Device device : NetRules.DEVICES) {
             made.put(device.name(), BLOCKS.register(device.name(),
-                    () -> new Block(steel())));
+                    () -> new DeviceBlock(steel().noOcclusion(), device)));
         }
         if (made.size() != NetRules.howMany()) {
             throw new IllegalStateException("the rules list " + NetRules.howMany()
@@ -116,6 +119,29 @@ public final class LogisticBlocks {
             throw new IllegalStateException("the rules list "
                     + CompressRules.howMany() + " compressions and " + made.size()
                     + " were registered");
+        }
+        return Map.copyOf(made);
+    }
+
+    /**
+     * The bodies that are put down rather than worn: a crate, a strongbox and
+     * a vault. Walked off the same roster the bags are, so a fourth placed
+     * body is a line in the rules and a block here without anything changing.
+     */
+    public static final Map<String, DeferredBlock<Block>> PLACED = placed();
+
+    private static Map<String, DeferredBlock<Block>> placed() {
+        Map<String, DeferredBlock<Block>> made = new LinkedHashMap<>();
+        for (PackRules.Body body : PackRules.BODIES) {
+            if (!body.carried()) {
+                made.put(body.name(), BLOCKS.register(body.name(),
+                        () -> new PackBlock(timber().strength(2.5F), body)));
+            }
+        }
+        if (made.size() != PackBlock.placedBodies().size()) {
+            throw new IllegalStateException("the rules list "
+                    + PackBlock.placedBodies().size() + " placed bodies and "
+                    + made.size() + " were registered");
         }
         return Map.copyOf(made);
     }

@@ -98,8 +98,7 @@ public class ControllerBlock extends GridBlock {
          */
         public static final int LOOKS_AGAIN_EVERY = 40;
 
-        private LogisticNetwork.Found found =
-                new LogisticNetwork.Found(List.of(), false);
+        private LogisticNetwork.Found found = LogisticNetwork.Found.nothing();
         private int since = LOOKS_AGAIN_EVERY;
         private boolean unsettledNetwork = true;
 
@@ -180,9 +179,9 @@ public class ControllerBlock extends GridBlock {
             if (++since >= LOOKS_AGAIN_EVERY || unsettledNetwork) {
                 since = 0;
                 unsettledNetwork = false;
-                int was = found.drawers().size();
+                LogisticNetwork.Found was = found;
                 found = LogisticNetwork.walk(level, pos);
-                if (found.drawers().size() != was) {
+                if (found.slots() != was.slots() || found.surcharge() != was.surcharge()) {
                     // What the network costs just changed, so the grid has to
                     // be worked out again.
                     unsettle();
@@ -215,6 +214,11 @@ public class ControllerBlock extends GridBlock {
      * <p>Not a copy and not a cache: it asks the drawers every call, because a
      * cached view of somebody else's inventory is how a storage mod ends up
      * duplicating items when two hoppers pull at once.
+     *
+     * <p>The drawers first, then whatever the devices bring: a storage bus
+     * brings the chest it faces and an ender link brings another network.
+     * Both come after the drawers so that a network fills what it owns before
+     * what it borrows.
      */
     private static final class Across implements IItemHandler {
 
@@ -224,9 +228,9 @@ public class ControllerBlock extends GridBlock {
             this.controller = controller;
         }
 
-        private List<DrawerStore> stores() {
+        private List<IItemHandler> stores() {
             Level level = controller.getLevel();
-            List<DrawerStore> found = new java.util.ArrayList<>();
+            List<IItemHandler> found = new java.util.ArrayList<>();
             if (level == null) {
                 return found;
             }
@@ -236,11 +240,18 @@ public class ControllerBlock extends GridBlock {
                     found.add(drawer.store());
                 }
             }
+            for (BlockPos pos : controller.found().devices()) {
+                DeviceBlock.DeviceBlockEntity device = LogisticNetwork.deviceAt(level, pos);
+                IItemHandler brought = device == null ? null : device.store();
+                if (brought != null) {
+                    found.add(brought);
+                }
+            }
             return found;
         }
 
-        private DrawerStore storeOf(int slot, int[] within) {
-            for (DrawerStore store : stores()) {
+        private IItemHandler storeOf(int slot, int[] within) {
+            for (IItemHandler store : stores()) {
                 if (slot < store.getSlots()) {
                     within[0] = slot;
                     return store;
@@ -253,7 +264,7 @@ public class ControllerBlock extends GridBlock {
         @Override
         public int getSlots() {
             int slots = 0;
-            for (DrawerStore store : stores()) {
+            for (IItemHandler store : stores()) {
                 slots += store.getSlots();
             }
             return slots;
@@ -262,28 +273,28 @@ public class ControllerBlock extends GridBlock {
         @Override
         public ItemStack getStackInSlot(int slot) {
             int[] within = new int[1];
-            DrawerStore store = storeOf(slot, within);
+            IItemHandler store = storeOf(slot, within);
             return store == null ? ItemStack.EMPTY : store.getStackInSlot(within[0]);
         }
 
         @Override
         public int getSlotLimit(int slot) {
             int[] within = new int[1];
-            DrawerStore store = storeOf(slot, within);
+            IItemHandler store = storeOf(slot, within);
             return store == null ? 0 : store.getSlotLimit(within[0]);
         }
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             int[] within = new int[1];
-            DrawerStore store = storeOf(slot, within);
+            IItemHandler store = storeOf(slot, within);
             return store != null && store.isItemValid(within[0], stack);
         }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
             int[] within = new int[1];
-            DrawerStore store = storeOf(slot, within);
+            IItemHandler store = storeOf(slot, within);
             if (store == null || stack.isEmpty()) {
                 return stack;
             }
@@ -303,7 +314,7 @@ public class ControllerBlock extends GridBlock {
         @Override
         public ItemStack extractItem(int slot, int wanted, boolean simulate) {
             int[] within = new int[1];
-            DrawerStore store = storeOf(slot, within);
+            IItemHandler store = storeOf(slot, within);
             if (store == null) {
                 return ItemStack.EMPTY;
             }

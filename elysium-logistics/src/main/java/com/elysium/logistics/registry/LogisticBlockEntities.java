@@ -4,7 +4,12 @@ import com.elysium.logistics.ElysiumLogistics;
 import com.elysium.logistics.block.AssemblerBlock;
 import com.elysium.logistics.block.AssemblyCoreBlock;
 import com.elysium.logistics.block.ControllerBlock;
+import com.elysium.logistics.block.DeviceBlock;
 import com.elysium.logistics.block.DrawerBlock;
+import com.elysium.logistics.pack.PackBlock;
+import com.elysium.logistics.rules.NetRules;
+import com.elysium.logistics.rules.PackRules;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -37,6 +42,40 @@ public final class LogisticBlockEntities {
                     ControllerBlock.ControllerBlockEntity::new,
                     LogisticBlocks.CONTROLLER.get())
             .build(null));
+
+    /**
+     * One type for all seven devices: a device is a device, and the block
+     * says which. The blocks come off the same roster the blocks were
+     * registered from, so an eighth device is in here without a line changing.
+     */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DeviceBlock.DeviceBlockEntity>>
+            DEVICE = TYPES.register("device", () -> BlockEntityType.Builder.of(
+                    DeviceBlock.DeviceBlockEntity::new, deviceBlocks())
+            .build(null));
+
+    /** One type for every placed body, off the same walk the blocks were. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PackBlock.PackBlockEntity>>
+            PACK = TYPES.register("pack", () -> BlockEntityType.Builder.of(
+                    PackBlock.PackBlockEntity::new, placedBlocks())
+            .build(null));
+
+    private static Block[] placedBlocks() {
+        Block[] blocks = new Block[LogisticBlocks.PLACED.size()];
+        int at = 0;
+        for (PackRules.Body body : PackBlock.placedBodies()) {
+            blocks[at++] = LogisticBlocks.PLACED.get(body.name()).get();
+        }
+        return blocks;
+    }
+
+    private static Block[] deviceBlocks() {
+        Block[] blocks = new Block[NetRules.DEVICES.size()];
+        int at = 0;
+        for (NetRules.Device device : NetRules.DEVICES) {
+            blocks[at++] = LogisticBlocks.DEVICES.get(device.name()).get();
+        }
+        return blocks;
+    }
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AssemblerBlock.AssemblerBlockEntity>>
             ASSEMBLER = TYPES.register("assembler", () -> BlockEntityType.Builder.of(
@@ -75,6 +114,15 @@ public final class LogisticBlockEntities {
                     (entity, side) -> entity.store());
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, CONTROLLER.get(),
                     (entity, side) -> entity.asOneInventory());
+            // An interface is its network with a face; an ender link is the
+            // network at the other end. The other five expose nothing: they
+            // are things a network does, not places a hopper can reach.
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, DEVICE.get(),
+                    (entity, side) -> entity.exposed());
+            // A crate is reached the way a chest is, and its parts rule what
+            // a hopper may push into it exactly as they rule a bag's intake.
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, PACK.get(),
+                    (entity, side) -> entity.handler());
         }
     }
 }

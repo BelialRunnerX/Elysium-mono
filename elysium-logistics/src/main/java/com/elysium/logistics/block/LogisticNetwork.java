@@ -1,6 +1,7 @@
 package com.elysium.logistics.block;
 
 import com.elysium.logistics.rules.LogisticRules;
+import com.elysium.logistics.rules.NetRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -40,12 +41,26 @@ public final class LogisticNetwork {
     private LogisticNetwork() {
     }
 
-    /** What a walk found: the drawers, and whether there were too many. */
-    public record Found(List<BlockPos> drawers, boolean overloaded) {
+    /**
+     * What a walk found: the drawers, the devices, what the devices pay over
+     * a slot, and whether there were too many of both together.
+     */
+    public record Found(List<BlockPos> drawers, List<BlockPos> devices, int surcharge,
+                        boolean overloaded) {
+
+        /** A walk that found nothing. */
+        public static Found nothing() {
+            return new Found(List.of(), List.of(), 0, false);
+        }
+
+        /** How many slots on the controller are taken: drawers and devices alike. */
+        public int slots() {
+            return drawers.size() + devices.size();
+        }
 
         /** The network this describes, in the vocabulary the rules use. */
         public LogisticRules.Network network() {
-            return new LogisticRules.Network(drawers.size());
+            return new LogisticRules.Network(slots(), surcharge);
         }
     }
 
@@ -72,16 +87,31 @@ public final class LogisticNetwork {
         return entity instanceof DrawerBlock.DrawerBlockEntity drawer ? drawer : null;
     }
 
+    /** The device at this position, or null if there is not one. */
+    public static DeviceBlock.DeviceBlockEntity deviceAt(Level level, BlockPos pos) {
+        if (!level.isLoaded(pos)) {
+            return null;
+        }
+        BlockEntity entity = level.getBlockEntity(pos);
+        return entity instanceof DeviceBlock.DeviceBlockEntity device ? device : null;
+    }
+
     /**
-     * Every drawer reachable from a controller.
+     * Every drawer and every device reachable from a controller.
      *
-     * <p>Bus carries; drawers are found beside it and are not walked through,
-     * so a wall of drawers packed together does not silently chain a network
-     * across a base without any bus in it. A network is a thing you lay out.
+     * <p>Bus carries; drawers and devices are found beside it and are not
+     * walked through, so a wall of drawers packed together does not silently
+     * chain a network across a base without any bus in it. A network is a
+     * thing you lay out.
+     *
+     * <p>A device takes one slot, like a drawer, and pays its surcharge on
+     * top: {@link NetRules#surcharge} is summed here so that what the
+     * controller bills the grid is the number the harness proved.
      */
     public static Found walk(Level level, BlockPos controller) {
         Set<BlockPos> seen = new HashSet<>();
         Set<BlockPos> drawers = new HashSet<>();
+        Set<BlockPos> devices = new HashSet<>();
         Deque<BlockPos> queue = new ArrayDeque<>();
         seen.add(controller.immutable());
         queue.add(controller.immutable());
@@ -94,17 +124,36 @@ public final class LogisticNetwork {
                     drawers.add(next.immutable());
                     continue;
                 }
+                if (deviceAt(level, next) != null) {
+                    devices.add(next.immutable());
+                    continue;
+                }
                 if (!carries(level, next) || !seen.add(next.immutable())) {
                     continue;
                 }
                 if (seen.size() > MOST_STEPS) {
-                    return new Found(sorted(drawers), true);
+                    return new Found(sorted(drawers), sorted(devices),
+                            surchargeOf(level, devices), true);
                 }
                 queue.add(next.immutable());
             }
         }
         List<BlockPos> found = sorted(drawers);
-        return new Found(found, found.size() > LogisticRules.MOST_DEVICES);
+        List<BlockPos> faces = sorted(devices);
+        return new Found(found, faces, surchargeOf(level, devices),
+                found.size() + faces.size() > LogisticRules.MOST_DEVICES);
+    }
+
+    /** What these devices pay the grid beyond their slots, off the roster. */
+    private static int surchargeOf(Level level, Set<BlockPos> devices) {
+        List<NetRules.Device> kinds = new ArrayList<>();
+        for (BlockPos pos : devices) {
+            DeviceBlock.DeviceBlockEntity device = deviceAt(level, pos);
+            if (device != null) {
+                kinds.add(device.device());
+            }
+        }
+        return NetRules.surcharge(kinds);
     }
 
     /**

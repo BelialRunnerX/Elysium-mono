@@ -322,6 +322,173 @@ public final class PackRules {
     }
 
     // ==================================================================
+    // Showing one
+    // ==================================================================
+
+    /** How wide a row of slots is, in the game's own container screens. */
+    public static final int ROW = 9;
+
+    /**
+     * The most slots one screen of a pack shows: six rows, which is the
+     * largest of the game's own generic container menus.
+     *
+     * <p>A pack is not capped at this. An expedition pack with every pocket
+     * fitted holds ninety-nine and a vault a hundred and seventeen, and a cap
+     * would make capacity something other than the sum of what is fitted —
+     * the first of the four things this file exists to keep true. So a big
+     * pack is shown a page at a time, and each opening turns the page.
+     */
+    public static final int MOST_SHOWN = 6 * ROW;
+
+    /** How many pages a pack of this capacity is shown across. */
+    public static int pages(int capacity) {
+        return Math.max(1, (capacity + MOST_SHOWN - 1) / MOST_SHOWN);
+    }
+
+    /** The first slot shown on a page. */
+    public static int firstOn(int page) {
+        return page * MOST_SHOWN;
+    }
+
+    /** How many slots a page shows: a full screen, or what is left on the last. */
+    public static int shownOn(int capacity, int page) {
+        if (page < 0 || page >= pages(capacity)) {
+            return 0;
+        }
+        return Math.min(MOST_SHOWN, capacity - firstOn(page));
+    }
+
+    /** How many rows that is, which is what picks the menu. */
+    public static int rowsOn(int capacity, int page) {
+        return (shownOn(capacity, page) + ROW - 1) / ROW;
+    }
+
+    /** The page after this one, back to the first after the last. */
+    public static int nextPage(int capacity, int page) {
+        if (page < 0) {
+            return 0;
+        }
+        return (page + 1) % pages(capacity);
+    }
+
+    // ==================================================================
+    // What may go in, and what the parts do to it
+    // ==================================================================
+
+    /** Whether a part of this kind is fitted. */
+    public static boolean has(List<Part> fitted, String kind) {
+        for (Part one : fitted) {
+            if (one.kind().equals(kind)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** The parts these names stand for, in order, leaving out any that are not parts. */
+    public static List<Part> partsNamed(List<String> names) {
+        List<Part> found = new ArrayList<>();
+        for (String name : names) {
+            Part one = part(name);
+            if (one != null) {
+                found.add(one);
+            }
+        }
+        return List.copyOf(found);
+    }
+
+    /**
+     * Whether a thing of this name may be put inside a pack at all.
+     *
+     * <p>Every body is refused, carried or placed: a bag inside a bag makes
+     * capacity a recursion, and a crate item inside a bag is a bag inside a
+     * bag with a different sprite. Everything else is welcome.
+     */
+    public static boolean mayHold(String name) {
+        return body(name) == null;
+    }
+
+    /**
+     * Whether something coming in on its own — picked up, or pushed by a
+     * hopper — may go in.
+     *
+     * <p>A sieve makes what is already inside the filter: a sieved pack takes
+     * more of what it holds and nothing new. Only intake nobody chose is
+     * sieved. A player putting a thing in by hand has chosen it, which is
+     * also how a sieved pack is ever given its first thing.
+     */
+    public static boolean admits(List<Part> fitted, boolean alreadyHeld) {
+        return !has(fitted, SIEVE) || alreadyHeld;
+    }
+
+    /**
+     * Whether what does not fit is destroyed rather than left where it was.
+     *
+     * <p>Only with a void part fitted, and only for a thing the pack already
+     * holds: a seal is for the cobblestone a player is sick of, not for the
+     * diamond that happened to be picked up while the bag was full.
+     */
+    public static boolean voidsOverflow(List<Part> fitted, boolean alreadyHeld) {
+        return voids(fitted) && alreadyHeld;
+    }
+
+    /** How often a feeding part looks at its wearer's hunger, in ticks. */
+    public static final int FEED_EVERY = 20;
+
+    /** How often a restocking part looks at its wearer's hand, in ticks. */
+    public static final int RESTOCK_EVERY = 10;
+
+    /**
+     * Whether a food worth this much is eaten by a hungry wearer.
+     *
+     * <p>Only when all of it is wanted. A ration tin that eats a steak to
+     * fill one missing point of hunger is a tin that empties the bag.
+     */
+    public static boolean worthEating(int missing, int nutrition) {
+        return nutrition > 0 && nutrition <= missing;
+    }
+
+    /**
+     * How many to bring into a hand holding {@code held} of something that
+     * stacks to {@code most}.
+     *
+     * <p>Nothing into an empty hand: a restocker keeps a stack topped up, it
+     * does not decide what a player is holding.
+     */
+    public static int restockWanted(int held, int most) {
+        if (held <= 0 || held >= most) {
+            return 0;
+        }
+        return most - held;
+    }
+
+    /**
+     * What a press makes of a pile: {@code {made, left}}.
+     *
+     * <p>The step is the compression's own, so the press and the crafting
+     * grid agree to the item and a pressed bag can be unpacked on a grid
+     * back into exactly what went in.
+     */
+    public static int[] pressed(int count) {
+        int step = CompressRules.PER_STEP;
+        return new int[] {count / step, count % step};
+    }
+
+    /**
+     * How many a pile cooks into, or zero if it is left raw.
+     *
+     * <p>Left raw rather than cooked in part when the result would not fit
+     * in the slot, because a half-cooked pile is two things in one slot.
+     */
+    public static int cooked(int count, int yield, int most) {
+        if (count <= 0 || yield <= 0) {
+            return 0;
+        }
+        long made = (long) count * yield;
+        return made <= most ? (int) made : 0;
+    }
+
+    // ==================================================================
     // What has to be true of the set
     // ==================================================================
 

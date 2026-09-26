@@ -50,6 +50,8 @@ public final class NetHarness {
         theTyping();
         theTermination();
         theSweep();
+        theRunning();
+        theFaces();
         theControls();
 
         if (failures > 0) {
@@ -337,8 +339,18 @@ public final class NetHarness {
                                 + NetRules.stepsFor(built) + " to work out, so "
                                 + "something is being worked out twice and the "
                                 + "cost of an expression is not its length");
+                // And it runs: every expression that types works out to a
+                // value, and the value is of the type the typing promised.
+                NetRules.Value made = NetRules.evaluate(built, WORLD);
+                check(made != null, "an expression that types could not be run: "
+                        + built);
+                check(made != null && made.type().equals(NetRules.typeOf(built)),
+                        "an expression typed as " + NetRules.typeOf(built)
+                                + " ran to a " + (made == null ? "nothing" : made.type()));
             } else {
                 refused++;
+                check(NetRules.evaluate(built, WORLD) == null,
+                        "an expression the typing refused was run anyway");
             }
         }
         check(sound > 0, "not one of forty thousand random expressions worked out, "
@@ -348,6 +360,233 @@ public final class NetHarness {
         System.out.println("  the sweep: 40,000 random expressions, " + sound
                 + " of them sound and " + refused + " refused, and every sound one "
                 + "typed step by step against the operators it is made of");
+    }
+
+    // ==================================================================
+
+    /** A world with numbers in it the harness chose, so answers are known. */
+    private static final NetRules.Readings WORLD = new NetRules.Readings() {
+        @Override
+        public long countOf(String item) {
+            return item.length() * 100L;
+        }
+
+        @Override
+        public long power() {
+            return 48;
+        }
+
+        @Override
+        public long devices() {
+            return 12;
+        }
+
+        @Override
+        public boolean busy() {
+            return true;
+        }
+
+        @Override
+        public String nameOf(String item) {
+            return item.toUpperCase();
+        }
+    };
+
+    /** A world holding exactly this many of one thing, and nothing else. */
+    private static NetRules.Readings holding(String thing, long count) {
+        return new NetRules.Readings() {
+            @Override
+            public long countOf(String item) {
+                return thing.equals(item) ? count : -1;
+            }
+
+            @Override
+            public long power() {
+                return 0;
+            }
+
+            @Override
+            public long devices() {
+                return 0;
+            }
+
+            @Override
+            public boolean busy() {
+                return false;
+            }
+
+            @Override
+            public String nameOf(String item) {
+                return item;
+            }
+        };
+    }
+
+    /**
+     * The layer, run rather than only typed: the two expressions the devices
+     * actually put through it, against answers worked out the long way.
+     */
+    private static void theRunning() {
+        check(NetRules.unrunnable().isEmpty(),
+                "an operator the network cannot run: " + NetRules.unrunnable());
+        check(NetRules.op("constant") != null && NetRules.op("constant").arity() == 0
+                        && NetRules.NUMBER.equals(NetRules.op("constant").gives()),
+                "there is no constant, so no expression can name a number a player "
+                        + "chose and a detector has nothing to compare a count with");
+        check(NetRules.numberIn("4096") == 4096 && NetRules.numberIn("nonsense") == 0
+                        && NetRules.numberIn(null) == 0,
+                "a constant does not read as the number written in it, or throws on "
+                        + "one that is not a number");
+
+        // The threshold ladder: climbs, cycles, and every rung is reachable.
+        int last = 0;
+        for (int rung : NetRules.THRESHOLDS) {
+            check(rung > last, "the detector's ladder goes " + last + " then " + rung
+                    + ", so a step up is not a step up");
+            last = rung;
+        }
+        Set<Integer> reached = new LinkedHashSet<>();
+        int at = NetRules.firstThreshold();
+        for (int step = 0; step < NetRules.THRESHOLDS.size(); step++) {
+            reached.add(at);
+            at = NetRules.nextThreshold(at);
+        }
+        check(reached.size() == NetRules.THRESHOLDS.size()
+                        && at == NetRules.firstThreshold(),
+                "stepping a detector " + NetRules.THRESHOLDS.size() + " times reaches "
+                        + reached.size() + " rungs and lands on " + at + ", so some "
+                        + "count can never be asked for or the ladder does not come "
+                        + "back round");
+        check(NetRules.nextThreshold(7) == NetRules.firstThreshold(),
+                "a threshold off the ladder does not step back onto it");
+
+        // The detector's expression: sound, a truth, and it agrees with the
+        // arithmetic at every rung for every count near it.
+        int agreed = 0;
+        for (int rung : NetRules.THRESHOLDS) {
+            List<NetRules.Node> asks = NetRules.detectorExpression("stone", rung);
+            check(NetRules.sound(asks), "the detector's own expression is refused: "
+                    + NetRules.refuses(asks));
+            check(NetRules.TRUTH.equals(NetRules.typeOf(asks)),
+                    "the detector's expression is a " + NetRules.typeOf(asks)
+                            + " and redstone wants a truth");
+            for (long count = Math.max(0, rung - 3); count <= rung + 3L; count++) {
+                NetRules.Value said = NetRules.evaluate(asks, holding("stone", count));
+                check(said != null && said.truth() == NetRules.reaches(count, rung),
+                        "holding " + count + " with the detector at " + rung + " the "
+                                + "expression says " + (said == null ? "nothing"
+                                : said.truth()) + " and the arithmetic says "
+                                + NetRules.reaches(count, rung));
+                agreed++;
+            }
+            NetRules.Value other = NetRules.evaluate(asks, holding("dirt", 100_000));
+            check(other != null && !other.truth(),
+                    "a detector shown stone fires on a network full of dirt");
+        }
+        check(NetRules.reaches(64, 64) && !NetRules.reaches(63, 64)
+                        && NetRules.reaches(65, 64),
+                "reaching a threshold is not 'at least', so a detector set to a "
+                        + "stack fires one short or one late");
+
+        // The monitor's: sound, text, and it says the count and the name.
+        List<NetRules.Node> shows = NetRules.monitorExpression("stone");
+        check(NetRules.sound(shows), "the monitor's own expression is refused: "
+                + NetRules.refuses(shows));
+        check(NetRules.TEXT.equals(NetRules.typeOf(shows)),
+                "the monitor's expression is a " + NetRules.typeOf(shows)
+                        + " and a monitor shows text");
+        NetRules.Value line = NetRules.evaluate(shows, WORLD);
+        check(line != null && line.text().equals("500 STONE"),
+                "the monitor shown 'stone' in a world holding 500 says '"
+                        + (line == null ? "" : line.text()) + "'");
+
+        // Every reader's answer is visible in what an expression works out
+        // to, so none of them is a name with nothing behind it.
+        NetRules.Value power = NetRules.evaluate(List.of(
+                new NetRules.Node("read_power", List.of(), "")), WORLD);
+        NetRules.Value busy = NetRules.evaluate(List.of(
+                new NetRules.Node("read_busy", List.of(), ""),
+                new NetRules.Node("not", List.of(0), "")), WORLD);
+        NetRules.Value counted = NetRules.evaluate(List.of(
+                new NetRules.Node("read_devices", List.of(), ""),
+                new NetRules.Node("constant", List.of(), "30"),
+                new NetRules.Node("multiply", List.of(0, 1), "")), WORLD);
+        check(power != null && power.number() == 48, "read_power does not read the power");
+        check(busy != null && !busy.truth(), "not(read_busy) in a busy world is true");
+        check(counted != null && counted.number() == 360,
+                "twelve devices times a constant of thirty is "
+                        + (counted == null ? "nothing" : counted.number()));
+
+        System.out.println("  the running: every operator runnable, the detector's "
+                + "expression agreeing with the arithmetic at " + agreed
+                + " counts across " + NetRules.THRESHOLDS.size() + " rungs, and the "
+                + "monitor's reading back as text");
+    }
+
+    // ==================================================================
+
+    /**
+     * What the devices cost a controller, and how that is counted: one slot
+     * each, and a surcharge for the dear ones, adding up to exactly the draw
+     * the roster states.
+     */
+    private static void theFaces() {
+        int slots = NetRules.DEVICES.size();
+        int extra = NetRules.surcharge(NetRules.DEVICES);
+        check(extra >= 0, "the devices' surcharge is negative");
+        LogisticRules.Network faced = new LogisticRules.Network(slots, extra);
+        check(Math.abs(faced.machine().draw() - NetRules.drawOf(NetRules.DEVICES)) < 1e-4,
+                "a network of one of every device is billed "
+                        + faced.machine().draw() + " and the devices draw "
+                        + NetRules.drawOf(NetRules.DEVICES));
+        LogisticRules.Network drawers = new LogisticRules.Network(slots);
+        check(faced.machine().draw() >= drawers.machine().draw(),
+                "a network of devices is cheaper than the same number of drawers, "
+                        + "so the dear devices are not dear");
+        check(faced.overloaded() == drawers.overloaded(),
+                "a device takes more or less than one slot on a controller");
+        LogisticRules.Network mixed = new LogisticRules.Network(
+                LogisticRules.MOST_DEVICES, extra);
+        check(!mixed.overloaded(), "a full controller with devices on it is overloaded "
+                + "by their draw rather than by their number");
+        check(new LogisticRules.Network(LogisticRules.MOST_DEVICES + 1, 0).overloaded(),
+                "one too many is not overloaded");
+        // Every device costs something, and the roster the blocks are
+        // registered from is exactly the devices, once each, in order.
+        List<String> names = new ArrayList<>();
+        for (NetRules.Device one : NetRules.DEVICES) {
+            check(one.draws() >= 1 && one.draw() > 0.0F, one.name() + " draws "
+                    + one.draw() + ", so it is free to run");
+            names.add(one.name());
+        }
+        check(NetRules.catalogue().equals(names), "the blocks registered from the "
+                + "roster are " + NetRules.catalogue() + " and the devices are " + names);
+        check(new LinkedHashSet<>(names).size() == names.size()
+                        && NetRules.howMany() == names.size(),
+                "two devices share a name, or the count registered is not the roster");
+        for (NetRules.Device one : NetRules.DEVICES) {
+            check(NetRules.surcharge(List.of(one)) == one.draws() - 1,
+                    one.name() + " pays a surcharge of " + NetRules.surcharge(List.of(one))
+                            + " on a draw of " + one.draws());
+        }
+        check(NetRules.surcharge(List.of()) == 0, "no devices pay a surcharge");
+        check(NetRules.TICK_EVERY >= 1 && NetRules.TICK_EVERY <= 100,
+                "a device works every " + NetRules.TICK_EVERY + " ticks, which is "
+                        + "either every tick or never");
+        check(NetRules.MOVES_PER_ROUND >= 1 && NetRules.MOVES_PER_ROUND <= LogisticRules.STACK,
+                "a device moves " + NetRules.MOVES_PER_ROUND + " a round, which is "
+                        + "nothing or more than a stack");
+        boolean refused = false;
+        try {
+            new LogisticRules.Network(1, -1);
+        } catch (IllegalArgumentException expected) {
+            refused = true;
+        }
+        check(refused, "a network whose devices pay less than a slot was accepted");
+        System.out.println("  the faces: " + slots + " devices on " + slots
+                + " slots paying " + extra + " draw(s) over, " + faced.machine().draw()
+                + " FE/t in all, one slot apiece against the limit of "
+                + LogisticRules.MOST_DEVICES);
     }
 
     // ==================================================================

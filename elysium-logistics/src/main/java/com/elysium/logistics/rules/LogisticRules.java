@@ -172,14 +172,31 @@ public final class LogisticRules {
     /** Items a fully fed network moves per tick. */
     public static final float BANDWIDTH = 16.0F;
 
-    /** A network: how many things are on it, and what they cost. */
-    public record Network(int devices) {
+    /**
+     * A network: how many things are on it, and what they cost.
+     *
+     * @param devices how many slots on the controller are taken — a drawer
+     *                is one, and so is any device, however dear
+     * @param extra   what the dear devices pay beyond the one draw every slot
+     *                pays: {@link NetRules#surcharge}. Zero for a network of
+     *                drawers alone.
+     */
+    public record Network(int devices, int extra) {
 
         public Network {
             if (devices < 0) {
                 throw new IllegalArgumentException("a network with a negative number of "
                         + "devices on it is an accounting error");
             }
+            if (extra < 0) {
+                throw new IllegalArgumentException("a network whose devices pay less "
+                        + "than a slot costs is an accounting error");
+            }
+        }
+
+        /** A network of drawers alone, which pay nothing beyond their slot. */
+        public Network(int devices) {
+            this(devices, 0);
         }
 
         /** Whether this controller can index what has been hung off it. */
@@ -197,7 +214,7 @@ public final class LogisticRules {
          * has made the mistake impossible in three modules now.
          */
         public IndustryRules.Machine machine() {
-            return new IndustryRules.Machine(devices * DEVICE_DRAW,
+            return new IndustryRules.Machine(devices * DEVICE_DRAW + extra * DEVICE_DRAW,
                     IndustryRules.Voltage.LOW);
         }
 

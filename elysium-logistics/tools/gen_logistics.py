@@ -520,6 +520,42 @@ LINES = {
     "elysiumlogistics.core.dark": "Making %s, and no power reaching it.",
     "elysiumlogistics.core.running": "Making %s: %s step(s) left, %s machine-runs.",
     "elysiumlogistics.terminal.coreless": "No assembly core on its bus.",
+    # The seven faces. Every device answers empty-handed with one of these,
+    # so a player who has learned the drawer's gesture has learned them all.
+    "elysiumlogistics.device.loose": "No controller on its bus.",
+    "elysiumlogistics.device.filter": "Set to %s.",
+    "elysiumlogistics.device.cleared": "Cleared. It will take anything.",
+    "elysiumlogistics.device.unfiltered": "Moving anything, one stack a second.",
+    "elysiumlogistics.device.filtered": "Moving %s, one stack a second.",
+    "elysiumlogistics.exporter.idle": "Show it what to send out. Until then it sends "
+                                      "nothing, rather than emptying the network.",
+    "elysiumlogistics.device.channel": "On the %s channel.",
+    "elysiumlogistics.storage_bus.nothing": "Nothing with an inventory in front of it.",
+    "elysiumlogistics.storage_bus.exposing": "Bringing %s slot(s) onto the network.",
+    "elysiumlogistics.detector.stepped": "Now firing at %s.",
+    "elysiumlogistics.detector.unset": "Show it a thing to count. It fires at %s.",
+    "elysiumlogistics.detector.on": "%s %s on the network, at least %s: on.",
+    "elysiumlogistics.detector.off": "%s %s on the network, under %s: off.",
+    "elysiumlogistics.interface.serving": "Serving %s slot(s) to whatever takes from it.",
+    "elysiumlogistics.ender_link.unnamed": "Show it a thing to name its channel.",
+    "elysiumlogistics.ender_link.alone": "On the %s channel, and nothing else is.",
+    "elysiumlogistics.ender_link.joined": "On the %s channel, sharing %s slot(s).",
+    "elysiumlogistics.monitor.coreless": "No assembly core on its bus, so nothing is "
+                                         "being made.",
+    "elysiumlogistics.monitor.holding": "%s on the network. %s",
+    # A pack's gestures. Each refusal says which rule refused, because a part
+    # that silently will not go in is a part a player assumes is broken.
+    "elysiumlogistics.pack.page": "%s (page %s of %s)",
+    "elysiumlogistics.pack.holding": "%s of %s slot(s) in use",
+    "elysiumlogistics.pack.fitted": "%s fitted. It holds %s now.",
+    "elysiumlogistics.pack.unfitted": "%s taken out. It holds %s now.",
+    "elysiumlogistics.pack.twice": "%s is already fitted.",
+    "elysiumlogistics.pack.no_room_for_parts": "No room for %s: every fitting is taken.",
+    "elysiumlogistics.pack.too_full": "Too full to take that out: %s slot(s) in use "
+                                      "would not fit without it.",
+    "elysiumlogistics.pack.nothing_fitted": "Nothing is fitted to take out.",
+    "elysiumlogistics.pack.not_a_part": "%s is not a part. Hold a part in the other hand "
+                                        "to fit it, or nothing to take one out.",
 }
 
 
@@ -989,6 +1025,62 @@ def pack_files(bodies, parts):
     return written
 
 
+def placed_side(ramp, bands):
+    """A placed body's side: a whole face of boards, a band per part it takes."""
+    image = Image.new("RGBA", (16, 16), rgba(ramp[1]))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 15], outline=rgba(ramp[0]))
+    for row in (4, 8, 12):
+        draw.line([(1, row), (14, row)], fill=rgba(ramp[0]))
+    for at in range(min(bands, 6)):
+        x = 2 + at * 2
+        draw.line([(x, 1), (x, 14)], fill=rgba(ramp[2]))
+    draw.rectangle([6, 6, 9, 9], fill=rgba(ramp[3]), outline=rgba(ramp[0]))
+    return image
+
+
+def placed_top(ramp):
+    """A placed body's lid: boards edged in the darkest of its ramp."""
+    image = Image.new("RGBA", (16, 16), rgba(ramp[2]))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 15], outline=rgba(ramp[0]))
+    draw.rectangle([2, 2, 13, 13], outline=rgba(ramp[1]))
+    return image
+
+
+def placed_files(bodies):
+    """
+    Every body that is put down rather than worn: a block of its own, a state,
+    a drop and an axe to take it with. Walked off the same roster the bags are,
+    so a fourth placed body is drawn, stated and dropped without a line here.
+    """
+    where = os.path.join(ASSETS, "textures/block")
+    os.makedirs(where, exist_ok=True)
+    written = 0
+    placed = [one for one in bodies if not one[3]]
+    for name, slots, fittings, _carried in placed:
+        ramp = PACK_RAMPS[name]
+        placed_side(ramp, fittings).save(os.path.join(where, name + "_side.png"))
+        placed_top(ramp).save(os.path.join(where, name + "_top.png"))
+        write(os.path.join(ASSETS, "models/block", name + ".json"),
+              cube(name + "_top", name + "_side"))
+        write(os.path.join(ASSETS, "blockstates", name + ".json"),
+              {"variants": {"": {"model": f"{NS}:block/{name}"}}})
+        write(os.path.join(DATA, "loot_table/blocks", name + ".json"),
+              drop_itself(name))
+        written += 3
+    tags = os.path.join(OUT, "src/main/resources/data/minecraft/tags/block")
+    axe = os.path.join(tags, "mineable/axe.json")
+    existing = []
+    if os.path.isfile(axe):
+        with open(axe, encoding="utf-8") as handle:
+            existing = json.load(handle).get("values", [])
+    write(axe, {"replace": False,
+                "values": sorted(set(existing)
+                                 | {f"{NS}:{one[0]}" for one in placed})})
+    return written + 1
+
+
 def pack_language(entries, bodies, parts):
     for name, *_rest in list(bodies) + [(p[0],) for p in parts]:
         shown = PACK_WORDS.get(name)
@@ -996,6 +1088,11 @@ def pack_language(entries, bodies, parts):
             print(f"{name} has no name here, so it is called by its id")
             sys.exit(1)
         entries[f"item.{NS}.{name}"] = shown
+    # A placed body's item is its block's item, and the game names a block
+    # item by the block.
+    for name, _slots, _fittings, carried in bodies:
+        if not carried:
+            entries[f"block.{NS}.{name}"] = PACK_WORDS[name]
     return entries
 
 
@@ -1045,6 +1142,18 @@ def devices():
     return found
 
 
+#: Which way a device's glyph turns to face the block it works on. The
+#: model's front is north, as vanilla's orientable models are.
+DEVICE_ROTATION = {
+    "north": {}, "south": {"y": 180}, "west": {"y": 270}, "east": {"y": 90},
+    "down": {"x": 90}, "up": {"x": 270},
+}
+
+#: The one texture every device shares for its five plain sides. Written once
+#: and named once, so a device's own sprite is only ever its face.
+DEVICE_SIDE = "device_side"
+
+
 def device_face(colour, draws):
     """A steel case, a glyph in the colour of what it does, and a pip per rung."""
     image = carcass(STEEL)
@@ -1082,7 +1191,8 @@ def device_files(found):
     """Every device: a sprite, a model, a state, an item, a drop and a recipe."""
     where = os.path.join(ASSETS, "textures/block")
     os.makedirs(where, exist_ok=True)
-    drawn = written = 0
+    carcass(STEEL).save(os.path.join(where, DEVICE_SIDE + ".png"))
+    drawn = written = 1
     for name, role, draws in found:
         colour = ROLE_COLOURS.get(role)
         if colour is None:
@@ -1091,11 +1201,23 @@ def device_files(found):
             sys.exit(1)
         device_face(colour, draws).save(os.path.join(where, name + ".png"))
         drawn += 1
+        # The glyph on the face that points at what the device works on, and
+        # plain steel everywhere else: a wall of devices reads which way each
+        # one is looking, which is the only thing about a device a player has
+        # to get right.
         write(os.path.join(ASSETS, "models/block", name + ".json"),
-              {"parent": "minecraft:block/cube_all",
-               "textures": {"all": f"{NS}:block/{name}"}})
+              faced(name, DEVICE_SIDE, DEVICE_SIDE))
+        # Every facing times both states of the redstone, all on the one
+        # model: a detector that is firing looks the same as one that is not,
+        # and the wire beside it says which. A missing variant is a purple
+        # cube the moment a device is hung under a machine.
+        variants = {}
+        for facing, turn in DEVICE_ROTATION.items():
+            for powered in ("false", "true"):
+                variants[f"facing={facing},powered={powered}"] = dict(
+                    {"model": f"{NS}:block/{name}"}, **turn)
         write(os.path.join(ASSETS, "blockstates", name + ".json"),
-              {"variants": {"": {"model": f"{NS}:block/{name}"}}})
+              {"variants": variants})
         write(os.path.join(ASSETS, "models/item", name + ".json"),
               {"parent": f"{NS}:block/{name}"})
         write(os.path.join(DATA, "loot_table/blocks", name + ".json"),
@@ -1151,6 +1273,7 @@ if __name__ == "__main__":
     bodies, parts = packs()
     packed = pack_sprites(bodies, parts)
     data += pack_files(bodies, parts)
+    data += placed_files(bodies)
     keys = language(materials, depths, tiers, bodies, parts, found)
     print(f"logistics: {sprites} sprite(s), {models} block(s) modelled and stated, "
           f"{squashed} compression(s), {devicesprites} device(s), {packed} pack "
