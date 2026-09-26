@@ -206,14 +206,19 @@ A(p("Every table below is read out of the rules files the build was compiled "
     "from, so the guide is wrong only if the tree is. The prose is written; "
     "the numbers are not.", BODY))
 
-A(p("Read this first: the names in this build are about to change", H2))
-A(p("134 of the 176 creature ids in <b>elysium-bestiary</b> are taken verbatim "
-    "from the jars they were converted from &mdash; 58 from born_in_chaos, 28 "
-    "from Valoria, 27 from fangs_n_claws, 13 from knightquest, 10 from "
-    "friendsandfoes. That is a defect, not a naming choice, and the whole "
-    "roster is being re-themed. <b>Verify behaviour, not names.</b> Anything "
-    "you build that depends on an entity id will break when the rename lands, "
-    "so use a throwaway world for this pass.", NOTE))
+A(p("Read this first: every creature has a new name", H2))
+A(p("134 of the 176 creature ids in <b>elysium-bestiary</b> were taken "
+    "verbatim from the jars they were converted from &mdash; 58 from "
+    "born_in_chaos, 28 from Valoria, 27 from fangs_n_claws, 13 from "
+    "knightquest, 10 from friendsandfoes. That was a defect rather than a "
+    "naming choice, and the whole roster has been re-themed: a scorpion "
+    "family is now <font face='Courier'>ferricbarb, dunebarb, rimebarb, "
+    "cinderbarb</font>, and a court reads "
+    "<font face='Courier'>forgeprime, forgecaller, forgeguard</font>. "
+    "<b>Every entity id in this build is different from the last one</b>, so "
+    "a world saved against the previous jar will not find its mobs. Use a "
+    "fresh world. <font face='Courier'>check_names.py</font> is the rule that "
+    "now holds it, and <font face='Courier'>docs/NAMING.md</font> is why.", NOTE))
 
 A(p("The commands you will want", H2))
 COMMANDS = [
