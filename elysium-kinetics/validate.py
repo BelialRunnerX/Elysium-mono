@@ -537,14 +537,17 @@ if not registered:
 # reload and drew the missing model — a WARN line nothing else repeats.
 _flat_registry = re.sub(r"\s+", " ", registry)
 for name in registered:
-    plain = re.search(rf'BLOCKS\.register\( ?"{name}" ?, ?\(\) ?-> ?new Block\(',
-                      _flat_registry) is not None
+    # Not "plain": that name is the comment-stripped rules source that
+    # constant() reads, and shadowing it here made the dynamo rule below
+    # search a bool.
+    plain_block = re.search(rf'BLOCKS\.register\( ?"{name}" ?, ?\(\) ?-> ?new Block\(',
+                            _flat_registry) is not None
     state = json.loads(read(RES, f"assets/{NS}/blockstates/{name}.json") or "{}")
     keys = set(state.get("variants", {}))
-    if plain and keys != {""}:
+    if plain_block and keys != {""}:
         fail(f"{name} is a plain Block with one state, but its blockstate has variants "
              f"{sorted(keys)} rather than the empty one, so the game finds no model for it")
-    if not plain and keys and not all(key.startswith("axis=") for key in keys):
+    if not plain_block and keys and not all(key.startswith("axis=") for key in keys):
         fail(f"{name} carries AXIS, but its blockstate has variants {sorted(keys)}")
 
 items = re.sub(r"\s+", " ", strip_comments(read(SRC, "registry/KineticItems.java"),
