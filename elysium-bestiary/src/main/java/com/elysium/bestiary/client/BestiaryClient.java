@@ -36,6 +36,13 @@ public final class BestiaryClient {
                     () -> FaunaModel.createLayer(kind));
         }
         event.registerLayerDefinition(ShadeRenderer.LAYER, ShadeModel::createLayer);
+        // One layer per shape a myth can wear, walked from the rules. A myth
+        // whose layer was never registered is a bake that throws, which takes
+        // the renderer with it.
+        for (String form : com.elysium.bestiary.rules.MythRules.forms()) {
+            event.registerLayerDefinition(MythModel.LAYERS.get(form),
+                    () -> MythModel.createLayer(form));
+        }
     }
 
     @SubscribeEvent
@@ -58,5 +65,12 @@ public final class BestiaryClient {
         event.registerEntityRenderer(
                 com.elysium.bestiary.registry.SummonEntities.BOLT.get(),
                 RelicBoltRenderer::new);
+        for (com.elysium.bestiary.rules.MythRules.Myth myth
+                : com.elysium.bestiary.rules.MythRules.MYTHS) {
+            event.registerEntityRenderer(
+                    com.elysium.bestiary.registry.MythEntities.ALL
+                            .get(myth.id()).get(),
+                    context -> new MythRenderer(context, myth.form()));
+        }
     }
 }

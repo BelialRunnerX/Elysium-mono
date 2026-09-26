@@ -50,8 +50,17 @@ public class ElysiumBestiary {
         com.elysium.bestiary.registry.FaunaEntities.TYPES.register(modEventBus);
         com.elysium.bestiary.registry.FaunaItems.ITEMS.register(modEventBus);
         com.elysium.bestiary.registry.FaunaItems.TABS.register(modEventBus);
-        LOGGER.info("Elysium Bestiary ready: {} beast(s) and {} animal(s)",
+        // Two more rosters register onto BeastEntities.TYPES from classes of
+        // their own, and a class nothing loads is a roster nothing registers.
+        // Touching them here makes that happen before the bus is handed the
+        // register rather than whenever FML happens to scan the annotation —
+        // and the symptom of getting it wrong is eight creatures that simply
+        // are not in the game, with nothing in the log saying so.
+        com.elysium.bestiary.registry.MythEntities.ALL.size();
+        com.elysium.bestiary.registry.SummonEntities.BOLT.getId();
+        LOGGER.info("Elysium Bestiary ready: {} beast(s), {} animal(s) and {} myth(s)",
                 com.elysium.bestiary.rules.BeastRules.BEASTS.size(),
-                com.elysium.bestiary.rules.FaunaRules.ANIMALS.size());
+                com.elysium.bestiary.rules.FaunaRules.ANIMALS.size(),
+                com.elysium.bestiary.rules.MythRules.MYTHS.size());
     }
 }

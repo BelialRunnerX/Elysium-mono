@@ -58,6 +58,38 @@ public final class BeastItems {
         return Map.copyOf(made);
     }
 
+    /**
+     * One egg per myth, on the same register as the beasts'.
+     *
+     * <p>Their own map rather than mixed into the beasts', because the two
+     * rosters are counted separately and a count that covers both is a count
+     * that passes while one of them is half empty.
+     */
+    public static final Map<String, DeferredItem<DeferredSpawnEggItem>> MYTH_EGGS =
+            registerMyths();
+
+    private static Map<String, DeferredItem<DeferredSpawnEggItem>> registerMyths() {
+        Map<String, DeferredItem<DeferredSpawnEggItem>> made = new LinkedHashMap<>();
+        for (com.elysium.bestiary.rules.MythRules.Myth myth
+                : com.elysium.bestiary.rules.MythRules.MYTHS) {
+            int background = 0x2B2B33;
+            int highlight = TIER_COLOUR[Math.min(TIER_COLOUR.length - 1,
+                    Math.max(0, myth.tier() - 1))];
+            made.put(myth.id(), ITEMS.register(myth.id() + "_spawn_egg",
+                    () -> new DeferredSpawnEggItem(
+                            () -> com.elysium.bestiary.registry.MythEntities.ALL
+                                    .get(myth.id()).get(),
+                            background, highlight, new Item.Properties())));
+        }
+        if (made.size() != com.elysium.bestiary.rules.MythRules.MYTHS.size()) {
+            throw new IllegalStateException("the rules name "
+                    + com.elysium.bestiary.rules.MythRules.MYTHS.size()
+                    + " myth(s) and " + made.size()
+                    + " spawn egg(s) were registered");
+        }
+        return Map.copyOf(made);
+    }
+
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = TABS.register(
             "bestiary", () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.elysiumbestiary"))
@@ -66,6 +98,10 @@ public final class BeastItems {
                     .displayItems((parameters, output) -> {
                         for (BeastRules.Beast beast : BeastRules.BEASTS) {
                             output.accept(EGGS.get(beast.id()).get());
+                        }
+                        for (com.elysium.bestiary.rules.MythRules.Myth myth
+                                : com.elysium.bestiary.rules.MythRules.MYTHS) {
+                            output.accept(MYTH_EGGS.get(myth.id()).get());
                         }
                     })
                     .build());

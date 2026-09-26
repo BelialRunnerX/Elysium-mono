@@ -1792,6 +1792,190 @@ else:
           f"than its own, and neither outlasting the cooldown meant to limit it")
 
 
+# ---------------------------------------------------------------------------
+# Eight creatures armour does not answer
+# ---------------------------------------------------------------------------
+#
+# The nine beasts are a ladder and the answer to every one of them is the same
+# answer, more of it. A myth is the other kind: a basilisk's stare is not
+# survived by wearing more, a chupacabra taking the top off your health bar is
+# not healed back by eating more. Each has exactly one of these, and the two
+# things this section is for are that the thing which beats it is something the
+# pack really makes, and that nothing about it is a number typed twice.
+
+print("-" * 70)
+
+MYTH = strip_comments(read(SRC, "rules/MythRules.java"), keep_strings=True)
+MYTH_ENTITY = strip_comments(read(SRC, "entity/MythEntity.java"), keep_strings=True)
+BANES = strip_comments(read(SRC, "entity/act/MythBanes.java"), keep_strings=True)
+MYTH_REG = strip_comments(read(SRC, "registry/MythEntities.java"), keep_strings=True)
+if not MYTH:
+    fail("nothing says what a myth is or what beats it, so eight creatures "
+         "could be dangerous in ways nothing in the pack answers")
+else:
+    _myth = squashed(MYTH)
+    myths = re.findall(
+        r'new Myth\("([a-z_]+)", (\w+), "([\w:]+)", (\d+), ([\d.]+)D, ([\d.]+)D,'
+        r' ([\d.]+)D, (\d+), (true|false), ([\w.]+)\)', _myth)
+    banes = re.findall(r'public static final String ([A-Z]+) = "([a-z_]+)";', MYTH)
+    if len(myths) < 2:
+        fail(f"only {len(myths)} myth(s) could be read out of the rules, so "
+             f"every check below is walking a short list and passing")
+
+    # Everything the rules name exists, all the way out to the world.
+    for row in myths:
+        name = row[0]
+        for kind, where in (
+                ("texture", f"assets/{NS}/textures/entity/{name}.png"),
+                ("spawn egg model",
+                 f"assets/{NS}/models/item/{name}_spawn_egg.json"),
+                ("loot table", f"data/{NS}/loot_table/entities/{name}.json"),
+                ("spawn rule",
+                 f"data/{NS}/neoforge/biome_modifier/add_{name}_spawns.json")):
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} has no {kind}, so it is a creature the rules "
+                     f"describe and the world never shows")
+        for key, why in (
+                (f"entity.{NS}.{name}",
+                 "reads as its own translation key wherever the game names it"),
+                (f"item.{NS}.{name}_spawn_egg",
+                 "has an egg with no name on it"),
+                (f"bestiary.{NS}.bane.{name}",
+                 "has no sentence saying what is dangerous about it, which is a "
+                 "creature a player learns by dying to it twice")):
+            if key not in lang:
+                fail(f"{name} {why}")
+
+    # The thing that beats it has to be a thing. This is the check the section
+    # exists for: a bane whose answer the pack does not make is a wall, and a
+    # wall and a hard fight feel the same from inside one.
+    if THE_PACK_HAS or THE_GAME_MAKES:
+        known = set(THE_PACK_HAS) | set(THE_GAME_MAKES)
+        for row in myths:
+            name, answer = row[0], row[2]
+            if answer.startswith("minecraft:") and answer not in known:
+                fail(f"{name} is answered by {answer} and the game does not "
+                     f"make that, so the one thing that beats it does not "
+                     f"exist — which is a wall rather than a fight")
+            if answer.startswith("elysium:") and answer not in known:
+                fail(f"{name} is answered by {answer} and nothing in this pack "
+                     f"makes it, so the one thing that beats it does not exist")
+
+    # Nothing registered by hand, and everything counted.
+    if not MYTH_REG:
+        fail("nothing registers the myths, so all eight are rows in a table")
+    else:
+        _reg = squashed(MYTH_REG)
+        # The register() body in particular. This file walks the myths three
+        # times — to register, to give them attributes and to place their
+        # spawns — so a check that only asks whether the file mentions the walk
+        # anywhere is a check two of the three can answer for the third.
+        _register = squashed(body_of(MYTH_REG, "register() {"))
+        if "for (MythRules.Myth myth : MythRules.MYTHS) {" not in _register:
+            fail("the myths are named by hand rather than walked from the "
+                 "rules, so a ninth is a row nothing registers")
+        if "made.size() != MythRules.MYTHS.size()" not in _reg:
+            fail("nothing counts the myths that were registered, so a roster "
+                 "that half registers is a roster that half exists")
+        for typed in re.findall(r"\.sized\((\d+\.\d+)F, (\d+\.\d+)F\)", _reg):
+            fail(f"a myth is registered at {typed[0]} by {typed[1]} typed into "
+                 f"the register, and a hitbox that disagrees with the model is "
+                 f"a creature a player swings through")
+    MOD = squashed(strip_comments(read(SRC, "ElysiumBestiary.java")))
+    if "MythEntities.ALL.size()" not in MOD:
+        fail("the myths' register is never touched while the mod is being "
+             "built, so whether eight creatures exist depends on when FML "
+             "happens to load the class — and the symptom is that they simply "
+             "are not in the game, with nothing in the log saying so")
+
+    # Drawn, which is the thing this module got wrong once already.
+    _client = squashed(strip_comments(read(SRC, "client/BestiaryClient.java")))
+    if "new MythRenderer(context, myth.form())" not in _client:
+        fail("the myths have no renderer registered, so the first one a player "
+             "meets takes the client down with it")
+    if "MythModel.LAYERS.get(form)" not in _client:
+        fail("the myths' model layers are never registered, so baking one "
+             "throws and the renderer that was registered cannot be built")
+    for named in ("client/MythModel.java", "client/MythRenderer.java"):
+        if not os.path.isfile(os.path.join(SRC, named)):
+            fail(f"there is no {named}, so nothing draws the myths")
+
+    # One branch per bane, and no creature named in any of them.
+    if not BANES:
+        fail("nothing makes a myth's way past armour happen, so all eight are "
+             "beasts with a worse stat line")
+    else:
+        _banes = squashed(BANES)
+        for shorthand, bane in banes:
+            if f"MythRules.{shorthand}" not in _banes:
+                fail(f"nothing happens for the {bane} bane, so whatever has it "
+                     f"is a creature whose danger is a sentence in a language "
+                     f"file")
+        for row in myths:
+            if re.search(r'"%s"' % row[0], _banes):
+                fail(f"{row[0]} is named in the banes, so the module has "
+                     f"started growing a branch per creature and the whole "
+                     f"roster will follow it there")
+        _happen = squashed(body_of(BANES, "public static void happen("))
+        _contact = squashed(body_of(BANES, "public static void onContact("))
+        for where, body in (("on its own clock", _happen),
+                            ("on contact", _contact)):
+            if "switch (myth.bane())" not in body:
+                fail(f"what happens {where} is not chosen by which bane it is, "
+                     f"so whatever chooses it is something a validator cannot "
+                     f"read — and the file holds two switches, so asking "
+                     f"whether the file mentions one anywhere is a question "
+                     f"the other answers")
+
+    # And the entity carries no number of its own.
+    if not MYTH_ENTITY:
+        fail("there is no myth entity, so nothing the rules describe is alive")
+    else:
+        _entity = squashed(MYTH_ENTITY)
+        for asked in ("myth.health()", "myth.damage()", "myth.speed()"):
+            if asked not in _entity:
+                fail(f"a myth does not ask the rules for {asked}, so the band "
+                     f"the harness held it to is not the band the game gives it")
+        if "MythRules.myth(name)" not in _entity:
+            fail("a myth does not find its own row by the name it was "
+                 "registered under, so whatever it is storing instead can be "
+                 "stored wrong")
+        # Both arms, because the entity asks twice — once for what a runner
+        # does and once for what a stander does — and one of the two answers
+        # for the other if only the bare name is looked for.
+        for arm, why in (("if (myth().flees()) {",
+                          "what something that runs does is not decided by the "
+                          "row's own flees, so the rule that holds a runner "
+                          "under a stander is about a field nothing reads"),
+                         ("if (!myth().flees()) {",
+                          "what something that stands does is not decided by "
+                          "the row's own flees, so every myth would either "
+                          "fight or run and the field would decide nothing")):
+            if arm not in _entity:
+                fail(why)
+        for typed in re.findall(r"Attributes\.\w+, (\d+\.\d+)D\)", _entity):
+            if typed not in ("24.0",):
+                fail(f"a myth is given {typed} by a number typed into the "
+                     f"entity, which is a second set of dials beside the rules'")
+
+    # Every rule the file declares is added up.
+    _sum = squashed(body_of(MYTH, "public static List<String> faults()"))
+    _rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", MYTH))
+    _added = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _sum))
+    if len(_rules) < 8:
+        fail(f"only {len(_rules)} myth rule(s) are declared at all, so the "
+             f"check below is checking nothing")
+    for _rule in sorted(_rules - _added):
+        fail(f"{_rule} is written, compiled and never added up by the myths' "
+             f"faults(), so it answers the harness's controls and is never once "
+             f"asked about what this module ships")
+
+    print(f"the myths           : {len(myths)} creature(s) over {len(banes)} "
+          f"way(s) past armour, one each and none spare, every one of them "
+          f"answered by something the pack really makes, drawn on a shape this "
+          f"module already had, and not one carrying a number of its own")
+
+
 if problems:
     print(f"{len(problems)} problem(s):")
     for problem in problems:

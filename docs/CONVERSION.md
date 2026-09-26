@@ -425,6 +425,16 @@ the 174 remaining jars on the device and both came back clean:
 Two copies went across: `0.7.5`, which was the live one, and `0.7.3`, which was
 already in `_superseded` from an earlier version bump. Both are kept.
 
+### The fourth prune, 2026-09-26
+
+**mobs_of_mythology** moved to `mods/_superseded/` in both instances, now that
+`elysium-bestiary` carries its eight creatures. Both scripted pre-checks were
+run against the 172 remaining jars on the device and both came back clean:
+
+* **Required dependencies** — nothing remaining declares it `type="required"`.
+* **Tag entries** — no tag file in any remaining jar names a
+  `mobs_of_mythology:` id at all, required or optional.
+
 ### The third thing, which is not automatic
 
 Other mods ship **integration recipes** against the jar being removed, and

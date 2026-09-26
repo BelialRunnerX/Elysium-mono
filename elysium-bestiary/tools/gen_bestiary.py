@@ -151,6 +151,96 @@ if len(SUMMON_IDS) != 2 or sorted(SUMMON_IDS) != ["bolt", "shade"]:
     sys.exit(2)
 
 
+# The eight myths, read out of MythRules for the same reason as everything
+# else: which shape each wears and what beats it are rules, and what colour it
+# is, is art.
+MYTH_SOURCE = read(os.path.join(
+    MOD, "src/main/java/com/elysium/bestiary/rules/MythRules.java"))
+MYTHS = [
+    {"id": one[0], "bane": one[1], "answer": one[2], "tier": int(one[3]),
+     "weight": int(one[7]), "flees": one[8] == "true", "form": one[9]}
+    for one in re.findall(
+        r'new Myth\("([a-z_]+)", (\w+), "([\w:]+)", (\d+), ([\d.]+)D, ([\d.]+)D,'
+        r' ([\d.]+)D, (\d+), (true|false), [\w.]*?(\w+)\)',
+        re.sub(r"\s+", " ", MYTH_SOURCE))
+]
+if len(MYTHS) != 8:
+    print("MythRules reads as %d myth(s) rather than eight" % len(MYTHS))
+    sys.exit(2)
+
+#: What each way past armour looks like, as a pair of shades. Art, not a rule.
+BANE_SHADES = {
+    "PETRIFY": ((122, 126, 118), (60, 64, 58)),
+    "DRAIN": ((126, 42, 56), (52, 18, 26)),
+    "BREATH": ((198, 106, 38), (92, 38, 14)),
+    "PLATING": ((168, 122, 60), (78, 56, 26)),
+    "NUMBERS": ((96, 110, 74), (44, 52, 34)),
+    "THIEVERY": ((84, 94, 118), (38, 44, 58)),
+    "HEIGHT": ((214, 212, 204), (140, 146, 158)),
+    "SPORES": ((150, 96, 152), (70, 42, 74)),
+}
+_unshaded = sorted({one["bane"] for one in MYTHS} - set(BANE_SHADES))
+if _unshaded:
+    print("no shades for %s" % _unshaded)
+    sys.exit(2)
+
+
+#: One sentence per way past armour, because "this thing is dangerous" with no
+#: sentence is a creature a player learns by dying to it twice.
+BANE_WORDS = {
+    "PETRIFY": "Meeting its eye slows you to a standstill. Do not look at it.",
+    "DRAIN": "What it takes from your health, it keeps. Eating does not give it back.",
+    "BREATH": "It burns through whatever you are holding up.",
+    "PLATING": "Nothing but the right metal marks it.",
+    "NUMBERS": "There is never one of them, and each is braver for the others.",
+    "THIEVERY": "It takes what is in your hand and runs. Kill it to get it back.",
+    "HEIGHT": "It goes where you cannot follow.",
+    "SPORES": "What it leaves behind is still there when you stop to breathe.",
+}
+_unworded = sorted(set(BANE_SHADES) - set(BANE_WORDS))
+if _unworded:
+    print("no sentence for %s" % _unworded)
+    sys.exit(2)
+
+#: What each leaves behind, read out of the rules' own table rather than
+#: decided here -- the rules hold every one of these to being a name something
+#: can look up, and a second list would be a second place for it to be wrong.
+_leavings = re.search(r"List<String> LEAVINGS = List\.of\((.*?)\);",
+                      re.sub(r"\s+", " ", MYTH_SOURCE))
+LEAVINGS = re.findall(r'"([\w:]+)"', _leavings.group(1)) if _leavings else []
+if len(LEAVINGS) < len(MYTHS):
+    print("MythRules names %d leaving(s) for %d myth(s)"
+          % (len(LEAVINGS), len(MYTHS)))
+    sys.exit(2)
+MYTH_LEAVINGS = {one["id"]: LEAVINGS[at % len(LEAVINGS)]
+                 for at, one in enumerate(MYTHS)}
+
+
+def myth_skin(myth):
+    """A myth, on the same 64x64 sheet every creature in this module uses.
+
+    Two shades from its bane rather than from its name, so that two creatures
+    dangerous in the same way would look alike -- which the rules forbid, and
+    which this would make obvious if they ever stopped forbidding it.
+    """
+    light, dark = BANE_SHADES[myth["bane"]]
+    solid_light = light + (255,)
+    solid_dark = dark + (255,)
+    image = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 63, 63], fill=solid_light)
+    seed = sum(ord(letter) for letter in myth["id"])
+    for y in range(64):
+        for x in range(64):
+            if (x * 13 + y * 7 + seed) % 11 < 3:
+                draw.point((x, y), fill=solid_dark)
+    # A band across the eyes, so which way it faces reads at a distance.
+    draw.rectangle([0, 8, 31, 12], fill=solid_dark)
+    draw.rectangle([4, 9, 7, 11], fill=(236, 236, 228, 255))
+    draw.rectangle([12, 9, 15, 11], fill=(236, 236, 228, 255))
+    return image
+
+
 def summon_skin(name):
     """A shade, or the bolt it throws.
 
@@ -783,6 +873,47 @@ def main():
     # because a summon with no skin is the black-and-magenta cube the renderer
     # falls back to, and both of these were registered and spawned for a while
     # with nothing drawing either.
+    # The eight myths. Walked rather than listed, because a creature with no
+    # skin renders as a black-and-magenta cube and is only ever found by the
+    # player who meets that one.
+    for myth in MYTHS:
+        myth_skin(myth).save(os.path.join(entity_textures, myth["id"] + ".png"))
+
+        write(os.path.join(ASSETS, "models/item", myth["id"] + "_spawn_egg.json"),
+              {"parent": "minecraft:item/template_spawn_egg"})
+
+        write(os.path.join(DATA, "loot_table/entities", myth["id"] + ".json"), {
+            "type": "minecraft:entity",
+            "pools": [{
+                "rolls": 1,
+                "entries": [{"type": "minecraft:item",
+                             "name": MYTH_LEAVINGS[myth["id"]]}],
+                "conditions": [{"condition": "minecraft:killed_by_player"}],
+            }],
+        })
+
+        lang["entity.%s.%s" % (NS, myth["id"])] = titled(myth["id"])
+        lang["item.%s.%s_spawn_egg" % (NS, myth["id"])] = \
+            titled(myth["id"]) + " Spawn Egg"
+        lang["bestiary.%s.bane.%s" % (NS, myth["id"])] = BANE_WORDS[myth["bane"]]
+        lang["bestiary.%s.answer.%s" % (NS, myth["id"])] = myth["answer"]
+
+        # And somewhere to appear. A myth registered with a spawn placement and
+        # no biome modifier is a creature the game knows how to place and never
+        # places -- which reads, from outside, exactly like a rare one.
+        write(os.path.join(DATA, "neoforge/biome_modifier",
+                           "add_%s_spawns.json" % myth["id"]),
+              {
+                  "type": "neoforge:add_spawns",
+                  "biomes": "#minecraft:is_overworld",
+                  "spawners": [{
+                      "type": "%s:%s" % (NS, myth["id"]),
+                      "weight": myth["weight"],
+                      "minCount": 1,
+                      "maxCount": 2 if myth["bane"] != "NUMBERS" else 4,
+                  }],
+              })
+
     for summon_id in SUMMON_IDS:
         summon_skin(summon_id).save(
             os.path.join(entity_textures, summon_id + ".png"))

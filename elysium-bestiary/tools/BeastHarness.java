@@ -68,6 +68,7 @@ public final class BeastHarness {
         theFauna();
         theBehaviours();
         theSummons();
+        theMyths();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -1071,5 +1072,200 @@ public final class BeastHarness {
                 + " shape(s) the library cannot do without, " + swept
                 + " lifetimes swept against the cooldowns meant to limit them, "
                 + "and not one of this module's own outlasting its own");
+    }
+
+    /**
+     * Eight creatures dangerous in a way better armour does not answer.
+     *
+     * <p>The property worth proving is that each is dangerous in its <em>own</em>
+     * way and that none of them is also simply the hardest thing on its rung.
+     * A myth that beat the beast beside it on the plain numbers as well would
+     * make the ladder pointless, and a player who geared for that tier would
+     * find their gear answered nothing at all.
+     */
+    private static void theMyths() {
+        List<String> faults = MythRules.faults();
+        check(faults.isEmpty(), "something wrong with the myths: " + faults);
+
+        MythRules.Myth first = MythRules.MYTHS.get(0);
+
+        check(!MythRules.faultsInNames(List.of(first, first)).isEmpty(),
+                "two myths written under one name are not reported");
+        check(MythRules.faultsInNames(MythRules.MYTHS).isEmpty(),
+                "the myths this module ships are reported as doubled");
+
+        check(!MythRules.faultsInBanes(List.of(new MythRules.Myth("control",
+                        "wibble", "minecraft:stick", 1, 10.0D, 1.0D, 0.2D, 20,
+                        false, BeastRules.PROWLER)), MythRules.BANES).isEmpty(),
+                "a way past armour nothing here has heard of is not reported");
+        check(MythRules.faultsInBanes(MythRules.MYTHS, MythRules.BANES).isEmpty(),
+                "the banes this module ships are reported as unknown");
+
+        check(!MythRules.faultsInBaneNames(List.of(first,
+                        new MythRules.Myth("control", first.bane(),
+                                "minecraft:stick", 1, 10.0D, 1.0D, 0.2D, 20,
+                                false, BeastRules.PROWLER))).isEmpty(),
+                "two myths dangerous in the same way are not reported, and the "
+                        + "second of them is scenery from the moment a player "
+                        + "learns the first");
+        check(MythRules.faultsInBaneNames(MythRules.MYTHS).isEmpty(),
+                "the myths this module ships are reported as sharing a danger");
+
+        check(!MythRules.faultsInGaps(List.of(), MythRules.BANES).isEmpty(),
+                "a way past armour nothing uses is not reported, so it is "
+                        + "written down and never happens");
+        check(MythRules.faultsInGaps(MythRules.MYTHS, MythRules.BANES).isEmpty(),
+                "the myths this module ships leave a bane unused");
+
+        check(!MythRules.faultsInAnswers(List.of(first,
+                        new MythRules.Myth("control", MythRules.SPORES,
+                                first.answer(), 1, 10.0D, 1.0D, 0.2D, 20, false,
+                                BeastRules.PROWLER))).isEmpty(),
+                "one thing carried in a pocket answering two of these is not "
+                        + "reported, so the player stops thinking about either");
+        check(MythRules.faultsInAnswers(MythRules.MYTHS).isEmpty(),
+                "the answers this module ships are reported as doubled");
+
+        check(!MythRules.faultsInRestraint(List.of(new MythRules.Myth("control",
+                        MythRules.PETRIFY, "minecraft:stick", 1, 900.0D, 90.0D,
+                        0.9D, 20, false, BeastRules.PROWLER)),
+                        BeastRules.BEASTS).isEmpty(),
+                "a myth that is also the hardest thing on its rung is not "
+                        + "reported, so gearing up would answer nothing");
+        check(MythRules.faultsInRestraint(MythRules.MYTHS, BeastRules.BEASTS)
+                        .isEmpty(),
+                "the myths this module ships are reported as out-fighting the "
+                        + "beasts beside them");
+
+        check(!MythRules.faultsInStanding(List.of(new MythRules.Myth("control",
+                        MythRules.PETRIFY, "minecraft:stick", 99, 10.0D, 1.0D,
+                        0.2D, 20, false, BeastRules.PROWLER)),
+                        BeastRules.BEASTS).isEmpty(),
+                "a myth standing beside a rung with no beast on it is not "
+                        + "reported, so nothing holds its numbers down");
+        check(MythRules.faultsInStanding(MythRules.MYTHS, BeastRules.BEASTS)
+                        .isEmpty(),
+                "the myths this module ships are reported as standing beside "
+                        + "nothing");
+
+        check(!MythRules.faultsInFleeing(List.of(
+                        new MythRules.Myth("runs", MythRules.PETRIFY,
+                                "minecraft:stick", 1, 90.0D, 9.0D, 0.9D, 20,
+                                true, BeastRules.PROWLER),
+                        new MythRules.Myth("stands", MythRules.DRAIN,
+                                "minecraft:bread", 1, 10.0D, 1.0D, 0.2D, 20,
+                                false, BeastRules.PROWLER))).isEmpty(),
+                "something that runs being worth more than something that "
+                        + "stands is not reported, so the safest thing on the "
+                        + "rung would also be the worst to meet");
+        check(MythRules.faultsInFleeing(MythRules.MYTHS).isEmpty(),
+                "the myths this module ships are reported as running and still "
+                        + "being the worst of it");
+
+        check(!MythRules.faultsInRarity(MythRules.MYTHS, 1_000).isEmpty(),
+                "a creature nobody ever meets is not reported");
+        check(MythRules.faultsInRarity(MythRules.MYTHS, MythRules.LEAST_WEIGHT)
+                        .isEmpty(),
+                "the myths this module ships are reported as too rare to meet");
+
+        check(!MythRules.faultsInLeavings(List.of(new MythRules.Myth("control",
+                        MythRules.PETRIFY, "minecraft:stick", 1, 10.0D, 1.0D,
+                        0.2D, 20, false, BeastRules.PROWLER)),
+                        List.of()).isEmpty(),
+                "a myth that leaves nothing at all is not reported, so killing "
+                        + "one would be the only fight in the pack that pays "
+                        + "nothing");
+        check(!MythRules.faultsInLeavings(List.of(new MythRules.Myth("control",
+                        MythRules.PETRIFY, "minecraft:stick", 1, 10.0D, 1.0D,
+                        0.2D, 20, false, BeastRules.PROWLER)),
+                        List.of("not_a_name")).isEmpty(),
+                "a leaving that is not a name anything can look up is not "
+                        + "reported");
+        check(MythRules.faultsInLeavings(MythRules.MYTHS,
+                        MythRules.LEAVINGS).isEmpty(),
+                "the myths this module ships are reported as leaving nothing");
+
+        // And that danger is danger. The sweep below compares two threats, so
+        // it agrees with itself however threat() is worked out; these two say
+        // what the number has to be made of.
+        MythRules.Myth mild = new MythRules.Myth("mild", MythRules.PETRIFY,
+                "minecraft:stick", 1, 20.0D, 2.0D, 0.3D, 20, false,
+                BeastRules.PROWLER);
+        MythRules.Myth fierce = new MythRules.Myth("fierce", MythRules.PETRIFY,
+                "minecraft:stick", 1, 20.0D, 9.0D, 0.3D, 20, false,
+                BeastRules.PROWLER);
+        MythRules.Myth quick = new MythRules.Myth("quick", MythRules.PETRIFY,
+                "minecraft:stick", 1, 20.0D, 2.0D, 0.9D, 20, false,
+                BeastRules.PROWLER);
+        check(fierce.threat() > mild.threat(),
+                "something that hits harder is not worth more, so what a myth "
+                        + "does to you is not part of how dangerous it is");
+        check(quick.threat() > mild.threat(),
+                "something that closes faster is not worth more, so how hard it "
+                        + "is to walk away from is not part of how dangerous "
+                        + "it is");
+
+        check(!MythRules.faultsInForms(List.of(new MythRules.Myth("control",
+                        MythRules.PETRIFY, "minecraft:stick", 1, 10.0D, 1.0D,
+                        0.2D, 20, false, "wibble")), MythRules.forms()).isEmpty(),
+                "a myth drawn as a shape this module has not got is not "
+                        + "reported, so it renders as a black-and-magenta cube");
+        check(MythRules.faultsInForms(MythRules.MYTHS, MythRules.forms()).isEmpty(),
+                "the myths this module ships are reported as undrawable");
+
+        check(threwOn(() -> new MythRules.Myth("control", MythRules.PETRIFY, "",
+                        1, 10.0D, 1.0D, 0.2D, 20, false, BeastRules.PROWLER)),
+                "a myth nothing answers is accepted, which is a wall rather "
+                        + "than a fight");
+        check(threwOn(() -> new MythRules.Myth("control", MythRules.PETRIFY,
+                        "minecraft:stick", 1, 10.0D, 1.0D, 0.2D, 0, false,
+                        BeastRules.PROWLER)),
+                "a myth nothing ever spawns is accepted");
+        check(threwOn(() -> new MythRules.Myth("control", MythRules.PETRIFY,
+                        "minecraft:stick", 1, 0.0D, 1.0D, 0.2D, 20, false,
+                        BeastRules.PROWLER)),
+                "a myth with no health is accepted");
+        check(threwOn(() -> new MythRules.Myth("control", MythRules.PETRIFY,
+                        "minecraft:stick", 1, 10.0D, 1.0D, 0.2D, 20, false, "")),
+                "a myth with no shape, which nothing could draw, is accepted");
+
+        // And the sweep: every myth against every beast on its own rung, and
+        // a hundred thousand rosters nobody wrote.
+        Random random = new Random(7_733_921L);
+        int swept = 0;
+        for (MythRules.Myth myth : MythRules.MYTHS) {
+            BeastRules.Beast beside = MythRules.beside(myth, BeastRules.BEASTS);
+            check(beside != null, myth.id() + " stands beside tier "
+                    + myth.tier() + " and there is no beast there");
+            if (beside != null) {
+                check(myth.threat() < beside.threat(), myth.id() + " is worth "
+                        + Math.round(myth.threat()) + " against " + beside.id()
+                        + "'s " + Math.round(beside.threat()));
+            }
+            swept++;
+        }
+        for (int round = 0; round < 100_000; round++) {
+            double health = 1.0D + random.nextInt(200);
+            double damage = random.nextInt(30);
+            double speed = 0.05D + random.nextDouble();
+            int tier = 1 + random.nextInt(3);
+            MythRules.Myth made = new MythRules.Myth("m" + round,
+                    MythRules.PETRIFY, "minecraft:stick", tier, health, damage,
+                    speed, 20, false, BeastRules.PROWLER);
+            BeastRules.Beast beside = MythRules.beside(made, BeastRules.BEASTS);
+            boolean overshoots = beside != null
+                    && made.threat() >= beside.threat();
+            check(overshoots == !MythRules.faultsInRestraint(List.of(made),
+                            BeastRules.BEASTS).isEmpty(),
+                    "a myth worth " + Math.round(made.threat()) + " on tier "
+                            + tier + " is reported wrongly");
+            swept++;
+        }
+
+        System.out.println("  the myths: " + MythRules.MYTHS.size()
+                + " creature(s) over " + MythRules.BANES.size() + " way(s) past "
+                + "armour, one each and none spare, each answered by something "
+                + "nothing else answers, " + swept + " rosters swept, and not "
+                + "one of them also the hardest thing on its own rung");
     }
 }

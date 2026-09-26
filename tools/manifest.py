@@ -202,10 +202,30 @@ DECISIONS = [
      "werevillager. The shape this module already has; what it has not got is a "
      "mechanic apiece, which is what makes 27 creatures different from 27 sets "
      "of numbers"),
-    (r"^mobs_of_mythology", "PLANNED", "elysium-bestiary",
-     "8 creatures — automaton, basilisk, chupacabra, drake, kobold and its "
-     "warrior, pegasus, sporeling — and 16 items. The smallest of the mob jars "
-     "and the one whose creatures come nearest to one mechanic each"),
+    (r"^mobs_of_mythology", "DONE", "elysium-bestiary",
+     "eight creatures that are dangerous in a way better armour does not "
+     "answer. The nine beasts are a ladder and the answer to every one of them "
+     "is the same answer, more of it — which is the spine of the pack and "
+     "should stay a ladder, but a world where every fight has one answer is a "
+     "world where the fights stop being decisions by about the third hour. A "
+     "basilisk's stare is not survived by wearing more, a chupacabra taking "
+     "the top off your health bar is not healed back by eating more, a drake's "
+     "breath goes through what you are holding up, an automaton is marked by "
+     "nothing but a blunt weapon, kobolds are braver for each other and their "
+     "thief takes what is in your hand and runs, a pegasus goes where you "
+     "cannot follow, and what a sporeling leaves behind is still there when "
+     "you stop to breathe. Each has exactly one of these and no two share one, "
+     "because two creatures whose danger is the same danger are one creature "
+     "with two models. Each names the thing that beats it and no two name the "
+     "same thing, and the validator holds every one of those names to "
+     "something the pack really makes — a danger with no counter is not "
+     "difficulty, it is a wall, and from inside one they feel the same. And "
+     "none of them is also the hardest thing on its own rung: every myth is "
+     "held under the beast it stands beside on the plain numbers, so gearing "
+     "up still answers something. One entity class, one branch per way past "
+     "armour with no creature named in any of them, and eight shapes borrowed "
+     "from the beasts and the fauna rather than eight bespoke models. 44 "
+     "negative tests"),
     (r"^naturalist", "SPLIT", "elysium-bestiary",
      "50 creatures, 122 items and a field guide: three different jobs in one "
      "jar, so it is split rather than given one module. See docs/SPLITS.md"),
