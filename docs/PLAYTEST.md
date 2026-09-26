@@ -128,6 +128,8 @@ The E instances carry the NeoForge ports of Tridot and Valoria (built from `C:\C
 
 ## Known gaps (do not file as bugs)
 
+Open observation (26 Sep, once): after the fourth relaunch of the E client in the same world, the player spawned at Dunwell (-9600, 9216), fell through unloaded terrain to y -6300, and the integrated server hung in a chunk-load wait (ModernFix watchdog dumps, server thread in `ServerChunkCache.getChunk`). Nothing Elysium is on the stack. The client had been force-stopped several times that hour, so a region file at that far site may be at fault; if it recurs, check the region files before anything else.
+
 Negative tests: `tools/negtest/negtest_colonies3.sh` reports 18 caught and 9 missed on 26 Sep. The nine are exchange, trading and build-order cases whose edit anchors point at code rewritten on 24 Sep, so the mutation never lands and the case counts as missed; the rules themselves were not weakened. Re-anchoring them is a follow-up. `negtest_colonies6.sh` catches all 26 of its cases.
 
 Exporter, storage bus, monitor, detector, interface and ender link are unverified (the importer works on a fuelled grid, 26 Sep); satchel, rucksack, crate, vault inert; kitchen stations: pot and colony verified 26 Sep, skillet and board being verified; a reed rod with a barbed hook catches (26 Sep); bobbers, worm farm and tackle box unverified; fish and bee natural spawns unverified; geodes have no worldgen or recipe; Cordon alloy drops and shards have no survival source; nothing awards trinkets and companions; roadmap items in each module's spec (contraptions, IE wiring, Mekanism chemistry, frontier crops, MysticalAgriculture gear, Quark decoration, and so on).
