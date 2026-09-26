@@ -58,6 +58,7 @@ public class ElysiumBestiary {
         // are not in the game, with nothing in the log saying so.
         com.elysium.bestiary.registry.MythEntities.ALL.size();
         com.elysium.bestiary.registry.CompanionEntities.ALL.size();
+        com.elysium.bestiary.registry.KinEntities.ALL.size();
         com.elysium.bestiary.registry.SummonEntities.BOLT.getId();
         LOGGER.info("Elysium Bestiary ready: {} beast(s), {} animal(s), {} myth(s) "
                         + "and {} companion(s)",

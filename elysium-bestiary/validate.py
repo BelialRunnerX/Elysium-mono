@@ -2164,6 +2164,239 @@ else:
           f"and not one doing its job for free")
 
 
+# ---------------------------------------------------------------------------
+# The kindred
+# ---------------------------------------------------------------------------
+#
+# The roster that grows by variant, and the one section here whose whole job is
+# to catch padding. Every check below is about one of the two halves of the
+# claim -- a variant does something its kin do not, and lives somewhere they do
+# not -- or about the place those halves get quietly dropped: a generator that
+# writes every spawn rule into the overworld at large, a branch that names a
+# creature, a kindred drawn with two shapes.
+
+print("-" * 70)
+
+KINDRED_SRC = strip_comments(read(SRC, "rules/KindredRules.java"), keep_strings=True)
+KIN_ENTITY = strip_comments(read(SRC, "entity/KinEntity.java"), keep_strings=True)
+TRAITS_SRC = strip_comments(read(SRC, "entity/act/KinTraits.java"), keep_strings=True)
+KIN_REG = strip_comments(read(SRC, "registry/KinEntities.java"), keep_strings=True)
+
+if not KINDRED_SRC:
+    fail("nothing says what a kindred is, so twenty-seven creatures could be "
+         "four creatures in twenty-seven costumes and nothing would report it")
+else:
+    _kindred = squashed(KINDRED_SRC)
+    kindred = re.findall(
+        r'new Kin\("([a-z_]+)", "([a-z_]+)", (true|false), (\w+), (\w+), (\d+),'
+        r' ([\d.]+)D, ([\d.]+)D, ([\d.]+)D, (\d+), (true|false)\)', _kindred)
+    traits = re.findall(r'public static final String ([A-Z_]+) = "([a-z]+)";',
+                        KINDRED_SRC)
+    homes = dict(re.findall(
+        r'public static final String (\w+) = "(#[\w:]+)";', _kindred))
+    if len(kindred) < 4:
+        fail(f"only {len(kindred)} creature(s) could be read out of the kindred "
+             f"rules, so every check below is walking a short list and passing")
+
+    by_kin = {}
+    for row in kindred:
+        by_kin.setdefault(row[1], []).append(row)
+
+    for row in kindred:
+        name = row[0]
+        for kind, where in (
+                ("texture", f"assets/{NS}/textures/entity/{name}.png"),
+                ("spawn egg model",
+                 f"assets/{NS}/models/item/{name}_spawn_egg.json"),
+                ("loot table", f"data/{NS}/loot_table/entities/{name}.json"),
+                ("spawn rule",
+                 f"data/{NS}/neoforge/biome_modifier/add_{name}_spawns.json")):
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} has no {kind}, so it is a creature the rules "
+                     f"describe and the world never shows")
+        for key, why in (
+                (f"entity.{NS}.{name}",
+                 "reads as its own translation key wherever the game names it"),
+                (f"bestiary.{NS}.trait.{name}",
+                 "has no sentence saying what it does that its kin do not, which "
+                 "is the one thing a player needs told about a roster this shape")):
+            if key not in lang:
+                fail(f"{name} {why}")
+
+    # The check this section exists for, and the one no other file can make:
+    # the spawn rule on disk has to be the row's own place. Two of a kindred in
+    # one biome tag is the padding the rules forbid, arriving through the
+    # generator instead.
+    for kin_name, family in by_kin.items():
+        seen_homes = {}
+        for row in family:
+            where = os.path.join(RES, f"data/{NS}/neoforge/biome_modifier",
+                                 f"add_{row[0]}_spawns.json")
+            if not os.path.isfile(where):
+                continue
+            try:
+                written = json.loads(read(os.path.dirname(where),
+                                          os.path.basename(where)))
+            except ValueError:
+                fail(f"{row[0]}'s spawn rule is not readable as JSON, so the game "
+                     f"will refuse the whole data pack over one creature")
+                continue
+            biomes = written.get("biomes")
+            wanted = homes.get(row[4])
+            if wanted is not None and biomes != wanted:
+                fail(f"{row[0]} is written into {biomes} and its row says "
+                     f"{wanted}, so the rules hold a variant to a place of its "
+                     f"own and the world puts it somewhere else")
+            if biomes in seen_homes:
+                fail(f"{row[0]} and {seen_homes[biomes]} are both written into "
+                     f"{biomes} and both are {kin_name}, so the roster is padding "
+                     f"itself where the player is standing")
+            seen_homes[biomes] = row[0]
+
+    # And the same for the trait, which is the other half.
+    for kin_name, family in by_kin.items():
+        seen_traits = {}
+        for row in family:
+            if row[3] in seen_traits:
+                fail(f"{row[0]} and {seen_traits[row[3]]} are both {kin_name} and "
+                     f"both of them {row[3]}, so whichever the player meets first "
+                     f"teaches them the answer and the second is scenery")
+            seen_traits[row[3]] = row[0]
+
+    # Exactly one of each kindred is the one the others are versions of.
+    for kin_name, family in by_kin.items():
+        bases = [row[0] for row in family if row[2] == "true"]
+        if not bases:
+            fail(f"the {kin_name} kindred has no base on disk, so every one of "
+                 f"its members is a variant of nothing")
+        if len(bases) > 1:
+            fail(f"the {kin_name} kindred has {len(bases)} bases — "
+                 f"{', '.join(bases)} — so it is two families sharing a name")
+
+    # One branch per trait, and no creature named in any of them.
+    if not TRAITS_SRC:
+        fail("nothing makes a creature's one difference from its kin happen, so "
+             "all twenty-seven are mobs that walk at you")
+    else:
+        _traits = squashed(TRAITS_SRC)
+        # Both switches, separately. One check across the whole file is a check
+        # a control answers with the occurrence it did not break: every trait
+        # appears in each of the two branches, either as its own case or in the
+        # group that says the other one handles it.
+        _on_clock = squashed(body_of(TRAITS_SRC, "public static void happen("))
+        _on_contact = squashed(body_of(TRAITS_SRC, "public static void onContact("))
+        for shorthand, trait in traits:
+            if f"KindredRules.{shorthand}" not in _on_clock:
+                fail(f"nothing {trait} on the clock — not even to say that "
+                     f"contact handles it — so whatever carries it is a creature "
+                     f"whose difference from its kin is a sentence in a language "
+                     f"file")
+        for shorthand, trait in traits:
+            if f"KindredRules.{shorthand}" not in _on_contact:
+                fail(f"nothing decides what {trait} does when the creature "
+                     f"reaches you, so whether it lands at all is whatever the "
+                     f"default branch happens to be")
+        for row in kindred:
+            if re.search(r'"%s"' % row[0], _traits):
+                fail(f"{row[0]} is named in the traits, so the module has started "
+                     f"growing a branch per creature — which on a roster that "
+                     f"grows by variant is how eleven fights become twenty-seven "
+                     f"near-copies of four")
+        for named, _where in (("happen", _on_clock), ("onContact", _on_contact)):
+            if "switch (row.trait())" not in _where:
+                fail(f"what a creature does in {named} is not chosen by which "
+                     f"trait it is, so whatever chooses it is something a "
+                     f"validator cannot read — and on a roster that grows by "
+                     f"variant, the thing it usually is instead is the creature's "
+                     f"own name")
+        # The clock and the contact are separate on purpose; a module with only
+        # one of them is a roster whose danger the player learns to walk away
+        # from, or one that hits them from across the room for no visible reason.
+        for named, why in (
+                ("public static void happen(",
+                 "nothing happens on its own clock, so every difference between "
+                 "two kin only lands if the player lets one reach them"),
+                ("public static void onContact(",
+                 "nothing happens on contact, so a creature's danger is a timer "
+                 "the player learns to walk away from")):
+            if named not in _traits:
+                fail(why)
+
+    if not KIN_ENTITY:
+        fail("there is no entity for the kindred, so nothing the rules describe "
+             "is alive")
+    else:
+        _kin_entity = squashed(KIN_ENTITY)
+        if "KindredRules.creature(name)" not in _kin_entity:
+            fail("a creature does not find its own row by the name it was "
+                 "registered under, so whatever it is storing instead can be "
+                 "stored wrong")
+        # The entity must not decide what a trait does. The day it does, there
+        # are two switches on trait() and they will disagree.
+        if "switch" in squashed(body_of(KIN_ENTITY, "public void aiStep()")):
+            fail("the entity decides for itself what a trait does, so there are "
+                 "two places switching on the same field and they will disagree")
+        _hurt = squashed(body_of(KIN_ENTITY, "public boolean doHurtTarget("))
+        if "KinTraits.onContact(this, hurt, creature());" not in _hurt:
+            fail("nothing hands a creature to the traits when it reaches you, so "
+                 "the four that land on contact never land")
+        _calls = squashed(body_of(KIN_ENTITY, "public void callOne()"))
+        if "called >= CALLS_UP_TO" not in _calls:
+            fail("nothing caps how many a caller may have out at once, so "
+                 "'kill it first' is not advice, it is the only move — and a "
+                 "fight with one move is not a fight")
+
+    if not KIN_REG:
+        fail("nothing registers the kindred, so all twenty-seven are rows")
+    else:
+        _kin_reg = squashed(KIN_REG)
+        _kin_register = squashed(body_of(KIN_REG, "register() {"))
+        if "for (KindredRules.Kin one : KindredRules.KINDRED) {" not in _kin_register:
+            fail("the kindred are named by hand rather than walked from the "
+                 "rules, so a twenty-eighth is a row nothing registers — and on "
+                 "a roster of near-identical names, a hand-typed list is four "
+                 "chances to paste the wrong id")
+        if "made.size() != KindredRules.KINDRED.size()" not in _kin_reg:
+            fail("nothing counts the creatures that were registered, so a roster "
+                 "that half registers is a roster that half exists")
+        if "MobCategory.MONSTER" not in _kin_reg:
+            fail("the kindred are not registered as monsters, so the game counts "
+                 "twenty-seven hostile things against the cap meant for the "
+                 "harmless ones")
+
+    _mod = squashed(strip_comments(read(SRC, "ElysiumBestiary.java")))
+    if "KinEntities.ALL.size()" not in _mod:
+        fail("the kindred's register is never touched while the mod is being "
+             "built, so whether twenty-seven creatures exist depends on when FML "
+             "happens to load the class")
+
+    _kin_client = squashed(strip_comments(read(SRC, "client/BestiaryClient.java")))
+    if "new KinRenderer(context," not in _kin_client:
+        fail("the kindred have no renderer registered, so the first one a player "
+             "meets takes the client down with it")
+    if "event.registerLayerDefinition(KinModel.LAYERS.get(form)," not in _kin_client:
+        fail("the kindred's model layers are never registered, so baking one "
+             "throws and the renderer that was registered cannot be built")
+
+    # Every rule the file declares is added up.
+    _kin_sum = squashed(body_of(KINDRED_SRC, "public static List<String> faults()"))
+    _kin_rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(",
+                                KINDRED_SRC))
+    _kin_added = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _kin_sum))
+    if len(_kin_rules) < 10:
+        fail(f"only {len(_kin_rules)} kindred rule(s) are declared at all, so the "
+             f"check below is checking nothing")
+    for _kin_rule in sorted(_kin_rules - _kin_added):
+        fail(f"{_kin_rule} is written, compiled and never added up by the "
+             f"kindred's faults(), so it answers the harness's controls and is "
+             f"never once asked about what this module ships")
+
+    print(f"the kindred         : {len(kindred)} creature(s) in {len(by_kin)} "
+          f"kindred(s) over {len(traits)} thing(s) a player has to do differently "
+          f"and {len(homes)} place(s) the game really has, no two of one kindred "
+          f"doing one thing or standing in one place on disk, and not one of them "
+          f"named in the branch that makes its difference happen")
+
 if problems:
     print(f"{len(problems)} problem(s):")
     for problem in problems:

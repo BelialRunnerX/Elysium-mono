@@ -460,6 +460,30 @@ whoever finishes the split does not have to: **nothing declares
 jar names a `friendsandfoes:` id at all**. 7,210 tag files scanned. When the
 last piece lands the jar can go without a second look.
 
+### The sixth prune that did not happen, 2026-09-26
+
+**fangs_n_claws stays**, for the reason friendsandfoes stays, and the pattern is
+worth naming now that it has happened twice: *a creature mod is rarely only a
+creature mod*. Read this one's language file and the twenty-seven creatures come
+with four armour sets, ten weapons, six effects, five enchantments, three blocks
+and a shelf of materials and food. Converting the creatures and calling the jar
+done would drop all of that without anybody deciding to.
+
+So **SPLIT** again, six pieces in `docs/SPLITS.md`, one of them finished. The
+four that remain in `MANIFEST.md` are now genuinely four whole jars rather than
+four jars with a creature roster sitting on top of them.
+
+Both pre-checks were run anyway, against the 176 remaining jars: **nothing
+declares `fangs_n_claws` a required dependency**, and **no tag file in any
+remaining jar names a `fangs_n_claws:` id at all**. 7,228 tag files scanned.
+
+**The rule this suggests for the two that are left.** `born_in_chaos` has 86
+entity keys, 362 items and 133 blocks, and `mob_grinding_utils` has 82 blocks
+and no creatures at all. Neither is going to be one module's work either.
+Whoever takes them should read the jar's own language file first and split
+before starting, rather than converting a roster and discovering the rest
+afterwards — which is the order this session did it in twice.
+
 ### The third thing, which is not automatic
 
 Other mods ship **integration recipes** against the jar being removed, and

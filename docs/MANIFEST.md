@@ -9,9 +9,9 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | count | status | means |
 |---|---|---|
 | 86 | DONE | an Elysium module already replaces it |
-| 23 | SPLIT | spans several modules; see docs/SPLITS.md |
+| 24 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 5 | PLANNED | has a target module, not started |
+| 4 | PLANNED | has a target module, not started |
 | 14 | KEEP | stays in the pack on purpose |
 | 75 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -20,7 +20,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | module | mods to absorb |
 |---|---|
-| `elysium-bestiary` | 3 |
+| `elysium-bestiary` | 2 |
 | `elysium-agronomy` | 1 |
 | `elysium-foundry` | 1 |
 
@@ -101,7 +101,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `everycomp-1.21-2.11.48-neoforge.jar` | DROP | elysium-atelier | makes one mod's shapes out of another's materials; moot once both are ours, because that crossing is what this module already is |
 | `ExtendedAE-1.21-2.2.35-neoforge.jar` | DONE | elysium-logistics | more devices for a model this pack does not have; what it adds that is content rather than channel management is on the flat network |
 | `ExtremeReactors2-1.21.1-2.4.28.jar` | DONE | elysium-atomics | reactor halls: a hollow box of casing three to seven on a side, built with Age II's own shape arithmetic. Heat goes as the cube of the side and cooling as the square, so a bigger hall makes more altogether and less per rod - which makes the size a decision rather than a ladder, and is the opposite of how these mods usually work |
-| `fangs_n_claws-1.2.2.jar` | PLANNED | elysium-bestiary | 27 creatures and 7 projectiles and young, in themed families — four scorpions, three ogres, three horses, two golems, a werewolf and a werevillager. The shape this module already has; what it has not got is a mechanic apiece, which is what makes 27 creatures different from 27 sets of numbers |
+| `fangs_n_claws-1.2.2.jar` | SPLIT | elysium-bestiary | 27 creatures, four armour sets, ten weapons, six effects, five enchantments and three blocks: five different jobs in one jar, so it is split rather than given one module. The creatures are done. See docs/SPLITS.md |
 | `FarmersDelight-1.21.1-1.3.2.jar` | SPLIT | elysium-agronomy | cooking: 29 meals across four stations with 11 effects, 24 ingredients, 13 knife cuts, 5 knives and 25 blocks, none of them dominated — and now the crops behind them. Eight of those ingredients were items with a sprite, a crate to keep them in, a place in a dozen recipes and no way on earth to obtain one; six more were made out of nothing at all. Every crop now has a plant, a seed, eight stages, its own growth speed and a wild patch that generates in a tag of biomes, so the cookbook is not locked behind a village that may not exist. The eight sit on a frontier of time against yield, so none of them is as good as another on every axis, and every one of them feeds exactly one raw — a crop worth eating on its own is a reason never to cook. Plus a mushroom colony, capped, because a block that hands out unlimited mushrooms is a block that ends hunger. Its canvas signs are decoration and go to elysium-atelier |
 | `fastleafdecay-35.jar` | DROP | - | performance: not content |
 | `ferritecore-7.0.3-neoforge.jar` | DROP | - | performance: not content |

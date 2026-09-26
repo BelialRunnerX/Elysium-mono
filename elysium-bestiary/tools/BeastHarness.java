@@ -70,6 +70,7 @@ public final class BeastHarness {
         theSummons();
         theMyths();
         theCompanions();
+        theKindred();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -1417,5 +1418,203 @@ public final class BeastHarness {
                 + "a block would otherwise do, one each and none spare, " + swept
                 + " ways of costing nothing swept, and not one of this module's "
                 + "own doing its job for free");
+    }
+
+    /**
+     * Twenty-seven creatures in thirteen kindreds.
+     *
+     * <p>The claim under test is the one a roster breaks silently: that a
+     * variant is a different fight rather than the same fight in a different
+     * colour. Every control below is a kindred built to break exactly one half
+     * of that — same thing done, same place lived in, a rung of its own, or a
+     * spread wide enough that the weak ones stop being fights anybody takes.
+     *
+     * <p>Every rule is handed its roster and its numbers rather than reading
+     * them, so a control can hand one built to be caught. A rule that reads the
+     * constant it judges re-solves itself against the broken value and reports
+     * nothing, which is the failure this module has now hit six times.
+     */
+    private static void theKindred() {
+        List<String> faults = KindredRules.faults();
+        check(faults.isEmpty(), "something wrong with the kindred: " + faults);
+
+        KindredRules.Kin first = KindredRules.KINDRED.get(0);
+
+        check(!KindredRules.faultsInNames(List.of(first, first)).isEmpty(),
+                "two creatures written under one name are not reported");
+        check(KindredRules.faultsInNames(KindredRules.KINDRED).isEmpty(),
+                "the creatures this module ships are reported as doubled");
+
+        // A kindred with nobody at the head of it, and one with two.
+        KindredRules.Kin orphan = new KindredRules.Kin("control", "control", false,
+                KindredRules.POISONS, KindredRules.OPEN, 1, 10.0D, 1.0D, 0.3D, 20, false);
+        check(!KindredRules.faultsInBases(List.of(orphan)).isEmpty(),
+                "a kindred with no base is not reported, so every one of its "
+                        + "members is a variant of nothing");
+        KindredRules.Kin twoHeaded = new KindredRules.Kin("control2", "control", true,
+                KindredRules.FREEZES, KindredRules.COLD, 1, 10.0D, 1.0D, 0.3D, 20, false);
+        KindredRules.Kin alsoHeaded = new KindredRules.Kin("control3", "control", true,
+                KindredRules.IGNITES, KindredRules.HELL, 1, 10.0D, 1.0D, 0.3D, 20, false);
+        check(!KindredRules.faultsInBases(List.of(twoHeaded, alsoHeaded)).isEmpty(),
+                "a kindred with two bases is not reported");
+        check(KindredRules.faultsInBases(KindredRules.KINDRED).isEmpty(),
+                "the kindreds this module ships are reported as headless or two-headed");
+
+        // A thing nothing here makes happen.
+        check(!KindredRules.faultsInTraits(List.of(new KindredRules.Kin("control",
+                        "control", true, "whistles", KindredRules.OPEN, 1,
+                        10.0D, 1.0D, 0.3D, 20, false)),
+                KindredRules.TRAITS).isEmpty(),
+                "a creature doing something nothing here has heard of is not reported");
+        check(KindredRules.faultsInTraits(KindredRules.KINDRED,
+                        KindredRules.TRAITS).isEmpty(),
+                "the creatures this module ships do things it does not make happen");
+
+        // The first half of the claim: two of a kindred doing one thing.
+        check(!KindredRules.faultsInTraitNames(List.of(first,
+                        new KindredRules.Kin("control", first.kin(), false,
+                                first.trait(), KindredRules.RIVERSIDE, first.tier(),
+                                first.health(), first.damage(), first.speed(),
+                                first.weight(), false))).isEmpty(),
+                "two of one kindred doing the same thing are not reported, and that "
+                        + "is the whole failure this file exists to stop");
+        check(KindredRules.faultsInTraitNames(KindredRules.KINDRED).isEmpty(),
+                "the kindreds this module ships are reported as repeating themselves");
+
+        // The second half: two of a kindred in one place.
+        check(!KindredRules.faultsInHomeNames(List.of(first,
+                        new KindredRules.Kin("control", first.kin(), false,
+                                KindredRules.CARRIES, first.home(), first.tier(),
+                                first.health(), first.damage(), first.speed(),
+                                first.weight(), false))).isEmpty(),
+                "two of one kindred living in one place are not reported");
+        check(KindredRules.faultsInHomeNames(KindredRules.KINDRED).isEmpty(),
+                "the kindreds this module ships are reported as crowding one biome");
+
+        check(!KindredRules.faultsInHomes(List.of(new KindredRules.Kin("control",
+                        "control", true, KindredRules.POISONS, "#c:is_cold", 1,
+                        10.0D, 1.0D, 0.3D, 20, false)),
+                KindredRules.HOMES).isEmpty(),
+                "a creature in a tag the game does not have is not reported, and a "
+                        + "tag nothing fills looks exactly like a creature that is rare");
+        check(KindredRules.faultsInHomes(KindredRules.KINDRED,
+                        KindredRules.HOMES).isEmpty(),
+                "the creatures this module ships live somewhere it does not know");
+
+        // Nothing spare at either end.
+        check(!KindredRules.faultsInTraitGaps(List.of(first),
+                        KindredRules.TRAITS).isEmpty(),
+                "a trait nothing carries is not reported");
+        check(KindredRules.faultsInTraitGaps(KindredRules.KINDRED,
+                        KindredRules.TRAITS).isEmpty(),
+                "the roster this module ships leaves a trait uncarried");
+        check(!KindredRules.faultsInHomeGaps(List.of(first),
+                        KindredRules.HOMES).isEmpty(),
+                "a place nothing lives in is not reported");
+        check(KindredRules.faultsInHomeGaps(KindredRules.KINDRED,
+                        KindredRules.HOMES).isEmpty(),
+                "the roster this module ships leaves a place empty");
+
+        // A version of something that is really a rung of its own.
+        check(!KindredRules.faultsInTiers(List.of(first,
+                        new KindredRules.Kin("control", first.kin(), false,
+                                KindredRules.CARRIES, KindredRules.RIVERSIDE,
+                                first.tier() + 1, first.health(), first.damage(),
+                                first.speed(), first.weight(), false))).isEmpty(),
+                "a member of a kindred standing on a different rung is not reported");
+        check(KindredRules.faultsInTiers(KindredRules.KINDRED).isEmpty(),
+                "the kindreds this module ships straddle rungs");
+
+        check(!KindredRules.faultsInSpread(List.of(first,
+                        new KindredRules.Kin("control", first.kin(), false,
+                                KindredRules.CARRIES, KindredRules.RIVERSIDE,
+                                first.tier(), first.health() * 10.0D, first.damage(),
+                                first.speed(), first.weight(), false)),
+                KindredRules.WIDEST_KINDRED).isEmpty(),
+                "a kindred ten times wider than it is allowed to be is not reported");
+        check(KindredRules.faultsInSpread(KindredRules.KINDRED,
+                        KindredRules.WIDEST_KINDRED).isEmpty(),
+                "the kindreds this module ships are wider than it allows");
+
+        check(!KindredRules.faultsInStanding(List.of(new KindredRules.Kin("control",
+                        "control", true, KindredRules.POISONS, KindredRules.OPEN, 1,
+                        900.0D, 90.0D, 0.9D, 20, false)),
+                BeastRules.BEASTS).isEmpty(),
+                "a creature out-fighting the beast of its own rung is not reported");
+        check(!KindredRules.faultsInStanding(List.of(new KindredRules.Kin("control",
+                        "control", true, KindredRules.POISONS, KindredRules.OPEN, 9,
+                        10.0D, 1.0D, 0.3D, 20, false)),
+                BeastRules.BEASTS).isEmpty(),
+                "a creature on a rung with no beast on it is not reported, so "
+                        + "nothing holds it to anything");
+        check(KindredRules.faultsInStanding(KindredRules.KINDRED,
+                        BeastRules.BEASTS).isEmpty(),
+                "the creatures this module ships stand over the beasts' ladder");
+
+        check(!KindredRules.faultsInYoung(List.of(new KindredRules.Kin("control",
+                        "control2", false, KindredRules.POISONS, KindredRules.OPEN, 1,
+                        10.0D, 1.0D, 0.3D, 20, true))).isEmpty(),
+                "young belonging to a costume rather than to the family are not reported");
+        check(KindredRules.faultsInYoung(KindredRules.KINDRED).isEmpty(),
+                "the young this module ships belong to something that is not a base");
+
+        check(!KindredRules.faultsInRarity(KindredRules.KINDRED, 1_000).isEmpty(),
+                "a roster nobody could meet is not reported");
+        check(KindredRules.faultsInRarity(KindredRules.KINDRED,
+                        KindredRules.LEAST_WEIGHT).isEmpty(),
+                "the creatures this module ships are reported as too rare");
+
+        check(KindredRules.faultsInLeavings(KindredRules.KINDRED).isEmpty(),
+                "something this module ships leaves nothing behind");
+
+        // What the compact constructor will not build at all.
+        check(threwOn(() -> new KindredRules.Kin("control", "", true,
+                        KindredRules.POISONS, KindredRules.OPEN, 1,
+                        10.0D, 1.0D, 0.3D, 20, false)),
+                "a creature belonging to no kindred is accepted, so nothing holds "
+                        + "it to being different from anything");
+        check(threwOn(() -> new KindredRules.Kin("control", "control", true,
+                        "", KindredRules.OPEN, 1, 10.0D, 1.0D, 0.3D, 20, false)),
+                "a creature that does nothing its kin do not is accepted");
+        check(threwOn(() -> new KindredRules.Kin("control", "control", true,
+                        KindredRules.POISONS, "", 1, 10.0D, 1.0D, 0.3D, 20, false)),
+                "a creature that lives nowhere is accepted");
+        check(threwOn(() -> new KindredRules.Kin("control", "control", true,
+                        KindredRules.POISONS, KindredRules.OPEN, 1,
+                        10.0D, 1.0D, 0.3D, 0, false)),
+                "a creature nothing ever spawns is accepted");
+
+        // And the sweep: the spread rule is arithmetic, so it is swept rather
+        // than sampled. Every pair of threats against every cap, and the rule
+        // has to agree with the division every time.
+        int swept = 0;
+        java.util.Random random = new java.util.Random(27_1321L);
+        for (int round = 0; round < 200_000; round++) {
+            double health = 1.0D + random.nextInt(200);
+            double other = 1.0D + random.nextInt(200);
+            double cap = 1.0D + random.nextInt(5);
+            KindredRules.Kin a = new KindredRules.Kin("a" + round, "control", true,
+                    KindredRules.POISONS, KindredRules.OPEN, 1, health, 3.0D, 0.3D,
+                    20, false);
+            KindredRules.Kin b = new KindredRules.Kin("b" + round, "control", false,
+                    KindredRules.FREEZES, KindredRules.COLD, 1, other, 3.0D, 0.3D,
+                    20, false);
+            double least = Math.min(a.threat(), b.threat());
+            double most = Math.max(a.threat(), b.threat());
+            boolean wide = most > least * cap;
+            check(wide == !KindredRules.faultsInSpread(List.of(a, b), cap).isEmpty(),
+                    "a kindred of " + Math.round(most) + " over " + Math.round(least)
+                            + " against a cap of " + cap + " is reported wrongly");
+            swept++;
+        }
+
+        System.out.println("  the kindred: " + KindredRules.KINDRED.size()
+                + " creature(s) in "
+                + KindredRules.kindreds(KindredRules.KINDRED).size() + " kindred(s) "
+                + "over " + KindredRules.TRAITS.size() + " thing(s) a player has to "
+                + "do differently and " + KindredRules.HOMES.size() + " place(s) the "
+                + "game really has, no two of one kindred doing one thing or standing "
+                + "in one place, " + swept + " widths swept, and not one version of "
+                + "something that is really a rung of its own");
     }
 }

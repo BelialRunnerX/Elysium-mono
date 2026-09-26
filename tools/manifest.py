@@ -196,12 +196,11 @@ DECISIONS = [
      "than guessed. The bestiary's nine are a ladder with a proved reward curve "
      "and no boss tier at all, and this is the jar that decides what a boss is "
      "here"),
-    (r"^fangs_n_claws", "PLANNED", "elysium-bestiary",
-     "27 creatures and 7 projectiles and young, in themed families — four "
-     "scorpions, three ogres, three horses, two golems, a werewolf and a "
-     "werevillager. The shape this module already has; what it has not got is a "
-     "mechanic apiece, which is what makes 27 creatures different from 27 sets "
-     "of numbers"),
+    (r"^fangs_n_claws", "SPLIT", "elysium-bestiary",
+     "27 creatures, four armour sets, ten weapons, six effects, five "
+     "enchantments and three blocks: five different jobs in one jar, so it is "
+     "split rather than given one module. The creatures are done. See "
+     "docs/SPLITS.md"),
     (r"^mobs_of_mythology", "DONE", "elysium-bestiary",
      "eight creatures that are dangerous in a way better armour does not "
      "answer. The nine beasts are a ladder and the answer to every one of them "

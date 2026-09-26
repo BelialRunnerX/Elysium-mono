@@ -269,6 +269,127 @@ if _unshaded or _unworded:
     sys.exit(2)
 
 
+# The twenty-seven in thirteen kindreds, read out of KindredRules: which kindred
+# a creature belongs to, what it does that its kin do not and where it lives are
+# rules; what colour it is, is art.
+KINDRED_SOURCE = read(os.path.join(
+    MOD, "src/main/java/com/elysium/bestiary/rules/KindredRules.java"))
+KINDRED = [
+    {"id": one[0], "kin": one[1], "base": one[2] == "true", "trait": one[3],
+     "home": one[4], "tier": int(one[5]), "weight": int(one[9]),
+     "young": one[10] == "true"}
+    for one in re.findall(
+        r'new Kin\("([a-z_]+)", "([a-z_]+)", (true|false), (\w+), (\w+), (\d+),'
+        r' ([\d.]+)D, ([\d.]+)D, ([\d.]+)D, (\d+), (true|false)\)',
+        re.sub(r"\s+", " ", KINDRED_SOURCE))
+]
+if len(KINDRED) != 27:
+    print("KindredRules reads as %d creature(s) rather than twenty-seven"
+          % len(KINDRED))
+    sys.exit(2)
+
+#: The biome tag behind each name, read out of the rules rather than repeated,
+#: so that a tag changed there cannot leave the spawn rules pointing at the old
+#: one -- which is a creature that stops appearing and says nothing.
+KINDRED_HOMES = dict(re.findall(
+    r'public static final String (\w+) = "(#[\w:]+)";',
+    re.sub(r"\s+", " ", KINDRED_SOURCE)))
+_homeless = sorted({one["home"] for one in KINDRED} - set(KINDRED_HOMES))
+if _homeless:
+    print("no biome tag behind %s" % _homeless)
+    sys.exit(2)
+
+#: What each leaves behind, worked out the way the rules work it out rather
+#: than listed again. A second list is a second place for it to be wrong, and
+#: the symptom is a loot table that hands out the wrong thing and says nothing.
+_kin_leavings = re.search(r"List<String> LEAVINGS = List\.of\((.*?)\);",
+                          re.sub(r"\s+", " ", KINDRED_SOURCE))
+KIN_LEAVING_LIST = (re.findall(r'"([\w:]+)"', _kin_leavings.group(1))
+                    if _kin_leavings else [])
+if not KIN_LEAVING_LIST:
+    print("KindredRules names nothing that anything leaves behind")
+    sys.exit(2)
+KIN_LEAVINGS = {one["id"]: KIN_LEAVING_LIST[at % len(KIN_LEAVING_LIST)]
+                for at, one in enumerate(KINDRED)}
+
+#: One sentence per thing a creature does that its kin do not, because a roster
+#: that grows by variant is exactly the roster where "what is different about
+#: this one" has to be a thing the player can be told.
+TRAIT_WORDS = {
+    "POISONS": "What it leaves in you keeps working after it is dead.",
+    "FREEZES": "You stop sprinting, which was the whole of your escape.",
+    "IGNITES": "You are alight, and so is the ground you were backing onto.",
+    "LEAPS": "Backing off does not open the distance. It closes it in one.",
+    "BURROWS": "It goes under, so you do not get to keep it in sight.",
+    "SUMMONS": "Kill it first or fight four of them.",
+    "THROWS": "It hits from where you cannot, so cover beats armour.",
+    "DRAINS": "It takes what you were going to heal with.",
+    "DISGUISES": "It is not what it looks like.",
+    "HOWLS": "What it does to the others near it is worse than what it does to you.",
+    "CARRIES": "The answer to this one is to get on it.",
+}
+
+#: And what each kindred looks like. Art, not a rule -- but per kindred rather
+#: than per creature, because kin look alike and that is the whole claim.
+KIN_SHADES = {
+    "scorpion": ((146, 118, 74), (68, 54, 32)),
+    "ogre": ((124, 140, 96), (56, 66, 42)),
+    "goblin": ((110, 146, 104), (48, 68, 46)),
+    "wolf": ((132, 128, 124), (58, 56, 54)),
+    "horse": ((108, 96, 110), (48, 42, 50)),
+    "ghost": ((196, 206, 214), (96, 104, 112)),
+    "golem": ((150, 152, 158), (70, 72, 76)),
+    "bat": ((92, 78, 96), (40, 34, 44)),
+    "mimic": ((140, 104, 66), (64, 46, 28)),
+    "owlbear": ((160, 132, 92), (74, 60, 40)),
+    "purple_worm": ((138, 96, 156), (62, 42, 72)),
+    "shrike": ((186, 190, 200), (88, 92, 100)),
+    "silver_skeleton": ((206, 210, 216), (104, 108, 114)),
+}
+_unshaded_kin = sorted({one["kin"] for one in KINDRED} - set(KIN_SHADES))
+_unworded_kin = sorted({one["trait"] for one in KINDRED} - set(TRAIT_WORDS))
+if _unshaded_kin or _unworded_kin:
+    print("no shades for %s and no sentence for %s"
+          % (_unshaded_kin, _unworded_kin))
+    sys.exit(2)
+
+
+def kin_skin(one):
+    """A creature, on the same 64x64 sheet every beast in this module uses.
+
+    The base colour is the kindred's, because kin look alike -- and the mark on
+    it is the trait's, because what makes a variant worth meeting is what it
+    does. Read the two together and a frost scorpion reads as a scorpion first
+    and as the cold one second, which is the order a player meets them in.
+    """
+    light, dark = KIN_SHADES[one["kin"]]
+    solid_light = light + (255,)
+    solid_dark = dark + (255,)
+    image = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 63, 63], fill=solid_light)
+    seed = sum(ord(letter) for letter in one["id"])
+    for y in range(64):
+        for x in range(64):
+            if (x * 7 + y * 11 + seed) % 17 < 4:
+                draw.point((x, y), fill=solid_dark)
+    # The trait's own band, so that two of a kindred are told apart at a
+    # glance. Its position is the trait's place in the rules' own order, which
+    # means a twelfth trait moves nothing that already exists.
+    at = sorted(TRAIT_WORDS).index(one["trait"])
+    mark = (240 - at * 14, 90 + at * 12, 60 + at * 16, 255)
+    draw.rectangle([0, 40 + at, 63, 41 + at], fill=mark)
+    # Eyes, in the same place on every sheet this module writes.
+    draw.rectangle([6, 8, 9, 11], fill=(246, 246, 240, 255))
+    draw.rectangle([14, 8, 17, 11], fill=(246, 246, 240, 255))
+    # And a paler head on the one the others are versions of, so that which of
+    # a family you have met reads across a room.
+    if one["base"]:
+        draw.rectangle([0, 0, 31, 3], fill=tuple(
+            min(255, channel + 40) for channel in light) + (255,))
+    return image
+
+
 def companion_skin(one):
     """A companion, on the fauna's own 64x32 sheet.
 
@@ -993,6 +1114,50 @@ def main():
                       "maxCount": 2 if myth["bane"] != "NUMBERS" else 4,
                   }],
               })
+
+    # The twenty-seven in thirteen kindreds.
+    for one in KINDRED:
+        kin_skin(one).save(os.path.join(entity_textures, one["id"] + ".png"))
+
+        write(os.path.join(ASSETS, "models/item", one["id"] + "_spawn_egg.json"),
+              {"parent": "minecraft:item/template_spawn_egg"})
+
+        write(os.path.join(DATA, "loot_table/entities", one["id"] + ".json"), {
+            "type": "minecraft:entity",
+            "pools": [{
+                "rolls": 1,
+                "entries": [{"type": "minecraft:item",
+                             "name": KIN_LEAVINGS[one["id"]]}],
+                "conditions": [{"condition": "minecraft:killed_by_player"}],
+            }],
+        })
+
+        # Somewhere to appear, and it is the row's own place rather than the
+        # overworld at large. That is the half of the claim a generator can
+        # break on its own: two of a kindred written into one biome tag is the
+        # roster padding itself where the player is standing, and the rules
+        # forbid it precisely so that this line cannot.
+        write(os.path.join(DATA, "neoforge/biome_modifier",
+                           "add_%s_spawns.json" % one["id"]),
+              {
+                  "type": "neoforge:add_spawns",
+                  "biomes": KINDRED_HOMES[one["home"]],
+                  "spawners": [{
+                      "type": "%s:%s" % (NS, one["id"]),
+                      "weight": one["weight"],
+                      "minCount": 1,
+                      "maxCount": 4 if one["trait"] == "SUMMONS" else 2,
+                  }],
+              })
+
+        lang["entity.%s.%s" % (NS, one["id"])] = titled(one["id"])
+        lang["item.%s.%s_spawn_egg" % (NS, one["id"])] = \
+            titled(one["id"]) + " Spawn Egg"
+        lang["bestiary.%s.trait.%s" % (NS, one["id"])] = TRAIT_WORDS[one["trait"]]
+        lang["bestiary.%s.kin.%s" % (NS, one["id"])] = titled(one["kin"])
+
+    for kin_name in sorted({one["kin"] for one in KINDRED}):
+        lang["bestiary.%s.kindred.%s" % (NS, kin_name)] = titled(kin_name)
 
     # The eleven companions.
     for one in COMPANIONS:
