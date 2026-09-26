@@ -226,6 +226,28 @@ def knife_sprite(kind):
     return image
 
 
+# A station's model is the box its hitbox is (StationBlock.getShape), so a pan
+# looks like the plate the player has to aim at, not a cube the plate sits in.
+STATION_SRC = read(os.path.join(MOD, "src/main/java/com/elysium/agronomy/block/StationBlock.java"))
+SHAPE_CONST = dict(re.findall(
+    r'KitchenRules\.([A-Z]+)\.equals\(station\)\)\s*\{\s*return ([A-Z_]+);', STATION_SRC))
+SHAPE_BOX = {const: [float(v) for v in box.split(",")]
+             for const, box in re.findall(r'([A-Z_]+SHAPE) = box\(([^)]*)\)', STATION_SRC)}
+
+
+def station_model(name):
+    texture = f"{NS}:block/{name}"
+    kind = {block: kind for kind, block in STATION_BLOCK.items()}.get(name)
+    box = SHAPE_BOX.get(SHAPE_CONST.get(kind, ""))
+    if box is None:
+        return {"parent": "minecraft:block/cube_all", "textures": {"all": texture}}
+    return {"parent": "minecraft:block/block",
+            "textures": {"all": texture, "particle": texture},
+            "elements": [{"from": box[:3], "to": box[3:],
+                          "faces": {face: {"texture": "#all"}
+                                    for face in ("down", "up", "north", "south", "west", "east")}}]}
+
+
 def block_sprite(name, tone):
     core = shade(name, tone, 26)
     image = Image.new("RGBA", (16, 16), core + (255,))
@@ -539,8 +561,7 @@ def draw_and_model():
     for name, tone in blocks:
         save(block_sprite(name, tone), ASSETS, "textures/block", name + ".png")
         write(os.path.join(ASSETS, "models/block", name + ".json"),
-              {"parent": "minecraft:block/cube_all",
-               "textures": {"all": f"{NS}:block/{name}"}})
+              station_model(name))
         write(os.path.join(ASSETS, "blockstates", name + ".json"),
               {"variants": {"": {"model": f"{NS}:block/{name}"}}})
         write(os.path.join(ASSETS, "models/item", name + ".json"),

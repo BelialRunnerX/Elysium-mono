@@ -39,19 +39,19 @@ Founding is MineColonies' own flow (supply camp, town hall `minecolonies:blockhu
 - [ ] On a space world (`/elysiumspace travel emerald_bastion`), found a colony: the style switches to Bastion on the first day (log "builds in the X style"); same for Pale Moon to Pale Reach.
 - [ ] Style packs load: each of the five packs' supply camp, town halls 1-5, builder huts and `spaceport` blueprints open in the build tool without errors.
 - [ ] MineColonies raiders during a raid carry elite ranks matching the owner's tier.
-- [ ] Self-founded towns: `/locate structure elysiumcolonies:settlement` finds a site; walking there (within simulation distance) turns the survey stake into a town hall, log "X founded itself at ..."; `/elysium colony natural` lists it with distance; citizens spawn; the builder hut and home go up whole after a day; a new building is laid out every two days; `/elysium colony claim` while standing in it makes it yours and its steward steps aside; a world whose charter does not settle (Nether, End, the Vale) never grows one.
+- [x] Self-founded towns: `/locate structure elysiumcolonies:settlement` finds a site; walking there (within simulation distance) turns the survey stake into a town hall, log "X founded itself at ..."; `/elysium colony natural` lists it with distance; citizens spawn; the builder hut and home go up whole after a day; a new building is laid out every two days; `/elysium colony claim` while standing in it makes it yours and its steward steps aside; a world whose charter does not settle (Nether, End, the Vale) never grows one. *(26 Sep: Dunfield and Reedreach founded themselves in the E client's ElysiumBoot world; builder and residence laid out; `natural` lists both, `claim` hands Dunfield over; the hall is raised after the town's first day, see the day-skip below)*
 
 ## 2. Worldgen
 
 - [ ] Overworld overlay: `elysiumwilds:*` biomes appear (about half the inland surface); `elysiumwilds:biome_compass` search list opens and finds one; `/locate biome elysiumwilds:acacia_crag` works; biomes have the palette their name promises.
-- [ ] Grammar structures: `/locate structure elysiumwilds:hamlet|watchtower|camp|ruin|lodge|mine|shrine|keep`; every room reachable from the door; no floating or buried rooms; loot chests present.
+- [ ] Grammar structures: `/locate structure elysiumwilds:hamlet|watchtower|camp|ruin|lodge|mine|shrine|keep`; every room reachable from the door; no floating or buried rooms; loot chests present. *(26 Sep: all eight locate from 3000,3000 on the dedicated server; rooms not yet walked)*
 - [ ] Emerald Bastion: flat green plains with black volcanic ranges (blackstone, basalt patches, magma seams); emgrove groves; rivers and lakes; no oceans; no monsters at night; emerald ore common underground; ore inside black mountains.
-- [ ] Pale Moon, Frostfall, Cinderveil, High Orbit: terrain, sky (stars, Overworld in the sky), ores, mobs, structures each present; hazards tick without a suit; air gauge and suffocation in vacuum.
+- [ ] Pale Moon, Frostfall, Cinderveil, High Orbit: terrain, sky (stars, Overworld in the sky), ores, mobs, structures each present; hazards tick without a suit; air gauge and suffocation in vacuum. *(26 Sep: every Cinderveil, Frostfall and Pale Moon structure, the meteor, the satellite, the operation base and the waygate locate in their worlds; terrain, sky, hazards and air not yet checked)*
 - [ ] The Vale (`/execute in elysiumwilds:vale run tp @s ~ 120 ~`): 15 biomes, no hard biome seams, structures.
 - [ ] Ores: Cordon ores in every stone family; aetherium, neutronium, voidglass in the Overworld; marble, limestone, alabaster.
 - [ ] Wild crops (barley, cabbage, chili, garlic, ginger, onion, rice, tomato), loomflax, downbloom, emberwood trees generate and render (no black backgrounds).
 - [ ] Dungeon spawners `caged_invader`, `brutal_spawner`, `swarm_spawner` generate; break the cage to start a fight; brutal and swarm finish after finite waves and drop loot.
-- [ ] `tome_tower` structure generates.
+- [x] `tome_tower` structure generates. *(26 Sep: locates 185 blocks from 3000,3000)*
 
 ## 3. Space
 
@@ -82,7 +82,7 @@ Solarpunk: solar condenser, wind capstan (height matters), ceramic kiln, harvest
 
 ## 5. Agronomy and arcana
 
-- [ ] Pots + essence seeds + soils grow; accelerator speeds them on Age II power; waxed pots render without holes (this build's fix).
+- [ ] Pots + essence seeds + soils grow; accelerator speeds them on Age II power; waxed pots render without holes (this build's fix). *(26 Sep: andesite pot on dirt grows bamboo at 1.5x, harvested by hand; accelerator and waxed pots not yet checked)*
 - [ ] Hive and apiary ladder; centrifuge spins combs into chunks (including the 21 foundry materials' combs, this build's regeneration); chunks smelt in the foundry via the raw-material tag.
 - [ ] Rock generator and vein generators produce.
 - [ ] Awakening altar layout (pedestals diagonal at 2, relays axial at 4); empty-hand click awakens a seed.
@@ -101,7 +101,7 @@ Solarpunk: solar condenser, wind capstan (height matters), ceramic kiln, harvest
 - [ ] Rations give timed immunity to one hazard each (test on Frostfall, Cinderveil).
 - [ ] Arsenal ladder (e.g. cobalt warhammer), hammers, excavators, scythes, paxels; brushes on suspicious and fossiliferous dirt; totems render (cutout fix); grades roll on craft and pickup.
 - [ ] Armory: gear smithing table builds modular gear; alloy forge, grader, press, reforging, salvager, starlight charger, stone anvil; `/elysium armory properties`.
-- [ ] Trinkets: Curios slots plus the companion slot; mote, carrion drone, lattice shard, purge drone hover and act (`/give`, since nothing awards them yet).
+- [ ] Trinkets: Curios slots plus the companion slot; mote, carrion drone, lattice shard, purge drone hover and act (`/give`, since nothing awards them yet). *(26 Sep: the `trinkets/found` table drops a Long Memory; Cordon loot modifiers add bio culture to jungle-temple rolls and lattice to end-city rolls; hover and act not yet checked)*
 - [ ] Enchanting: arcane table powered by the shelves; infusion basin; scriptorium and grand scriptorium; four tomes.
 - [ ] Envoys arrive at high Favor or Suspicion (about every 5 minutes), trade or refuse; writs summon; writ of amnesty lowers Suspicion to the floor.
 - [ ] Villager jobs with their six blocks.
@@ -124,4 +124,4 @@ Solarpunk: solar condenser, wind capstan (height matters), ceramic kiln, harvest
 
 ## Known gaps (do not file as bugs)
 
-Logistics importer, exporter, storage bus, monitor, detector, interface and ender link are inert blocks; satchel, rucksack, crate, vault inert; kitchen stations are plain blocks and the 29 meals have no working station; fishing rods, hooks, bobbers, worm farm and tackle box inert; fish and bees have no natural spawns; geodes have no worldgen or recipe; Cordon alloy drops and shards have no survival source; nothing awards trinkets and companions; roadmap items in each module's spec (contraptions, IE wiring, Mekanism chemistry, frontier crops, MysticalAgriculture gear, Quark decoration, and so on).
+Exporter, storage bus, monitor, detector, interface and ender link are unverified (the importer works on a fuelled grid, 26 Sep); satchel, rucksack, crate, vault inert; kitchen stations: pot and colony verified 26 Sep, skillet and board being verified; a reed rod with a barbed hook catches (26 Sep); bobbers, worm farm and tackle box unverified; fish and bee natural spawns unverified; geodes have no worldgen or recipe; Cordon alloy drops and shards have no survival source; nothing awards trinkets and companions; roadmap items in each module's spec (contraptions, IE wiring, Mekanism chemistry, frontier crops, MysticalAgriculture gear, Quark decoration, and so on).
