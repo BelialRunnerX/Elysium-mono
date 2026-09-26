@@ -1,7 +1,11 @@
 package com.elysium.agronomy.block;
 
 import com.elysium.agronomy.registry.AgronomyBlockEntities;
+import com.elysium.agronomy.event.Keeping;
+import com.elysium.agronomy.registry.AgronomyComponents;
 import com.elysium.agronomy.registry.AgronomyItems;
+import com.elysium.agronomy.registry.BeeItems;
+import com.elysium.agronomy.rules.KeepingRules;
 import com.elysium.agronomy.rules.ApiaryRules;
 import com.elysium.agronomy.rules.AgronomyRules;
 import com.mojang.serialization.MapCodec;
@@ -104,6 +108,18 @@ public class HiveBlock extends BaseEntityBlock {
         if (held.isEmpty() || !(level.getBlockEntity(pos) instanceof HiveBlockEntity hive)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
+        if (held.is(BeeItems.JAR.get())) {
+            if (!level.isClientSide) {
+                player.displayClientMessage(hive.offerJar(held), true);
+            }
+            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        }
+        if (held.is(BeeItems.TREAT.get())) {
+            if (!level.isClientSide) {
+                player.displayClientMessage(hive.treat(held, player), true);
+            }
+            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        }
         if (!level.isClientSide && hive.offer(held)) {
             return ItemInteractionResult.SUCCESS;
         }
@@ -184,6 +200,9 @@ public class HiveBlock extends BaseEntityBlock {
         private int flowers;
         private int since = COUNTS_EVERY;
         private int worked;
+
+        /** The second species a jar brought in, waiting for a treat; empty for none. */
+        private String mate = "";
 
         public HiveBlockEntity(BlockPos pos, BlockState state) {
             super(AgronomyBlockEntities.HIVE.get(), pos, state);
@@ -288,15 +307,114 @@ public class HiveBlock extends BaseEntityBlock {
             return true;
         }
 
+        // --------------------------------------------------------------
+        // Species, jars and treats
+        // --------------------------------------------------------------
+
+        /** Which bee lives here, or null for the plain bee or none. */
+        public String species() {
+            return AgronomyComponents.speciesIn(items.getStackInSlot(BEES));
+        }
+
+        /** The second species waiting for a treat, or empty. */
+        public String mate() {
+            return mate;
+        }
+
+        /** One bee of a species, as the hive holds it. */
+        public static ItemStack beeOf(String species) {
+            ItemStack bee = new ItemStack(AgronomyItems.BEE.get());
+            bee.set(AgronomyComponents.SPECIES.get(), species);
+            return bee;
+        }
+
+        /**
+         * A jar used on the hive.
+         *
+         * <p>Full: its bee moves in if the hive is empty or holds that
+         * species; if the hive holds another species that the rules breed
+         * with it ({@link KeepingRules#childOf}), it waits as the mate.
+         * Empty: it takes one of the hive's own bees out.
+         */
+        public Component offerJar(ItemStack jar) {
+            String brought = AgronomyComponents.speciesIn(jar);
+            String here = species();
+            if (brought == null) {
+                if (here == null || items.getStackInSlot(BEES).isEmpty()) {
+                    return Component.translatable("elysiumagronomy.hive.no_species");
+                }
+                items.extractItem(BEES, 1, false);
+                jar.set(AgronomyComponents.SPECIES.get(), here);
+                return Component.translatable("elysiumagronomy.hive.jarred",
+                        Keeping.named(here));
+            }
+            ItemStack bee = beeOf(brought);
+            if (items.insertItem(BEES, bee, true).isEmpty()) {
+                items.insertItem(BEES, bee, false);
+                jar.remove(AgronomyComponents.SPECIES.get());
+                return Component.translatable("elysiumagronomy.hive.moved_in",
+                        Keeping.named(brought));
+            }
+            String child = KeepingRules.childOf(here, brought);
+            if (child != null && mate.isEmpty()) {
+                mate = brought;
+                jar.remove(AgronomyComponents.SPECIES.get());
+                setChanged();
+                return Component.translatable("elysiumagronomy.hive.paired",
+                        Keeping.named(here), Keeping.named(brought));
+            }
+            return Component.translatable("elysiumagronomy.hive.refused",
+                    Keeping.named(brought));
+        }
+
+        /**
+         * A treat used on the hive: the child of the pair it holds if the
+         * rules breed one, otherwise one more of its own if it has two.
+         */
+        public Component treat(ItemStack treat, Player player) {
+            String here = species();
+            String child = KeepingRules.childOf(here, mate);
+            if (child != null) {
+                treat.shrink(1);
+                mate = "";
+                setChanged();
+                player.getInventory().placeItemBackInInventory(beeOf(child));
+                return Component.translatable("elysiumagronomy.hive.bred",
+                        Keeping.named(child));
+            }
+            if (here != null && items.getStackInSlot(BEES).getCount() >= 2) {
+                treat.shrink(1);
+                ItemStack more = beeOf(here);
+                if (items.insertItem(BEES, more, true).isEmpty()) {
+                    items.insertItem(BEES, more, false);
+                } else {
+                    player.getInventory().placeItemBackInInventory(more);
+                }
+                return Component.translatable("elysiumagronomy.hive.bred",
+                        Keeping.named(here));
+            }
+            return Component.translatable("elysiumagronomy.hive.no_pair");
+        }
+
+        /** The comb this hive makes: its species' own, or the plain comb. */
+        public ItemStack combOf() {
+            String here = species();
+            if (here != null && BeeItems.COMBS.containsKey(here)) {
+                return new ItemStack(BeeItems.COMBS.get(here).get());
+            }
+            return new ItemStack(AgronomyItems.COMB.get());
+        }
+
         public ItemStack takeAll() {
             return items.extractItem(OUT, items.getStackInSlot(OUT).getCount(), false);
         }
 
         public SimpleContainer spill() {
-            ItemStack[] held = new ItemStack[items.getSlots()];
-            for (int slot = 0; slot < held.length; slot++) {
+            ItemStack[] held = new ItemStack[items.getSlots() + 1];
+            for (int slot = 0; slot < items.getSlots(); slot++) {
                 held[slot] = items.getStackInSlot(slot);
             }
+            held[items.getSlots()] = mate.isEmpty() ? ItemStack.EMPTY : beeOf(mate);
             return new SimpleContainer(held);
         }
 
@@ -372,7 +490,7 @@ public class HiveBlock extends BaseEntityBlock {
                 return;
             }
             worked -= whole;
-            ItemStack comb = new ItemStack(AgronomyItems.COMB.get());
+            ItemStack comb = combOf();
             if (items.insertItem(OUT, comb, true).isEmpty()) {
                 items.setStackInSlot(OUT, grow(items.getStackInSlot(OUT), comb));
                 setChanged();
@@ -405,6 +523,7 @@ public class HiveBlock extends BaseEntityBlock {
             items.deserializeNBT(registries, tag.getCompound("items"));
             worked = Math.max(0, tag.getInt("worked"));
             flowers = Math.max(0, tag.getInt("flowers"));
+            mate = tag.getString("mate");
         }
 
         @Override
@@ -413,6 +532,7 @@ public class HiveBlock extends BaseEntityBlock {
             tag.put("items", items.serializeNBT(registries));
             tag.putInt("worked", worked);
             tag.putInt("flowers", flowers);
+            tag.putString("mate", mate);
         }
     }
 }

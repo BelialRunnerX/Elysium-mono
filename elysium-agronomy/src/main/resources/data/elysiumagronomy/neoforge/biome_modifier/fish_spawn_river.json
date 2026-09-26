@@ -1,0 +1,90 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#minecraft:is_river",
+  "spawners": [
+    {
+      "type": "elysiumagronomy:river_dace",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:silver_roach",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:brook_trout",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:mirror_carp",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:grayling",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:bleak_minnow",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:pike_perch",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:northern_pike",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:barbel",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:chub",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:river_eel",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:gudgeon",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:nase",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:asp",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    }
+  ]
+}

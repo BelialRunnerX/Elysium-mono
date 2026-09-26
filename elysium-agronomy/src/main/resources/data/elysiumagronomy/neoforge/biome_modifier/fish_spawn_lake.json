@@ -1,0 +1,66 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_plains",
+  "spawners": [
+    {
+      "type": "elysiumagronomy:lake_char",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:whitefish",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:burbot",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:tench",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:bream",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:rudd",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:zander",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:crucian",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:vendace",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:catfish_wels",
+      "weight": 2,
+      "minCount": 2,
+      "maxCount": 4
+    }
+  ]
+}

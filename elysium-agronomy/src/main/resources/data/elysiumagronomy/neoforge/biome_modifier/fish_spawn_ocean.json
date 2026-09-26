@@ -1,0 +1,90 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#minecraft:is_ocean",
+  "spawners": [
+    {
+      "type": "elysiumagronomy:mackerel",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:atlantic_cod",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:haddock",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:pollock",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:sea_bass",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:john_dory",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:blue_marlin",
+      "weight": 1,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:yellowfin_tuna",
+      "weight": 2,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:swordfish",
+      "weight": 2,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:mahi_mahi",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:bonito",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:amberjack",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:halibut",
+      "weight": 2,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:turbot",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    }
+  ]
+}

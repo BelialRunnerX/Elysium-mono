@@ -28,6 +28,41 @@ public class FishEntity extends AbstractFish {
 
     public FishEntity(EntityType<? extends FishEntity> type, Level level) {
         super(type, level);
+        // One type per species, so the type says which fish this is. Without
+        // this every fish that spawned on its own or out of an egg was the
+        // first fish in the roster wearing another's name.
+        setSpecies(net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE
+                .getKey(type).getPath());
+    }
+
+    /** Whether this one lives in lava rather than water. */
+    public boolean molten() {
+        return FishRules.LAVA.equals(rules().family().water());
+    }
+
+    /**
+     * Breath, for a fish of the lava: lava is its water. The game's fish
+     * drown out of water, and a lava fish in lava is not out of anything.
+     */
+    @Override
+    protected void handleAirSupply(int air) {
+        if (molten() && isInLava()) {
+            setAirSupply(getMaxAirSupply());
+            return;
+        }
+        super.handleAirSupply(air);
+    }
+
+    /** Swimming, in lava, the way the game's fish swim in water. */
+    @Override
+    public void travel(net.minecraft.world.phys.Vec3 input) {
+        if (molten() && isInLava() && isControlledByLocalInstance()) {
+            moveRelative(0.01F, input);
+            move(net.minecraft.world.entity.MoverType.SELF, getDeltaMovement());
+            setDeltaMovement(getDeltaMovement().scale(0.9D));
+            return;
+        }
+        super.travel(input);
     }
 
     @Override

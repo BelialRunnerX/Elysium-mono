@@ -284,6 +284,43 @@ public final class TackleRules {
         return (float) AgronomyRules.TICKS_PER_HOUR / WORM_TICKS;
     }
 
+    /**
+     * How much bait a farm holds before it stops.
+     *
+     * <p>A farm left for a week is a farm, not a warehouse: it stops at this
+     * and waits to be emptied, so the rate is the rate whether or not anybody
+     * is watching.
+     */
+    public static final int WORM_FARM_HOLDS = 16;
+
+    /**
+     * Which bait a fish fed to a farm turns into: its own family's.
+     *
+     * <p>A farm is fed a fish and makes the bait that catches more of its
+     * kind, which is how a player fishes for a habitat on purpose without a
+     * recipe per family. A name no fish has makes nothing.
+     */
+    public static String baitFor(String fishId) {
+        FishRules.Fish one = FishRules.fish(fishId);
+        return one == null ? "" : one.family().name();
+    }
+
+    /** Whether an item is tackle: a hook, a bobber, a bait or a rod. */
+    public static boolean isTackle(String id) {
+        if (id == null || id.isEmpty()) {
+            return false;
+        }
+        if (items().contains(id) || id.endsWith("_rod")) {
+            return true;
+        }
+        for (FishRules.Family family : FishRules.FAMILIES) {
+            if (id.equals(family.name() + "_bait")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** Every block this adds. */
     public static List<String> blocks() {
         List<String> made = new ArrayList<>(List.of(WORM_FARM, TACKLE_BOX));
@@ -377,6 +414,9 @@ public final class TackleRules {
                 faultsInBait(baitPerHour(), MOST_BAIT_PER_HOUR));
         if (WORM_TICKS <= 0) {
             bad.add("a worm farm makes bait instantly");
+        }
+        if (WORM_FARM_HOLDS < 1) {
+            bad.add("a worm farm holds no bait, so it makes one and stops for ever");
         }
         if (mounts().size() != FishRules.FISH.size()) {
             bad.add("there are " + FishRules.FISH.size() + " fish and "

@@ -83,6 +83,109 @@ if not BEES:
 HOMES = sorted({bee["home"] for bee in BEES if bee["home"]})
 
 # ---------------------------------------------------------------------------
+# Where the wild bees are, read out of KeepingRules
+# ---------------------------------------------------------------------------
+
+KEEPING = read(os.path.join(
+    MOD, "src/main/java/com/elysium/agronomy/rules/KeepingRules.java"))
+BIOME_OF = dict(re.findall(r'biome\("([a-z_]+)", "([^"]+)"\);', KEEPING))
+
+
+def keeping_number(name):
+    found = re.search(r"public static final int " + name + r" = ([\d_]+);", KEEPING)
+    if not found:
+        print("KeepingRules no longer says", name)
+        sys.exit(2)
+    return int(found.group(1).replace("_", ""))
+
+
+WILD_WEIGHT = keeping_number("WILD_SPAWN_WEIGHT")
+WILD_LEAST = keeping_number("WILD_SPAWN_LEAST")
+WILD_MOST = keeping_number("WILD_SPAWN_MOST")
+NEST_BEES = keeping_number("NEST_BEES")
+NEST_CHUNKS = keeping_number("NEST_CHUNKS")
+
+#: KeepingRules.nested(): every home a wild bee lives in, once each, sorted.
+NESTED = sorted({bee["home"] for bee in BEES if bee["kind"] == "wild"})
+if not NESTED or any(home not in BIOME_OF for home in HOMES):
+    print("KeepingRules does not give every home a biome: "
+          f"{[home for home in HOMES if home not in BIOME_OF]}")
+    sys.exit(2)
+
+
+def wild_world():
+    """
+    Where the wild bees are found: a spawn and a nest in each one's biome.
+
+    <p>An add-spawns modifier per wild bee, in its home's biome, and for each
+    home a wild bee lives in, a nest generated on the surface there, full.
+    Bred bees get neither: a bred bee found in the world is a breeding tree
+    with a shortcut, which KeepingRules says and the harness checks.
+    """
+    written = 0
+    for bee in BEES:
+        if bee["kind"] != "wild":
+            continue
+        write(os.path.join(DATA, "neoforge/biome_modifier",
+                           "bee_spawn_" + bee["id"] + ".json"), {
+            "type": "neoforge:add_spawns",
+            "biomes": BIOME_OF[bee["home"]],
+            "spawners": [{"type": f"{NS}:{bee['id']}_bee", "weight": WILD_WEIGHT,
+                          "minCount": WILD_LEAST, "maxCount": WILD_MOST}],
+        })
+        written += 1
+    for home in NESTED:
+        name = home + "_nest"
+        write(os.path.join(DATA, "worldgen/configured_feature", name + ".json"), {
+            "type": "minecraft:simple_block",
+            "config": {"to_place": {
+                "type": "minecraft:simple_state_provider",
+                "state": {"Name": f"{NS}:{name}",
+                          "Properties": {"bees": str(NEST_BEES)}}}},
+        })
+        write(os.path.join(DATA, "worldgen/placed_feature", name + ".json"), {
+            "feature": f"{NS}:{name}",
+            "placement": [
+                {"type": "minecraft:rarity_filter", "chance": NEST_CHUNKS},
+                {"type": "minecraft:in_square"},
+                {"type": "minecraft:heightmap", "heightmap": "WORLD_SURFACE_WG"},
+                {"type": "minecraft:biome"},
+                {"type": "minecraft:block_predicate_filter",
+                 "predicate": {"type": "minecraft:all_of", "predicates": [
+                     {"type": "minecraft:matching_blocks", "blocks": "minecraft:air"},
+                     {"type": "minecraft:solid", "offset": [0, -1, 0]}]}},
+            ],
+        })
+        write(os.path.join(DATA, "neoforge/biome_modifier", name + ".json"), {
+            "type": "neoforge:add_features",
+            "biomes": BIOME_OF[home],
+            "features": f"{NS}:{name}",
+            "step": "vegetal_decoration",
+        })
+        written += 3
+    return written
+
+
+#: What the jar, the hive, the scoop, the smoker and the nest say.
+SAYINGS = {
+    f"{NS}.jar.holds": "Holds: %s",
+    f"{NS}.jar.empty": "Empty: use on a bee, a nest or a hive",
+    f"{NS}.hive.no_species": "No bee here a jar can take",
+    f"{NS}.hive.jarred": "Took a %s out",
+    f"{NS}.hive.moved_in": "A %s moved in",
+    f"{NS}.hive.paired": "%s and %s: a treat will breed them",
+    f"{NS}.hive.refused": "The hive has no room for a %s",
+    f"{NS}.hive.bred": "A %s was bred",
+    f"{NS}.hive.no_pair": "Nothing here to breed: two of a bee, or a pair the "
+                          "breeding tree names",
+    f"{NS}.scoop.not_ready": "Not done yet: %s%% of a comb",
+    f"{NS}.smoker.calmed": "%s bee(s) calmed for %s seconds",
+    f"{NS}.nest.bred": "Nothing wild lives in this nest",
+    f"{NS}.nest.empty": "The nest is empty; one grows back every %s seconds",
+}
+
+
+# ---------------------------------------------------------------------------
 # The machinery: the housing ladder, the upgrades and the centrifuge
 # ---------------------------------------------------------------------------
 
@@ -665,6 +768,7 @@ def lang():
     words[f"{NS}.centrifuge.dark"] = "No power: the drum is still"
     words[f"{NS}.centrifuge.running"] = "Spinning %s comb(s), %s of full speed"
     words[f"{NS}.hive.upgraded"] = "%s bees, %s upgrade(s), %s combs an hour"
+    words.update(SAYINGS)
 
     # The base is always the committed file, never whatever happens to be in
     # the output tree. validate.py regenerates into a temporary directory and
@@ -709,6 +813,7 @@ def main():
     loot()
     recipes()
     machined = machinery_recipes()
+    wild_world()
     lang()
     print(f"bees: {len(BEES)} species, {len(HOMES)} nest(s), "
           f"{len(BEES) * 3 + len(HOMES) * 3 + 4 + (len(HOUSINGS) - 1) * 3 + 2 + len(UPGRADES) + len(CHUNKED)} texture(s), "

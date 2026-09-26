@@ -43,6 +43,8 @@ public class ElysiumAgronomy {
         com.elysium.agronomy.registry.AgronomyItems.ITEMS.register(modEventBus);
         com.elysium.agronomy.registry.AgronomyItems.TABS.register(modEventBus);
         com.elysium.agronomy.registry.AgronomyBlockEntities.TYPES.register(modEventBus);
+        com.elysium.agronomy.registry.FishingBlockEntities.TYPES.register(modEventBus);
+        com.elysium.agronomy.registry.AgronomyComponents.TYPES.register(modEventBus);
         com.elysium.agronomy.registry.BeeEntities.TYPES.register(modEventBus);
         com.elysium.agronomy.registry.BeeBlocks.BLOCKS.register(modEventBus);
         com.elysium.agronomy.registry.BeeBlocks.ITEMS.register(modEventBus);

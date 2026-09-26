@@ -143,9 +143,7 @@ public final class AgronomyBlocks {
         java.util.Map<String, DeferredBlock<Block>> made =
                 new java.util.LinkedHashMap<>();
         for (String name : com.elysium.agronomy.rules.TackleRules.blocks()) {
-            made.put(name, BLOCKS.register(name, () -> new Block(timber()
-                    .strength(name.endsWith("_mount") ? 0.8F : 2.0F)
-                    .noOcclusion())));
+            made.put(name, BLOCKS.register(name, () -> station(name)));
         }
         if (made.size()
                 != com.elysium.agronomy.rules.TackleRules.blocks().size()) {
@@ -155,6 +153,20 @@ public final class AgronomyBlocks {
                     + " were registered");
         }
         return java.util.Map.copyOf(made);
+    }
+
+    /**
+     * The block a name around the water is: the worm farm and the tackle box
+     * work, and a mount is a trophy on a wall.
+     */
+    private static Block station(String name) {
+        if (name.equals(com.elysium.agronomy.rules.TackleRules.WORM_FARM)) {
+            return new com.elysium.agronomy.block.WormFarmBlock(timber().noOcclusion());
+        }
+        if (name.equals(com.elysium.agronomy.rules.TackleRules.TACKLE_BOX)) {
+            return new com.elysium.agronomy.block.TackleBoxBlock(timber().noOcclusion());
+        }
+        return new Block(timber().strength(0.8F).noOcclusion());
     }
 
     /** What a comb is actually for. */

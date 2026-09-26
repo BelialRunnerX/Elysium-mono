@@ -1,0 +1,90 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_shallow_ocean",
+  "spawners": [
+    {
+      "type": "elysiumagronomy:parrot_wrasse",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:clown_goby",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:banner_fish",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:angel_tang",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:coral_grouper",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:lionfish",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:moray",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:triggerfish",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:surgeonfish",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:boxfish",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:razorfish",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:reef_snapper",
+      "weight": 8,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:harlequin_sweetlips",
+      "weight": 4,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "elysiumagronomy:pipefish",
+      "weight": 16,
+      "minCount": 2,
+      "maxCount": 4
+    }
+  ]
+}

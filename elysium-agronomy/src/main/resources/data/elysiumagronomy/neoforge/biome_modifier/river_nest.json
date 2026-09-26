@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_river",
+  "features": "elysiumagronomy:river_nest",
+  "step": "vegetal_decoration"
+}
