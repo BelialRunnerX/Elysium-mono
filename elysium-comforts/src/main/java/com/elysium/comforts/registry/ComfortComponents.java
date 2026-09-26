@@ -9,7 +9,8 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
- * One component: a villager's own saved form, kept whole.
+ * Four components: a villager's saved form, and the three a piece of mail
+ * carries.
  *
  * <p>Whole rather than picked apart into fields, because a villager is a
  * ledger and a ledger copied field by field is a ledger with a field missing.
@@ -29,5 +30,29 @@ public final class ComfortComponents {
             DataComponentType.<CompoundTag>builder()
                     .persistent(CompoundTag.CODEC)
                     .networkSynchronized(ByteBufCodecs.COMPOUND_TAG)
+                    .build());
+
+    /** Who a parcel is for. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>>
+            ADDRESS = TYPES.register("address", () ->
+            DataComponentType.<String>builder()
+                    .persistent(com.mojang.serialization.Codec.STRING)
+                    .networkSynchronized(ByteBufCodecs.STRING_UTF8)
+                    .build());
+
+    /** What is inside one. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CompoundTag>>
+            CONTENTS = TYPES.register("contents", () ->
+            DataComponentType.<CompoundTag>builder()
+                    .persistent(CompoundTag.CODEC)
+                    .networkSynchronized(ByteBufCodecs.COMPOUND_TAG)
+                    .build());
+
+    /** And what was pressed into the wax on the outside. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>>
+            SEAL = TYPES.register("seal", () ->
+            DataComponentType.<String>builder()
+                    .persistent(com.mojang.serialization.Codec.STRING)
+                    .networkSynchronized(ByteBufCodecs.STRING_UTF8)
                     .build());
 }

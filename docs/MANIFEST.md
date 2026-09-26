@@ -8,10 +8,10 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 84 | DONE | an Elysium module already replaces it |
+| 85 | DONE | an Elysium module already replaces it |
 | 22 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 8 | PLANNED | has a target module, not started |
+| 7 | PLANNED | has a target module, not started |
 | 14 | KEEP | stays in the pack on purpose |
 | 74 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -26,7 +26,6 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `elysium-industry` | 3 |
 | `elysium-wilds` | 2 |
 | `elysium-atomics` | 2 |
-| `elysium-comforts` | 1 |
 | `elysium-arsenal` | 1 |
 | `elysium-foundry` | 1 |
 
@@ -103,7 +102,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `entity_model_features-3.2.4-1.21-neoforge.jar` | DROP | - | performance: not content |
 | `entity_texture_features_1.21-neoforge-7.1.jar` | DROP | - | performance: not content |
 | `entityculling-neoforge-1.10.5-mc1.21.1.jar` | DROP | - | performance: not content |
-| `envelope-neoforge-1.21.1-0.7.3.jar` | PLANNED | elysium-comforts | a postal system rather than a convenience: 12 woods of pigeonhole, a mailbox, letters and packages that seal, address tags, payment on delivery, lost mail, and two pigeons that carry it. 281 language keys beyond its items, which is what a mod looks like when it has rules of its own |
+| `envelope-neoforge-1.21.1-0.7.3.jar` | DONE | elysium-comforts | the post. Eleven woods of pigeonhole — one per wood the pack builds in, so a player who has only found birch can still build one — a mailbox that takes an address for three levels, eight kinds of mail across letters, parcels and payment on delivery, 108 wax seals, an address tag, a stamp, and two birds that carry it. A parcel takes time: handling at both ends plus a tick a block, flat past five thousand, which puts every delivery between thirty seconds and five minutes however far it goes. Nothing arrives instantly and nothing is ever out of reach. The shortest payback window outlasts the longest delivery, so the feature cannot be used to take somebody's goods and wait out their clock; lost mail is worth a quarter of what was posted, so losing a parcel is never the better play. A pigeon carried to the Nether becomes a charred pigeon and carrying it back turns it into a pigeon again, and the rules hold that loop shut so nobody loses a bird through a portal. A parcel in the air is never in two places and never in none: a full box sends it round again, a broken box drops it, and opening one empties it before it hands anything over. 99 negative tests |
 | `everycomp-1.21-2.11.48-neoforge.jar` | DROP | elysium-atelier | makes one mod's shapes out of another's materials; moot once both are ours, because that crossing is what this module already is |
 | `ExtendedAE-1.21-2.2.35-neoforge.jar` | DONE | elysium-logistics | more devices for a model this pack does not have; what it adds that is content rather than channel management is on the flat network |
 | `ExtremeReactors2-1.21.1-2.4.28.jar` | DONE | elysium-atomics | reactor halls: a hollow box of casing three to seven on a side, built with Age II's own shape arithmetic. Heat goes as the cube of the side and cooling as the square, so a bigger hall makes more altogether and less per rod - which makes the size a decision rather than a ladder, and is the opposite of how these mods usually work |

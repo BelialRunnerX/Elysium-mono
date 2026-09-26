@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " p ",
+    "php",
+    " p "
+  ],
+  "key": {
+    "p": {
+      "item": "minecraft:paper"
+    },
+    "h": {
+      "item": "minecraft:honeycomb"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:paper_box",
+    "count": 1
+  }
+}

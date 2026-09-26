@@ -539,9 +539,9 @@ items = squashed(strip_comments(read(SRC, "registry/ComfortItems.java"), True))
 for name in blocks:
     if f'registerSimpleBlockItem(ComfortBlocks.{name.upper()})' not in items:
         fail(f"{name} has no item, so it exists only to a command")
-    for kind, where in (("a model", f"assets/{NS}/models/block/{name}.json"),
-                        ("an item model", f"assets/{NS}/models/item/{name}.json"),
-                        ("a blockstate", f"assets/{NS}/blockstates/{name}.json")):
+    for kind, where in (("model", f"assets/{NS}/models/block/{name}.json"),
+                        ("item model", f"assets/{NS}/models/item/{name}.json"),
+                        ("blockstate", f"assets/{NS}/blockstates/{name}.json")):
         if not os.path.isfile(os.path.join(RES, where)):
             fail(f"{name} has no {kind}, so it is a purple cube")
     if f"block.{NS}.{name}" not in lang:
@@ -740,12 +740,12 @@ else:
     # Everything the rules ask for exists, all the way out to the world.
     for name in rests + ([rope] if rope else []):
         for kind, where in (
-                ("a model", f"assets/{NS}/models/block/{name}.json"),
-                ("an item model", f"assets/{NS}/models/item/{name}.json"),
-                ("a blockstate", f"assets/{NS}/blockstates/{name}.json"),
-                ("a texture", f"assets/{NS}/textures/block/{name}.png"),
-                ("a loot table", f"data/{NS}/loot_table/blocks/{name}.json"),
-                ("a recipe", f"data/{NS}/recipe/{name}.json")):
+                ("model", f"assets/{NS}/models/block/{name}.json"),
+                ("item model", f"assets/{NS}/models/item/{name}.json"),
+                ("blockstate", f"assets/{NS}/blockstates/{name}.json"),
+                ("texture", f"assets/{NS}/textures/block/{name}.png"),
+                ("loot table", f"data/{NS}/loot_table/blocks/{name}.json"),
+                ("recipe", f"data/{NS}/recipe/{name}.json")):
             if not os.path.isfile(os.path.join(RES, where)):
                 fail(f"{name} has no {kind}, so it is a block a player can see "
                      f"in a creative tab and never use")
@@ -969,12 +969,12 @@ else:
 
     for name in chimes:
         for kind, where in (
-                ("a model", f"assets/{NS}/models/block/{name}.json"),
-                ("an item model", f"assets/{NS}/models/item/{name}.json"),
-                ("a blockstate", f"assets/{NS}/blockstates/{name}.json"),
-                ("a texture", f"assets/{NS}/textures/block/{name}.png"),
-                ("a loot table", f"data/{NS}/loot_table/blocks/{name}.json"),
-                ("a recipe", f"data/{NS}/recipe/{name}.json")):
+                ("model", f"assets/{NS}/models/block/{name}.json"),
+                ("item model", f"assets/{NS}/models/item/{name}.json"),
+                ("blockstate", f"assets/{NS}/blockstates/{name}.json"),
+                ("texture", f"assets/{NS}/textures/block/{name}.png"),
+                ("loot table", f"data/{NS}/loot_table/blocks/{name}.json"),
+                ("recipe", f"data/{NS}/recipe/{name}.json")):
             if not os.path.isfile(os.path.join(RES, where)):
                 fail(f"{name} has no {kind}, so it is a block a player can see "
                      f"in a creative tab and never use")
@@ -1076,12 +1076,12 @@ else:
     for row in stations:
         name = row[0]
         for kind, where in (
-                ("a model", f"assets/{NS}/models/block/{name}.json"),
-                ("an item model", f"assets/{NS}/models/item/{name}.json"),
-                ("a blockstate", f"assets/{NS}/blockstates/{name}.json"),
-                ("a texture", f"assets/{NS}/textures/block/{name}.png"),
-                ("a loot table", f"data/{NS}/loot_table/blocks/{name}.json"),
-                ("a recipe", f"data/{NS}/recipe/{name}.json")):
+                ("model", f"assets/{NS}/models/block/{name}.json"),
+                ("item model", f"assets/{NS}/models/item/{name}.json"),
+                ("blockstate", f"assets/{NS}/blockstates/{name}.json"),
+                ("texture", f"assets/{NS}/textures/block/{name}.png"),
+                ("loot table", f"data/{NS}/loot_table/blocks/{name}.json"),
+                ("recipe", f"data/{NS}/recipe/{name}.json")):
             if not os.path.isfile(os.path.join(RES, where)):
                 fail(f"{name} has no {kind}, so it is a block a player can see "
                      f"in a creative tab and never use")
@@ -1183,6 +1183,327 @@ else:
           f"thing a player would otherwise do, none of them better value than "
           f"a pair of hands and none of them quicker, and every one of them "
           f"breaking back into itself")
+
+
+# ---------------------------------------------------------------------------
+# Mail: a thing you send that takes time to arrive and might not
+# ---------------------------------------------------------------------------
+#
+# A mailbox that hands the parcel over at once is an ender chest with extra
+# steps; one that takes a week is a block nobody uses twice. Everything
+# interesting about post is in between, and this section is about proving the
+# in-between is where the game actually puts it -- that the journey the rules
+# worked out is the journey the block keeps, and that nothing along the way can
+# quietly eat a parcel somebody paid for.
+
+print("-" * 70)
+
+POST = strip_comments(read(SRC, "rules/PostRules.java"), keep_strings=True)
+MAILBOX = strip_comments(read(SRC, "block/MailboxBlock.java"), keep_strings=True)
+BOX_KEEPER = strip_comments(read(SRC, "block/MailboxBlockEntity.java"),
+                            keep_strings=True)
+HOLE = strip_comments(read(SRC, "block/PigeonholeBlock.java"), keep_strings=True)
+BIRD = strip_comments(read(SRC, "entity/PigeonEntity.java"), keep_strings=True)
+MAIL_ITEM = strip_comments(read(SRC, "item/MailItem.java"), keep_strings=True)
+if not POST:
+    fail("nothing says how long a parcel takes or what it costs, so the post "
+         "could hand anything over at any time and nothing would disagree")
+else:
+    _post = squashed(POST)
+    _woods = re.search(r"List<String> WOODS = List\.of\((.*?)\);", _post)
+    woods = re.findall(r'"([a-z_]+)"', _woods.group(1)) if _woods else []
+    mail = re.findall(
+        r'new Mail\((\w+), (\d+), (\d+), (true|false), (true|false), '
+        r'(true|false)\)', _post)
+    kinds = dict(re.findall(
+        r'public static final String ([A-Z_]+) = "([a-z_]+)";', POST))
+    birds = re.findall(
+        r'new Bird\("([a-z_]+)", (\w+), ([^,]+), (\d+), (\d+)\)', _post)
+    if len(woods) < 2:
+        fail(f"only {len(woods)} wood(s) could be read out of the post, so every "
+             f"pigeonhole check below is walking an empty list and passing")
+    if len(mail) < 2:
+        fail(f"only {len(mail)} kind(s) of mail could be read out of the post, "
+             f"so every mail check below is walking an empty list and passing")
+    if len(birds) < 1:
+        fail(f"only {len(birds)} bird(s) could be read out of the post, so "
+             f"nothing carries anything")
+
+    # Every pigeonhole and the mailbox exist all the way out to the world.
+    for name in [wood + "_pigeonhole" for wood in woods] + ["mailbox"]:
+        for kind, where in (
+                ("model", f"assets/{NS}/models/block/{name}.json"),
+                ("item model", f"assets/{NS}/models/item/{name}.json"),
+                ("blockstate", f"assets/{NS}/blockstates/{name}.json"),
+                ("texture", f"assets/{NS}/textures/block/{name}.png"),
+                ("loot table", f"data/{NS}/loot_table/blocks/{name}.json"),
+                ("recipe", f"data/{NS}/recipe/{name}.json")):
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} has no {kind}, so it is a block a player can see "
+                     f"in a creative tab and never use")
+        if f"block.{NS}.{name}" not in lang:
+            fail(f"{name} has no name, so it reads as its own translation key")
+        table = read(RES, "data", NS, "loot_table/blocks", name + ".json")
+        if table and f'"{NS}:{name}"' not in table:
+            fail(f"{name} does not give itself back when it is broken, and a "
+                 f"mailbox costs a tag that costs three levels")
+
+    # A pigeonhole's blockstate has to list every level of waste the block can
+    # reach. One short is a block that renders as nothing at exactly the moment
+    # it is worth scooping, which is the moment a player looks at it.
+    _foulest = re.search(r"int FOULEST = (\d+);", POST)
+    if not _foulest:
+        fail("the post does not say how dirty a pigeonhole gets, so the "
+             "blockstate cannot know how many levels to write")
+    else:
+        foulest = int(_foulest.group(1))
+        for wood in woods:
+            written = read(RES, "assets", NS, "blockstates",
+                           wood + "_pigeonhole.json")
+            for level in range(foulest + 1):
+                if written and f"waste={level}" not in written:
+                    fail(f"{wood}_pigeonhole has no model at waste level {level}, "
+                         f"so it renders as nothing once a bird has been in it "
+                         f"that many times")
+
+    # Every kind of mail is an item with a sprite, a model and a name.
+    for row in mail:
+        name = kinds.get(row[0], row[0])
+        for kind, where in (
+                ("model", f"assets/{NS}/models/item/{name}.json"),
+                ("texture", f"assets/{NS}/textures/item/{name}.png")):
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} has no {kind}, so a player who crafts one is "
+                     f"holding a missing-texture cube")
+        if f"item.{NS}.{name}" not in lang:
+            fail(f"{name} has no name, so it reads as its own translation key")
+
+    # And every bird has a skin for every colouring it can roll. A bird that
+    # rolls a variant nobody drew is a bird one player in four meets as a
+    # black-and-magenta cube, and it is only ever found by that player.
+    for row in birds:
+        name, variants = row[0], int(row[4])
+        for variant in range(variants):
+            where = f"assets/{NS}/textures/entity/{name}_{variant}.png"
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} can roll colouring {variant} and there is no skin "
+                     f"for it, so that one renders as a missing texture")
+        if f"entity.{NS}.{name}" not in lang:
+            fail(f"{name} has no name, so it reads as its own translation key")
+        if not os.path.isfile(os.path.join(
+                RES, f"assets/{NS}/models/item/{name}_spawn_egg.json")):
+            fail(f"{name} has no spawn egg model, so the one way to see one "
+                 f"without waiting for a spawn is a missing-texture cube")
+
+    # Nothing registered by hand, and everything counted.
+    _blocks = squashed(strip_comments(read(SRC, "registry/ComfortBlocks.java")))
+    if "for (String wood : PostRules.WOODS) {" not in _blocks:
+        fail("the pigeonholes are named by hand rather than walked from the "
+             "rules, so a wood the pack builds in has nothing to build the post "
+             "out of and nothing says which")
+    if "made.size() != PostRules.WOODS.size()" not in _blocks:
+        fail("nothing counts the pigeonholes that were registered, so a roster "
+             "that half registers is a roster that half exists")
+    _items = squashed(strip_comments(read(SRC, "registry/ComfortItems.java")))
+    if "for (com.elysium.comforts.rules.PostRules.Mail one" not in _items:
+        fail("the mail is named by hand rather than walked from the rules, so a "
+             "kind the rules price is a kind nothing registers")
+    ENTITIES = strip_comments(read(SRC, "registry/ComfortEntities.java"))
+    _entities = squashed(ENTITIES)
+    # The register() body in particular. ComfortEntities walks the birds three
+    # times -- to register, to give them attributes and to place their spawns --
+    # so a check that only asks whether the file mentions the walk anywhere is a
+    # check two of the three can answer for the third.
+    _register = squashed(body_of(ENTITIES, "register() {"))
+    if "for (PostRules.Bird bird : PostRules.BIRDS) {" not in _register:
+        fail("the birds are named by hand rather than walked from the rules")
+    if "made.size() != PostRules.BIRDS.size()" not in _entities:
+        fail("nothing counts the birds that were registered, so a bird the rules "
+             "describe is a bird nothing can spawn")
+    _client = squashed(strip_comments(read(SRC, "client/ComfortsClient.java")))
+    if "PostRules.BIRDS" not in _client:
+        fail("the renderers are registered by hand rather than walked from the "
+             "rules, and a renderer registered for one bird of two is a pack "
+             "with a creature drawn as a black-and-magenta cube -- only ever "
+             "found by the player who meets that one")
+    _mod = squashed(strip_comments(read(SRC, "ElysiumComforts.java")))
+    if "ComfortEntities.TYPES.register(modEventBus)" not in _mod:
+        fail("the birds are never put on the mod event bus, so neither of them "
+             "exists in the game at all and every check above is about files")
+
+    # The block keeps the journey the rules worked out. Checked where the
+    # arithmetic actually is -- the block entity -- rather than on the block,
+    # which also mentions travelTicks in the sentence it shows the player and
+    # would therefore pass this check while doing the sum itself.
+    if not BOX_KEEPER:
+        fail("nothing holds what has arrived at a mailbox, so everything posted "
+             "is posted into the air")
+    else:
+        _keeper = squashed(BOX_KEEPER)
+        _flight = squashed(body_of(BOX_KEEPER, "public boolean send("))
+        if "PostRules.travelTicks(blocks)" not in _flight:
+            fail("a mailbox does not ask the rules how long a parcel takes, so "
+                 "the band the harness swept is not the band the game keeps")
+        for typed in re.findall(r"arrives = now \+ (\d+)", _keeper):
+            fail(f"a parcel is landed {typed} ticks out by a number typed into "
+                 f"the block, which is a second set of dials beside the rules'")
+        if "if (parcel.isEmpty() || expecting())" not in _flight:
+            fail("a mailbox takes a second parcel while one is already in the "
+                 "air, and every answer to what happens to the first is a way to "
+                 "lose it")
+        _land = squashed(body_of(BOX_KEEPER, "public boolean landIfDue("))
+        if "arrives = now + PostRules.SOONEST;" not in _land:
+            fail("a parcel that arrives at a full mailbox is not sent round "
+                 "again, so it lands nowhere and a player has paid postage for "
+                 "an item that no longer exists")
+        _drops = squashed(body_of(BOX_KEEPER, "public NonNullList<ItemStack> drops("))
+        if "if (!flying.isEmpty())" not in _drops:
+            fail("breaking a mailbox keeps whatever was in the air towards it, "
+                 "so a parcel somebody paid for can be made to vanish by "
+                 "breaking the box it was coming to")
+        for named, why in (
+                ("protected void loadAdditional(",
+                 "a mailbox never reads back what was in it, so everything "
+                 "delivered is gone the first time the chunk unloads"),
+                ("protected void saveAdditional(",
+                 "a mailbox never writes down what is in it, so everything "
+                 "delivered is gone the first time the world is saved")):
+            if named not in BOX_KEEPER:
+                fail(why)
+        if "ContainerHelper.saveAllItems" not in _keeper:
+            fail("a mailbox saves its contents some way other than the game's "
+                 "own, so an item with components on it comes back as something "
+                 "else")
+
+    if not MAILBOX:
+        fail("there is no mailbox, so the arithmetic that makes the post a post "
+             "rather than a chest is a file nothing reads")
+    else:
+        _mailbox = squashed(MAILBOX)
+        if "PostRules.UNKNOWN_DISTANCE" not in _mailbox:
+            fail("the mailbox works out how far a parcel is going without asking "
+                 "the rules what distance to assume when nobody knows, so the "
+                 "one number the whole journey turns on is typed twice")
+        for typed in re.findall(
+                r"box\.send\(one, level\.getGameTime\(\), (\d+)\)", _mailbox):
+            fail(f"a parcel is sent {typed} blocks by a number typed into the "
+                 f"block, which is a second set of dials beside the rules'")
+        _remove = squashed(body_of(MAILBOX, "protected void onRemove("))
+        if "Containers.dropContents(level, pos, all);" not in _remove:
+            fail("breaking a mailbox keeps what was in it, so the one way to "
+                 "move a postbox is to lose the post")
+
+    # Opening a parcel empties it before it hands anything over.
+    if not MAIL_ITEM:
+        fail("there is no mail item, so nothing a player holds is a parcel")
+    else:
+        _unpack = squashed(body_of(MAIL_ITEM, "public ItemStack unpack("))
+        if "stack.remove(ComfortComponents.CONTENTS.get());" not in _unpack:
+            fail("a parcel hands its contents over and keeps them as well, so "
+                 "opening one twice is an item duplicator -- which is how every "
+                 "duplication bug that has ever shipped shipped")
+        _order = _unpack.find("stack.remove(ComfortComponents.CONTENTS.get());")
+        _give = _unpack.find("player.getInventory().add(one)")
+        if _order >= 0 and _give >= 0 and _order > _give:
+            fail("a parcel hands its contents over before clearing itself, so a "
+                 "crash in between leaves two of everything that was in it")
+        if "sealed() && !addressedTo(stack, player)" not in squashed(MAIL_ITEM):
+            fail("a sealed parcel opens in anybody's hands, so the seal is a "
+                 "picture and the postage paid for it bought nothing")
+
+    # The bird's two clocks are two clocks.
+    if not BIRD:
+        fail("nothing carries the post, so every parcel arrives by itself")
+    else:
+        _bird = squashed(BIRD)
+        if "PostRules.bird(name)" not in _bird:
+            fail("a bird does not find its own row by the name it was registered "
+                 "under, so whatever it is storing instead can be stored wrong")
+        _turn = squashed(body_of(BIRD, "private void turn()"))
+        if "server.addFreshEntity(made);" not in _turn or "discard();" not in _turn:
+            fail("a bird carried somewhere it does not belong does not become "
+                 "the other bird, so the loop the rules hold shut is not the "
+                 "loop the game walks")
+        elif _turn.find("server.addFreshEntity(made);") > _turn.find("discard();"):
+            fail("a bird is discarded before its replacement is placed, so a "
+                 "crash in between is a bird gone for good")
+        for named, why in (
+                ("public void addAdditionalSaveData(",
+                 "a bird never writes down how long it has been where it does "
+                 "not belong, so carrying one below and logging out resets it"),
+                ("public void readAdditionalSaveData(",
+                 "a bird never reads back its own clocks, so a tired one comes "
+                 "back rested and a pigeonhole never gets dirty")):
+            if named not in BIRD:
+                fail(why)
+
+    # A pigeonhole only pays what the rules say, and only to a shovel.
+    if not HOLE:
+        fail("there is no pigeonhole, so there is nowhere for a bird to be")
+    else:
+        _hole = squashed(HOLE)
+        if "PostRules.wasteAt(level_)" not in _hole:
+            fail("a pigeonhole hands back an amount it works out itself rather "
+                 "than the rules' own, which is a second set of dials beside "
+                 "the rules'")
+        for typed in re.findall(r"Items\.BONE_MEAL, (\d+)\)", _hole):
+            fail(f"a pigeonhole hands back {typed} by a number typed into the "
+                 f"block, so the climb the rules insist on is not the climb the "
+                 f"game pays")
+
+    # No two kinds of mail share a recipe shape. Two that did would be two
+    # recipes the game resolves to whichever it loaded first, so one of them
+    # silently does not exist -- which is exactly how sixteen hammocks were
+    # refused at load for a season.
+    shapes = {}
+    for row in mail:
+        name = kinds.get(row[0], row[0])
+        written = read(RES, "data", NS, "recipe", name + ".json")
+        if not written:
+            continue
+        made = json.loads(written)
+        if made.get("type") != "minecraft:crafting_shaped":
+            continue
+        fingerprint = (tuple(made["pattern"]),
+                       tuple(sorted((symbol, json.dumps(what, sort_keys=True))
+                                    for symbol, what in made["key"].items())))
+        if fingerprint in shapes:
+            fail(f"{name} and {shapes[fingerprint]} are crafted the same way, so "
+                 f"the game resolves both to whichever it loaded first and the "
+                 f"other silently does not exist")
+        shapes[fingerprint] = name
+        # And every symbol the key defines is a symbol the pattern uses. One that
+        # is not is not harmless: the game refuses the whole recipe with a line
+        # in the log and carries on, so the item quietly cannot be made.
+        used = {symbol for line in made["pattern"] for symbol in line
+                if symbol != " "}
+        for symbol in made["key"]:
+            if symbol not in used:
+                fail(f"{name}'s recipe declares the key '{symbol}' and its "
+                     f"pattern never uses it, so the game refuses the whole "
+                     f"recipe and the item cannot be crafted at all")
+        for symbol in used:
+            if symbol not in made["key"]:
+                fail(f"{name}'s recipe uses '{symbol}' in its pattern and never "
+                     f"says what it is, so the game refuses the recipe")
+
+    # Every rule the file declares is added up.
+    _sum = squashed(body_of(POST, "public static List<String> faults()"))
+    _rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", POST))
+    _added = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _sum))
+    if len(_rules) < 8:
+        fail(f"only {len(_rules)} post rule(s) are declared at all, so the check "
+             f"below is checking nothing")
+    for _rule in sorted(_rules - _added):
+        fail(f"{_rule} is written, compiled and never added up by the post's "
+             f"faults(), so it answers the harness's controls and is never once "
+             f"asked about what this module ships")
+
+    print(f"the post           : {len(woods)} pigeonhole(s), {len(mail)} kind(s) "
+          f"of mail and {len(birds)} bird(s); a journey the block takes from the "
+          f"rules rather than from a number typed into it, a parcel that is "
+          f"never in two places and never in none, and a seal that only opens "
+          f"in the hands it is addressed to")
 
 
 if problems:

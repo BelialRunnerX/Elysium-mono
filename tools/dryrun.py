@@ -53,6 +53,14 @@ def _answered(match):
 s = re.sub(r"^(\w+)\(\)\s*\{[^\n]*(?:validate\.py|check_\w+\.py)[^\n]*\}$",
            _answered, s, flags=re.M)
 
+# Any one-line function that deletes or moves a file. The bare-mutation rule
+# below only catches a line that *starts* with rm or mv, so a helper written as
+# `remove() { rm -f "$1"; }` went straight through: the definition line does not
+# start with rm, and the call site is just a word. A script that used one
+# deleted a generated texture during what was supposed to be a dry run.
+s = re.sub(r"^(\w+)\(\)\s*\{[^\n]*\b(?:rm|mv|unlink|truncate)\b[^\n]*\}$",
+           r"\1() { :; }", s, flags=re.M)
+
 # The refusal at the top -- "do not start if the tree is already broken" --
 # is three more real validator runs and answers a question a dry run is not
 # asking.

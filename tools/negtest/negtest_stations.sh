@@ -161,7 +161,7 @@ edit $G '                    "e": {"item": STATION_HEART[name]}},' \
 expect_regen "eight stations made of the same nine things, so seven can never be crafted" "the game cannot tell them apart"
 
 rm -f $M/src/main/resources/assets/elysiumcomforts/blockstates/iron_farm.json
-expect "a station with no blockstate, which is a missing-texture cube" "has no a blockstate"
+expect "a station with no blockstate, which is a missing-texture cube" "has no blockstate"
 
 edit $V '    _rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(",
                             STATION))' '    _rules = set(re.findall(r"public static List<String> (faultsInZ\w+)\(",

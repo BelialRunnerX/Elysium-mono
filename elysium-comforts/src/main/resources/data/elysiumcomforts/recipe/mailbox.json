@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "sss",
+    "ptp",
+    "ppp"
+  ],
+  "key": {
+    "p": {
+      "tag": "minecraft:planks"
+    },
+    "s": {
+      "tag": "minecraft:wooden_slabs"
+    },
+    "t": {
+      "item": "elysiumcomforts:address_tag"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:mailbox",
+    "count": 1
+  }
+}

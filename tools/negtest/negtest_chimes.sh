@@ -148,7 +148,7 @@ edit $C '    made.put("copper", "minecraft:copper_ingot");' '    made.put("coppe
 expect_regen "a chime made of something the game does not have" "the game does not have one"
 
 rm -f $M/src/main/resources/assets/elysiumcomforts/blockstates/red_iron_chimes.json
-expect "a chime with no blockstate, which is a missing-texture cube" "has no a blockstate"
+expect "a chime with no blockstate, which is a missing-texture cube" "has no blockstate"
 
 edit $V '    _rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", CHIME))' \
         '    _rules = set(re.findall(r"public static List<String> (faultsInZ\w+)\(", CHIME))'

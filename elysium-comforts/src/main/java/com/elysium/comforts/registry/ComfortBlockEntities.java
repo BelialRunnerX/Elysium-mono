@@ -8,7 +8,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Two block entities: what is in the grave, and who is in a station. */
+/**
+ * Three block entities: what is in the grave, who is in a station, and what
+ * has arrived at a mailbox.
+ */
 public final class ComfortBlockEntities {
 
     private ComfortBlockEntities() {
@@ -48,4 +51,20 @@ public final class ComfortBlockEntities {
         }
         return made.toArray(new net.minecraft.world.level.block.Block[0]);
     }
+
+    /**
+     * The mailbox: an address, what has landed at it, and what is in the air
+     * towards it.
+     *
+     * <p>All three are block-entity data rather than block state, because a
+     * parcel in flight has to survive a chunk unloading. A journey kept in
+     * state is a journey that restarts every time somebody walks away, and a
+     * parcel whose journey restarts is a parcel that never comes.
+     */
+    public static final DeferredHolder<BlockEntityType<?>,
+            BlockEntityType<com.elysium.comforts.block.MailboxBlockEntity>>
+            MAILBOX = TYPES.register("mailbox", () -> BlockEntityType.Builder.of(
+                    com.elysium.comforts.block.MailboxBlockEntity::new,
+                    ComfortBlocks.MAILBOX.get())
+            .build(null));
 }

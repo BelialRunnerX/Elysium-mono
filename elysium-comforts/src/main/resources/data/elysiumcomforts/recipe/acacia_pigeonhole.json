@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "pigeonhole",
+  "pattern": [
+    "ppp",
+    "php",
+    "ppp"
+  ],
+  "key": {
+    "p": {
+      "item": "minecraft:acacia_planks"
+    },
+    "h": {
+      "item": "minecraft:hay_block"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:acacia_pigeonhole",
+    "count": 1
+  }
+}

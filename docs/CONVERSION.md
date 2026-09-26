@@ -411,6 +411,20 @@ against the 189 remaining jars on the device and both came back clean:
 list that tells you to delete the thing doing the replacing is worse than no
 list, so it now excludes both.
 
+### The third prune, 2026-09-26
+
+**envelope** moved to `mods/_superseded/` in both instances, now that
+`elysium-comforts` carries the post. Both scripted pre-checks were run against
+the 174 remaining jars on the device and both came back clean:
+
+* **Required dependencies** — nothing remaining declares `envelope`
+  `type="required"`.
+* **Tag entries** — no tag file in any remaining jar names an `envelope:` id at
+  all, required or optional.
+
+Two copies went across: `0.7.5`, which was the live one, and `0.7.3`, which was
+already in `_superseded` from an earlier version bump. Both are kept.
+
 ### The third thing, which is not automatic
 
 Other mods ship **integration recipes** against the jar being removed, and

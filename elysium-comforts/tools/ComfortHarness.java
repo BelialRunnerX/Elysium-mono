@@ -25,6 +25,22 @@ public final class ComfortHarness {
         }
     }
 
+    /**
+     * Whether that threw.
+     *
+     * <p>A compact constructor that refuses nonsense is a check like any other,
+     * and a check nothing exercises is a check that can be deleted by accident
+     * and never missed.
+     */
+    private static boolean threwOn(Runnable what) {
+        try {
+            what.run();
+            return false;
+        } catch (RuntimeException expected) {
+            return true;
+        }
+    }
+
     public static void main(String[] args) {
         theSize();
         theHeight();
@@ -35,6 +51,7 @@ public final class ComfortHarness {
         theResting();
         theChimes();
         theStations();
+        thePost();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -696,5 +713,325 @@ public final class ComfortHarness {
                 + swept + " stations nobody wrote swept against what a hand "
                 + "does with the same input, and not one of this module's own "
                 + "either better value than a player or quicker than one");
+    }
+    private static void thePost() {
+        List<String> faults = PostRules.faults();
+        check(faults.isEmpty(), "something wrong with the post: " + faults);
+
+        // ----------------------------------------------------------------
+        // Controls first and the sweep after, because a quarter of a million
+        // failing rounds fill the failure report before a control gets to say
+        // anything.
+        // ----------------------------------------------------------------
+
+        PostRules.Mail letter = PostRules.mail(PostRules.LETTER);
+        PostRules.Mail parcel = PostRules.mail(PostRules.PACKAGE);
+
+        check(!PostRules.faultsInKinds(List.of(new PostRules.Mail("control", 1, 1,
+                        false, false, true)), PostRules.KINDS).isEmpty(),
+                "mail of a kind nothing else names is not reported");
+        check(PostRules.faultsInKinds(PostRules.MAIL, PostRules.KINDS).isEmpty(),
+                "the kinds this module ships are reported as unknown");
+
+        check(!PostRules.faultsInNames(List.of(letter, letter)).isEmpty(),
+                "two pieces of mail written under one name are not reported");
+        check(PostRules.faultsInNames(PostRules.MAIL).isEmpty(),
+                "the names this module ships are reported as doubled");
+
+        check(!PostRules.faultsInGaps(List.of(), PostRules.KINDS).isEmpty(),
+                "a kind of mail nothing makes is not reported, so a kind could "
+                        + "be named in the rules and never exist");
+        check(PostRules.faultsInGaps(PostRules.MAIL, PostRules.KINDS).isEmpty(),
+                "the mail this module ships leaves a kind unmade");
+
+        check(!PostRules.faultsInPostage(List.of(parcel,
+                        new PostRules.Mail("control", parcel.slots() + 1,
+                                parcel.postage() - 1, parcel.sealed(),
+                                parcel.pays(), true))).isEmpty(),
+                "a parcel with more room for less paper than another is not "
+                        + "reported, so one of the two is an item nobody sends");
+        check(PostRules.faultsInPostage(PostRules.MAIL).isEmpty(),
+                "the postage this module ships has something dominated");
+
+        check(!PostRules.faultsInPosted(List.of(new PostRules.Mail("control", 1,
+                        0, false, false, true))).isEmpty(),
+                "free postage on something that is posted is not reported");
+        check(!PostRules.faultsInPosted(List.of(new PostRules.Mail("control", 1,
+                        3, false, false, false))).isEmpty(),
+                "a charge on something that is never posted is not reported");
+        check(PostRules.faultsInPosted(PostRules.MAIL).isEmpty(),
+                "the postage this module ships is reported as free or as a "
+                        + "charge for nothing");
+
+        check(!PostRules.faultsInSeals(List.of(
+                        new PostRules.Mail("open", 9, 4, false, false, true),
+                        new PostRules.Mail("shut", 9, 4, true, false, true)))
+                        .isEmpty(),
+                "a seal that costs no more than no seal is not reported");
+        check(PostRules.faultsInSeals(PostRules.MAIL).isEmpty(),
+                "the seals this module ships are reported as free");
+
+        check(!PostRules.faultsInFloor(600, 6000, 5000, 0, 1.0D).isEmpty(),
+                "a post with no handling at either end, which arrives the "
+                        + "instant it is sent, is not reported");
+        check(!PostRules.faultsInFloor(0, 6000, 5000, 600, 1.0D).isEmpty(),
+                "a floor of nought ticks is not reported");
+        check(PostRules.faultsInFloor(PostRules.SOONEST, PostRules.LATEST,
+                        PostRules.FURTHEST, PostRules.HANDLING,
+                        PostRules.BLOCKS_A_TICK).isEmpty(),
+                "the post this module ships is reported as arriving instantly");
+
+        check(!PostRules.faultsInBand(600, 600).isEmpty(),
+                "a band with no width in it, where every parcel takes the same "
+                        + "time whatever the distance, is not reported");
+        check(PostRules.faultsInBand(PostRules.SOONEST, PostRules.LATEST).isEmpty(),
+                "the band this module ships is reported as having no width");
+
+        check(!PostRules.faultsInCeiling(600, 6000, 9000, 600, 1.0D).isEmpty(),
+                "a journey that runs past the longest wait the post promises is "
+                        + "not reported, so somebody far out is cut off");
+        check(PostRules.faultsInCeiling(PostRules.SOONEST, PostRules.LATEST,
+                        PostRules.FURTHEST, PostRules.HANDLING,
+                        PostRules.BLOCKS_A_TICK).isEmpty(),
+                "the post this module ships is reported as taking too long");
+
+        check(PostRules.faultsInClimb(PostRules.FURTHEST, PostRules.HANDLING,
+                        PostRules.BLOCKS_A_TICK).isEmpty(),
+                "the post this module ships is reported as quicker the further "
+                        + "it goes");
+        check(PostRules.faultsInCap(PostRules.FURTHEST, PostRules.HANDLING,
+                        PostRules.BLOCKS_A_TICK).isEmpty(),
+                "the post this module ships is reported as never stopping");
+
+        check(!PostRules.faultsInServices(List.of(
+                        new PostRules.Service("a", 100, false),
+                        new PostRules.Service("b", 100, false)),
+                        PostRules.FURTHEST).isEmpty(),
+                "two services the same distance off, which cost the same and "
+                        + "take the same time, are not reported");
+        check(!PostRules.faultsInServices(List.of(
+                        new PostRules.Service("a", PostRules.FURTHEST + 1, false)),
+                        PostRules.FURTHEST).isEmpty(),
+                "a service past where the journey stops growing is not reported");
+        check(PostRules.faultsInServices(PostRules.SERVICES, PostRules.FURTHEST)
+                        .isEmpty(),
+                "the services this module ships are reported as doubled up");
+
+        check(PostRules.faultsInAddresses(PostRules.LONGEST_ADDRESS).isEmpty(),
+                "the addresses this module allows are reported as wrong");
+
+        check(!PostRules.faultsInWaits(List.of(180, 30, 4320)).isEmpty(),
+                "payback windows out of order are not reported");
+        check(!PostRules.faultsInWaits(List.of(30, 30)).isEmpty(),
+                "two payback windows of the same length are not reported");
+        check(PostRules.faultsInWaits(PostRules.WAITS).isEmpty(),
+                "the payback windows this module ships are reported as out of "
+                        + "order");
+
+        check(!PostRules.faultsInPayback(List.of(1), PostRules.LATEST).isEmpty(),
+                "a payback window shorter than the longest delivery is not "
+                        + "reported, so the post could ship a swindle");
+        check(PostRules.faultsInPayback(PostRules.WAITS, PostRules.LATEST).isEmpty(),
+                "the payback windows this module ships are reported as shorter "
+                        + "than a delivery");
+
+        check(!PostRules.faultsInLoss(0, 100, 0.25D).isEmpty(),
+                "a post that never loses anything is not reported");
+        check(!PostRules.faultsInLoss(101, 100, 0.25D).isEmpty(),
+                "a post that loses more than it allows is not reported");
+        check(!PostRules.faultsInLoss(15, 100, 1.0D).isEmpty(),
+                "lost mail worth as much as what was posted is not reported, so "
+                        + "posting to nowhere would be a way to play");
+        check(!PostRules.faultsInLoss(15, 100, -0.5D).isEmpty(),
+                "lost mail worth less than nothing is not reported");
+        check(PostRules.faultsInLoss(PostRules.LOSS_IN_A_THOUSAND,
+                        PostRules.MOST_LOSS_IN_A_THOUSAND,
+                        PostRules.LOST_MAIL_WORTH).isEmpty(),
+                "the losses this module ships are reported as wrong");
+
+        check(!PostRules.faultsInHoleGaps(List.of(), PostRules.WOODS).isEmpty(),
+                "a wood with no pigeonhole in it is not reported");
+        check(!PostRules.faultsInHoleWoods(List.of("granite_pigeonhole"),
+                        PostRules.WOODS).isEmpty(),
+                "a pigeonhole in a wood the pack does not have is not reported");
+        check(!PostRules.faultsInHoleNames(List.of("oak_pigeonhole",
+                        "oak_pigeonhole")).isEmpty(),
+                "a pigeonhole made twice is not reported");
+        check(PostRules.faultsInHoleGaps(PostRules.pigeonholes(),
+                        PostRules.WOODS).isEmpty(),
+                "the pigeonholes this module ships are reported as missing a wood");
+        check(PostRules.faultsInHoleWoods(PostRules.pigeonholes(),
+                        PostRules.WOODS).isEmpty(),
+                "the pigeonholes this module ships are reported as built from "
+                        + "woods the pack has not got");
+        check(PostRules.faultsInHoleNames(PostRules.pigeonholes()).isEmpty(),
+                "the pigeonholes this module ships are reported as doubled");
+
+        check(!PostRules.faultsInFouling(0).isEmpty(),
+                "a pigeonhole that never gets dirty is not reported");
+        check(PostRules.faultsInFouling(PostRules.FOULEST).isEmpty(),
+                "the pigeonholes this module ships are reported as never getting "
+                        + "dirty");
+        check(!PostRules.faultsInWaste(List.of(0, 2, 2, 2)).isEmpty(),
+                "a pigeonhole worth no more at level two than at level one is "
+                        + "not reported, so there is no reason to keep a bird");
+        check(!PostRules.faultsInWaste(List.of(0, 4, 2, 6)).isEmpty(),
+                "a pigeonhole that is worth less for being dirtier is not "
+                        + "reported");
+        check(!PostRules.faultsInWaste(List.of(1, 2, 4, 6)).isEmpty(),
+                "a clean pigeonhole that pays anyway is not reported, so a "
+                        + "player is paid for a bird that has not been there");
+        check(!PostRules.faultsInWaste(List.of()).isEmpty(),
+                "a pigeonhole with no ladder at all is not reported");
+        check(PostRules.faultsInWaste(PostRules.FOULEST).isEmpty(),
+                "the waste this module ships is reported as flat");
+        check(PostRules.wasteLadder(PostRules.FOULEST).size()
+                        == PostRules.FOULEST + 1,
+                "the ladder has " + PostRules.wasteLadder(PostRules.FOULEST).size()
+                        + " rung(s) where the post says a pigeonhole has "
+                        + (PostRules.FOULEST + 1));
+
+        check(!PostRules.faultsInTop(3, 6, 16).isEmpty(),
+                "a pigeonhole that goes on paying past its dirtiest level is "
+                        + "not reported, so the top level is not the top");
+        check(PostRules.faultsInTop(PostRules.FOULEST).isEmpty(),
+                "the top level of dirt this module ships is reported as not the "
+                        + "top");
+
+        check(!PostRules.faultsInBirds(List.of(
+                        new PostRules.Bird("a", PostRules.ABOVE, null, 0, 1),
+                        new PostRules.Bird("b", PostRules.ABOVE, null, 0, 1)))
+                        .isEmpty(),
+                "two birds that belong in one dimension are not reported");
+        check(!PostRules.faultsInBirds(List.of(
+                        new PostRules.Bird("a", PostRules.ABOVE, null, 0, 1),
+                        new PostRules.Bird("a", PostRules.BELOW, null, 0, 1)))
+                        .isEmpty(),
+                "two birds written under one name are not reported");
+        check(PostRules.faultsInBirds(PostRules.BIRDS).isEmpty(),
+                "the birds this module ships are reported as doubled");
+
+        check(!PostRules.faultsInNowhere(List.of(
+                        new PostRules.Bird("a", PostRules.ABOVE, null, 0, 1)))
+                        .isEmpty(),
+                "a bird that turns into nothing wherever it is carried is not "
+                        + "reported");
+        check(PostRules.faultsInNowhere(PostRules.BIRDS).isEmpty(),
+                "the birds this module ships are reported as turning into "
+                        + "nothing");
+        check(!PostRules.faultsInUnknown(List.of(
+                        new PostRules.Bird("a", PostRules.ABOVE, "nobody", 300, 1)))
+                        .isEmpty(),
+                "a bird that turns into something this module does not have is "
+                        + "not reported, so carrying one below would lose it");
+        check(PostRules.faultsInUnknown(PostRules.BIRDS).isEmpty(),
+                "the birds this module ships are reported as turning into "
+                        + "something it has not got");
+        check(!PostRules.faultsInLoop(List.of(
+                        new PostRules.Bird("a", PostRules.ABOVE, "b", 300, 1),
+                        new PostRules.Bird("b", PostRules.BELOW, "c", 300, 1),
+                        new PostRules.Bird("c", "end", "b", 300, 1))).isEmpty(),
+                "a one-way change, where a bird carried below never comes back, "
+                        + "is not reported");
+        check(PostRules.faultsInLoop(PostRules.BIRDS).isEmpty(),
+                "the birds this module ships are reported as one-way");
+
+        check(!PostRules.faultsInSymbolNames(List.of("a", "a")).isEmpty(),
+                "a symbol cut twice is not reported");
+        check(PostRules.faultsInSymbolNames(PostRules.symbols()).isEmpty(),
+                "the symbols this module ships are reported as doubled");
+        check(!PostRules.faultsInAlphabet(List.of("a")).isEmpty(),
+                "an alphabet with letters missing from it is not reported");
+        check(PostRules.faultsInAlphabet(PostRules.symbols()).isEmpty(),
+                "the alphabet this module ships is reported as incomplete");
+        check(!PostRules.faultsInDigits(List.of("0")).isEmpty(),
+                "a set of figures with numbers missing from it is not reported");
+        check(PostRules.faultsInDigits(PostRules.symbols()).isEmpty(),
+                "the figures this module ships are reported as incomplete");
+
+        check(!PostRules.faultsInRosterNames(List.of("red_wax_a", "red_wax_a"))
+                        .isEmpty(),
+                "a seal in the roster twice is not reported");
+        check(PostRules.faultsInRosterNames(PostRules.seals()).isEmpty(),
+                "the seals this module ships are reported as doubled");
+        check(!PostRules.faultsInRosterCuts(List.of("red_wax_a"),
+                        PostRules.SEAL_MATERIALS, PostRules.symbols()).isEmpty(),
+                "a roster with a material barely cut at all is not reported");
+        check(PostRules.faultsInRosterCuts(PostRules.seals(),
+                        PostRules.SEAL_MATERIALS, PostRules.symbols()).isEmpty(),
+                "the seals this module ships are reported as half cut");
+        check(!PostRules.faultsInRosterCount(List.of("red_wax_a"),
+                        PostRules.SEAL_MATERIALS, PostRules.symbols()).isEmpty(),
+                "a roster that does not come to what the two lists multiply to "
+                        + "is not reported");
+        check(PostRules.faultsInRosterCount(PostRules.seals(),
+                        PostRules.SEAL_MATERIALS, PostRules.symbols()).isEmpty(),
+                "the seals this module ships are reported as short");
+
+        // Throwing controls, for the compact constructors.
+        check(threwOn(() -> new PostRules.Mail("control", -1, 1, false, false,
+                        true)),
+                "mail with less than no room in it is accepted");
+        check(threwOn(() -> new PostRules.Mail("control", 1, -1, false, false,
+                        true)),
+                "mail that costs less than nothing to send is accepted");
+        check(threwOn(() -> new PostRules.Service("control", -1, false)),
+                "a service less than nowhere away is accepted");
+        check(threwOn(() -> new PostRules.Bird("control", PostRules.ABOVE, null,
+                        0, 0)),
+                "a bird with no colourings at all, which nothing could render, "
+                        + "is accepted");
+        check(threwOn(() -> new PostRules.Bird("control", PostRules.ABOVE,
+                        "other", 0, 1)),
+                "a bird that changes in no time at all is accepted");
+
+        // ----------------------------------------------------------------
+        // And now the sweep: journeys nobody wrote.
+        // ----------------------------------------------------------------
+
+        Random random = new Random(8_812_099L);
+        int swept = 0;
+        int before = PostRules.travelTicks(0);
+        for (int blocks = 0; blocks <= PostRules.FURTHEST * 2; blocks++) {
+            int took = PostRules.travelTicks(blocks);
+            check(took >= before, "a parcel going " + blocks + " blocks arrives "
+                    + "sooner than one going less far: " + took + " against "
+                    + before);
+            check(took >= PostRules.SOONEST && took <= PostRules.LATEST,
+                    "a parcel going " + blocks + " blocks takes " + took
+                            + " ticks, outside the band " + PostRules.SOONEST
+                            + " to " + PostRules.LATEST);
+            before = took;
+            swept++;
+        }
+        int capped = PostRules.travelTicks(PostRules.FURTHEST);
+        for (int round = 0; round < 200_000; round++) {
+            int blocks = PostRules.FURTHEST + 1
+                    + random.nextInt(Integer.MAX_VALUE - PostRules.FURTHEST - 1);
+            int took = PostRules.travelTicks(blocks);
+            check(took == capped, "a parcel going " + blocks + " blocks, which is "
+                    + "past the cap, takes " + took + " rather than the capped "
+                    + capped);
+            swept++;
+        }
+        for (int round = 0; round < 50_000; round++) {
+            int length = random.nextInt(PostRules.LONGEST_ADDRESS + 4);
+            StringBuilder made = new StringBuilder();
+            for (int at = 0; at < length; at++) {
+                made.append((char) ('a' + random.nextInt(26)));
+            }
+            boolean fits = length >= 1 && length <= PostRules.LONGEST_ADDRESS;
+            check(PostRules.addressable(made.toString()) == fits,
+                    "an address of " + length + " characters is taken wrongly");
+            swept++;
+        }
+
+        System.out.println("  the post: " + PostRules.MAIL.size()
+                + " kind(s) of mail, " + PostRules.pigeonholes().size()
+                + " pigeonhole(s), " + PostRules.seals().size() + " seal(s) and "
+                + PostRules.BIRDS.size() + " bird(s); " + swept + " journeys and "
+                + "addresses nobody wrote, every one of them inside the band "
+                + PostRules.SOONEST + " to " + PostRules.LATEST + " ticks and "
+                + "never quicker for being further");
     }
 }

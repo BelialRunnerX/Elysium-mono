@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "p p",
+    "hsh",
+    "ppp"
+  ],
+  "key": {
+    "p": {
+      "item": "minecraft:paper"
+    },
+    "h": {
+      "item": "minecraft:honeycomb"
+    },
+    "s": {
+      "item": "elysiumcomforts:seal_stamp"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:payback_box",
+    "count": 1
+  }
+}

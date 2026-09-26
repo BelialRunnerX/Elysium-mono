@@ -138,6 +138,18 @@
     "elysiumcomforts:incubator",
     "elysiumcomforts:villager_farm",
     "elysiumcomforts:iron_farm",
-    "elysiumcomforts:inventory_viewer"
+    "elysiumcomforts:inventory_viewer",
+    "elysiumcomforts:oak_pigeonhole",
+    "elysiumcomforts:spruce_pigeonhole",
+    "elysiumcomforts:birch_pigeonhole",
+    "elysiumcomforts:jungle_pigeonhole",
+    "elysiumcomforts:acacia_pigeonhole",
+    "elysiumcomforts:dark_oak_pigeonhole",
+    "elysiumcomforts:mangrove_pigeonhole",
+    "elysiumcomforts:cherry_pigeonhole",
+    "elysiumcomforts:bamboo_pigeonhole",
+    "elysiumcomforts:crimson_pigeonhole",
+    "elysiumcomforts:warped_pigeonhole",
+    "elysiumcomforts:mailbox"
   ]
 }

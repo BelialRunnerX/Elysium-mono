@@ -5,9 +5,12 @@ import com.elysium.comforts.block.GraveBlock;
 import com.elysium.comforts.block.ChimeBlock;
 import com.elysium.comforts.block.RestBlock;
 import com.elysium.comforts.block.RopeBlock;
+import com.elysium.comforts.block.MailboxBlock;
+import com.elysium.comforts.block.PigeonholeBlock;
 import com.elysium.comforts.block.StationBlock;
 import com.elysium.comforts.rules.ChimeRules;
 import com.elysium.comforts.rules.RestRules;
+import com.elysium.comforts.rules.PostRules;
 import com.elysium.comforts.rules.StationRules;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -131,4 +134,37 @@ public final class ComfortBlocks {
         }
         return java.util.Map.copyOf(made);
     }
+
+    /** One pigeonhole per wood the pack builds in, walked from the rules. */
+    public static final java.util.Map<String, DeferredBlock<PigeonholeBlock>>
+            PIGEONHOLES = pigeonholes();
+
+    private static java.util.Map<String, DeferredBlock<PigeonholeBlock>> pigeonholes() {
+        java.util.Map<String, DeferredBlock<PigeonholeBlock>> made =
+                new java.util.LinkedHashMap<>();
+        for (String wood : PostRules.WOODS) {
+            String name = PostRules.pigeonhole(wood);
+            made.put(name, BLOCKS.register(name,
+                    () -> new PigeonholeBlock(BlockBehaviour.Properties
+                            .ofFullCopy(Blocks.OAK_PLANKS)
+                            .mapColor(MapColor.WOOD)
+                            .sound(SoundType.WOOD)
+                            .strength(1.5F)
+                            .noOcclusion(), wood)));
+        }
+        if (made.size() != PostRules.WOODS.size()) {
+            throw new IllegalStateException("the pack builds in "
+                    + PostRules.WOODS.size() + " wood(s) and " + made.size()
+                    + " pigeonhole(s) were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
+    /** Where mail lands. */
+    public static final DeferredBlock<MailboxBlock> MAILBOX = BLOCKS.register("mailbox",
+            () -> new MailboxBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
+                    .mapColor(MapColor.WOOD)
+                    .sound(SoundType.WOOD)
+                    .strength(2.0F)
+                    .noOcclusion()));
 }

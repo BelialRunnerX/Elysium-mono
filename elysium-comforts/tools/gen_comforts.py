@@ -185,6 +185,71 @@ CHIMES = [colour + "_" + material + "_chimes"
           for material in MATERIALS for colour in COLOURS]
 BLOCKS = BLOCKS + CHIMES + STATION_IDS
 
+# The post, read out of PostRules for the same reason again: which woods take a
+# pigeonhole and what each piece of mail costs are rules; what a paper box looks
+# like is art.
+POST_SOURCE = rules("PostRules.java")
+_flat = re.sub(r"\s+", " ", POST_SOURCE)
+_woods = re.search(r"List<String> WOODS = List\.of\((.*?)\);", _flat)
+WOODS = re.findall(r'"([a-z_]+)"', _woods.group(1)) if _woods else []
+PIGEONHOLES = [wood + "_pigeonhole" for wood in WOODS]
+MAIL = [(one[0], int(one[1]), int(one[2]), one[3] == "true", one[4] == "true",
+         one[5] == "true")
+        for one in re.findall(
+            r'new Mail\((\w+), (\d+), (\d+), (true|false), (true|false), '
+            r'(true|false)\)', _flat)]
+MAIL_NAMES = dict(re.findall(
+    r'public static final String ([A-Z_]+) = "([a-z_]+)";', POST_SOURCE))
+MAIL_IDS = [MAIL_NAMES[one[0]] for one in MAIL if one[0] in MAIL_NAMES]
+# Each bird's name and how many colourings it comes in. The count matters here
+# rather than only in the rules, because it is how many skins get drawn, and a
+# bird whose renderer asks for a fourth skin that was never drawn is a bird one
+# player in four meets as a missing texture.
+BIRD_ROWS = [(one[0], int(one[4])) for one in re.findall(
+    r'new Bird\("([a-z_]+)", (\w+), ([^,]+), (\d+), (\d+)\)', _flat)]
+BIRDS = [one[0] for one in BIRD_ROWS]
+_seal_materials = re.search(r"List<String> SEAL_MATERIALS = List\.of\((.*?)\);",
+                            _flat)
+SEAL_MATERIALS = (re.findall(r'"([a-z_]+)"', _seal_materials.group(1))
+                  if _seal_materials else [])
+if len(WOODS) != 11 or len(MAIL_IDS) != 8 or len(BIRDS) != 2 \
+        or len(SEAL_MATERIALS) != 3:
+    print("PostRules reads as %d wood(s), %d kind(s) of mail, %d bird(s) and "
+          "%d seal material(s)"
+          % (len(WOODS), len(MAIL_IDS), len(BIRDS), len(SEAL_MATERIALS)))
+    sys.exit(2)
+BLOCKS = BLOCKS + PIGEONHOLES + ["mailbox"]
+
+# How dirty a pigeonhole gets, read rather than typed: the blockstate has to
+# list every level the block can be in, and a blockstate one short is a block
+# that renders as nothing at exactly the moment it is worth scooping.
+_foulest = re.search(r"int FOULEST = (\d+);", POST_SOURCE)
+if not _foulest:
+    print("PostRules does not say how dirty a pigeonhole gets")
+    sys.exit(2)
+FOULEST = int(_foulest.group(1))
+
+#: What each wood looks like, to look at. Art, not a rule.
+PLANK = {
+    "oak": (162, 130, 78), "spruce": (114, 84, 48), "birch": (196, 179, 123),
+    "jungle": (160, 115, 81), "acacia": (168, 90, 50),
+    "dark_oak": (66, 43, 20), "mangrove": (117, 54, 48),
+    "cherry": (226, 177, 172), "bamboo": (193, 158, 78),
+    "crimson": (101, 48, 71), "warped": (43, 104, 99),
+}
+if sorted(PLANK) != sorted(WOODS):
+    print("there are planks for %s and the rules name %s"
+          % (sorted(PLANK), sorted(WOODS)))
+    sys.exit(2)
+
+#: What the mail is made of, to look at. Art, not a rule.
+PAPER = (232, 228, 214)
+WAX = {"red_wax": (167, 58, 51), "gold": (255, 179, 71), "lapis": (58, 92, 173)}
+if sorted(WAX) != sorted(SEAL_MATERIALS):
+    print("there is wax for %s and the rules name %s"
+          % (sorted(WAX), sorted(SEAL_MATERIALS)))
+    sys.exit(2)
+
 #: What each chime's tubes are made of, to look at. Art, not a rule.
 TUBE = {
     "oak": (150, 118, 72), "bamboo": (176, 186, 96),
@@ -308,6 +373,110 @@ def station_sprite(name):
     return image
 
 
+def pigeonhole_sprite(wood):
+    """A wall of holes in a plank face, one shade per wood."""
+    shade = PLANK[wood]
+    dark = tuple(max(0, one - 45) for one in shade)
+    light = tuple(min(255, one + 30) for one in shade)
+    image = Image.new("RGBA", (16, 16), rgba(shade))
+    draw = ImageDraw.Draw(image)
+    for y in range(0, 16, 5):
+        draw.line([(0, y), (15, y)], fill=rgba(dark))
+    for across in (2, 9):
+        for down in (2, 9):
+            draw.rectangle([across, down, across + 4, down + 4], fill=rgba(dark))
+            draw.rectangle([across + 1, down + 1, across + 3, down + 3],
+                           fill=rgba(tuple(max(0, one - 70) for one in shade)))
+    draw.line([(0, 0), (15, 0)], fill=rgba(light))
+    return image
+
+
+def mailbox_sprite():
+    image = Image.new("RGBA", (16, 16), rgba(PLANK["spruce"]))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([2, 4, 13, 12], fill=rgba((176, 62, 56)))
+    draw.rectangle([2, 4, 13, 12], outline=rgba((92, 30, 27)))
+    draw.line([(4, 8), (11, 8)], fill=rgba(PAPER))
+    return image
+
+
+def letter_sprite(name, slots, sealed, wax):
+    """A sheet or a box, with wax on it when it is sealed."""
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    if slots > 0:
+        draw.rectangle([2, 4, 13, 14],
+                       fill=rgba(tuple(max(0, one - 30) for one in PAPER)))
+        draw.rectangle([2, 4, 13, 14], outline=rgba((150, 140, 116)))
+        draw.line([(2, 8), (13, 8)], fill=rgba((150, 140, 116)))
+        draw.line([(7, 4), (7, 14)], fill=rgba((150, 140, 116)))
+    else:
+        draw.rectangle([1, 4, 14, 12], fill=rgba(PAPER))
+        draw.rectangle([1, 4, 14, 12], outline=rgba((150, 140, 116)))
+        draw.line([(1, 4), (7, 9)], fill=rgba((150, 140, 116)))
+        draw.line([(14, 4), (8, 9)], fill=rgba((150, 140, 116)))
+    if sealed:
+        draw.ellipse([6, 7, 10, 11], fill=rgba(wax))
+        draw.ellipse([7, 8, 9, 10],
+                     fill=rgba(tuple(max(0, one - 50) for one in wax)))
+    return image
+
+
+def tag_sprite():
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    draw.polygon([(3, 5), (12, 5), (14, 8), (12, 11), (3, 11)], fill=rgba(PAPER))
+    draw.polygon([(3, 5), (12, 5), (14, 8), (12, 11), (3, 11)],
+                 outline=rgba((150, 140, 116)))
+    draw.point((5, 8), fill=rgba((90, 84, 70)))
+    return image
+
+
+def stamp_sprite():
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([6, 2, 9, 9], fill=rgba(PLANK["oak"]))
+    draw.rectangle([4, 9, 11, 13], fill=rgba((198, 198, 202)))
+    draw.rectangle([4, 9, 11, 13], outline=rgba((120, 120, 126)))
+    return image
+
+
+def egg_sprite(name):
+    base = (154, 154, 154) if name == "pigeon" else (72, 60, 58)
+    spot = (63, 63, 63) if name == "pigeon" else (196, 88, 44)
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    draw.ellipse([4, 2, 11, 13], fill=rgba(base))
+    for x, y in ((6, 5), (9, 7), (6, 10), (8, 11)):
+        draw.rectangle([x, y, x + 1, y + 1], fill=rgba(spot))
+    return image
+
+
+#: What each bird's colourings look like. Art, not a rule -- but the number of
+#: them per bird is a rule, and draw_all walks that rather than this.
+FEATHERS = {
+    "pigeon": [(154, 154, 160), (110, 122, 140), (196, 196, 200),
+               (128, 108, 96)],
+    "charred_pigeon": [(64, 54, 52)],
+}
+
+
+def bird_skin(name, variant):
+    """The bird itself, on the model's own 32x16 sheet."""
+    shades = FEATHERS[name]
+    base = shades[variant % len(shades)]
+    dark = tuple(max(0, one - 40) for one in base)
+    image = Image.new("RGBA", (32, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 31, 15], fill=rgba(base))
+    draw.rectangle([0, 12, 15, 15], fill=rgba(dark))
+    draw.rectangle([20, 0, 31, 5], fill=rgba(dark))
+    if name == "charred_pigeon":
+        for y in range(0, 16, 3):
+            draw.line([(0, y), (31, y)], fill=rgba((214, 96, 40)))
+    return image
+
+
 def rope_sprite():
     image = Image.new("RGBA", (16, 16), CLEAR)
     draw = ImageDraw.Draw(image)
@@ -344,6 +513,43 @@ def draw_all():
     for name in STATION_IDS:
         station_sprite(name).save(os.path.join(folder, name + ".png"))
         drawn += 1
+    for wood in WOODS:
+        pigeonhole_sprite(wood).save(
+            os.path.join(folder, wood + "_pigeonhole.png"))
+        drawn += 1
+    mailbox_sprite().save(os.path.join(folder, "mailbox.png"))
+    drawn += 1
+    # The post's own items: a sheet or a box each, and wax on the sealed ones.
+    # Walked rather than listed, because a kind of mail with no sprite is an item
+    # that renders as the missing-texture cube and is found by whoever crafts it
+    # rather than by anybody here.
+    for one in MAIL:
+        name = MAIL_NAMES[one[0]]
+        letter_sprite(name, one[1], one[3], WAX[SEAL_MATERIALS[0]]).save(
+            os.path.join(items, name + ".png"))
+        drawn += 1
+    tag_sprite().save(os.path.join(items, "address_tag.png"))
+    stamp_sprite().save(os.path.join(items, "seal_stamp.png"))
+    drawn += 2
+    for name in BIRDS:
+        egg_sprite(name).save(os.path.join(items, name + "_spawn_egg.png"))
+        drawn += 1
+    skins = os.path.join(ASSETS, "textures/entity")
+    os.makedirs(skins, exist_ok=True)
+    wanted = set()
+    for one in BIRD_ROWS:
+        for variant in range(one[1]):
+            name = "%s_%d.png" % (one[0], variant)
+            bird_skin(one[0], variant).save(os.path.join(skins, name))
+            wanted.add(name)
+            drawn += 1
+    # And take away the ones the rules no longer ask for. A generator that only
+    # ever adds leaves orphans behind, and an orphan skin is a texture shipped
+    # in the jar that nothing can draw -- harmless until the day a validator
+    # counts skins and finds the right number of the wrong ones.
+    for stale in sorted(os.listdir(skins)):
+        if stale.endswith(".png") and stale not in wanted:
+            os.remove(os.path.join(skins, stale))
     return len(SPRITES) + len(ITEM_SPRITES) + drawn
 
 
@@ -500,6 +706,71 @@ def models_and_states():
         write(os.path.join(ASSETS, "models/item", name + ".json"),
               {"parent": f"{NS}:block/{name}"})
 
+    # Eleven pigeonholes and a mailbox. Both face a direction, so both need all
+    # four turns written out; a blockstate missing one is a block that renders
+    # as nothing from exactly one angle.
+    for wood in WOODS:
+        name = wood + "_pigeonhole"
+        texture = f"{NS}:block/{name}"
+        write(os.path.join(ASSETS, "models/block", name + ".json"), {
+            "parent": "block/block",
+            "textures": {"all": texture, "particle": texture},
+            "elements": [{
+                "from": [0, 0, 0],
+                "to": [16, 16, 16],
+                "faces": {side: {"texture": "#all"} for side in
+                          ("down", "up", "north", "south", "west", "east")},
+            }],
+        })
+        write(os.path.join(ASSETS, "blockstates", name + ".json"), {"variants": {
+            f"facing={way},waste={level}": {
+                "model": f"{NS}:block/{name}",
+                **({"y": turn} if turn else {}),
+            }
+            for way, turn in (("north", 0), ("east", 90), ("south", 180),
+                              ("west", 270))
+            for level in range(FOULEST + 1)
+        }})
+        write(os.path.join(ASSETS, "models/item", name + ".json"),
+              {"parent": f"{NS}:block/{name}"})
+
+    write(os.path.join(ASSETS, "models/block", "mailbox.json"), {
+        "parent": "block/block",
+        "textures": {"all": f"{NS}:block/mailbox", "particle": f"{NS}:block/mailbox"},
+        "elements": [{
+            "from": [3, 0, 3],
+            "to": [13, 14, 13],
+            "faces": {side: {"texture": "#all"} for side in
+                      ("down", "up", "north", "south", "west", "east")},
+        }],
+    })
+    write(os.path.join(ASSETS, "blockstates", "mailbox.json"), {"variants": {
+        f"facing={way},full={held}": {
+            "model": f"{NS}:block/mailbox",
+            **({"y": turn} if turn else {}),
+        }
+        for way, turn in (("north", 0), ("east", 90), ("south", 180),
+                          ("west", 270))
+        for held in ("false", "true")
+    }})
+    write(os.path.join(ASSETS, "models/item", "mailbox.json"),
+          {"parent": f"{NS}:block/mailbox"})
+
+    # And the post's flat items.
+    for one in MAIL:
+        name = MAIL_NAMES[one[0]]
+        write(os.path.join(ASSETS, "models/item", name + ".json"),
+              {"parent": "minecraft:item/generated",
+               "textures": {"layer0": f"{NS}:item/{name}"}})
+    for name in ("address_tag", "seal_stamp"):
+        write(os.path.join(ASSETS, "models/item", name + ".json"),
+              {"parent": "minecraft:item/generated",
+               "textures": {"layer0": f"{NS}:item/{name}"}})
+    for name in BIRDS:
+        write(os.path.join(ASSETS, "models/item", name + "_spawn_egg.json"),
+              {"parent": "minecraft:item/generated",
+               "textures": {"layer0": f"{NS}:item/{name}_spawn_egg"}})
+
     for name in CHIMES:
         write(os.path.join(ASSETS, "models/block", name + ".json"), hanging(name))
         write(os.path.join(ASSETS, "blockstates", name + ".json"),
@@ -538,6 +809,21 @@ def gives_itself_back(name):
             "conditions": [{"condition": "minecraft:survives_explosion"}],
         }],
     }
+
+
+#: A shape apiece, and no two the same. Two kinds of mail sharing a shape is two
+#: recipes the game resolves to whichever it loaded first, so one of them
+#: silently does not exist. The validator checks this pairwise; the shapes are
+#: here because what a thing is made of is art and how much it costs is a rule.
+POST_SHAPES = {
+    "letter": [" p ", "p p", " p "],
+    "sealed_letter": [" p ", "psp", " w "],
+    "package": ["ppp", "p p", "ppp"],
+    "sealed_package": ["ppp", "psp", "pwp"],
+    "paper_box": [" p ", "php", " p "],
+    "payback_package": ["php", "psp", "ppp"],
+    "payback_box": ["p p", "hsh", "ppp"],
+}
 
 
 def data_files():
@@ -613,6 +899,71 @@ def data_files():
         "result": {"id": f"{NS}:trader_crate", "count": 1},
     })
     written += 1
+
+    # The post. One pigeonhole per wood, out of that wood's own planks, so a
+    # player who has only found birch can still build one.
+    for wood in WOODS:
+        name = wood + "_pigeonhole"
+        write(os.path.join(DATA, "recipe", name + ".json"), {
+            "type": "minecraft:crafting_shaped",
+            "category": "misc",
+            "group": "pigeonhole",
+            "pattern": ["ppp", "php", "ppp"],
+            "key": {"p": {"item": f"minecraft:{wood}_planks"},
+                    "h": {"item": "minecraft:hay_block"}},
+            "result": {"id": f"{NS}:{name}", "count": 1},
+        })
+        written += 1
+    write(os.path.join(DATA, "recipe", "mailbox.json"), {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "pattern": ["sss", "ptp", "ppp"],
+        "key": {"p": {"tag": "minecraft:planks"},
+                "s": {"tag": "minecraft:wooden_slabs"},
+                "t": {"item": f"{NS}:address_tag"}},
+        "result": {"id": f"{NS}:mailbox", "count": 1},
+    })
+    written += 1
+    write(os.path.join(DATA, "recipe", "address_tag.json"), {
+        "type": "minecraft:crafting_shapeless",
+        "category": "misc",
+        "ingredients": [{"item": "minecraft:paper"}, {"tag": "minecraft:signs"}],
+        "result": {"id": f"{NS}:address_tag", "count": 1},
+    })
+    written += 1
+    write(os.path.join(DATA, "recipe", "seal_stamp.json"), {
+        "type": "minecraft:crafting_shaped",
+        "category": "equipment",
+        "pattern": [" s ", " s ", " i "],
+        "key": {"s": {"tag": "minecraft:wooden_slabs"},
+                "i": {"item": "minecraft:iron_ingot"}},
+        "result": {"id": f"{NS}:seal_stamp", "count": 1},
+    })
+    written += 1
+    # Mail itself: postage is paid in paper, so paper is what it is made of.
+    # Lost mail has no recipe -- it is what turns up when something did not
+    # arrive, and a recipe for it would be a way to craft your own bad luck.
+    for one in MAIL:
+        name = MAIL_NAMES[one[0]]
+        if name == "lost_mail":
+            continue
+        shape = POST_SHAPES[name]
+        everything = {
+            "p": {"item": "minecraft:paper"},
+            "h": {"item": "minecraft:honeycomb"},
+            "w": {"item": "minecraft:red_dye"},
+            "s": {"item": f"{NS}:seal_stamp"},
+        }
+        used = {symbol for row in shape for symbol in row if symbol != " "}
+        write(os.path.join(DATA, "recipe", name + ".json"), {
+            "type": "minecraft:crafting_shaped",
+            "category": "misc",
+            "pattern": shape,
+            "key": {symbol: what for symbol, what in everything.items()
+                    if symbol in used},
+            "result": {"id": f"{NS}:{name}", "count": 1},
+        })
+        written += 1
     return written
 
 
@@ -633,6 +984,9 @@ for _name in CHIMES:
     NAMES[_name] = titled(_name)
 for _name in STATION_IDS:
     NAMES[_name] = titled(_name)
+for _name in PIGEONHOLES:
+    NAMES[_name] = titled(_name)
+NAMES["mailbox"] = "Mailbox"
 
 #: One sentence per way a rest can decline, because a block that answers "you
 #: cannot sleep here" to all six is a block a player has to guess at.
@@ -657,11 +1011,40 @@ LINES = {
     "elysiumcomforts.trader.empty": "Empty. Use it on a villager.",
     "elysiumcomforts.trader.carrying": "Carrying a %s, level %s",
     "elysiumcomforts.trader.restocked": "Restocked %s time(s) today",
+    "item.elysiumcomforts.address_tag": "Address Tag",
+    "item.elysiumcomforts.seal_stamp": "Seal Stamp",
+    "item.elysiumcomforts.to": "To: %s",
+    "item.elysiumcomforts.blank": "Nothing written on it yet.",
+    "item.elysiumcomforts.unknown": "Contents unknown.",
+    "item.elysiumcomforts.sealed": "It is not addressed to you.",
+    "block.elysiumcomforts.mailbox.empty": "Nothing has arrived.",
+    "block.elysiumcomforts.mailbox.unnamed": "This box has no address yet.",
+    "block.elysiumcomforts.mailbox.unaddressable": "Nothing the post will carry "
+                                                   "is written on that tag.",
+    "block.elysiumcomforts.mailbox.busy": "Something is already on its way here.",
+    "block.elysiumcomforts.mailbox.levels": "Naming a box costs %s level(s).",
+    "block.elysiumcomforts.mailbox.named": "This box is now %s.",
+    "block.elysiumcomforts.mailbox.posted": "Posted. About %s second(s).",
 }
+
+
+#: One line per kind of mail and per bird. Walked out of the rules rather than
+#: listed, because a kind with no name shows a player the raw registry id, which
+#: is the one thing in a pack that always looks broken.
+def post_lines():
+    made = {}
+    for one in MAIL:
+        name = MAIL_NAMES[one[0]]
+        made[f"item.{NS}.{name}"] = titled(name)
+    for one in BIRDS:
+        made[f"entity.{NS}.{one}"] = titled(one)
+        made[f"item.{NS}.{one}_spawn_egg"] = titled(one) + " Spawn Egg"
+    return made
 
 
 def language():
     entries = dict(LINES)
+    entries.update(post_lines())
     for refusal, words in REFUSAL_WORDS.items():
         entries[f"rest.{NS}.{refusal}"] = words
     for name, shown in NAMES.items():

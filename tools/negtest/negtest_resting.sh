@@ -160,7 +160,7 @@ edit $R '            "pink", "gray", "light_gray", "cyan", "purple", "blue", "br
 expect "a colour the game does not have" "not one of the game's own dyes"
 
 rm -f $M/src/main/resources/assets/elysiumcomforts/blockstates/red_hammock.json
-expect "a rest with no blockstate, which is a missing-texture cube" "has no a blockstate"
+expect "a rest with no blockstate, which is a missing-texture cube" "has no blockstate"
 
 edit $G '    "not_now": "Not at this hour. A bag is for the night and a hammock for "
                "the day.",' '    "not_nowt": "Not at this hour. A bag is for the night and a hammock for "

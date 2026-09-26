@@ -322,12 +322,24 @@ DECISIONS = [
      "cannot be used again until the world has moved on. Six ways it can refuse "
      "you and six sentences to say which, and every block breaks back into "
      "itself"),
-    (r"^envelope", "PLANNED", "elysium-comforts",
-     "a postal system rather than a convenience: 12 woods of pigeonhole, a "
-     "mailbox, letters and packages that seal, address tags, payment on "
-     "delivery, lost mail, and two pigeons that carry it. 281 language keys "
-     "beyond its items, which is what a mod looks like when it has rules of its "
-     "own"),
+    (r"^envelope", "DONE", "elysium-comforts",
+     "the post. Eleven woods of pigeonhole — one per wood the pack builds in, "
+     "so a player who has only found birch can still build one — a mailbox that "
+     "takes an address for three levels, eight kinds of mail across letters, "
+     "parcels and payment on delivery, 108 wax seals, an address tag, a stamp, "
+     "and two birds that carry it. A parcel takes time: handling at both ends "
+     "plus a tick a block, flat past five thousand, which puts every delivery "
+     "between thirty seconds and five minutes however far it goes. Nothing "
+     "arrives instantly and nothing is ever out of reach. The shortest payback "
+     "window outlasts the longest delivery, so the feature cannot be used to "
+     "take somebody's goods and wait out their clock; lost mail is worth a "
+     "quarter of what was posted, so losing a parcel is never the better play. "
+     "A pigeon carried to the Nether becomes a charred pigeon and carrying it "
+     "back turns it into a pigeon again, and the rules hold that loop shut so "
+     "nobody loses a bird through a portal. A parcel in the air is never in two "
+     "places and never in none: a full box sends it round again, a broken box "
+     "drops it, and opening one empties it before it hands anything over. 99 "
+     "negative tests"),
     (r"^towntalk", "DROP", "-",
      "2,291 recorded sound files in the minecolonies namespace and nothing else "
      "— no item, no block, no entity, one class. It is voice acting for the mod "
