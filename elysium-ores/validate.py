@@ -496,8 +496,15 @@ if f"{NS}:unifying" not in glm.get("entries", []):
 if glm.get("replace"):
     fail("global_loot_modifiers replaces the list, so every other mod's loot "
          "modifiers are switched off by installing this one")
-if not os.path.isfile(os.path.join(DATA, "loot_modifier/unifying.json")):
-    fail("the loot modifier is listed and its file is missing")
+# Plural. NeoForge's LootModifierManager reads `loot_modifiers` and nothing
+# else; this file sat in a singular directory for a while, listed, registered
+# and never loaded, and nothing said so.
+if not os.path.isfile(os.path.join(DATA, "loot_modifiers/unifying.json")):
+    fail("the loot modifier is listed and its file is not at loot_modifiers/unifying.json, "
+         "which is the one directory NeoForge reads")
+if os.path.isdir(os.path.join(DATA, "loot_modifier")):
+    fail("data/elysiumores/loot_modifier (singular) exists; NeoForge never reads it, so whatever "
+         "is in there is a modifier that does not run")
 registry = strip_comments(read(SRC, "registry/OreLoot.java"))
 if "UnifyingModifier.CODEC" not in registry:
     fail("the loot modifier names a serializer nobody registered")
@@ -655,6 +662,110 @@ else:
                 fail(f"the shipped material sprites are not what tools/gen_material_art.py draws: {drift[:5]}")
 print(f"the cordon         : {len(sets)} sets on {len([f for f, k in roster if k != 'EXTERNAL'])} materials, "
       f"{len(shipped_items)} items and {len(shipped_blocks)} blocks, each modelled, drawn, named, tagged and made")
+
+# ---------------------------------------------------------------------------
+# 7. The roots' sources (rules/CordonSources.java; docs/SPEC_FOUNDRY.md §4)
+# ---------------------------------------------------------------------------
+#
+# "The ground does not give them, but a world does." Nine things - the six
+# drops and the three shards - are the tier-0 roots of every Cordoned alloy,
+# and for a while nothing in the game gave any of them: no table, no modifier,
+# no recipe. The harness proves the table in the rules is whole; this proves
+# the table reached the disk - one loot modifier per row, on the vanilla table
+# the row names, at the row's chance, adding this module's table for the seed,
+# and every one of them listed where NeoForge looks.
+
+sources_src = strip_comments(read(PURE, "CordonSources.java"), keep_strings=True)
+source_rows = re.findall(r'\bat\("([a-z_]+)",\s*"([a-z_:/]+)"\)', sources_src)
+if not source_rows:
+    fail("CordonSources has no rows, so no root is left anywhere and every Cordoned alloy is unmakeable")
+chances = {}
+for name in ("KILL_CHANCE", "CHEST_CHANCE"):
+    found = re.search(r"public static final float " + name + r" = ([0-9.]+)F;", sources_src)
+    chances[name] = float(found.group(1)) if found else None
+    if found is None:
+        fail(f"CordonSources has no {name}, so the generator cannot say how often a root is left")
+seeds = list(roster_drops) + [family for family, kind in roster if kind == "SHARD"]
+sourced = {seed: [table for s_seed, table in source_rows if s_seed == seed] for seed in seeds}
+for seed, tables in sourced.items():
+    if not tables:
+        fail(f"{seed} is a root nothing in the world leaves: no row in CordonSources names it, so every "
+             f"alloy made of it is unobtainable in survival")
+seen_rows = set()
+for seed, table in source_rows:
+    if (seed, table) in seen_rows:
+        fail(f"{seed} from {table} is written twice in CordonSources, so it rolls at twice the chance")
+    seen_rows.add((seed, table))
+    if seed not in seeds:
+        fail(f"CordonSources leaves {seed}, which is neither a drop nor a shard the roster ships")
+    if not table.startswith("minecraft:"):
+        fail(f"{seed} is left by {table}, which is another mod's table; this module names only vanilla")
+modifiers_dir = os.path.join(DATA, "loot_modifiers")
+glm_entries = glm.get("entries", [])
+for seed, table in source_rows:
+    kill = table.startswith("minecraft:entities/")
+    name = f"{seed}_from_{table.rsplit('/', 1)[-1]}"
+    body = load(modifiers_dir, name + ".json")
+    if body is None:
+        fail(f"{seed} has no loot modifier for {table} at loot_modifiers/{name}.json, so the row in "
+             f"CordonSources is a source on paper only")
+        continue
+    if body.get("type") != "neoforge:add_table":
+        fail(f"loot_modifiers/{name}.json is a {body.get('type')}, not neoforge:add_table")
+    if body.get("table") != f"{NS}:cordon/{seed}":
+        fail(f"loot_modifiers/{name}.json adds {body.get('table')} rather than {NS}:cordon/{seed}")
+    conditions = body.get("conditions", [])
+    ids = [c.get("loot_table_id") for c in conditions if c.get("condition") == "neoforge:loot_table_id"]
+    if ids != [table]:
+        fail(f"loot_modifiers/{name}.json listens for {ids} rather than {table}, so it fires on the "
+             f"wrong table or on every table there is")
+    rolled = [c.get("chance") for c in conditions if c.get("condition") == "minecraft:random_chance"]
+    wanted = chances["KILL_CHANCE" if kill else "CHEST_CHANCE"]
+    if len(rolled) != 1 or wanted is None or abs(rolled[0] - wanted) > 1e-6:
+        fail(f"loot_modifiers/{name}.json rolls at {rolled} rather than the rules' {wanted}, so a root "
+             f"is left at a rate the harness never saw")
+    if kill and not any(c.get("condition") == "minecraft:killed_by_player" for c in conditions):
+        fail(f"loot_modifiers/{name}.json pays for a kill nobody made, so a grinder is a root mine")
+    if f"{NS}:{name}" not in glm_entries:
+        fail(f"{NS}:{name} is not listed in global_loot_modifiers, so it is shipped and never runs")
+for seed in seeds:
+    table = load(DATA, f"loot_table/cordon/{seed}.json") or {}
+    if f'"{NS}:{seed}"' not in json.dumps(table):
+        fail(f"loot_table/cordon/{seed}.json does not drop {NS}:{seed}, so the modifier adds nothing")
+for name in sorted(os.listdir(modifiers_dir)) if os.path.isdir(modifiers_dir) else []:
+    if name == "unifying.json" or not name.endswith(".json"):
+        continue
+    stem = name[:-5]
+    if stem not in {f"{seed}_from_{table.rsplit('/', 1)[-1]}" for seed, table in source_rows}:
+        fail(f"loot_modifiers/{name} answers to no row of CordonSources, so it is a source the harness "
+             f"never saw")
+harness_src = strip_comments(read(HARNESS))
+if "CordonSources.unsourced().isEmpty()" not in harness_src \
+        or "CordonSources.duplicated().isEmpty()" not in harness_src:
+    fail("OreHarness never asks CordonSources whether every seed is sourced and none twice, so the "
+         "table is a table nothing executes")
+# Written by the generator, and the same bytes every run.
+gen = os.path.join(WORK, "tools/gen_ores.py")
+with tempfile.TemporaryDirectory() as scratch:
+    made = subprocess.run([sys.executable, gen], capture_output=True, text=True, cwd=WORK,
+                          env={**os.environ, "ELYSIUM_ORES_OUT": scratch, "PYTHONIOENCODING": "utf-8"})
+    if made.returncode != 0:
+        fail(f"tools/gen_ores.py no longer runs: {made.stderr.strip()[-300:]}")
+    else:
+        drift = []
+        for rel in ("data/elysiumores/loot_modifiers", "data/elysiumores/loot_table/cordon",
+                    "data/neoforge/loot_modifiers"):
+            made_dir = os.path.join(scratch, "src/main/resources", rel)
+            have_dir = os.path.join(RES, rel)
+            names = set(os.listdir(made_dir)) if os.path.isdir(made_dir) else set()
+            names |= set(os.listdir(have_dir)) if os.path.isdir(have_dir) else set()
+            for name in sorted(names):
+                if not samefile.same(os.path.join(made_dir, name), os.path.join(have_dir, name)):
+                    drift.append(f"{rel}/{name}")
+        if drift:
+            fail(f"the shipped loot modifiers are not what tools/gen_ores.py writes: {drift[:5]}")
+print(f"the roots          : {len(seeds)} roots left by {len(source_rows)} vanilla tables, each a listed "
+      f"loot modifier at the rules' chance, none twice")
 
 # ---------------------------------------------------------------------------
 # Language

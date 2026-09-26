@@ -158,7 +158,7 @@ numbers are the parts that get executed:
 | Machines: crusher, rolling mill, arc furnace, separator | **done** |
 | The motor: a grid driving an Age I line, and the proof it cannot pay | **done** |
 | Steel and plate: the one material chain the age makes for itself | **done** |
-| Multiblocks | planned |
+| Multiblocks | **done** — the coke oven and the blast furnace (`FurnaceRules`, `ShapeRules`): the shape is checked in plain rules, and a player who has put the last block in and got nothing is told which block is wrong rather than left to guess |
 | A screen for a machine, if any of them ever earns one | not planned |
 
 **Age II's one sentence**, against Age I's: a line is rigidly coupled, so

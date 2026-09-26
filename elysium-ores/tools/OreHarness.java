@@ -52,6 +52,7 @@ public final class OreHarness {
         tiers();
         fortune();
         cordon();
+        sources();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -60,7 +61,8 @@ public final class OreHarness {
         System.out.println(checks + " checks: one steel out of five, chosen the same way "
                 + "every load, a vein that pays more the further from home it is "
                 + "without ever paying always, and " + CordonMaterials.SETS.size()
-                + " Cordoned gear sets each standing on a material that is dug, made or found");
+                + " Cordoned gear sets each standing on a material that is dug, made or found, "
+                + "its " + CordonSources.seeds().size() + " roots each left somewhere in vanilla's world");
     }
 
     // ------------------------------------------------------------------
@@ -312,6 +314,66 @@ public final class OreHarness {
             }
         }
         check(best >= 5, "no Cordoned tool tier reaches past netherite, so the rungs add nothing above the game's own");
+    }
+
+    /** The roots' sources (CordonSources): every seed left somewhere, nowhere twice. */
+    private static void sources() {
+        List<String> seeds = CordonSources.seeds();
+        check(seeds.size() == CordonMaterials.DROPS.size() + 3,
+                "the seeds are not the six drops and the three shards: " + seeds);
+        check(seeds.size() == Set.copyOf(seeds).size(), "a seed is listed twice: " + seeds);
+        for (CordonMaterials.Drop drop : CordonMaterials.DROPS) {
+            check(seeds.contains(drop.name()), drop.name() + " is dropped and is not a seed, so nothing sources it");
+        }
+        for (CordonMaterials.Material material : CordonMaterials.MATERIALS) {
+            boolean shard = material.kind() == CordonMaterials.Kind.SHARD;
+            check(seeds.contains(material.family()) == shard,
+                    material.family() + (shard ? " is a shard and is not a seed" : " is not a shard and is a seed"));
+        }
+        check(CordonSources.unsourced().isEmpty(),
+                "a root the world does not give: " + CordonSources.unsourced());
+        check(CordonSources.duplicated().isEmpty(),
+                "a source written twice, so its rate is doubled: " + CordonSources.duplicated());
+        check(CordonSources.orphans().isEmpty(),
+                "a source for something the roster does not ship: " + CordonSources.orphans());
+        check(CordonSources.foreign().isEmpty(),
+                "a source on another mod's table; this module names only vanilla: " + CordonSources.foreign());
+        check(!CordonSources.SOURCES.isEmpty(), "there are no sources at all");
+        // Positive controls: the arithmetic can say no.
+        check(CordonSources.of("nothing_of_the_sort").isEmpty(), "an unknown seed has sources");
+        check(!CordonSources.of("ember_slag").isEmpty(), "the first drop has no source");
+        check(CordonSources.KILL_CHANCE > 0.0F && CordonSources.KILL_CHANCE <= CordonSources.MAX_CHANCE,
+                "the kill chance is zero or past the ceiling");
+        check(CordonSources.CHEST_CHANCE > 0.0F && CordonSources.CHEST_CHANCE <= CordonSources.MAX_CHANCE,
+                "the chest chance is zero or past the ceiling");
+        check(CordonSources.CHEST_CHANCE > CordonSources.KILL_CHANCE,
+                "a chest, opened once, pays no better than a kill, repeated forever");
+        check(CordonSources.MAX_CHANCE <= 0.25F, "the ceiling lets a root be a common drop");
+        Set<String> modifiers = new java.util.HashSet<>();
+        for (CordonSources.Source source : CordonSources.SOURCES) {
+            check(modifiers.add(source.modifier()), source.modifier() + " is two modifiers' name");
+            check(source.chance() > 0.0F && source.chance() <= CordonSources.MAX_CHANCE,
+                    source.modifier() + " rolls at " + source.chance());
+            check(source.kind() == (source.table().startsWith("minecraft:entities/")
+                            ? CordonSources.Kind.KILL : CordonSources.Kind.CHEST),
+                    source.modifier() + " mistakes a kill for a chest or the other way round");
+            check(source.tableName().matches("[a-z_]+") && !source.tableName().contains("/"),
+                    source.modifier() + " has no usable table name");
+            check(source.kind() == CordonSources.Kind.KILL
+                            ? source.chance() == CordonSources.KILL_CHANCE
+                            : source.chance() == CordonSources.CHEST_CHANCE,
+                    source.modifier() + " rolls at a chance nobody decided");
+        }
+        check(CordonSources.tables().size() == Set.copyOf(CordonSources.tables()).size(),
+                "tables() repeats a table");
+        for (String seed : seeds) {
+            boolean chest = false;
+            for (CordonSources.Source source : CordonSources.of(seed)) {
+                chest |= source.kind() == CordonSources.Kind.CHEST;
+            }
+            check(chest || seed.equals("chitin"),
+                    seed + " is left by no chest, so a player who cannot find the creature cannot find it at all");
+        }
     }
 
     private static void fortune() {

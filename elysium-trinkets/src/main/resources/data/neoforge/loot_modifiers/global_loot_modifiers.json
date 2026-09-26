@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "entries": [
+    "elysiumtrinkets:found_in_ancient_city",
+    "elysiumtrinkets:found_in_end_city_treasure",
+    "elysiumtrinkets:found_in_bastion_treasure",
+    "elysiumtrinkets:found_in_stronghold_library",
+    "elysiumtrinkets:found_in_woodland_mansion"
+  ]
+}

@@ -1,6 +1,26 @@
 {
   "replace": false,
   "entries": [
-    "elysiumores:unifying"
+    "elysiumores:unifying",
+    "elysiumores:ember_slag_from_blaze",
+    "elysiumores:ember_slag_from_bastion_treasure",
+    "elysiumores:ember_slag_from_bastion_other",
+    "elysiumores:bio_culture_from_witch",
+    "elysiumores:bio_culture_from_jungle_temple",
+    "elysiumores:pressure_shell_from_guardian",
+    "elysiumores:pressure_shell_from_elder_guardian",
+    "elysiumores:pressure_shell_from_underwater_ruin_big",
+    "elysiumores:pressure_shell_from_underwater_ruin_small",
+    "elysiumores:blight_crystal_from_ancient_city",
+    "elysiumores:null_shard_from_enderman",
+    "elysiumores:null_shard_from_end_city_treasure",
+    "elysiumores:relic_shard_from_trail_ruins_rare",
+    "elysiumores:relic_shard_from_trail_ruins_common",
+    "elysiumores:relic_shard_from_desert_pyramid",
+    "elysiumores:phasium_from_enderman",
+    "elysiumores:phasium_from_end_city_treasure",
+    "elysiumores:lattice_from_end_city_treasure",
+    "elysiumores:chitin_from_spider",
+    "elysiumores:chitin_from_cave_spider"
   ]
 }
