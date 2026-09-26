@@ -5,8 +5,10 @@ import com.elysium.comforts.block.GraveBlock;
 import com.elysium.comforts.block.ChimeBlock;
 import com.elysium.comforts.block.RestBlock;
 import com.elysium.comforts.block.RopeBlock;
+import com.elysium.comforts.block.StationBlock;
 import com.elysium.comforts.rules.ChimeRules;
 import com.elysium.comforts.rules.RestRules;
+import com.elysium.comforts.rules.StationRules;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -102,6 +104,30 @@ public final class ComfortBlocks {
         if (made.size() != wanted) {
             throw new IllegalStateException("the rules ask for " + wanted
                     + " chime(s) and " + made.size() + " were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
+    /** The eight stations, walked out of the rules. */
+    public static final java.util.Map<String, DeferredBlock<StationBlock>> STATIONS =
+            stations();
+
+    private static java.util.Map<String, DeferredBlock<StationBlock>> stations() {
+        java.util.Map<String, DeferredBlock<StationBlock>> made =
+                new java.util.LinkedHashMap<>();
+        for (StationRules.Station station : StationRules.STATIONS) {
+            made.put(station.id(), BLOCKS.register(station.id(),
+                    () -> new StationBlock(BlockBehaviour.Properties
+                            .ofFullCopy(Blocks.OAK_PLANKS)
+                            .mapColor(MapColor.WOOD)
+                            .sound(SoundType.WOOD)
+                            .strength(2.0F)
+                            .noOcclusion(), station.id())));
+        }
+        if (made.size() != StationRules.STATIONS.size()) {
+            throw new IllegalStateException("the rules ask for "
+                    + StationRules.STATIONS.size() + " station(s) and "
+                    + made.size() + " were registered");
         }
         return java.util.Map.copyOf(made);
     }

@@ -299,10 +299,18 @@ DECISIONS = [
     # cover is that mod's other six blocks: the trading station, the breeder,
     # the converter, the incubator, the farmer and the iron farm. Those are
     # automation, which is a different question from carrying.
-    (r"^easy-villagers", "PLANNED", "elysium-comforts",
-     "a villager can be carried, with its whole ledger and its restock clock intact; "
-     "the trading station, breeder, converter, incubator, farmer and iron farm are not "
-     "started"),
+    (r"^easy-villagers", "DONE", "elysium-comforts",
+     "a villager you can pick up with its whole ledger and its restock clock "
+     "intact, and eight blocks that each do one thing you would otherwise do "
+     "standing there — trade, trade unattended, breed, cure, raise, farm, iron, "
+     "and simply look at what one is carrying. What automating a villager buys "
+     "is attention rather than speed, so not one of the eight is better value "
+     "than a pair of hands and not one of them is quicker: a station that were "
+     "both would be a reason never to stand at a villager again, and a "
+     "multiplier on emeralds is a multiplier on everything. Swept over a "
+     "hundred thousand stations nobody wrote. The villager is moved rather than "
+     "copied at every step, so there is never a moment when two of it exist, "
+     "and breaking the block hands it back"),
     (r"^comforts", "DONE", "elysium-comforts",
      "sixteen sleeping bags, sixteen hammocks and a rope and nail, and none of "
      "them moves your spawn — which is the whole of what made exploring "

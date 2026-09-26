@@ -130,6 +130,14 @@
     "elysiumcomforts:brown_amethyst_chimes",
     "elysiumcomforts:green_amethyst_chimes",
     "elysiumcomforts:red_amethyst_chimes",
-    "elysiumcomforts:black_amethyst_chimes"
+    "elysiumcomforts:black_amethyst_chimes",
+    "elysiumcomforts:trading_station",
+    "elysiumcomforts:auto_trader",
+    "elysiumcomforts:breeder",
+    "elysiumcomforts:converter",
+    "elysiumcomforts:incubator",
+    "elysiumcomforts:villager_farm",
+    "elysiumcomforts:iron_farm",
+    "elysiumcomforts:inventory_viewer"
   ]
 }

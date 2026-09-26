@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,occupied=false": {
+      "model": "elysiumcomforts:block/villager_farm"
+    },
+    "facing=north,occupied=true": {
+      "model": "elysiumcomforts:block/villager_farm"
+    },
+    "facing=east,occupied=false": {
+      "model": "elysiumcomforts:block/villager_farm",
+      "y": 90
+    },
+    "facing=east,occupied=true": {
+      "model": "elysiumcomforts:block/villager_farm",
+      "y": 90
+    },
+    "facing=south,occupied=false": {
+      "model": "elysiumcomforts:block/villager_farm",
+      "y": 180
+    },
+    "facing=south,occupied=true": {
+      "model": "elysiumcomforts:block/villager_farm",
+      "y": 180
+    },
+    "facing=west,occupied=false": {
+      "model": "elysiumcomforts:block/villager_farm",
+      "y": 270
+    },
+    "facing=west,occupied=true": {
+      "model": "elysiumcomforts:block/villager_farm",
+      "y": 270
+    }
+  }
+}

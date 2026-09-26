@@ -791,6 +791,27 @@ else:
                 fail(f"{name[:-5]} uses '{symbol}' in its pattern and its key "
                      f"does not say what that is")
 
+    # And no two shaped recipes this module writes take the same things in
+    # the same shape. The game cannot tell two such recipes apart, so one of
+    # them wins and the other is an item nobody can ever craft — which is the
+    # hammocks' bug again, one level up: it is about a pair rather than about
+    # a key.
+    _by_inputs = {}
+    _recipes = os.path.join(RES, "data", NS, "recipe")
+    for name in sorted(os.listdir(_recipes) if os.path.isdir(_recipes) else []):
+        if not name.endswith(".json"):
+            continue
+        written = json.loads(read(RES, "data", NS, "recipe", name))
+        if written.get("type") != "minecraft:crafting_shaped":
+            continue
+        fingerprint = json.dumps([written.get("pattern"), written.get("key")],
+                                 sort_keys=True)
+        already = _by_inputs.setdefault(fingerprint, name[:-5])
+        if already != name[:-5]:
+            fail(f"{name[:-5]} and {already} are made of the same things in the "
+                 f"same shape, so the game cannot tell them apart: one of them "
+                 f"wins and the other is an item nobody can ever craft")
+
     # The two kinds are two things to make, not one thing twice.
     if len(kinds) == 2 and colours:
         def inputs(of):
@@ -1022,6 +1043,146 @@ else:
           f"note(s), each made of something the game really has, each ringing "
           f"at a note of its own, and a room of them no louder than one of "
           f"them however many are in it")
+
+
+# ---------------------------------------------------------------------------
+# Eight blocks that do what a player would otherwise do
+# ---------------------------------------------------------------------------
+#
+# What automating a villager buys is attention, not speed: a station goes on
+# working while you are three thousand blocks away. The moment one of them is
+# better value than a player standing there, it stops being a convenience and
+# becomes a multiplier on emeralds, which is a multiplier on everything.
+
+print("-" * 70)
+
+STATION = strip_comments(read(SRC, "rules/StationRules.java"), keep_strings=True)
+STATION_BLOCK = strip_comments(read(SRC, "block/StationBlock.java"),
+                               keep_strings=True)
+if not STATION:
+    fail("nothing says what a station does or what it costs, so a block that "
+         "automates a villager could hand back anything at all")
+else:
+    stations = re.findall(
+        r'new Station\("([a-z_]+)", (\w+), (\d+), (\d+), ([\d_]+), (true|false)\)',
+        re.sub(r"\s+", " ", STATION))
+    jobs = dict(re.findall(
+        r'public static final String (\w+) = "(\w+)";', STATION))
+    if len(stations) < 2:
+        fail(f"only {len(stations)} station(s) could be read out of the rules, "
+             f"so everything below is checking an empty list and passing")
+
+    # Everything the rules ask for exists, all the way out to the world.
+    for row in stations:
+        name = row[0]
+        for kind, where in (
+                ("a model", f"assets/{NS}/models/block/{name}.json"),
+                ("an item model", f"assets/{NS}/models/item/{name}.json"),
+                ("a blockstate", f"assets/{NS}/blockstates/{name}.json"),
+                ("a texture", f"assets/{NS}/textures/block/{name}.png"),
+                ("a loot table", f"data/{NS}/loot_table/blocks/{name}.json"),
+                ("a recipe", f"data/{NS}/recipe/{name}.json")):
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} has no {kind}, so it is a block a player can see "
+                     f"in a creative tab and never use")
+        if f"block.{NS}.{name}" not in lang:
+            fail(f"{name} has no name, so it reads as its own translation key")
+        table = read(RES, "data", NS, "loot_table/blocks", name + ".json")
+        if table and f'"{NS}:{name}"' not in table:
+            fail(f"{name} does not give itself back when it is broken, and it "
+                 f"cost a player an emerald and nine planks")
+
+    # Not one of the eight registered by hand, and counted.
+    _blocks = squashed(strip_comments(read(SRC, "registry/ComfortBlocks.java")))
+    if "for (StationRules.Station station : StationRules.STATIONS) {" not in _blocks:
+        fail("the stations are named by hand rather than walked from the rules, "
+             "so one of the eight is missing and the symptom is a job the rules "
+             "name and no block does")
+    if "made.size() != StationRules.STATIONS.size()" not in _blocks:
+        fail("nothing counts the stations that were registered, so a roster "
+             "that half registers is a roster that half exists")
+
+    # The block asks the rules for the two numbers the feature turns on.
+    if not STATION_BLOCK:
+        fail("there is no station block, so the arithmetic that keeps a "
+             "station from being a multiplier is a file nothing reads")
+    else:
+        _squashed_block = squashed(STATION_BLOCK)
+        if "StationRules.station(id);" not in _squashed_block:
+            fail("a station does not find its own row by the name it was "
+                 "registered under, so whatever it is storing instead can be "
+                 "stored wrong")
+        if "level.scheduleTick(pos, this, station().ticks());" not in _squashed_block:
+            fail("how long a station takes over a job is not the number the "
+                 "rules worked out, so the pace the harness measured against a "
+                 "player's own hands is not the pace the game keeps")
+        for typed in re.findall(r"scheduleTick\(pos, this, (\d+)\)",
+                                _squashed_block):
+            fail(f"a station is scheduled {typed} ticks out by a number typed "
+                 f"in the block, which is a second set of dials beside the "
+                 f"rules'")
+
+    # And a villager that goes in comes out. This module's own theme, applied
+    # to something alive: a block that swallows a villager is a grave with too
+    # few slots, except that what it ate had a name and a ledger.
+    KEPT = strip_comments(read(SRC, "block/StationBlockEntity.java"),
+                          keep_strings=True)
+    if not KEPT:
+        fail("nothing holds the villager a station is meant to be working, so "
+             "all eight of them are blocks that do something to nothing")
+    else:
+        _kept = squashed(KEPT)
+        if "CompoundTag written = from.get(ComfortComponents.TRADER.get());" \
+                not in _kept:
+            fail("a station keeps the villager somewhere other than the "
+                 "component the crate keeps it in, so a villager carried in a "
+                 "pocket and a villager in a station are two different "
+                 "villagers and one of them has a fresh ledger")
+        _take = squashed(body_of(KEPT, "public boolean take("))
+        if "from.remove(ComfortComponents.TRADER.get());" not in _take:
+            fail("a station takes a villager out of a crate and leaves it in "
+                 "the crate as well, so there are two of it — which is how "
+                 "every duplication bug that has ever shipped shipped")
+        _back = squashed(body_of(KEPT, "public ItemStack handBack("))
+        if "held = new CompoundTag();" not in _back:
+            fail("a station hands a villager back and keeps it too, so clicking "
+                 "one twice is a villager duplicator")
+        if "back.set(ComfortComponents.TRADER.get(), held.copy());" not in _back:
+            fail("a station hands back an empty crate, so whoever was in it is "
+                 "gone and nothing says so")
+        for named, why in (
+                ("protected void loadAdditional(",
+                 "a station never reads back who was in it, so the villager is "
+                 "gone the first time the chunk unloads"),
+                ("protected void saveAdditional(",
+                 "a station never writes down who is in it, so the villager is "
+                 "gone the first time the world is saved")):
+            if named not in KEPT:
+                fail(why)
+        _block = squashed(STATION_BLOCK)
+        if "!kept.empty()) { net.minecraft.world.Containers.dropContents(" \
+                not in _block:
+            fail("breaking a station keeps whoever was in it, so the one way a "
+                 "player can get a villager out of a block they have built over "
+                 "is to lose it")
+
+    # Every rule the file declares is added up.
+    _sum = squashed(body_of(STATION, "public static List<String> faults()"))
+    _rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(",
+                            STATION))
+    _added = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _sum))
+    if len(_rules) < 3:
+        fail(f"only {len(_rules)} station rule(s) are declared at all, so the "
+             f"check below is checking nothing")
+    for _rule in sorted(_rules - _added):
+        fail(f"{_rule} is written, compiled and never added up by the "
+             f"stations' faults(), so it answers the harness's controls and is "
+             f"never once asked about what this module ships")
+
+    print(f"what it does for you: {len(stations)} station(s), each doing one "
+          f"thing a player would otherwise do, none of them better value than "
+          f"a pair of hands and none of them quicker, and every one of them "
+          f"breaking back into itself")
 
 
 if problems:

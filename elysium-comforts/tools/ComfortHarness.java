@@ -34,6 +34,7 @@ public final class ComfortHarness {
         theRolls();
         theResting();
         theChimes();
+        theStations();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -574,5 +575,126 @@ public final class ComfortHarness {
                 + "hundred and fifty-six at every strength of wind, and not one "
                 + "of them louder than " + ChimeRules.MOST_A_SECOND
                 + " sounds a second");
+    }
+
+    // ==================================================================
+
+    /**
+     * Eight blocks that each do one thing a player would otherwise do.
+     *
+     * <p>The claim is that not one of them is better value than a hand, and
+     * not one of them is quicker. What a station buys is attention, and a
+     * station that bought throughput as well would be a reason never to stand
+     * at a villager again.
+     */
+    private static void theStations() {
+        List<String> faults = StationRules.faults();
+        check(faults.isEmpty(), "something wrong with the stations: " + faults);
+
+        // Controls, built to be caught.
+        StationRules.Station first = StationRules.STATIONS.get(0);
+
+        check(!StationRules.faultsInJobs(java.util.List.of(
+                        new StationRules.Station("control", "wibble", 1, 1, 100,
+                                true)), StationRules.JOBS).isEmpty(),
+                "a station that does something nothing knows how to do is not "
+                        + "reported");
+        check(StationRules.faultsInJobs(StationRules.STATIONS,
+                        StationRules.JOBS).isEmpty(),
+                "the jobs this module ships are reported as unknown");
+
+        check(!StationRules.faultsInOneEach(java.util.List.of(first,
+                        new StationRules.Station("control", first.job(), 1, 1,
+                                first.ticks(), true))).isEmpty(),
+                "two stations doing one job are not reported");
+        check(StationRules.faultsInOneEach(StationRules.STATIONS).isEmpty(),
+                "the stations this module ships are reported as doubling up");
+
+        check(!StationRules.faultsInNames(java.util.List.of(first,
+                        new StationRules.Station(first.id(),
+                                StationRules.LOOK, 0, 0, 20, false))).isEmpty(),
+                "two stations written under one name are not reported");
+        check(StationRules.faultsInNames(StationRules.STATIONS).isEmpty(),
+                "the names this module ships are reported as doubled");
+
+        check(!StationRules.faultsInGaps(java.util.List.of(),
+                        StationRules.JOBS).isEmpty(),
+                "a job nothing does is not reported, so a block could be named "
+                        + "in the rules and never exist");
+        check(StationRules.faultsInGaps(StationRules.STATIONS,
+                        StationRules.JOBS).isEmpty(),
+                "the stations this module ships leave a job undone");
+
+        check(!StationRules.faultsInValue(java.util.List.of(
+                        new StationRules.Station("control", StationRules.TRADE,
+                                1, 2, 100, true)), StationRules.BY_HAND).isEmpty(),
+                "a station that hands back twice what a player gets is not "
+                        + "reported, which is a multiplier on everything");
+        check(!StationRules.faultsInValue(StationRules.STATIONS,
+                        java.util.Map.of()).isEmpty(),
+                "a station measured against nothing at all is not reported");
+        check(StationRules.faultsInValue(StationRules.STATIONS,
+                        StationRules.BY_HAND).isEmpty(),
+                "the value this module ships is reported as a multiplier");
+
+        check(!StationRules.faultsInPace(java.util.List.of(
+                        new StationRules.Station("control", StationRules.CURE,
+                                1, 1, 1, true)), StationRules.BY_HAND_TICKS)
+                        .isEmpty(),
+                "a station quicker than the player it replaces is not reported");
+        check(!StationRules.faultsInPace(StationRules.STATIONS,
+                        java.util.Map.of()).isEmpty(),
+                "a station with nothing to be slower than is not reported");
+        check(StationRules.faultsInPace(StationRules.STATIONS,
+                        StationRules.BY_HAND_TICKS).isEmpty(),
+                "the pace this module ships is reported as too quick");
+
+        check(!StationRules.faultsInHolding(java.util.List.of(
+                        new StationRules.Station("control", StationRules.LOOK,
+                                0, 0, 20, false))).isEmpty(),
+                "a set of stations not one of which holds a villager is not "
+                        + "reported");
+        check(!StationRules.faultsInHolding(java.util.List.of(
+                        new StationRules.Station("control", StationRules.LOOK,
+                                0, 0, 20, true))).isEmpty(),
+                "a set of stations every one of which swallows a villager is "
+                        + "not reported, so looking at one would cost you it");
+        check(StationRules.faultsInHolding(StationRules.STATIONS).isEmpty(),
+                "the stations this module ships are reported as swallowing "
+                        + "villagers");
+
+        // Over a hundred thousand rosters nobody wrote, the two rules say the
+        // same thing they say about this one.
+        Random random = new Random(3_317_745L);
+        int swept = 0;
+        for (int round = 0; round < 100_000; round++) {
+            String job = StationRules.JOBS.get(
+                    random.nextInt(StationRules.JOBS.size()));
+            int takes = 1 + random.nextInt(20);
+            int gives = random.nextInt(20);
+            int ticks = 1 + random.nextInt(6_000);
+            StationRules.Station made = new StationRules.Station(
+                    "s" + round, job, takes, gives, ticks, true);
+            swept++;
+            boolean tooGood = made.perInput()
+                    > StationRules.BY_HAND.get(job) + 1.0E-9D;
+            check(tooGood == !StationRules.faultsInValue(java.util.List.of(made),
+                            StationRules.BY_HAND).isEmpty(),
+                    "a station worth " + made.perInput() + " against a hand's "
+                            + StationRules.BY_HAND.get(job) + " is reported "
+                            + "wrongly");
+            boolean tooQuick = ticks < StationRules.BY_HAND_TICKS.get(job);
+            check(tooQuick == !StationRules.faultsInPace(java.util.List.of(made),
+                            StationRules.BY_HAND_TICKS).isEmpty(),
+                    "a station taking " + ticks + " ticks against a hand's "
+                            + StationRules.BY_HAND_TICKS.get(job)
+                            + " is reported wrongly");
+        }
+
+        System.out.println("  the stations: " + StationRules.STATIONS.size()
+                + " block(s) over " + StationRules.JOBS.size() + " job(s), "
+                + swept + " stations nobody wrote swept against what a hand "
+                + "does with the same input, and not one of this module's own "
+                + "either better value than a player or quicker than one");
     }
 }

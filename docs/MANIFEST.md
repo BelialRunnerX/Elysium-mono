@@ -8,10 +8,10 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 83 | DONE | an Elysium module already replaces it |
+| 84 | DONE | an Elysium module already replaces it |
 | 22 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 9 | PLANNED | has a target module, not started |
+| 8 | PLANNED | has a target module, not started |
 | 14 | KEEP | stays in the pack on purpose |
 | 74 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -25,8 +25,8 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `elysium-agronomy` | 4 |
 | `elysium-industry` | 3 |
 | `elysium-wilds` | 2 |
-| `elysium-comforts` | 2 |
 | `elysium-atomics` | 2 |
+| `elysium-comforts` | 1 |
 | `elysium-arsenal` | 1 |
 | `elysium-foundry` | 1 |
 
@@ -96,7 +96,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `DnDesires-1.21.1-2.3a-BETA.jar` | DONE | elysium-atelier | cushions, curtains and panelling in the eleven materials a hand can work, and frames, trellises and board walls in all 33 |
 | `domum-ornamentum-1.0.231-main.jar` | KEEP | elysium-colonies | MineColonies' own dependencies |
 | `DustyDecorations_1.21.1Neoforge_V1.13.jar` | DONE | elysium-atelier | quoins, banisters, cushions, curtains, board walls and panelling in 33 materials, priced off their own models so none of them is a way of turning two blocks into three |
-| `easy-villagers-neoforge-1.21.1-1.1.42.jar` | PLANNED | elysium-comforts | a villager can be carried, with its whole ledger and its restock clock intact; the trading station, breeder, converter, incubator, farmer and iron farm are not started |
+| `easy-villagers-neoforge-1.21.1-1.1.42.jar` | DONE | elysium-comforts | a villager you can pick up with its whole ledger and its restock clock intact, and eight blocks that each do one thing you would otherwise do standing there — trade, trade unattended, breed, cure, raise, farm, iron, and simply look at what one is carrying. What automating a villager buys is attention rather than speed, so not one of the eight is better value than a pair of hands and not one of them is quicker: a station that were both would be a reason never to stand at a villager again, and a multiplier on emeralds is a multiplier on everything. Swept over a hundred thousand stations nobody wrote. The villager is moved rather than copied at every step, so there is never a moment when two of it exist, and breaking the block hands it back |
 | `elysium-all-1.0.0.jar` | DONE | - | ours already |
 | `elysiumcolonies-1.0.0.jar` | DONE | - | ours already |
 | `enderchests-neoforge-1.21.1-1.0.jar` | DONE | elysium-logistics | the ender link: two of them join networks that are nowhere near each other, at four times an ordinary device's draw |

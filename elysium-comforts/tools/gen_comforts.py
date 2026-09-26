@@ -164,6 +164,14 @@ ROPE_SHADE = [(74, 58, 36), (122, 98, 60), (158, 132, 86)]
 # exist and what note each rings are rules, and what colour a copper tube is
 # is art.
 CHIME_SOURCE = rules("ChimeRules.java")
+STATION_SOURCE = rules("StationRules.java")
+STATIONS = re.findall(
+    r'new Station\("([a-z_]+)", (\w+), (\d+), (\d+), ([\d_]+), (true|false)\)',
+    re.sub(r"\s+", " ", STATION_SOURCE))
+STATION_IDS = [one[0] for one in STATIONS]
+if len(STATION_IDS) != 8:
+    print("StationRules reads as %d station(s) rather than eight" % len(STATION_IDS))
+    sys.exit(2)
 _materials = re.search(r"List<String> MATERIALS = List\.of\((.*?)\);",
                        re.sub(r"\s+", " ", CHIME_SOURCE))
 MATERIALS = re.findall(r'"([a-z_]+)"', _materials.group(1)) if _materials else []
@@ -175,7 +183,7 @@ if len(MATERIALS) != 6 or sorted(MADE_OF) != sorted(MATERIALS):
     sys.exit(2)
 CHIMES = [colour + "_" + material + "_chimes"
           for material in MATERIALS for colour in COLOURS]
-BLOCKS = BLOCKS + CHIMES
+BLOCKS = BLOCKS + CHIMES + STATION_IDS
 
 #: What each chime's tubes are made of, to look at. Art, not a rule.
 TUBE = {
@@ -256,6 +264,50 @@ def chime_sprite(colour, material):
     return image
 
 
+#: Plain boards with one face doing the job, so eight stations read as eight
+#: things at a glance rather than as eight labels on one box.
+#: What sits in the middle of each station's recipe. Eight blocks made of the
+#: same nine things in the same shape would be eight recipes the game cannot
+#: tell apart, and only one of them would ever fire.
+STATION_HEART = {
+    "trading_station": "minecraft:emerald",
+    "auto_trader": "minecraft:hopper",
+    "breeder": "minecraft:hay_block",
+    "converter": "minecraft:golden_apple",
+    "incubator": "minecraft:bread",
+    "villager_farm": "minecraft:iron_hoe",
+    "iron_farm": "minecraft:iron_block",
+    "inventory_viewer": "minecraft:glass",
+}
+
+if sorted(STATION_HEART) != sorted(STATION_IDS):
+    print("there are hearts for %s and stations for %s"
+          % (sorted(STATION_HEART), sorted(STATION_IDS)))
+    sys.exit(2)
+
+STATION_FACE = {
+    "trading_station": (196, 160, 72), "auto_trader": (150, 178, 196),
+    "breeder": (176, 132, 168), "converter": (120, 176, 120),
+    "incubator": (216, 196, 140), "villager_farm": (150, 186, 96),
+    "iron_farm": (196, 196, 200), "inventory_viewer": (168, 148, 120),
+}
+
+
+def station_sprite(name):
+    image = Image.new("RGBA", (16, 16), rgba(WOOD[1]))
+    draw = ImageDraw.Draw(image)
+    for y in range(16):
+        for x in range(16):
+            mix = (x * 41 + y * 97 + sum(ord(c) for c in name) * 23) % 256
+            if mix < 44:
+                draw.point((x, y), fill=rgba(WOOD[0]))
+            elif mix < 92:
+                draw.point((x, y), fill=rgba(WOOD[2]))
+    draw.rectangle([3, 3, 12, 12], fill=rgba(STATION_FACE[name]))
+    draw.rectangle([3, 3, 12, 12], outline=rgba(WOOD[0]))
+    return image
+
+
 def rope_sprite():
     image = Image.new("RGBA", (16, 16), CLEAR)
     draw = ImageDraw.Draw(image)
@@ -289,6 +341,9 @@ def draw_all():
             chime_sprite(colour, material).save(os.path.join(
                 folder, colour + "_" + material + "_chimes.png"))
             drawn += 1
+    for name in STATION_IDS:
+        station_sprite(name).save(os.path.join(folder, name + ".png"))
+        drawn += 1
     return len(SPRITES) + len(ITEM_SPRITES) + drawn
 
 
@@ -421,6 +476,30 @@ def models_and_states():
     write(os.path.join(ASSETS, "models/item", ROPE + ".json"),
           {"parent": f"{NS}:block/{ROPE}"})
 
+    for name in STATION_IDS:
+        texture = f"{NS}:block/{name}"
+        write(os.path.join(ASSETS, "models/block", name + ".json"), {
+            "parent": "block/block",
+            "textures": {"all": texture, "particle": texture},
+            "elements": [{
+                "from": [0, 0, 0],
+                "to": [16, 14, 16],
+                "faces": {side: {"texture": "#all"} for side in
+                          ("down", "up", "north", "south", "west", "east")},
+            }],
+        })
+        write(os.path.join(ASSETS, "blockstates", name + ".json"), {"variants": {
+            f"facing={way},occupied={held}": {
+                "model": f"{NS}:block/{name}",
+                **({"y": turn} if turn else {}),
+            }
+            for way, turn in (("north", 0), ("east", 90), ("south", 180),
+                              ("west", 270))
+            for held in ("false", "true")
+        }})
+        write(os.path.join(ASSETS, "models/item", name + ".json"),
+              {"parent": f"{NS}:block/{name}"})
+
     for name in CHIMES:
         write(os.path.join(ASSETS, "models/block", name + ".json"), hanging(name))
         write(os.path.join(ASSETS, "blockstates", name + ".json"),
@@ -508,6 +587,16 @@ def data_files():
                 "result": {"id": f"{NS}:{name}", "count": 1},
             })
             written += 1
+    for name in STATION_IDS:
+        write(os.path.join(DATA, "recipe", name + ".json"), {
+            "type": "minecraft:crafting_shaped",
+            "category": "misc",
+            "pattern": ["ppp", "pep", "ppp"],
+            "key": {"p": {"item": "minecraft:oak_planks"},
+                    "e": {"item": STATION_HEART[name]}},
+            "result": {"id": f"{NS}:{name}", "count": 1},
+        })
+        written += 1
     write(os.path.join(DATA, "recipe", ROPE + ".json"), {
         "type": "minecraft:crafting_shaped",
         "category": "misc",
@@ -541,6 +630,8 @@ for _kind in KINDS:
         NAMES[_colour + "_" + _kind] = titled(_colour + "_" + _kind)
 NAMES[ROPE] = titled(ROPE)
 for _name in CHIMES:
+    NAMES[_name] = titled(_name)
+for _name in STATION_IDS:
     NAMES[_name] = titled(_name)
 
 #: One sentence per way a rest can decline, because a block that answers "you
