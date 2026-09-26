@@ -142,8 +142,11 @@ public final class KitchenItems {
         int[] uses = {48, 180, 96, 780, 1400};
         for (int index = 0; index < kinds.length; index++) {
             final int durability = uses[index];
+            // A KnifeItem, which is what a cutting board asks for. Five plain
+            // items called knives were five items that cut nothing.
             made.put(kinds[index], ITEMS.register(kinds[index] + "_knife",
-                    () -> new Item(new Item.Properties().durability(durability))));
+                    () -> new com.elysium.agronomy.item.KnifeItem(
+                            new Item.Properties().durability(durability))));
         }
         if (made.size() != kinds.length) {
             throw new IllegalStateException("there are " + kinds.length

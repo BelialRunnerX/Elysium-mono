@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:rice_crate"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:rice",
+    "count": 9
+  }
+}

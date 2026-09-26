@@ -1,6 +1,7 @@
 {
   "needs": "crop",
   "ticks": 1200,
-  "drop": "potato",
+  "seed": "minecraft:potato",
+  "drop": "minecraft:potato",
   "amount": 2
 }

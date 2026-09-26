@@ -1,6 +1,7 @@
 {
   "needs": "fungal",
   "ticks": 2600,
-  "drop": "warped_stem",
+  "seed": "minecraft:warped_fungus",
+  "drop": "minecraft:warped_stem",
   "amount": 1
 }

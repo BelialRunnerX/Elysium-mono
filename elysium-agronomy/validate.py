@@ -460,7 +460,10 @@ for needed in ("int done = AgronomyRules.workPerTick(speed(level, pos));",
     if needed not in squashed(growing):
         fail("a pot counts its growth in something other than the rules' work units, so "
              "a speed that changes halfway through invents or throws away progress")
-if "insertItem(OUT, harvest, true)" not in growing:
+# roomFor, not insertItem: the output slot refuses whatever it is offered (so a
+# hopper cannot fill it), and asking it whether a harvest fits was a no every
+# time, which is a pot that never gave anything.
+if "if (!roomFor(harvest)) {" not in squashed(growing):
     fail("a pot harvests into a full slot, so the crop is destroyed")
 
 accelerator = strip_comments(read(SRC, "block/AcceleratorBlock.java"))
@@ -2107,6 +2110,391 @@ print(f"the crops          : {len(crops)} crop(s) on the frontier of time "
 print(f"the diet             : {constant('FOODS_FOR_FULL', kind='int')} different "
       f"foods for {constant('MOST_EXTRA_HEARTS', kind='int')} hearts, kept as a set, "
       f"surviving death, and applied as one modifier that replaces itself")
+
+# ===========================================================================
+# agro-kitchen: begin
+# ===========================================================================
+#
+# The kitchen, the pots, the colony, the crates and the cabinets, made to do
+# what they look like they do. Every folder the generators write for them is
+# read by one reload listener (AgronomyData); every block asks the rules
+# rather than deciding; and every rule below names a whole statement.
+
+# --- and the stations can make what the folders say --------------------------
+#
+# Twenty-nine meals, eleven cuts and six larder items sat on disk for as long
+# as the kitchen has existed, read by nothing, while the four stations were
+# plain blocks. Everything above this line was true and no meal could be made.
+# So: the listener opens the three folders, the stations are StationBlocks,
+# the block asks the rules rather than deciding, and a knife cuts.
+DATA_SRC = read(SRC, "data/AgronomyData.java")
+data_sq = squashed(DATA_SRC)
+reading = body_of(data_sq, "static void read(ResourceManager manager) {")
+if not reading:
+    fail("AgronomyData has no read(ResourceManager) this can see, so nothing below "
+         "checked what the kitchen reads off disk")
+else:
+    for folder, statement in (
+            ("cooking", "orders.addAll(each(manager, COOKING, AgronomyData::meal));"),
+            ("larder", "orders.addAll(each(manager, LARDER, AgronomyData::larder));"),
+            ("cutting", "cuts = List.copyOf(each(manager, CUTTING, AgronomyData::cut));")):
+        if statement not in reading:
+            fail(f"the reload listener no longer reads the {folder} folder, so every "
+                 f"file in it is a recipe nothing can make")
+if "public static void onReload(AddReloadListenerEvent event) {" not in data_sq:
+    fail("AgronomyData is not a reload listener, so the folders are read never "
+         "rather than on every reload")
+for folder, named_as in (("cooking", "COOKING"), ("larder", "LARDER"),
+                         ("cutting", "CUTTING")):
+    if f'public static final String {named_as} = "{folder}";' not in data_sq:
+        fail(f"AgronomyData no longer calls the {folder} folder {folder}, so the "
+             f"listener reads a folder that is not the one the generator writes")
+
+registering_stations = body_of(squashed(KITCHEN_BLOCKS), "registerStations() {")
+if "DeferredBlock<Block> block = BLOCKS.register(name, () -> new " \
+        "com.elysium.agronomy.block.StationBlock(properties, station));" \
+        not in registering_stations:
+    fail("the four stations are plain blocks, so a pot can be placed, filled and "
+         "used to make nothing at all")
+
+STATION_SRC = read(SRC, "block/StationBlock.java")
+station_sq = squashed(STATION_SRC)
+serving = body_of(station_sq,
+                  "public Component serve(Player player, Level level, BlockPos pos) {")
+if "KitchenRules.Order order = AgronomyData.orderFor(station(), have());" not in serving:
+    fail("a station decides for itself whether what is in it is a recipe rather "
+         "than asking the rules, so the exact matching the harness proves is not "
+         "the matching a player gets")
+if "if (KitchenRules.needsHeat(station()) && !heated(level, pos)) {" not in serving:
+    fail("a pot starts with no fire under it, so the one thing a pot costs is "
+         "optional")
+cooking_body = body_of(station_sq, "public void cook(Level level, BlockPos pos) {")
+if "if (KitchenRules.needsHeat(station()) && !heated(level, pos)) {" not in cooking_body:
+    fail("a pot goes on cooking after the fire under it goes out")
+if "if (progress < order.ticks()) {" not in cooking_body:
+    fail("a station finishes on a time of its own rather than the entry's ticks, "
+         "so the pace the harness proves is a table in a comment")
+if "made.add(new ItemStack(itemOf(order.id()), order.count()));" not in cooking_body:
+    fail("a station makes something other than the entry's servings of the "
+         "entry's result")
+heating = body_of(station_sq,
+                  "public static boolean heated(Level level, BlockPos pos) {")
+if "return KitchenRules.isHeat(BuiltInRegistries.BLOCK.getKey( " \
+        "level.getBlockState(pos.below()).getBlock()).toString());" not in heating:
+    fail("what counts as a fire under a pot is the block's opinion rather than "
+         "KitchenRules.HEAT, so the fuel list the harness checks is not the one "
+         "a player lights")
+slicing = body_of(station_sq, "public Component slice(ItemStack knife, Player player, "
+                              "InteractionHand hand) {")
+if "KitchenRules.Cut cut = AgronomyData.cutFor(nameOf(contents.get(at)));" not in slicing:
+    fail("a knife on a board does not ask the cutting folder what it cuts, so "
+         "eleven cuts on disk cut nothing")
+if "knife.hurtAndBreak(KitchenRules.KNIFE_WEAR, player, " \
+        "LivingEntity.getSlotForHand(hand));" not in slicing:
+    fail("a cut does not wear the knife, so a flint knife is a netherite one")
+if "if (!KitchenRules.BOARD.equals(station())) {" not in slicing:
+    fail("a knife cuts on any station, and the board's javadoc says a board and "
+         "a knife")
+using = body_of(station_sq, "protected ItemInteractionResult useItemOn(")
+if "Component said = held.getItem() instanceof KnifeItem ? entity.slice(held, " \
+        "player, hand) : entity.offer(held, level, pos);" not in using:
+    fail("a knife used on a station goes in as an ingredient rather than cutting")
+if "() -> new com.elysium.agronomy.item.KnifeItem( new Item.Properties()" \
+        ".durability(durability))));" not in squashed(KITCHEN_ITEMS):
+    fail("the knives are plain items, so a board cannot tell a knife from a carrot")
+if "for (String station : com.elysium.agronomy.rules.KitchenRules.STATIONS) { " \
+        "all.add(KitchenBlocks.STATIONS.get(station).get()); }" \
+        not in squashed(entities_src):
+    fail("the station block entity type no longer names every station, so some "
+         "station attaches nothing and silently does nothing")
+
+# The larder files say what the rules say, and the block reads a time from them.
+prep_ticks = re.search(r"public static final int PREP_TICKS = (\d+);", kitchen_source)
+larder_dir = os.path.join(RES, "data", NS, "larder")
+if not prep_ticks:
+    fail("KitchenRules no longer says how long the larder takes, so stock takes "
+         "however long a data file happens to say")
+elif os.path.isdir(larder_dir):
+    for name in sorted(os.listdir(larder_dir)):
+        if not name.endswith(".json"):
+            continue
+        body = json.load(open(os.path.join(larder_dir, name), encoding="utf-8"))
+        if body.get("ticks") != int(prep_ticks.group(1)):
+            fail(f"larder/{name} takes {body.get('ticks')} ticks on disk and the "
+                 f"rules say {prep_ticks.group(1)}")
+        if body.get("station") not in {s.lower() for s in kitchen_stations}:
+            fail(f"larder/{name} is made at {body.get('station')}, which is no station")
+
+# Every line a station can say is a line a player can read.
+station_lines = sorted(set(re.findall(r'"(elysiumagronomy\.station\.[a-z_]+)"',
+                                      strip_comments(STATION_SRC, True))))
+if not station_lines:
+    fail("a station says nothing at all, so a player has no way of knowing what "
+         "it wants or what it is doing")
+for key in station_lines:
+    if key not in lang:
+        fail(f"a station says {key} and the language file has no such line")
+
+# And the harness proves the arithmetic the block leans on.
+harness_sq = squashed(read(HARNESS))
+if "theStations();" not in harness_sq:
+    fail("the harness no longer runs the station checks, so whether a station can "
+         "make anything is checked by reading")
+if "public static Order match(String station, List<String> have, List<Order> menu) {" \
+        not in squashed(KITCHEN_RULES):
+    fail("KitchenRules no longer has the matching the stations lean on")
+if "bad.addAll(KitchenRules.clashing(all));" not in squashed(read(PURE, "CropRules.java")):
+    fail("the larder is not checked against the meals for two orders a station "
+         "cannot tell apart")
+
+print("the stations       : the cooking, larder and cutting folders read by a reload "
+      "listener, and four stations that match, heat, cook and cut by the rules")
+
+# --- a pot with soil in it ---------------------------------------------------
+#
+# Fourteen soils and twenty-eight sprouts were written out as data and read by
+# nothing, and a pot grew essence seeds and nothing else. So the listener
+# reads both folders, a pot has a soil slot, and a sprout grows only over a
+# soil that takes it, for as long as the rules say it takes.
+for folder, named_as in (("botany_soil", "SOILS"), ("botany_sprout", "SPROUTS")):
+    if f'public static final String {named_as} = "{folder}";' not in data_sq:
+        fail(f"AgronomyData no longer calls the {folder} folder {folder}, so the "
+             f"pots read a folder the generator does not write")
+for folder, statement in (
+        ("botany_soil", "for (Bed bed : each(manager, SOILS, AgronomyData::soil)) {"),
+        ("botany_soil", "bedsByBlock = Map.copyOf(beds);"),
+        ("botany_sprout", "for (Sown one : each(manager, SPROUTS, AgronomyData::sprout)) {"),
+        ("botany_sprout", "sownBySeed = Map.copyOf(sown);")):
+    if statement not in reading:
+        fail(f"the reload listener no longer reads the {folder} folder, so every "
+             f"file in it is a {folder.split('_')[1]} no pot knows")
+
+POT_SRC = read(SRC, "block/PotBlock.java")
+pot_sq = squashed(POT_SRC)
+if "public static final int SOIL = 2;" not in pot_sq \
+        or "private final ItemStackHandler items = new ItemStackHandler(3) {" not in pot_sq:
+    fail("a pot has no soil slot, so the fourteen soils are fourteen blocks that "
+         "fill nothing")
+pot_using = body_of(pot_sq, "public Component use(ItemStack held) {")
+if "AgronomyData.Bed filling = AgronomyData.bedFor(blockOf(held));" not in pot_using \
+        or "items.setStackInSlot(SOIL, held.copyWithCount(1));" not in pot_using:
+    fail("using a soil on a pot does not fill it with that soil")
+if "if (!PotRules.growsIn(under.soil(), planting.sprout())) {" not in pot_using:
+    fail("a pot takes a sprout over any soil at all, so the soil a sprout needs "
+         "is a word in a data file")
+if "Component said = pot.use(held);" not in body_of(pot_sq, "protected ItemInteractionResult useItemOn("):
+    fail("using something on a pot no longer goes through PotBlockEntity.use, so "
+         "soil and sprouts go nowhere")
+sprouting = body_of(pot_sq,
+                    "private void growSprout(Level level, BlockPos pos, BlockState state) {")
+if "|| !PotRules.growsIn(under.soil(), sprout.sprout())) {" not in sprouting:
+    fail("a pot grows a sprout in a soil that does not take it")
+if "int whole = sprout.sprout().ticksIn(under.soil(), speed);" not in sprouting \
+        or "if (grown < whole) {" not in sprouting:
+    fail("a sprout grows on a time of the pot's own rather than Sprout.ticksIn of "
+         "its soil and speed, so the soil ladder the harness proves buys nothing")
+if "ItemStack harvest = new ItemStack(BuiltInRegistries.ITEM.get( " \
+        "ResourceLocation.parse(sprout.drop())), sprout.sprout().amount());" \
+        not in sprouting:
+    fail("a sprout gives something other than its drop times its amount")
+if "growSprout(level, pos, state);" not in body_of(
+        pot_sq, "public void grow(Level level, BlockPos pos, BlockState state) {"):
+    fail("a pot's tick never grows a sprout, so only essence seeds grow in one")
+if "items.insertItem(OUT, harvest, true)" in pot_sq:
+    fail("a pot asks its own output slot, which refuses everything offered it, "
+         "whether a harvest fits, so the answer is no and nothing ever comes out")
+if "items.getStackInSlot(OUT), items.getStackInSlot(SOIL));" not in body_of(
+        pot_sq, "public SimpleContainer spill() {"):
+    fail("breaking a pot loses the soil in it")
+for key in sorted(set(re.findall(r'"(elysiumagronomy\.pot\.[a-z_]+)"',
+                                 strip_comments(POT_SRC, True)))):
+    if key not in lang:
+        fail(f"a pot says {key} and the language file has no such line")
+
+# The sprout and soil files say what the rules say, in full names.
+planted_by = re.search(r"PLANTED_BY = Map\.of\(([^;]*?)\);", pot_source, re.S)
+planted_by = dict(re.findall(r'"([a-z_]+)", "([a-z_]+)"', planted_by.group(1))) \
+    if planted_by else {}
+if not planted_by:
+    fail("PotRules no longer says what plants a sprout, so wheat is planted by wheat")
+sprout_rows = re.findall(
+    r'new Sprout\("([a-z_]+)", "([a-z_]+)", (\d+), "([a-z_]+)", (\d+)\)', pot_source)
+drifted_sprouts = []
+for sid, needs, ticks, drop, amount in sprout_rows:
+    path = os.path.join(RES, "data", NS, "botany_sprout", sid + ".json")
+    if not os.path.isfile(path):
+        continue
+    body = json.load(open(path, encoding="utf-8"))
+    want = {"needs": needs, "ticks": int(ticks),
+            "seed": "minecraft:" + planted_by.get(sid, sid),
+            "drop": "minecraft:" + drop, "amount": int(amount)}
+    if body != want:
+        drifted_sprouts.append(sid)
+if drifted_sprouts:
+    fail("sprout file(s) that say something different from the rules, so a pot "
+         "grows what a file says rather than what the harness proved: "
+         + ", ".join(drifted_sprouts[:6]))
+soil_rows = re.findall(
+    r'new Soil\("([a-z_]+)", (\d+), ([\d.]+)F, List\.of\(([^)]*)\)\)', pot_source)
+drifted_soils = []
+for sid, tier, speed, grows in soil_rows:
+    path = os.path.join(RES, "data", NS, "botany_soil", sid + ".json")
+    if not os.path.isfile(path):
+        continue
+    body = json.load(open(path, encoding="utf-8"))
+    if body.get("tier") != int(tier) or abs(body.get("speed", 0) - float(speed)) > 1e-6 \
+            or body.get("grows") != re.findall(r'"([a-z_]+)"', grows):
+        drifted_soils.append(sid)
+if drifted_soils:
+    fail("soil file(s) that say something different from the rules: "
+         + ", ".join(drifted_soils[:6]))
+if "thePotSoils();" not in harness_sq:
+    fail("the harness no longer runs the pot-soil checks, so no one proves that one "
+         "item plants one sprout or that a faster soil is quicker")
+print(f"the pots, filled   : {len(soil_rows)} soil(s) and {len(sprout_rows)} sprout(s) "
+      f"read off disk, a soil slot in every pot, and a sprout grown only over a "
+      f"soil that takes it")
+
+# --- the mushroom colony -----------------------------------------------------
+#
+# A plain block that ticked randomly and did nothing when it was ticked.
+COLONY_SRC = read(SRC, "block/ColonyBlock.java")
+colony_sq = squashed(COLONY_SRC)
+if "public static final DeferredBlock<Block> COLONY = BLOCKS.register( " \
+        "com.elysium.agronomy.rules.CropRules.COLONY, () -> new " \
+        "com.elysium.agronomy.block.ColonyBlock(BlockBehaviour.Properties " \
+        ".ofFullCopy(net.minecraft.world.level.block.Blocks.BROWN_MUSHROOM_BLOCK) " \
+        ".randomTicks()));" not in squashed(KITCHEN_BLOCKS):
+    fail("the mushroom colony is a plain block, so it costs two mushrooms and a "
+         "dirt and grows none")
+if 'public static final IntegerProperty AGE = IntegerProperty.create("age", 0, ' \
+        'CropRules.COLONY_MOST);' not in colony_sq:
+    fail("a colony's age is not 0 to CropRules.COLONY_MOST, so it holds a number "
+         "of mushrooms the rules never saw")
+if 'public static final IntegerProperty KIND = IntegerProperty.create("kind", 0, ' \
+        'CropRules.MUSHROOMS.size());' not in colony_sq:
+    fail("a colony's kinds are not walked from CropRules.MUSHROOMS")
+colony_tick = body_of(colony_sq, "protected void randomTick(")
+if "int next = CropRules.colonyAfter(age, random.nextFloat());" not in colony_tick \
+        or "level.setBlock(pos, state.setValue(AGE, next), Block.UPDATE_ALL);" \
+        not in colony_tick:
+    fail("a colony grows on a random tick of its own rather than "
+         "CropRules.colonyAfter, so it grows a mushroom a minute rather than "
+         "one every COLONY_TICKS")
+if "return state.getValue(KIND) > 0 && state.getValue(AGE) < CropRules.COLONY_MOST;" \
+        not in body_of(colony_sq, "protected boolean isRandomlyTicking("):
+    fail("a colony stops ticking at a different place from where it stops growing")
+colony_take = body_of(colony_sq, "protected InteractionResult useWithoutItem(")
+if "player.getInventory().placeItemBackInInventory(new ItemStack(mushroom, ready));" \
+        not in colony_take \
+        or "level.setBlock(pos, state.setValue(AGE, 0), Block.UPDATE_ALL);" \
+        not in colony_take:
+    fail("an empty hand on a colony does not take what it grew and start it again")
+if "level.setBlock(pos, state.setValue(KIND, kind).setValue(AGE, 0), " \
+        "Block.UPDATE_ALL);" not in body_of(colony_sq, "protected ItemInteractionResult useItemOn("):
+    fail("a mushroom used on a bare colony does not plant it")
+colony_rules = squashed(CROP_RULES)
+if "return roll < colonyChance() ? age + 1 : Math.max(0, age);" not in body_of(
+        colony_rules, "public static int colonyAfter(int age, float roll) {") \
+        or "return Math.min(1.0F, RANDOM_TICK_EVERY / COLONY_TICKS);" not in body_of(
+        colony_rules, "public static float colonyChance() {"):
+    fail("the colony's chance on a random tick is not COLONY_TICKS on the game's "
+         "clock")
+colony_most = re.search(r"public static final int COLONY_MOST = (\d+);", crop_source)
+colony_kinds = re.search(r'MUSHROOMS\s*=\s*List\.of\(([^;]*?)\);', crop_source)
+colony_kinds = re.findall(r'"([a-z_]+)"', colony_kinds.group(1)) if colony_kinds else []
+state_file = os.path.join(RES, "assets", NS, "blockstates", colony + ".json")
+if colony_most and colony_kinds and os.path.isfile(state_file):
+    variants = json.load(open(state_file, encoding="utf-8")).get("variants", {})
+    wanted = {f"age={age},kind={kind}"
+              for age in range(int(colony_most.group(1)) + 1)
+              for kind in range(len(colony_kinds) + 1)}
+    if set(variants) != wanted:
+        fail(f"the colony's blockstate has {len(variants)} variant(s) and the block "
+             f"has {len(wanted)} states, so some of them are purple cubes: "
+             + ", ".join(sorted(set(variants) ^ wanted)[:4]))
+    for variant in variants.values():
+        model = variant.get("model", "").split(":", 1)[-1]
+        if not os.path.isfile(os.path.join(RES, "assets", NS, "models", model + ".json")):
+            fail(f"the colony's blockstate names {model}, which is not a model")
+            break
+for key in sorted(set(re.findall(r'"(elysiumagronomy\.colony\.[a-z_]+)"',
+                                 strip_comments(COLONY_SRC, True)))):
+    if key not in lang:
+        fail(f"a colony says {key} and the language file has no such line")
+if "theColony();" not in harness_sq:
+    fail("the harness no longer runs the colony's clock")
+print("the colony         : a random-ticking block that grows a mushroom every "
+      "COLONY_TICKS on the game's clock, up to COLONY_MOST, taken by hand")
+
+# --- crates that open, cabinets that hold ------------------------------------
+crate_holds = re.search(r"public static final int CRATE_HOLDS = (\d+);", kitchen_source)
+if not crate_holds:
+    fail("KitchenRules no longer says how many of a crop a crate holds")
+else:
+    holds = int(crate_holds.group(1))
+    for crop in kitchen_crated:
+        crate = crafted.get(crop + "_crate")
+        back = crafted.get(crop + "_from_crate")
+        if back is None:
+            fail(f"a {crop} crate takes {holds} {crop} and nothing gives them back, "
+                 f"so crating a crop throws it away in a box")
+            continue
+        if crate is not None:
+            took = sum(row.count("C") for row in crate.get("pattern", []))
+            if took != holds:
+                fail(f"a {crop} crate takes {took} and the rules say {holds}")
+            given = crate.get("key", {}).get("C", {}).get("item")
+        else:
+            given = None
+        if back.get("ingredients") != [{"item": f"{NS}:{crop}_crate"}]:
+            fail(f"{crop}_from_crate is not made of one {crop} crate")
+        if back.get("result", {}).get("count") != holds \
+                or back.get("result", {}).get("id") != given:
+            fail(f"a {crop} crate gives back {back.get('result')} and took "
+                 f"{holds} of {given}, so a crate eats or makes a crop")
+
+CABINET_SRC = read(SRC, "block/CabinetBlock.java")
+cabinet_sq = squashed(CABINET_SRC)
+if "DeferredBlock<Block> cabinet = BLOCKS.register(name, () -> new " \
+        "com.elysium.agronomy.block.CabinetBlock(timber()));" \
+        not in body_of(squashed(KITCHEN_BLOCKS), "registerCabinets() {"):
+    fail("the cabinets are plain blocks, so eleven cupboards do not open")
+if "for (String wood : KitchenBlocks.WOODS) { " \
+        "all.add(KitchenBlocks.CABINETS.get(wood).get()); }" not in squashed(entities_src):
+    fail("the cabinet block entity type no longer names every cabinet, so some "
+         "wood's cabinet holds nothing")
+if "return ChestMenu.threeRows(id, inventory, this);" not in body_of(
+        cabinet_sq, "protected AbstractContainerMenu createMenu(int id, Inventory inventory) {"):
+    fail("a cabinet opens something other than the game's three-row chest menu, "
+         "so it is a screen of ours that nothing themes")
+if "return KitchenRules.cabinetSlots();" not in body_of(
+        cabinet_sq, "public int getContainerSize() {") \
+        or "private NonNullList<ItemStack> items = " \
+           "NonNullList.withSize(KitchenRules.cabinetSlots(), ItemStack.EMPTY);" \
+        not in cabinet_sq:
+    fail("a cabinet's size is not KitchenRules.cabinetSlots(), so the menu and the "
+         "cabinet disagree about how much it holds")
+if "player.openMenu(cabinet);" not in body_of(cabinet_sq,
+                                              "protected InteractionResult useWithoutItem("):
+    fail("using a cabinet does not open it")
+if "Containers.dropContents(level, pos, cabinet);" not in body_of(
+        cabinet_sq, "protected void onRemove("):
+    fail("breaking a cabinet destroys what is in it")
+if "ContainerHelper.saveAllItems(tag, items, registries);" not in cabinet_sq \
+        or "ContainerHelper.loadAllItems(tag, items, registries);" not in cabinet_sq:
+    fail("a cabinet does not save what is in it, so a cupboard empties itself every "
+         "time the world is loaded")
+if "container.elysiumagronomy.cabinet" not in lang:
+    fail("a cabinet's menu has no title a player can read")
+if "theCrates();" not in harness_sq:
+    fail("the harness no longer checks that a crate gives back what it took")
+print(f"crates and cabinets: {len(kitchen_crated)} crate(s) that open back into "
+      f"their crop, and {len(kitchen_woods)} cabinet(s) that open the game's chest menu")
+
+# ===========================================================================
+# agro-kitchen: end
+# ===========================================================================
 
 if problems:
     print(f"{len(problems)} PROBLEM(S):")

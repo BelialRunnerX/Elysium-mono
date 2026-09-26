@@ -4,5 +4,6 @@
     "minecraft:milk_bucket"
   ],
   "result": "elysiumagronomy:cheese_wheel",
-  "count": 1
+  "count": 1,
+  "ticks": 200
 }

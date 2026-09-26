@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:ginger_crate"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:ginger",
+    "count": 9
+  }
+}

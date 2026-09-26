@@ -1,6 +1,7 @@
 {
   "needs": "common",
   "ticks": 1400,
-  "drop": "bamboo",
+  "seed": "minecraft:bamboo",
+  "drop": "minecraft:bamboo",
   "amount": 3
 }

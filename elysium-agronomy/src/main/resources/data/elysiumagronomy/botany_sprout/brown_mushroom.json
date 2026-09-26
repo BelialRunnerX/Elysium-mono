@@ -1,6 +1,7 @@
 {
   "needs": "fungal",
   "ticks": 2000,
-  "drop": "brown_mushroom",
+  "seed": "minecraft:brown_mushroom",
+  "drop": "minecraft:brown_mushroom",
   "amount": 2
 }

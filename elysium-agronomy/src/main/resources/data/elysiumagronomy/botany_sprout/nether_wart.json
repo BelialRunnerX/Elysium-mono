@@ -1,6 +1,7 @@
 {
   "needs": "nether",
   "ticks": 2200,
-  "drop": "nether_wart",
+  "seed": "minecraft:nether_wart",
+  "drop": "minecraft:nether_wart",
   "amount": 2
 }

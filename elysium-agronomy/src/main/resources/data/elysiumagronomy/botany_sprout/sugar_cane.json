@@ -1,6 +1,7 @@
 {
   "needs": "common",
   "ticks": 1600,
-  "drop": "sugar_cane",
+  "seed": "minecraft:sugar_cane",
+  "drop": "minecraft:sugar_cane",
   "amount": 2
 }

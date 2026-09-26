@@ -1,6 +1,7 @@
 {
   "needs": "aquatic",
   "ticks": 1500,
-  "drop": "dried_kelp",
+  "seed": "minecraft:kelp",
+  "drop": "minecraft:dried_kelp",
   "amount": 2
 }

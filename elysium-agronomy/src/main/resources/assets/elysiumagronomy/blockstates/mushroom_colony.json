@@ -1,7 +1,40 @@
 {
   "variants": {
-    "": {
-      "model": "elysiumagronomy:block/mushroom_colony"
+    "age=0,kind=0": {
+      "model": "elysiumagronomy:block/mushroom_colony_bare"
+    },
+    "age=0,kind=1": {
+      "model": "elysiumagronomy:block/mushroom_colony_brown_mushroom_0"
+    },
+    "age=0,kind=2": {
+      "model": "elysiumagronomy:block/mushroom_colony_red_mushroom_0"
+    },
+    "age=1,kind=0": {
+      "model": "elysiumagronomy:block/mushroom_colony_bare"
+    },
+    "age=1,kind=1": {
+      "model": "elysiumagronomy:block/mushroom_colony_brown_mushroom_1"
+    },
+    "age=1,kind=2": {
+      "model": "elysiumagronomy:block/mushroom_colony_red_mushroom_1"
+    },
+    "age=2,kind=0": {
+      "model": "elysiumagronomy:block/mushroom_colony_bare"
+    },
+    "age=2,kind=1": {
+      "model": "elysiumagronomy:block/mushroom_colony_brown_mushroom_2"
+    },
+    "age=2,kind=2": {
+      "model": "elysiumagronomy:block/mushroom_colony_red_mushroom_2"
+    },
+    "age=3,kind=0": {
+      "model": "elysiumagronomy:block/mushroom_colony_bare"
+    },
+    "age=3,kind=1": {
+      "model": "elysiumagronomy:block/mushroom_colony_brown_mushroom_3"
+    },
+    "age=3,kind=2": {
+      "model": "elysiumagronomy:block/mushroom_colony_red_mushroom_3"
     }
   }
 }

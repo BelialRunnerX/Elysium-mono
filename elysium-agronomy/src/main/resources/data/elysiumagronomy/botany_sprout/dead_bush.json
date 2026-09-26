@@ -1,6 +1,7 @@
 {
   "needs": "desert",
   "ticks": 1800,
-  "drop": "stick",
+  "seed": "minecraft:dead_bush",
+  "drop": "minecraft:stick",
   "amount": 2
 }

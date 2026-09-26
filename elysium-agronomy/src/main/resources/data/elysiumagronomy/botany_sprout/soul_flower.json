@@ -1,6 +1,7 @@
 {
   "needs": "nether",
   "ticks": 2800,
-  "drop": "soul_sand",
+  "seed": "minecraft:nether_sprouts",
+  "drop": "minecraft:soul_sand",
   "amount": 1
 }

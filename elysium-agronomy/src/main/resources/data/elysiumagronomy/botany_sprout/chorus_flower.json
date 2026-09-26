@@ -1,6 +1,7 @@
 {
   "needs": "end",
   "ticks": 4200,
-  "drop": "chorus_fruit",
+  "seed": "minecraft:chorus_flower",
+  "drop": "minecraft:chorus_fruit",
   "amount": 2
 }

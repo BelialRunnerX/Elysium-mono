@@ -1,23 +1,28 @@
 package com.elysium.agronomy.block;
 
+import com.elysium.agronomy.data.AgronomyData;
 import com.elysium.agronomy.item.EssenceSeed;
 import com.elysium.agronomy.registry.AgronomyBlockEntities;
 import com.elysium.agronomy.rules.AgronomyRules;
+import com.elysium.agronomy.rules.PotRules;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -121,8 +126,11 @@ public class PotBlock extends BaseEntityBlock {
         if (held.isEmpty() || !(level.getBlockEntity(pos) instanceof PotBlockEntity pot)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
-        if (!level.isClientSide && pot.plant(held)) {
-            return ItemInteractionResult.SUCCESS;
+        if (!level.isClientSide) {
+            Component said = pot.use(held);
+            if (said != null) {
+                player.displayClientMessage(said, true);
+            }
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
@@ -156,24 +164,39 @@ public class PotBlock extends BaseEntityBlock {
 
     // ------------------------------------------------------------------
 
-    /** The working half: a seed, a growth, and what it has made. */
+    /**
+     * The working half: a seed, the soil it is in, a growth, and what it made.
+     *
+     * <p>Two kinds of thing grow in a pot. An essence seed grows on its own,
+     * as it always has. A sprout (anything in the {@code botany_sprout}
+     * folder) wants soil first: the soil slot takes anything the
+     * {@code botany_soil} folder names, and a sprout goes in only over a soil
+     * that takes what it needs. Both folders are read by {@link AgronomyData};
+     * whether a soil takes a sprout is {@link PotRules#growsIn}, and how long
+     * it takes is {@link PotRules.Sprout#ticksIn}.
+     */
     public static class PotBlockEntity extends BlockEntity {
 
         public static final int SEED = 0;
         public static final int OUT = 1;
+        public static final int SOIL = 2;
 
-        private final ItemStackHandler items = new ItemStackHandler(2) {
+        private final ItemStackHandler items = new ItemStackHandler(3) {
             @Override
             protected void onContentsChanged(int slot) {
                 setChanged();
-                if (slot == SEED) {
+                if (slot == SEED || slot == SOIL) {
                     grown = 0;
                 }
             }
 
             @Override
             public boolean isItemValid(int slot, ItemStack stack) {
-                return slot == SEED && stack.getItem() instanceof EssenceSeed;
+                if (slot == SOIL) {
+                    return AgronomyData.bedFor(blockOf(stack)) != null;
+                }
+                return slot == SEED && (stack.getItem() instanceof EssenceSeed
+                        || AgronomyData.sownFor(nameOf(stack)) != null);
             }
         };
 
@@ -193,7 +216,73 @@ public class PotBlock extends BaseEntityBlock {
                     ? sown : null;
         }
 
-        /** Put a seed in it. True when it took one. */
+        /** The full name of an item, which is what the data files use. */
+        public static String nameOf(ItemStack stack) {
+            return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+        }
+
+        /** The full name of the block an item places, or empty when it places none. */
+        public static String blockOf(ItemStack stack) {
+            return stack.getItem() instanceof BlockItem placed
+                    ? BuiltInRegistries.BLOCK.getKey(placed.getBlock()).toString() : "";
+        }
+
+        /** The soil it is filled with, or null. */
+        @Nullable
+        public AgronomyData.Bed bed() {
+            ItemStack soil = items.getStackInSlot(SOIL);
+            return soil.isEmpty() ? null : AgronomyData.bedFor(blockOf(soil));
+        }
+
+        /** The sprout planted in it, or null when it is empty or an essence seed. */
+        @Nullable
+        public AgronomyData.Sown sown() {
+            ItemStack seed = items.getStackInSlot(SEED);
+            return seed.isEmpty() || seed.getItem() instanceof EssenceSeed
+                    ? null : AgronomyData.sownFor(nameOf(seed));
+        }
+
+        /**
+         * Something used on it: a soil fills it, a seed plants it.
+         *
+         * <p>A soil goes in only when there is none; a sprout only over a soil
+         * that takes it, which is the one moment a player can be told why.
+         */
+        @Nullable
+        public Component use(ItemStack held) {
+            AgronomyData.Bed filling = AgronomyData.bedFor(blockOf(held));
+            if (filling != null) {
+                ItemStack there = items.getStackInSlot(SOIL);
+                if (there.isEmpty()) {
+                    items.setStackInSlot(SOIL, held.copyWithCount(1));
+                    held.shrink(1);
+                    there = items.getStackInSlot(SOIL);
+                }
+                return Component.translatable("elysiumagronomy.pot.bedded",
+                        there.getHoverName());
+            }
+            AgronomyData.Sown planting = AgronomyData.sownFor(nameOf(held));
+            if (planting != null && !(held.getItem() instanceof EssenceSeed)) {
+                AgronomyData.Bed under = bed();
+                if (under == null) {
+                    return Component.translatable("elysiumagronomy.pot.soilless");
+                }
+                if (!PotRules.growsIn(under.soil(), planting.sprout())) {
+                    return Component.translatable("elysiumagronomy.pot.wrong_soil",
+                            held.getHoverName(), items.getStackInSlot(SOIL).getHoverName(),
+                            planting.sprout().needs());
+                }
+                if (items.getStackInSlot(SEED).isEmpty()) {
+                    items.setStackInSlot(SEED, held.copyWithCount(1));
+                    held.shrink(1);
+                }
+                return null;
+            }
+            plant(held);
+            return null;
+        }
+
+        /** Put an essence seed in it. True when it took one. */
         public boolean plant(ItemStack held) {
             if (!(held.getItem() instanceof EssenceSeed)) {
                 return false;
@@ -212,7 +301,7 @@ public class PotBlock extends BaseEntityBlock {
 
         public SimpleContainer spill() {
             return new SimpleContainer(items.getStackInSlot(SEED),
-                    items.getStackInSlot(OUT));
+                    items.getStackInSlot(OUT), items.getStackInSlot(SOIL));
         }
 
         /**
@@ -243,7 +332,7 @@ public class PotBlock extends BaseEntityBlock {
         public Component says(Level level, BlockPos pos) {
             EssenceSeed sown = seed();
             if (sown == null) {
-                return Component.translatable("elysiumagronomy.pot.bare");
+                return sproutSays(level, pos);
             }
             int light = level.getMaxLocalRawBrightness(pos.above());
             if (light < AgronomyRules.LEAST_LIGHT) {
@@ -259,11 +348,88 @@ public class PotBlock extends BaseEntityBlock {
                     String.valueOf(Math.max(0, left) / 20));
         }
 
+        /** What it says when what is in it is a sprout, or nothing. */
+        private Component sproutSays(Level level, BlockPos pos) {
+            AgronomyData.Sown sprout = sown();
+            if (sprout == null) {
+                return Component.translatable("elysiumagronomy.pot.bare");
+            }
+            AgronomyData.Bed under = bed();
+            if (under == null) {
+                return Component.translatable("elysiumagronomy.pot.soilless");
+            }
+            if (!PotRules.growsIn(under.soil(), sprout.sprout())) {
+                return Component.translatable("elysiumagronomy.pot.wrong_soil",
+                        items.getStackInSlot(SEED).getHoverName(),
+                        items.getStackInSlot(SOIL).getHoverName(),
+                        sprout.sprout().needs());
+            }
+            int light = level.getMaxLocalRawBrightness(pos.above());
+            if (light < AgronomyRules.LEAST_LIGHT) {
+                return Component.translatable("elysiumagronomy.pot.dark",
+                        String.valueOf(light), String.valueOf(AgronomyRules.LEAST_LIGHT));
+            }
+            float speed = speed(level, pos);
+            int left = sprout.sprout().ticksIn(under.soil(), speed) - grown;
+            return Component.translatable("elysiumagronomy.pot.growing",
+                    items.getStackInSlot(SEED).getHoverName().getString(),
+                    String.format("%.1f", speed * under.soil().speed()),
+                    String.valueOf(Math.max(0, left) / 20));
+        }
+
+        /**
+         * Whether a harvest fits in the output.
+         *
+         * <p>Asked of the stacks rather than of {@code insertItem}: the output
+         * slot refuses anything a hopper offers it, so asking it whether it
+         * would take a harvest was asking a door locked from outside whether
+         * it was open, and the answer was no every time: a pot that grew right
+         * up to the end and never once gave anything.
+         */
+        private boolean roomFor(ItemStack harvest) {
+            ItemStack there = items.getStackInSlot(OUT);
+            if (there.isEmpty()) {
+                return true;
+            }
+            return ItemStack.isSameItemSameComponents(there, harvest)
+                    && there.getCount() + harvest.getCount() <= there.getMaxStackSize();
+        }
+
+        /** One tick of growing a sprout, in the soil it is in, at the speed the pot is. */
+        private void growSprout(Level level, BlockPos pos, BlockState state) {
+            AgronomyData.Sown sprout = sown();
+            AgronomyData.Bed under = bed();
+            if (sprout == null || under == null
+                    || !PotRules.growsIn(under.soil(), sprout.sprout())) {
+                settle(level, pos, state, 0);
+                return;
+            }
+            float speed = speed(level, pos);
+            if (speed <= 0.0F) {
+                return;                        // too dark: it waits, it does not wilt
+            }
+            ItemStack harvest = new ItemStack(BuiltInRegistries.ITEM.get(
+                    ResourceLocation.parse(sprout.drop())), sprout.sprout().amount());
+            if (harvest.isEmpty() || !roomFor(harvest)) {
+                return;
+            }
+            grown++;
+            int whole = sprout.sprout().ticksIn(under.soil(), speed);
+            if (grown < whole) {
+                settle(level, pos, state, Math.min(3, grown * 4 / whole));
+                return;
+            }
+            grown = 0;
+            items.setStackInSlot(OUT, grow(items.getStackInSlot(OUT), harvest));
+            settle(level, pos, state, 0);
+            setChanged();
+        }
+
         /** One tick of growing. */
         public void grow(Level level, BlockPos pos, BlockState state) {
             EssenceSeed sown = seed();
             if (sown == null) {
-                settle(level, pos, state, 0);
+                growSprout(level, pos, state);
                 return;
             }
             int done = AgronomyRules.workPerTick(speed(level, pos));
@@ -271,7 +437,7 @@ public class PotBlock extends BaseEntityBlock {
                 return;
             }
             ItemStack harvest = new ItemStack(sown.essence(), sown.yield());
-            if (!items.insertItem(OUT, harvest, true).isEmpty()) {
+            if (!roomFor(harvest)) {
                 return;                        // no room; stop rather than lose it
             }
             grown += done;

@@ -73,6 +73,10 @@ public final class AgronomyHarness {
         thePots();
         theVeins();
         theKitchen();
+        theStations();
+        thePotSoils();
+        theColony();
+        theCrates();
         theSeeds();
 
         if (failures > 0) {
@@ -1681,6 +1685,306 @@ public final class AgronomyHarness {
         check(KitchenRules.MOST_OF_ITS_PARTS > 1.0F,
                 "a meal may not be worth more than its parts, so cooking is a way of "
                         + "wasting food");
+    }
+
+    // ==================================================================
+
+    /**
+     * Whether the stations can do what the kitchen says they do.
+     *
+     * <p>The meals above are proved worth making; this is whether a block
+     * can make them. Every order names a station that exists, every station
+     * has something to make, the stations are as quick or slow as the file
+     * says they are, no two orders on one station are the same things, and
+     * the matching a block does is exact and blind to order.
+     */
+    private static void theStations() {
+        List<KitchenRules.Order> everything = CropRules.allOrders();
+        check(everything.size() == KitchenRules.MEALS.size() + CropRules.LARDER.size(),
+                "the stations know " + everything.size() + " orders and there are "
+                        + KitchenRules.MEALS.size() + " meals and "
+                        + CropRules.LARDER.size() + " larder items");
+        for (KitchenRules.Order order : everything) {
+            check(KitchenRules.STATIONS.contains(order.station()),
+                    order.id() + " is made somewhere that does not exist");
+        }
+        for (String station : KitchenRules.STATIONS) {
+            int orders = 0;
+            for (KitchenRules.Order order : everything) {
+                if (order.station().equals(station)) {
+                    orders++;
+                }
+            }
+            check(orders > 0, "the " + station + " has nothing to make, so it is a "
+                    + "block that does nothing when you use it");
+            check(KitchenRules.PACE.contains(station),
+                    "nothing says how quick the " + station + " is");
+        }
+        check(KitchenRules.PACE.size() == KitchenRules.STATIONS.size(),
+                "the pace names " + KitchenRules.PACE.size() + " stations and there are "
+                        + KitchenRules.STATIONS.size());
+        check(KitchenRules.outOfPace(everything).isEmpty(),
+                "a station is not as quick as this file says it is: "
+                        + KitchenRules.outOfPace(everything));
+        // A positive control: a menu on which the board is slower than the
+        // oven has to be caught, or the pace check is answering no to
+        // everything and the four javadocs are checked by nothing.
+        List<KitchenRules.Order> upsideDown = List.of(
+                new KitchenRules.Order("slow_board", KitchenRules.BOARD,
+                        List.of("bread"), 9_000, 1),
+                new KitchenRules.Order("quick_pan", KitchenRules.SKILLET,
+                        List.of("egg"), 100, 1),
+                new KitchenRules.Order("quick_pot", KitchenRules.POT,
+                        List.of("stock"), 200, 1),
+                new KitchenRules.Order("quick_oven", KitchenRules.OVEN,
+                        List.of("dough"), 300, 1));
+        check(!KitchenRules.outOfPace(upsideDown).isEmpty(),
+                "the pace check cannot see a board slower than an oven, so it "
+                        + "answers no to everything");
+
+        check(KitchenRules.clashing(everything).isEmpty(),
+                "two orders a station cannot tell apart: "
+                        + KitchenRules.clashing(everything));
+        List<KitchenRules.Order> twins = List.of(
+                new KitchenRules.Order("one", KitchenRules.POT,
+                        List.of("stock", "onion", "bone"), 300, 1),
+                new KitchenRules.Order("other", KitchenRules.POT,
+                        List.of("bone", "stock", "onion"), 400, 4));
+        check(!KitchenRules.clashing(twins).isEmpty(),
+                "the clash check cannot see two orders that are the same things in "
+                        + "a different order, so it answers no to everything");
+        List<KitchenRules.Order> apart = List.of(
+                new KitchenRules.Order("one", KitchenRules.POT,
+                        List.of("stock", "onion", "bone"), 300, 1),
+                new KitchenRules.Order("other", KitchenRules.OVEN,
+                        List.of("bone", "stock", "onion"), 400, 4));
+        check(KitchenRules.clashing(apart).isEmpty(),
+                "the clash check compares orders on different stations, so a soup "
+                        + "and a bake can never share ingredients");
+
+        // Matching is exact and blind to order.
+        KitchenRules.Order pasta = KitchenRules.match(KitchenRules.BOARD,
+                List.of("dough"), everything);
+        check(pasta != null && pasta.id().equals("pasta"),
+                "dough on a board is not pasta: " + pasta);
+        KitchenRules.Order crust = KitchenRules.match(KitchenRules.BOARD,
+                List.of("wheat", "dough"), everything);
+        check(crust != null && crust.id().equals("pie_crust"),
+                "wheat and dough on a board, in that order, is not a pie crust: "
+                        + crust);
+        check(KitchenRules.match(KitchenRules.BOARD, List.of("dough", "dough"),
+                        everything) == null,
+                "two dough on a board matched something, so matching is not exact");
+        check(KitchenRules.match(KitchenRules.OVEN, List.of("dough", "wheat"),
+                        everything) == null,
+                "a board's crust matched in an oven, so the station is not checked");
+        check(KitchenRules.match(KitchenRules.POT, List.of(), everything) == null,
+                "an empty pot matched an order");
+        for (KitchenRules.Order order : everything) {
+            KitchenRules.Order back = KitchenRules.match(order.station(), order.of(),
+                    everything);
+            check(back != null && back.id().equals(order.id()),
+                    order.id() + " does not match its own ingredients, so it can "
+                            + "never be made");
+        }
+        check(KitchenRules.couldBecome(KitchenRules.BOARD, List.of("bread"), everything),
+                "bread on a board is the start of three sandwiches and the board "
+                        + "says it is the start of nothing");
+        check(!KitchenRules.couldBecome(KitchenRules.BOARD, List.of("bread", "bread"),
+                        everything),
+                "two bread on a board is the start of nothing and the board says "
+                        + "keep going");
+        check(!KitchenRules.couldBecome(KitchenRules.SKILLET, List.of("stock"),
+                        everything),
+                "stock in a pan is the start of nothing and the pan says keep going");
+
+        // A knife, and only a knife, cuts.
+        check(KitchenRules.cutFor("beef", KitchenRules.KNIFE, KitchenRules.CUTS) != null,
+                "a knife does not cut beef");
+        check(KitchenRules.cutFor("beef", "spoon", KitchenRules.CUTS) == null,
+                "a spoon cuts beef");
+        check(KitchenRules.cutFor("stock", KitchenRules.KNIFE, KitchenRules.CUTS) == null,
+                "a knife cuts stock");
+        for (KitchenRules.Cut cut : KitchenRules.CUTS) {
+            check(KitchenRules.KNIFE.equals(cut.tool()),
+                    "cutting " + cut.input() + " wants a " + cut.tool()
+                            + ", which is not a knife and so is a tool nobody has");
+        }
+        check(KitchenRules.KNIFE_WEAR >= 1, "a cut wears a knife by nothing, so a "
+                + "flint knife is a netherite one");
+
+        // Heat.
+        check(KitchenRules.needsHeat(KitchenRules.POT)
+                        && KitchenRules.needsHeat(KitchenRules.SKILLET),
+                "a pot or a pan cooks with no fire under it");
+        check(!KitchenRules.needsHeat(KitchenRules.BOARD)
+                        && !KitchenRules.needsHeat(KitchenRules.OVEN),
+                "a board or an oven wants a fire under it, and the board's own "
+                        + "javadoc says no fire at all");
+        check(!KitchenRules.HEAT.isEmpty(), "nothing at all counts as a fire");
+        for (String block : KitchenRules.HEAT) {
+            check(block.startsWith("minecraft:"), block + " is a fire that is not "
+                    + "the game's, so a pot may want a block nothing places");
+            check(KitchenRules.isHeat(block), block + " is listed as heat and is not");
+        }
+        check(!KitchenRules.isHeat("minecraft:dirt"), "dirt is a fire");
+
+        // Sizes.
+        int most = KitchenRules.mostIngredients();
+        check(most >= 1 && most <= KitchenRules.MOST_INGREDIENTS_WORTH_HAVING,
+                "a station has to hold " + most + " things, which is a shopping "
+                        + "list rather than a recipe");
+        for (KitchenRules.Order order : everything) {
+            check(order.of().size() <= most, order.id() + " needs more than a "
+                    + "station holds, so it can never be made");
+        }
+        check(KitchenRules.PREP_TICKS > 0, "preparation is instant");
+        check(KitchenRules.PREP_TICKS < KitchenRules.meanTicks(KitchenRules.POT,
+                        KitchenRules.menu()),
+                "making stock takes longer than the average stew made from it");
+        check(KitchenRules.cabinetSlots() == 27,
+                "a cabinet holds " + KitchenRules.cabinetSlots()
+                        + " stacks and the game's three-row chest menu shows 27");
+    }
+
+    // ==================================================================
+
+    /**
+     * Whether a pot with soil in it can grow what the sprout folder says.
+     *
+     * <p>Every sprout is planted by exactly one item and no item plants two;
+     * no seed is also a soil; every sprout has a soil it grows in and a soil
+     * it does not; a faster soil is never slower; and the growth time is the
+     * rules' own, at every soil and speed a pot can be at.
+     */
+    private static void thePotSoils() {
+        check(PotRules.sharedSeeds().isEmpty(),
+                "one item plants two sprouts: " + PotRules.sharedSeeds());
+        check(PotRules.seedsThatAreSoil().isEmpty(),
+                "a seed is a soil: " + PotRules.seedsThatAreSoil());
+        check(PotRules.staleSeeds().isEmpty(),
+                "a seed for a sprout nobody grows: " + PotRules.staleSeeds());
+        Set<String> seeds = new HashSet<>();
+        for (PotRules.Sprout sprout : PotRules.SPROUTS) {
+            seeds.add(PotRules.seedOf(sprout));
+            check(PotRules.itemName(PotRules.seedOf(sprout)).startsWith("minecraft:"),
+                    sprout.id() + " is planted by something that is not the game's");
+            check(PotRules.itemName(sprout.drop()).startsWith("minecraft:"),
+                    sprout.id() + " drops something that is not the game's");
+            int grows = 0;
+            for (PotRules.Soil soil : PotRules.SOILS) {
+                if (!PotRules.growsIn(soil, sprout)) {
+                    continue;
+                }
+                grows++;
+                int slow = sprout.ticksIn(soil, 1.0F);
+                int quick = sprout.ticksIn(soil, 2.0F);
+                check(slow > 0 && quick > 0 && quick < slow,
+                        sprout.id() + " in " + soil.id() + " is no quicker in a pot "
+                                + "going twice as fast: " + slow + " against " + quick);
+                near(sprout.ticksIn(soil, 1.0F), sprout.ticks() / soil.speed(), 1.0F,
+                        sprout.id() + " in " + soil.id() + " at speed one");
+            }
+            check(grows > 0, sprout.id() + " grows in no soil at all");
+        }
+        check(seeds.size() == PotRules.SPROUTS.size(),
+                PotRules.SPROUTS.size() + " sprouts and " + seeds.size()
+                        + " different seeds, so a pot cannot tell some of them apart");
+        // A faster soil is quicker for every sprout both of them take.
+        for (PotRules.Soil one : PotRules.SOILS) {
+            for (PotRules.Soil other : PotRules.SOILS) {
+                if (one.speed() <= other.speed()) {
+                    continue;
+                }
+                for (PotRules.Sprout sprout : PotRules.SPROUTS) {
+                    if (PotRules.growsIn(one, sprout) && PotRules.growsIn(other, sprout)) {
+                        check(sprout.ticksIn(one, 1.5F) <= sprout.ticksIn(other, 1.5F),
+                                sprout.id() + " is slower in " + one.id()
+                                        + " than in the slower " + other.id());
+                    }
+                }
+            }
+        }
+        // Positive controls: the two roster checks can say yes.
+        PotRules.Sprout wheat = PotRules.SPROUTS.get(0);
+        check(PotRules.growsIn(PotRules.soil("farmland"), wheat)
+                        && !PotRules.growsIn(PotRules.soil("sand"), wheat),
+                "wheat grows in sand or not in farmland, so the soil means nothing");
+        check(PotRules.seedOf(wheat).equals("wheat_seeds"),
+                "wheat is planted by " + PotRules.seedOf(wheat) + " rather than its seeds");
+        check(PotRules.soil("dirt") != null && PotRules.soil("dirt").takes("common"),
+                "dirt is not a common soil");
+    }
+
+    // ==================================================================
+
+    /**
+     * Whether the mushroom colony keeps the pace the rules give it.
+     *
+     * <p>A colony grows on the game's random tick, which reaches a block about
+     * once in thirteen hundred ticks, so the rules turn the forty-second
+     * {@link CropRules#COLONY_TICKS} into a chance on that clock. This runs the
+     * clock: a colony walked through a hundred thousand mushrooms has to have
+     * taken {@code COLONY_TICKS} each on average, and has to stop at
+     * {@link CropRules#COLONY_MOST}.
+     */
+    private static void theColony() {
+        // The clock itself: three random ticks in each sixteen-cube section
+        // every game tick, which is the game's default randomTickSpeed.
+        near(CropRules.RANDOM_TICK_EVERY, 16.0F * 16.0F * 16.0F / 3.0F, 0.5F,
+                "the game's random tick reaches one block once in 4096/3 ticks at "
+                        + "its default speed, and the colony's clock says otherwise");
+        float chance = CropRules.colonyChance();
+        check(chance > 0.0F && chance <= 1.0F,
+                "a colony moves on with a chance of " + chance + " a random tick");
+        near(CropRules.RANDOM_TICK_EVERY / chance, CropRules.COLONY_TICKS, 1.0F,
+                "the mean wait for one mushroom");
+        check(CropRules.COLONY_TICKS >= CropRules.RANDOM_TICK_EVERY,
+                "a colony is meant to take " + CropRules.COLONY_TICKS
+                        + " ticks and the random tick only comes every "
+                        + CropRules.RANDOM_TICK_EVERY + ", so it grows at the clock's pace "
+                        + "rather than its own");
+        check(CropRules.colonyAfter(CropRules.COLONY_MOST, 0.0F) == CropRules.COLONY_MOST,
+                "a full colony grows past " + CropRules.COLONY_MOST);
+        check(CropRules.colonyAfter(0, 0.0F) == 1, "a colony that rolled low did not grow");
+        check(CropRules.colonyAfter(0, 0.9999F) == 0 || chance >= 0.9999F,
+                "a colony that rolled high grew anyway");
+        check(CropRules.COLONY_MOST == 3,
+                "a colony holds " + CropRules.COLONY_MOST + " and its block has four ages");
+        java.util.Random random = new java.util.Random(7L);
+        long ticks = 0;
+        int grown = 0;
+        int age = 0;
+        while (grown < 100_000) {
+            ticks += Math.round(CropRules.RANDOM_TICK_EVERY);
+            int next = CropRules.colonyAfter(age, random.nextFloat());
+            if (next > age) {
+                grown++;
+            }
+            age = next >= CropRules.COLONY_MOST ? 0 : next;   // harvested when full
+        }
+        float mean = (float) ticks / grown;
+        check(Math.abs(mean - CropRules.COLONY_TICKS) <= CropRules.COLONY_TICKS * 0.03F,
+                "a colony takes " + mean + " ticks a mushroom on the game's clock and "
+                        + "the rules say " + CropRules.COLONY_TICKS);
+        check(CropRules.faultsInColony().isEmpty(), "the colony: " + CropRules.faultsInColony());
+    }
+
+    // ==================================================================
+
+    /** Whether a crate gives back what it took, and a cabinet is a chest. */
+    private static void theCrates() {
+        check(KitchenRules.CRATE_HOLDS == 9,
+                "a crate takes " + KitchenRules.CRATE_HOLDS + " and its recipe is a "
+                        + "three-by-three grid of nine");
+        check(KitchenRules.CRATE_HOLDS <= 64,
+                "a crate gives back more than a stack, so opening one loses the rest");
+        check(KitchenRules.cabinetSlots() == KitchenRules.CABINET_ROWS * KitchenRules.CABINET_ROW,
+                "a cabinet's slots are not its rows");
+        check(KitchenRules.CABINET_ROWS == 3 && KitchenRules.CABINET_ROW == 9,
+                "a cabinet is " + KitchenRules.CABINET_ROWS + " rows of "
+                        + KitchenRules.CABINET_ROW + " and the game's chest menu it opens "
+                        + "is three of nine");
     }
 
     // ==================================================================

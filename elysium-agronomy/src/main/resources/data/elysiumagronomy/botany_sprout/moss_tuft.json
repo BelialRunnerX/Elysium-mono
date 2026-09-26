@@ -1,6 +1,7 @@
 {
   "needs": "hardy",
   "ticks": 1600,
-  "drop": "moss_block",
+  "seed": "minecraft:moss_carpet",
+  "drop": "minecraft:moss_block",
   "amount": 1
 }

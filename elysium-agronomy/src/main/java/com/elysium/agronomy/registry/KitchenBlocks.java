@@ -108,10 +108,16 @@ public final class KitchenBlocks {
         return Map.copyOf(made);
     }
 
-    /** The colony, which grows mushrooms rather than being one. */
+    /**
+     * The colony, which grows mushrooms rather than being one.
+     *
+     * <p>A {@link com.elysium.agronomy.block.ColonyBlock}: a plain block that
+     * ticked randomly and did nothing when it was ticked was a block that
+     * cost two mushrooms and a dirt and gave back none.
+     */
     public static final DeferredBlock<Block> COLONY = BLOCKS.register(
             com.elysium.agronomy.rules.CropRules.COLONY,
-            () -> new Block(BlockBehaviour.Properties
+            () -> new com.elysium.agronomy.block.ColonyBlock(BlockBehaviour.Properties
                     .ofFullCopy(net.minecraft.world.level.block.Blocks.BROWN_MUSHROOM_BLOCK)
                     .randomTicks()));
 
@@ -122,6 +128,12 @@ public final class KitchenBlocks {
         return made;
     }
 
+    /**
+     * A {@link com.elysium.agronomy.block.StationBlock} apiece, not a
+     * {@link Block}: four stations that were plain blocks were four blocks a
+     * player could craft, place, and use to make nothing at all, with the
+     * twenty-nine meals sitting in a folder nothing read.
+     */
     private static Map<String, DeferredBlock<Block>> registerStations() {
         Map<String, DeferredBlock<Block>> made = new LinkedHashMap<>();
         for (String station : KitchenRules.STATIONS) {
@@ -130,8 +142,12 @@ public final class KitchenBlocks {
                 throw new IllegalStateException("meals are cooked on a " + station
                         + " and there is no block for one");
             }
-            made.put(station, block(name,
-                    KitchenRules.BOARD.equals(station) ? timber() : iron()));
+            BlockBehaviour.Properties properties =
+                    KitchenRules.BOARD.equals(station) ? timber() : iron();
+            DeferredBlock<Block> block = BLOCKS.register(name,
+                    () -> new com.elysium.agronomy.block.StationBlock(properties, station));
+            ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
+            made.put(station, block);
         }
         if (made.size() != KitchenRules.STATIONS.size()) {
             throw new IllegalStateException("there are "
@@ -144,7 +160,13 @@ public final class KitchenBlocks {
     private static Map<String, DeferredBlock<Block>> registerCabinets() {
         Map<String, DeferredBlock<Block>> made = new LinkedHashMap<>();
         for (String wood : WOODS) {
-            made.put(wood, block(wood + "_cabinet", timber()));
+            // A CabinetBlock, which holds things. A plain block in the shape
+            // of a cupboard is a cupboard that does not open.
+            String name = wood + "_cabinet";
+            DeferredBlock<Block> cabinet = BLOCKS.register(name,
+                    () -> new com.elysium.agronomy.block.CabinetBlock(timber()));
+            ITEMS.register(name, () -> new BlockItem(cabinet.get(), new Item.Properties()));
+            made.put(wood, cabinet);
         }
         if (made.size() != WOODS.size()) {
             throw new IllegalStateException("there are " + WOODS.size()
