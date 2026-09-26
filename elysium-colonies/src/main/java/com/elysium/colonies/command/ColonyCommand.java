@@ -132,9 +132,10 @@ public final class ColonyCommand {
                 towns.size()).withStyle(ChatFormatting.GOLD), false);
         for (Colonies.Settlement town : towns) {
             int away = (int) Math.sqrt(town.centre().distSqr(player.blockPosition()));
+            int waiting = Colonies.orders(player.serverLevel(), town.id()).size();
             source.sendSuccess(() -> Component.translatable("elysium.colony.natural.entry",
                             town.name(), town.centre().getX(), town.centre().getZ(), away,
-                            town.citizens())
+                            town.citizens(), waiting, town.day())
                     .withStyle(ChatFormatting.AQUA), false);
         }
         return towns.size();

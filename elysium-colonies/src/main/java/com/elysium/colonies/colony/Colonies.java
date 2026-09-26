@@ -3,6 +3,7 @@ package com.elysium.colonies.colony;
 import com.elysium.colonies.ElysiumColonies;
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
+import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.api.blocks.AbstractColonyBlock;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.api.colony.buildings.registry.IBuildingRegistry;
@@ -22,6 +23,9 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.workorders.IServerWorkOrder;
 import com.minecolonies.api.util.CreativeBuildingStructureHandler;
+import com.ldtteam.structurize.management.Manager;
+import com.ldtteam.structurize.operations.PlaceStructureOperation;
+import com.ldtteam.structurize.placement.StructurePlacer;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.mojang.authlib.GameProfile;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
@@ -444,6 +448,7 @@ public final class Colonies {
         if (!level.setBlock(where, state, 3)) {
             return false;
         }
+        primeTile(level, where, pack, blueprint);
         hut.setPlacedBy(level, where, state, null, ItemStack.EMPTY);
 
         IBuilding placed = colony.getServerBuildingManager().getBuilding(where);
@@ -465,6 +470,24 @@ public final class Colonies {
      * is relative to the pack root, which is the form a building stores.
      */
     @Nullable
+    /**
+     * Tells a freshly placed hut which blueprint it is before the host registers
+     * it: registering reads the tile's pack and path to work out the building's
+     * corners, and a tile that does not know yet makes the host log a missing
+     * blueprint for every hut a town founds by itself.
+     */
+    private static void primeTile(ServerLevel level, BlockPos where, String pack,
+                                  @Nullable String blueprint) {
+        if (blueprint != null
+                && level.getBlockEntity(where) instanceof TileEntityColonyBuilding tile) {
+            StructurePackMeta meta = StructurePacks.getStructurePack(pack);
+            if (meta != null) {
+                tile.setStructurePack(meta);
+            }
+            tile.setBlueprintPath(blueprint);
+        }
+    }
+
     private static String blueprintFor(String pack, BuildingEntry entry) {
         try {
             StructurePackMeta meta = StructurePacks.getStructurePack(pack);
@@ -1006,11 +1029,12 @@ public final class Colonies {
                     hut.defaultBlockState().setValue(AbstractColonyBlock.FACING,
                             net.minecraft.core.Direction.NORTH);
             if (level.setBlock(where, state, 3)) {
+                String blueprint = blueprintFor(pack, entry);
+                primeTile(level, where, pack, blueprint);
                 hut.setPlacedBy(level, where, state, null, ItemStack.EMPTY);
                 IBuilding hall = colony.getServerBuildingManager().getBuilding(where);
                 if (hall != null) {
                     hall.setStructurePack(pack);
-                    String blueprint = blueprintFor(pack, entry);
                     if (blueprint != null) {
                         hall.setBlueprintPath(blueprint);
                     }
@@ -1062,13 +1086,22 @@ public final class Colonies {
             net.minecraft.server.level.ServerPlayer hands = FakePlayerFactory.get(level,
                     new GameProfile(owner, ownerName == null || ownerName.isEmpty()
                             ? "steward" : ownerName));
-            java.util.concurrent.Future<Blueprint> future = StructurePacks.getBlueprintFuture(
+            // The host's own loadAndPlaceStructureWithRotation takes a future, but the
+            // handler it builds only reports a blueprint once someone has read that
+            // future, and it asks before anyone has: nothing is ever queued. So the
+            // blueprint is read here, and the placement queued the way the build
+            // tool's own operation is.
+            Blueprint blueprint = StructurePacks.getBlueprint(
                     order.getStructurePack(), order.getStructurePath(), level.registryAccess());
-            Blueprint placed = CreativeBuildingStructureHandler.loadAndPlaceStructureWithRotation(
-                    level, future, order.getLocation(), order.getRotationMirror(), false, hands);
-            if (placed == null) {
+            if (blueprint == null) {
+                ElysiumColonies.LOGGER.warn("order {} of colony {} could not be completed: "
+                        + "no blueprint {} in pack {}", orderId, colonyId,
+                        order.getStructurePath(), order.getStructurePack());
                 return false;
             }
+            CreativeBuildingStructureHandler handler = new CreativeBuildingStructureHandler(
+                    level, order.getLocation(), blueprint, order.getRotationMirror(), false);
+            Manager.addToQueue(new PlaceStructureOperation(new StructurePlacer(handler), hands));
         } catch (Throwable refused) {
             ElysiumColonies.LOGGER.warn("order {} of colony {} could not be completed: {}",
                     orderId, colonyId, refused.toString());

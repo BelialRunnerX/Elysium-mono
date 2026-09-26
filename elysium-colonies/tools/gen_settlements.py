@@ -219,7 +219,7 @@ WORDS = {
     "elysium.colony.claimed": "%s is yours now; its steward steps aside.",
     "elysium.colony.claim.none": "You are not standing in a settlement that founded itself.",
     "elysium.colony.natural.header": "%s settlement(s) founded themselves in this world:",
-    "elysium.colony.natural.entry": "  %s at %s, %s (%s blocks away, %s citizens)",
+    "elysium.colony.natural.entry": "  %s at %s, %s (%s blocks away, %s citizens, %s order(s) in hand, day %s)",
     "elysium.colony.natural.none": "No settlement has founded itself in this world yet.",
 }
 

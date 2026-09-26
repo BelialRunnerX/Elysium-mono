@@ -106,8 +106,10 @@ never on a village) places a survey stake in every biome of every world whose
 charter `settles` (the Overworld and the five Elysium worlds). The stake's first
 random tick founds a real colony owned by a named steward who is a fake player,
 sets the town to decide for itself, and lays out the plan's first buildings; the
-director completes an order whole after `buildDays(level)` days and lays out the
-next building every two days. `/elysium colony natural` lists them, `/elysium
+director completes an order whole after `buildDays(level)` days (it reads the
+blueprint and queues the build tool's own placement operation, because the host's
+future-taking placement call never queues anything) and lays out the next building
+every two days. `/elysium colony natural` lists them, `/elysium
 colony claim` hands one to the player standing in it. Not built: abandoned ruins,
 corridors, Elysium jobs as buildings.
 

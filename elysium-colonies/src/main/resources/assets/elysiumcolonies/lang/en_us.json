@@ -18,7 +18,7 @@
   "elysium.colony.market.empty": "You are carrying nothing the frontier has an opinion about.",
   "elysium.colony.market.header": "Frontier market \u2014 %s, day %s",
   "elysium.colony.market.quote": "%s: pays %s, asks %s (%s)",
-  "elysium.colony.natural.entry": "  %s at %s, %s (%s blocks away, %s citizens)",
+  "elysium.colony.natural.entry": "  %s at %s, %s (%s blocks away, %s citizens, %s order(s) in hand, day %s)",
   "elysium.colony.natural.header": "%s settlement(s) founded themselves in this world:",
   "elysium.colony.natural.none": "No settlement has founded itself in this world yet.",
   "elysium.colony.nobody": "Only a player standing in the world can ask about a settlement.",

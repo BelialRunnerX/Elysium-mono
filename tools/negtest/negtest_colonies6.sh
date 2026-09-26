@@ -66,6 +66,15 @@ expect "setOwner called outside the seam" "every write goes through the seam"
 # the town demolishes by itself
 edit $S/colony/Colonies.java 'if (order == null || order.getWorkOrderType() == WorkOrderType.REMOVE) {' 'if (order == null) {'
 expect "a town demolishes by itself" "may demolish a building by itself"
+# the order is completed through the host's future placement, which never queues it
+edit $S/colony/Colonies.java 'Manager.addToQueue(new PlaceStructureOperation(new StructurePlacer(handler), hands));' 'Manager.addToQueue(new PlaceStructureOperation(new StructurePlacer(handler), hands)); Blueprint again = CreativeBuildingStructureHandler.loadAndPlaceStructureWithRotation(level, java.util.concurrent.CompletableFuture.completedFuture(blueprint), order.getLocation(), order.getRotationMirror(), false, hands);'
+expect "finish leans on the future placement" "never queues it"
+# a missing blueprint fails silently
+edit $S/colony/Colonies.java '                ElysiumColonies.LOGGER.warn("order {} of colony {} could not be completed: "
+                        + "no blueprint {} in pack {}", orderId, colonyId,
+                        order.getStructurePath(), order.getStructurePack());
+' ''
+expect "a missing blueprint is silent" "a missing blueprint is not reported"
 # the director runs for a player's town
 edit $S/settle/Settlements.java '        if (!origin.natural()) {
             return;

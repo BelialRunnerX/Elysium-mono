@@ -162,7 +162,7 @@ ALLOWED_WRITES = ("addWorkOrder", "requestRepair", "overruleRequest",
                   # gives with the build tool and the town hall's permissions
                   # screen: found a colony, complete a building whole as
                   # creative does, strike its order, and hand the colony on.
-                  "createColony", "loadAndPlaceStructureWithRotation",
+                  "createColony", "addToQueue",
                   "upgradeBuildingLevelToSchematicData", "removeWorkOrder", "setOwner")
 
 for path in java_files():
@@ -1052,7 +1052,7 @@ if "Player steward = FakePlayerFactory.get(level, new GameProfile(stewardId, ste
 if "setPlacedBy(" not in _settle or "order(colony, hall, WorkOrderType.BUILD)" not in _settle:
     fail("the seam founds a colony without a town hall to build")
 for _write, _method in (("createColony(", "public static int settle"),
-                        ("loadAndPlaceStructureWithRotation(", "public static boolean finish"),
+                        ("addToQueue(", "public static boolean finish"),
                         ("upgradeBuildingLevelToSchematicData(", "public static boolean finish"),
                         ("removeWorkOrder(", "public static boolean finish"),
                         ("setOwner(", "public static boolean handOver")):
@@ -1069,6 +1069,30 @@ for _write, _method in (("createColony(", "public static int settle"),
 _finish = body_of(_seam_src, "public static boolean finish")
 if "WorkOrderType.REMOVE" not in _finish:
     fail("a self-founded town may demolish a building by itself")
+# The host's future-taking placement never queues anything (its handler answers
+# hasBluePrint before the future is read), so the seam reads the blueprint and
+# queues the build tool's own operation on it.
+if "loadAndPlaceStructureWithRotation" in _seam_src:
+    fail("the seam completes an order through the host's future placement, which never queues it")
+_finish_raw = body_of(read(SEAM), "public static boolean finish")
+for _lines, _why in (
+        (["Blueprint blueprint = StructurePacks.getBlueprint(",
+          "                    order.getStructurePack(), order.getStructurePath(), level.registryAccess());"],
+         "finish does not read the order's blueprint itself"),
+        (["CreativeBuildingStructureHandler handler = new CreativeBuildingStructureHandler(",
+          "                    level, order.getLocation(), blueprint, order.getRotationMirror(), false);"],
+         "finish does not build the creative handler on the blueprint it read"),
+        (["Manager.addToQueue(new PlaceStructureOperation(new StructurePlacer(handler), hands));"],
+         "finish does not queue the build tool's own placement"),
+        (["if (blueprint == null) {",
+          "                ElysiumColonies.LOGGER.warn(\"order {} of colony {} could not be completed: \"",
+          "                        + \"no blueprint {} in pack {}\", orderId, colonyId,",
+          "                        order.getStructurePath(), order.getStructurePack());",
+          "                return false;",
+          "            }"],
+         "a missing blueprint is not reported")):
+    if "\n".join(_lines) not in _finish_raw:
+        fail(_why)
 # The director: natural towns only, on the rule's schedule.
 _direct = body_of(strip_comments(read(_settlements)), "public static void direct")
 if "origin.natural()" not in _direct or "return" not in _direct.split("natural()")[1][:40]:
