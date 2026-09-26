@@ -253,11 +253,18 @@ DECISIONS = [
      "PLANNED", "elysium-atelier", "building and decoration"),
     # Five blocks whose whole content is an ambient sound, which is what
     # elysium-comforts is for rather than what a decoration module is.
-    (r"^Chimes", "PLANNED", "elysium-comforts",
-     "six chimes — amethyst, bamboo, carved bamboo, copper, iron and glass "
-     "bells — each dyeable sixteen ways, whose whole content is a sound that "
-     "plays when the wind moves. 38 blocks and one item, which is what this "
-     "module is for"),
+    (r"^Chimes", "DONE", "elysium-comforts",
+     "ninety-six chimes: six materials, each ringing at a note of its own and "
+     "derived from where it sits in the list rather than typed, in each of the "
+     "game's sixteen dyes. What they are actually for is the arithmetic: an "
+     "ambient block goes wrong when the player who likes one hangs eleven "
+     "more, so the wait between sounds is multiplied by how many are within "
+     "earshot and a room of two hundred is no louder than a room of one — "
+     "swept from one chime to two hundred and fifty-six at every strength of "
+     "wind. The wait doubles as what keeps it cheap: a chime sleeps, sounds, "
+     "counts its neighbours once, and goes back to sleep, so the cost follows "
+     "the sounds and the sounds are capped. Height and sky decide the wind, so "
+     "a roof is still the answer to a noisy one"),
 
     # --- wilds ------------------------------------------------------------
     (r"^wwoo|^\[Neoforge\]ctov", "PLANNED", "elysium-wilds",

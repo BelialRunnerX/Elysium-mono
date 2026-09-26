@@ -8,10 +8,10 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 82 | DONE | an Elysium module already replaces it |
+| 83 | DONE | an Elysium module already replaces it |
 | 22 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 10 | PLANNED | has a target module, not started |
+| 9 | PLANNED | has a target module, not started |
 | 14 | KEEP | stays in the pack on purpose |
 | 74 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -23,9 +23,9 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `elysium-bestiary` | 8 |
 | `elysium-atelier` | 7 |
 | `elysium-agronomy` | 4 |
-| `elysium-comforts` | 3 |
 | `elysium-industry` | 3 |
 | `elysium-wilds` | 2 |
+| `elysium-comforts` | 2 |
 | `elysium-atomics` | 2 |
 | `elysium-arsenal` | 1 |
 | `elysium-foundry` | 1 |
@@ -58,7 +58,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `bookshelf-neoforge-1.21.1-21.1.81.jar` | DROP | - | library: goes when the mods needing it go |
 | `born_in_chaos_[Neoforge]_1.21.1_1.7.6.jar` | PLANNED | elysium-bestiary | 63 creatures and 23 variants of them, 362 items of which 69 are gear, and a set of mini-bosses — counted out of the jar's own language file rather than guessed. The bestiary's nine are a ladder with a proved reward curve and no boss tier at all, and this is the jar that decides what a boss is here |
 | `botanypots-neoforge-1.21.1-21.1.44.jar` | DONE | elysium-agronomy | pots: 183 working pots across 61 materials — all forty-eight fired clays and thirteen stones — with all three fittings, four growth stages, 14 soils and 28 sprouts as data. It was 55 materials; the six that were missing were andesite, diorite, granite, basalt, dripstone and amethyst, which is to say the six blocks a player has most of and would most obviously reach for. Same count as the jar |
-| `Chimes-v2.1.1-1.21.1-NeoForge.jar` | PLANNED | elysium-comforts | six chimes — amethyst, bamboo, carved bamboo, copper, iron and glass bells — each dyeable sixteen ways, whose whole content is a sound that plays when the wind moves. 38 blocks and one item, which is what this module is for |
+| `Chimes-v2.1.1-1.21.1-NeoForge.jar` | DONE | elysium-comforts | ninety-six chimes: six materials, each ringing at a note of its own and derived from where it sits in the list rather than typed, in each of the game's sixteen dyes. What they are actually for is the arithmetic: an ambient block goes wrong when the player who likes one hangs eleven more, so the wait between sounds is multiplied by how many are within earshot and a room of two hundred is no louder than a room of one — swept from one chime to two hundred and fifty-six at every strength of wind. The wait doubles as what keeps it cheap: a chime sleeps, sounds, counts its neighbours once, and goes back to sleep, so the cost follows the sounds and the sounds are capped. Height and sky decide the wind, so a roof is still the answer to a noisy one |
 | `chipped-neoforge-1.21.1-4.0.2.jar` | KEEP | elysium-atelier | 250 cosmetic texture variants per block; replacing it needs a retexture generator, which this project has deliberately not built. See docs/CONVERSION.md section 9 — the user's call |
 | `cloth-config-15.0.140-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `Clothing_Of_The_Lowlands-1.0.8-neoforge-1.21.1.jar` | KEEP | elysium-atelier | 112 cosmetic garments, every one of them a texture and nothing else; the same retexture decision |

@@ -133,7 +133,7 @@ edit $CB '        int wanted = RestRules.KINDS.size() * RestRules.COLOURS.size()
             throw new IllegalStateException("the rules ask for " + wanted
                     + " place(s) to sleep and " + made.size() + " were registered");
         }' '        '
-expect "a registry that never counts what it registered" "does not count what it registered"
+expect "a registry that never counts the places to sleep it registered" "does not count the places to sleep it registered"
 
 echo "the world it is written out into"
 edit $G '        write(os.path.join(DATA, "loot_table/blocks", name + ".json"),

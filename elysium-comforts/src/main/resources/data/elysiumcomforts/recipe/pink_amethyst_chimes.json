@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ccc",
+    "mmm"
+  ],
+  "key": {
+    "c": {
+      "item": "minecraft:pink_wool"
+    },
+    "m": {
+      "item": "minecraft:amethyst_shard"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:pink_amethyst_chimes",
+    "count": 1
+  }
+}

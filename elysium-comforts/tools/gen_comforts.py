@@ -108,9 +108,22 @@ BLOCKS = ["grave"]
 # Somewhere to sleep that is not a bed, read out of RestRules. Which colours
 # exist and which half of the day each kind works in are rules; what shade of
 # cloth each colour is, is art, and lives here.
-REST_SOURCE = open(os.path.join(
-    MOD, "src/main/java/com/elysium/comforts/rules/RestRules.java"),
-    encoding="utf-8").read()
+def rules(named):
+    """A rules file, or a sentence rather than a stack trace.
+
+    The validator runs this generator as a subprocess, and a traceback there
+    is a page of noise printed over the findings the validator had already
+    collected. A missing rules file is a state this project describes rather
+    than dies of.
+    """
+    where = os.path.join(MOD, "src/main/java/com/elysium/comforts/rules", named)
+    if not os.path.isfile(where):
+        print("there is no %s, so this generator cannot know what to write" % named)
+        sys.exit(2)
+    return open(where, encoding="utf-8").read()
+
+
+REST_SOURCE = rules("RestRules.java")
 _squashed = re.sub(r"\s+", " ", REST_SOURCE)
 _kinds = re.search(r"List<String> KINDS = List\.of\((.*?)\);", _squashed)
 KIND_NAMES = dict(re.findall(
@@ -146,6 +159,34 @@ if sorted(CLOTH) != sorted(COLOURS):
           % (sorted(CLOTH), sorted(COLOURS)))
     sys.exit(2)
 ROPE_SHADE = [(74, 58, 36), (122, 98, 60), (158, 132, 86)]
+
+# The chimes, read out of ChimeRules for the same reason: which materials
+# exist and what note each rings are rules, and what colour a copper tube is
+# is art.
+CHIME_SOURCE = rules("ChimeRules.java")
+_materials = re.search(r"List<String> MATERIALS = List\.of\((.*?)\);",
+                       re.sub(r"\s+", " ", CHIME_SOURCE))
+MATERIALS = re.findall(r'"([a-z_]+)"', _materials.group(1)) if _materials else []
+MADE_OF = dict(re.findall(r'made\.put\("([a-z_]+)", "([a-z_:]+)"\);',
+                          CHIME_SOURCE))
+if len(MATERIALS) != 6 or sorted(MADE_OF) != sorted(MATERIALS):
+    print("ChimeRules reads as %d material(s) and %d recipe(s)"
+          % (len(MATERIALS), len(MADE_OF)))
+    sys.exit(2)
+CHIMES = [colour + "_" + material + "_chimes"
+          for material in MATERIALS for colour in COLOURS]
+BLOCKS = BLOCKS + CHIMES
+
+#: What each chime's tubes are made of, to look at. Art, not a rule.
+TUBE = {
+    "oak": (150, 118, 72), "bamboo": (176, 186, 96),
+    "copper": (190, 110, 72), "iron": (198, 198, 202),
+    "glass": (206, 230, 236), "amethyst": (162, 116, 204),
+}
+if sorted(TUBE) != sorted(MATERIALS):
+    print("there are tubes for %s and materials for %s"
+          % (sorted(TUBE), sorted(MATERIALS)))
+    sys.exit(2)
 
 
 def crate_empty():
@@ -200,6 +241,21 @@ def cloth(colour, seed):
     return image
 
 
+def chime_sprite(colour, material):
+    """A cord in the dye's colour, and four tubes in the material's."""
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    cord = CLOTH[colour]
+    tube = TUBE[material]
+    draw.rectangle([5, 0, 10, 2], fill=rgba(cord))
+    for at, x in enumerate((4, 6, 9, 11)):
+        bottom = 8 + ((at * 3 + len(material)) % 5)
+        draw.line([(x, 3), (x, bottom)], fill=rgba(tube))
+        draw.point((x, 3), fill=rgba(tuple(min(255, c + 40) for c in tube)))
+        draw.point((x, bottom), fill=rgba(tuple(max(0, c - 40) for c in tube)))
+    return image
+
+
 def rope_sprite():
     image = Image.new("RGBA", (16, 16), CLEAR)
     draw = ImageDraw.Draw(image)
@@ -228,6 +284,11 @@ def draw_all():
             drawn += 1
     rope_sprite().save(os.path.join(folder, ROPE + ".png"))
     drawn += 1
+    for material in MATERIALS:
+        for colour in COLOURS:
+            chime_sprite(colour, material).save(os.path.join(
+                folder, colour + "_" + material + "_chimes.png"))
+            drawn += 1
     return len(SPRITES) + len(ITEM_SPRITES) + drawn
 
 
@@ -296,6 +357,20 @@ def rope_model():
     }
 
 
+def hanging(name):
+    texture = f"{NS}:block/{name}"
+    return {
+        "parent": "block/block",
+        "textures": {"all": texture, "particle": texture},
+        "elements": [{
+            "from": [4, 4, 4],
+            "to": [12, 16, 12],
+            "faces": {side: {"texture": "#all"} for side in
+                      ("down", "up", "north", "south", "west", "east")},
+        }],
+    }
+
+
 def models_and_states():
     write(os.path.join(ASSETS, "models/block", "grave.json"), headstone())
     write(os.path.join(ASSETS, "blockstates", "grave.json"), {"variants": {
@@ -345,6 +420,13 @@ def models_and_states():
           {"variants": {"": {"model": f"{NS}:block/{ROPE}"}}})
     write(os.path.join(ASSETS, "models/item", ROPE + ".json"),
           {"parent": f"{NS}:block/{ROPE}"})
+
+    for name in CHIMES:
+        write(os.path.join(ASSETS, "models/block", name + ".json"), hanging(name))
+        write(os.path.join(ASSETS, "blockstates", name + ".json"),
+              {"variants": {"": {"model": f"{NS}:block/{name}"}}})
+        write(os.path.join(ASSETS, "models/item", name + ".json"),
+              {"parent": f"{NS}:block/{name}"})
     return len(BLOCKS)
 
 
@@ -414,6 +496,18 @@ def data_files():
                 "result": {"id": f"{NS}:{name}", "count": 1},
             })
             written += 1
+    for material in MATERIALS:
+        for colour in COLOURS:
+            name = colour + "_" + material + "_chimes"
+            write(os.path.join(DATA, "recipe", name + ".json"), {
+                "type": "minecraft:crafting_shaped",
+                "category": "misc",
+                "pattern": ["ccc", "mmm"],
+                "key": {"c": {"item": f"minecraft:{colour}_wool"},
+                        "m": {"item": MADE_OF[material]}},
+                "result": {"id": f"{NS}:{name}", "count": 1},
+            })
+            written += 1
     write(os.path.join(DATA, "recipe", ROPE + ".json"), {
         "type": "minecraft:crafting_shaped",
         "category": "misc",
@@ -446,6 +540,8 @@ for _kind in KINDS:
     for _colour in COLOURS:
         NAMES[_colour + "_" + _kind] = titled(_colour + "_" + _kind)
 NAMES[ROPE] = titled(ROPE)
+for _name in CHIMES:
+    NAMES[_name] = titled(_name)
 
 #: One sentence per way a rest can decline, because a block that answers "you
 #: cannot sleep here" to all six is a block a player has to guess at.

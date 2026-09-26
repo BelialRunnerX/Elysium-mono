@@ -43,7 +43,11 @@ public final class ComfortItems {
         }
         made.put(com.elysium.comforts.rules.RestRules.ROPE,
                 ITEMS.registerSimpleBlockItem(ComfortBlocks.ROPE));
-        int wanted = com.elysium.comforts.rules.RestRules.roster().size();
+        for (String one : ComfortBlocks.CHIMES.keySet()) {
+            made.put(one, ITEMS.registerSimpleBlockItem(ComfortBlocks.CHIMES.get(one)));
+        }
+        int wanted = com.elysium.comforts.rules.RestRules.roster().size()
+                + com.elysium.comforts.rules.ChimeRules.roster().size();
         if (made.size() != wanted) {
             throw new IllegalStateException("the rules ask for " + wanted
                     + " thing(s) to carry and " + made.size() + " were registered");

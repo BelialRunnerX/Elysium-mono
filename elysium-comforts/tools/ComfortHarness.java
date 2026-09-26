@@ -33,6 +33,7 @@ public final class ComfortHarness {
         theConservation();
         theRolls();
         theResting();
+        theChimes();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -416,5 +417,162 @@ public final class ComfortHarness {
         List<String> made = new ArrayList<>(one);
         made.addAll(one);
         return made;
+    }
+
+    // ==================================================================
+
+    /**
+     * Something that makes a sound when the wind moves it.
+     *
+     * <p>The claim is that a room full of them is no louder than one of them.
+     * Every ambient block that has ever had to be muted failed it the same
+     * way: each rolled its own dice and nothing knew how many were rolling.
+     */
+    private static void theChimes() {
+        List<String> faults = ChimeRules.faults();
+        check(faults.isEmpty(), "something wrong with the chimes: " + faults);
+
+        // However many there are, and whatever the wind, the room is never
+        // louder than the ceiling and never silent when the wind is up.
+        int swept = 0;
+        for (int many = 1; many <= 256; many++) {
+            for (int step = 0; step <= 20; step++) {
+                double wind = step / 20.0D;
+                double loud = ChimeRules.soundsASecond(many, wind);
+                swept++;
+                check(loud <= ChimeRules.MOST_A_SECOND + 1.0E-9D,
+                        many + " chimes in a wind of " + wind + " come to "
+                                + loud + " sounds a second and the ceiling is "
+                                + ChimeRules.MOST_A_SECOND);
+                check(loud >= -1.0E-9D,
+                        many + " chimes come to " + loud + " sounds a second");
+                if (wind > 0.0D) {
+                    check(loud > 0.0D,
+                            many + " chimes in a wind of " + wind + " make no "
+                                    + "sound at all");
+                } else {
+                    check(loud == 0.0D,
+                            many + " chimes in a still world make " + loud
+                                    + " sounds a second");
+                }
+                int waits = ChimeRules.waitOf(many, wind);
+                check(waits >= 1 && waits <= ChimeRules.LONGEST_WAIT,
+                        "a wait of " + waits + " ticks is not a wait");
+                double chance = ChimeRules.chanceOnWaking(many, wind);
+                check(chance >= 0.0D && chance <= 1.0D,
+                        "a chance of " + chance + " on waking is not a chance");
+            }
+        }
+
+        // One more chime never makes one chime sound more often.
+        for (int many = 1; many < 256; many++) {
+            check(ChimeRules.waitOf(many + 1, 1.0D)
+                            >= ChimeRules.waitOf(many, 1.0D),
+                    "hanging another chime made every chime already there ring "
+                            + "more often, which is the wall of noise this rule "
+                            + "exists to stop");
+        }
+
+        // And a still day is a long wait rather than a busy one.
+        check(ChimeRules.waitOf(1, 0.0D) == ChimeRules.LONGEST_WAIT,
+                "a chime in no wind at all is woken as often as one in a gale");
+
+        // The wind is something to build around rather than a switch.
+        double last = -1.0D;
+        for (int height = ChimeRules.NO_WIND; height <= ChimeRules.FULL_WIND;
+                height++) {
+            double wind = ChimeRules.windAt(height, true);
+            check(wind >= last, "the wind falls off as you climb");
+            last = wind;
+            check(ChimeRules.windAt(height, false) == 0.0D,
+                    "a chime under a roof at " + height + " hears the wind, and "
+                            + "the rule that should have said so did not");
+        }
+
+        // Controls, built to be caught.
+        check(!ChimeRules.faultsInMaterials(java.util.List.of("oak"),
+                        ChimeRules.MADE_OF).isEmpty(),
+                "a single note with nothing to be a chord with is not reported");
+        check(!ChimeRules.faultsInMaterials(java.util.List.of("oak", "oak"),
+                        ChimeRules.MADE_OF).isEmpty(),
+                "a material listed twice is not reported");
+        check(!ChimeRules.faultsInMaterials(ChimeRules.MATERIALS,
+                        java.util.Map.of()).isEmpty(),
+                "a chime made of nothing at all is not reported, so ninety-six "
+                        + "blocks could have no recipe that can fire");
+        check(ChimeRules.faultsInMaterials(ChimeRules.MATERIALS,
+                        ChimeRules.MADE_OF).isEmpty(),
+                "the materials this module ships are reported as faulty");
+
+        check(!ChimeRules.faultsInNotes(java.util.List.of("wibble", "wobble"))
+                        .isEmpty(),
+                "two materials landing on the same note are not reported");
+        check(ChimeRules.faultsInNotes(ChimeRules.MATERIALS).isEmpty(),
+                "the notes this module ships are reported as the same note");
+
+        check(!ChimeRules.faultsInBand(ChimeRules.MATERIALS,
+                        ChimeRules.HIGHEST, ChimeRules.HIGHEST).isEmpty(),
+                "a note under its own floor is not reported");
+        check(!ChimeRules.faultsInBand(ChimeRules.MATERIALS,
+                        ChimeRules.LOWEST, ChimeRules.LOWEST).isEmpty(),
+                "a note over its own ceiling is not reported");
+        check(ChimeRules.faultsInBand(ChimeRules.MATERIALS, ChimeRules.LOWEST,
+                        ChimeRules.HIGHEST).isEmpty(),
+                "the notes this module ships are reported as outside their band");
+
+        check(!ChimeRules.faultsInWindRange(ChimeRules.FULL_WIND,
+                        ChimeRules.NO_WIND).isEmpty(),
+                "a world where the wind is strongest at the bottom is not "
+                        + "reported");
+        check(ChimeRules.faultsInWindRange(ChimeRules.NO_WIND,
+                        ChimeRules.FULL_WIND).isEmpty(),
+                "the heights this module ships are reported as upside down");
+
+        check(!ChimeRules.faultsInSlope(ChimeRules.NO_WIND,
+                        ChimeRules.NO_WIND + 1).isEmpty(),
+                "a wind that goes from nothing to everything with no middle is "
+                        + "not reported, so height would be a switch");
+        check(ChimeRules.faultsInSlope(ChimeRules.NO_WIND,
+                        ChimeRules.FULL_WIND).isEmpty(),
+                "the slope this module ships is reported as a switch");
+
+        check(ChimeRules.faultsInRoof(ChimeRules.NO_WIND,
+                        ChimeRules.FULL_WIND).isEmpty(),
+                "a roof over a chime this module ships is reported as no help");
+
+        check(!ChimeRules.faultsInCeiling(0.0D).isEmpty(),
+                "a ceiling of nothing, under which no chime ever sounds, is "
+                        + "not reported");
+        check(ChimeRules.faultsInCeiling(ChimeRules.MOST_A_SECOND).isEmpty(),
+                "the ceiling this module ships is reported as no ceiling");
+
+        check(!ChimeRules.faultsInLoudness(ChimeRules.MOST_A_SECOND / 2.0D)
+                        .isEmpty(),
+                "a room louder than its own ceiling is not reported, which is "
+                        + "the whole of what this file is for");
+        check(ChimeRules.faultsInLoudness(ChimeRules.MOST_A_SECOND).isEmpty(),
+                "the loudness this module ships is reported as over its ceiling");
+
+        check(!ChimeRules.faultsInWaking(0).isEmpty(),
+                "a chime woken every nought ticks is not reported");
+        check(!ChimeRules.faultsInWaking(20 * 60 * 60).isEmpty(),
+                "a chime that goes an hour between looking at the sky is not "
+                        + "reported, so a roof built over one would seem not to "
+                        + "work");
+        check(ChimeRules.faultsInWaking(ChimeRules.LONGEST_WAIT).isEmpty(),
+                "the waking this module ships is reported as too rare");
+
+        check(!ChimeRules.faultsInRoster(java.util.List.of("white_oak_chimes"))
+                        .isEmpty(),
+                "a roster with one chime in it is not reported");
+        check(ChimeRules.faultsInRoster(ChimeRules.roster()).isEmpty(),
+                "the roster this module ships is reported as faulty");
+
+        System.out.println("  the chimes: " + ChimeRules.roster().size()
+                + " chime(s) over " + ChimeRules.MATERIALS.size()
+                + " note(s), " + swept + " rooms swept from one chime to two "
+                + "hundred and fifty-six at every strength of wind, and not one "
+                + "of them louder than " + ChimeRules.MOST_A_SECOND
+                + " sounds a second");
     }
 }

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ccc",
+    "mmm"
+  ],
+  "key": {
+    "c": {
+      "item": "minecraft:black_wool"
+    },
+    "m": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:black_copper_chimes",
+    "count": 1
+  }
+}

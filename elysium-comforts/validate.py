@@ -689,6 +689,10 @@ if os.path.isfile(GAME_JAR) and len(THE_GAME_MAKES) < 2_000:
 
 print("-" * 70)
 
+kinds = []
+colours = []
+rope = ""
+refusals = {}
 REST = strip_comments(read(SRC, "rules/RestRules.java"), keep_strings=True)
 REST_BLOCK = strip_comments(read(SRC, "block/RestBlock.java"), keep_strings=True)
 KEEPER = strip_comments(read(SRC, "event/RestKeeper.java"), keep_strings=True)
@@ -700,11 +704,12 @@ else:
     KIND_NAMES = dict(re.findall(
         r'public static final String (BAG|HAMMOCK|ROPE) = "(\w+)";', REST))
     _kinds = re.search(r"List<String> KINDS = List\.of\((.*?)\);", _flat)
-    kinds = [KIND_NAMES[one] for one in
-             re.findall(r"[A-Z]+", _kinds.group(1) if _kinds else "")
-             if one in KIND_NAMES]
+    kinds[:] = [KIND_NAMES[one] for one in
+                re.findall(r"[A-Z]+", _kinds.group(1) if _kinds else "")
+                if one in KIND_NAMES]
     _colours = re.search(r"List<String> COLOURS = List\.of\((.*?)\);", _flat)
-    colours = re.findall(r'"([a-z_]+)"', _colours.group(1) if _colours else "")
+    colours[:] = re.findall(r'"([a-z_]+)"',
+                            _colours.group(1) if _colours else "")
     rope = KIND_NAMES.get("ROPE", "")
     refusals = dict(re.findall(
         r'public static final String (OCCUPIED|TOO_FAR|NO_ROOM|NO_ROPE|NOT_NOW'
@@ -814,9 +819,12 @@ else:
             fail(f"{where} names its blocks by hand rather than walking the "
                  f"rules, so the thirty-second is missing and the symptom is "
                  f"one dye that has nothing to make with it")
-        if "IllegalStateException" not in source:
-            fail(f"{where} does not count what it registered, so a roster that "
-                 f"half registers is a roster that half exists")
+        if "RestRules.KINDS.size() * RestRules.COLOURS.size()" not in source \
+                and "RestRules.roster().size()" not in source:
+            fail(f"{where} does not count the places to sleep it registered, so "
+                 f"a roster that half registers is a roster that half exists — "
+                 f"and there is a second register in that file whose own count "
+                 f"would go on passing for both")
 
     # Every refusal is reachable, and every one has a sentence of its own.
     _why = squashed(body_of(REST_BLOCK, "public String refusal("))
@@ -894,6 +902,126 @@ else:
           f"{len(kinds)} kind(s) and {len(colours)} colour(s), every one of them "
           f"craftable, breakable back into itself and named, six refusals each "
           f"with its own sentence, and not one of them moving your spawn")
+
+
+# ---------------------------------------------------------------------------
+# Something that makes a sound when the wind moves it
+# ---------------------------------------------------------------------------
+#
+# An ambient block does not go wrong by being annoying on its own. It goes
+# wrong because the player who likes it hangs eleven more, and every ambient
+# block that has ever had to be muted got there the same way: each one rolled
+# its own dice and nothing knew how many were rolling.
+
+print("-" * 70)
+
+CHIME = strip_comments(read(SRC, "rules/ChimeRules.java"), keep_strings=True)
+CHIME_BLOCK = strip_comments(read(SRC, "block/ChimeBlock.java"), keep_strings=True)
+if not CHIME:
+    fail("nothing says how often a chime sounds, so a row of them is a wall of "
+         "noise and the only thing a player can do about it is uninstall the "
+         "pack")
+else:
+    _flat = re.sub(r"\s+", " ", CHIME)
+    _materials = re.search(r"List<String> MATERIALS = List\.of\((.*?)\);", _flat)
+    materials = re.findall(r'"([a-z_]+)"',
+                           _materials.group(1) if _materials else "")
+    made_of = dict(re.findall(r'made\.put\("([a-z_]+)", "([a-z_:]+)"\);', CHIME))
+    chimes = [f"{colour}_{material}_chimes"
+              for material in materials for colour in colours]
+
+    if len(materials) < 2:
+        fail(f"there {'is' if len(materials) == 1 else 'are'} {len(materials)} "
+             f"material(s) of chime, and a chime that is the only note there is "
+             f"has nothing to be a chord with")
+    if sorted(made_of) != sorted(materials):
+        fail(f"{len(materials)} material(s) of chime and {len(made_of)} of them "
+             f"say what they are made of, so the rest have no recipe that can "
+             f"ever fire")
+    # Everything a chime is made of is a thing the game really has.
+    if THE_GAME_MAKES:
+        for material, of in sorted(made_of.items()):
+            if of not in THE_GAME_MAKES:
+                fail(f"a {material} chime is made of {of} and the game does not "
+                     f"have one, so sixteen blocks have a recipe nothing can "
+                     f"satisfy")
+
+    for name in chimes:
+        for kind, where in (
+                ("a model", f"assets/{NS}/models/block/{name}.json"),
+                ("an item model", f"assets/{NS}/models/item/{name}.json"),
+                ("a blockstate", f"assets/{NS}/blockstates/{name}.json"),
+                ("a texture", f"assets/{NS}/textures/block/{name}.png"),
+                ("a loot table", f"data/{NS}/loot_table/blocks/{name}.json"),
+                ("a recipe", f"data/{NS}/recipe/{name}.json")):
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} has no {kind}, so it is a block a player can see "
+                     f"in a creative tab and never use")
+        if f"block.{NS}.{name}" not in lang:
+            fail(f"{name} has no name, so it reads as its own translation key")
+
+    # Not one of the ninety-six registered by hand.
+    _blocks = squashed(strip_comments(read(SRC, "registry/ComfortBlocks.java")))
+    if "ChimeRules.MATERIALS" not in _blocks:
+        fail("the chimes are named by hand rather than walked from the rules, "
+             "so one material in one colour is missing and the symptom is one "
+             "dye that has nothing to make with it")
+    if "ChimeRules.MATERIALS.size() * RestRules.COLOURS.size()" not in _blocks:
+        fail("nothing counts the chimes that were registered, so a roster that "
+             "half registers is a roster that half exists")
+
+    # And the block asks the rules rather than deciding for itself.
+    if not CHIME_BLOCK:
+        fail("there is no chime block, so the arithmetic that keeps a room of "
+             "them quiet is a file nothing reads")
+    else:
+        _tick = squashed(body_of(CHIME_BLOCK, "protected void tick("))
+        for named, why in (
+                ("int nearby = nearby(level, pos);",
+                 "a chime does not count the company it keeps, so every one of "
+                 "them rings on its own clock and a row of twelve is twelve "
+                 "times the noise"),
+                ("ChimeRules.chanceOnWaking(nearby, wind)",
+                 "whether a chime sounds when it wakes is decided somewhere "
+                 "other than the rules, so the ceiling the harness swept is "
+                 "not the ceiling the game keeps"),
+                ("level.scheduleTick(pos, this, ChimeRules.waitOf(nearby, wind));",
+                 "a chime does not put itself back to sleep for as long as the "
+                 "rules say, so either it stops ringing or it never stops"),
+                ("ChimeRules.windAt(pos.getY(), level.canSeeSky(pos.above()))",
+                 "how much wind a chime feels is not worked out from where it "
+                 "is, so the one thing a player can do about a noisy chime — "
+                 "put a roof over it — does nothing")):
+            if named not in _tick:
+                fail(why)
+        if "ChimeRules.pitchOf(material)" not in squashed(CHIME_BLOCK):
+            fail("every chime rings at the same note, which is the most tiring "
+                 "noise a game can make")
+        # The count is a slab rather than a cube. A cube of the same reach is
+        # thirty-five thousand block lookups for the same answer, and it would
+        # be done on the tick the room is meant to be cheapest.
+        _near = squashed(body_of(CHIME_BLOCK, "public static int nearby("))
+        if "pos.offset(-reach, -layers, -reach)" not in _near:
+            fail("a chime counts its neighbours in a cube rather than in the "
+                 "slab they actually hang in, which is thirty-five thousand "
+                 "block lookups every time one of them rings")
+
+    # Every rule the file declares is added up.
+    _sum = squashed(body_of(CHIME, "public static List<String> faults()"))
+    _rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", CHIME))
+    _added = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _sum))
+    if len(_rules) < 4:
+        fail(f"only {len(_rules)} chime rule(s) are declared at all, so the "
+             f"check below is checking nothing")
+    for _rule in sorted(_rules - _added):
+        fail(f"{_rule} is written, compiled and never added up by the chimes' "
+             f"faults(), so it answers the harness's controls and is never "
+             f"once asked about what this module ships")
+
+    print(f"the wind in them   : {len(chimes)} chime(s) over {len(materials)} "
+          f"note(s), each made of something the game really has, each ringing "
+          f"at a note of its own, and a room of them no louder than one of "
+          f"them however many are in it")
 
 
 if problems:

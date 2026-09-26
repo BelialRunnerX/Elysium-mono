@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ccc",
+    "mmm"
+  ],
+  "key": {
+    "c": {
+      "item": "minecraft:red_wool"
+    },
+    "m": {
+      "item": "minecraft:oak_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:red_oak_chimes",
+    "count": 1
+  }
+}

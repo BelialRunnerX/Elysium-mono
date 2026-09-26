@@ -2,8 +2,10 @@ package com.elysium.comforts.registry;
 
 import com.elysium.comforts.ElysiumComforts;
 import com.elysium.comforts.block.GraveBlock;
+import com.elysium.comforts.block.ChimeBlock;
 import com.elysium.comforts.block.RestBlock;
 import com.elysium.comforts.block.RopeBlock;
+import com.elysium.comforts.rules.ChimeRules;
 import com.elysium.comforts.rules.RestRules;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -74,6 +76,32 @@ public final class ComfortBlocks {
         if (made.size() != wanted) {
             throw new IllegalStateException("the rules ask for " + wanted
                     + " place(s) to sleep and " + made.size() + " were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
+    /** Every chime, in every material and every colour, walked from the rules. */
+    public static final java.util.Map<String, DeferredBlock<ChimeBlock>> CHIMES = chimes();
+
+    private static java.util.Map<String, DeferredBlock<ChimeBlock>> chimes() {
+        java.util.Map<String, DeferredBlock<ChimeBlock>> made =
+                new java.util.LinkedHashMap<>();
+        for (String material : ChimeRules.MATERIALS) {
+            for (String colour : RestRules.COLOURS) {
+                String name = colour + "_" + material + "_chimes";
+                made.put(name, BLOCKS.register(name,
+                        () -> new ChimeBlock(BlockBehaviour.Properties
+                                .ofFullCopy(Blocks.CHAIN)
+                                .mapColor(MapColor.METAL)
+                                .sound(SoundType.CHAIN)
+                                .strength(0.3F)
+                                .noOcclusion(), material)));
+            }
+        }
+        int wanted = ChimeRules.MATERIALS.size() * RestRules.COLOURS.size();
+        if (made.size() != wanted) {
+            throw new IllegalStateException("the rules ask for " + wanted
+                    + " chime(s) and " + made.size() + " were registered");
         }
         return java.util.Map.copyOf(made);
     }
