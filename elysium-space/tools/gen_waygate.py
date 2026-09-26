@@ -16,7 +16,9 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 MOD = os.path.dirname(HERE)
 NS = "elysiumspace"
-RES = os.path.join(MOD, "src/main/resources")
+# ELYSIUM_SPACE_OUT redirects what is written (see gen_space.py); the lang
+# file and tags merged into are read from that same tree.
+RES = os.path.join(os.environ.get("ELYSIUM_SPACE_OUT", MOD), "src/main/resources")
 ASSETS = os.path.join(RES, "assets", NS)
 DATA = os.path.join(RES, "data", NS)
 BASE = os.path.join(HERE, "base")

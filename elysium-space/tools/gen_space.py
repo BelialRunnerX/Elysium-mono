@@ -21,7 +21,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from reskin import reskin_file  # noqa: E402
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RES = os.path.join(HERE, "src/main/resources")
+# ELYSIUM_SPACE_OUT points what the generator writes at another tree, so the
+# validator can rebuild everything and compare; what it reads stays in the module.
+RES = os.path.join(os.environ.get("ELYSIUM_SPACE_OUT", HERE), "src/main/resources")
 ASSETS = os.path.join(RES, "assets/elysiumspace")
 DATA = os.path.join(RES, "data/elysiumspace")
 STELLARIS = os.environ.get("STELLARIS", "/tmp/ref/stellaris")

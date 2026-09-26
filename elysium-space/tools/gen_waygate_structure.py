@@ -31,7 +31,9 @@ import nbt
 HERE = os.path.dirname(os.path.abspath(__file__))
 MOD = os.path.dirname(HERE)
 NS = "elysiumspace"
-RES = os.path.join(MOD, "src/main/resources")
+# ELYSIUM_SPACE_OUT redirects what is written (see gen_space.py); GateRules
+# is still read from the module.
+RES = os.path.join(os.environ.get("ELYSIUM_SPACE_OUT", MOD), "src/main/resources")
 DATA = os.path.join(RES, "data", NS)
 RULES = os.path.join(MOD, "src/main/java/com/elysium/space/world/GateRules.java")
 

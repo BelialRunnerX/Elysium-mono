@@ -63,6 +63,10 @@ t elysium-space $BW/density_function/emerald_bastion/erosion.json '"value": 0.38
 t elysium-space $BW/density_function/emerald_bastion/erosion.json '"location": -0.42' '"location": 0.2' "meant to be mostly flat"
 t elysium-space $BW/density_function/emerald_bastion/offset.json 'elysiumspace:emerald_bastion/erosion' 'minecraft:overworld/erosion' "its hills come back"
 t elysium-space $BW/noise_settings/emerald_bastion.json '"elysiumspace:emerald_bastion_highlands"' '"elysiumspace:emerald_bastion_plains"' "not volcanic"
+# space: a generated lang key and a generated worldgen file edited by hand no longer match the four generators
+SA=src/main/resources/assets/elysiumspace
+t elysium-space $SA/lang/en_us.json '"elysiumspace.freight.run": "%s"' '"elysiumspace.freight.run": "Run %s"' "differ from what the generators write"
+t elysium-space $BW/placed_feature/emerald_bastion_lake.json '"chance": 6' '"chance": 7' "differ from what the generators write"
 # lib: the elite class no longer loaded by the constructor
 t elysium-lib src/main/java/com/elysium/lib/ElysiumLib.java '        com.elysium.lib.elite.ElysiumElites.bootstrap();' '' "nothing loads the class before RegisterEvent"
 echo "$pass passed, $failn missed"

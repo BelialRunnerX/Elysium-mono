@@ -786,6 +786,101 @@ print(f"reskin             : {_reskin_note}; mobs wear their home world's palett
 print(f"machine screens    : one menu for every machine, packet {'/'.join(_writes)} read in order")
 
 # ---------------------------------------------------------------------------
+# 9b. Generated files are what the generators write now
+# ---------------------------------------------------------------------------
+# On 25 September the generators wrote a lang file the game had outgrown: the
+# weather names, destinations.burn/nowhere and freight.run the Java reads were
+# missing, and four keys nothing read any more were still written. The shipped
+# file had been fixed by hand, and nothing compared the two, so the next run of
+# the generators would have put the stale file back. So: the four generators
+# are run, in the order they are meant to be run (gen_waygate and gen_freight
+# merge into the lang file and the tags gen_space wrote), into a scratch tree,
+# and every file they write must be the shipped one. PNGs are compared as
+# pixels and the waygate template as decoded NBT, since Pillow and zlib
+# versions change the bytes without changing the content.
+sys.path.insert(0, os.path.join(os.path.dirname(WORK), "tools"))
+import samefile  # noqa: E402
+import mcpath  # noqa: E402
+
+SPACE_GENERATORS = ["tools/gen_space.py", "tools/gen_waygate.py",
+                    "tools/gen_waygate_structure.py", "tools/gen_freight.py"]
+_stellaris = os.environ.get("STELLARIS", "/tmp/ref/stellaris")
+_mc_jar = os.environ.get("MC_JAR")
+if not _mc_jar:
+    for _candidate in ("/tmp/mc/mapped-at.jar", "/tmp/mc/libs/vanilla-assets.jar",
+                       os.path.join(mcpath.libs(), "libs/vanilla-assets.jar")):
+        if os.path.isfile(_candidate):
+            _mc_jar = _candidate
+            break
+
+
+def _plain(tag):
+    """An NBT tag as plain Python, so two templates compare by content."""
+    if tag.type == _nbt.COMPOUND:
+        return {key: _plain(value) for key, value in tag.value.items()}
+    if tag.type == _nbt.LIST:
+        return (tag.elem, [_plain(value) for value in tag.value])
+    return (tag.type, tag.value)
+
+
+def _same_generated(made, kept):
+    if made.lower().endswith(".nbt"):
+        try:
+            a_name, a_root = _nbt.load(made)
+            b_name, b_root = _nbt.load(kept)
+        except Exception:
+            return False
+        return a_name == b_name and _plain(a_root) == _plain(b_root)
+    return samefile.same(made, kept)
+
+
+for _relative in SPACE_GENERATORS:
+    if not os.path.isfile(os.path.join(WORK, _relative)):
+        fail(f"there is no {_relative}, so the files it writes are kept by hand")
+if not os.path.isdir(os.path.join(_stellaris, "assets/stellaris")):
+    _generated_note = f"skipped (no Stellaris data at {_stellaris} to rebuild from)"
+elif not _mc_jar or not os.path.isfile(_mc_jar):
+    _generated_note = "skipped (no Minecraft jar to rebuild from; set MC_JAR)"
+elif all(os.path.isfile(os.path.join(WORK, _relative)) for _relative in SPACE_GENERATORS):
+    _generated_note = "not rebuilt"
+    with tempfile.TemporaryDirectory() as _scratch:
+        _ran_all = True
+        for _relative in SPACE_GENERATORS:
+            _made = subprocess.run([sys.executable, os.path.join(WORK, _relative)],
+                                   capture_output=True, text=True, cwd=WORK,
+                                   env=dict(os.environ, ELYSIUM_SPACE_OUT=_scratch,
+                                            STELLARIS=_stellaris, MC_JAR=_mc_jar))
+            if _made.returncode != 0:
+                _ran_all = False
+                fail(f"{_relative} will not run, so nothing it writes can be rebuilt:\n"
+                     + (_made.stdout + _made.stderr).strip()[:800])
+        if _ran_all:
+            _fresh = os.path.join(_scratch, "src/main/resources")
+            _drifted = []
+            _made_count = 0
+            for _dirpath, _, _filenames in os.walk(_fresh):
+                for _name in _filenames:
+                    _made_count += 1
+                    _made_path = os.path.join(_dirpath, _name)
+                    _rel = os.path.relpath(_made_path, _fresh).replace(os.sep, "/")
+                    _kept = os.path.join(RES, _rel)
+                    if not os.path.isfile(_kept):
+                        _drifted.append(_rel + " (missing)")
+                    elif not _same_generated(_made_path, _kept):
+                        _drifted.append(_rel)
+            if _drifted:
+                fail(f"{len(_drifted)} generated file(s) differ from what the generators write "
+                     f"now; run tools/gen_space.py, tools/gen_waygate.py, "
+                     f"tools/gen_waygate_structure.py then tools/gen_freight.py rather than "
+                     f"editing them: " + ", ".join(sorted(_drifted)[:6])
+                     + (" ..." if len(_drifted) > 6 else ""))
+            _generated_note = (f"{_made_count} file(s) rebuilt from the four generators, "
+                               f"each the same as the one shipped")
+else:
+    _generated_note = "not rebuilt (a generator is missing)"
+print(f"generated          : {_generated_note}")
+
+# ---------------------------------------------------------------------------
 # What standing each world takes (SPEC_CLONE P5.1)
 # ---------------------------------------------------------------------------
 #
