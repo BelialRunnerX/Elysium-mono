@@ -1,6 +1,7 @@
 {
   "needs": "aquatic",
   "ticks": 2600,
-  "drop": "sea_pickle",
+  "seed": "minecraft:sea_pickle",
+  "drop": "minecraft:sea_pickle",
   "amount": 2
 }

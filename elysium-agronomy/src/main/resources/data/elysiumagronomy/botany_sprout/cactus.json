@@ -1,6 +1,7 @@
 {
   "needs": "desert",
   "ticks": 2000,
-  "drop": "cactus",
+  "seed": "minecraft:cactus",
+  "drop": "minecraft:cactus",
   "amount": 2
 }

@@ -86,7 +86,15 @@ KNIVES = re.findall(r'String\[\] kinds = \{([^}]*)\}',
                         "src/main/java/com/elysium/agronomy/registry/KitchenItems.java")))
 KNIVES = re.findall(r'"([a-z_]+)"', KNIVES[0]) if KNIVES else []
 
-if not (INGREDIENTS and MEALS and CUTS and WOODS and CRATED and STATIONS and KNIVES):
+PREP_TICKS = re.search(r"public static final int PREP_TICKS = (\d+);", SOURCE)
+PREP_TICKS = int(PREP_TICKS.group(1)) if PREP_TICKS else 0
+
+# How many of a crop go into a crate, and so how many come back out of one.
+CRATE_HOLDS = re.search(r"public static final int CRATE_HOLDS = (\d+);", SOURCE)
+CRATE_HOLDS = int(CRATE_HOLDS.group(1)) if CRATE_HOLDS else 0
+
+if not (INGREDIENTS and MEALS and CUTS and WOODS and CRATED and STATIONS and KNIVES
+        and PREP_TICKS and CRATE_HOLDS):
     print("the kitchen's sources no longer have the shape this reads")
     sys.exit(2)
 
@@ -118,8 +126,10 @@ COLONY = re.search(r'COLONY = "([a-z_]+)"', CROP_SOURCE)
 COLONY = COLONY.group(1) if COLONY else ""
 MUSHROOMS = re.search(r'MUSHROOMS\s*=\s*List\.of\(([^;]*?)\);', CROP_SOURCE)
 MUSHROOMS = re.findall(r'"([a-z_]+)"', MUSHROOMS.group(1)) if MUSHROOMS else []
+COLONY_MOST = re.search(r"public static final int COLONY_MOST = (\d+);", CROP_SOURCE)
+COLONY_MOST = int(COLONY_MOST.group(1)) if COLONY_MOST else 0
 
-if not CROPS or not LARDER or not COLONY or not MUSHROOMS:
+if not CROPS or not LARDER or not COLONY or not MUSHROOMS or not COLONY_MOST:
     print(f"CropRules no longer has the shape this reads: {len(CROPS)} crop(s), "
           f"{len(LARDER)} larder item(s)")
     sys.exit(2)
@@ -294,6 +304,70 @@ def colony_sprite():
     return image
 
 
+#: The cap of each mushroom a colony can be of, by the game's name for it.
+CAPS = {"brown_mushroom": (150, 106, 72), "red_mushroom": (176, 52, 44)}
+
+
+def colony_state_sprite(kind, ready):
+    """
+    A colony of one kind with some mushrooms ready: earth, and that many caps.
+
+    Opaque all the way through, so it needs no render layer: the mushrooms
+    are painted on the earth rather than cut out of the air.
+    """
+    from PIL import Image, ImageDraw
+    earth = (94, 70, 48)
+    image = Image.new("RGBA", (16, 16), earth + (255,))
+    draw = ImageDraw.Draw(image)
+    for x, y in ((2, 3), (9, 2), (5, 10), (11, 9)):
+        draw.point((x + 1, y + 1), fill=(78, 58, 40, 255))
+    cap = CAPS.get(kind, (198, 198, 188))
+    for x, y in ((3, 7), (8, 4), (11, 9))[:ready]:
+        draw.rectangle([x, y + 2, x + 1, y + 4], fill=(226, 222, 210, 255))
+        draw.ellipse([x - 1, y, x + 3, y + 3], fill=cap + (255,))
+    return image
+
+
+def colony_state(kind, age):
+    """The model a colony of that kind (0 bare) and that age wears."""
+    if kind == 0:
+        return f"{COLONY}_bare"
+    return f"{COLONY}_{MUSHROOMS[kind - 1]}_{age}"
+
+
+def colony_files():
+    """
+    One model per thing a colony can look like, and a blockstate naming them.
+
+    Walked from the rules: the kinds are CropRules.MUSHROOMS and the ages run
+    to COLONY_MOST, which is what the block's two properties are built from,
+    so a third mushroom or a fourth ready one is a variant the day it is a line.
+    """
+    written = 0
+    names = {colony_state(0, 0)}
+    for kind in range(1, len(MUSHROOMS) + 1):
+        for age in range(COLONY_MOST + 1):
+            names.add(colony_state(kind, age))
+    for name in sorted(names):
+        if name.endswith("_bare"):
+            image = colony_state_sprite("", 0)
+        else:
+            rest = name[len(COLONY) + 1:]
+            kind, age = rest.rsplit("_", 1)
+            image = colony_state_sprite(kind, int(age))
+        save(image, ASSETS, "textures/block", name + ".png")
+        write(os.path.join(ASSETS, "models/block", name + ".json"),
+              {"parent": "minecraft:block/cube_all",
+               "textures": {"all": f"{NS}:block/{name}"}})
+        written += 2
+    write(os.path.join(ASSETS, "blockstates", COLONY + ".json"),
+          {"variants": {
+              f"age={age},kind={kind}": {"model": f"{NS}:block/{colony_state(kind, age)}"}
+              for age in range(COLONY_MOST + 1)
+              for kind in range(len(MUSHROOMS) + 1)}})
+    return written + 1
+
+
 def crop_files():
     """Every crop: eight models, a blockstate, a seed, loot and a wild patch."""
     written = 0
@@ -352,8 +426,7 @@ def crop_files():
     write(os.path.join(ASSETS, "models/block", COLONY + ".json"),
           {"parent": "minecraft:block/cube_all",
            "textures": {"all": f"{NS}:block/{COLONY}"}})
-    write(os.path.join(ASSETS, "blockstates", COLONY + ".json"),
-          {"variants": {"": {"model": f"{NS}:block/{COLONY}"}}})
+    written += colony_files()
     write(os.path.join(ASSETS, "models/item", COLONY + ".json"),
           {"parent": f"{NS}:block/{COLONY}"})
     write(os.path.join(DATA, "loot_table/blocks", COLONY + ".json"), {
@@ -437,6 +510,9 @@ def larder_files():
             "of": [named(part) for part in one["of"]],
             "result": f"{NS}:{one['id']}",
             "count": 1,
+            # One time for the whole larder, out of the rules: stock, pasta
+            # and a crust are preparation, not meals.
+            "ticks": PREP_TICKS,
         })
         written += 1
     return written
@@ -524,6 +600,14 @@ def block_recipes(blocks):
             "key": {"C": {"item": named(crop)}},
             "result": {"id": f"{NS}:{crop}_crate", "count": 1},
         })
+        # And back: a crate that takes nine and has no way to give them up
+        # is a crop thrown away in a box.
+        write(os.path.join(DATA, "recipe", crop + "_from_crate.json"), {
+            "type": "minecraft:crafting_shapeless",
+            "category": "misc",
+            "ingredients": [{"item": f"{NS}:{crop}_crate"}],
+            "result": {"id": named(crop), "count": CRATE_HOLDS},
+        })
     station_parts = {
         "cooking_pot": ["minecraft:iron_ingot", "minecraft:bricks"],
         "skillet": ["minecraft:iron_ingot", "minecraft:stick"],
@@ -556,8 +640,34 @@ def a_name(text):
     return " ".join(word.capitalize() for word in text.split("_"))
 
 
+#: What a station, a pot or a colony says on the action bar. There is no
+#: screen: the block talks, and this is everything it can say.
+LINES = {
+    f"{NS}.station.bare": "Nothing in it.",
+    f"{NS}.station.take_first": "Take what it made first.",
+    f"{NS}.station.full": "Full: it holds %s things.",
+    f"{NS}.station.not_a_board": "A knife is for the cutting board.",
+    f"{NS}.station.busy": "Wait for it to finish.",
+    f"{NS}.station.cut": "Cut the %s.",
+    f"{NS}.station.nothing_to_cut": "Nothing on it a knife cuts.",
+    f"{NS}.station.cold": "No fire under it.",
+    f"{NS}.station.made": "%s ready: take it with an empty hand.",
+    f"{NS}.station.cooking": "Making %s, about %ss to go.",
+    f"{NS}.station.ready": "That makes %s in %ss: use it with an empty hand to start.",
+    f"{NS}.station.more": "%s thing(s) in it so far; keep going.",
+    f"{NS}.station.nothing": "%s thing(s) in it, and nothing here makes that. "
+                             "Sneak to take them back.",
+    f"{NS}.pot.soilless": "No soil in it: use a soil on it first.",
+    f"{NS}.pot.wrong_soil": "%s will not grow in %s; it wants %s soil.",
+    f"{NS}.pot.bedded": "Filled with %s.",
+    f"{NS}.colony.bare": "Nothing planted: use a brown or red mushroom on it.",
+    f"{NS}.colony.growing": "%s colony: %s of %s ready.",
+    f"container.{NS}.cabinet": "Cabinet",
+}
+
+
 def lang(blocks):
-    words = {}
+    words = dict(LINES)
     for meal in MEALS:
         words[f"item.{NS}.{meal['id']}"] = a_name(meal["id"])
     for one in INGREDIENTS:

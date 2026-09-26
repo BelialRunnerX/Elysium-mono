@@ -57,6 +57,75 @@ public final class KitchenRules {
     /** Every station there is. */
     public static final List<String> STATIONS = List.of(POT, SKILLET, BOARD, OVEN);
 
+    /**
+     * The stations from quickest to slowest, which is what the four javadocs
+     * above promise: a board is instant, a pan is fast, a pot is slow and an
+     * oven is slowest. Measured by the mean time of what is made on each,
+     * because a single cookie bakes faster than a single stew and that is
+     * not the promise; the promise is about the station as a whole.
+     */
+    public static final List<String> PACE = List.of(BOARD, SKILLET, POT, OVEN);
+
+    /** Whether a station wants a fire under it. An oven is its own fire. */
+    public static boolean needsHeat(String station) {
+        return POT.equals(station) || SKILLET.equals(station);
+    }
+
+    /** Every block that counts as a fire under a pot, by the game's own name. */
+    public static final List<String> HEAT = List.of(
+            "minecraft:fire", "minecraft:soul_fire",
+            "minecraft:campfire", "minecraft:soul_campfire",
+            "minecraft:lava", "minecraft:magma_block");
+
+    /** Whether a block of that name will heat a pot standing on it. */
+    public static boolean isHeat(String block) {
+        return HEAT.contains(block);
+    }
+
+    /**
+     * How long anything in the larder takes.
+     *
+     * <p>The larder is stock, dough into pasta, a crust: preparation rather
+     * than a meal, and one number for all of it, because six preparation
+     * times nobody can tell apart are six numbers pretending to be a design.
+     */
+    public static final int PREP_TICKS = 200;
+
+    /** What a cutting board wants held in the other hand. */
+    public static final String KNIFE = "knife";
+
+    /** How much of a knife one cut uses up. */
+    public static final int KNIFE_WEAR = 1;
+
+    /**
+     * The most things a station may be asked to hold at once.
+     *
+     * <p>Above this a meal is a shopping list rather than a recipe, and a
+     * station's slots are sized to the roster so a sixth ingredient is a line
+     * in the rules rather than a lost item.
+     */
+    public static final int MOST_INGREDIENTS_WORTH_HAVING = 9;
+
+    /** Three rows of nine: a cabinet is a chest with a door on it. */
+    public static final int CABINET_ROWS = 3;
+
+    /** How wide a row of a cabinet is. */
+    public static final int CABINET_ROW = 9;
+
+    /**
+     * How many of a crop go into a crate, and so how many come back out.
+     *
+     * <p>One number both ways: a crate that takes nine and gives eight is a
+     * crate that eats a carrot every time it is opened, and nobody would
+     * notice for a month.
+     */
+    public static final int CRATE_HOLDS = 9;
+
+    /** How many stacks a cabinet holds. */
+    public static int cabinetSlots() {
+        return CABINET_ROWS * CABINET_ROW;
+    }
+
     // ==================================================================
     // What goes in and what comes out
     // ==================================================================
@@ -487,5 +556,207 @@ public final class KitchenRules {
             }
         }
         return List.copyOf(twice);
+    }
+
+    // ==================================================================
+    // What a station is asked to make, and how it decides
+    // ==================================================================
+
+    /**
+     * One thing a station can be asked to make: a meal or a larder item.
+     *
+     * <p>This is the shape the game reads off disk — the cooking and larder
+     * folders — and the shape a station matches its contents against, so the
+     * arithmetic of matching is here where the harness can run it, and the
+     * block does nothing but ask.
+     *
+     * @param id      what comes out
+     * @param station where
+     * @param of      what goes in, one entry per item
+     * @param ticks   how long
+     * @param count   how many come out
+     */
+    public record Order(String id, String station, List<String> of, int ticks, int count) {
+
+        public Order {
+            Objects.requireNonNull(id, "an order for nothing");
+            of = List.copyOf(Objects.requireNonNull(of, "an order made of nothing"));
+            if (!STATIONS.contains(station)) {
+                throw new IllegalArgumentException(id + " is made at " + station
+                        + ", which is not a station");
+            }
+            if (of.isEmpty()) {
+                throw new IllegalArgumentException(id + " is made of nothing");
+            }
+            if (ticks <= 0) {
+                throw new IllegalArgumentException(id + " is made instantly");
+            }
+            if (count <= 0) {
+                throw new IllegalArgumentException(id + " makes nothing");
+            }
+        }
+
+        /** The ingredients as a multiset, so order does not matter. */
+        public Map<String, Integer> wants() {
+            return counted(of);
+        }
+    }
+
+    /** How many of each thing is in a list. */
+    public static Map<String, Integer> counted(List<String> things) {
+        Map<String, Integer> tally = new java.util.TreeMap<>();
+        for (String thing : things) {
+            tally.merge(thing, 1, Integer::sum);
+        }
+        return tally;
+    }
+
+    /** A meal as an order. */
+    public static Order order(Meal meal) {
+        return new Order(meal.id(), meal.station(), meal.of(), meal.ticks(),
+                meal.servings());
+    }
+
+    /** Every meal, as what its station is asked for. */
+    public static List<Order> menu() {
+        List<Order> orders = new ArrayList<>();
+        for (Meal meal : MEALS) {
+            orders.add(order(meal));
+        }
+        return List.copyOf(orders);
+    }
+
+    /**
+     * The one order these contents are exactly the ingredients of, or null.
+     *
+     * <p>Exactly: the same things in the same amounts, in any order. Not "at
+     * least", because dough alone is pasta and dough with wheat is a pie
+     * crust, and a board that started on the pasta the moment the dough went
+     * down would never make a crust. A station starts when it is told to,
+     * with what it has, and this is what it is told.
+     */
+    public static Order match(String station, List<String> have, List<Order> menu) {
+        if (have.isEmpty()) {
+            return null;
+        }
+        Map<String, Integer> got = counted(have);
+        for (Order order : menu) {
+            if (order.station().equals(station) && order.wants().equals(got)) {
+                return order;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Whether these contents are the start of something this station makes.
+     *
+     * <p>So the block can tell a player who has put down two of a stew's
+     * four things "keep going" rather than "nothing here makes that".
+     */
+    public static boolean couldBecome(String station, List<String> have,
+                                      List<Order> menu) {
+        Map<String, Integer> got = counted(have);
+        for (Order order : menu) {
+            if (!order.station().equals(station)) {
+                continue;
+            }
+            Map<String, Integer> wants = order.wants();
+            boolean within = true;
+            for (Map.Entry<String, Integer> one : got.entrySet()) {
+                if (wants.getOrDefault(one.getKey(), 0) < one.getValue()) {
+                    within = false;
+                    break;
+                }
+            }
+            if (within) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Every pair of orders a station could not tell apart.
+     *
+     * <p>Two orders with the same ingredients on the same station is a pot
+     * that has to guess, and a pot that guesses makes the first one every
+     * time and the second one never. Order is ignored, because a player
+     * putting things in a pot has no order.
+     */
+    public static List<String> clashing(List<Order> orders) {
+        List<String> bad = new ArrayList<>();
+        for (int first = 0; first < orders.size(); first++) {
+            for (int second = first + 1; second < orders.size(); second++) {
+                Order one = orders.get(first);
+                Order other = orders.get(second);
+                if (one.station().equals(other.station())
+                        && one.wants().equals(other.wants())) {
+                    bad.add(one.id() + " and " + other.id() + " are the same things "
+                            + "in the same " + one.station() + ", so the station "
+                            + "makes the first every time and the second never");
+                }
+            }
+        }
+        return List.copyOf(bad);
+    }
+
+    /** The cut a tool makes of a thing, or null when it makes none. */
+    public static Cut cutFor(String input, String tool, List<Cut> cuts) {
+        for (Cut cut : cuts) {
+            if (cut.input().equals(input) && cut.tool().equals(tool)) {
+                return cut;
+            }
+        }
+        return null;
+    }
+
+    /** The mean time of everything made at a station, or zero when nothing is. */
+    public static float meanTicks(String station, List<Order> orders) {
+        int total = 0;
+        int count = 0;
+        for (Order order : orders) {
+            if (order.station().equals(station)) {
+                total += order.ticks();
+                count++;
+            }
+        }
+        return count == 0 ? 0.0F : (float) total / count;
+    }
+
+    /**
+     * Every station slower than the one the javadoc says is slower than it.
+     *
+     * <p>The four javadocs at the top of this file are claims: a pan is fast,
+     * a pot is slow, an oven is slowest. A claim in a comment is what a
+     * number quietly stops being true of, so the claim is a list and the list
+     * is checked against the numbers.
+     */
+    public static List<String> outOfPace(List<Order> orders) {
+        List<String> bad = new ArrayList<>();
+        for (int step = 1; step < PACE.size(); step++) {
+            String quicker = PACE.get(step - 1);
+            String slower = PACE.get(step);
+            if (meanTicks(quicker, orders) >= meanTicks(slower, orders)) {
+                bad.add("the " + quicker + " is meant to be quicker than the "
+                        + slower + " and is not: " + meanTicks(quicker, orders)
+                        + " ticks against " + meanTicks(slower, orders));
+            }
+        }
+        for (String station : STATIONS) {
+            if (!PACE.contains(station)) {
+                bad.add(station + " is a station whose pace nothing states");
+            }
+        }
+        return List.copyOf(bad);
+    }
+
+    /** The most ingredients any meal asks for, which is how big a station is. */
+    public static int mostIngredients() {
+        int most = 0;
+        for (Meal meal : MEALS) {
+            most = Math.max(most, meal.of().size());
+        }
+        return most;
     }
 }

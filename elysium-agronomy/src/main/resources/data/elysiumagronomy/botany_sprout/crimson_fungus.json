@@ -1,6 +1,7 @@
 {
   "needs": "fungal",
   "ticks": 2600,
-  "drop": "crimson_stem",
+  "seed": "minecraft:crimson_fungus",
+  "drop": "minecraft:crimson_stem",
   "amount": 1
 }

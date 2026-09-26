@@ -72,7 +72,14 @@ SPROUTS = [{"id": sid, "needs": needs, "ticks": int(ticks), "drop": drop,
                r'new Sprout\("([a-z_]+)", "([a-z_]+)", (\d+), "([a-z_]+)", (\d+)\)',
                SOURCE)]
 
-if not (COLOURS and CERAMICS and STONES and SOILS and SPROUTS):
+# What plants a sprout where it is not the sprout's own name: wheat by its
+# seeds, a berry bush by its berries. Read out of PotRules.PLANTED_BY, so the
+# pot and the data file are asked the same question and give one answer.
+PLANTED_BY = re.search(r"PLANTED_BY = Map\.of\(([^;]*?)\);", SOURCE, re.S)
+PLANTED_BY = (dict(re.findall(r'"([a-z_]+)", "([a-z_]+)"', PLANTED_BY.group(1)))
+              if PLANTED_BY else {})
+
+if not (COLOURS and CERAMICS and STONES and SOILS and SPROUTS and PLANTED_BY):
     print("PotRules.java no longer has the shape this reads")
     sys.exit(2)
 
@@ -383,10 +390,14 @@ def tables():
             "grows": soil["grows"],
         })
     for sprout in SPROUTS:
+        # Full names both ways: the pot looks a seed up by the item's full
+        # name and makes the drop by its full name, and "wheat" alone is
+        # neither.
         write(os.path.join(DATA, "botany_sprout", sprout["id"] + ".json"), {
             "needs": sprout["needs"],
             "ticks": sprout["ticks"],
-            "drop": sprout["drop"],
+            "seed": "minecraft:" + PLANTED_BY.get(sprout["id"], sprout["id"]),
+            "drop": "minecraft:" + sprout["drop"],
             "amount": sprout["amount"],
         })
 

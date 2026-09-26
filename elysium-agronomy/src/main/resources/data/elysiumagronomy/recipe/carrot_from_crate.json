@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:carrot_crate"
+    }
+  ],
+  "result": {
+    "id": "minecraft:carrot",
+    "count": 9
+  }
+}

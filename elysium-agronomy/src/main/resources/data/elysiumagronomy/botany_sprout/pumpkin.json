@@ -1,6 +1,7 @@
 {
   "needs": "crop",
   "ticks": 2400,
-  "drop": "pumpkin",
+  "seed": "minecraft:pumpkin_seeds",
+  "drop": "minecraft:pumpkin",
   "amount": 2
 }

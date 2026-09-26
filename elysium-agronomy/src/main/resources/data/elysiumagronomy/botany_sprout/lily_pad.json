@@ -1,6 +1,7 @@
 {
   "needs": "aquatic",
   "ticks": 2000,
-  "drop": "lily_pad",
+  "seed": "minecraft:lily_pad",
+  "drop": "minecraft:lily_pad",
   "amount": 2
 }

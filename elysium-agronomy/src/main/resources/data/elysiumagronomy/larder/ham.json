@@ -4,5 +4,6 @@
     "minecraft:porkchop"
   ],
   "result": "elysiumagronomy:ham",
-  "count": 1
+  "count": 1,
+  "ticks": 200
 }

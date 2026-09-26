@@ -1,6 +1,7 @@
 {
   "needs": "common",
   "ticks": 3600,
-  "drop": "oak_log",
+  "seed": "minecraft:oak_sapling",
+  "drop": "minecraft:oak_log",
   "amount": 1
 }

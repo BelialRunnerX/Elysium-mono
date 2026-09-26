@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:cabbage_crate"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:cabbage",
+    "count": 9
+  }
+}

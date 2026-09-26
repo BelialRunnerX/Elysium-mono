@@ -1,6 +1,7 @@
 {
   "needs": "end",
   "ticks": 4600,
-  "drop": "ender_pearl",
+  "seed": "minecraft:popped_chorus_fruit",
+  "drop": "minecraft:ender_pearl",
   "amount": 1
 }

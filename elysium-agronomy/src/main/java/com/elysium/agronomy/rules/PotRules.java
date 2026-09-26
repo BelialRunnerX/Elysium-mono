@@ -198,6 +198,95 @@ public final class PotRules {
             new Sprout("moss_tuft", "hardy", 1600, "moss_block", 1));
 
     // ==================================================================
+    // What plants a sprout, and what a pot does with it
+    // ==================================================================
+
+    /**
+     * The item that plants a sprout, where it is not called what the sprout is.
+     *
+     * <p>Most sprouts are planted by the thing of the same name — a carrot, a
+     * sapling, a cactus. Wheat is planted by its seeds, a berry bush by its
+     * berries, and three of the sprouts here are not plants the game has at
+     * all, so each is planted by the nearest thing that is: a soul flower by
+     * nether sprouts, an ender bloom by popped chorus fruit, a moss tuft by
+     * moss carpet. Everything else falls through to its own name, so a
+     * twenty-ninth sprout needs a line here only if it is one of those.
+     */
+    public static final Map<String, String> PLANTED_BY = Map.of(
+            "wheat", "wheat_seeds",
+            "beetroot", "beetroot_seeds",
+            "melon", "melon_seeds",
+            "pumpkin", "pumpkin_seeds",
+            "sweet_berry", "sweet_berries",
+            "glow_berry", "glow_berries",
+            "soul_flower", "nether_sprouts",
+            "ender_bloom", "popped_chorus_fruit",
+            "moss_tuft", "moss_carpet");
+
+    /** The item, by its bare name, that a player uses on a pot to plant this. */
+    public static String seedOf(Sprout sprout) {
+        return PLANTED_BY.getOrDefault(sprout.id(), sprout.id());
+    }
+
+    /** A bare name as the game knows it: everything here is the game's own. */
+    public static String itemName(String bare) {
+        return bare.contains(":") ? bare : "minecraft:" + bare;
+    }
+
+    /**
+     * Whether a sprout grows in a soil.
+     *
+     * <p>The one question a pot asks before it takes a seed, so it is asked
+     * here, where the harness can ask it of every pair, rather than in a block.
+     */
+    public static boolean growsIn(Soil soil, Sprout sprout) {
+        return soil.takes(sprout.needs());
+    }
+
+    /** Every item that plants two different sprouts, so a pot has to guess. */
+    public static List<String> sharedSeeds() {
+        Map<String, String> seen = new LinkedHashMap<>();
+        List<String> bad = new ArrayList<>();
+        for (Sprout sprout : SPROUTS) {
+            String seed = seedOf(sprout);
+            String before = seen.putIfAbsent(seed, sprout.id());
+            if (before != null) {
+                bad.add(seed + " plants both " + before + " and " + sprout.id()
+                        + ", so a pot grows the first every time");
+            }
+        }
+        return List.copyOf(bad);
+    }
+
+    /** Every seed that is also a soil, so using it on a pot is two things at once. */
+    public static List<String> seedsThatAreSoil() {
+        List<String> bad = new ArrayList<>();
+        for (Sprout sprout : SPROUTS) {
+            if (SOIL_BY_ID.containsKey(seedOf(sprout))) {
+                bad.add(seedOf(sprout) + " plants " + sprout.id() + " and is a soil, "
+                        + "so a pot cannot tell whether it is being planted or filled");
+            }
+        }
+        return List.copyOf(bad);
+    }
+
+    /** Every line of {@link #PLANTED_BY} that is about a sprout nobody grows. */
+    public static List<String> staleSeeds() {
+        Set<String> grown = new TreeSet<>();
+        for (Sprout sprout : SPROUTS) {
+            grown.add(sprout.id());
+        }
+        List<String> bad = new ArrayList<>();
+        for (String id : new TreeSet<>(PLANTED_BY.keySet())) {
+            if (!grown.contains(id)) {
+                bad.add(id + " is said to be planted by " + PLANTED_BY.get(id)
+                        + " and there is no such sprout");
+            }
+        }
+        return List.copyOf(bad);
+    }
+
+    // ==================================================================
     // The catalogue, which is derived rather than written out
     // ==================================================================
 

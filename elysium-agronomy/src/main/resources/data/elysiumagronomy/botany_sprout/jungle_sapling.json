@@ -1,6 +1,7 @@
 {
   "needs": "common",
   "ticks": 4000,
-  "drop": "jungle_log",
+  "seed": "minecraft:jungle_sapling",
+  "drop": "minecraft:jungle_log",
   "amount": 1
 }

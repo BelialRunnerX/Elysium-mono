@@ -1,6 +1,7 @@
 {
   "needs": "hardy",
   "ticks": 2400,
-  "drop": "sweet_berries",
+  "seed": "minecraft:sweet_berries",
+  "drop": "minecraft:sweet_berries",
   "amount": 3
 }

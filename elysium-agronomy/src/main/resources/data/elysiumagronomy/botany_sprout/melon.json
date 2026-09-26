@@ -1,6 +1,7 @@
 {
   "needs": "crop",
   "ticks": 2400,
-  "drop": "melon_slice",
+  "seed": "minecraft:melon_seeds",
+  "drop": "minecraft:melon_slice",
   "amount": 3
 }

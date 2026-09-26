@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:chili_crate"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:chili",
+    "count": 9
+  }
+}

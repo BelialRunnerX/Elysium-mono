@@ -4,5 +4,6 @@
     "elysiumagronomy:dough"
   ],
   "result": "elysiumagronomy:pasta",
-  "count": 1
+  "count": 1,
+  "ticks": 200
 }

@@ -4,5 +4,6 @@
     "elysiumagronomy:minced_pork"
   ],
   "result": "elysiumagronomy:bacon",
-  "count": 1
+  "count": 1,
+  "ticks": 200
 }

@@ -137,6 +137,59 @@ public final class AgronomyBlockEntities {
                                     .get())
                     .build(null));
 
+    /** One type for all four stations: the block says which it is. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.agronomy.block.StationBlock.StationBlockEntity>>
+            STATION = TYPES.register("station", () -> BlockEntityType.Builder.of(
+                    com.elysium.agronomy.block.StationBlock.StationBlockEntity::new,
+                    everyStation())
+            .build(null));
+
+    /**
+     * Every station the kitchen has.
+     *
+     * <p>Walked from the rules, so a fifth station is a block entity the day
+     * it is added rather than a pot that takes ingredients and never cooks.
+     */
+    private static net.minecraft.world.level.block.Block[] everyStation() {
+        java.util.List<net.minecraft.world.level.block.Block> all =
+                new java.util.ArrayList<>();
+        for (String station : com.elysium.agronomy.rules.KitchenRules.STATIONS) {
+            all.add(KitchenBlocks.STATIONS.get(station).get());
+        }
+        if (all.size() != com.elysium.agronomy.rules.KitchenRules.STATIONS.size()) {
+            throw new IllegalStateException("there are "
+                    + com.elysium.agronomy.rules.KitchenRules.STATIONS.size()
+                    + " station(s) and " + all.size() + " were given a block entity");
+        }
+        return all.toArray(new net.minecraft.world.level.block.Block[0]);
+    }
+
+    /** One type for every cabinet, whatever it is made of. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.agronomy.block.CabinetBlock.CabinetBlockEntity>>
+            CABINET = TYPES.register("cabinet", () -> BlockEntityType.Builder.of(
+                    com.elysium.agronomy.block.CabinetBlock.CabinetBlockEntity::new,
+                    everyCabinet())
+            .build(null));
+
+    /**
+     * Every cabinet the kitchen has, walked from the woods.
+     *
+     * <p>A twelfth wood is a cabinet that opens the day it is added, rather
+     * than one that places, looks like a cupboard, and holds nothing.
+     */
+    private static net.minecraft.world.level.block.Block[] everyCabinet() {
+        java.util.List<net.minecraft.world.level.block.Block> all =
+                new java.util.ArrayList<>();
+        for (String wood : KitchenBlocks.WOODS) {
+            all.add(KitchenBlocks.CABINETS.get(wood).get());
+        }
+        if (all.size() != KitchenBlocks.WOODS.size()) {
+            throw new IllegalStateException("there are " + KitchenBlocks.WOODS.size()
+                    + " woods and " + all.size() + " cabinet(s) were given a block entity");
+        }
+        return all.toArray(new net.minecraft.world.level.block.Block[0]);
+    }
+
     /**
      * Every slot a hopper can reach.
      *

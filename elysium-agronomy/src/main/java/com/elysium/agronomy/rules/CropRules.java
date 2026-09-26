@@ -195,6 +195,38 @@ public final class CropRules {
     /** The most a colony may give in an hour. */
     public static final float MOST_MUSHROOMS_PER_HOUR = 24.0F;
 
+    /**
+     * How often the game's random tick reaches one block, on average, in ticks.
+     *
+     * <p>Three blocks in each sixteen-cube section of four thousand and
+     * ninety-six, every tick, at the game's default: one block in about
+     * thirteen hundred and sixty-five ticks. A colony is a random-ticking
+     * block, so this is the clock it has, and {@link #COLONY_TICKS} is turned
+     * into a chance on that clock rather than being quietly a third of itself.
+     */
+    public static final float RANDOM_TICK_EVERY = 4096.0F / 3.0F;
+
+    /**
+     * The chance one random tick moves a colony on by one mushroom.
+     *
+     * <p>So that the mean wait for a mushroom is {@link #COLONY_TICKS}, which
+     * is what the hourly ceiling above is worked out from.
+     */
+    public static float colonyChance() {
+        return Math.min(1.0F, RANDOM_TICK_EVERY / COLONY_TICKS);
+    }
+
+    /**
+     * What a colony at {@code age} becomes after one random tick that rolled
+     * {@code roll} (between zero and one).
+     */
+    public static int colonyAfter(int age, float roll) {
+        if (age >= COLONY_MOST) {
+            return COLONY_MOST;
+        }
+        return roll < colonyChance() ? age + 1 : Math.max(0, age);
+    }
+
     // ==================================================================
     // The larder: what the kitchen makes out of what
     // ==================================================================
@@ -248,6 +280,23 @@ public final class CropRules {
         return List.copyOf(made);
     }
 
+    /** The larder as what its stations are asked for. */
+    public static List<KitchenRules.Order> orders(List<Larder> larder) {
+        List<KitchenRules.Order> made = new ArrayList<>();
+        for (Larder one : larder) {
+            made.add(new KitchenRules.Order(one.id(), one.station(), one.of(),
+                    KitchenRules.PREP_TICKS, 1));
+        }
+        return List.copyOf(made);
+    }
+
+    /** Every meal and every larder item as orders: the whole of what a station knows. */
+    public static List<KitchenRules.Order> allOrders() {
+        List<KitchenRules.Order> all = new ArrayList<>(KitchenRules.menu());
+        all.addAll(orders(LARDER));
+        return List.copyOf(all);
+    }
+
     /** The larder: named once, made at a real station, out of real things. */
     public static List<String> faultsInLarder(List<Larder> larder) {
         List<String> bad = new ArrayList<>();
@@ -262,6 +311,17 @@ public final class CropRules {
                         + ", which is not one of the kitchen's stations");
             }
         }
+        // Against the meals as well as against itself: a larder item made
+        // of exactly what a meal is made of, at the same station, is a
+        // station that has to guess which the player meant.
+        List<KitchenRules.Order> all = new ArrayList<>(KitchenRules.menu());
+        for (Larder one : larder) {
+            if (KitchenRules.STATIONS.contains(one.station()) && !one.of().isEmpty()) {
+                all.add(new KitchenRules.Order(one.id(), one.station(), one.of(),
+                        KitchenRules.PREP_TICKS, 1));
+            }
+        }
+        bad.addAll(KitchenRules.clashing(all));
         return bad;
     }
 
