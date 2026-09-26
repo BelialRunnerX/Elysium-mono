@@ -606,7 +606,32 @@ def vanilla_face(jar, block):
     return None
 
 
-def compress_model(face, frame):
+def vanilla_layer(jar, face):
+    """The render layer a block wearing this texture needs, read from its pixels.
+
+    A modded model draws on the solid layer unless it says otherwise, and the
+    solid layer paints transparent pixels black; vanilla's own glass, ice and
+    slime are cut out or blended by a table the game keeps for its blocks,
+    which a compression of them is not in. The table is Java, so it cannot be
+    read out of the jar; the texture can. Soft alpha (ice, slime) is blended,
+    hard alpha (glass) is cut out, and an opaque texture wants nothing.
+    """
+    import io
+    from PIL import Image
+    namespace, path = face.split(":", 1) if ":" in face else ("minecraft", face)
+    try:
+        image = Image.open(io.BytesIO(jar.read(f"assets/{namespace}/textures/{path}.png")))
+    except KeyError:
+        return None
+    alphas = set(image.convert("RGBA").getdata(3))
+    if alphas <= {255}:
+        return None
+    if alphas - {0, 255}:
+        return "minecraft:translucent"
+    return "minecraft:cutout"
+
+
+def compress_model(face, frame, render_type=None):
     """A cube of the material, inside a frame of the metal for its tier."""
     inner = FRAME
     outer = 16 - FRAME
@@ -624,9 +649,12 @@ def compress_model(face, frame):
     for x1, x2 in ((0, inner), (outer, 16)):
         for z1, z2 in ((0, inner), (outer, 16)):
             elements.append(box(x1, inner, z1, x2, outer, z2, "#frame"))
-    return {"parent": "block/block",
-            "textures": {"material": face, "frame": frame, "particle": face},
-            "elements": elements}
+    model = {"parent": "block/block",
+             "textures": {"material": face, "frame": frame, "particle": face},
+             "elements": elements}
+    if render_type:
+        model["render_type"] = render_type
+    return model
 
 
 def compress_files(materials, depths, markers, tiers):
@@ -647,6 +675,7 @@ def compress_files(materials, depths, markers, tiers):
                       f"read, so a compression of it would be drawn as nothing")
                 sys.exit(1)
             faces[material] = face
+        layers = {material: vanilla_layer(jar, face) for material, face in faces.items()}
         frames = {}
         for marker in markers:
             frame = vanilla_face(jar, marker.split(":", 1)[1])
@@ -660,7 +689,8 @@ def compress_files(materials, depths, markers, tiers):
             id = depths[tier - 1] + "_" + material
             ids.append(id)
             write(os.path.join(ASSETS, "models/block", id + ".json"),
-                  compress_model(faces[material], frames[markers[tier - 1]]))
+                  compress_model(faces[material], frames[markers[tier - 1]],
+                                 layers[material]))
             write(os.path.join(ASSETS, "blockstates", id + ".json"),
                   {"variants": {"": {"model": f"{NS}:block/{id}"}}})
             write(os.path.join(ASSETS, "models/item", id + ".json"),

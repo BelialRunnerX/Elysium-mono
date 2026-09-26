@@ -46,6 +46,9 @@ t . elysium-flora/src/main/resources/assets/elysiumflora/models/block/emberwood_
 t elysium-flora $FA/models/block/loomflax_stage0.json '"render_type": "minecraft:cutout",' '"render_type": "minecraft:cutout_mipped",' "differ from what the generators write"
 # root: a crop model that forgets its render layer draws its holes black
 t . elysium-flora/src/main/resources/assets/elysiumflora/models/block/loomflax_stage0.json '"render_type": "minecraft:cutout",' '' "on the solid layer"
+# root: the same check reaches the other agents' modules — a kitchen crop and a compressed block (the key is renamed, not removed: it is the last in its file)
+t . elysium-agronomy/src/main/resources/assets/elysiumagronomy/models/block/barley_crop_stage0.json '"render_type": "minecraft:cutout",' '' "on the solid layer"
+t . elysium-logistics/src/main/resources/assets/elysiumlogistics/models/block/compressed_ice.json '"render_type": "minecraft:translucent"' '"render_type_": "minecraft:translucent"' "on the solid layer"
 # root: glass that says cutout when every pixel is part-transparent is still wrong only if it says nothing; a shaft whose faces read opaque pixels needs none (no failure expected, so the check must stay quiet)
 cp elysium-kinetics/src/main/resources/assets/elysiumkinetics/models/block/brass_shaft.json /tmp/nb_pt_shaft
 python3 - <<'PY'

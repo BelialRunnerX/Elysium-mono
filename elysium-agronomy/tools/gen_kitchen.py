@@ -306,6 +306,11 @@ def crop_files():
             write(os.path.join(ASSETS, "models/block",
                                f"{crop['id']}_crop_stage{stage}.json"),
                   {"parent": "minecraft:block/crop",
+                   # Vanilla's crops are cut out by a table the game keeps for
+                   # its own blocks; ours are not in it, and a modded model
+                   # draws on the solid layer unless it says otherwise, which
+                   # paints every transparent pixel of the crop black.
+                   "render_type": "minecraft:cutout",
                    "textures": {"crop": f"{NS}:block/{crop['id']}_crop_stage{stage}"}})
             written += 1
         write(os.path.join(ASSETS, "blockstates", crop["id"] + "_crop.json"),
