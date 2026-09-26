@@ -616,11 +616,13 @@ public final class BeastHarness {
                         + "nothing knows what an hour of keeping one is worth");
         check(!FaunaRules.faultsInKinds(java.util.List.of(big, big)).isEmpty(),
                 "one animal written twice is not reported");
-        check(!FaunaRules.faultsInKinds(java.util.List.of(big)).isEmpty(),
+        check(!FaunaRules.faultsInGroups(java.util.List.of(big)).isEmpty(),
                 "a kind with one animal in it is not reported, so a kind could be "
                         + "one animal with a label on it");
         check(FaunaRules.faultsInKinds(FaunaRules.ANIMALS).isEmpty(),
                 "the kinds this module ships are reported as faulty");
+        check(FaunaRules.faultsInGroups(FaunaRules.ANIMALS).isEmpty(),
+                "the groups this module ships are reported as too small");
 
         check(!FaunaRules.faultsInYields(java.util.List.of(big, small)).isEmpty(),
                 "an animal that gives more per trip and more per square block "
@@ -632,9 +634,16 @@ public final class BeastHarness {
         check(!FaunaRules.faultsInPatience(java.util.List.of(
                         new FaunaRules.Animal("control", FaunaRules.GRAZER, 10.0D,
                                 0.3D, 1.0F, 1.0F, "minecraft:wheat",
-                                "minecraft:mutton", 400, 10))).isEmpty(),
+                                "minecraft:mutton", 400, 10)),
+                        FaunaRules.LEAST_PATIENCE, FaunaRules.MOST_PATIENCE).isEmpty(),
                 "a wait nobody would sit through is not reported");
-        check(FaunaRules.faultsInPatience(FaunaRules.ANIMALS).isEmpty(),
+        check(!FaunaRules.faultsInPatience(FaunaRules.ANIMALS,
+                        FaunaRules.MOST_PATIENCE, FaunaRules.MOST_PATIENCE).isEmpty(),
+                "a pen that is ready again before a player can walk to it is not "
+                        + "reported, so half of what that rule claims to check "
+                        + "would never once be asked");
+        check(FaunaRules.faultsInPatience(FaunaRules.ANIMALS,
+                        FaunaRules.LEAST_PATIENCE, FaunaRules.MOST_PATIENCE).isEmpty(),
                 "the waits this module ships are reported as unreasonable");
 
         check(!FaunaRules.faultsInSpread(java.util.Map.of(
@@ -666,7 +675,7 @@ public final class BeastHarness {
         check(!FaunaRules.faultsInOverlap(java.util.List.of(
                         new FaunaRules.Animal("control", FaunaRules.GRAZER, 10.0D,
                                 0.3D, 1.0F, 1.0F, "minecraft:wheat",
-                                BeastRules.leaves(BeastRules.BEASTS.get(0)).get(0),
+                                BeastRules.LEFT_BY.get(BeastRules.PROWLER).staple(),
                                 4, 10)), BeastRules.BEASTS).isEmpty(),
                 "an animal you can keep in a pen leaving what something in the "
                         + "dark leaves is not reported, so the ladder the "
@@ -678,10 +687,16 @@ public final class BeastHarness {
 
         check(!FaunaRules.faultsInDaylight(FaunaRules.ANIMALS, java.util.List.of(
                         new HauntRules.Haunt("moorstag", "#minecraft:is_forest",
-                                0, 7, 0, 64, 1, 2))).isEmpty(),
-                "a land animal that spawns in the pitch dark is not reported, so "
+                                0, 15, 0, 64, 1, 2))).isEmpty(),
+                "a land animal that spawns down to pitch dark is not reported, so "
                         + "the half of the roster that does not attack you is in "
                         + "the caves with the half that does");
+        check(!FaunaRules.faultsInDaylight(FaunaRules.ANIMALS, java.util.List.of(
+                        new HauntRules.Haunt("moorstag", "#minecraft:is_forest",
+                                9, 10, 0, 64, 1, 2))).isEmpty(),
+                "a land animal that never spawns in full daylight is not "
+                        + "reported, so a thing meant to be standing in a field "
+                        + "is a thing you find in a cave");
         check(FaunaRules.faultsInDaylight(FaunaRules.ANIMALS, HauntRules.THE_FAUNA)
                         .isEmpty(),
                 "the daylight this module ships its animals in is reported as "

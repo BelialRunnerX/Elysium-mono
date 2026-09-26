@@ -227,6 +227,19 @@ def the_pack_makes():
 THE_GAME_MAKES = the_game_makes()
 THE_PACK_HAS = the_pack_makes()
 
+# Not having the game's jar is a state this file can describe; having it and
+# reading nothing out of it is a bug, and the difference matters because the
+# second one used to look exactly like the first. Both drop checks below sit
+# behind this list, so an empty one turns both of them off at once and every
+# misspelt drop in the module reads as fine.
+if os.path.isfile(GAME_JAR) and len(THE_GAME_MAKES) < 2_000:
+    fail(f"the game's jar is here and only {len(THE_GAME_MAKES)} item or block "
+         f"name(s) could be read out of it, so every check in this file that "
+         f"asks whether a thing exists is checking nothing at all")
+if not THE_PACK_HAS:
+    fail("not one item or block name could be read out of this pack's own "
+         "language files, so a drop of something we make reads as invented")
+
 
 harness_out = ""
 if not os.path.isfile(HARNESS):
@@ -635,20 +648,16 @@ if beasts and said_earned:
         print("what it drops      : the game's jar is not here, so the drops "
               "were not looked up in it")
     else:
-        if len(THE_GAME_MAKES) < 2_000:
-            fail(f"only {len(THE_GAME_MAKES)} name(s) could be read out of the "
-                 f"game's language file, so the check below is checking nothing")
-        else:
-            missing = sorted(one for one in dropped
-                             if one not in THE_GAME_MAKES
-                             and one not in THE_PACK_HAS)
-            if missing:
-                fail(f"{len(missing)} thing(s) are dropped and neither the game "
-                     f"nor this pack makes them, so the mob that drops one "
-                     f"kills you and leaves nothing while every other check "
-                     f"here passes: " + ", ".join(missing))
-            print(f"what it drops      : {len(dropped)} distinct drop(s), every "
-                  f"one of them a thing the game or this pack really makes")
+        missing = sorted(one for one in dropped
+                         if one not in THE_GAME_MAKES
+                         and one not in THE_PACK_HAS)
+        if missing:
+            fail(f"{len(missing)} thing(s) are dropped and neither the game "
+                 f"nor this pack makes them, so the mob that drops one "
+                 f"kills you and leaves nothing while every other check "
+                 f"here passes: " + ", ".join(missing))
+        print(f"what it drops      : {len(dropped)} distinct drop(s), every "
+              f"one of them a thing the game or this pack really makes")
 
     print(f"what it leaves     : {len(beasts)} loot table(s) read back, and every one "
           f"hands out exactly what the bestiary says it does")
@@ -962,11 +971,34 @@ else:
     # The whole statement, not the opening of one: a rule whose result is
     # worked out and then dropped on the floor is exactly the bug this is
     # looking for, and `bad.addAll(faultsInRoom(` would still be there.
-    _added = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _sum))
-    for _rule in sorted(_rules - _added):
+    _added = {}
+    for _name, _args in re.findall(r"bad\.addAll\((faultsIn\w+)\(([^;]*)\)\);",
+                                   _sum):
+        _added.setdefault(_name, []).append(_args)
+    for _rule in sorted(_rules - set(_added)):
         fail(f"{_rule} is written, compiled and never added up by faults(), "
              f"so it answers the harness's controls and is never once asked "
              f"about the roster this pack ships")
+    # And asked about every table it governs, not just the first one. There
+    # are two tables of haunts now — the things that hunt you and the things
+    # that do not — and a rule added up once covers one of them while looking
+    # from here exactly like a rule that covers both.
+    _tables = re.findall(r"List<Haunt> (\w+) = List\.of\(", HAUNT_RULES)
+    _over_tables = set(re.findall(
+        r"public static List<String> (faultsIn\w+)\([^)]*List<Haunt>", HAUNT_RULES))
+    if len(_tables) < 2:
+        fail(f"there are {len(_tables)} table(s) of haunts, so the check below "
+             f"is checking nothing")
+    for _rule in sorted(_over_tables & set(_added)):
+        _calls = _added[_rule]
+        if any("everyHaunt()" in _one for _one in _calls):
+            continue
+        for _table in _tables:
+            if not any(_table in _one for _one in _calls):
+                fail(f"{_rule} is written, added up once, and never asked "
+                     f"about {_table} — so half of what this module puts in "
+                     f"the world is judged by a rule the other half is judged "
+                     f"by and this half is not")
 
     # The bands have to reach the game. A band in a table that nothing reads
     # is the same as no band at all, and looks the same from outside.
@@ -1272,17 +1304,51 @@ else:
 
     # Everything they leave and everything they eat exists.
     if THE_GAME_MAKES:
-        if len(THE_GAME_MAKES) < 2_000:
-            fail(f"only {len(THE_GAME_MAKES)} name(s) could be read out of the "
-                 f"game's language file, so the check below is checking nothing")
-        else:
-            for animal in animals:
-                for what, why in ((animal["eats"], "is bred with"),
-                                  (animal["gives"], "leaves")):
-                    if what not in THE_GAME_MAKES and what not in THE_PACK_HAS:
-                        fail(f"{animal['id']} {why} {what} and neither the game "
-                             f"nor this pack makes it, so it is an animal that "
-                             f"cannot be bred or one that leaves nothing")
+        for animal in animals:
+            for what, why in ((animal["eats"], "is bred with"),
+                              (animal["gives"], "leaves")):
+                if what not in THE_GAME_MAKES and what not in THE_PACK_HAS:
+                    fail(f"{animal['id']} {why} {what} and neither the game "
+                         f"nor this pack makes it, so it is an animal that "
+                         f"cannot be bred or one that leaves nothing")
+
+    # The share of the world each one is. The bestiary's own section checks
+    # this for the nine; it walks the beasts and so has never once looked at
+    # an animal, which is how a generator could hand every one of the twelve
+    # the same weight and be told nothing.
+    _modifiers = os.path.join(RES, "data", NS, "neoforge/biome_modifier")
+    for animal in animals:
+        rule_path = os.path.join(_modifiers, f"add_{animal['id']}_spawns.json")
+        if not os.path.isfile(rule_path):
+            fail(f"{animal['id']} has no spawn rule in the world, so the only "
+                 f"way to meet one is a spawn egg")
+            continue
+        for spawner in json.loads(read(rule_path)).get("spawners", []):
+            if spawner.get("type") != f"{NS}:{animal['id']}":
+                continue
+            if spawner.get("weight") != animal["weight"]:
+                fail(f"{animal['id']} spawns at weight {spawner.get('weight')} "
+                     f"and its row says {animal['weight']}, so how often a "
+                     f"player meets one is not what the roster declares")
+
+    # The share of the world each one is. The bestiary's own section checks
+    # this for the nine; it walks the beasts and so has never once looked at
+    # an animal, which is how a generator could hand every one of the twelve
+    # the same weight and be told nothing.
+    _modifiers = os.path.join(RES, "data", NS, "neoforge/biome_modifier")
+    for animal in animals:
+        rule_path = os.path.join(_modifiers, f"add_{animal['id']}_spawns.json")
+        if not os.path.isfile(rule_path):
+            fail(f"{animal['id']} has no spawn rule in the world, so the only "
+                 f"way to meet one is a spawn egg")
+            continue
+        for spawner in json.loads(read(rule_path)).get("spawners", []):
+            if spawner.get("type") != f"{NS}:{animal['id']}":
+                continue
+            if spawner.get("weight") != animal["weight"]:
+                fail(f"{animal['id']} spawns at weight {spawner.get('weight')} "
+                     f"and its row says {animal['weight']}, so how often a "
+                     f"player meets one is not what the roster declares")
 
     # Not one of the twelve registered by hand.
     fauna_entities = read(SRC, "registry/FaunaEntities.java")
@@ -1294,11 +1360,13 @@ else:
         if not source:
             fail(f"{where} is not here, so {why}")
             continue
-        if "for (FaunaRules.Animal animal : FaunaRules.ANIMALS) {" \
-                not in squashed(strip_comments(source)):
-            fail(f"{where} no longer walks the roster, so it registers whichever "
-                 f"animals somebody remembered — and eleven of twelve is a pack "
-                 f"that works until somebody meets the twelfth")
+        walked = squashed(strip_comments(source)).count(
+            "for (FaunaRules.Animal animal : FaunaRules.ANIMALS) {")
+        if walked < (3 if where == "FaunaEntities" else 2):
+            fail(f"{where} walks the roster {walked} time(s), and one of the "
+                 f"things it does for each animal is being done for a list "
+                 f"somebody typed instead — eleven of twelve is a pack that "
+                 f"works until somebody meets the twelfth")
         if f"!= FaunaRules.ANIMALS.size()" not in strip_comments(source):
             fail(f"{where} does not count what it registered, so a roster that "
                  f"half registers is a roster that half exists")

@@ -12,6 +12,7 @@ RE=$M/src/main/java/com/elysium/bestiary/registry/BeastEntities.java
 RI=$M/src/main/java/com/elysium/bestiary/registry/BeastItems.java
 G=$M/tools/gen_bestiary.py
 V=$M/validate.py
+SH=$M/src/main/java/com/elysium/bestiary/client/CreatureModel.java
 H=$M/tools/BeastHarness.java
 SNAP=/tmp/bestiary_snap.tar
 pass=0; fail=0
@@ -93,13 +94,13 @@ edit $H '            System.out.println("EARNED " + beast.id() + " " + reward.ex
 expect "a harness that stops printing the table it derived" "believed rather than checked"
 
 echo "the sheet"
-edit $MD '            BODY, new int[]{0, 32, 72, 32},' '            BODY, new int[]{0, 16, 72, 32},'
+edit $SH '            BODY, new int[]{0, 32, 72, 32},' '            BODY, new int[]{0, 16, 72, 32},'
 expect "two parts drawn over one another on the sheet" "overlap on the sheet"
 
-edit $MD '            LEG_RIGHT, new int[]{96, 72, 24, 32});' '            LEG_RIGHT, new int[]{120, 72, 24, 32});'
+edit $SH '            LEG_RIGHT, new int[]{96, 72, 24, 32});' '            LEG_RIGHT, new int[]{120, 72, 24, 32});'
 expect "a part drawn off the edge of the sheet" "runs off a 128-pixel sheet"
 
-edit $MD '            HEAD, new int[]{0, 0, 48, 24},' '            HEAD, new int[]{0, 0, 12, 24},'
+edit $SH '            HEAD, new int[]{0, 0, 48, 24},' '            HEAD, new int[]{0, 0, 12, 24},'
 expect "a box bigger than the corner of the sheet it is drawn in" "another part's corner"
 
 echo "as big as it looks"
@@ -113,7 +114,7 @@ expect "a head above its own hitbox" "no longer worked out from how tall it is"
 edit $RD '        pose.scale(across, up, across);' '        pose.scale(1.0F, 1.0F, 1.0F);'
 expect "a shape never squashed onto the hitbox at all" "not squashed onto the hitbox"
 
-edit $MD '        return new Bounds(highX - lowX, highY - lowY, highZ - lowZ);' \
+edit $SH '        return new Bounds(highX - lowX, highY - lowY, highZ - lowZ);' \
         '        return new Bounds(16.0F, 32.0F, 16.0F);'
 expect "a shape whose size is typed rather than measured" "squashes onto a number somebody typed"
 
@@ -136,22 +137,31 @@ edit $G '        "count": {"type": "minecraft:uniform", "min": 0.0, "max": float
         '        "count": {"type": "minecraft:constant", "value": float(most)},'
 expect_regen "a count nothing can work an expectation out of" "has stopped being checked"
 
-edit $G '    "prowler": "minecraft:string",' '    "prowler": "minecraft:stringg",'
+edit $R '            PROWLER, new Leavings("minecraft:string", "minecraft:spider_eye",' \
+        '            PROWLER, new Leavings("minecraft:stringg", "minecraft:spider_eye",'
 expect_regen "a staple drop with a letter too many in it" "neither the game nor this pack makes them"
 
-edit $G '    "wight": ["minecraft:coal", "minecraft:amethyst_shard", "minecraft:echo_shard"],' \
-        '    "wight": ["minecraft:coal", "minecraft:amethyst_shard", "minecraft:echoshard"],'
+edit $R '                    List.of("minecraft:coal", "minecraft:amethyst_shard",
+                            "minecraft:echo_shard")));' \
+        '                    List.of("minecraft:coal", "minecraft:amethyst_shard",
+                            "minecraft:echoshard")));'
 expect_regen "a rare drop only the hardest wight ever leaves, misspelt" "neither the game nor this pack makes them"
 
 edit $V '                if entry.get("type") == "minecraft:item" and entry.get("name"):' \
         '                if entry.get("type") == "minecraft:itemm" and entry.get("name"):'
 expect "a sweep that reads no drops at all out of nine loot tables" "balancing zero against zero"
 
-edit $V '        THE_GAME_HAS = {"minecraft:" + key.split(".", 2)[2] for key in _lang
-                        if key.startswith(("item.minecraft.", "block.minecraft."))}' \
-        '        THE_GAME_HAS = {"minecraft:" + key.split(".", 2)[2] for key in _lang
-                        if key.startswith(("item.mojang.", "block.mojang."))}'
-expect "a game list that reads as empty, so the check below it checks nothing" "so the check below is checking nothing"
+edit $V '    return {"minecraft:" + key.split(".", 2)[2] for key in named
+            if key.startswith(("item.minecraft.", "block.minecraft."))}' \
+        '    return {"minecraft:" + key.split(".", 2)[2] for key in named
+            if key.startswith(("item.mojang.", "block.mojang."))}'
+expect "a game list that reads as empty, so both drop checks quietly stop" "is checking nothing at all"
+
+edit $V '    for where, _, names in os.walk(ROOT):
+        if not where.replace(os.sep, "/").endswith("/lang"):' \
+        '    for where, _, names in os.walk(ROOT):
+        if not where.replace(os.sep, "/").endswith("/langue"):'
+expect "a pack list that reads as empty, so our own drops read as invented" "reads as invented"
 
 echo "what you meet"
 edit $G '                      "weight": BY_ID[haunt["beast"]]["weight"],' \

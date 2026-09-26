@@ -280,8 +280,9 @@ public final class FaunaRules {
     public static List<String> faults() {
         List<String> bad = new ArrayList<>();
         bad.addAll(faultsInKinds(ANIMALS));
+        bad.addAll(faultsInGroups(ANIMALS));
         bad.addAll(faultsInYields(ANIMALS));
-        bad.addAll(faultsInPatience(ANIMALS));
+        bad.addAll(faultsInPatience(ANIMALS, LEAST_PATIENCE, MOST_PATIENCE));
         bad.addAll(faultsInSpread(TILT));
         bad.addAll(faultsInLoop(ANIMALS));
         bad.addAll(faultsInOverlap(ANIMALS, BeastRules.BEASTS));
@@ -290,7 +291,15 @@ public final class FaunaRules {
         return List.copyOf(bad);
     }
 
-    /** Whether every animal is one of the four kinds and every kind is a roster. */
+    /**
+     * Whether every animal is one of the four kinds, once.
+     *
+     * <p>Separate from {@link #faultsInGroups} because a roster built to be
+     * caught by one of them trips the other as well: a single animal of a
+     * made-up kind is also three kinds short of a roster, and a rule that
+     * answers a control aimed at its neighbour is a rule that can be deleted
+     * without anything noticing.
+     */
     public static List<String> faultsInKinds(List<Animal> animals) {
         List<String> bad = new ArrayList<>();
         Set<String> named = new LinkedHashSet<>();
@@ -305,6 +314,12 @@ public final class FaunaRules {
                         + "a set of numbers nothing reads");
             }
         }
+        return bad;
+    }
+
+    /** Whether each kind has enough in it to read as a kind. */
+    public static List<String> faultsInGroups(List<Animal> animals) {
+        List<String> bad = new ArrayList<>();
         Map<String, Integer> counted = new LinkedHashMap<>();
         for (Animal one : animals) {
             counted.merge(one.kind(), 1, Integer::sum);
@@ -371,25 +386,30 @@ public final class FaunaRules {
     /**
      * Whether the wait each yield works out to is a wait anybody would sit through.
      *
-     * <p>Handed the animals so a control can pass a roster built to be caught.
+     * <p>Handed the two ends as well as the roster, because over this roster
+     * the floor is out of reach: with the tilts this module ships, the
+     * shortest wait any yield can work out to is longer than
+     * {@link #LEAST_PATIENCE}, so a rule that read the constant itself could
+     * only ever answer no about half of what it claims to check.
      */
-    public static List<String> faultsInPatience(List<Animal> animals) {
+    public static List<String> faultsInPatience(List<Animal> animals,
+                                                int least, int most) {
         List<String> bad = new ArrayList<>();
         for (Animal one : animals) {
             if (!KINDS.contains(one.kind())) {
                 continue;
             }
             int waits = patienceOf(one);
-            if (waits < LEAST_PATIENCE) {
+            if (waits < least) {
                 bad.add(one.id() + " is ready again after " + waits + " ticks, "
-                        + "which is under " + LEAST_PATIENCE + " — a pen that "
-                        + "produces faster than a player can walk to it is a "
-                        + "pile of items, not an animal");
+                        + "which is under " + least + " — a pen that produces "
+                        + "faster than a player can walk to it is a pile of "
+                        + "items, not an animal");
             }
-            if (waits > MOST_PATIENCE) {
+            if (waits > most) {
                 bad.add(one.id() + " is ready again after " + waits + " ticks, "
-                        + "which is over " + MOST_PATIENCE + " — nobody waits "
-                        + "that long and the animal is decoration");
+                        + "which is over " + most + " — nobody waits that long "
+                        + "and the animal is decoration");
             }
         }
         return bad;
@@ -414,7 +434,8 @@ public final class FaunaRules {
                 bad.add("nothing says what an hour of keeping a " + kind
                         + " is worth, so every one of them is a row of numbers "
                         + "the arithmetic throws on");
-            } else if (one <= 0.0D) {
+            }
+            if (one != null && one <= 0.0D) {
                 bad.add("an hour of " + kind + " is worth " + one + " times the "
                         + "middling animal, so keeping one costs a player time "
                         + "and gives them nothing");

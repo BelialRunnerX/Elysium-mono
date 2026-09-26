@@ -8,11 +8,11 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 80 | DONE | an Elysium module already replaces it |
-| 20 | SPLIT | spans several modules; see docs/SPLITS.md |
+| 81 | DONE | an Elysium module already replaces it |
+| 22 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 16 | PLANNED | has a target module, not started |
-| 13 | KEEP | stays in the pack on purpose |
+| 11 | PLANNED | has a target module, not started |
+| 14 | KEEP | stays in the pack on purpose |
 | 74 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
 
@@ -22,13 +22,12 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 |---|---|
 | `elysium-bestiary` | 8 |
 | `elysium-atelier` | 7 |
-| `elysium-comforts` | 6 |
 | `elysium-agronomy` | 4 |
+| `elysium-comforts` | 4 |
 | `elysium-industry` | 3 |
 | `elysium-wilds` | 2 |
 | `elysium-atomics` | 2 |
 | `elysium-arsenal` | 1 |
-| `elysium-arcana` | 1 |
 | `elysium-foundry` | 1 |
 
 ## Every jar
@@ -57,15 +56,15 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `blockui-1.0.209-1.21.1.jar` | KEEP | elysium-colonies | MineColonies' own dependencies |
 | `blueprint-1.21.1-8.1.1.jar` | DROP | - | library: goes when the mods needing it go |
 | `bookshelf-neoforge-1.21.1-21.1.81.jar` | DROP | - | library: goes when the mods needing it go |
-| `born_in_chaos_[Neoforge]_1.21.1_1.7.6.jar` | PLANNED | elysium-bestiary | nine hostile beasts exist on a proved reward ladder; their catalogues (dozens of mobs each, bosses, their own gear and items) do not |
+| `born_in_chaos_[Neoforge]_1.21.1_1.7.6.jar` | PLANNED | elysium-bestiary | 63 creatures and 23 variants of them, 362 items of which 69 are gear, and a set of mini-bosses — counted out of the jar's own language file rather than guessed. The bestiary's nine are a ladder with a proved reward curve and no boss tier at all, and this is the jar that decides what a boss is here |
 | `botanypots-neoforge-1.21.1-21.1.44.jar` | DONE | elysium-agronomy | pots: 183 working pots across 61 materials — all forty-eight fired clays and thirteen stones — with all three fittings, four growth stages, 14 soils and 28 sprouts as data. It was 55 materials; the six that were missing were andesite, diorite, granite, basalt, dripstone and amethyst, which is to say the six blocks a player has most of and would most obviously reach for. Same count as the jar |
-| `Chimes-v2.1.1-1.21.1-NeoForge.jar` | PLANNED | elysium-comforts | moved to elysium-comforts: five blocks whose whole content is an ambient sound, which is what that module is for |
+| `Chimes-v2.1.1-1.21.1-NeoForge.jar` | PLANNED | elysium-comforts | six chimes — amethyst, bamboo, carved bamboo, copper, iron and glass bells — each dyeable sixteen ways, whose whole content is a sound that plays when the wind moves. 38 blocks and one item, which is what this module is for |
 | `chipped-neoforge-1.21.1-4.0.2.jar` | KEEP | elysium-atelier | 250 cosmetic texture variants per block; replacing it needs a retexture generator, which this project has deliberately not built. See docs/CONVERSION.md section 9 — the user's call |
 | `cloth-config-15.0.140-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `Clothing_Of_The_Lowlands-1.0.8-neoforge-1.21.1.jar` | KEEP | elysium-atelier | 112 cosmetic garments, every one of them a texture and nothing else; the same retexture decision |
 | `cluttered-[NeoForge]-3.0.3-1.21.1.jar` | KEEP | elysium-atelier | its shapes are built; what is left is new stone and wood types and sixteen colours of wallpaper, which is the same retexture decision |
 | `cobblegengalore-1.21.1-0.2.9.jar` | DONE | elysium-agronomy | seven generators, one per vein, each making its own material at a rate held under a share of what mining it is worth |
-| `comforts-neoforge-9.0.5+1.21.1.jar` | PLANNED | elysium-comforts | quality of life |
+| `comforts-neoforge-9.0.5+1.21.1.jar` | PLANNED | elysium-comforts | 16 hammocks, 16 sleeping bags and a rope and nail: sleep anywhere without moving your spawn, and a hammock that skips a night without one. 44 blocks in the jar, of which 32 are the same two things in every colour |
 | `commoncapabilities-1.21.1-neoforge-2.11.5.jar` | DROP | elysium-logistics | a capability library for the same, and the game's own capabilities are what this module already runs on |
 | `configuration-neoforge-1.21.1-3.1.1.jar` | DROP | - | library: goes when the mods needing it go |
 | `copycats-3.0.4+mc.1.21.1-neoforge.jar` | SPLIT | elysium-atelier | blocks that wear another block's texture: a decoration idea, and it belongs with the decoration module |
@@ -104,16 +103,16 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `entity_model_features-3.2.4-1.21-neoforge.jar` | DROP | - | performance: not content |
 | `entity_texture_features_1.21-neoforge-7.1.jar` | DROP | - | performance: not content |
 | `entityculling-neoforge-1.10.5-mc1.21.1.jar` | DROP | - | performance: not content |
-| `envelope-neoforge-1.21.1-0.7.3.jar` | PLANNED | elysium-comforts | quality of life |
+| `envelope-neoforge-1.21.1-0.7.3.jar` | PLANNED | elysium-comforts | a postal system rather than a convenience: 12 woods of pigeonhole, a mailbox, letters and packages that seal, address tags, payment on delivery, lost mail, and two pigeons that carry it. 281 language keys beyond its items, which is what a mod looks like when it has rules of its own |
 | `everycomp-1.21-2.11.48-neoforge.jar` | DROP | elysium-atelier | makes one mod's shapes out of another's materials; moot once both are ours, because that crossing is what this module already is |
 | `ExtendedAE-1.21-2.2.35-neoforge.jar` | DONE | elysium-logistics | more devices for a model this pack does not have; what it adds that is content rather than channel management is on the flat network |
 | `ExtremeReactors2-1.21.1-2.4.28.jar` | DONE | elysium-atomics | reactor halls: a hollow box of casing three to seven on a side, built with Age II's own shape arithmetic. Heat goes as the cube of the side and cooling as the square, so a bigger hall makes more altogether and less per rod - which makes the size a decision rather than a ladder, and is the opposite of how these mods usually work |
-| `fangs_n_claws-1.2.2.jar` | PLANNED | elysium-bestiary | nine hostile beasts exist on a proved reward ladder; their catalogues (dozens of mobs each, bosses, their own gear and items) do not |
+| `fangs_n_claws-1.2.2.jar` | PLANNED | elysium-bestiary | 27 creatures and 7 projectiles and young, in themed families — four scorpions, three ogres, three horses, two golems, a werewolf and a werevillager. The shape this module already has; what it has not got is a mechanic apiece, which is what makes 27 creatures different from 27 sets of numbers |
 | `FarmersDelight-1.21.1-1.3.2.jar` | SPLIT | elysium-agronomy | cooking: 29 meals across four stations with 11 effects, 24 ingredients, 13 knife cuts, 5 knives and 25 blocks, none of them dominated — and now the crops behind them. Eight of those ingredients were items with a sprite, a crate to keep them in, a place in a dozen recipes and no way on earth to obtain one; six more were made out of nothing at all. Every crop now has a plant, a seed, eight stages, its own growth speed and a wild patch that generates in a tag of biomes, so the cookbook is not locked behind a village that may not exist. The eight sit on a frontier of time against yield, so none of them is as good as another on every axis, and every one of them feeds exactly one raw — a crop worth eating on its own is a reason never to cook. Plus a mushroom colony, capped, because a block that hands out unlimited mushrooms is a block that ends hunger. Its canvas signs are decoration and go to elysium-atelier |
 | `fastleafdecay-35.jar` | DROP | - | performance: not content |
 | `ferritecore-7.0.3-neoforge.jar` | DROP | - | performance: not content |
 | `FluxNetworks-1.21.1-8.0.0.jar` | DROP | elysium-industry | wireless power, which this pack deliberately does not have: a grid's books are made, lent, lost, used, stored and spare, and 'lost' is distance down a wire. Power that arrives without travelling would make the one number the voltage ladder exists for a number nothing reads |
-| `friendsandfoes-neoforge-4.0.27+mc1.21.1.jar` | PLANNED | elysium-bestiary | mobs built around one mechanic each, and structures and gear alongside them; the bestiary has three behaviours and no structures at all |
+| `friendsandfoes-neoforge-4.0.27+mc1.21.1.jar` | PLANNED | elysium-bestiary | 14 creatures, each built around exactly one mechanic — a copper golem that presses buttons, a glare that shows you where the dark is, an iceologer that drops a cloud on your head. The bestiary has three behaviours across nine beasts, so this is the jar that says a mob is a verb and not a stat block |
 | `ftb-library-neoforge-2101.1.35.jar` | DROP | - | library: goes when the mods needing it go |
 | `ftb-ultimine-neoforge-2101.1.15.jar` | DROP | - | interface and convenience: not content |
 | `functionalstorage-1.21.1-1.5.8.jar` | DONE | elysium-logistics | three drawer tiers, a bus, and a controller that indexes the lot |
@@ -135,7 +134,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `Jade-1.21.1-NeoForge-15.10.6.jar` | DROP | - | interface and convenience: not content |
 | `jei-1.21.1-neoforge-19.43.0.395.jar` | DROP | - | interface and convenience: not content |
 | `knightlib-neoforge-1.21.1-1.6.1.jar` | DROP | - | library: goes when the mods needing it go |
-| `knightquest-neoforge-1.21.1-1.9.3.jar` | PLANNED | elysium-bestiary | mobs built around one mechanic each, and structures and gear alongside them; the bestiary has three behaviours and no structures at all |
+| `knightquest-neoforge-1.21.1-1.9.3.jar` | SPLIT | elysium-bestiary | four mods in a trench coat: 173 of its 200 items are gear and only 13 of its keys are creatures, so the armour belongs where the armour is. See docs/SPLITS.md |
 | `kotlinforforge-5.12.0-all.jar` | DROP | - | library: goes when the mods needing it go |
 | `larion-neoforge-1.21.1-4.3.0.jar` | DROP | - | library: goes when the mods needing it go |
 | `ldlib2-neoforge-1.21.1-2.2.33-all.jar` | DROP | - | library: goes when the mods needing it go |
@@ -158,7 +157,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `MekanismTools-1.21.1-10.7.19.85.jar` | SPLIT | elysium-arsenal | the tools and armour of Mekanism's alloys, which is gear and belongs with the gear; see docs/SPLITS.md |
 | `minecolonies-1.1.1368-1.21.1-snapshot.jar` | KEEP | elysium-colonies | the host this module adds on to |
 | `mob_grinding_utils-1.1.10+mc1.21.1.jar` | PLANNED | elysium-bestiary | farming infrastructure rather than creatures - fans, saws, spawner tooling; it is filed here because it is about mobs and belongs with whatever ends up owning automation of them |
-| `mobs_of_mythology-neoforge-1.21.1-3.0.0.jar` | PLANNED | elysium-bestiary | nine hostile beasts exist on a proved reward ladder; their catalogues (dozens of mobs each, bosses, their own gear and items) do not |
+| `mobs_of_mythology-neoforge-1.21.1-3.0.0.jar` | PLANNED | elysium-bestiary | 8 creatures — automaton, basilisk, chupacabra, drake, kobold and its warrior, pegasus, sporeling — and 16 items. The smallest of the mob jars and the one whose creatures come nearest to one mechanic each |
 | `modernfix-neoforge-5.27.20+mc1.21.1.jar` | DROP | - | performance: not content |
 | `modular_backpacks-0.2.7.jar` | DONE | elysium-logistics | five bags and three crates, ten parts in eight kinds, and one part system for both — capacity is the sum of what is fitted and never more, no part goes in twice, no bag goes inside a bag, and pulling a space upgrade out of a full bag is refused rather than quietly shrinking it, which is what every mod of this kind does instead |
 | `moonlight-1.21.1-3.3.3-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
@@ -167,7 +166,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `MysticalAgradditions-1.21.1-8.0.14.jar` | DONE | elysium-agronomy | the sixth rung, and it is not a crop. Its tier-6 crops grow nether stars and dragon eggs — things a boss drops rather than things the ground gives you — and a seed that grows what is made rather than mined competes with the whole age that was built to supply it. So insanium is made at an awakening altar out of four of the fifth rung instead: a centre, four pedestals on the diagonals and four relays on the axes, a shape proved symmetric under a quarter turn so an altar cannot work facing one way and not another. What insanium buys is an awakened seed for every one of the thirty, and what awakening buys is **space**: double the yield a plot, half the plots allowed, the same metal an hour out of half the ground. That is the one cost of a resource farm no other rule here prices, and it costs the economy nothing |
 | `MysticalAgriculture-1.21.1-8.0.27.jar` | SPLIT | elysium-agronomy | 30 seeds across 5 rungs, one per material the ground gives you, with a chunk item for the 17 the foundry makes ingots of; no seed grows an alloy, checked against the foundry's own list. The awakening altar and the sixth rung are built. Its tools, armour and augments are weapons and armour, which belong to elysium-arsenal and elysium-armory — see docs/SPLITS.md |
 | `mythsandlegends-0.0.8.6.jar` | DONE | elysium-arsenal | 24 named weapons smithed from their own shape and tier, carrying abilities priced by the shared library, none over its tier's band |
-| `naturalist-2.0.2-neoforge-1.21.1.jar` | PLANNED | elysium-bestiary | passive fauna, ambience and a field guide; the bestiary is hostile mobs only and has nothing that does not attack you |
+| `naturalist-2.0.2-neoforge-1.21.1.jar` | SPLIT | elysium-bestiary | 50 creatures, 122 items and a field guide: three different jobs in one jar, so it is split rather than given one module. See docs/SPLITS.md |
 | `NaturesCompass-1.21.1-3.4.0-neoforge.jar` | DONE | elysium-wilds | a biome compass with a needle and a list you type into, on one bounded search that costs the same for anything; no adjustable radius, on purpose |
 | `OctoLib-NEOFORGE-0.6.2+1.21.jar` | DROP | - | library: goes when the mods needing it go |
 | `oritech-neoforge-1.21.1-1.2.10.jar` | SPLIT | elysium-industry | machines between Ages II and III. The grid, the machines and the multiblocks are here; what is left is its own roster of processing steps and the GeOre compat recipes that keep that jar in the pack; see docs/SPLITS.md |
@@ -203,7 +202,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `simplest_scythes-1.21.1-1.1.0.jar` | DONE | elysium-arsenal | hammer, excavator, scythe and paxel in six tiers, each proved slower than the tool it replaces on one block and faster over nine |
 | `SimplyBows-neoforge-0.1.2.jar` | DONE | elysium-arsenal | 36 bows in 6 kinds, each owning exactly one corner of six axes, with draw frames, and 12 kinds of ammunition whose effects are read off the item so a skeleton or a dispenser firing one works too |
 | `simplyswords-neoforge-1.63.0-1.21.1.jar` | DONE | elysium-arsenal | 24 named weapons smithed from their own shape and tier, carrying abilities priced by the shared library, none over its tier's band |
-| `SimplyTooltips-neoforge-0.1.3.jar` | PLANNED | elysium-comforts | quality of life |
+| `SimplyTooltips-neoforge-0.1.3.jar` | KEEP | - | client-only, and its language file names no item and no block: 31 keys, every one of them a keybind or a line in its own editor. Converting it would mean writing tooltip UI, and the GUI is the one thing this project is told to leave alone |
 | `sliceanddice-4.3.3-neoforge.jar` | DONE | elysium-kinetics | eleven sawing recipes, one per cutting-board recipe, none of them yielding more than the hand does |
 | `SmartBrainLib-neoforge-1.21.1-1.16.11.jar` | DROP | - | library: goes when the mods needing it go |
 | `sodium-neoforge-0.8.12+mc1.21.1.jar` | DROP | - | performance: not content |
@@ -221,7 +220,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `tfmg-1.2.2.jar` | SPLIT | elysium-industry | heavy industry, oil and steel. The steel half is answered - a blast furnace that wants no wire - and the oil half is a fluid chain this module does not have yet; see docs/SPLITS.md |
 | `tide-neoforge-1.21.1-2.1.1.jar` | DONE | elysium-agronomy | fishing: 105 fish in 11 families, five rods and a bait apiece, and now what goes on the end of the line. Four hooks and four bobbers, every one of them a stated change to a cast rather than a special case in a block — and three rules swept over every water, every rod and all twenty-five ways of fitting a rod: nothing fitted ever takes a fish away, nothing fitted ever empties a water that had fish in it, and a better hook never makes the rare fish harder to get relative to the common one. That last is the rule a modifier system comes undone on, because nobody can see a probability |
 | `titanium-1.21-4.0.43.jar` | DROP | - | library: goes when the mods needing it go |
-| `towntalk-1.2.0.jar` | PLANNED | elysium-comforts | quality of life |
+| `towntalk-1.2.0.jar` | DROP | - | 2,291 recorded sound files in the minecolonies namespace and nothing else — no item, no block, no entity, one class. It is voice acting for the mod elysium-colonies adds on to; this project writes its own code and draws its own art, and does not record voices |
 | `Tridot-1.21.1-1.0.169.jar` | DROP |  | Valoria's own library; goes when Valoria does |
 | `trmt-0.5.1-1.21.1-neoforge.jar` | DROP | - | library: goes when the mods needing it go |
 | `UnionLib-1.21.1-13.0-NeoForge.jar` | DROP | - | library: goes when the mods needing it go |

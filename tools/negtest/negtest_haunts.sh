@@ -84,7 +84,7 @@ expect "the floor loosened until nothing is ever too big" "sixty siege beasts at
 
 edit $R '    public static final double ROOM_FOR_A_PACK = 144.0D;' \
         '    public static final double ROOM_FOR_A_PACK = 1.0D;'
-expect "the floor tightened until this pack's own groups do not fit" "square blocks for a full group and there are 1.0"
+expect "the floor tightened until this pack's own groups do not fit" "square blocks of floor where there are 1.0"
 
 edit $R '            double room = one.most() * beast.width() * beast.width();' \
         '            double room = beast.width() * beast.width();'
@@ -119,15 +119,18 @@ edit $R '            if (least <= 0 || most < least) {' '            if (false) 
 expect "a group of none accepted as a group" "a group of none is accepted as a group"
 
 echo "the rules added up rather than merely written"
-edit $R '        bad.addAll(faultsInRoom(BeastRules.BEASTS, HAUNTS));' '        '
-expect "a rule that answers its controls and is never asked about the roster" "never added up by"
+edit $R '        bad.addAll(faultsInRoom(theseBeasts(BeastRules.BEASTS), HAUNTS));' '        '
+expect "a haunt rule added up for one of the two tables and not the other" "never asked about HAUNTS"
+
+edit $R '        bad.addAll(faultsInDominance(BeastRules.BEASTS));' '        '
+expect "a haunt rule that answers its controls and is never asked about the roster" "never added up by"
 
 edit $R '    public static List<String> faultsInBands(List<Haunt> haunts) {' \
         '    public static java.util.List<String> faultsInBands(List<Haunt> haunts) {'
 expect "the band rule taken out from under the validator" "bands are bands a world really has"
 
-edit $R '    public static List<String> faultsInRoom(List<BeastRules.Beast> beasts,' \
-        '    public static java.util.List<String> faultsInRoom(List<BeastRules.Beast> beasts,'
+edit $R '    public static List<String> faultsInRoom(List<Creature> beasts,' \
+        '    public static java.util.List<String> faultsInRoom(List<Creature> beasts,'
 expect "the room rule taken out from under the validator" "fits on the floor it is asked to stand on"
 
 edit $R '    public static List<String> faultsInDominance(List<BeastRules.Beast> beasts) {' \

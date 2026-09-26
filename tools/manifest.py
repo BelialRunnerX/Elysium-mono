@@ -52,7 +52,13 @@ DECISIONS = [
     (r"^create-1\.|^create_connected|^create-stuff|^createaddition|^createdeco",
      "PLANNED", "elysium-kinetics", "Age I: rotation, stress, contraptions"),
     (r"^create", "PLANNED", "elysium-kinetics", "Create addon: folds into Age I"),
-    (r"^CreateDragonsPlus|^copycats|^sliceanddice|^interiors", "PLANNED",
+    (r"^CreateDragonsPlus", "DROP", "-",
+     "read rather than assumed: its own language file names no entity at all. "
+     "61 blocks and 57 items, and every one of them is a liquid dye or a dye "
+     "bucket for some other mod's palette, plus dragon breath and a blaze "
+     "smithing template. The row that sent it to the bestiary was written from "
+     "the mod's name"),
+    (r"^copycats|^sliceanddice|^interiors", "PLANNED",
      "elysium-kinetics", "Create addon: folds into Age I"),
 
     # --- age II: industry -------------------------------------------------
@@ -184,16 +190,35 @@ DECISIONS = [
     # It is not their catalogues. Nine is nine. Marking these DONE would take
     # sixty creatures out of the pack and put nine in their place, which is the
     # atelier mistake with fur on it.
-    (r"^born_in_chaos|^fangs_n_claws|^mobs_of_mythology", "PLANNED",
-     "elysium-bestiary",
-     "nine hostile beasts exist on a proved reward ladder; their catalogues "
-     "(dozens of mobs each, bosses, their own gear and items) do not"),
-    (r"^naturalist", "PLANNED", "elysium-bestiary",
-     "passive fauna, ambience and a field guide; the bestiary is hostile mobs only "
-     "and has nothing that does not attack you"),
-    (r"^friendsandfoes|^knightquest", "PLANNED", "elysium-bestiary",
-     "mobs built around one mechanic each, and structures and gear alongside them; "
-     "the bestiary has three behaviours and no structures at all"),
+    (r"^born_in_chaos", "PLANNED", "elysium-bestiary",
+     "63 creatures and 23 variants of them, 362 items of which 69 are gear, and "
+     "a set of mini-bosses — counted out of the jar's own language file rather "
+     "than guessed. The bestiary's nine are a ladder with a proved reward curve "
+     "and no boss tier at all, and this is the jar that decides what a boss is "
+     "here"),
+    (r"^fangs_n_claws", "PLANNED", "elysium-bestiary",
+     "27 creatures and 7 projectiles and young, in themed families — four "
+     "scorpions, three ogres, three horses, two golems, a werewolf and a "
+     "werevillager. The shape this module already has; what it has not got is a "
+     "mechanic apiece, which is what makes 27 creatures different from 27 sets "
+     "of numbers"),
+    (r"^mobs_of_mythology", "PLANNED", "elysium-bestiary",
+     "8 creatures — automaton, basilisk, chupacabra, drake, kobold and its "
+     "warrior, pegasus, sporeling — and 16 items. The smallest of the mob jars "
+     "and the one whose creatures come nearest to one mechanic each"),
+    (r"^naturalist", "SPLIT", "elysium-bestiary",
+     "50 creatures, 122 items and a field guide: three different jobs in one "
+     "jar, so it is split rather than given one module. See docs/SPLITS.md"),
+    (r"^friendsandfoes", "PLANNED", "elysium-bestiary",
+     "14 creatures, each built around exactly one mechanic — a copper golem that "
+     "presses buttons, a glare that shows you where the dark is, an iceologer "
+     "that drops a cloud on your head. The bestiary has three behaviours across "
+     "nine beasts, so this is the jar that says a mob is a verb and not a stat "
+     "block"),
+    (r"^knightquest", "SPLIT", "elysium-bestiary",
+     "four mods in a trench coat: 173 of its 200 items are gear and only 13 of "
+     "its keys are creatures, so the armour belongs where the armour is. See "
+     "docs/SPLITS.md"),
     (r"^mob_grinding_utils", "PLANNED", "elysium-bestiary",
      "farming infrastructure rather than creatures - fans, saws, spawner tooling; "
      "it is filed here because it is about mobs and belongs with whatever ends up "
@@ -228,7 +253,10 @@ DECISIONS = [
     # Five blocks whose whole content is an ambient sound, which is what
     # elysium-comforts is for rather than what a decoration module is.
     (r"^Chimes", "PLANNED", "elysium-comforts",
-     "an ambient sound and the five blocks that make it"),
+     "six chimes — amethyst, bamboo, carved bamboo, copper, iron and glass "
+     "bells — each dyeable sixteen ways, whose whole content is a sound that "
+     "plays when the wind moves. 38 blocks and one item, which is what this "
+     "module is for"),
 
     # --- wilds ------------------------------------------------------------
     (r"^wwoo|^\[Neoforge\]ctov", "PLANNED", "elysium-wilds",
@@ -267,8 +295,26 @@ DECISIONS = [
      "a villager can be carried, with its whole ledger and its restock clock intact; "
      "the trading station, breeder, converter, incubator, farmer and iron farm are not "
      "started"),
-    (r"^comforts|^towntalk|^envelope|^SimplyTooltips",
-     "PLANNED", "elysium-comforts", "quality of life"),
+    (r"^comforts", "PLANNED", "elysium-comforts",
+     "16 hammocks, 16 sleeping bags and a rope and nail: sleep anywhere without "
+     "moving your spawn, and a hammock that skips a night without one. 44 blocks "
+     "in the jar, of which 32 are the same two things in every colour"),
+    (r"^envelope", "PLANNED", "elysium-comforts",
+     "a postal system rather than a convenience: 12 woods of pigeonhole, a "
+     "mailbox, letters and packages that seal, address tags, payment on "
+     "delivery, lost mail, and two pigeons that carry it. 281 language keys "
+     "beyond its items, which is what a mod looks like when it has rules of its "
+     "own"),
+    (r"^towntalk", "DROP", "-",
+     "2,291 recorded sound files in the minecolonies namespace and nothing else "
+     "— no item, no block, no entity, one class. It is voice acting for the mod "
+     "elysium-colonies adds on to; this project writes its own code and draws "
+     "its own art, and does not record voices"),
+    (r"^SimplyTooltips", "KEEP", "-",
+     "client-only, and its language file names no item and no block: 31 keys, "
+     "every one of them a keybind or a line in its own editor. Converting it "
+     "would mean writing tooltip UI, and the GUI is the one thing this project "
+     "is told to leave alone"),
 
     # --- arcana -----------------------------------------------------------
     (r"^ProjectE|^projectexpansion", "DONE", "elysium-arcana",
