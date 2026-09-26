@@ -147,6 +147,14 @@ def blockers(mods, candidates):
 def ledger_row(mods, jar, rows, when):
     info = describe(os.path.join(mods, jar))
     status, module, built = rows.get(jar, ("", "", ""))
+    if not module:
+        # The manifest names one version of a mod; a later version retired
+        # after an update is the same mod, so borrow its row by name stem.
+        stem = re.split(r"[-_]v?\d", jar)[0]
+        for name, row in rows.items():
+            if name != jar and re.split(r"[-_]v?\d", name)[0] == stem:
+                status, module, built = row
+                break
     cell = lambda s: str(s).replace("|", "\\|")
     return "| {} | `{}` | {} | {} | {} | {} | {} | {} | {} |\n".format(
         when, cell(jar), cell(", ".join(info["ids"]) or "?"), cell(info["version"] or "?"),
