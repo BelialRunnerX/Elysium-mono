@@ -30,10 +30,34 @@ phrases = sys.argv[2:] or ["checks passed"]
 s = source.read_text(encoding="utf-8")
 
 # The things that run the real checks: make them answer "fine" instantly.
+#
+# By name first, because out() and worldout() are the two this project uses
+# most. Then by what they do, because a script that named its runners lib(),
+# best() and arc() went through untouched and its "dry" run spent twenty
+# minutes running three real validators — which is not a write, so nothing was
+# harmed, but a dry run nobody has the patience for is a dry run nobody does,
+# and the stale anchors it would have found stay found by a real run instead.
 s = re.sub(r"^out\(\) \{[^\n]*\}$", 'out() { echo "%s"; }' % phrases[0], s, flags=re.M)
 if len(phrases) > 1:
     s = re.sub(r"^worldout\(\) \{[^\n]*\}$", 'worldout() { echo "%s"; }' % phrases[1],
                s, flags=re.M)
+
+
+def _answered(match):
+    """Any one-line function that runs a validator, answering instantly."""
+    name = match.group(1)
+    said = phrases[0] if len(phrases) == 1 else " ".join(phrases)
+    return '%s() { echo "%s"; }' % (name, said)
+
+
+s = re.sub(r"^(\w+)\(\)\s*\{[^\n]*(?:validate\.py|check_\w+\.py)[^\n]*\}$",
+           _answered, s, flags=re.M)
+
+# The refusal at the top -- "do not start if the tree is already broken" --
+# is three more real validator runs and answers a question a dry run is not
+# asking.
+s = re.sub(r"^if ! \(cd .*?\n^fi$", "true  # pre-check neutered for the dry run",
+           s, flags=re.M | re.S)
 
 # Anything that restores or regenerates: there is nothing to restore.
 s = re.sub(r"^(restore|regen)\(\) \{.*?\}$", r"\1() { :; }", s, flags=re.M | re.S)
@@ -54,6 +78,14 @@ s = re.sub(r"^\s*sed -i\s[^\n]*$", "true  # mutation neutered for the dry run",
 s = re.sub(r"^\s*\(?cd \$ROOT && tar [^\n]*$",
            "true  # snapshot neutered for the dry run", s, flags=re.M)
 s = re.sub(r"^\(cd \$ROOT && tar [^\n]*$", "true  # snapshot neutered", s, flags=re.M)
+# And any other tar at all. The two patterns above only knew the shape this
+# project usually writes, `(cd $ROOT && tar ...)`. negtest_affixes.sh writes
+# `tar czf $SNAP -C $ROOT ...` instead, which went through untouched -- so its
+# dry run gzipped two modules to disk every time it was asked to write
+# nothing, which is both the third hole of this kind and the reason that one
+# script took a minute while every other took under two seconds.
+s = re.sub(r"^\s*tar\s[^\n]*$", "true  # snapshot neutered for the dry run",
+           s, flags=re.M)
 
 out = source.with_name(source.stem + "_dry.sh")
 out.write_text(s, encoding="utf-8")

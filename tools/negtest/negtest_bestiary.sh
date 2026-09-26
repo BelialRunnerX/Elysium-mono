@@ -11,6 +11,7 @@ EN=$M/src/main/java/com/elysium/bestiary/entity/BeastEntity.java
 RE=$M/src/main/java/com/elysium/bestiary/registry/BeastEntities.java
 RI=$M/src/main/java/com/elysium/bestiary/registry/BeastItems.java
 G=$M/tools/gen_bestiary.py
+V=$M/validate.py
 H=$M/tools/BeastHarness.java
 SNAP=/tmp/bestiary_snap.tar
 pass=0; fail=0
@@ -135,21 +136,40 @@ edit $G '        "count": {"type": "minecraft:uniform", "min": 0.0, "max": float
         '        "count": {"type": "minecraft:constant", "value": float(most)},'
 expect_regen "a count nothing can work an expectation out of" "has stopped being checked"
 
+edit $G '    "prowler": "minecraft:string",' '    "prowler": "minecraft:stringg",'
+expect_regen "a staple drop with a letter too many in it" "neither the game nor this pack makes them"
+
+edit $G '    "wight": ["minecraft:coal", "minecraft:amethyst_shard", "minecraft:echo_shard"],' \
+        '    "wight": ["minecraft:coal", "minecraft:amethyst_shard", "minecraft:echoshard"],'
+expect_regen "a rare drop only the hardest wight ever leaves, misspelt" "neither the game nor this pack makes them"
+
+edit $V '                if entry.get("type") == "minecraft:item" and entry.get("name"):' \
+        '                if entry.get("type") == "minecraft:itemm" and entry.get("name"):'
+expect "a sweep that reads no drops at all out of nine loot tables" "balancing zero against zero"
+
+edit $V '        THE_GAME_HAS = {"minecraft:" + key.split(".", 2)[2] for key in _lang
+                        if key.startswith(("item.minecraft.", "block.minecraft."))}' \
+        '        THE_GAME_HAS = {"minecraft:" + key.split(".", 2)[2] for key in _lang
+                        if key.startswith(("item.mojang.", "block.mojang."))}'
+expect "a game list that reads as empty, so the check below it checks nothing" "so the check below is checking nothing"
+
 echo "what you meet"
-edit $G '                "weight": beast["weight"],' '                "weight": 1,'
+edit $G '                      "weight": BY_ID[haunt["beast"]]["weight"],' \
+        '                      "weight": 1,'
 expect_regen "a spawn weight that is not the weight the harness proved the shares from" "is not the share a player meets"
 
-edit $G '                "biomes": "#minecraft:is_overworld",
-                  "spawners": spawners,' '                "biomes": "#minecraft:is_mountain",
-                  "spawners": spawners,'
-expect_regen "a bestiary most players never meet" "only appears in some biomes"
+edit $G '                  "biomes": haunt["where"],' '                  "biomes": "#minecraft:is_mountain",'
+expect_regen "a bestiary most players never meet" "a third of the bestiary is a rumour"
 
-edit $G '            if beast["family"] != family:
-                continue' '            if beast["family"] != family and beast["tier"] != 1:
-                continue'
+edit $G '                  "spawners": [{' '                  "spawners": [{
+                      "type": "%s:shardling" % NS,
+                      "weight": 1,
+                      "minCount": 1,
+                      "maxCount": 1,
+                  }, {'
 expect_regen "a beast spawned by two rules at once" "appears twice as often as its weight says"
 
-edit $G '                "minCount": 1,' '                "minCount": 0,'
+edit $G '                      "minCount": haunt["least"],' '                      "minCount": 0,'
 expect_regen "a spawn roll that puts nothing there" "puts nothing there"
 
 echo "the words, and the tree"

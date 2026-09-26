@@ -96,6 +96,7 @@ if not TABLE:
     sys.exit("cannot find the bestiary in the Java")
 
 BEASTS = []
+
 for row in BEAST_ROW.finditer(TABLE.group(1)):
     BEASTS.append({
         "id": row.group(1),
@@ -396,6 +397,33 @@ REASONS = {
 }
 
 
+
+# Where each beast is, read out of HauntRules rather than decided here. A
+# spawn worked out in a generator is a spawn no harness has ever seen.
+HAUNT_SOURCE = open(os.path.join(
+    MOD, "src/main/java/com/elysium/bestiary/rules/HauntRules.java"),
+    encoding="utf-8").read()
+_HAUNT = re.compile(
+    r'new Haunt\("([a-z_]+)", "(#?[a-z_:]+)", (-?\w+), (-?\w+), (-?\w+), '
+    r"(-?\w+), (\d+), (\d+)\)")
+_WORDS = {"BEDROCK": -64, "SKY": 320, "PITCH_DARK": 0, "FULL_LIGHT": 15}
+
+
+def _number(text):
+    return _WORDS[text] if text in _WORDS else int(text)
+
+
+HAUNTS = [{"beast": one[0], "where": one[1], "darkest": _number(one[2]),
+           "brightest": _number(one[3]), "lowest": _number(one[4]),
+           "highest": _number(one[5]), "least": int(one[6]),
+           "most": int(one[7])}
+          for one in _HAUNT.findall(re.sub(r"\s+", " ", HAUNT_SOURCE))]
+BY_ID = {beast["id"]: beast for beast in BEASTS}
+if len(HAUNTS) != len(BEASTS):
+    print("HauntRules has %d haunt(s) for %d beast(s)" % (len(HAUNTS), len(BEASTS)))
+    sys.exit(2)
+
+
 def main():
     entity_textures = os.path.join(ASSETS, "textures/entity")
     os.makedirs(entity_textures, exist_ok=True)
@@ -423,31 +451,29 @@ def main():
 
     write(os.path.join(ASSETS, "lang/en_us.json"), dict(sorted(lang.items())))
 
-    # One modifier per family rather than one per beast, so a player meeting
-    # the dark meets a family of things rather than nine unrelated strangers,
-    # and the weights stay comparable inside the group the game rolls.
-    for family in sorted(SHAPES):
-        spawners = []
-        for beast in BEASTS:
-            if beast["family"] != family:
-                continue
-            most = 4 - min(3, beast["tier"])
-            spawners.append({
-                "type": "%s:%s" % (NS, beast["id"]),
-                "weight": beast["weight"],
-                "minCount": 1,
-                "maxCount": max(1, most),
-            })
+    # One modifier per beast rather than one per family.
+    #
+    # It used to be one per family, all of them in #minecraft:is_overworld,
+    # with a group size worked out here as four minus the tier — three
+    # decisions living in a generator, where no harness could reach them and
+    # where "this mob is in the wrong place" had nowhere to be written down.
+    # HauntRules holds them now, and this writes out what it says.
+    for haunt in HAUNTS:
         write(os.path.join(DATA, "neoforge/biome_modifier",
-                           "add_%s_spawns.json" % family),
+                           "add_%s_spawns.json" % haunt["beast"]),
               {
                   "type": "neoforge:add_spawns",
-                  "biomes": "#minecraft:is_overworld",
-                  "spawners": spawners,
+                  "biomes": haunt["where"],
+                  "spawners": [{
+                      "type": "%s:%s" % (NS, haunt["beast"]),
+                      "weight": BY_ID[haunt["beast"]]["weight"],
+                      "minCount": haunt["least"],
+                      "maxCount": haunt["most"],
+                  }],
               })
 
     print("elysium-bestiary: %d beast(s), %d sheet(s), %d loot table(s), "
-          "%d spawn rule(s)" % (len(BEASTS), len(BEASTS), len(BEASTS), len(SHAPES)))
+          "%d spawn rule(s)" % (len(BEASTS), len(BEASTS), len(BEASTS), len(HAUNTS)))
 
 
 if __name__ == "__main__":

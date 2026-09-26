@@ -164,11 +164,34 @@ public class BeastEntity extends Monster {
      * <p>Inventing a spawn rule is how a mod ends up in somebody's lit base,
      * and there is no version of that which is a good surprise.
      */
+    /**
+     * Whether one of these may stand here.
+     *
+     * <p>The game's own monster rule, and then the beast's own haunt: the
+     * light it tolerates and the height it lives at. Both used to be nowhere
+     * — every beast spawned wherever a zombie would, so a bestiary of nine
+     * was nine things in one place, and a band written into a table was a
+     * band nothing read.
+     */
     public static boolean canSpawn(EntityType<? extends Monster> type,
                                    net.minecraft.world.level.ServerLevelAccessor level,
                                    net.minecraft.world.entity.MobSpawnType reason,
                                    net.minecraft.core.BlockPos pos,
                                    net.minecraft.util.RandomSource random) {
-        return Monster.checkMonsterSpawnRules(type, level, reason, pos, random);
+        if (!Monster.checkMonsterSpawnRules(type, level, reason, pos, random)) {
+            return false;
+        }
+        String id = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE
+                .getKey(type).getPath();
+        com.elysium.bestiary.rules.HauntRules.Haunt haunt =
+                com.elysium.bestiary.rules.HauntRules.haunt(id);
+        if (haunt == null) {
+            return true;
+        }
+        if (pos.getY() < haunt.lowest() || pos.getY() > haunt.highest()) {
+            return false;
+        }
+        int light = level.getMaxLocalRawBrightness(pos);
+        return light >= haunt.darkest() && light <= haunt.brightest();
     }
 }

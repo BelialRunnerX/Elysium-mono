@@ -31,6 +31,16 @@ public final class BeastHarness {
         }
     }
 
+    /** Whether building something refused to happen. */
+    private static boolean threwOn(Runnable building) {
+        try {
+            building.run();
+            return false;
+        } catch (RuntimeException wanted) {
+            return true;
+        }
+    }
+
     private static BeastRules.Reward earns(BeastRules.Beast beast) {
         return BeastRules.earned(beast);
     }
@@ -51,6 +61,7 @@ public final class BeastHarness {
         theScale();
         theBaseGame();
         theDark();
+        theHaunts();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -367,5 +378,171 @@ public final class BeastHarness {
         }
         System.out.println("  the dark: two million spawns drawn, every share within "
                 + "half a per cent of what was declared");
+    }
+
+    /**
+     * Where each beast is, and whether it can be there at all.
+     *
+     * <p>A mob with a spawn that cannot happen is the quietest bug a pack
+     * has: registered, rendered, loot table right, harness passing, and in
+     * four hundred hours nobody has seen it. Every band here is checked
+     * against a world that really exists, and every group against the floor
+     * it has to stand on.
+     */
+    private static void theHaunts() {
+        java.util.List<String> faults = HauntRules.faults();
+        check(faults.isEmpty(), "something wrong with the haunts: " + faults);
+
+        int placed = 0;
+        for (BeastRules.Beast beast : BeastRules.BEASTS) {
+            HauntRules.Haunt haunt = HauntRules.haunt(beast.id());
+            check(haunt != null, beast.id() + " is nowhere at all");
+            if (haunt == null) {
+                continue;
+            }
+            placed++;
+            // Every band is a band a world has, and every band is a band with
+            // something in it. Both, because an empty band and a band off the
+            // end of the world look identical from outside: nothing spawns.
+            check(haunt.lightBand() > 0 && haunt.heightBand() > 0,
+                    haunt.beast() + " has a band with nothing in it");
+            check(haunt.darkest() >= HauntRules.PITCH_DARK
+                            && haunt.brightest() <= HauntRules.FULL_LIGHT,
+                    haunt.beast() + " wants a light level the game does not have");
+            check(haunt.lowest() >= HauntRules.BEDROCK
+                            && haunt.highest() <= HauntRules.SKY,
+                    haunt.beast() + " wants a height the world does not have");
+            check(haunt.where().startsWith("#"),
+                    haunt.beast() + " is tied to one biome rather than a tag");
+            check(haunt.least() >= 1 && haunt.most() >= haunt.least(),
+                    haunt.beast() + " comes in a group that is not a group");
+            // And the group fits on the floor it is asked to stand on.
+            double room = haunt.most() * beast.width() * beast.width();
+            check(room <= HauntRules.ROOM_FOR_A_PACK,
+                    haunt.beast() + " wants " + room + " square blocks for a "
+                            + "full group and there are "
+                            + HauntRules.ROOM_FOR_A_PACK);
+        }
+        check(placed == BeastRules.BEASTS.size(),
+                "only " + placed + " of " + BeastRules.BEASTS.size()
+                        + " beast(s) are anywhere");
+
+        // Nothing is a weaker version of a fight already had.
+        check(HauntRules.faultsInDominance(BeastRules.BEASTS).isEmpty(),
+                "one beast is a strictly worse version of another: "
+                        + HauntRules.faultsInDominance(BeastRules.BEASTS));
+
+        // Controls, built to be caught, because over this roster every rule
+        // above can only ever answer no.
+        BeastRules.Beast first = BeastRules.BEASTS.get(0);
+        check(!HauntRules.faultsInCover(BeastRules.BEASTS,
+                        java.util.List.of()).isEmpty(),
+                "a roster where nothing is anywhere is not reported, so every "
+                        + "beast in the pack could be one nobody ever meets");
+        check(!HauntRules.faultsInCover(java.util.List.of(first),
+                        java.util.List.of(
+                                new HauntRules.Haunt(first.id(),
+                                        "#minecraft:is_overworld", 0, 7, 0, 64, 1, 2),
+                                new HauntRules.Haunt(first.id(),
+                                        "#minecraft:is_forest", 0, 7, 0, 64, 1, 2)))
+                        .isEmpty(),
+                "one beast in two places is not reported");
+        check(!HauntRules.faultsInCover(java.util.List.of(first),
+                        java.util.List.of(
+                                new HauntRules.Haunt(first.id(),
+                                        "#minecraft:is_overworld", 0, 7, 0, 64, 1, 2),
+                                new HauntRules.Haunt("not_a_beast",
+                                        "#minecraft:is_forest", 0, 7, 0, 64, 1, 2)))
+                        .isEmpty(),
+                "somewhere that is not a beast's is not reported");
+        check(HauntRules.faultsInCover(BeastRules.BEASTS, HauntRules.HAUNTS)
+                        .isEmpty(),
+                "the haunts this module ships are reported as faulty");
+
+        check(!HauntRules.faultsInBands(java.util.List.of(
+                        new HauntRules.Haunt("control", "#minecraft:is_overworld",
+                                7, 0, 0, 64, 1, 2))).isEmpty(),
+                "a light band with nothing in it is not reported, which is "
+                        + "the quietest bug a pack can have");
+        check(!HauntRules.faultsInBands(java.util.List.of(
+                        new HauntRules.Haunt("control", "#minecraft:is_overworld",
+                                0, 7, 400, 500, 1, 2))).isEmpty(),
+                "a height band above the sky is not reported");
+        // Separately from the one above, because a band with nothing in it and
+        // a band off the end of the world are two different mistakes and one
+        // guard answering for both is a guard that can be half deleted.
+        check(!HauntRules.faultsInBands(java.util.List.of(
+                        new HauntRules.Haunt("control", "#minecraft:is_overworld",
+                                0, 7, 64, 0, 1, 2))).isEmpty(),
+                "a height band with nothing in it — a floor above its own "
+                        + "ceiling, both inside the world — is not reported");
+        check(!HauntRules.faultsInBands(java.util.List.of(
+                        new HauntRules.Haunt("control", "#minecraft:is_overworld",
+                                0, 99, 0, 64, 1, 2))).isEmpty(),
+                "a light level the game does not have is not reported");
+        check(!HauntRules.faultsInBands(java.util.List.of(
+                        new HauntRules.Haunt("control", "minecraft:plains",
+                                0, 7, 0, 64, 1, 2))).isEmpty(),
+                "a beast tied to one biome rather than a tag is not reported");
+        check(HauntRules.faultsInBands(HauntRules.HAUNTS).isEmpty(),
+                "the bands this module ships are reported as faulty");
+
+        check(!HauntRules.faultsInRoom(BeastRules.BEASTS, java.util.List.of(
+                        new HauntRules.Haunt("siege_beast", "#minecraft:is_nether",
+                                0, 7, 0, 64, 1, 60))).isEmpty(),
+                "sixty siege beasts at a time are not reported, so a weight "
+                        + "could promise a rate the game cannot place");
+        check(HauntRules.faultsInRoom(BeastRules.BEASTS, HauntRules.HAUNTS)
+                        .isEmpty(),
+                "the groups this module ships are reported as too big");
+
+        check(!HauntRules.faultsInDominance(java.util.List.of(
+                        new BeastRules.Beast("control", BeastRules.PROWLER, 1,
+                                10.0D, 2.0D, 0.3D, 0.0D, 10, 0.6F, 1.0F),
+                        new BeastRules.Beast("control_two", BeastRules.PROWLER, 1,
+                                20.0D, 4.0D, 0.4D, 2.0D, 10, 0.6F, 1.0F)))
+                        .isEmpty(),
+                "a beast beaten on every axis by another of its own family and "
+                        + "tier is not reported");
+        check(HauntRules.faultsInDominance(java.util.List.of(
+                        new BeastRules.Beast("control", BeastRules.PROWLER, 1,
+                                10.0D, 6.0D, 0.3D, 0.0D, 10, 0.6F, 1.0F),
+                        new BeastRules.Beast("control_two", BeastRules.PROWLER, 1,
+                                20.0D, 4.0D, 0.4D, 2.0D, 10, 0.6F, 1.0F)))
+                        .isEmpty(),
+                "two beasts that each beat the other somewhere are reported as "
+                        + "one dominating the other");
+        check(HauntRules.faultsInDominance(java.util.List.of(
+                        new BeastRules.Beast("control", BeastRules.PROWLER, 1,
+                                10.0D, 2.0D, 0.3D, 0.0D, 10, 0.6F, 1.0F),
+                        new BeastRules.Beast("control_two", BeastRules.BRUTE, 1,
+                                20.0D, 4.0D, 0.4D, 2.0D, 10, 0.6F, 1.0F)))
+                        .isEmpty(),
+                "a prowler and a brute are reported as two strengths of one "
+                        + "idea, which is the rule that reports nine times and "
+                        + "gets switched off");
+
+        // And a haunt that is not a haunt cannot be built at all. These are
+        // the only three rules in the file that are enforced by refusing to
+        // exist rather than by being added to a list, so they are the only
+        // three that need a control that expects a throw.
+        check(threwOn(() -> new HauntRules.Haunt(null, "#minecraft:is_overworld",
+                        0, 7, 0, 64, 1, 2)),
+                "a haunt of nothing is accepted, so a row could name no beast "
+                        + "and every check downstream would look it up and "
+                        + "find nothing wrong");
+        check(threwOn(() -> new HauntRules.Haunt("control", "",
+                        0, 7, 0, 64, 1, 2)),
+                "a haunt nowhere is accepted, so a beast could be written as "
+                        + "living in the empty string and read as placed");
+        check(threwOn(() -> new HauntRules.Haunt("control", "#minecraft:is_overworld",
+                        0, 7, 0, 64, 0, 0)),
+                "a group of none is accepted as a group, so the game would "
+                        + "roll the beast and put nothing there");
+
+        System.out.println("  the haunts: " + placed + " beast(s), each in a "
+                + "place that exists, in a light band with something in it, at "
+                + "a height the world has, and in a group that fits on the "
+                + "floor it is asked to stand on");
     }
 }

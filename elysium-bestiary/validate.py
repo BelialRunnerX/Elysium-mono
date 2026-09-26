@@ -311,6 +311,15 @@ else:
     except SystemExit as stop:
         generator = None
         fail(f"the generator cannot read the Java any more: {stop}")
+    except Exception as broke:  # noqa: BLE001 - a crash here is a finding
+        # Not a bare traceback. The generator reads the rules at import, so a
+        # rule file that has been renamed or deleted used to end this whole
+        # validator in a stack trace with none of its findings printed —
+        # including the one that said which file was missing. A checker that
+        # dies instead of reporting is a checker that says nothing.
+        generator = None
+        fail(f"the generator stopped before it could be compared against the "
+             f"rules: {type(broke).__name__}: {broke}")
 
 said_earned = {}
 for line in harness_out.splitlines():
@@ -543,6 +552,66 @@ if beasts and said_earned:
             fail(f"{beast['id']}'s loot table hands out {expected} items on average "
                  f"and the bestiary is balanced on it leaving {wanted}, so the reward "
                  f"the harness proved rises with danger is not the reward a player gets")
+    # And what it hands out is a thing that exists.
+    #
+    # The sum above is blind to this: a loot table that drops six
+    # minecraft:iron_nuggett averages six items just as convincingly as one
+    # that drops six iron nuggets, and the second letter t is the whole bug.
+    # The symptom is a mob that kills you and leaves nothing, with every
+    # check in this file passing. So every name in every table is looked up
+    # in the game's own language file, which names every item and block the
+    # game ships, and in this pack's.
+    VANILLA_JAR = os.path.join(os.environ.get("ELYSIUM_MC_LIBS", "/tmp/mc"),
+                               "vanilla.jar")
+    dropped = set()
+    for beast in beasts:
+        table = read(RES, "data", NS, "loot_table/entities", beast["id"] + ".json")
+        if not table:
+            continue
+        for pool in json.loads(table).get("pools", []):
+            for entry in pool.get("entries", []):
+                if entry.get("type") == "minecraft:item" and entry.get("name"):
+                    dropped.add(entry["name"])
+    if not dropped:
+        fail("no loot table names a single item, so the nine of them hand out "
+             "nothing and the arithmetic above is balancing zero against zero")
+    elif not os.path.isfile(VANILLA_JAR):
+        print("what it drops      : the game's jar is not here, so the drops "
+              "were not looked up in it")
+    else:
+        import zipfile
+        with zipfile.ZipFile(VANILLA_JAR) as jar:
+            _lang = json.loads(jar.read("assets/minecraft/lang/en_us.json"))
+        THE_GAME_HAS = {"minecraft:" + key.split(".", 2)[2] for key in _lang
+                        if key.startswith(("item.minecraft.", "block.minecraft."))}
+        # The pack's own, taken from the language files the generators write,
+        # so a drop may be something this project makes as well.
+        THE_PACK_HAS = set()
+        for where, _, names in os.walk(ROOT):
+            if not where.replace(os.sep, "/").endswith("/lang"):
+                continue
+            for name in names:
+                if name != "en_us.json":
+                    continue
+                for key in json.loads(read(where, name)):
+                    parts = key.split(".", 2)
+                    if len(parts) == 3 and parts[0] in ("item", "block"):
+                        THE_PACK_HAS.add(parts[1] + ":" + parts[2])
+        if len(THE_GAME_HAS) < 2_000:
+            fail(f"only {len(THE_GAME_HAS)} name(s) could be read out of the "
+                 f"game's language file, so the check below is checking nothing")
+        else:
+            missing = sorted(one for one in dropped
+                             if one not in THE_GAME_HAS
+                             and one not in THE_PACK_HAS)
+            if missing:
+                fail(f"{len(missing)} thing(s) are dropped and neither the game "
+                     f"nor this pack makes them, so the mob that drops one "
+                     f"kills you and leaves nothing while every other check "
+                     f"here passes: " + ", ".join(missing))
+            print(f"what it drops      : {len(dropped)} distinct drop(s), every "
+                  f"one of them a thing the game or this pack really makes")
+
     print(f"what it leaves     : {len(beasts)} loot table(s) read back, and every one "
           f"hands out exactly what the bestiary says it does")
 
@@ -552,14 +621,20 @@ if beasts and said_earned:
 
 if beasts:
     seen = {}
+    tags_used = {}
     modifiers = os.path.join(RES, "data", NS, "neoforge/biome_modifier")
     for name in sorted(os.listdir(modifiers)) if os.path.isdir(modifiers) else []:
         rule = json.loads(read(modifiers, name))
         if rule.get("type") != "neoforge:add_spawns":
             continue
-        if rule.get("biomes") != "#minecraft:is_overworld":
-            fail(f"{name} puts beasts in {rule.get('biomes')}; a bestiary that only "
-                 f"appears in some biomes is a bestiary most players never meet")
+        # A beast may be somewhere in particular. That rule used to be that
+        # every one of them had to be in #minecraft:is_overworld, which was
+        # right while the whole roster was overworld-wide and is the wrong
+        # shape now: a roster where every mob is everywhere is nine strangers
+        # with no sense of place. What matters is the pair of claims below —
+        # every tag is one the game really has, and one beast of each family
+        # is somewhere a player certainly goes.
+        tags_used.setdefault(str(rule.get("biomes")), []).append(name)
         for spawner in rule.get("spawners", []):
             kind = spawner.get("type", "")
             if kind in seen:
@@ -582,6 +657,62 @@ if beasts:
                 fail(f"{beast['id']} spawns at weight {spawner.get('weight')} and its "
                      f"row says {beast['weight']}, so the share of the dark the harness "
                      f"proved is not the share a player meets")
+    # Every tag a beast is put in is a tag the game really ships. A tag
+    # nothing fills is a mob that never spawns, and from outside that looks
+    # exactly like a mob that spawns rarely — which is the quietest bug a
+    # pack can have and the one this whole section exists for.
+    GAME_JAR = os.path.join(os.environ.get("ELYSIUM_MC_LIBS", "/tmp/mc"),
+                            "vanilla.jar")
+    if not os.path.isfile(GAME_JAR):
+        print("what you meet      : the game's jar is not here, so the biome "
+              "tags were not checked against it")
+    else:
+        import zipfile
+        with zipfile.ZipFile(GAME_JAR) as jar:
+            THE_GAME_HAS = {one.split("/")[-1][:-5] for one in jar.namelist()
+                            if "/tags/worldgen/biome/" in one
+                            and one.endswith(".json")}
+        ours = set()
+        our_tags = os.path.join(RES, "data")
+        for dirpath, _, filenames in os.walk(our_tags):
+            if "tags/worldgen/biome" not in dirpath.replace(os.sep, "/"):
+                continue
+            for one in filenames:
+                if one.endswith(".json"):
+                    ours.add(one[:-5])
+        if len(THE_GAME_HAS) < 20:
+            fail(f"only {len(THE_GAME_HAS)} biome tag(s) could be read out of "
+                 f"the game's jar, so the check below is checking nothing")
+        else:
+            for tag, where in sorted(tags_used.items()):
+                if not tag.startswith("#"):
+                    fail(f"{where[0]} names the biome {tag} rather than a tag; "
+                         f"a mob tied to one biome vanishes the day somebody "
+                         f"adds a world preset")
+                    continue
+                plain = tag[1:].split(":", 1)[-1]
+                if plain not in THE_GAME_HAS and plain not in ours:
+                    fail(f"{where[0]} puts a beast in {tag} and neither the "
+                         f"game nor this pack has such a tag, so it never "
+                         f"spawns — which from outside looks exactly like a "
+                         f"mob that spawns rarely")
+
+    # And one of each family is somewhere a player certainly goes.
+    EVERYWHERE = "#minecraft:is_overworld"
+    for family in sorted({beast["family"] for beast in beasts}):
+        anywhere = False
+        for beast in beasts:
+            if beast["family"] != family:
+                continue
+            where = seen.get(f"{NS}:{beast['id']}")
+            if where and json.loads(read(modifiers, where)).get("biomes") \
+                    == EVERYWHERE:
+                anywhere = True
+        if not anywhere:
+            fail(f"nothing in the {family} family is in {EVERYWHERE}, so a "
+                 f"player who stays in the plains never meets one at all and "
+                 f"a third of the bestiary is a rumour")
+
     print(f"what you meet      : {len(seen)} beast(s) across "
           f"{len(os.listdir(modifiers)) if os.path.isdir(modifiers) else 0} spawn "
           f"rule(s), each named once, each at the weight its row declares")
@@ -740,6 +871,98 @@ print("in the world       : every beast, attribute, spawn rule, renderer and egg
 # ---------------------------------------------------------------------------
 
 print("-" * 70)
+# ---------------------------------------------------------------------------
+# Where each beast is, and whether the world really has such a place
+# ---------------------------------------------------------------------------
+
+HAUNT_RULES = strip_comments(read(SRC, "rules/HauntRules.java"), keep_strings=True)
+BEAST_ENTITY = strip_comments(read(SRC, "entity/BeastEntity.java"), keep_strings=True)
+if not HAUNT_RULES:
+    fail("nothing says where any beast is, so a mob whose spawn cannot happen "
+         "is registered, rendered, looted, harnessed and never met — which is "
+         "the quietest bug a pack can have")
+else:
+    haunts = re.findall(
+        r'new Haunt\("([a-z_]+)", "(#?[a-z_:]+)", (-?\w+), (-?\w+), (-?\w+), '
+        r'(-?\w+), (\d+), (\d+)\)', re.sub(r"\s+", " ", HAUNT_RULES))
+    if len(haunts) != len(beasts):
+        fail(f"there are {len(haunts)} haunt(s) for {len(beasts)} beast(s), so "
+             f"one of them is somewhere twice or nowhere at all")
+    for needed, why in (
+            ("public static List<String> faultsInBands(",
+             "nothing asks whether a beast's light and height bands are bands "
+             "a world really has"),
+            ("public static List<String> faultsInRoom(",
+             "nothing asks whether a group fits on the floor it is asked to "
+             "stand on, so a weight could promise a rate the game cannot "
+             "place"),
+            ("public static List<String> faultsInDominance(",
+             "nothing asks whether a beast is a strictly worse version of "
+             "another, so a player could meet a weaker copy of a fight they "
+             "have already had with a different model on it")):
+        if needed not in HAUNT_RULES:
+            fail(why)
+
+    # And every one of them is actually added up. A rule that is written,
+    # compiled, controlled by the harness and left out of the sum is the same
+    # failure as a validator section appended below its own summary: it runs
+    # in the controls, it never runs over the roster, and everything passes.
+    _sum = squashed(body_of(HAUNT_RULES, "public static List<String> faults()"))
+    _rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(",
+                            HAUNT_RULES))
+    if len(_rules) < 4:
+        fail(f"only {len(_rules)} haunt rule(s) are declared at all, so the "
+             f"check below is checking nothing")
+    # The whole statement, not the opening of one: a rule whose result is
+    # worked out and then dropped on the floor is exactly the bug this is
+    # looking for, and `bad.addAll(faultsInRoom(` would still be there.
+    _added = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _sum))
+    for _rule in sorted(_rules - _added):
+        fail(f"{_rule} is written, compiled and never added up by faults(), "
+             f"so it answers the harness's controls and is never once asked "
+             f"about the roster this pack ships")
+
+    # The bands have to reach the game. A band in a table that nothing reads
+    # is the same as no band at all, and looks the same from outside.
+    _spawn = squashed(body_of(BEAST_ENTITY, "public static boolean canSpawn("))
+    if "HauntRules.haunt(id);" not in _spawn:
+        fail("a beast spawns wherever a zombie would, so the light and height "
+             "bands are a table nothing reads and the whole bestiary is nine "
+             "things in one place")
+    if "if (pos.getY() < haunt.lowest() || pos.getY() > haunt.highest()) {" \
+            not in _spawn:
+        fail("the height band never reaches the game, so a beast written as "
+             "living deep is a beast that spawns on the surface")
+    if "return light >= haunt.darkest() && light <= haunt.brightest();" \
+            not in _spawn:
+        fail("the light band never reaches the game, so a beast written as "
+             "living in the pitch dark spawns in daylight")
+
+    # And what the world is written out as has to agree with the haunt.
+    for beast, where, darkest, brightest, lowest, highest, least, most in haunts:
+        path = os.path.join(RES, "data", NS, "neoforge/biome_modifier",
+                            f"add_{beast}_spawns.json")
+        if not os.path.isfile(path):
+            fail(f"{beast} has a haunt and no spawn rule in the world")
+            continue
+        rule = json.loads(read(path))
+        if rule.get("biomes") != where:
+            fail(f"{beast} haunts {where} and its spawn rule says "
+                 f"{rule.get('biomes')}, so where the harness proved it lives "
+                 f"is not where a player meets it")
+        for spawner in rule.get("spawners", []):
+            if spawner.get("minCount") != int(least) \
+                    or spawner.get("maxCount") != int(most):
+                fail(f"{beast} comes in groups of {least} to {most} and its "
+                     f"spawn rule says {spawner.get('minCount')} to "
+                     f"{spawner.get('maxCount')}")
+
+    print(f"where they are     : {len(haunts)} haunt(s), every biome tag one "
+          f"the game really ships, every light and height band one a world has "
+          f"and one the game is actually told about, and every group small "
+          f"enough to fit where it is asked to appear")
+
+
 # ---------------------------------------------------------------------------
 # The two entities the ability system cannot happen without
 # ---------------------------------------------------------------------------
