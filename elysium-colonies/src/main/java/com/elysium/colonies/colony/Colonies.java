@@ -20,6 +20,11 @@ import net.neoforged.neoforge.items.IItemHandler;
 import java.util.Map;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
+import com.minecolonies.api.colony.workorders.IServerWorkOrder;
+import com.minecolonies.api.util.CreativeBuildingStructureHandler;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.mojang.authlib.GameProfile;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.permissions.IPermissions;
 import com.minecolonies.api.colony.permissions.Rank;
@@ -919,5 +924,180 @@ public final class Colonies {
         return new Person(data.getId(), String.valueOf(data.getName()), job,
                 data.getHomeBuilding() != null, data.getWorkBuilding() != null,
                 data.isIdleAtJob(), data.getSaturation(), health, at, actions);
+    }
+
+    // --- towns that found themselves -------------------------------------
+    //
+    // Four more writes into the host, each the instruction a player gives:
+    // creating a colony (the town hall's build tool), completing a building
+    // whole (the build tool in creative), and handing a colony to a new owner
+    // (the town hall's own permissions screen). They exist for a settlement
+    // no player made, whose steward is a fake player with a name, and they
+    // are all here, in the seam, where the other writes are.
+
+    /** The id of MineColonies' town hall, as its building registry knows it. */
+    private static final String TOWN_HALL = "minecolonies:townhall";
+
+    /**
+     * One thing a town is waiting to have built.
+     *
+     * @param id          the work order's number
+     * @param blueprint   the blueprint it builds, relative to the pack
+     * @param where       the hut it belongs to
+     * @param targetLevel the level it builds to
+     * @param kind        build, upgrade, repair or remove
+     * @param claimed     whether a builder has taken it
+     */
+    public record Order(int id, String blueprint, BlockPos where, int targetLevel,
+                        String kind, boolean claimed) {
+    }
+
+    /** Whether the host would allow a colony here at all. */
+    public static boolean mayFoundAt(ServerLevel level, BlockPos where) {
+        try {
+            IColonyManager manager = IColonyManager.getInstance();
+            return manager.getColonyByPosFromWorld(level, where) == null
+                    && manager.isFarEnoughFromColonies(level, where);
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
+    /**
+     * Founds a colony with nobody at the keyboard.
+     *
+     * The owner is a fake player with the steward's name: MineColonies wants
+     * an owner, its permissions are keyed by one, and a real player's would
+     * make the town theirs. The town hall goes down the way {@link #found}
+     * puts down any hut, which is what registers the building.
+     *
+     * @return the new colony's id, or -1 when the host refused
+     */
+    public static int settle(ServerLevel level, BlockPos where, String name, String pack,
+                             UUID stewardId, String stewardName) {
+        IColonyManager manager = IColonyManager.getInstance();
+        if (manager.getColonyByPosFromWorld(level, where) != null) {
+            return -1;
+        }
+        IColony colony;
+        try {
+            Player steward = FakePlayerFactory.get(level, new GameProfile(stewardId, stewardName));
+            colony = manager.createColony(level, where, steward, name, pack);
+        } catch (Throwable refused) {
+            ElysiumColonies.LOGGER.warn("the host refused to found {} at {}: {}", name, where,
+                    refused.toString());
+            return -1;
+        }
+        if (colony == null) {
+            return -1;
+        }
+        BuildingEntry entry = IBuildingRegistry.getInstance()
+                .get(ResourceLocation.parse(TOWN_HALL));
+        AbstractColonyBlock<?> hut = entry == null ? null : entry.getBuildingBlock();
+        if (hut != null) {
+            net.minecraft.world.level.block.state.BlockState state =
+                    hut.defaultBlockState().setValue(AbstractColonyBlock.FACING,
+                            net.minecraft.core.Direction.NORTH);
+            if (level.setBlock(where, state, 3)) {
+                hut.setPlacedBy(level, where, state, null, ItemStack.EMPTY);
+                IBuilding hall = colony.getServerBuildingManager().getBuilding(where);
+                if (hall != null) {
+                    hall.setStructurePack(pack);
+                    String blueprint = blueprintFor(pack, entry);
+                    if (blueprint != null) {
+                        hall.setBlueprintPath(blueprint);
+                    }
+                    order(colony, hall, WorkOrderType.BUILD);
+                }
+            }
+        }
+        return colony.getID();
+    }
+
+    /** Everything a settlement is waiting to have built, oldest first. */
+    public static List<Order> orders(Level level, int colonyId) {
+        IColony colony = colonyIn(level, colonyId);
+        if (colony == null) {
+            return List.of();
+        }
+        List<Order> out = new ArrayList<>();
+        for (IServerWorkOrder order : colony.getWorkManager().getWorkOrders().values()) {
+            out.add(new Order(order.getID(), order.getStructurePath(), order.getLocation(),
+                    order.getTargetLevel(),
+                    order.getWorkOrderType().name().toLowerCase(java.util.Locale.ROOT),
+                    order.isClaimed()));
+        }
+        out.sort(java.util.Comparator.comparingInt(Order::id));
+        return out;
+    }
+
+    /**
+     * Completes a work order whole, as the build tool does in creative.
+     *
+     * For a town that founded itself: nobody restocks its warehouse, so a
+     * builder waiting for planks would wait forever. The blueprint is placed
+     * in one go, the building takes its level from what now stands, and the
+     * order is struck. Taking a building down is not done: a town may build
+     * its way up by itself and may never demolish by itself.
+     */
+    public static boolean finish(ServerLevel level, int colonyId, int orderId) {
+        IColony colony = colonyIn(level, colonyId);
+        if (colony == null) {
+            return false;
+        }
+        IServerWorkOrder order = colony.getWorkManager().getWorkOrders().get(orderId);
+        if (order == null || order.getWorkOrderType() == WorkOrderType.REMOVE) {
+            return false;
+        }
+        try {
+            UUID owner = colony.getPermissions().getOwner();
+            String ownerName = colony.getPermissions().getOwnerName();
+            net.minecraft.server.level.ServerPlayer hands = FakePlayerFactory.get(level,
+                    new GameProfile(owner, ownerName == null || ownerName.isEmpty()
+                            ? "steward" : ownerName));
+            java.util.concurrent.Future<Blueprint> future = StructurePacks.getBlueprintFuture(
+                    order.getStructurePack(), order.getStructurePath(), level.registryAccess());
+            Blueprint placed = CreativeBuildingStructureHandler.loadAndPlaceStructureWithRotation(
+                    level, future, order.getLocation(), order.getRotationMirror(), false, hands);
+            if (placed == null) {
+                return false;
+            }
+        } catch (Throwable refused) {
+            ElysiumColonies.LOGGER.warn("order {} of colony {} could not be completed: {}",
+                    orderId, colonyId, refused.toString());
+            return false;
+        }
+        IBuilding building = colony.getServerBuildingManager().getBuilding(order.getLocation());
+        if (building != null) {
+            building.upgradeBuildingLevelToSchematicData();
+        }
+        colony.getWorkManager().removeWorkOrder(orderId);
+        return true;
+    }
+
+    /**
+     * Hands a settlement to a player: the steward steps aside.
+     *
+     * The one place ownership changes hands, and only ever from a steward to
+     * a person. A player's town is never taken from them by this module.
+     */
+    public static boolean handOver(ServerLevel level, int colonyId, Player player) {
+        IColony colony = colonyIn(level, colonyId);
+        if (colony == null) {
+            return false;
+        }
+        UUID former = colony.getPermissions().getOwner();
+        if (!colony.getPermissions().setOwner(player)) {
+            return false;
+        }
+        if (former != null && !former.equals(player.getUUID())) {
+            colony.getPermissions().removePlayer(former);
+        }
+        return true;
+    }
+
+    /** The settlement with this id in this world, or null. */
+    public static Settlement byId(Level level, int colonyId) {
+        return read(colonyIn(level, colonyId));
     }
 }

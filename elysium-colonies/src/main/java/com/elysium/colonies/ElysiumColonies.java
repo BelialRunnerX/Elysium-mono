@@ -56,6 +56,8 @@ public class ElysiumColonies {
         // construction is a crash with a very confusing stack trace.
         com.elysium.colonies.registry.PortBlocks.BLOCKS.register(modEventBus);
         com.elysium.colonies.registry.PortBlocks.ITEMS.register(modEventBus);
+        // The survey stake the world places where a town will found itself.
+        com.elysium.colonies.registry.SettleBlocks.BLOCKS.register(modEventBus);
         // The one thing written into the host, and it is written into the
         // system the host built for it: a reason, beside its own housing and
         // food and security, in the screen a player is already reading.

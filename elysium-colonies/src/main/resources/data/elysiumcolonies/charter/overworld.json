@@ -22,5 +22,6 @@
   "hazard": 0.0,
   "air": "breathable",
   "reach": 0,
-  "style": ""
+  "style": "",
+  "settles": true
 }

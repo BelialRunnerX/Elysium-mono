@@ -4,5 +4,6 @@
   "hazard": 1.5,
   "air": "none",
   "reach": 3,
-  "style": "High Orbit"
+  "style": "High Orbit",
+  "settles": true
 }

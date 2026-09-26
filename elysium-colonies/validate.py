@@ -60,6 +60,18 @@ def read(*parts):
     return open(path, encoding="utf-8").read() if os.path.isfile(path) else ""
 
 
+def harness_trouble(output):
+    """The lines of a harness run that say what went wrong.
+
+    Copied from the other modules' validators. This one referred to it for as
+    long as the harness had never failed, and the day a rule finally broke the
+    harness the validator crashed on the name instead of reporting.
+    """
+    lines = [line for line in output.splitlines()
+             if line.strip().startswith("FAIL:") or "failure(s)" in line]
+    return chr(10).join(lines or output.strip().splitlines()[-12:])[:2000]
+
+
 def body_of(src, signature):
     start = src.find(signature)
     if start < 0:
@@ -145,14 +157,20 @@ print("one seam           : exactly one file knows MineColonies, and it hands ou
 ALLOWED_WRITES = ("addWorkOrder", "requestRepair", "overruleRequest",
                   "addNewBuilding", "setPlacedBy", "setBlock", "extractItem",
                   "injectModifier", "setStructurePack", "setBlueprintPath",
-                  "removeBlock", "addPlayer", "removePlayer")
+                  "removeBlock", "addPlayer", "removePlayer",
+                  # For a town that founded itself, the instructions a player
+                  # gives with the build tool and the town hall's permissions
+                  # screen: found a colony, complete a building whole as
+                  # creative does, strike its order, and hand the colony on.
+                  "createColony", "loadAndPlaceStructureWithRotation",
+                  "upgradeBuildingLevelToSchematicData", "removeWorkOrder", "setOwner")
 
 for path in java_files():
     src = strip_comments(read(path))
     rel = os.path.relpath(path, WORK)
     for writing in ("setCitizenCount", "setColony(", "getBuildingManager().set",
                     "getRaiderManager().set", "removeCitizen", "spawnRaider",
-                    "getEventManager().add", "setOwner(", "setJob(", "setHomeBuilding(",
+                    "getEventManager().add", "setJob(", "setHomeBuilding(",
                     "setSaturation(", "finishResearch(", "deleteColony",
                     "setBuildingLevel(", "destroy()", "deconstruct()"):
         if writing in src:
@@ -195,10 +213,19 @@ if "requestUpgrade" in strip_comments(read(SEAM)):
          "itself crashes the first time an upgrade is refused. File the work order "
          "instead")
 for path in java_files():
-    if "FakePlayer" in strip_comments(read(path)):
-        fail(f"{os.path.relpath(path, WORK)} conjures a fake player. Nothing this "
-             f"module does needs one any more, and a fake player in a colony is a "
-             f"thing other mods' event handlers then have to cope with")
+    _fp_src = strip_comments(read(path))
+    if "FakePlayer" in _fp_src:
+        # One fake player, the steward of a town that founded itself, and only
+        # where the host demands a Player: founding the colony and completing
+        # its orders. Anywhere else it is a thing other mods' handlers cope with.
+        _allowed_fp = (body_of(_fp_src, "public static int settle")
+                       + body_of(_fp_src, "public static boolean finish"))             if os.path.samefile(path, SEAM) else ""
+        _conjured = "FakePlayerFactory.get("
+        if _fp_src.count(_conjured) != _allowed_fp.count(_conjured) or not _allowed_fp                 or _fp_src.count(_conjured) == 0:
+            fail(f"{os.path.relpath(path, WORK)} conjures a fake player outside the "
+                 f"seam's settle and finish; the steward is the one fake player this "
+                 f"module needs, and a fake player in a colony is a thing other mods' "
+                 f"event handlers then have to cope with")
 
 print("three writes       : an order, a repair, a delivery - all through the seam, and "
       "nothing reaches past them")
@@ -524,11 +551,11 @@ print("the reckoning      : once a day, on the server, through the rules, and it
 
 _life = strip_comments(read(SRC, "event/ColonyLife.java"))
 for _waiting in ("getPlayerList().getPlayer(", "someoneOnline", "onBehalfOf"):
-    if _waiting in body_of(_life, "private static boolean found") \
+    if _waiting in body_of(_life, "public static boolean foundNear") \
             or _waiting in body_of(_life, "private static int raiseSomething"):
         fail(f"founding or raising a building waits on {_waiting}, so a town only "
              f"grows while somebody is logged in")
-_found = body_of(_life, "private static boolean found")
+_found = body_of(_life, "public static boolean foundNear")
 if "SiteRules." not in _found:
     fail("a town chooses where to build by arithmetic the harness does not see, so "
          "nothing stops it putting two buildings in one place")
@@ -871,6 +898,239 @@ print(f"the market         : {len(_fams) if os.path.isfile(_values_file) else 0}
       f"famil(ies) priced by where you are and what day it is")
 
 # ---------------------------------------------------------------------------
+# 9f. Towns that found themselves
+# ---------------------------------------------------------------------------
+#
+# Dylan: "There should be colonies that self found and start in the world."
+# The world places a survey stake at sites a structure set chooses; the stake
+# founds a real colony, owned by a named steward who is nobody, run by the
+# town; a director completes its orders whole and lays out the next building
+# on a cadence; a player may claim one. Every number is SettleRules', the
+# structure set reads them from there, and the seam's four new writes are each
+# confined to the one method that exists for it.
+NS = "elysiumcolonies"
+DATA = os.path.join(RES, "data", NS)
+ASSETS = os.path.join(RES, "assets", NS)
+_settle_rules = strip_comments(read(PURE, "SettleRules.java"))
+_settle_words = strip_comments(read(PURE, "SettleRules.java"), keep_strings=True)
+_lang_now = json.load(open(os.path.join(ASSETS, "lang/en_us.json"), encoding="utf-8"))     if os.path.isfile(os.path.join(ASSETS, "lang/en_us.json")) else {}
+json_files = {}
+for _d, _, _fs in os.walk(RES):
+    for _f in _fs:
+        if _f.endswith(".json"):
+            try:
+                json_files[os.path.normpath(os.path.join(_d, _f))] = json.load(
+                    open(os.path.join(_d, _f), encoding="utf-8"))
+            except ValueError:
+                pass
+
+
+def _json_at(*parts):
+    return json_files.get(os.path.normpath(os.path.join(*parts)))
+_seam_src = strip_comments(read(SEAM))
+_settlements = os.path.join(SRC, "settle/Settlements.java")
+_seed_block = os.path.join(SRC, "settle/SettlementSeedBlock.java")
+for _needed in (_settlements, _seed_block, os.path.join(SRC, "registry/SettleBlocks.java")):
+    if not os.path.isfile(_needed):
+        fail(f"{os.path.relpath(_needed, WORK)} is gone; towns no longer found themselves")
+
+
+def _int_rule(name):
+    m = re.search(r"public static final int " + name + r" = ([0-9_]+);", _settle_rules)
+    return int(m.group(1).replace("_", "")) if m else None
+
+
+_spacing, _separation, _salt = _int_rule("SPACING"), _int_rule("SEPARATION"), _int_rule("SALT")
+if None in (_spacing, _separation, _salt):
+    fail("SettleRules is missing SPACING, SEPARATION or SALT, so the structure set has "
+         "no rule to agree with")
+_set = _json_at(DATA, "worldgen/structure_set/settlements.json")
+_structure = _json_at(DATA, "worldgen/structure/settlement.json")
+_pool = _json_at(DATA, "worldgen/template_pool/settlement/seed.json")
+_tag = _json_at(DATA, "tags/worldgen/biome/settles_in.json")
+if not _set or not _structure or not _pool or not _tag:
+    fail("the settlement's structure, structure set, template pool or biome tag is not "
+         "shipped, so no stake is ever placed")
+else:
+    _placement = _set.get("placement", {})
+    if (_placement.get("spacing"), _placement.get("separation"), _placement.get("salt")) \
+            != (_spacing, _separation, _salt):
+        fail(f"the structure set places sites at spacing {_placement.get('spacing')}, "
+             f"separation {_placement.get('separation')}, salt {_placement.get('salt')}; "
+             f"SettleRules says {_spacing}, {_separation}, {_salt}, and the harness proved "
+             f"the rule, not the file")
+    if _placement.get("exclusion_zone", {}).get("other_set") != "minecraft:villages":
+        fail("a settlement may be placed on top of a village")
+    if _structure.get("start_pool") != f"{NS}:settlement/seed" or _structure.get("size") != 1:
+        fail("the settlement structure is not the one-piece jigsaw that places a stake")
+    if _structure.get("biomes") != f"#{NS}:settles_in":
+        fail("the settlement structure does not read the settles_in tag, so which worlds "
+             "settle is decided somewhere other than the charters")
+    _elements = [e.get("element", {}).get("location") for e in _pool.get("elements", [])]
+    if _elements != [f"{NS}:settlement_seed"]:
+        fail(f"the seed pool places {_elements} rather than the one stake template")
+    _nbt_path = os.path.join(DATA, "structure/settlement_seed.nbt")
+    if not os.path.isfile(_nbt_path):
+        fail("the stake template settlement_seed.nbt is not shipped")
+    else:
+        sys.path.insert(0, os.path.join(WORK, "tools"))
+        import nbt as _nbt_reader
+        _loaded = _nbt_reader.load(_nbt_path)
+        _root = _loaded[1] if isinstance(_loaded, tuple) else _loaded
+        _names = [getattr(v, "value", v) for v in _nbt_reader.strings(_root)]
+        _names = [str(v) for v in _names]
+        if f"{NS}:settlement_seed" not in _names:
+            fail("the stake template does not contain the survey stake block")
+    # Which worlds settle is the charters' decision, and the tag must agree.
+    _settling = [c["dimension"] for c in _charters.values() if c.get("settles")]
+    if "minecraft:overworld" not in _settling or "elysiumspace:emerald_bastion" not in _settling:
+        fail("the Overworld or the Emerald Bastion does not settle; the worlds people live "
+             "on are the worlds towns found themselves on")
+    for _no in ("minecraft:the_nether", "minecraft:the_end"):
+        if _no in _settling:
+            fail(f"{_no} settles; nobody founds a town there")
+    _values = _tag.get("values", [])
+    if len(_values) < 100:
+        fail(f"the settles_in tag lists {len(_values)} biome(s); the overlay alone has 140 "
+             f"surface biomes, so most of the world cannot be settled")
+    if any(v.startswith("elysiumwilds:vale_") for v in _values):
+        fail("the settles_in tag reaches into the Vale, whose charter does not settle")
+    if not any(v.startswith("elysiumspace:emerald_bastion") for v in _values):
+        fail("no Bastion biome is in settles_in, so the one world built to be settled is not")
+    for _v in _values:
+        if re.search(r"cavern|grotto|well$|vault$|hollow$|_caves$|space$|orbit", _v.split(":")[-1]):
+            fail(f"{_v} is in settles_in: a town cannot stand in a cave or in orbit")
+
+# The stake: registered, ticking at random, and founding through Settlements.
+_seed_src = strip_comments(read(_seed_block))
+if "randomTicks()" not in _seed_src or "randomTick(" not in _seed_src:
+    fail("the survey stake does not tick at random, so it never founds anything")
+if "Settlements.found(level, pos)" not in _seed_src:
+    fail("the stake's tick does not found the settlement")
+if "BlockEntity" in _seed_src:
+    fail("the stake is a block entity, ticking every tick in every loaded chunk for a thing "
+         "that acts once")
+_blocks_src = strip_comments(read(SRC, "registry/SettleBlocks.java"), keep_strings=True)
+if 'BLOCKS.register(\n            "settlement_seed"' not in _blocks_src \
+        and 'BLOCKS.register("settlement_seed"' not in _blocks_src:
+    fail("settlement_seed is not registered")
+if "SettleBlocks.BLOCKS.register(modEventBus)" not in strip_comments(read(SRC, "ElysiumColonies.java"), keep_strings=True):
+    fail("SettleBlocks is never registered on the mod bus, so the stake block does not exist")
+if "ITEMS" in _blocks_src:
+    fail("the survey stake has an item; a player cannot place a town's promise")
+for _asset in ("blockstates/settlement_seed.json", "models/block/settlement_seed.json",
+               "textures/block/settlement_seed.png"):
+    if not os.path.isfile(os.path.join(ASSETS, _asset)):
+        fail(f"the stake has no {_asset}")
+_seed_model = _json_at(ASSETS, "models/block/settlement_seed.json") or {}
+if _seed_model.get("render_type") != "minecraft:cutout":
+    fail("the stake's model reads transparent pixels and names no render layer")
+
+# Founding: the world's refusals, in Settlements, and the seam's fake owner.
+_found = body_of(strip_comments(read(_settlements)), "public static boolean found")
+for _guard, _why in (("charter.settles()", "a world whose charter does not settle gets towns"),
+                     ("farEnoughFromSpawn", "a town may found itself on the world spawn"),
+                     ("getFluidState", "a town may found itself on water"),
+                     ("levelEnough", "a town may found itself on a cliff"),
+                     ("Colonies.mayFoundAt", "the host's own distance between colonies is not asked"),
+                     ("SettleRules.name(", "the town is not named by the rule the harness proves"),
+                     ("Steward.TOWN", "a self-founded town waits for an owner who does not exist"),
+                     ("Origin.settled(", "a self-founded town is not remembered as one"),
+                     ("firstWants()", "a self-founded town starts as a stake with a roof")):
+    if _guard not in _found:
+        fail(f"Settlements.found lacks {_guard}: {_why}")
+_settle = body_of(_seam_src, "public static int settle")
+if "Player steward = FakePlayerFactory.get(level, new GameProfile(stewardId, stewardName));" \
+        not in _settle \
+        or "colony = manager.createColony(level, where, steward, name, pack);" not in _settle:
+    fail("the seam does not found a colony for a fake steward")
+if "setPlacedBy(" not in _settle or "order(colony, hall, WorkOrderType.BUILD)" not in _settle:
+    fail("the seam founds a colony without a town hall to build")
+for _write, _method in (("createColony(", "public static int settle"),
+                        ("loadAndPlaceStructureWithRotation(", "public static boolean finish"),
+                        ("upgradeBuildingLevelToSchematicData(", "public static boolean finish"),
+                        ("removeWorkOrder(", "public static boolean finish"),
+                        ("setOwner(", "public static boolean handOver")):
+    _in = body_of(_seam_src, _method)
+    if _write not in _in:
+        fail(f"{_method} does not {_write}")
+    if _seam_src.count(_write) != 1:
+        fail(f"{_write} appears {_seam_src.count(_write)} time(s) in the seam; it belongs to "
+             f"{_method} alone")
+    for path in java_files():
+        if not os.path.samefile(path, SEAM) and _write in strip_comments(read(path)):
+            fail(f"{os.path.relpath(path, WORK)} calls {_write} itself; every write goes "
+                 f"through the seam")
+_finish = body_of(_seam_src, "public static boolean finish")
+if "WorkOrderType.REMOVE" not in _finish:
+    fail("a self-founded town may demolish a building by itself")
+# The director: natural towns only, on the rule's schedule.
+_direct = body_of(strip_comments(read(_settlements)), "public static void direct")
+if "origin.natural()" not in _direct or "return" not in _direct.split("natural()")[1][:40]:
+    fail("the director runs for towns a player made")
+if "if (!SettleRules.finished(town.day(), origin.lastFinished(), order.targetLevel())) {" \
+        not in _direct \
+        or "if (waiting.isEmpty() && SettleRules.mayFound(town.day(), origin.lastFinished())) {" \
+        not in _direct:
+    fail("the director completes or founds on a schedule other than SettleRules'")
+if "Settlements.direct(level, town)" not in strip_comments(read(SRC, "event/ColonyLife.java")):
+    fail("the daily pass never calls the director, so a self-founded town never builds")
+# Claiming: only a natural town, and it stops being one.
+_claim = body_of(strip_comments(read(_settlements)), "public static boolean claim")
+if "origin.natural()" not in _claim or "origin.claimed()" not in _claim \
+        or "if (!Colonies.handOver(level, town.id(), player)) {" not in _claim:
+    fail("claiming does not hand a natural town over and mark it a player's")
+_command = strip_comments(read(SRC, "command/ColonyCommand.java"), keep_strings=True)
+for _word in ('literal("claim")', 'literal("natural")'):
+    if _word not in _command:
+        fail(f"the colony command has no {_word}")
+# Names: the plain and the styled, and every shipped style has its own naming.
+for _style in sorted(os.listdir(os.path.join(RES, "blueprints", NS))):
+    if os.path.isdir(os.path.join(RES, "blueprints", NS, _style)) \
+            and _settle_words.count(f'"{_style}"') < 2:
+        fail(f"the {_style} pack has no naming of its own in SettleRules, so its towns are "
+             f"named like an English village")
+for _key in ("block.elysiumcolonies.settlement_seed", "elysium.colony.claimed",
+             "elysium.colony.claim.none", "elysium.colony.natural.header",
+             "elysium.colony.natural.entry", "elysium.colony.natural.none"):
+    if _key not in _lang_now:
+        fail(f"{_key} has no words")
+if "SettleRules." not in strip_comments(read(HARNESS)):
+    fail("the harness never runs SettleRules")
+# The shipped files are what the generator writes.
+_gen_settle = os.path.join(WORK, "tools/gen_settlements.py")
+if not os.path.isfile(_gen_settle):
+    fail("tools/gen_settlements.py is gone, so the settlement's files are kept by hand")
+else:
+    with tempfile.TemporaryDirectory() as _tmp:
+        _made = subprocess.run([sys.executable, _gen_settle], capture_output=True, text=True,
+                               env=dict(os.environ, ELYSIUM_SETTLE_OUT=_tmp), cwd=WORK)
+        if _made.returncode != 0:
+            fail("tools/gen_settlements.py will not run:\n" + (_made.stdout + _made.stderr)[-800:])
+        else:
+            _fresh = os.path.join(_tmp, "src/main/resources")
+            _drift = []
+            for _d, _, _fs in os.walk(_fresh):
+                for _f in _fs:
+                    _new = os.path.join(_d, _f)
+                    _old = os.path.join(RES, os.path.relpath(_new, _fresh))
+                    if not os.path.isfile(_old):
+                        _drift.append(os.path.relpath(_new, _fresh) + " (missing)")
+                    elif _f.endswith(".png"):
+                        from PIL import Image as _Img
+                        if _Img.open(_new).convert("RGBA").tobytes() \
+                                != _Img.open(_old).convert("RGBA").tobytes():
+                            _drift.append(os.path.relpath(_new, _fresh))
+                    elif open(_new, "rb").read() != open(_old, "rb").read():
+                        _drift.append(os.path.relpath(_new, _fresh))
+            if _drift:
+                fail(f"{len(_drift)} settlement file(s) differ from what tools/gen_settlements.py "
+                     f"writes: " + ", ".join(sorted(_drift)[:6]))
+print(f"settlements        : towns found themselves on {len(_settling) if _set else 0} world(s), "
+      f"one site per {_spacing} chunks, in {len(_values) if _tag else 0} biome(s); a steward who is "
+      f"nobody, a director that builds whole, and a claim that hands it on")
+
+# ---------------------------------------------------------------------------
 # 10. Whose map it is
 # ---------------------------------------------------------------------------
 #
@@ -895,7 +1155,7 @@ if "seenOn(" not in _reckon2:
 # The gate is on founding and on nothing else. Raising, repairing and trading
 # change what is already standing where its owner put it.
 _found_call = _reckon2[_reckon2.find("townDecides"):]
-if "founded = found(" not in _found_call:
+if "founded = foundNear(" not in _found_call:
     fail("the stewardship gate does not guard founding, which is the one thing it "
          "exists to guard")
 for _unguarded, _what in (("raiseSomething(", "raising"), ("caretake(", "repairing"),

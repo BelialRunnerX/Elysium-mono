@@ -10,5 +10,6 @@
   "hazard": 0.0,
   "air": "breathable",
   "reach": 1,
-  "style": ""
+  "style": "",
+  "settles": false
 }

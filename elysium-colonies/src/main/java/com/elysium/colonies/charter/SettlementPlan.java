@@ -59,6 +59,17 @@ public record SettlementPlan(List<SettlementPlan.Want> wants) {
      * @param has      answers whether the town already has a building
      * @return the building id, or null when the town wants nothing yet
      */
+    /** What a town wants before it has anybody: the buildings listed from zero. */
+    public java.util.List<String> firstWants() {
+        java.util.List<String> first = new java.util.ArrayList<>();
+        for (Want want : wants) {
+            if (want.from() == 0) {
+                first.add(want.building());
+            }
+        }
+        return first;
+    }
+
     public String next(int citizens, java.util.function.Predicate<String> has) {
         for (Want want : wants) {
             if (citizens < want.from()) {

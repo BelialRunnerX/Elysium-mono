@@ -100,8 +100,19 @@ What it theoretically needs:
    the growth plan, and corridors are sealed on airless worlds (a harness over the
    blueprint voxels).
 
-Open decisions: how fast colonies grow; whether players can take over an NPC
-colony (and how); raider behaviour against NPC colonies.
+**Built, 26 September 2026 (items 1 and 2, the inhabited half):** a structure set
+(`SettleRules`: one site per 40 chunks, never within 16, none within 24 of spawn,
+never on a village) places a survey stake in every biome of every world whose
+charter `settles` (the Overworld and the five Elysium worlds). The stake's first
+random tick founds a real colony owned by a named steward who is a fake player,
+sets the town to decide for itself, and lays out the plan's first buildings; the
+director completes an order whole after `buildDays(level)` days and lays out the
+next building every two days. `/elysium colony natural` lists them, `/elysium
+colony claim` hands one to the player standing in it. Not built: abandoned ruins,
+corridors, Elysium jobs as buildings.
+
+Open decisions: raider behaviour against NPC colonies; whether a claimed town
+should cost anything.
 
 ## 4. Curios inside the Elysium jar
 

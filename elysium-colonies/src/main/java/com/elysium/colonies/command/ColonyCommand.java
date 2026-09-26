@@ -79,6 +79,10 @@ public final class ColonyCommand {
                         .executes(context -> market(context.getSource())))
                 .then(Commands.literal("sell")
                         .executes(context -> sell(context.getSource())))
+                .then(Commands.literal("claim")
+                        .executes(context -> claim(context.getSource())))
+                .then(Commands.literal("natural")
+                        .executes(context -> natural(context.getSource())))
                 .then(steward));
     }
 
@@ -89,6 +93,53 @@ public final class ColonyCommand {
      * a decision about somebody's own settlement, and reaching across the map
      * to change who runs a colony is not something a command should make easy.
      */
+    /** A player takes the self-founded town they are standing in. */
+    private static int claim(CommandSourceStack source) {
+        ServerPlayer player = source.getPlayer();
+        if (player == null) {
+            source.sendFailure(Component.translatable("elysium.colony.nobody"));
+            return 0;
+        }
+        Colonies.Settlement town = Colonies.around(player);
+        if (town == null || !com.elysium.colonies.settle.Settlements.claim(
+                player.serverLevel(), player, town)) {
+            source.sendSuccess(() -> Component.translatable("elysium.colony.claim.none")
+                    .withStyle(ChatFormatting.GRAY), false);
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable("elysium.colony.claimed", town.name())
+                .withStyle(ChatFormatting.GOLD), true);
+        return 1;
+    }
+
+    /** Every town in this world that founded itself, nearest first. */
+    private static int natural(CommandSourceStack source) {
+        ServerPlayer player = source.getPlayer();
+        if (player == null) {
+            source.sendFailure(Component.translatable("elysium.colony.nobody"));
+            return 0;
+        }
+        List<Colonies.Settlement> towns = com.elysium.colonies.settle.Settlements.natural(
+                player.serverLevel());
+        if (towns.isEmpty()) {
+            source.sendSuccess(() -> Component.translatable("elysium.colony.natural.none")
+                    .withStyle(ChatFormatting.GRAY), false);
+            return 0;
+        }
+        towns.sort((one, two) -> Double.compare(one.centre().distSqr(player.blockPosition()),
+                two.centre().distSqr(player.blockPosition())));
+        source.sendSuccess(() -> Component.translatable("elysium.colony.natural.header",
+                towns.size()).withStyle(ChatFormatting.GOLD), false);
+        for (Colonies.Settlement town : towns) {
+            int away = (int) Math.sqrt(town.centre().distSqr(player.blockPosition()));
+            source.sendSuccess(() -> Component.translatable("elysium.colony.natural.entry",
+                            town.name(), town.centre().getX(), town.centre().getZ(), away,
+                            town.citizens())
+                    .withStyle(ChatFormatting.AQUA), false);
+        }
+        return towns.size();
+    }
+
     private static int hand(CommandSourceStack source, StewardRules.Steward who) {
         ServerPlayer player = source.getPlayer();
         if (player == null) {

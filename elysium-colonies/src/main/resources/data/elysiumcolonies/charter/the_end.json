@@ -8,5 +8,6 @@
   "hazard": 0.0,
   "air": "breathable",
   "reach": 2,
-  "style": ""
+  "style": "",
+  "settles": false
 }

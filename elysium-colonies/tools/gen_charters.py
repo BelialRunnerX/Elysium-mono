@@ -210,6 +210,10 @@ def main():
             "air": air,
             "reach": facts["reach"],
             "style": facts.get("style", ""),
+            # Towns found themselves on every world with a charter of its
+            # own except the two vanilla ones nobody lives on: the Nether
+            # burns and the End is an island.
+            "settles": dimension not in ("minecraft:the_nether", "minecraft:the_end"),
         })
         written += 1
     write(os.path.join(DATA, "charter_needs/settlement_needs.json"), {"needs": NEEDS})

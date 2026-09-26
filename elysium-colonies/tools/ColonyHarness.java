@@ -73,6 +73,49 @@ public final class ColonyHarness {
     }
 
     private static void progress() {
+        // --- towns that found themselves: siting, cadence and names -------
+        check(SettleRules.SPACING > SettleRules.SEPARATION && SettleRules.SEPARATION > 0,
+                "a structure set with separation at or above spacing places nothing");
+        check(SettleRules.FROM_SPAWN > 0, "towns may found themselves on the world spawn");
+        check(SettleRules.farEnoughFromSpawn(SettleRules.FROM_SPAWN, 0)
+                && !SettleRules.farEnoughFromSpawn(SettleRules.FROM_SPAWN - 1, 0)
+                && SettleRules.farEnoughFromSpawn(0, -SettleRules.FROM_SPAWN),
+                "the distance from spawn is not a square of FROM_SPAWN chunks");
+        check(SettleRules.buildDays(0) == 1 && SettleRules.buildDays(1) == 1,
+                "a first building takes other than a day");
+        for (int level = 1; level < 6; level++) {
+            check(SettleRules.buildDays(level + 1) >= SettleRules.buildDays(level),
+                    "a taller building went up faster at level " + level);
+        }
+        check(!SettleRules.finished(0, 0, 1) && SettleRules.finished(1, 0, 1)
+                && !SettleRules.finished(2, 0, 3) && SettleRules.finished(3, 0, 3),
+                "an order finishes on the wrong day");
+        check(!SettleRules.mayFound(1, 0) && SettleRules.mayFound(SettleRules.FOUND_EVERY, 0)
+                && SettleRules.mayFound(0, -1000),
+                "the founding cadence is not FOUND_EVERY days");
+        String[] styles = {null, "Bastion", "Pale Reach", "Cinderhold", "Frostfall", "High Orbit"};
+        for (String style : styles) {
+            java.util.Set<String> seen = new java.util.HashSet<>();
+            for (long seed = 0; seed < 10_000; seed++) {
+                String name = SettleRules.name(seed, style);
+                check(!name.isEmpty() && name.length() <= SettleRules.NAME_LIMIT,
+                        "a town name is empty or over the host's limit: " + name);
+                check(name.equals(SettleRules.name(seed, style)),
+                        "the same seed named a town twice differently");
+                seen.add(name);
+            }
+            check(seen.size() >= Math.min(100, SettleRules.namesIn(style)),
+                    "too few distinct names for style " + style + ": " + seen.size());
+            check(style == null || SettleRules.hasNaming(style),
+                    "a styled world has no naming of its own: " + style);
+        }
+        check(!SettleRules.hasNaming("Medieval Oak") && !SettleRules.name(7L, null).contains(" "),
+                "the plain world's names are not run together");
+        check(SettleRules.name(7L, "Bastion").contains(" "),
+                "a styled world's name is not two words");
+        check(SettleRules.mix(1L) != SettleRules.mix(2L) && SettleRules.mix(0L) == SettleRules.mix(0L),
+                "the mixer does not mix");
+
         check(ColonyRules.worldFloor(0) == 0, "a colony nobody lives in was worth a tier");
         check(ColonyRules.worldFloor(-10) == 0, "a negative citizen count was worth a tier");
         check(ColonyRules.worldFloor(ColonyRules.CITIZENS_PER_TIER) == 1,

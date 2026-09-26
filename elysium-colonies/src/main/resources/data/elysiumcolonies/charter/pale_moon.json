@@ -10,5 +10,6 @@
   "hazard": 1.6,
   "air": "none",
   "reach": 2,
-  "style": "Pale Reach"
+  "style": "Pale Reach",
+  "settles": true
 }

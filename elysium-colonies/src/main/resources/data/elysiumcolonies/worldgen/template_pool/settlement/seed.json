@@ -1,0 +1,15 @@
+{
+  "name": "elysiumcolonies:settlement/seed",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "elysiumcolonies:settlement_seed",
+        "processors": "minecraft:empty",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

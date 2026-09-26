@@ -34,7 +34,8 @@ import java.util.Set;
  * </ul>
  */
 public record Charter(ResourceLocation dimension, List<String> natives,
-                      float hazard, Air air, int reach, String style) {
+                      float hazard, Air air, int reach, String style,
+                      boolean settles) {
 
     /** What there is to breathe. */
     public enum Air {
@@ -81,7 +82,12 @@ public record Charter(ResourceLocation dimension, List<String> natives,
                     Codec.INT.optionalFieldOf("reach", 0)
                             .forGetter(Charter::reach),
                     Codec.STRING.optionalFieldOf("style", "")
-                            .forGetter(Charter::style)
+                            .forGetter(Charter::style),
+                    // Whether towns found themselves here. Off for a world
+                    // whose file does not say: settling somebody's world
+                    // uninvited is the wrong default.
+                    Codec.BOOL.optionalFieldOf("settles", false)
+                            .forGetter(Charter::settles)
             ).apply(instance, Charter::new));
 
     /**
@@ -93,7 +99,7 @@ public record Charter(ResourceLocation dimension, List<String> natives,
      * it did before this module existed.
      */
     public static Charter unwritten(ResourceLocation dimension) {
-        return new Charter(dimension, List.of(), 0.0F, Air.BREATHABLE, 0, "");
+        return new Charter(dimension, List.of(), 0.0F, Air.BREATHABLE, 0, "", false);
     }
 
     /** Whether this world has a style of its own to build in. */

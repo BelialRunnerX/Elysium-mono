@@ -13,5 +13,6 @@
   "hazard": 0,
   "air": "breathable",
   "reach": 6,
-  "style": "Bastion"
+  "style": "Bastion",
+  "settles": true
 }

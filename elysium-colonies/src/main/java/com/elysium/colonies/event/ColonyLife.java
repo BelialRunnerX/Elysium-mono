@@ -234,7 +234,7 @@ public final class ColonyLife {
 
         if (GrowthRules.patient(town.day(), ledger.lastUpgrade())) {
             if (townDecides && wanted != null && GrowthRules.affords(banked, 1)) {
-                founded = found(level, town, wanted);
+                founded = foundNear(level, town, wanted);
             }
             if (!founded) {
                 // Raising and repairing are not placement: they change what is
@@ -263,6 +263,10 @@ public final class ColonyLife {
         }
 
         caretake(level, town, built);
+        // A town that founded itself has nobody to build for it or restock
+        // it, so its director completes what is due and lays out the next
+        // thing on a cadence. Nothing for a town a player made.
+        com.elysium.colonies.settle.Settlements.direct(level, town);
 
         memory.record(town.id(), ledger.after(banked, town.day(), lastUpgrade, worst));
         // Both ways of getting supplies are conspicuous, and a settlement with
@@ -283,8 +287,8 @@ public final class ColonyLife {
      * If nothing in eight rings qualifies the town simply does not build
      * today, which is the right answer for a settlement wedged into a ravine.
      */
-    private static boolean found(ServerLevel level, Colonies.Settlement town,
-                                 String kind) {
+    public static boolean foundNear(ServerLevel level, Colonies.Settlement town,
+                                    String kind) {
         BlockPos hall = town.centre();
         for (int ring = 0; ring <= SiteRules.RINGS; ring++) {
             for (int index = 0; index < SiteRules.squaresIn(ring); index++) {

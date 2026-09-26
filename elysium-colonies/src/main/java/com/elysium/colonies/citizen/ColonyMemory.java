@@ -204,13 +204,51 @@ public final class ColonyMemory extends SavedData {
         }
     }
 
+    /**
+     * Where a town came from, when it founded itself.
+     *
+     * @param natural      whether the world founded it rather than a player
+     * @param stewardName  the name its steward was given, for the record
+     * @param lastFinished the colony day its last order was completed on
+     */
+    public record Origin(boolean natural, String stewardName, int lastFinished) {
+
+        public static final Origin PLAYER_MADE = new Origin(false, "", -1000);
+
+        public static final Codec<Origin> CODEC = RecordCodecBuilder.create(instance ->
+                instance.group(
+                        Codec.BOOL.optionalFieldOf("natural", false)
+                                .forGetter(Origin::natural),
+                        Codec.STRING.optionalFieldOf("steward_name", "")
+                                .forGetter(Origin::stewardName),
+                        Codec.INT.optionalFieldOf("last_finished", -1000)
+                                .forGetter(Origin::lastFinished)
+                ).apply(instance, Origin::new));
+
+        public static Origin settled(String stewardName, int day) {
+            return new Origin(true, stewardName, day);
+        }
+
+        public Origin finishedOn(int day) {
+            return new Origin(natural, stewardName, day);
+        }
+
+        /** The town a player took over is theirs from then on. */
+        public Origin claimed() {
+            return new Origin(false, stewardName, lastFinished);
+        }
+    }
+
     private static final Codec<Map<String, Life>> LIVES =
             Codec.unboundedMap(Codec.STRING, Life.CODEC);
+    private static final Codec<Map<String, Origin>> ORIGINS =
+            Codec.unboundedMap(Codec.STRING, Origin.CODEC);
     private static final Codec<Map<String, Ledger>> LEDGERS =
             Codec.unboundedMap(Codec.STRING, Ledger.CODEC);
 
     private final Map<String, Life> lives = new HashMap<>();
     private final Map<String, Ledger> ledgers = new HashMap<>();
+    private final Map<String, Origin> origins = new HashMap<>();
 
     public static SavedData.Factory<ColonyMemory> factory() {
         return new SavedData.Factory<>(ColonyMemory::new, ColonyMemory::load,
@@ -246,6 +284,20 @@ public final class ColonyMemory extends SavedData {
     }
 
     /** Forgets a person who no longer exists, so the file does not grow forever. */
+    public Origin originOf(int colony) {
+        return origins.getOrDefault(String.valueOf(colony), Origin.PLAYER_MADE);
+    }
+
+    public void record(int colony, Origin origin) {
+        origins.put(String.valueOf(colony), origin);
+        setDirty();
+    }
+
+    /** How many towns in this world founded themselves. */
+    public int naturalCount() {
+        return (int) origins.values().stream().filter(Origin::natural).count();
+    }
+
     public void forget(int colony, int citizen) {
         if (lives.remove(key(colony, citizen)) != null) {
             setDirty();
@@ -269,6 +321,10 @@ public final class ColonyMemory extends SavedData {
                 .resultOrPartial(problem -> ElysiumColonies.LOGGER.error(
                         "colony ledgers are unreadable: {}", problem))
                 .ifPresent(memory.ledgers::putAll);
+        ORIGINS.parse(net.minecraft.nbt.NbtOps.INSTANCE, tag.get("origins"))
+                .resultOrPartial(problem -> ElysiumColonies.LOGGER.error(
+                        "colony origins are unreadable: {}", problem))
+                .ifPresent(memory.origins::putAll);
         return memory;
     }
 
@@ -280,6 +336,9 @@ public final class ColonyMemory extends SavedData {
         LEDGERS.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, ledgers)
                 .result().ifPresent(written ->
                         tag.put("ledgers", (net.minecraft.nbt.Tag) written));
+        ORIGINS.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, origins)
+                .result().ifPresent(written ->
+                        tag.put("origins", (net.minecraft.nbt.Tag) written));
         return tag;
     }
 }

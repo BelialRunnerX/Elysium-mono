@@ -39,6 +39,7 @@ Founding is MineColonies' own flow (supply camp, town hall `minecolonies:blockhu
 - [ ] On a space world (`/elysiumspace travel emerald_bastion`), found a colony: the style switches to Bastion on the first day (log "builds in the X style"); same for Pale Moon to Pale Reach.
 - [ ] Style packs load: each of the five packs' supply camp, town halls 1-5, builder huts and `spaceport` blueprints open in the build tool without errors.
 - [ ] MineColonies raiders during a raid carry elite ranks matching the owner's tier.
+- [ ] Self-founded towns: `/locate structure elysiumcolonies:settlement` finds a site; walking there (within simulation distance) turns the survey stake into a town hall, log "X founded itself at ..."; `/elysium colony natural` lists it with distance; citizens spawn; the builder hut and home go up whole after a day; a new building is laid out every two days; `/elysium colony claim` while standing in it makes it yours and its steward steps aside; a world whose charter does not settle (Nether, End, the Vale) never grows one.
 
 ## 2. Worldgen
 
