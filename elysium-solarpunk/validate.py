@@ -1465,7 +1465,9 @@ else:
         ]
         _summary = ""
         for _step in _steps:
-            _result = subprocess.run(_step, capture_output=True, text=True)
+            # Run in the scratch folder: the harness loads Minecraft's log4j
+            # config, which writes logs/latest.log wherever it is started.
+            _result = subprocess.run(_step, capture_output=True, text=True, cwd=scratch)
             _summary = "\n".join(
                 line for line in (_result.stdout + _result.stderr).split("\n")
                 if line and "JAVA_TOOL_OPTIONS" not in line
