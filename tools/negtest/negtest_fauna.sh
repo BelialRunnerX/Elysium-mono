@@ -248,9 +248,9 @@ edit $G '        "pools": [pool(animal["gives"], animal["yield"] * 2, True)],' \
         '        "pools": [pool(animal["gives"], animal["yield"], True)],'
 expect_regen "a loot table that leaves half what the row says" "is a wait for something else"
 
-edit $F '            new Animal("glasseel", SWIMMER, 4.0D, 0.40D, 0.4F, 0.4F,
+edit $F '            new Animal("glassfin", SWIMMER, 4.0D, 0.40D, 0.4F, 0.4F,
                     "minecraft:kelp", "minecraft:salmon", 2, 85),' \
-        '            new Animal("glasseel", SWIMMER, 4.0D, 0.40D, 0.4F, 0.4F,
+        '            new Animal("glassfin", SWIMMER, 4.0D, 0.40D, 0.4F, 0.4F,
                     "minecraft:kelpp", "minecraft:salmon", 2, 85),'
 expect_regen "an animal bred on something the game does not have" "nor this pack makes it"
 

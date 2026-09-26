@@ -31,7 +31,7 @@ import java.util.List;
  *
  * <p>Here the rule earns its keep more than anywhere else in the module,
  * because this roster is the one that grows by variant. The moment a branch
- * says {@code "frost_scorpion"}, the next one says {@code "nether_scorpion"},
+ * says {@code "rimebarb"}, the next one says {@code "cinderbarb"},
  * and what was eleven fights becomes twenty-seven near-copies of four. No
  * creature is named anywhere below, and {@code validate.py} reads this file and
  * fails if it finds one.

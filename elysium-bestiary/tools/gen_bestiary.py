@@ -332,19 +332,19 @@ TRAIT_WORDS = {
 #: And what each kindred looks like. Art, not a rule -- but per kindred rather
 #: than per creature, because kin look alike and that is the whole claim.
 KIN_SHADES = {
-    "scorpion": ((146, 118, 74), (68, 54, 32)),
-    "ogre": ((124, 140, 96), (56, 66, 42)),
-    "goblin": ((110, 146, 104), (48, 68, 46)),
-    "wolf": ((132, 128, 124), (58, 56, 54)),
-    "horse": ((108, 96, 110), (48, 42, 50)),
-    "ghost": ((196, 206, 214), (96, 104, 112)),
-    "golem": ((150, 152, 158), (70, 72, 76)),
-    "bat": ((92, 78, 96), (40, 34, 44)),
-    "mimic": ((140, 104, 66), (64, 46, 28)),
-    "owlbear": ((160, 132, 92), (74, 60, 40)),
-    "purple_worm": ((138, 96, 156), (62, 42, 72)),
-    "shrike": ((186, 190, 200), (88, 92, 100)),
-    "silver_skeleton": ((206, 210, 216), (104, 108, 114)),
+    "barb": ((146, 118, 74), (68, 54, 32)),
+    "hulk": ((124, 140, 96), (56, 66, 42)),
+    "runt": ((110, 146, 104), (48, 68, 46)),
+    "fang": ((132, 128, 124), (58, 56, 54)),
+    "charger": ((108, 96, 110), (48, 42, 50)),
+    "echo": ((196, 206, 214), (96, 104, 112)),
+    "frame": ((150, 152, 158), (70, 72, 76)),
+    "wing": ((92, 78, 96), (40, 34, 44)),
+    "crate": ((140, 104, 66), (64, 46, 28)),
+    "talon": ((160, 132, 92), (74, 60, 40)),
+    "bore": ((138, 96, 156), (62, 42, 72)),
+    "caster": ((186, 190, 200), (88, 92, 100)),
+    "caller": ((206, 210, 216), (104, 108, 114)),
 }
 _unshaded_kin = sorted({one["kin"] for one in KINDRED} - set(KIN_SHADES))
 _unworded_kin = sorted({one["trait"] for one in KINDRED} - set(TRAIT_WORDS))
@@ -445,14 +445,14 @@ ROLE_WORDS = {
 #: And what each court looks like. Per court, because a court that looked like
 #: eight unrelated things would not read as a court.
 COURT_SHADES = {
-    "bonescaller": ((214, 210, 196), (108, 104, 96)),
-    "pumpkin": ((222, 138, 54), (106, 62, 20)),
-    "krampus": ((148, 58, 58), (68, 24, 24)),
-    "zombie": ((112, 146, 96), (50, 68, 42)),
-    "spirit": ((166, 196, 214), (74, 92, 104)),
-    "hound": ((128, 110, 92), (58, 50, 40)),
-    "vermin": ((106, 118, 76), (46, 54, 32)),
-    "chaos": ((92, 70, 118), (40, 30, 54)),
+    "forge": ((214, 210, 196), (108, 104, 96)),
+    "graft": ((222, 138, 54), (106, 62, 20)),
+    "hoar": ((148, 58, 58), (68, 24, 24)),
+    "rot": ((112, 146, 96), (50, 68, 42)),
+    "static": ((166, 196, 214), (74, 92, 104)),
+    "pack": ((128, 110, 92), (58, 50, 40)),
+    "brood": ((106, 118, 76), (46, 54, 32)),
+    "breach": ((92, 70, 118), (40, 30, 54)),
 }
 _unshaded_court = sorted({one["court"] for one in COURT_MEMBERS} - set(COURT_SHADES))
 _unworded_role = sorted({one["role"] for one in COURT_MEMBERS} - set(ROLE_WORDS))
@@ -1088,15 +1088,15 @@ def titled(name):
 
 
 REASONS = {
-    "shardling": "It comes apart when you hit it and the pieces keep coming.",
-    "ripper": "Fast, and it has worked out that you are slower going uphill.",
-    "stalker": "You will hear it stop following you. That is the bad part.",
-    "husk_ox": "Too heavy to knock back and too slow to run from. Pick one.",
-    "breaker": "It goes through the wall rather than round it, every time.",
-    "siege_beast": "Three metres of it. Bring the door down and leave.",
-    "mourner": "It is not chasing you. It is going the same way you are.",
-    "keener": "The noise arrives first and the cold arrives with it.",
-    "hollow_lord": "It waited. Whatever it was waiting for, it was not you.",
+    "spallet": "It comes apart when you hit it and the pieces keep coming.",
+    "shearjaw": "Fast, and it has worked out that you are slower going uphill.",
+    "prowlframe": "You will hear it stop following you. That is the bad part.",
+    "drayhulk": "Too heavy to knock back and too slow to run from. Pick one.",
+    "pileframe": "It goes through the wall rather than round it, every time.",
+    "siegehulk": "Three metres of it. Bring the door down and leave.",
+    "carrier": "It is not chasing you. It is going the same way you are.",
+    "sidetone": "The noise arrives first and the cold arrives with it.",
+    "nullprime": "It waited. Whatever it was waiting for, it was not you.",
 }
 
 
@@ -1301,18 +1301,18 @@ def fauna_loot(animal):
 
 
 FAUNA_REASONS = {
-    "moorstag": "It watches you the whole way across the clearing and does not run.",
-    "dunemare": "Nothing else out there is that colour on purpose.",
-    "fellox": "It will move when it has finished, and not before.",
-    "stonemole": "You hear the digging stop. It has heard you too.",
-    "quillrat": "Picking one up is a decision you make exactly once.",
-    "brackhog": "It got to the mushrooms first and it is not sorry.",
-    "cragjay": "It has been following you for a mile, for no reason it will share.",
-    "mirefowl": "Loud, and entirely unbothered about being loud.",
-    "ashquail": "Three steps, stop, three steps. Never four.",
-    "glasseel": "You see the shadow before you see the thing.",
-    "silverfin": "A whole shoal turns at once, as if the water told them.",
-    "shalecrab": "It has found somewhere to be and it is not moving.",
+    "fenstag": "It watches you the whole way across the clearing and does not run.",
+    "dunecharger": "Nothing else out there is that colour on purpose.",
+    "ferrox": "It will move when it has finished, and not before.",
+    "cragmole": "You hear the digging stop. It has heard you too.",
+    "quillmite": "Picking one up is a decision you make exactly once.",
+    "brackhide": "It got to the mushrooms first and it is not sorry.",
+    "cragwing": "It has been following you for a mile, for no reason it will share.",
+    "mirewing": "Loud, and entirely unbothered about being loud.",
+    "ashwing": "Three steps, stop, three steps. Never four.",
+    "glassfin": "You see the shadow before you see the thing.",
+    "chromefin": "A whole shoal turns at once, as if the water told them.",
+    "shaleshell": "It has found somewhere to be and it is not moving.",
 }
 
 

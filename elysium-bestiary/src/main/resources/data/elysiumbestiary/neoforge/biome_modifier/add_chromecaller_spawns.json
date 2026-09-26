@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#minecraft:is_river",
+  "spawners": [
+    {
+      "type": "elysiumbestiary:chromecaller",
+      "weight": 24,
+      "minCount": 1,
+      "maxCount": 4
+    }
+  ]
+}

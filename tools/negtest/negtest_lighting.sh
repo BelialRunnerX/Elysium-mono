@@ -143,8 +143,8 @@ edit $R '    public static final int STILL_DARK = 7;' \
         '    public static final int STILL_DARK = 9;'
 expect "a band this module widened for itself" "monsters say that number is 7"
 
-edit $H '            new Haunt("shardling", "#minecraft:is_overworld", 0, 7, 0, SKY, 2, 4),' \
-        '            new Haunt("shardling", "#minecraft:is_overworld", 0, 4, 0, SKY, 2, 4),'
+edit $H '            new Haunt("spallet", "#minecraft:is_overworld", 0, 7, 0, SKY, 2, 4),' \
+        '            new Haunt("spallet", "#minecraft:is_overworld", 0, 4, 0, SKY, 2, 4),'
 expect "a band moved in the bestiary and not here" "monsters say that number is 4"
 
 echo "one fitting, one block, and no fitting twice"

@@ -1493,8 +1493,8 @@ print("-" * 70)
 BEHAVIOURS = strip_comments(read(SRC, "rules/BehaviourRules.java"), keep_strings=True)
 ACTS = strip_comments(read(SRC, "entity/act/BeastActs.java"), keep_strings=True)
 if not BEHAVIOURS:
-    fail("nothing says what any beast does, so meeting a stalker and meeting a "
-         "ripper are the same fight with a different model on it — which is "
+    fail("nothing says what any beast does, so meeting a prowlframe and meeting a "
+         "shearjaw are the same fight with a different model on it — which is "
          "what four of the jars this module is meant to replace exist to fix")
 else:
     VERB_NAMES = dict(re.findall(

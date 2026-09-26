@@ -38,7 +38,10 @@ replaced Apotheosis and elysium-space replaced Stellaris:
   observation, and where the licence allows it, source);
 * every number lives in a pure rules class a harness executes;
 * art is generated or drawn by us — **no third-party assets are copied**;
-* names, lore and flavour are re-themed into Elysium's own world;
+* names, lore and flavour are re-themed into Elysium's own world, which
+  `check_names.py` enforces and `docs/NAMING.md` explains — it was prose
+  for months and 134 creature ids kept the names of the mods they came
+  from the whole time;
 * the original jar is then unnecessary and comes out of the pack.
 
 Licensing is the user's to settle with authors where it ever needs settling

@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#minecraft:is_forest",
+  "spawners": [
+    {
+      "type": "elysiumbestiary:dartrunt",
+      "weight": 35,
+      "minCount": 1,
+      "maxCount": 2
+    }
+  ]
+}

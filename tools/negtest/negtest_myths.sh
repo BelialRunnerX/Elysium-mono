@@ -46,8 +46,8 @@ echo "one danger each, and no two the same"
 edit $R '            if (!used.add(one.bane())) {' '            if (false) {'
 expect "two myths dangerous the same way, unreported" "two myths dangerous in the same way"
 
-edit $R '            new Myth("chupacabra", DRAIN, "minecraft:golden_apple", 2,' \
-        '            new Myth("chupacabra", PETRIFY, "minecraft:golden_apple", 2,'
+edit $R '            new Myth("siphon", DRAIN, "minecraft:golden_apple", 2,' \
+        '            new Myth("siphon", PETRIFY, "minecraft:golden_apple", 2,'
 expect "two creatures whose danger is the same danger" "whichever a player meets first"
 
 edit $R '            if (!banes.contains(one.bane())) {' '            if (false) {'
@@ -60,25 +60,25 @@ echo "everything dangerous has an answer"
 edit $R '            if (!answered.add(one.answer())) {' '            if (false) {'
 expect "one item answering two of them, unreported" "answering two of these is not reported"
 
-edit $R '            new Myth("sporeling", SPORES, "minecraft:shears", 1,' \
-        '            new Myth("sporeling", SPORES, "minecraft:bow", 1,'
+edit $R '            new Myth("bloomlet", SPORES, "minecraft:shears", 1,' \
+        '            new Myth("bloomlet", SPORES, "minecraft:bow", 1,'
 expect "one thing in a pocket ending two of these" "the player stops thinking about"
 
-edit $R '            new Myth("drake", BREATH, "minecraft:magma_cream", 3,' \
-        '            new Myth("drake", BREATH, "elysium:dragon_ward", 3,'
+edit $R '            new Myth("blastjaw", BREATH, "minecraft:magma_cream", 3,' \
+        '            new Myth("blastjaw", BREATH, "elysium:dragon_ward", 3,'
 expect "an answer nothing in the pack makes" "the one thing that beats it does not exist"
 
-edit $R '            new Myth("pegasus", HEIGHT, "minecraft:bow", 2,' \
-        '            new Myth("pegasus", HEIGHT, "minecraft:skyhook", 2,'
+edit $R '            new Myth("skimwing", HEIGHT, "minecraft:bow", 2,' \
+        '            new Myth("skimwing", HEIGHT, "minecraft:skyhook", 2,'
 expect "an answer the game does not make" "the game does not make that"
 
 echo "a myth is never also the hardest thing on its rung"
 edit $R '            if (one.threat() >= beside.threat()) {' '            if (false) {'
 expect "a myth out-fighting its own rung, unreported" "also the hardest thing on its rung"
 
-edit $R '            new Myth("drake", BREATH, "minecraft:magma_cream", 3,
+edit $R '            new Myth("blastjaw", BREATH, "minecraft:magma_cream", 3,
                     44.0D, 7.0D, 0.30D, 12, false, BeastRules.BRUTE),' \
-        '            new Myth("drake", BREATH, "minecraft:magma_cream", 3,
+        '            new Myth("blastjaw", BREATH, "minecraft:magma_cream", 3,
                     440.0D, 70.0D, 0.30D, 12, false, BeastRules.BRUTE),'
 expect "a drake that beats every beast on its rung" "gearing up answers nothing"
 
@@ -97,9 +97,9 @@ echo "what runs is worth less than what stands"
 edit $R '                if (one.threat() > other.threat()) {' '                if (false) {'
 expect "a runner worth more than a stander, unreported" "the safest thing on the rung"
 
-edit $R '            new Myth("kobold", THIEVERY, "minecraft:tripwire_hook", 1,
+edit $R '            new Myth("pilferhand", THIEVERY, "minecraft:tripwire_hook", 1,
                     12.0D, 1.0D, 0.44D, 75, true, BeastRules.WIGHT),' \
-        '            new Myth("kobold", THIEVERY, "minecraft:tripwire_hook", 1,
+        '            new Myth("pilferhand", THIEVERY, "minecraft:tripwire_hook", 1,
                     12.0D, 9.0D, 0.44D, 75, true, BeastRules.WIGHT),'
 expect "a thief that hits harder than the thing that stands" "is also the worst to meet"
 
@@ -141,7 +141,7 @@ expect "banes chosen by which creature it is" "is not chosen by which bane it is
 
 edit $AC '    public static final int A_CROWD = 4;' \
         '    public static final int A_CROWD = 4;
-    private static final String WHICH = "basilisk";'
+    private static final String WHICH = "glasseye";'
 expect "a creature named in the banes" "started growing a branch per creature"
 
 echo "the numbers the entity carries"
@@ -192,13 +192,13 @@ expect "no myth renderer at all" "nothing draws the myths"
 remove $M/src/main/java/com/elysium/bestiary/client/MythModel.java
 expect "no myth model at all" "nothing draws the myths"
 
-remove $M/src/main/resources/assets/elysiumbestiary/textures/entity/basilisk.png
+remove $M/src/main/resources/assets/elysiumbestiary/textures/entity/glasseye.png
 expect "a myth with no texture" "the world never shows"
 
-remove $M/src/main/resources/data/elysiumbestiary/neoforge/biome_modifier/add_drake_spawns.json
+remove $M/src/main/resources/data/elysiumbestiary/neoforge/biome_modifier/add_blastjaw_spawns.json
 expect "a myth with no spawn rule" "the world never shows"
 
-remove $M/src/main/resources/data/elysiumbestiary/loot_table/entities/kobold.json
+remove $M/src/main/resources/data/elysiumbestiary/loot_table/entities/pilferhand.json
 expect "a myth with no loot table" "the world never shows"
 
 echo "what the generator writes"

@@ -48,8 +48,8 @@ expect_regen() { regen; expect "$1" "$2"; }
 remove() { rm -f "$1"; }
 
 echo "a door rather than a fight"
-edit $R '            new Warded("eldbomb", BLAST, "minecraft:iron_chestplate", 2, 18.0D, 8.0D, 3.5D, 0.30D, 24),' \
-        '            new Warded("eldbomb", BLAST, "minecraft:iron_chestplate", 2, 18.0D, 8.0D, 0.5D, 0.30D, 24),'
+edit $R '            new Warded("charge", BLAST, "minecraft:iron_chestplate", 2, 18.0D, 8.0D, 3.5D, 0.30D, 24),' \
+        '            new Warded("charge", BLAST, "minecraft:iron_chestplate", 2, 18.0D, 8.0D, 0.5D, 0.30D, 24),'
 expect "a creature the right gear nearly solves" "it is a door, and the key is an inventory slot"
 
 edit $R '            if (one.left() < floor) {' '            if (false) {'
@@ -60,8 +60,8 @@ edit $R '    public static final double LEAST_LEFT = 0.35D;' \
 expect "a floor low enough that nothing is ever a door" "never built a door or never built a texture"
 
 echo "gear that is a texture"
-edit $R '            new Warded("eldbomb", BLAST, "minecraft:iron_chestplate", 2, 18.0D, 8.0D, 3.5D, 0.30D, 24),' \
-        '            new Warded("eldbomb", BLAST, "minecraft:iron_chestplate", 2, 18.0D, 8.0D, 7.9D, 0.30D, 24),'
+edit $R '            new Warded("charge", BLAST, "minecraft:iron_chestplate", 2, 18.0D, 8.0D, 3.5D, 0.30D, 24),' \
+        '            new Warded("charge", BLAST, "minecraft:iron_chestplate", 2, 18.0D, 8.0D, 7.9D, 0.30D, 24),'
 expect "a creature the right gear barely helps against" "is a texture with a tooltip"
 
 edit $R '            if (one.left() > ceiling) {' '            if (false) {'
@@ -75,8 +75,8 @@ edit $R '            return threat() <= 0.0D ? 1.0D : blunt() / threat();' '    
 expect "a ratio that is the same whatever the row says" "leaves 100% of itself"
 
 echo "one set that answers everything"
-edit $R '            new Warded("gremlin", SHOT, "minecraft:shield", 1, 14.0D, 3.5D, 2.0D, 0.36D, 50),' \
-        '            new Warded("gremlin", ROT, "minecraft:shield", 1, 14.0D, 3.5D, 2.0D, 0.36D, 50),'
+edit $R '            new Warded("slinger", SHOT, "minecraft:shield", 1, 14.0D, 3.5D, 2.0D, 0.36D, 50),' \
+        '            new Warded("slinger", ROT, "minecraft:shield", 1, 14.0D, 3.5D, 2.0D, 0.36D, 50),'
 expect "a fourth creature answered by one set" "rather than one per creature"
 
 edit $R '            if (entry.getValue() > mostCovered) {' '            if (false) {'
@@ -87,8 +87,8 @@ edit $R '    public static final int MOST_COVERED = 3;' \
 expect "a cap high enough that one set could answer everything" "answering most of the roster is not reported"
 
 echo "nothing spare and nothing missing"
-edit $R '            new Warded("eldknight", FROST, "minecraft:leather_boots", 3, 52.0D, 9.5D, 5.5D, 0.28D, 10),' \
-        '            new Warded("eldknight", CURSE, "minecraft:leather_boots", 3, 52.0D, 9.5D, 5.5D, 0.28D, 10),'
+edit $R '            new Warded("rimeguard", FROST, "minecraft:leather_boots", 3, 52.0D, 9.5D, 5.5D, 0.28D, 10),' \
+        '            new Warded("rimeguard", CURSE, "minecraft:leather_boots", 3, 52.0D, 9.5D, 5.5D, 0.28D, 10),'
 expect_regen "a kind of protection nothing asks for" "leaves a kind of protection unasked for"
 
 edit $R '            if (covers(ward, roster) == 0) {' '            if (false) {'
@@ -101,8 +101,8 @@ edit $R '            if (!seen.add(one.id())) {' '            if (false) {'
 expect "the rule that finds two creatures under one name" "written under one name are not reported"
 
 echo "standing under the ladder"
-edit $R '            new Warded("netherman", BLAST, "minecraft:netherite_ingot", 3, 60.0D, 10.0D, 6.0D, 0.26D, 8));' \
-        '            new Warded("netherman", BLAST, "minecraft:netherite_ingot", 3, 600.0D, 10.0D, 6.0D, 0.26D, 8));'
+edit $R '            new Warded("detonant", BLAST, "minecraft:netherite_ingot", 3, 60.0D, 10.0D, 6.0D, 0.26D, 8));' \
+        '            new Warded("detonant", BLAST, "minecraft:netherite_ingot", 3, 600.0D, 10.0D, 6.0D, 0.26D, 8));'
 expect "something harder unwarded than its own rung contains" "so a player without the gear meets something harder"
 
 edit $R '            if (beside != null && one.threat() >= beside.threat()) {' '            if (false) {'
@@ -112,8 +112,8 @@ edit $R '            if (beside(one, beasts) == null) {' '            if (false)
 expect "something on a rung with no beast on it" "on a rung with no beast on it is not reported"
 
 echo "what the player is told to bring"
-edit $R '            new Warded("ratman", ROT, "minecraft:golden_carrot", 1, 16.0D, 3.0D, 2.0D, 0.34D, 55),' \
-        '            new Warded("ratman", ROT, "minecraft:golden_carrott", 1, 16.0D, 3.0D, 2.0D, 0.34D, 55),'
+edit $R '            new Warded("scurf", ROT, "minecraft:golden_carrot", 1, 16.0D, 3.0D, 2.0D, 0.34D, 55),' \
+        '            new Warded("scurf", ROT, "minecraft:golden_carrott", 1, 16.0D, 3.0D, 2.0D, 0.34D, 55),'
 expect_regen "an answer nothing makes" "nothing makes one of those"
 
 edit $G '        lang["bestiary.%s.bring.%s" % (NS, one["id"])] = one["answer"]' \
@@ -132,7 +132,7 @@ edit $AC '        return switch (row.ward()) {' '        return switch (row.id()
 expect "which ward to look for chosen by which creature it is" "not chosen by the row's own ward"
 
 edit $AC '    public static boolean warded(LivingEntity who, WardRules.Warded row) {' \
-        '    private static final String WHICH = "eldknight";
+        '    private static final String WHICH = "rimeguard";
     public static boolean warded(LivingEntity who, WardRules.Warded row) {'
 expect "a creature named where the ward is looked for" "thirteen slightly different ways"
 
@@ -174,7 +174,7 @@ edit $CL '            event.registerLayerDefinition(WardModel.LAYERS.get(form),'
 expect "model layers never registered" "baking one throws"
 
 echo "what the generator writes"
-remove $M/src/main/resources/assets/elysiumbestiary/textures/entity/netherman.png
+remove $M/src/main/resources/assets/elysiumbestiary/textures/entity/detonant.png
 expect "a creature with no texture" "has no texture"
 
 edit $G '        lang["bestiary.%s.ward.%s" % (NS, one["id"])] = WARD_WORDS[one["ward"]]' \

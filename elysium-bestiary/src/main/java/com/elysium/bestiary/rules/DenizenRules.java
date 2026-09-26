@@ -176,48 +176,48 @@ public final class DenizenRules {
      * rule rather than a tautology.
      */
     public static final List<Denizen> DENIZENS = List.of(
-            new Denizen("wicked_crystal", "rime_barrens", 3, 72.0D, 8.0D, 0.28D, 10),
-            new Denizen("scourge", "rime_barrens", 3, 51.0D, 9.0D, 0.30D, 10),
+            new Denizen("rimeprime", "rime_barrens", 3, 72.0D, 8.0D, 0.28D, 10),
+            new Denizen("rimewarden", "rime_barrens", 3, 51.0D, 9.0D, 0.30D, 10),
 
-            new Denizen("crystal", "glacier_vale", 2, 56.0D, 6.5D, 0.22D, 20),
+            new Denizen("glacehulk", "glacier_vale", 2, 56.0D, 6.5D, 0.22D, 20),
 
-            new Denizen("undead", "frostmere", 3, 101.0D, 7.5D, 0.28D, 10),
-            new Denizen("necromancer", "frostmere", 3, 74.0D, 8.5D, 0.22D, 10),
+            new Denizen("frostprime", "frostmere", 3, 101.0D, 7.5D, 0.28D, 10),
+            new Denizen("frostwarden", "frostmere", 3, 74.0D, 8.5D, 0.22D, 10),
 
-            new Denizen("troll", "ashen_steppe", 2, 30.0D, 7.0D, 0.26D, 20),
-            new Denizen("corrupted", "ashen_steppe", 2, 55.0D, 5.5D, 0.24D, 20),
+            new Denizen("ashulk", "ashen_steppe", 2, 30.0D, 7.0D, 0.26D, 20),
+            new Denizen("ashmaw", "ashen_steppe", 2, 55.0D, 5.5D, 0.24D, 20),
 
-            new Denizen("warren_goblin", "pinewold", 1, 24.0D, 3.5D, 0.24D, 34),
-            new Denizen("scavenger", "pinewold", 1, 37.0D, 3.5D, 0.20D, 34),
+            new Denizen("pinekin", "pinewold", 1, 24.0D, 3.5D, 0.24D, 34),
+            new Denizen("pinecrawler", "pinewold", 1, 37.0D, 3.5D, 0.20D, 34),
 
-            new Denizen("shadewood_spider", "coldmarsh", 2, 34.0D, 5.5D, 0.30D, 20),
-            new Denizen("draugr", "coldmarsh", 2, 53.0D, 5.5D, 0.26D, 20),
+            new Denizen("marshulk", "coldmarsh", 2, 34.0D, 5.5D, 0.30D, 20),
+            new Denizen("marshmaw", "coldmarsh", 2, 53.0D, 5.5D, 0.26D, 20),
 
-            new Denizen("grave_maggot", "chalk_downs", 1, 47.0D, 3.0D, 0.18D, 34),
-            new Denizen("mannequin", "chalk_downs", 1, 32.0D, 3.0D, 0.28D, 34),
+            new Denizen("chalkin", "chalk_downs", 1, 47.0D, 3.0D, 0.18D, 34),
+            new Denizen("chalkcrawler", "chalk_downs", 1, 32.0D, 3.0D, 0.28D, 34),
 
-            new Denizen("pixie", "verdant_vale", 0, 16.0D, 2.0D, 0.26D, 50),
-            new Denizen("dryador", "verdant_vale", 0, 11.0D, 2.5D, 0.28D, 50),
+            new Denizen("verdlet", "verdant_vale", 0, 16.0D, 2.0D, 0.26D, 50),
+            new Denizen("verdmote", "verdant_vale", 0, 11.0D, 2.5D, 0.28D, 50),
 
-            new Denizen("swamp_wanderer", "bloomfen", 1, 25.0D, 4.0D, 0.26D, 34),
-            new Denizen("king_crab", "bloomfen", 1, 16.0D, 5.0D, 0.30D, 34),
+            new Denizen("bloomkin", "bloomfen", 1, 25.0D, 4.0D, 0.26D, 34),
+            new Denizen("bloomcrawler", "bloomfen", 1, 16.0D, 5.0D, 0.30D, 34),
 
-            new Denizen("wicked_scorpion", "amber_scrub", 2, 37.0D, 6.0D, 0.26D, 20),
-            new Denizen("haunted_merchant", "amber_scrub", 2, 32.0D, 7.0D, 0.30D, 20),
+            new Denizen("amberhulk", "amber_scrub", 2, 37.0D, 6.0D, 0.26D, 20),
+            new Denizen("ambermaw", "amber_scrub", 2, 32.0D, 7.0D, 0.30D, 20),
 
-            new Denizen("ent", "goldwood", 1, 27.0D, 5.0D, 0.26D, 34),
+            new Denizen("goldkin", "goldwood", 1, 27.0D, 5.0D, 0.26D, 34),
 
-            new Denizen("river_golem", "reedbasin", 2, 39.0D, 6.0D, 0.28D, 20),
-            new Denizen("flesh_sentinel", "reedbasin", 2, 42.0D, 7.0D, 0.30D, 20),
+            new Denizen("reedhulk", "reedbasin", 2, 39.0D, 6.0D, 0.28D, 20),
+            new Denizen("reedmaw", "reedbasin", 2, 42.0D, 7.0D, 0.30D, 20),
 
-            new Denizen("devil", "cinder_flats", 3, 84.0D, 7.5D, 0.30D, 10),
-            new Denizen("sorcerer", "cinder_flats", 3, 58.0D, 8.5D, 0.28D, 10),
+            new Denizen("cinderprime", "cinder_flats", 3, 84.0D, 7.5D, 0.30D, 10),
+            new Denizen("cinderwarden", "cinder_flats", 3, 58.0D, 8.5D, 0.28D, 10),
 
-            new Denizen("firron", "emberwood", 2, 92.0D, 5.0D, 0.20D, 20),
-            new Denizen("nature_golem", "emberwood", 2, 50.0D, 6.5D, 0.22D, 20),
+            new Denizen("emberhulk", "emberwood", 2, 92.0D, 5.0D, 0.20D, 20),
+            new Denizen("embermaw", "emberwood", 2, 50.0D, 6.5D, 0.22D, 20),
 
-            new Denizen("corrupted_troll", "sulphur_springs", 3, 114.0D, 7.0D, 0.24D, 10),
-            new Denizen("devourer", "sulphur_springs", 3, 61.0D, 8.5D, 0.28D, 10));
+            new Denizen("sulphprime", "sulphur_springs", 3, 114.0D, 7.0D, 0.24D, 10),
+            new Denizen("sulphwarden", "sulphur_springs", 3, 61.0D, 8.5D, 0.28D, 10));
 
     /** What each ring is drawn with, so that how far out you are reads at a glance. */
     public static final Map<Integer, String> SHAPES = Map.of(

@@ -223,41 +223,41 @@ public final class KindredRules {
      */
     public static final List<Kin> KINDRED = List.of(
             //        id                 kin        base  trait      home       tier  hp    dmg   speed  wt  young
-            new Kin("scorpion", "scorpion", true, POISONS, OPEN, 1, 16.0D, 3.0D, 0.30D, 40, true),
-            new Kin("desert_scorpion", "scorpion", false, BURROWS, DRYLANDS, 1, 18.0D, 3.0D, 0.30D, 30, false),
-            new Kin("frost_scorpion", "scorpion", false, FREEZES, COLD, 1, 20.0D, 3.0D, 0.28D, 24, false),
-            new Kin("nether_scorpion", "scorpion", false, IGNITES, HELL, 1, 20.0D, 4.0D, 0.30D, 20, false),
+            new Kin("ferricbarb", "barb", true, POISONS, OPEN, 1, 16.0D, 3.0D, 0.30D, 40, true),
+            new Kin("dunebarb", "barb", false, BURROWS, DRYLANDS, 1, 18.0D, 3.0D, 0.30D, 30, false),
+            new Kin("rimebarb", "barb", false, FREEZES, COLD, 1, 20.0D, 3.0D, 0.28D, 24, false),
+            new Kin("cinderbarb", "barb", false, IGNITES, HELL, 1, 20.0D, 4.0D, 0.30D, 20, false),
 
-            new Kin("ogre", "ogre", true, LEAPS, WOODS, 2, 40.0D, 6.0D, 0.23D, 22, false),
-            new Kin("cave_ogre", "ogre", false, BURROWS, PEAKS, 2, 46.0D, 6.0D, 0.22D, 18, false),
-            new Kin("hell_ogre", "ogre", false, IGNITES, HELL, 2, 44.0D, 7.0D, 0.24D, 14, false),
+            new Kin("ferrichulk", "hulk", true, LEAPS, WOODS, 2, 40.0D, 6.0D, 0.23D, 22, false),
+            new Kin("deephulk", "hulk", false, BURROWS, PEAKS, 2, 46.0D, 6.0D, 0.22D, 18, false),
+            new Kin("cinderhulk", "hulk", false, IGNITES, HELL, 2, 44.0D, 7.0D, 0.24D, 14, false),
 
-            new Kin("goblin", "goblin", true, SUMMONS, OPEN, 1, 14.0D, 2.0D, 0.34D, 55, false),
-            new Kin("dart_goblin", "goblin", false, THROWS, WOODS, 1, 12.0D, 3.0D, 0.32D, 35, false),
-            new Kin("imp", "goblin", false, IGNITES, HELL, 1, 14.0D, 3.0D, 0.36D, 40, false),
+            new Kin("ferricrunt", "runt", true, SUMMONS, OPEN, 1, 14.0D, 2.0D, 0.34D, 55, false),
+            new Kin("dartrunt", "runt", false, THROWS, WOODS, 1, 12.0D, 3.0D, 0.32D, 35, false),
+            new Kin("cinderunt", "runt", false, IGNITES, HELL, 1, 14.0D, 3.0D, 0.36D, 40, false),
 
-            new Kin("wild_wolf", "wolf", true, HOWLS, CONIFER, 2, 26.0D, 4.0D, 0.40D, 45, false),
-            new Kin("werewolf", "wolf", false, LEAPS, WOODS, 2, 34.0D, 6.0D, 0.40D, 12, false),
-            new Kin("werevillager", "wolf", false, DISGUISES, OPEN, 2, 30.0D, 5.0D, 0.38D, 10, false),
+            new Kin("feralfang", "fang", true, HOWLS, CONIFER, 2, 26.0D, 4.0D, 0.40D, 45, false),
+            new Kin("moonfang", "fang", false, LEAPS, WOODS, 2, 34.0D, 6.0D, 0.40D, 12, false),
+            new Kin("maskfang", "fang", false, DISGUISES, OPEN, 2, 30.0D, 5.0D, 0.38D, 10, false),
 
-            new Kin("nightmare_horse", "horse", true, IGNITES, HELL, 1, 22.0D, 3.0D, 0.36D, 14, false),
-            new Kin("skeleton_horse", "horse", false, CARRIES, OPEN, 1, 18.0D, 2.0D, 0.38D, 26, false),
-            new Kin("zombie_horse", "horse", false, POISONS, RIVERSIDE, 1, 20.0D, 3.0D, 0.32D, 20, false),
+            new Kin("cindercharger", "charger", true, IGNITES, HELL, 1, 22.0D, 3.0D, 0.36D, 14, false),
+            new Kin("bonecharger", "charger", false, CARRIES, OPEN, 1, 18.0D, 2.0D, 0.38D, 26, false),
+            new Kin("rotcharger", "charger", false, POISONS, RIVERSIDE, 1, 20.0D, 3.0D, 0.32D, 20, false),
 
-            new Kin("ghost", "ghost", true, DRAINS, PEAKS, 2, 24.0D, 4.0D, 0.34D, 28, false),
-            new Kin("fire_ghost", "ghost", false, IGNITES, HELL, 2, 26.0D, 5.0D, 0.34D, 16, false),
+            new Kin("ferricecho", "echo", true, DRAINS, PEAKS, 2, 24.0D, 4.0D, 0.34D, 28, false),
+            new Kin("cinderecho", "echo", false, IGNITES, HELL, 2, 26.0D, 5.0D, 0.34D, 16, false),
 
-            new Kin("golem", "golem", true, LEAPS, PEAKS, 3, 60.0D, 8.0D, 0.20D, 9, false),
-            new Kin("ice_golem", "golem", false, FREEZES, COLD, 3, 64.0D, 8.0D, 0.20D, 7, false),
+            new Kin("ferricframe", "frame", true, LEAPS, PEAKS, 3, 60.0D, 8.0D, 0.20D, 9, false),
+            new Kin("rimeframe", "frame", false, FREEZES, COLD, 3, 64.0D, 8.0D, 0.20D, 7, false),
 
-            new Kin("evil_bat", "bat", true, DRAINS, PEAKS, 1, 12.0D, 2.0D, 0.44D, 60, false),
-            new Kin("horse_bat", "bat", false, LEAPS, DRYLANDS, 1, 16.0D, 3.0D, 0.42D, 18, false),
+            new Kin("nullwing", "wing", true, DRAINS, PEAKS, 1, 12.0D, 2.0D, 0.44D, 60, false),
+            new Kin("haulwing", "wing", false, LEAPS, DRYLANDS, 1, 16.0D, 3.0D, 0.42D, 18, false),
 
-            new Kin("mimic", "mimic", true, DISGUISES, OPEN, 2, 30.0D, 6.0D, 0.18D, 12, false),
-            new Kin("owlbear", "owlbear", true, LEAPS, CONIFER, 2, 38.0D, 6.0D, 0.30D, 16, true),
-            new Kin("purple_worm", "purple_worm", true, BURROWS, DRYLANDS, 3, 70.0D, 9.0D, 0.24D, 6, false),
-            new Kin("shrike", "shrike", true, THROWS, COLD, 2, 26.0D, 5.0D, 0.42D, 15, true),
-            new Kin("silver_skeleton", "silver_skeleton", true, SUMMONS, RIVERSIDE, 2, 28.0D, 5.0D, 0.30D, 24, false));
+            new Kin("falsecrate", "crate", true, DISGUISES, OPEN, 2, 30.0D, 6.0D, 0.18D, 12, false),
+            new Kin("talonhulk", "talon", true, LEAPS, CONIFER, 2, 38.0D, 6.0D, 0.30D, 16, true),
+            new Kin("deepbore", "bore", true, BURROWS, DRYLANDS, 3, 70.0D, 9.0D, 0.24D, 6, false),
+            new Kin("spinecaster", "caster", true, THROWS, COLD, 2, 26.0D, 5.0D, 0.42D, 15, true),
+            new Kin("chromecaller", "caller", true, SUMMONS, RIVERSIDE, 2, 28.0D, 5.0D, 0.30D, 24, false));
 
     /**
      * What each kindred is drawn with.
@@ -274,19 +274,19 @@ public final class KindredRules {
      * walk cycle to fall out of step.
      */
     public static final Map<String, String> SHAPES = Map.ofEntries(
-            Map.entry("scorpion", BeastRules.PROWLER),
-            Map.entry("ogre", BeastRules.BRUTE),
-            Map.entry("goblin", BeastRules.WIGHT),
-            Map.entry("wolf", BeastRules.PROWLER),
-            Map.entry("horse", FaunaRules.GRAZER),
-            Map.entry("ghost", BeastRules.WIGHT),
-            Map.entry("golem", BeastRules.BRUTE),
-            Map.entry("bat", FaunaRules.FOWL),
-            Map.entry("mimic", BeastRules.BRUTE),
-            Map.entry("owlbear", BeastRules.BRUTE),
-            Map.entry("purple_worm", BeastRules.PROWLER),
-            Map.entry("shrike", FaunaRules.FOWL),
-            Map.entry("silver_skeleton", BeastRules.WIGHT));
+            Map.entry("barb", BeastRules.PROWLER),
+            Map.entry("hulk", BeastRules.BRUTE),
+            Map.entry("runt", BeastRules.WIGHT),
+            Map.entry("fang", BeastRules.PROWLER),
+            Map.entry("charger", FaunaRules.GRAZER),
+            Map.entry("echo", BeastRules.WIGHT),
+            Map.entry("frame", BeastRules.BRUTE),
+            Map.entry("wing", FaunaRules.FOWL),
+            Map.entry("crate", BeastRules.BRUTE),
+            Map.entry("talon", BeastRules.BRUTE),
+            Map.entry("bore", BeastRules.PROWLER),
+            Map.entry("caster", FaunaRules.FOWL),
+            Map.entry("caller", BeastRules.WIGHT));
 
     /** The shape one of these is drawn with, or the empty string. */
     public static String shapeOf(Kin one) {

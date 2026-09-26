@@ -191,21 +191,21 @@ public final class WardRules {
      */
     public static final List<Warded> WARDED = List.of(
             //          id               ward   answer                        tier  hp    bite  blunted speed  wt
-            new Warded("ratman", ROT, "minecraft:golden_carrot", 1, 16.0D, 3.0D, 2.0D, 0.34D, 55),
-            new Warded("gremlin", SHOT, "minecraft:shield", 1, 14.0D, 3.5D, 2.0D, 0.36D, 50),
-            new Warded("bad_patch", ROT, "minecraft:milk_bucket", 1, 22.0D, 2.5D, 1.5D, 0.22D, 40),
-            new Warded("ghosty", CURSE, "minecraft:totem_of_undying", 1, 12.0D, 4.0D, 2.0D, 0.30D, 38),
+            new Warded("scurf", ROT, "minecraft:golden_carrot", 1, 16.0D, 3.0D, 2.0D, 0.34D, 55),
+            new Warded("slinger", SHOT, "minecraft:shield", 1, 14.0D, 3.5D, 2.0D, 0.36D, 50),
+            new Warded("canker", ROT, "minecraft:milk_bucket", 1, 22.0D, 2.5D, 1.5D, 0.22D, 40),
+            new Warded("residue", CURSE, "minecraft:totem_of_undying", 1, 12.0D, 4.0D, 2.0D, 0.30D, 38),
 
-            new Warded("lizzy", FLAME, "minecraft:water_bucket", 2, 26.0D, 5.0D, 3.0D, 0.32D, 30),
-            new Warded("swampman", ROT, "minecraft:honey_bottle", 2, 34.0D, 5.5D, 3.5D, 0.26D, 26),
-            new Warded("ghastling", FLAME, "minecraft:magma_cream", 2, 22.0D, 6.0D, 3.0D, 0.34D, 22),
-            new Warded("eldbomb", BLAST, "minecraft:iron_chestplate", 2, 18.0D, 8.0D, 3.5D, 0.30D, 24),
-            new Warded("samhain", CURSE, "minecraft:golden_apple", 2, 30.0D, 5.0D, 3.0D, 0.30D, 20),
+            new Warded("cinderling", FLAME, "minecraft:water_bucket", 2, 26.0D, 5.0D, 3.0D, 0.32D, 30),
+            new Warded("sludge", ROT, "minecraft:honey_bottle", 2, 34.0D, 5.5D, 3.5D, 0.26D, 26),
+            new Warded("pyrelet", FLAME, "minecraft:magma_cream", 2, 22.0D, 6.0D, 3.0D, 0.34D, 22),
+            new Warded("charge", BLAST, "minecraft:iron_chestplate", 2, 18.0D, 8.0D, 3.5D, 0.30D, 24),
+            new Warded("masker", CURSE, "minecraft:golden_apple", 2, 30.0D, 5.0D, 3.0D, 0.30D, 20),
 
-            new Warded("momma_lizzy", FLAME, "minecraft:potion", 3, 48.0D, 8.0D, 5.0D, 0.28D, 12),
-            new Warded("fallen_knight", SHOT, "minecraft:turtle_helmet", 3, 44.0D, 9.0D, 5.0D, 0.30D, 14),
-            new Warded("eldknight", FROST, "minecraft:leather_boots", 3, 52.0D, 9.5D, 5.5D, 0.28D, 10),
-            new Warded("netherman", BLAST, "minecraft:netherite_ingot", 3, 60.0D, 10.0D, 6.0D, 0.26D, 8));
+            new Warded("cinderdam", FLAME, "minecraft:potion", 3, 48.0D, 8.0D, 5.0D, 0.28D, 12),
+            new Warded("hullguard", SHOT, "minecraft:turtle_helmet", 3, 44.0D, 9.0D, 5.0D, 0.30D, 14),
+            new Warded("rimeguard", FROST, "minecraft:leather_boots", 3, 52.0D, 9.5D, 5.5D, 0.28D, 10),
+            new Warded("detonant", BLAST, "minecraft:netherite_ingot", 3, 60.0D, 10.0D, 6.0D, 0.26D, 8));
 
     /** What each court is drawn with — one shape for all of them, being knights. */
     public static final Map<String, String> SHAPES = Map.of(

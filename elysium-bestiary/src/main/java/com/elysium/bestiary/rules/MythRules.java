@@ -144,21 +144,21 @@ public final class MythRules {
      * below.
      */
     public static final List<Myth> MYTHS = List.of(
-            new Myth("basilisk", PETRIFY, "minecraft:carved_pumpkin", 3,
+            new Myth("glasseye", PETRIFY, "minecraft:carved_pumpkin", 3,
                     34.0D, 6.0D, 0.26D, 14, false, BeastRules.PROWLER),
-            new Myth("chupacabra", DRAIN, "minecraft:golden_apple", 2,
+            new Myth("siphon", DRAIN, "minecraft:golden_apple", 2,
                     22.0D, 5.0D, 0.40D, 30, false, BeastRules.PROWLER),
-            new Myth("drake", BREATH, "minecraft:magma_cream", 3,
+            new Myth("blastjaw", BREATH, "minecraft:magma_cream", 3,
                     44.0D, 7.0D, 0.30D, 12, false, BeastRules.BRUTE),
-            new Myth("automaton", PLATING, "minecraft:mace", 2,
+            new Myth("plateframe", PLATING, "minecraft:mace", 2,
                     40.0D, 5.0D, 0.20D, 22, false, BeastRules.BRUTE),
-            new Myth("kobold_warrior", NUMBERS, "minecraft:shield", 1,
+            new Myth("swarmhand", NUMBERS, "minecraft:shield", 1,
                     16.0D, 4.0D, 0.34D, 60, false, BeastRules.WIGHT),
-            new Myth("kobold", THIEVERY, "minecraft:tripwire_hook", 1,
+            new Myth("pilferhand", THIEVERY, "minecraft:tripwire_hook", 1,
                     12.0D, 1.0D, 0.44D, 75, true, BeastRules.WIGHT),
-            new Myth("pegasus", HEIGHT, "minecraft:bow", 2,
+            new Myth("skimwing", HEIGHT, "minecraft:bow", 2,
                     26.0D, 3.0D, 0.46D, 18, true, FaunaRules.GRAZER),
-            new Myth("sporeling", SPORES, "minecraft:shears", 1,
+            new Myth("bloomlet", SPORES, "minecraft:shears", 1,
                     14.0D, 2.0D, 0.28D, 52, false, FaunaRules.FOWL));
 
     /**

@@ -50,8 +50,8 @@ expect_regen() { regen; expect "$1" "$2"; }
 remove() { rm -f "$1"; }
 
 echo "two of a kindred doing one thing"
-edit $R '            new Kin("frost_scorpion", "scorpion", false, FREEZES, COLD, 1, 20.0D, 3.0D, 0.28D, 24, false),' \
-        '            new Kin("frost_scorpion", "scorpion", false, POISONS, COLD, 1, 20.0D, 3.0D, 0.28D, 24, false),'
+edit $R '            new Kin("rimebarb", "barb", false, FREEZES, COLD, 1, 20.0D, 3.0D, 0.28D, 24, false),' \
+        '            new Kin("rimebarb", "barb", false, POISONS, COLD, 1, 20.0D, 3.0D, 0.28D, 24, false),'
 expect "a variant doing what its base already does" "both of them poisons"
 
 edit $R '                if (!seen.add(one.trait())) {' '                if (false) {'
@@ -61,24 +61,24 @@ edit $R '        bad.addAll(faultsInTraitNames(KINDRED));' '        '
 expect "the trait rule never asked about what ships" "faultsInTraitNames is written, compiled and never added up"
 
 echo "two of a kindred in one place"
-edit $R '            new Kin("desert_scorpion", "scorpion", false, BURROWS, DRYLANDS, 1, 18.0D, 3.0D, 0.30D, 30, false),' \
-        '            new Kin("desert_scorpion", "scorpion", false, BURROWS, OPEN, 1, 18.0D, 3.0D, 0.30D, 30, false),'
+edit $R '            new Kin("dunebarb", "barb", false, BURROWS, DRYLANDS, 1, 18.0D, 3.0D, 0.30D, 30, false),' \
+        '            new Kin("dunebarb", "barb", false, BURROWS, OPEN, 1, 18.0D, 3.0D, 0.30D, 30, false),'
 expect "a variant living where its base lives" "both of them in #minecraft:is_overworld"
 
 edit $R '                if (!seen.add(one.home())) {' '                if (false) {'
 expect "the rule that stops two of a kindred crowding one biome" "living in one place are not reported"
 
 echo "a version of something that is really a rung of its own"
-edit $R '            new Kin("hell_ogre", "ogre", false, IGNITES, HELL, 2, 44.0D, 7.0D, 0.24D, 14, false),' \
-        '            new Kin("hell_ogre", "ogre", false, IGNITES, HELL, 3, 44.0D, 7.0D, 0.24D, 14, false),'
-expect "a member of a kindred on a rung of its own" "the rest of the ogre kindred on tier 2"
+edit $R '            new Kin("cinderhulk", "hulk", false, IGNITES, HELL, 2, 44.0D, 7.0D, 0.24D, 14, false),' \
+        '            new Kin("cinderhulk", "hulk", false, IGNITES, HELL, 3, 44.0D, 7.0D, 0.24D, 14, false),'
+expect "a member of a kindred on a rung of its own" "the rest of the hulk kindred on tier 2"
 
 edit $R '                if (one.tier() != rung) {' '                if (false) {'
 expect "the rule that holds a kindred to one rung" "standing on a different rung is not reported"
 
 echo "a family wide enough to be a ladder"
-edit $R '            new Kin("werewolf", "wolf", false, LEAPS, WOODS, 2, 34.0D, 6.0D, 0.40D, 12, false),' \
-        '            new Kin("werewolf", "wolf", false, LEAPS, WOODS, 2, 134.0D, 6.0D, 0.40D, 12, false),'
+edit $R '            new Kin("moonfang", "fang", false, LEAPS, WOODS, 2, 34.0D, 6.0D, 0.40D, 12, false),' \
+        '            new Kin("moonfang", "fang", false, LEAPS, WOODS, 2, 134.0D, 6.0D, 0.40D, 12, false),'
 expect "a kindred wider than the module allows" "which is past the 2.0 this module allows"
 
 edit $R '    public static final double WIDEST_KINDRED = 2.0D;' \
@@ -90,12 +90,12 @@ edit $R '            if (least.threat() > 0.0D && most.threat() > least.threat()
 expect "the rule that caps how wide a family may be" "is reported wrongly"
 
 echo "the head of a family"
-edit $R '            new Kin("scorpion", "scorpion", true, POISONS, OPEN, 1, 16.0D, 3.0D, 0.30D, 40, true),' \
-        '            new Kin("scorpion", "scorpion", false, POISONS, OPEN, 1, 16.0D, 3.0D, 0.30D, 40, true),'
+edit $R '            new Kin("ferricbarb", "barb", true, POISONS, OPEN, 1, 16.0D, 3.0D, 0.30D, 40, true),' \
+        '            new Kin("ferricbarb", "barb", false, POISONS, OPEN, 1, 16.0D, 3.0D, 0.30D, 40, true),'
 expect "a kindred with nobody at the head of it" "kindred has no base"
 
-edit $R '            new Kin("desert_scorpion", "scorpion", false, BURROWS, DRYLANDS, 1, 18.0D, 3.0D, 0.30D, 30, false),' \
-        '            new Kin("desert_scorpion", "scorpion", true, BURROWS, DRYLANDS, 1, 18.0D, 3.0D, 0.30D, 30, false),'
+edit $R '            new Kin("dunebarb", "barb", false, BURROWS, DRYLANDS, 1, 18.0D, 3.0D, 0.30D, 30, false),' \
+        '            new Kin("dunebarb", "barb", true, BURROWS, DRYLANDS, 1, 18.0D, 3.0D, 0.30D, 30, false),'
 expect "a kindred with two heads" "kindred has 2 bases"
 
 edit $R '            if (entry.getValue() == 0) {' '            if (false) {'
@@ -105,27 +105,27 @@ edit $R '            if (entry.getValue() > 1) {' '            if (false) {'
 expect "the rule that finds a two-headed family" "a kindred with two bases is not reported"
 
 echo "young that belong to a costume"
-edit $R '            new Kin("frost_scorpion", "scorpion", false, FREEZES, COLD, 1, 20.0D, 3.0D, 0.28D, 24, false),' \
-        '            new Kin("frost_scorpion", "scorpion", false, FREEZES, COLD, 1, 20.0D, 3.0D, 0.28D, 24, true),'
+edit $R '            new Kin("rimebarb", "barb", false, FREEZES, COLD, 1, 20.0D, 3.0D, 0.28D, 24, false),' \
+        '            new Kin("rimebarb", "barb", false, FREEZES, COLD, 1, 20.0D, 3.0D, 0.28D, 24, true),'
 expect "young belonging to a variant rather than the family" "has young and is not the base"
 
 edit $R '            if (one.young() && !one.base()) {' '            if (false) {'
 expect "the rule that keeps young with the family" "belonging to a costume rather than to the family are not reported"
 
 echo "nothing spare and nothing missing"
-edit $R '            new Kin("silver_skeleton", "silver_skeleton", true, SUMMONS, RIVERSIDE, 2, 28.0D, 5.0D, 0.30D, 24, false));' \
-        '            new Kin("silver_skeleton", "silver_skeleton", true, THROWS, RIVERSIDE, 2, 28.0D, 5.0D, 0.30D, 24, false));'
-edit $R '            new Kin("goblin", "goblin", true, SUMMONS, OPEN, 1, 14.0D, 2.0D, 0.34D, 55, false),' \
-        '            new Kin("goblin", "goblin", true, DRAINS, OPEN, 1, 14.0D, 2.0D, 0.34D, 55, false),'
+edit $R '            new Kin("chromecaller", "caller", true, SUMMONS, RIVERSIDE, 2, 28.0D, 5.0D, 0.30D, 24, false));' \
+        '            new Kin("chromecaller", "caller", true, THROWS, RIVERSIDE, 2, 28.0D, 5.0D, 0.30D, 24, false));'
+edit $R '            new Kin("ferricrunt", "runt", true, SUMMONS, OPEN, 1, 14.0D, 2.0D, 0.34D, 55, false),' \
+        '            new Kin("ferricrunt", "runt", true, DRAINS, OPEN, 1, 14.0D, 2.0D, 0.34D, 55, false),'
 expect_regen "a thing nothing in the roster does" "leaves a trait uncarried"
 
 edit $R '            if (!carried) {' '            if (false) {'
 expect "the rule that finds a thing nothing does" "a trait nothing carries is not reported"
 
-edit $R '            new Kin("zombie_horse", "horse", false, POISONS, RIVERSIDE, 1, 20.0D, 3.0D, 0.32D, 20, false),' \
-        '            new Kin("zombie_horse", "horse", false, POISONS, PEAKS, 1, 20.0D, 3.0D, 0.32D, 20, false),'
-edit $R '            new Kin("silver_skeleton", "silver_skeleton", true, SUMMONS, RIVERSIDE, 2, 28.0D, 5.0D, 0.30D, 24, false));' \
-        '            new Kin("silver_skeleton", "silver_skeleton", true, SUMMONS, PEAKS, 2, 28.0D, 5.0D, 0.30D, 24, false));'
+edit $R '            new Kin("rotcharger", "charger", false, POISONS, RIVERSIDE, 1, 20.0D, 3.0D, 0.32D, 20, false),' \
+        '            new Kin("rotcharger", "charger", false, POISONS, PEAKS, 1, 20.0D, 3.0D, 0.32D, 20, false),'
+edit $R '            new Kin("chromecaller", "caller", true, SUMMONS, RIVERSIDE, 2, 28.0D, 5.0D, 0.30D, 24, false));' \
+        '            new Kin("chromecaller", "caller", true, SUMMONS, PEAKS, 2, 28.0D, 5.0D, 0.30D, 24, false));'
 expect_regen "a place nothing lives in any more" "leaves a place empty"
 
 edit $R '            if (!lived) {' '            if (false) {'
@@ -143,8 +143,8 @@ edit $R '            if (!traits.contains(one.trait())) {' '            if (fals
 expect "the rule that holds a trait to something made to happen" "doing something nothing here has heard of is not reported"
 
 echo "standing under the ladder the pack is built on"
-edit $R '            new Kin("purple_worm", "purple_worm", true, BURROWS, DRYLANDS, 3, 70.0D, 9.0D, 0.24D, 6, false),' \
-        '            new Kin("purple_worm", "purple_worm", true, BURROWS, DRYLANDS, 3, 700.0D, 9.0D, 0.24D, 6, false),'
+edit $R '            new Kin("deepbore", "bore", true, BURROWS, DRYLANDS, 3, 70.0D, 9.0D, 0.24D, 6, false),' \
+        '            new Kin("deepbore", "bore", true, BURROWS, DRYLANDS, 3, 700.0D, 9.0D, 0.24D, 6, false),'
 expect "a variant that is also the hardest thing on its rung" "on the same rung, so the ladder"
 
 edit $R '            if (beside != null && one.threat() >= beside.threat()) {' '            if (false) {'
@@ -154,11 +154,11 @@ edit $R '            if (beside(one, beasts) == null) {' '            if (false)
 expect "a creature on a rung with no beast on it" "on a rung with no beast on it is not reported"
 
 echo "the shape a family is drawn with"
-edit $R '            Map.entry("scorpion", BeastRules.PROWLER),' \
-        '            Map.entry("scorpion", "serpent"),'
+edit $R '            Map.entry("barb", BeastRules.PROWLER),' \
+        '            Map.entry("barb", "serpent"),'
 expect "a family drawn as something nothing draws" "renders as a black-and-magenta cube"
 
-edit $R '            Map.entry("bat", FaunaRules.FOWL),' '            Map.entry("bats", FaunaRules.FOWL),'
+edit $R '            Map.entry("wing", FaunaRules.FOWL),' '            Map.entry("bats", FaunaRules.FOWL),'
 expect "a family drawn with nothing at all" "is drawn with nothing"
 
 edit $R '        bad.addAll(faultsInShapes(KINDRED, MythRules.forms()));' '        '
@@ -184,7 +184,7 @@ expect "what a creature does on contact chosen by which creature it is" "what a 
 
 edit $AC '    public static final int BETWEEN = 80;' \
         '    public static final int BETWEEN = 80;
-    private static final String WHICH = "werewolf";'
+    private static final String WHICH = "moonfang";'
 expect "a creature named in the branch that makes its difference happen" "is named in the traits"
 
 edit $AC '    public static void onContact(KinEntity self, LivingEntity hurt,' \
@@ -236,7 +236,7 @@ edit $G '                  "biomes": KINDRED_HOMES[one["home"]],' \
         '                  "biomes": "#minecraft:is_overworld",'
 expect_regen "every spawn rule written into the overworld at large" "and its row says"
 
-remove $M/src/main/resources/assets/elysiumbestiary/textures/entity/purple_worm.png
+remove $M/src/main/resources/assets/elysiumbestiary/textures/entity/deepbore.png
 expect "a creature with no texture" "has no texture"
 
 edit $G '        lang["bestiary.%s.trait.%s" % (NS, one["id"])] = TRAIT_WORDS[one["trait"]]' \

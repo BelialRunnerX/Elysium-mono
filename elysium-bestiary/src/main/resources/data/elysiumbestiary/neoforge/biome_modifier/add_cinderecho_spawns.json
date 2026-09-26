@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#minecraft:is_nether",
+  "spawners": [
+    {
+      "type": "elysiumbestiary:cinderecho",
+      "weight": 16,
+      "minCount": 1,
+      "maxCount": 2
+    }
+  ]
+}

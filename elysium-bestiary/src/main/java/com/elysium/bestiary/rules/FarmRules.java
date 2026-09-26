@@ -36,11 +36,11 @@ import java.util.Set;
  * The game gives no experience for a mob nothing player-ish killed, so such a
  * farm pays in drops alone — and the drop share is not uniform, because
  * {@link BeastRules#derive} rounds each reward into a whole number of items and
- * a whole number of orbs. A shardling comes out at a third drops and a husk ox
+ * a whole number of orbs. A spallet comes out at a third drops and a drayhulk
  * at a fifth. Multiply the orbs by nothing and those two rounding artefacts
  * become the whole of the answer: the spread goes to <b>1.618</b>, past the
  * band the entire bestiary is balanced on, and the best thing in the pack to
- * farm quietly changes from the mourner to the shardling.
+ * farm quietly changes from the carrier to the spallet.
  *
  * <p>Nothing in the game reports that. The farm works, the items arrive, and
  * the only symptom is that one mob is now the one everybody builds for.

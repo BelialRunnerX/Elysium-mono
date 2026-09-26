@@ -181,29 +181,29 @@ public final class FaunaRules {
      * worked out from them.
      */
     public static final List<Animal> ANIMALS = List.of(
-            new Animal("moorstag", GRAZER, 12.0D, 0.28D, 1.3F, 1.6F,
+            new Animal("fenstag", GRAZER, 12.0D, 0.28D, 1.3F, 1.6F,
                     "minecraft:wheat", "minecraft:mutton", 4, 60),
-            new Animal("dunemare", GRAZER, 15.0D, 0.32D, 1.4F, 1.8F,
+            new Animal("dunecharger", GRAZER, 15.0D, 0.32D, 1.4F, 1.8F,
                     "minecraft:carrot", "minecraft:rabbit_hide", 5, 30),
-            new Animal("fellox", GRAZER, 18.0D, 0.20D, 1.5F, 1.7F,
+            new Animal("ferrox", GRAZER, 18.0D, 0.20D, 1.5F, 1.7F,
                     "minecraft:wheat", "minecraft:beef", 6, 40),
-            new Animal("stonemole", FORAGER, 6.0D, 0.24D, 0.6F, 0.5F,
+            new Animal("cragmole", FORAGER, 6.0D, 0.24D, 0.6F, 0.5F,
                     "minecraft:melon_slice", "minecraft:clay_ball", 2, 90),
-            new Animal("quillrat", FORAGER, 8.0D, 0.30D, 0.7F, 0.6F,
+            new Animal("quillmite", FORAGER, 8.0D, 0.30D, 0.7F, 0.6F,
                     "minecraft:beetroot", "minecraft:brown_mushroom", 3, 70),
-            new Animal("brackhog", FORAGER, 10.0D, 0.26D, 0.9F, 0.9F,
+            new Animal("brackhide", FORAGER, 10.0D, 0.26D, 0.9F, 0.9F,
                     "minecraft:potato", "minecraft:porkchop", 4, 50),
-            new Animal("cragjay", FOWL, 4.0D, 0.34D, 0.4F, 0.6F,
+            new Animal("cragwing", FOWL, 4.0D, 0.34D, 0.4F, 0.6F,
                     "minecraft:pumpkin_seeds", "minecraft:egg", 1, 100),
-            new Animal("mirefowl", FOWL, 5.0D, 0.25D, 0.5F, 0.8F,
+            new Animal("mirewing", FOWL, 5.0D, 0.25D, 0.5F, 0.8F,
                     "minecraft:wheat_seeds", "minecraft:feather", 2, 80),
-            new Animal("ashquail", FOWL, 6.0D, 0.22D, 0.6F, 0.7F,
+            new Animal("ashwing", FOWL, 6.0D, 0.22D, 0.6F, 0.7F,
                     "minecraft:melon_seeds", "minecraft:chicken", 3, 55),
-            new Animal("glasseel", SWIMMER, 4.0D, 0.40D, 0.4F, 0.4F,
+            new Animal("glassfin", SWIMMER, 4.0D, 0.40D, 0.4F, 0.4F,
                     "minecraft:kelp", "minecraft:salmon", 2, 85),
-            new Animal("silverfin", SWIMMER, 6.0D, 0.36D, 0.5F, 0.4F,
+            new Animal("chromefin", SWIMMER, 6.0D, 0.36D, 0.5F, 0.4F,
                     "minecraft:kelp", "minecraft:cod", 3, 65),
-            new Animal("shalecrab", SWIMMER, 9.0D, 0.18D, 0.7F, 0.5F,
+            new Animal("shaleshell", SWIMMER, 9.0D, 0.18D, 0.7F, 0.5F,
                     "minecraft:seagrass", "minecraft:tropical_fish", 4, 45));
 
     /** The animal with this id, or null. */
@@ -497,8 +497,8 @@ public final class FaunaRules {
      * Whether anything you can farm is something you would otherwise fight for.
      *
      * <p>Handed both rosters so a control can pass a pair built to be caught.
-     * A pen that produces what the hollow lord produces is a pen that makes
-     * the hollow lord pointless, and the bestiary's whole ladder is built on
+     * A pen that produces what the nullprime produces is a pen that makes
+     * the nullprime pointless, and the bestiary's whole ladder is built on
      * the assumption that the only way to get what a beast leaves is to meet
      * one.
      */

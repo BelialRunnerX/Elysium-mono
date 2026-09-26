@@ -1,6 +1,6 @@
 # The negative tests
 
-180 scripts. Each one takes a validator that passes, breaks the thing it
+181 scripts. Each one takes a validator that passes, breaks the thing it
 checks — one way at a time — and proves the validator says so.
 
 They are here because they were not, for most of this project's life. They
@@ -33,7 +33,29 @@ before a real run: an anchor that no longer matches means the script is
 testing a line that has since been rewritten, and it will silently test
 nothing.
 
-Two holes in `dryrun.py` have been found the hard way, both by it letting a
+A dry run that will not parse prints nothing, and nothing is exactly what a
+clean dry run prints. `dryrun.py` now runs `bash -n` over what it wrote and
+refuses to hand it over if it is not a script, because three scripts —
+`negtest_gates.sh`, `negtest_icons.sh` and `negtest_uncap.sh` — had a dry run
+that died on a syntax error for as long as they had existed, and every author
+who ran one read the silence as a pass. Two stale anchors reached a real run
+that way. The three shapes that broke it were a command split over several
+lines with a trailing backslash, a multi-line `restore()` with a brace group
+inside it, and a function whose last line was its cleanup.
+
+A fifth hole, and the first found in a script written after `dryrun.py`
+existed: a helper whose body is an inline `python3 -c` that writes. Not a
+heredoc, not a bare shell mutation, and not called `edit`, so every pattern
+walked past it — and since `restore()` is neutered for a dry run, what it
+wrote stayed written. `negtest_names.sh`'s dry run put nine creature names
+into a language file and took a word out of a data file, and the tree stayed
+broken until the next real run refused to start. Helpers are now neutered by
+what their body does rather than by what they are called, because the name is
+the part that keeps changing. If you add a helper that writes, check
+`dryrun.py` knows about it, and check by running the dry variant and diffing
+the tree rather than by reading the patterns.
+
+Two more holes have been found the hard way, both by it letting a
 write through: a bare `rm` in `negtest_atelier.sh` deleted a generated file
 that then went into the next snapshot, so every restore came back broken; and
 a heredoc tagged `PYZ` rather than `PYX` went straight through the neutering.

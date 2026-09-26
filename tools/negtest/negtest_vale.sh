@@ -51,12 +51,12 @@ expect_regen() { regen; expect "$1" "$2"; }
 remove() { rm -f "$1"; }
 
 echo "the gradient"
-edit $R '            new Denizen("devourer", "sulphur_springs", 3, 61.0D, 8.5D, 0.28D, 10));' \
-        '            new Denizen("devourer", "sulphur_springs", 3, 7.0D, 0.5D, 0.28D, 10));'
+edit $R '            new Denizen("sulphwarden", "sulphur_springs", 3, 61.0D, 8.5D, 0.28D, 10));' \
+        '            new Denizen("sulphwarden", "sulphur_springs", 3, 7.0D, 0.5D, 0.28D, 10));'
 expect "something three rings out a player could have met at the portal" "the walk bought them nothing"
 
-edit $R '            new Denizen("pixie", "verdant_vale", 0, 16.0D, 2.0D, 0.26D, 50),' \
-        '            new Denizen("pixie", "verdant_vale", 0, 160.0D, 20.0D, 0.26D, 50),'
+edit $R '            new Denizen("verdlet", "verdant_vale", 0, 16.0D, 2.0D, 0.26D, 50),' \
+        '            new Denizen("verdlet", "verdant_vale", 0, 160.0D, 20.0D, 0.26D, 50),'
 expect "something at the portal harder than what is three rings out" "stops being a decision"
 
 edit $R '            if (one.threat() < band[0]) {' '            if (false) {'
@@ -76,8 +76,8 @@ edit $R '            if (band[0] >= band[1]) {' '            if (false) {'
 expect "the rule that keeps a band a band" "where the floor is 900"
 
 echo "a ring that lies"
-edit $R '            new Denizen("devil", "cinder_flats", 3, 84.0D, 7.5D, 0.30D, 10),' \
-        '            new Denizen("devil", "cinder_flats", 1, 84.0D, 7.5D, 0.30D, 10),'
+edit $R '            new Denizen("cinderprime", "cinder_flats", 3, 84.0D, 7.5D, 0.30D, 10),' \
+        '            new Denizen("cinderprime", "cinder_flats", 1, 84.0D, 7.5D, 0.30D, 10),'
 expect "a creature written nearer than its own crossing" "the band of danger it is held to is the band of somewhere else"
 
 edit $R '            if (really >= 0 && one.ring() != really) {' '            if (false) {'
@@ -88,8 +88,8 @@ edit $R '        return Math.abs(warmth - WARMTHS / 2) + Math.abs(wet - WETS / 2
 expect "a map on which everywhere is the middle" "and rime_barrens is 0"
 
 echo "a crossing with nothing in it"
-edit $R '            new Denizen("ent", "goldwood", 1, 27.0D, 5.0D, 0.26D, 34),' \
-        '            new Denizen("ent", "pinewold", 1, 27.0D, 5.0D, 0.26D, 34),'
+edit $R '            new Denizen("goldkin", "goldwood", 1, 27.0D, 5.0D, 0.26D, 34),' \
+        '            new Denizen("goldkin", "pinewold", 1, 27.0D, 5.0D, 0.26D, 34),'
 expect_regen "a crossing nothing lives in" "which reads as the dimension being unfinished"
 
 edit $R '            if (living(place, roster).isEmpty()) {' '            if (false) {'
@@ -99,8 +99,8 @@ edit $R '            if (!places.contains(one.place())) {' '            if (fals
 expect "the rule that holds a creature to a crossing the Vale has" "the Vale does not have is not reported"
 
 echo "the ceiling the whole pack is priced against"
-edit $R '            new Denizen("undead", "frostmere", 3, 101.0D, 7.5D, 0.28D, 10),' \
-        '            new Denizen("undead", "frostmere", 3, 1010.0D, 7.5D, 0.28D, 10),'
+edit $R '            new Denizen("frostprime", "frostmere", 3, 101.0D, 7.5D, 0.28D, 10),' \
+        '            new Denizen("frostprime", "frostmere", 3, 1010.0D, 7.5D, 0.28D, 10),'
 expect "something in the Vale harder than the hardest thing in the world" "has something above it in another dimension"
 
 edit $R '            if (hardest > 0.0D && one.threat() >= hardest) {' '            if (false) {'
@@ -123,12 +123,12 @@ edit $G '                  "biomes": "#%s:vale_%s" % (NS, one["place"]),' \
 expect_regen "every spawn rule pointed at one crossing" "so the gradient the rules prove is about somewhere the world does not put it"
 
 echo "no two rosters under one name"
-edit $R '            new Denizen("pixie", "verdant_vale", 0, 16.0D, 2.0D, 0.26D, 50),' \
-        '            new Denizen("goblin", "verdant_vale", 0, 16.0D, 2.0D, 0.26D, 50),'
+edit $R '            new Denizen("verdlet", "verdant_vale", 0, 16.0D, 2.0D, 0.26D, 50),' \
+        '            new Denizen("ferricrunt", "verdant_vale", 0, 16.0D, 2.0D, 0.26D, 50),'
 expect "one name used by two rosters" "and they all register onto one registry"
 
-edit $R '            new Denizen("pixie", "verdant_vale", 0, 16.0D, 2.0D, 0.26D, 50),' \
-        '            new Denizen("goblin", "verdant_vale", 0, 16.0D, 2.0D, 0.26D, 50),'
+edit $R '            new Denizen("verdlet", "verdant_vale", 0, 16.0D, 2.0D, 0.26D, 50),' \
+        '            new Denizen("ferricrunt", "verdant_vale", 0, 16.0D, 2.0D, 0.26D, 50),'
 edit $V '        if len(_in) > 1:' '        if False:'
 expect "the rule that finds a name used twice" "this module writes no such tag"
 
@@ -165,7 +165,7 @@ edit $CL '            event.registerLayerDefinition(DenizenModel.LAYERS.get(form
 expect "model layers never registered" "baking one throws"
 
 echo "what the generator writes"
-remove $M/src/main/resources/assets/elysiumbestiary/textures/entity/devourer.png
+remove $M/src/main/resources/assets/elysiumbestiary/textures/entity/sulphwarden.png
 expect "a creature with no texture" "has no texture"
 
 edit $G '        lang["bestiary.%s.ring.%s" % (NS, one["id"])] = RING_WORDS[one["ring"]]' \

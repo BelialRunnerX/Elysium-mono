@@ -50,8 +50,8 @@ expect_regen() { regen; expect "$1" "$2"; }
 remove() { rm -f "$1"; }
 
 echo "a court worth more than the head it stands behind"
-edit $R '            new Member("baby_skeleton", "bonescaller", SWARM, 2, 5.0D, 3.0D, 0.34D, 3, 40, "", ""),' \
-        '            new Member("baby_skeleton", "bonescaller", SWARM, 2, 95.0D, 3.0D, 0.34D, 3, 40, "", ""),'
+edit $R '            new Member("forgelet", "forge", SWARM, 2, 5.0D, 3.0D, 0.34D, 3, 40, "", ""),' \
+        '            new Member("forgelet", "forge", SWARM, 2, 95.0D, 3.0D, 0.34D, 3, 40, "", ""),'
 expect "a swarm big enough to be the fight" "so the head is the thing you ignore"
 
 edit $R '            if (standing > head.threat() * share) {' '            if (false) {'
@@ -65,8 +65,8 @@ edit $R '            total += one.standing();' '            total += 0.0D;'
 expect "a court whose members are counted as worth nothing" "is reported wrongly"
 
 echo "a boss, or a wall"
-edit $R '            new Member("lord_pumpkinhead", "pumpkin", HEAD, 3, 194.0D, 14.0D, 0.26D, 1, 4, "minecraft:water_bucket", "minecraft:shears"),' \
-        '            new Member("lord_pumpkinhead", "pumpkin", HEAD, 3, 1940.0D, 14.0D, 0.26D, 1, 4, "minecraft:water_bucket", "minecraft:shears"),'
+edit $R '            new Member("graftprime", "graft", HEAD, 3, 194.0D, 14.0D, 0.26D, 1, 4, "minecraft:water_bucket", "minecraft:shears"),' \
+        '            new Member("graftprime", "graft", HEAD, 3, 1940.0D, 14.0D, 0.26D, 1, 4, "minecraft:water_bucket", "minecraft:shears"),'
 expect "a head past what this pack calls a boss" "into what it calls a wall"
 
 edit $R '            if (one.head() && beside != null' '            if (false && beside != null'
@@ -77,20 +77,20 @@ expect "a head on a rung with no beast on it" "on a rung with no beast on it is 
 
 edit $R '    public static final double BOSS_OVER_BEAST = 3.0D;' \
         '    public static final double BOSS_OVER_BEAST = 300.0D;'
-edit $R '            new Member("zombie_bruiser", "zombie", HEAD, 1, 39.0D, 7.0D, 0.26D, 1, 4, "minecraft:iron_sword", ""),' \
-        '            new Member("zombie_bruiser", "zombie", HEAD, 1, 139.0D, 7.0D, 0.26D, 1, 4, "minecraft:iron_sword", ""),'
+edit $R '            new Member("rotprime", "rot", HEAD, 1, 39.0D, 7.0D, 0.26D, 1, 4, "minecraft:iron_sword", ""),' \
+        '            new Member("rotprime", "rot", HEAD, 1, 139.0D, 7.0D, 0.26D, 1, 4, "minecraft:iron_sword", ""),'
 expect "a ceiling wide enough to let a boss out-fight the rung above it" "a whole rung higher"
 
 edit $R '            if (above != null && one.threat() > above.threat()) {' '            if (false) {'
 expect "the rule that keeps a boss under the rung above it" "out-fighting a tier-two beast is not reported"
 
 echo "the head of a court"
-edit $R '            new Member("supreme_bonescaller", "bonescaller", HEAD, 2, 97.0D, 10.5D, 0.26D, 1, 4, "minecraft:shield", "minecraft:bow"),' \
-        '            new Member("supreme_bonescaller", "bonescaller", SHIELD, 2, 97.0D, 10.5D, 0.26D, 1, 4, "minecraft:shield", "minecraft:bow"),'
+edit $R '            new Member("forgeprime", "forge", HEAD, 2, 97.0D, 10.5D, 0.26D, 1, 4, "minecraft:shield", "minecraft:bow"),' \
+        '            new Member("forgeprime", "forge", SHIELD, 2, 97.0D, 10.5D, 0.26D, 1, 4, "minecraft:shield", "minecraft:bow"),'
 expect "a court with nobody at the head of it" "court has no head"
 
-edit $R '            new Member("bonescaller", "bonescaller", HERALD, 2, 16.0D, 6.0D, 0.28D, 1, 10, "", ""),' \
-        '            new Member("bonescaller", "bonescaller", HEAD, 2, 16.0D, 6.0D, 0.28D, 1, 10, "minecraft:bow", ""),'
+edit $R '            new Member("forgecaller", "forge", HERALD, 2, 16.0D, 6.0D, 0.28D, 1, 10, "", ""),' \
+        '            new Member("forge", "forge", HEAD, 2, 16.0D, 6.0D, 0.28D, 1, 10, "minecraft:bow", ""),'
 expect "a court with two heads" "court has 2 heads"
 
 edit $R '            if (entry.getValue() == 0) {' '            if (false) {'
@@ -109,8 +109,8 @@ expect "a second phase answered the same way as the first" "in both of its phase
 edit $R '            if (one.twoPhased() && one.then().equals(one.first())) {' '            if (false) {'
 expect "the rule that makes a second phase different" "answered by the same thing as the first is not reported"
 
-edit $R '            new Member("krampus", "krampus", HEAD, 2, 97.0D, 10.5D, 0.26D, 1, 4, "minecraft:snowball", ""),' \
-        '            new Member("krampus", "krampus", HEAD, 2, 97.0D, 10.5D, 0.26D, 1, 4, "", ""),'
+edit $R '            new Member("hoarprime", "hoar", HEAD, 2, 97.0D, 10.5D, 0.26D, 1, 4, "minecraft:snowball", ""),' \
+        '            new Member("hoarprime", "hoar", HEAD, 2, 97.0D, 10.5D, 0.26D, 1, 4, "", ""),'
 expect "a head nothing answers at all" "nothing answers it, which is"
 
 edit $R '            if (one.head() && (one.first() == null || one.first().isEmpty())) {' '            if (false) {'
@@ -119,31 +119,31 @@ expect "the rule that says every head has an answer" "a head nothing answers is 
 edit $R '            if (one.twoPhased() && !one.head()) {' '            if (false) {'
 expect "the rule that keeps phases to heads" "that is not a head having two phases is not reported"
 
-edit $R '            new Member("bonescaller", "bonescaller", HERALD, 2, 16.0D, 6.0D, 0.28D, 1, 10, "", ""),' \
-        '            new Member("bonescaller", "bonescaller", HERALD, 2, 16.0D, 6.0D, 0.28D, 1, 10, "minecraft:bow", "minecraft:shield"),'
+edit $R '            new Member("forgecaller", "forge", HERALD, 2, 16.0D, 6.0D, 0.28D, 1, 10, "", ""),' \
+        '            new Member("forgecaller", "forge", HERALD, 2, 16.0D, 6.0D, 0.28D, 1, 10, "minecraft:bow", "minecraft:shield"),'
 expect "something that is not a head fighting twice" "does not head a court, so"
 
 echo "the one a court may have only one of"
-edit $R '            new Member("mrs_pumpkin", "pumpkin", HEALER, 3, 36.0D, 4.0D, 0.24D, 1, 8, "", ""),' \
-        '            new Member("mrs_pumpkin", "pumpkin", HEALER, 3, 36.0D, 4.0D, 0.24D, 2, 8, "", ""),'
+edit $R '            new Member("graftmender", "graft", HEALER, 3, 36.0D, 4.0D, 0.24D, 1, 8, "", ""),' \
+        '            new Member("graftmender", "graft", HEALER, 3, 36.0D, 4.0D, 0.24D, 2, 8, "", ""),'
 expect "two healers standing at once" "and one is the most any court may have"
 
 edit $R '                if (found > 1) {' '                if (false) {'
 expect "the rule that keeps a court to one healer" "with two healers standing at once is not reported"
 
 echo "one court, one rung"
-edit $R '            new Member("baby_skeleton", "bonescaller", SWARM, 2, 5.0D, 3.0D, 0.34D, 3, 40, "", ""),' \
-        '            new Member("baby_skeleton", "bonescaller", SWARM, 3, 5.0D, 3.0D, 0.34D, 3, 40, "", ""),'
+edit $R '            new Member("forgelet", "forge", SWARM, 2, 5.0D, 3.0D, 0.34D, 3, 40, "", ""),' \
+        '            new Member("forgelet", "forge", SWARM, 3, 5.0D, 3.0D, 0.34D, 3, 40, "", ""),'
 expect "a court straddling two rungs" "measured against two different ladders"
 
 edit $R '                if (one.tier() != rung) {' '                if (false) {'
 expect "the rule that holds a court to one rung" "straddling two rungs is not reported"
 
 echo "nothing spare and nothing missing"
-edit $R '            new Member("felsteed", "chaos", MOUNT, 3, 28.0D, 6.0D, 0.40D, 1, 8, "", ""));' \
-        '            new Member("felsteed", "chaos", SWARM, 3, 28.0D, 6.0D, 0.40D, 1, 8, "", ""));'
-edit $R '            new Member("lords_felsteed", "pumpkin", MOUNT, 3, 18.0D, 6.0D, 0.40D, 1, 8, "", ""),' \
-        '            new Member("lords_felsteed", "pumpkin", SWARM, 3, 18.0D, 6.0D, 0.40D, 1, 8, "", ""),'
+edit $R '            new Member("breachcharger", "breach", MOUNT, 3, 28.0D, 6.0D, 0.40D, 1, 8, "", ""));' \
+        '            new Member("breachcharger", "breach", SWARM, 3, 28.0D, 6.0D, 0.40D, 1, 8, "", ""));'
+edit $R '            new Member("graftcharger", "graft", MOUNT, 3, 18.0D, 6.0D, 0.40D, 1, 8, "", ""),' \
+        '            new Member("graftcharger", "graft", SWARM, 3, 18.0D, 6.0D, 0.40D, 1, 8, "", ""),'
 expect_regen "a role no court fills" "leaves a role unfilled"
 
 edit $R '            if (!filled) {' '            if (false) {'
@@ -175,7 +175,7 @@ expect "what a creature does on contact chosen by which creature it is" "in onCo
 
 edit $AC '    public static final int BETWEEN = 60;' \
         '    public static final int BETWEEN = 60;
-    private static final String WHICH = "supreme_bonescaller";'
+    private static final String WHICH = "forgeprime";'
 expect "a creature named in the branch that makes its role happen" "is named in the roles"
 
 edit $AC '                if (self.roomFor() > 0 && level instanceof ServerLevel server) {' \
@@ -244,7 +244,7 @@ edit $G '                      "weight": one["weight"],
                       "maxCount": one["most"],'
 expect_regen "a spawn weight that is not the row's" "times on disk"
 
-remove $M/src/main/resources/assets/elysiumbestiary/textures/entity/krampus.png
+remove $M/src/main/resources/assets/elysiumbestiary/textures/entity/hoarprime.png
 expect "a creature with no texture" "has no texture"
 
 edit $G '        lang["bestiary.%s.role.%s" % (NS, one["id"])] = ROLE_WORDS[one["role"]]' \

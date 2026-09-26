@@ -501,7 +501,7 @@ public final class BeastHarness {
                 "the bands this module ships are reported as faulty");
 
         check(!HauntRules.faultsInRoom(HauntRules.theseBeasts(BeastRules.BEASTS), java.util.List.of(
-                        new HauntRules.Haunt("siege_beast", "#minecraft:is_nether",
+                        new HauntRules.Haunt("siegehulk", "#minecraft:is_nether",
                                 0, 7, 0, 64, 1, 60))).isEmpty(),
                 "sixty siege beasts at a time are not reported, so a weight "
                         + "could promise a rate the game cannot place");
@@ -698,13 +698,13 @@ public final class BeastHarness {
                         + "pointless");
 
         check(!FaunaRules.faultsInDaylight(FaunaRules.ANIMALS, java.util.List.of(
-                        new HauntRules.Haunt("moorstag", "#minecraft:is_forest",
+                        new HauntRules.Haunt("fenstag", "#minecraft:is_forest",
                                 0, 15, 0, 64, 1, 2))).isEmpty(),
                 "a land animal that spawns down to pitch dark is not reported, so "
                         + "the half of the roster that does not attack you is in "
                         + "the caves with the half that does");
         check(!FaunaRules.faultsInDaylight(FaunaRules.ANIMALS, java.util.List.of(
-                        new HauntRules.Haunt("moorstag", "#minecraft:is_forest",
+                        new HauntRules.Haunt("fenstag", "#minecraft:is_forest",
                                 9, 10, 0, 64, 1, 2))).isEmpty(),
                 "a land animal that never spawns in full daylight is not "
                         + "reported, so a thing meant to be standing in a field "

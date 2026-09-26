@@ -68,16 +68,16 @@ expect "a top tier worth so much more to farm that nothing else is" "grinder for
 edit $R 'public static final double TILT_PER_TIER = 0.06D;' 'public static final double TILT_PER_TIER = 0.0D;'
 expect "a ladder that pays no better at the top than at the bottom" "getting stronger buys nothing"
 
-edit $R 'new Beast("siege_beast", BRUTE, 3, 90.0D, 12.0D, 0.26D, 10.0D, 10, 2.0F, 3.0F)' \
-        'new Beast("siege_beast", BRUTE, 3, 400.0D, 12.0D, 0.26D, 10.0D, 10, 2.0F, 3.0F)'
+edit $R 'new Beast("siegehulk", BRUTE, 3, 90.0D, 12.0D, 0.26D, 10.0D, 10, 2.0F, 3.0F)' \
+        'new Beast("siegehulk", BRUTE, 3, 400.0D, 12.0D, 0.26D, 10.0D, 10, 2.0F, 3.0F)'
 expect "a mob that is an event rather than a mob" "it is an event"
 
-edit $R 'new Beast("shardling", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F)' \
-        'new Beast("shardling", PROWLER, 1, 4.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F)'
+edit $R 'new Beast("spallet", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F)' \
+        'new Beast("spallet", PROWLER, 1, 4.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F)'
 expect "a beast less dangerous than a zombie" "less dangerous than a zombie"
 
-edit $R 'new Beast("shardling", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F)' \
-        'new Beast("shardling", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 900, 0.6F, 1.1F)'
+edit $R 'new Beast("spallet", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F)' \
+        'new Beast("spallet", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 900, 0.6F, 1.1F)'
 expect "one beast that is most of everything you ever meet" "of everything you meet"
 
 echo "the reward written down a second time"
@@ -172,7 +172,7 @@ edit $G '                  "biomes": haunt["where"],' '                  "biomes
 expect_regen "a bestiary most players never meet" "a third of the bestiary is a rumour"
 
 edit $G '                  "spawners": [{' '                  "spawners": [{
-                      "type": "%s:shardling" % NS,
+                      "type": "%s:spallet" % NS,
                       "weight": 1,
                       "minCount": 1,
                       "maxCount": 1,
@@ -183,23 +183,23 @@ edit $G '                      "minCount": haunt["least"],' '                   
 expect_regen "a spawn roll that puts nothing there" "puts nothing there"
 
 echo "the words, and the tree"
-edit $G '    "shardling": "It comes apart when you hit it and the pieces keep coming.",' \
-        '    "shardling": "A mob.",'
+edit $G '    "spallet": "It comes apart when you hit it and the pieces keep coming.",' \
+        '    "spallet": "A mob.",'
 expect_regen "a beast described in four words" "tells a player nothing they could not see"
 
 python3 - <<'PYX'
 import json, pathlib
 p = pathlib.Path("/tmp/Elysium-mono/elysium-bestiary/src/main/resources/assets/elysiumbestiary/lang/en_us.json")
 words = json.loads(p.read_text(encoding="utf-8"))
-del words["entity.elysiumbestiary.stalker"]
+del words["entity.elysiumbestiary.prowlframe"]
 p.write_text(json.dumps(words, indent=2) + "\n", encoding="utf-8")
 PYX
-expect "a beast that reads as its own translation key" "entity.elysiumbestiary.stalker has no name"
+expect "a beast that reads as its own translation key" "entity.elysiumbestiary.prowlframe has no name"
 
 python3 - <<'PYX'
 import pathlib
 from PIL import Image
-p = pathlib.Path("/tmp/Elysium-mono/elysium-bestiary/src/main/resources/assets/elysiumbestiary/textures/entity/ripper.png")
+p = pathlib.Path("/tmp/Elysium-mono/elysium-bestiary/src/main/resources/assets/elysiumbestiary/textures/entity/shearjaw.png")
 image = Image.open(p).convert("RGBA")
 image.putpixel((3, 3), (255, 0, 255, 255))
 image.save(p)
@@ -244,7 +244,7 @@ edit $RI '        for (BeastRules.Beast beast : BeastRules.BEASTS) {
             int background'
 expect "a beast with no spawn egg to look at it with" "cannot be put in the world"
 
-edit $EN '        String name = EntityType.getKey(getType()).getPath();' '        String name = "ripper";'
+edit $EN '        String name = EntityType.getKey(getType()).getPath();' '        String name = "shearjaw";'
 expect "a beast that no longer finds its own row" "finds its own row by the name"
 
 edit $EN '        return BeastRules.earned(beast()).experience();

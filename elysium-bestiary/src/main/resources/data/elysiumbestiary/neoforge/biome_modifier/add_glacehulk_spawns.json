@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#elysiumbestiary:vale_glacier_vale",
+  "spawners": [
+    {
+      "type": "elysiumbestiary:glacehulk",
+      "weight": 20,
+      "minCount": 1,
+      "maxCount": 2
+    }
+  ]
+}

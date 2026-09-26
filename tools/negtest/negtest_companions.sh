@@ -47,9 +47,9 @@ echo "nothing does a block's job for free"
 edit $R '            if (!earned && !fed && !near) {' '            if (false) {'
 expect "a companion that costs nothing, unreported" "does a block's job for free"
 
-edit $R '            new Companion("crab", REACH, "minecraft:scaffolding", false, 0, 6.0D,
+edit $R '            new Companion("tether", REACH, "minecraft:scaffolding", false, 0, 6.0D,
                     40, 40),' \
-        '            new Companion("crab", REACH, "minecraft:scaffolding", false, 0, 600.0D,
+        '            new Companion("tether", REACH, "minecraft:scaffolding", false, 0, 600.0D,
                     40, 40),'
 expect "a crab that reaches from anywhere for nothing" "nobody builds one of those again"
 
@@ -79,8 +79,8 @@ echo "one job each, and no two the same"
 edit $R '            if (!done.add(one.gift())) {' '            if (false) {'
 expect "two companions doing one job, unreported" "two companions doing the same job"
 
-edit $R '            new Companion("crab", REACH, "minecraft:scaffolding", false, 0, 6.0D,' \
-        '            new Companion("crab", SHOWS_DARK, "minecraft:scaffolding", false, 0, 6.0D,'
+edit $R '            new Companion("tether", REACH, "minecraft:scaffolding", false, 0, 6.0D,' \
+        '            new Companion("tether", SHOWS_DARK, "minecraft:scaffolding", false, 0, 6.0D,'
 expect "two creatures with one job" "whichever is easier to keep"
 
 edit $R '            if (!gifts.contains(one.gift())) {' '            if (false) {'
@@ -94,8 +94,8 @@ edit $R '            if (one.upkeep() > 0 && !one.tamed() && one.reach() > LEAST
         '            if (false) {'
 expect "something fed that can wander off, unreported" "free to wander off with it"
 
-edit $R '            new Companion("glare", SHOWS_DARK, "minecraft:torch", true, 1, 8.0D,' \
-        '            new Companion("glare", SHOWS_DARK, "minecraft:torch", false, 1, 8.0D,'
+edit $R '            new Companion("lumen", SHOWS_DARK, "minecraft:torch", true, 1, 8.0D,' \
+        '            new Companion("lumen", SHOWS_DARK, "minecraft:torch", false, 1, 8.0D,'
 expect "a fed creature nobody owns" "feeds something that is free to wander off"
 
 echo "met, not read about"
@@ -106,8 +106,8 @@ edit $R '            if (!named.add(one.id())) {' '            if (false) {'
 expect "two companions under one name, unreported" "two companions written under one name"
 
 echo "what it is measured against has to exist"
-edit $R '            new Companion("rascal", HIDES, "minecraft:chest", false, 0, 16.0D, 0,' \
-        '            new Companion("rascal", HIDES, "minecraft:cupboard", false, 0, 16.0D, 0,'
+edit $R '            new Companion("stasher", HIDES, "minecraft:chest", false, 0, 16.0D, 0,' \
+        '            new Companion("stasher", HIDES, "minecraft:cupboard", false, 0, 16.0D, 0,'
 expect "a companion held under a block nothing makes" "what it is measured against does not exist"
 
 echo "the compact constructor"
@@ -133,7 +133,7 @@ expect "jobs chosen by which creature it is" "not chosen by which gift it is"
 
 edit $AC '    public static final int LINGERS = 120;' \
         '    public static final int LINGERS = 120;
-    private static final String WHICH = "glare";'
+    private static final String WHICH = "lumen";'
 expect "a creature named in the gifts" "started growing a branch per creature"
 
 edit $AC '            one.addEffect(new MobEffectInstance(what, LINGERS, strength, true, false));' \
@@ -188,10 +188,10 @@ edit $CL '        event.registerLayerDefinition(CompanionModel.LAYER,' \
         '        event.registerLayerDefinition(ShadeRenderer.LAYER,'
 expect "a companion layer never registered" "baking it"
 
-remove $M/src/main/resources/assets/elysiumbestiary/textures/entity/crab.png
+remove $M/src/main/resources/assets/elysiumbestiary/textures/entity/tether.png
 expect "a companion with no texture" "the world never shows"
 
-remove $M/src/main/resources/data/elysiumbestiary/neoforge/biome_modifier/add_glare_spawns.json
+remove $M/src/main/resources/data/elysiumbestiary/neoforge/biome_modifier/add_lumen_spawns.json
 expect "a companion with no spawn rule" "the world never shows"
 
 echo "what the generator writes"

@@ -16,7 +16,7 @@ import java.util.Set;
  * HauntRules} puts them somewhere a player can meet them. Between them they
  * make a bestiary that is nine rows of numbers and three sets of goals — a
  * prowler runs at you, a brute walks at you, a wight does neither in daylight
- * — so meeting a stalker and meeting a ripper are the same fight with a
+ * — so meeting a prowlframe and meeting a shearjaw are the same fight with a
  * different model on it.
  *
  * <p>That is the thing four of the jars this module is meant to replace are
@@ -32,15 +32,15 @@ import java.util.Set;
  * lines is a description of a mechanic nobody had implemented:
  *
  * <pre>
- *   shardling    "It comes apart when you hit it and the pieces keep coming."
- *   ripper       "Fast, and it has worked out that you are slower going uphill."
- *   stalker      "You will hear it stop following you. That is the bad part."
- *   husk_ox      "Too heavy to knock back and too slow to run from. Pick one."
- *   breaker      "It goes through the wall rather than round it, every time."
- *   siege_beast  "Three metres of it. Bring the door down and leave."
- *   mourner      "It is not chasing you. It is going the same way you are."
- *   keener       "The noise arrives first and the cold arrives with it."
- *   hollow_lord  "It waited. Whatever it was waiting for, it was not you."
+ *   spallet     "It comes apart when you hit it and the pieces keep coming."
+ *   shearjaw    "Fast, and it has worked out that you are slower going uphill."
+ *   prowlframe  "You will hear it stop following you. That is the bad part."
+ *   drayhulk    "Too heavy to knock back and too slow to run from. Pick one."
+ *   pileframe   "It goes through the wall rather than round it, every time."
+ *   siegehulk   "Three metres of it. Bring the door down and leave."
+ *   carrier     "It is not chasing you. It is going the same way you are."
+ *   sidetone    "The noise arrives first and the cold arrives with it."
+ *   nullprime   "It waited. Whatever it was waiting for, it was not you."
  * </pre>
  *
  * <p>So the roster below is a bijection: nine beasts, nine verbs, one each and
@@ -102,15 +102,15 @@ public final class BehaviourRules {
 
     private static Map<String, String> does() {
         Map<String, String> made = new LinkedHashMap<>();
-        made.put("shardling", SPLIT);
-        made.put("ripper", LEAP);
-        made.put("stalker", STALK);
-        made.put("husk_ox", ANCHOR);
-        made.put("breaker", SUNDER);
-        made.put("siege_beast", CHARGE);
-        made.put("mourner", DRIFT);
-        made.put("keener", CHILL);
-        made.put("hollow_lord", CALL);
+        made.put("spallet", SPLIT);
+        made.put("shearjaw", LEAP);
+        made.put("prowlframe", STALK);
+        made.put("drayhulk", ANCHOR);
+        made.put("pileframe", SUNDER);
+        made.put("siegehulk", CHARGE);
+        made.put("carrier", DRIFT);
+        made.put("sidetone", CHILL);
+        made.put("nullprime", CALL);
         return Map.copyOf(made);
     }
 
@@ -197,7 +197,7 @@ public final class BehaviourRules {
      * <p>Off how big the beast is rather than off how dangerous it is,
      * because reach is a thing a player judges with their eyes: something
      * three metres across that hits you from two blocks away reads as broken,
-     * and the same reach on a shardling reads as a surprise.
+     * and the same reach on a spallet reads as a surprise.
      */
     public static float reachOf(BeastRules.Beast beast) {
         float wide = beast.width();

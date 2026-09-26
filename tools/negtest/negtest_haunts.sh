@@ -51,9 +51,9 @@ expect "one beast in two places, unreported" "one beast in two places is not rep
 edit $R '            if (!named.contains(one.beast())) {' '            if (false) {'
 expect "a haunt belonging to nothing, unreported" "somewhere that is not a beast's is not reported"
 
-edit $R '            new Haunt("keener", "#minecraft:is_taiga", 0, 4, 0, SKY, 1, 2),
-            new Haunt("hollow_lord", "#minecraft:is_overworld", 0, 0, BEDROCK, 0, 1, 1));' \
-        '            new Haunt("hollow_lord", "#minecraft:is_overworld", 0, 0, BEDROCK, 0, 1, 1));'
+edit $R '            new Haunt("sidetone", "#minecraft:is_taiga", 0, 4, 0, SKY, 1, 2),
+            new Haunt("nullprime", "#minecraft:is_overworld", 0, 0, BEDROCK, 0, 1, 1));' \
+        '            new Haunt("nullprime", "#minecraft:is_overworld", 0, 0, BEDROCK, 0, 1, 1));'
 expect "a beast dropped out of the table entirely" "somewhere twice or nowhere at all"
 
 echo "a band a world really has"
@@ -159,15 +159,15 @@ edit $G '           "highest": _number(one[5]), "least": int(one[6]),
            "most": int(one[6])}'
 expect_regen "a group size written out the wrong way round" "and its spawn rule says 4 to 2"
 
-rm -f $W/add_stalker_spawns.json
+rm -f $W/add_prowlframe_spawns.json
 expect "a beast with a haunt and no spawn rule in the world" "has a haunt and no spawn rule in the world"
 
-edit $R '            new Haunt("keener", "#minecraft:is_taiga", 0, 4, 0, SKY, 1, 2),' \
-        '            new Haunt("keener", "#c:is_cold", 0, 4, 0, SKY, 1, 2),'
+edit $R '            new Haunt("sidetone", "#minecraft:is_taiga", 0, 4, 0, SKY, 1, 2),' \
+        '            new Haunt("sidetone", "#c:is_cold", 0, 4, 0, SKY, 1, 2),'
 expect_regen "a biome tag that reads like a tag and is not one" "neither the game nor this pack has such a tag"
 
-edit $R '            new Haunt("shardling", "#minecraft:is_overworld", 0, 7, 0, SKY, 2, 4),' \
-        '            new Haunt("shardling", "#minecraft:is_forest", 0, 7, 0, SKY, 2, 4),'
+edit $R '            new Haunt("spallet", "#minecraft:is_overworld", 0, 7, 0, SKY, 2, 4),' \
+        '            new Haunt("spallet", "#minecraft:is_forest", 0, 7, 0, SKY, 2, 4),'
 expect_regen "a whole family nobody who stays in the plains ever meets" "nothing in the prowler family is in #minecraft:is_overworld"
 
 echo "the checks themselves"

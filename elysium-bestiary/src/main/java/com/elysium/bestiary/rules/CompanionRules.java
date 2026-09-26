@@ -150,27 +150,27 @@ public final class CompanionRules {
      * it away.
      */
     public static final List<Companion> COMPANIONS = List.of(
-            new Companion("glare", SHOWS_DARK, "minecraft:torch", true, 1, 8.0D,
+            new Companion("lumen", SHOWS_DARK, "minecraft:torch", true, 1, 8.0D,
                     60, 30),
-            new Companion("crab", REACH, "minecraft:scaffolding", false, 0, 6.0D,
+            new Companion("tether", REACH, "minecraft:scaffolding", false, 0, 6.0D,
                     40, 40),
-            new Companion("tuff_golem", HOLDS, "minecraft:item_frame", false, 0,
+            new Companion("holdfast", HOLDS, "minecraft:item_frame", false, 0,
                     4.0D, 0, 14),
-            new Companion("copper_golem", PRESSES, "minecraft:lever", false, 0,
+            new Companion("tapper", PRESSES, "minecraft:lever", false, 0,
                     12.0D, 0, 12),
-            new Companion("moobloom", BLOOMS, "minecraft:flower_pot", false, 0,
+            new Companion("seeder", BLOOMS, "minecraft:flower_pot", false, 0,
                     5.0D, 0, 26),
-            new Companion("mauler", DIGS, "minecraft:iron_shovel", true, 2, 6.0D,
+            new Companion("borer", DIGS, "minecraft:iron_shovel", true, 2, 6.0D,
                     0, 18),
-            new Companion("rascal", HIDES, "minecraft:chest", false, 0, 16.0D, 0,
+            new Companion("stasher", HIDES, "minecraft:chest", false, 0, 16.0D, 0,
                     10),
-            new Companion("iceologer", CHILLS, "minecraft:powder_snow_bucket",
+            new Companion("chiller", CHILLS, "minecraft:powder_snow_bucket",
                     false, 0, 20.0D, 100, 8),
-            new Companion("illusioner", DOUBLES, "minecraft:potion", false, 0,
+            new Companion("doubler", DOUBLES, "minecraft:potion", false, 0,
                     18.0D, 120, 8),
-            new Companion("bristler", BITES, "minecraft:wolf_spawn_egg", true, 3,
+            new Companion("snapper", BITES, "minecraft:wolf_spawn_egg", true, 3,
                     10.0D, 0, 22),
-            new Companion("wildfire", BURNS, "minecraft:campfire", false, 0,
+            new Companion("igniter", BURNS, "minecraft:campfire", false, 0,
                     14.0D, 80, 7));
 
     /** The companion of this name, or null. */

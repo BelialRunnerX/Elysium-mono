@@ -104,7 +104,7 @@ expect "a verb with no branch to happen in" "nothing performs chill"
 edit $A '        BeastRules.Beast row = beast.beast();
         String verb = BehaviourRules.verbOf(row.id());' \
         '        BeastRules.Beast row = beast.beast();
-        String verb = row.id().equals("shardling")
+        String verb = row.id().equals("spallet")
                 ? BehaviourRules.SPLIT
                 : BehaviourRules.verbOf(row.id());'
 expect "the one place a mechanic happens starting to name a beast" "has started growing a branch per beast"

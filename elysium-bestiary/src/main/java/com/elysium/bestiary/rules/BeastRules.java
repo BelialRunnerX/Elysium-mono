@@ -165,15 +165,15 @@ public final class BeastRules {
      */
     public static final List<Beast> BEASTS = List.of(
             //          id            family  tier   hp     dmg    speed   arm    wt   w      h
-            new Beast("shardling", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F),
-            new Beast("ripper", PROWLER, 2, 26.0D, 5.0D, 0.38D, 2.0D, 45, 0.9F, 1.4F),
-            new Beast("stalker", PROWLER, 3, 38.0D, 8.0D, 0.42D, 4.0D, 20, 1.1F, 1.8F),
-            new Beast("husk_ox", BRUTE, 1, 30.0D, 4.0D, 0.22D, 2.0D, 55, 1.3F, 1.7F),
-            new Beast("breaker", BRUTE, 2, 54.0D, 8.0D, 0.24D, 6.0D, 28, 1.6F, 2.3F),
-            new Beast("siege_beast", BRUTE, 3, 90.0D, 12.0D, 0.26D, 10.0D, 10, 2.0F, 3.0F),
-            new Beast("mourner", WIGHT, 1, 22.0D, 3.0D, 0.28D, 0.0D, 70, 0.6F, 1.95F),
-            new Beast("keener", WIGHT, 2, 32.0D, 6.0D, 0.30D, 3.0D, 36, 0.7F, 2.2F),
-            new Beast("hollow_lord", WIGHT, 3, 50.0D, 10.0D, 0.32D, 7.0D, 14, 0.9F, 2.6F));
+            new Beast("spallet", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F),
+            new Beast("shearjaw", PROWLER, 2, 26.0D, 5.0D, 0.38D, 2.0D, 45, 0.9F, 1.4F),
+            new Beast("prowlframe", PROWLER, 3, 38.0D, 8.0D, 0.42D, 4.0D, 20, 1.1F, 1.8F),
+            new Beast("drayhulk", BRUTE, 1, 30.0D, 4.0D, 0.22D, 2.0D, 55, 1.3F, 1.7F),
+            new Beast("pileframe", BRUTE, 2, 54.0D, 8.0D, 0.24D, 6.0D, 28, 1.6F, 2.3F),
+            new Beast("siegehulk", BRUTE, 3, 90.0D, 12.0D, 0.26D, 10.0D, 10, 2.0F, 3.0F),
+            new Beast("carrier", WIGHT, 1, 22.0D, 3.0D, 0.28D, 0.0D, 70, 0.6F, 1.95F),
+            new Beast("sidetone", WIGHT, 2, 32.0D, 6.0D, 0.30D, 3.0D, 36, 0.7F, 2.2F),
+            new Beast("nullprime", WIGHT, 3, 50.0D, 10.0D, 0.32D, 7.0D, 14, 0.9F, 2.6F));
 
     // ==================================================================
     // Working the reward out from the danger
