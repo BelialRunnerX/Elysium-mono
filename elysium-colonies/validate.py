@@ -1030,8 +1030,7 @@ if _seed_model.get("render_type") != "minecraft:cutout":
 _found = body_of(strip_comments(read(_settlements)), "public static boolean found")
 for _guard, _why in (("charter.settles()", "a world whose charter does not settle gets towns"),
                      ("farEnoughFromSpawn", "a town may found itself on the world spawn"),
-                     ("getFluidState", "a town may found itself on water"),
-                     ("levelEnough", "a town may found itself on a cliff"),
+                     ("BlockPos ground = dryGroundNear(level, stake);", "a stake on a lake is wasted rather than looking around"),
                      ("Colonies.mayFoundAt", "the host's own distance between colonies is not asked"),
                      ("SettleRules.name(", "the town is not named by the rule the harness proves"),
                      ("Steward.TOWN", "a self-founded town waits for an owner who does not exist"),
@@ -1039,6 +1038,12 @@ for _guard, _why in (("charter.settles()", "a world whose charter does not settl
                      ("firstWants()", "a self-founded town starts as a stake with a roof")):
     if _guard not in _found:
         fail(f"Settlements.found lacks {_guard}: {_why}")
+_dry = body_of(strip_comments(read(_settlements)), "static BlockPos dryGroundNear")
+for _guard, _why in (("SiteRules.RINGS", "the search for dry ground is not the site rings the daily pass uses"),
+                     ("level.getFluidState(ground.below()).isEmpty()", "a town may found itself on water"),
+                     ("levelEnough(level, ground)", "a town may found itself on a cliff")):
+    if _guard not in _dry:
+        fail(f"dryGroundNear lacks {_guard}: {_why}")
 _settle = body_of(_seam_src, "public static int settle")
 if "Player steward = FakePlayerFactory.get(level, new GameProfile(stewardId, stewardName));" \
         not in _settle \

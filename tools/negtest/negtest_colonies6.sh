@@ -50,6 +50,10 @@ edit $S/settle/Settlements.java 'if (!charter.settles()) {' 'if (false) {'
 expect "a non-settling world settles" "a world whose charter does not settle gets towns"
 edit $S/settle/Settlements.java 'if (!Colonies.mayFoundAt(level, ground)) {' 'if (false) {'
 expect "host distance not asked" "distance between colonies is not asked"
+edit $S/settle/Settlements.java 'level.getFluidState(ground.below()).isEmpty()' 'true'
+expect "a town on water" "a town may found itself on water"
+edit $S/settle/Settlements.java 'BlockPos ground = dryGroundNear(level, stake);' 'BlockPos ground = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, stake);'
+expect "a stake on a lake is wasted" "wasted rather than looking around"
 # the town waits for its steward
 edit $S/settle/Settlements.java 'withSteward(StewardRules.Steward.TOWN)' 'withSteward(StewardRules.Steward.ATTENDANCE)'
 expect "self-founded town waits for an owner" "waits for an owner who does not exist"

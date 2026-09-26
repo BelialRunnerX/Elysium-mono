@@ -63,13 +63,12 @@ public final class Settlements {
         // The ground under the stake's column, beneath any canopy: the stake
         // was placed on the generation surface, which is the tops of trees in
         // a forest, and has been removed before this is asked.
-        BlockPos ground = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, stake);
-        if (!level.getFluidState(ground.below()).isEmpty()
-                || !level.getBlockState(ground.below()).isSolid()) {
-            return declined(level, stake, "the ground is water or nothing to stand on");
-        }
-        if (!levelEnough(level, ground)) {
-            return declined(level, stake, "the ground is too uneven");
+        // A stake on a lake or a slope looks around before giving up: the
+        // site rings the daily pass uses to place a hut, walked outward, for
+        // the first column that is dry, solid and level enough to build on.
+        BlockPos ground = dryGroundNear(level, stake);
+        if (ground == null) {
+            return declined(level, stake, "no dry, level ground within reach");
         }
         if (!Colonies.mayFoundAt(level, ground)) {
             return declined(level, stake, "the host wants more distance from other colonies");
@@ -106,6 +105,24 @@ public final class Settlements {
             }
         }
         return true;
+    }
+
+    /** The first dry, solid, level column at or around the stake, or null. */
+    static BlockPos dryGroundNear(ServerLevel level, BlockPos stake) {
+        for (int ring = 0; ring <= SiteRules.RINGS; ring++) {
+            for (int index = 0; index < SiteRules.squaresIn(ring); index++) {
+                BlockPos column = stake.offset(SiteRules.blocksX(ring, index), 0,
+                        SiteRules.blocksZ(ring, index));
+                BlockPos ground = level.getHeightmapPos(
+                        Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column);
+                if (level.getFluidState(ground.below()).isEmpty()
+                        && level.getBlockState(ground.below()).isSolid()
+                        && levelEnough(level, ground)) {
+                    return ground;
+                }
+            }
+        }
+        return null;
     }
 
     /** A refused site: one line in the log, nothing in chat, and the stake is spent. */
