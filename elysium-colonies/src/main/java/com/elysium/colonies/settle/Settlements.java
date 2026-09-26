@@ -6,7 +6,6 @@ import com.elysium.colonies.charter.Charters;
 import com.elysium.colonies.citizen.ColonyMemory;
 import com.elysium.colonies.colony.Colonies;
 import com.elysium.colonies.event.ColonyLife;
-import com.elysium.colonies.registry.SettleBlocks;
 import com.elysium.colonies.rules.SettleRules;
 import com.elysium.colonies.rules.SiteRules;
 import com.elysium.colonies.rules.StewardRules;
@@ -61,10 +60,10 @@ public final class Settlements {
                 (stake.getZ() - spawn.getZ()) >> 4)) {
             return declined(level, stake, "too near the world spawn");
         }
-        // The stake itself is the top block where it stands; the ground is
-        // what it was driven into.
-        BlockPos ground = level.getBlockState(stake).is(SettleBlocks.SETTLEMENT_SEED.get())
-                ? stake : level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, stake);
+        // The ground under the stake's column, beneath any canopy: the stake
+        // was placed on the generation surface, which is the tops of trees in
+        // a forest, and has been removed before this is asked.
+        BlockPos ground = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, stake);
         if (!level.getFluidState(ground.below()).isEmpty()
                 || !level.getBlockState(ground.below()).isSolid()) {
             return declined(level, stake, "the ground is water or nothing to stand on");

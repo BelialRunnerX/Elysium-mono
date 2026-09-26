@@ -46,11 +46,12 @@ public final class SettlementSeedBlock extends Block {
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos,
                               RandomSource random) {
-        // Whatever the answer, the stake has served: founded, the town hall
-        // stands here; refused, the site was wrong and stays plain ground.
+        // The stake is spent before the town is founded: it was projected
+        // onto the world's generation surface, which in a forest is the
+        // canopy, and the ground the town stands on is read from the column
+        // below it once the stake itself is out of the way. Founded, the town
+        // hall stands there; refused, the site was wrong and stays plain.
+        level.removeBlock(pos, false);
         Settlements.found(level, pos);
-        if (level.getBlockState(pos).is(this)) {
-            level.removeBlock(pos, false);
-        }
     }
 }
