@@ -411,6 +411,22 @@ against the 189 remaining jars on the device and both came back clean:
 list that tells you to delete the thing doing the replacing is worse than no
 list, so it now excludes both.
 
+### The fourth thing: the licensing ledger
+
+*Dylan: "During that step, note of licensing needs to be taken, that way if I
+ever decide to go from a private to public project I can deal with licensing
+appropriately first."*
+
+`tools/retire.py` does the move and, in the same step, writes one row per jar
+into `docs/LICENSING.md`: mod id, version, licence and authors as the jar's own
+`neoforge.mods.toml` declares them, the licence file it carries, what replaced
+it, and the manifest's sentence on what was built (which is where a port or a
+redraw of somebody's art is recorded). It also runs the two pre-checks above
+itself and refuses a jar that fails either. `--record-superseded` writes rows
+for jars retired before the tool existed; `--list` and `--dry-run` change
+nothing. The pack is private today; the day it is not, that table is the list
+of authors whose terms apply to whatever was derived from their work.
+
 ### The third thing, which is not automatic
 
 Other mods ship **integration recipes** against the jar being removed, and
