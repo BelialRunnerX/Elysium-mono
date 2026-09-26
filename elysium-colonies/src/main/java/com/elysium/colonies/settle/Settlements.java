@@ -6,6 +6,7 @@ import com.elysium.colonies.charter.Charters;
 import com.elysium.colonies.citizen.ColonyMemory;
 import com.elysium.colonies.colony.Colonies;
 import com.elysium.colonies.event.ColonyLife;
+import com.elysium.colonies.registry.SettleBlocks;
 import com.elysium.colonies.rules.SettleRules;
 import com.elysium.colonies.rules.SiteRules;
 import com.elysium.colonies.rules.StewardRules;
@@ -53,23 +54,26 @@ public final class Settlements {
     public static boolean found(ServerLevel level, BlockPos stake) {
         Charter charter = Charters.of(level.dimension().location());
         if (!charter.settles()) {
-            return false;
+            return declined(level, stake, "this world's charter does not settle");
         }
         BlockPos spawn = level.getSharedSpawnPos();
         if (!SettleRules.farEnoughFromSpawn((stake.getX() - spawn.getX()) >> 4,
                 (stake.getZ() - spawn.getZ()) >> 4)) {
-            return false;
+            return declined(level, stake, "too near the world spawn");
         }
-        BlockPos ground = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, stake);
+        // The stake itself is the top block where it stands; the ground is
+        // what it was driven into.
+        BlockPos ground = level.getBlockState(stake).is(SettleBlocks.SETTLEMENT_SEED.get())
+                ? stake : level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, stake);
         if (!level.getFluidState(ground.below()).isEmpty()
                 || !level.getBlockState(ground.below()).isSolid()) {
-            return false;
+            return declined(level, stake, "the ground is water or nothing to stand on");
         }
         if (!levelEnough(level, ground)) {
-            return false;
+            return declined(level, stake, "the ground is too uneven");
         }
         if (!Colonies.mayFoundAt(level, ground)) {
-            return false;
+            return declined(level, stake, "the host wants more distance from other colonies");
         }
 
         String style = charter.hasStyle() ? charter.style() : null;
@@ -105,10 +109,20 @@ public final class Settlements {
         return true;
     }
 
+    /** A refused site: one line in the log, nothing in chat, and the stake is spent. */
+    private static boolean declined(ServerLevel level, BlockPos stake, String why) {
+        ElysiumColonies.LOGGER.info("no settlement at {} in {}: {}", stake,
+                level.dimension().location(), why);
+        return false;
+    }
+
     /** Whether the ground within reach of a stake is level enough for a town. */
     static boolean levelEnough(ServerLevel level, BlockPos ground) {
         for (int dx = -FLAT_REACH; dx <= FLAT_REACH; dx += FLAT_REACH) {
             for (int dz = -FLAT_REACH; dz <= FLAT_REACH; dz += FLAT_REACH) {
+                if (dx == 0 && dz == 0) {
+                    continue;
+                }
                 BlockPos there = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                         ground.offset(dx, 0, dz));
                 if (!SiteRules.levelEnough(ground.getY(), there.getY())) {
