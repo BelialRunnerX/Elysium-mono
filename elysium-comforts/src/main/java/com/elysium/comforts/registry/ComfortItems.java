@@ -10,7 +10,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Two items, and one tab to find them in. */
+/** Two items, thirty-three blocks to carry, and one tab to find them in. */
 public final class ComfortItems {
 
     private ComfortItems() {
@@ -30,6 +30,27 @@ public final class ComfortItems {
                     new com.elysium.comforts.item.TraderItem(
                             new net.minecraft.world.item.Item.Properties()));
 
+    /** One block item per place to sleep, and the rope. */
+    public static final java.util.Map<String, DeferredItem<BlockItem>> RESTS = rests();
+
+    private static java.util.Map<String, DeferredItem<BlockItem>> rests() {
+        java.util.Map<String, DeferredItem<BlockItem>> made =
+                new java.util.LinkedHashMap<>();
+        for (java.util.Map.Entry<String, ?> one
+                : ComfortBlocks.RESTS.entrySet()) {
+            made.put(one.getKey(), ITEMS.registerSimpleBlockItem(
+                    ComfortBlocks.RESTS.get(one.getKey())));
+        }
+        made.put(com.elysium.comforts.rules.RestRules.ROPE,
+                ITEMS.registerSimpleBlockItem(ComfortBlocks.ROPE));
+        int wanted = com.elysium.comforts.rules.RestRules.roster().size();
+        if (made.size() != wanted) {
+            throw new IllegalStateException("the rules ask for " + wanted
+                    + " thing(s) to carry and " + made.size() + " were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = TABS.register(
             "comforts", () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.elysiumcomforts"))
@@ -37,6 +58,9 @@ public final class ComfortItems {
                     .displayItems((parameters, output) -> {
                         output.accept(GRAVE.get());
                         output.accept(TRADER.get());
+                        for (DeferredItem<BlockItem> one : RESTS.values()) {
+                            output.accept(one.get());
+                        }
                     })
                     .build());
 }

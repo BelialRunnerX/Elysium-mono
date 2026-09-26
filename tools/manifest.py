@@ -296,10 +296,17 @@ DECISIONS = [
      "a villager can be carried, with its whole ledger and its restock clock intact; "
      "the trading station, breeder, converter, incubator, farmer and iron farm are not "
      "started"),
-    (r"^comforts", "PLANNED", "elysium-comforts",
-     "16 hammocks, 16 sleeping bags and a rope and nail: sleep anywhere without "
-     "moving your spawn, and a hammock that skips a night without one. 44 blocks "
-     "in the jar, of which 32 are the same two things in every colour"),
+    (r"^comforts", "DONE", "elysium-comforts",
+     "sixteen sleeping bags, sixteen hammocks and a rope and nail, and none of "
+     "them moves your spawn — which is the whole of what made exploring "
+     "expensive, because every player carried a bed and never placed one. The "
+     "two kinds divide the clock between them: a bag is for the night, a "
+     "hammock for the day, and every one of the 24,000 ticks belongs to exactly "
+     "one of them, with no hour that is both and none that is neither. You "
+     "always wake on the far side of that line, so the thing you just used "
+     "cannot be used again until the world has moved on. Six ways it can refuse "
+     "you and six sentences to say which, and every block breaks back into "
+     "itself"),
     (r"^envelope", "PLANNED", "elysium-comforts",
      "a postal system rather than a convenience: 12 woods of pigeonhole, a "
      "mailbox, letters and packages that seal, address tags, payment on "

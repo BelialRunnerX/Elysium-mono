@@ -8,6 +8,7 @@ One block, facing four ways. Nobody crafts it; it appears when you need it and
 disappears when you have taken your things back.
 """
 import json
+import re
 import os
 import sys
 
@@ -104,6 +105,48 @@ SPRITES = {
 
 BLOCKS = ["grave"]
 
+# Somewhere to sleep that is not a bed, read out of RestRules. Which colours
+# exist and which half of the day each kind works in are rules; what shade of
+# cloth each colour is, is art, and lives here.
+REST_SOURCE = open(os.path.join(
+    MOD, "src/main/java/com/elysium/comforts/rules/RestRules.java"),
+    encoding="utf-8").read()
+_squashed = re.sub(r"\s+", " ", REST_SOURCE)
+_kinds = re.search(r"List<String> KINDS = List\.of\((.*?)\);", _squashed)
+KIND_NAMES = dict(re.findall(
+    r'public static final String (BAG|HAMMOCK|ROPE) = "(\w+)";', REST_SOURCE))
+KINDS = [KIND_NAMES[one] for one in re.findall(r"[A-Z]+", _kinds.group(1))
+         if one in KIND_NAMES] if _kinds else []
+_colours = re.search(r"List<String> COLOURS = List\.of\((.*?)\);", _squashed)
+COLOURS = re.findall(r'"([a-z_]+)"', _colours.group(1)) if _colours else []
+ROPE = KIND_NAMES.get("ROPE", "rope_and_nail")
+REFUSALS = dict(re.findall(
+    r'public static final String (OCCUPIED|TOO_FAR|NO_ROOM|NO_ROPE|NOT_NOW'
+    r'|UNSAFE) = "(\w+)";', REST_SOURCE))
+if len(KINDS) != 2 or len(COLOURS) != 16 or len(REFUSALS) != 6:
+    print("RestRules reads as %d kind(s), %d colour(s) and %d refusal(s)"
+          % (len(KINDS), len(COLOURS), len(REFUSALS)))
+    sys.exit(2)
+RESTS = [colour + "_" + kind for kind in KINDS for colour in COLOURS]
+BLOCKS = BLOCKS + RESTS + [ROPE]
+
+#: What each of the game's sixteen dyes looks like as cloth. Art, not a rule.
+CLOTH = {
+    "white": (233, 236, 236), "orange": (240, 118, 19),
+    "magenta": (189, 68, 179), "light_blue": (58, 175, 217),
+    "yellow": (248, 198, 39), "lime": (112, 185, 25),
+    "pink": (237, 141, 172), "gray": (62, 68, 71),
+    "light_gray": (142, 142, 134), "cyan": (21, 137, 145),
+    "purple": (121, 42, 172), "blue": (53, 57, 157),
+    "brown": (114, 71, 40), "green": (84, 109, 27),
+    "red": (161, 39, 34), "black": (20, 21, 25),
+}
+if sorted(CLOTH) != sorted(COLOURS):
+    print("there is cloth for %s and the rules name %s"
+          % (sorted(CLOTH), sorted(COLOURS)))
+    sys.exit(2)
+ROPE_SHADE = [(74, 58, 36), (122, 98, 60), (158, 132, 86)]
+
 
 def crate_empty():
     """A slatted crate with the lid off: somewhere to put somebody."""
@@ -139,6 +182,34 @@ def crate_full():
 #: player opening every one.
 ITEM_SPRITES = {"trader_crate": crate_empty, "trader_crate_full": crate_full}
 
+def cloth(colour, seed):
+    """A square of dyed cloth, scattered with a fixed hash so the sheet is
+    the same on every machine and the generated-file check can hold."""
+    base = CLOTH[colour]
+    image = Image.new("RGBA", (16, 16), rgba(base))
+    draw = ImageDraw.Draw(image)
+    for y in range(16):
+        for x in range(16):
+            mix = (x * 41 + y * 97 + seed * 23) % 256
+            if mix < 40:
+                draw.point((x, y), fill=rgba(tuple(max(0, c - 22) for c in base)))
+            elif mix < 84:
+                draw.point((x, y), fill=rgba(tuple(min(255, c + 18) for c in base)))
+    draw.line([(0, 0), (15, 0)], fill=rgba(tuple(min(255, c + 34) for c in base)))
+    draw.line([(0, 15), (15, 15)], fill=rgba(tuple(max(0, c - 34) for c in base)))
+    return image
+
+
+def rope_sprite():
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    for y in range(4, 16):
+        shade = ROPE_SHADE[(y // 2) % len(ROPE_SHADE)]
+        draw.line([(7, y), (8, y)], fill=rgba(shade))
+    draw.rectangle([6, 2, 9, 4], fill=rgba(ROPE_SHADE[0]))
+    return image
+
+
 def draw_all():
     folder = os.path.join(ASSETS, "textures/block")
     os.makedirs(folder, exist_ok=True)
@@ -148,7 +219,16 @@ def draw_all():
     os.makedirs(items, exist_ok=True)
     for name, make in ITEM_SPRITES.items():
         make().save(os.path.join(items, name + ".png"))
-    return len(SPRITES) + len(ITEM_SPRITES)
+    drawn = 0
+    for kind in KINDS:
+        for colour in COLOURS:
+            seed = sum(ord(letter) for letter in colour + kind)
+            cloth(colour, seed).save(
+                os.path.join(folder, colour + "_" + kind + ".png"))
+            drawn += 1
+    rope_sprite().save(os.path.join(folder, ROPE + ".png"))
+    drawn += 1
+    return len(SPRITES) + len(ITEM_SPRITES) + drawn
 
 
 # ---------------------------------------------------------------------------
@@ -182,6 +262,40 @@ def headstone():
     }
 
 
+#: What a bag or a hammock is, as a box. The same four sixteenths RestBlock
+#: uses for its collision shape, because a thing you can see and cannot touch
+#: is the commonest bug in a decorative block and it is never filed as one.
+LIES = 4
+
+
+def lying(colour, kind):
+    texture = f"{NS}:block/{colour}_{kind}"
+    return {
+        "parent": "block/block",
+        "textures": {"all": texture, "particle": texture},
+        "elements": [{
+            "from": [0, 0, 0],
+            "to": [16, LIES, 16],
+            "faces": {side: {"texture": "#all"} for side in
+                      ("down", "up", "north", "south", "west", "east")},
+        }],
+    }
+
+
+def rope_model():
+    texture = f"{NS}:block/{ROPE}"
+    return {
+        "parent": "block/block",
+        "textures": {"all": texture, "particle": texture},
+        "elements": [{
+            "from": [6, 10, 6],
+            "to": [10, 16, 10],
+            "faces": {side: {"texture": "#all"} for side in
+                      ("down", "up", "north", "south", "west", "east")},
+        }],
+    }
+
+
 def models_and_states():
     write(os.path.join(ASSETS, "models/block", "grave.json"), headstone())
     write(os.path.join(ASSETS, "blockstates", "grave.json"), {"variants": {
@@ -204,6 +318,33 @@ def models_and_states():
                           "model": f"{NS}:item/trader_crate_full"}]})
     write(os.path.join(ASSETS, "models/item", "grave.json"),
           {"parent": f"{NS}:block/grave"})
+
+    # Thirty-two places to sleep and a rope, every one of them walked out of
+    # the rules. A blockstate written by hand for thirty-one of thirty-two is
+    # one block that renders as a missing-texture cube, and it is only ever
+    # found by the player who dyes that colour.
+    for kind in KINDS:
+        for colour in COLOURS:
+            name = colour + "_" + kind
+            write(os.path.join(ASSETS, "models/block", name + ".json"),
+                  lying(colour, kind))
+            write(os.path.join(ASSETS, "blockstates", name + ".json"),
+                  {"variants": {
+                      f"facing={way},occupied={held}": {
+                          "model": f"{NS}:block/{name}",
+                          **({"y": turn} if turn else {}),
+                      }
+                      for way, turn in (("north", 0), ("east", 90),
+                                        ("south", 180), ("west", 270))
+                      for held in ("false", "true")
+                  }})
+            write(os.path.join(ASSETS, "models/item", name + ".json"),
+                  {"parent": f"{NS}:block/{name}"})
+    write(os.path.join(ASSETS, "models/block", ROPE + ".json"), rope_model())
+    write(os.path.join(ASSETS, "blockstates", ROPE + ".json"),
+          {"variants": {"": {"model": f"{NS}:block/{ROPE}"}}})
+    write(os.path.join(ASSETS, "models/item", ROPE + ".json"),
+          {"parent": f"{NS}:block/{ROPE}"})
     return len(BLOCKS)
 
 
@@ -221,17 +362,67 @@ def drops_nothing(name):
     return {"type": "minecraft:block", "pools": []}
 
 
+def gives_itself_back(name):
+    """A rest always comes back when you break it.
+
+    This module's whole theme is that nothing a player owned is lost, and a
+    bag that vanishes when a creeper clips the floor under it is the same
+    failure as a grave with too few slots — smaller, and just as annoying.
+    """
+    return {
+        "type": "minecraft:block",
+        "pools": [{
+            "rolls": 1,
+            "entries": [{"type": "minecraft:item", "name": f"{NS}:{name}"}],
+            "conditions": [{"condition": "minecraft:survives_explosion"}],
+        }],
+    }
+
+
 def data_files():
     written = 0
     for name in BLOCKS:
         write(os.path.join(DATA, "loot_table/blocks", name + ".json"),
-              drops_nothing(name))
+              gives_itself_back(name) if name != "grave" else drops_nothing(name))
         written += 1
     tags = os.path.join(OUT, "src/main/resources/data/minecraft/tags/block")
     write(os.path.join(tags, "mineable/pickaxe.json"),
           {"replace": False, "values": [f"{NS}:{name}" for name in BLOCKS]})
     written += 1
     # Wood, a lead and a bed: what you would actually need to move somebody.
+    for kind in KINDS:
+        for colour in COLOURS:
+            name = colour + "_" + kind
+            pattern = (["###", "///"] if kind == KIND_NAMES["HAMMOCK"]
+                       else ["###", "..."])
+            # Only the symbols the pattern actually uses. A key that defines
+            # one it does not is not a harmless extra: the game refuses the
+            # whole recipe with a message in the log and carries on, so all
+            # sixteen of them quietly do not exist.
+            everything = {
+                "#": {"item": f"minecraft:{colour}_wool"},
+                "/": {"item": "minecraft:string"},
+                ".": {"item": "minecraft:leather"},
+            }
+            used = {symbol for row in pattern for symbol in row}
+            write(os.path.join(DATA, "recipe", name + ".json"), {
+                "type": "minecraft:crafting_shaped",
+                "category": "misc",
+                "pattern": pattern,
+                "key": {symbol: what for symbol, what in everything.items()
+                        if symbol in used},
+                "result": {"id": f"{NS}:{name}", "count": 1},
+            })
+            written += 1
+    write(os.path.join(DATA, "recipe", ROPE + ".json"), {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "pattern": ["i", "s", "s"],
+        "key": {"i": {"item": "minecraft:iron_nugget"},
+                "s": {"item": "minecraft:string"}},
+        "result": {"id": f"{NS}:{ROPE}", "count": 2},
+    })
+    written += 1
     write(os.path.join(DATA, "recipe", "trader_crate.json"), {
         "type": "minecraft:crafting_shaped",
         "pattern": ["PLP", "P P", "PPP"],
@@ -246,7 +437,27 @@ def data_files():
 # Language
 # ---------------------------------------------------------------------------
 
+def titled(name):
+    return " ".join(word.capitalize() for word in name.split("_"))
+
+
 NAMES = {"grave": "Grave"}
+for _kind in KINDS:
+    for _colour in COLOURS:
+        NAMES[_colour + "_" + _kind] = titled(_colour + "_" + _kind)
+NAMES[ROPE] = titled(ROPE)
+
+#: One sentence per way a rest can decline, because a block that answers "you
+#: cannot sleep here" to all six is a block a player has to guess at.
+REFUSAL_WORDS = {
+    "occupied": "Somebody is already in it.",
+    "too_far_away": "You are not near enough to get into it.",
+    "no_space": "There is no room to lie down here.",
+    "missing_rope": "A hammock needs a rope and nail strung above it.",
+    "not_now": "Not at this hour. A bag is for the night and a hammock for "
+               "the day.",
+    "not_safe": "Something is too close for sleeping.",
+}
 
 LINES = {
     "itemGroup.elysiumcomforts": "Elysium Comforts",
@@ -264,6 +475,8 @@ LINES = {
 
 def language():
     entries = dict(LINES)
+    for refusal, words in REFUSAL_WORDS.items():
+        entries[f"rest.{NS}.{refusal}"] = words
     for name, shown in NAMES.items():
         entries[f"block.{NS}.{name}"] = shown
     write(os.path.join(ASSETS, "lang/en_us.json"), dict(sorted(entries.items())))

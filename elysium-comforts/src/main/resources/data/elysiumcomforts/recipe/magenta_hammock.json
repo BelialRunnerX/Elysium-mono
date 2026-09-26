@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "///"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:magenta_wool"
+    },
+    "/": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:magenta_hammock",
+    "count": 1
+  }
+}

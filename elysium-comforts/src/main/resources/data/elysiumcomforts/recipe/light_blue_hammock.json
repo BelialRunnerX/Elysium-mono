@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "///"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:light_blue_wool"
+    },
+    "/": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:light_blue_hammock",
+    "count": 1
+  }
+}

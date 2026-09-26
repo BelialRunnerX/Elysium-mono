@@ -648,6 +648,254 @@ print("a villager carried : its whole ledger kept, and a clock that goes on bein
 
 print("what it declares   : the game and the library, and nothing it buries")
 
+# ---------------------------------------------------------------------------
+# Somewhere to sleep that is not a bed
+# ---------------------------------------------------------------------------
+#
+# A bed moves your spawn, and that is what makes exploring expensive: every
+# player carries one and never places one. Two kinds of rest divide the clock
+# between them and neither touches where you wake when you die. Everything
+# below is a way that could quietly stop being true.
+
+# ---------------------------------------------------------------------------
+# What the game itself makes
+# ---------------------------------------------------------------------------
+#
+# This module names sixteen of the game's dyes by hand. A seventeenth invented
+# one is a block with a recipe that can never fire, and from outside it looks
+# exactly like a block nobody has bothered to craft — so the names are looked
+# up in the game's own language file, which lists every item and block it
+# ships.
+
+GAME_JAR = os.path.join(os.environ.get("ELYSIUM_MC_LIBS", "/tmp/mc"), "vanilla.jar")
+
+
+def the_game_makes():
+    if not os.path.isfile(GAME_JAR):
+        return set()
+    import zipfile
+    with zipfile.ZipFile(GAME_JAR) as jar:
+        named = json.loads(jar.read("assets/minecraft/lang/en_us.json"))
+    return {"minecraft:" + key.split(".", 2)[2] for key in named
+            if key.startswith(("item.minecraft.", "block.minecraft."))}
+
+
+THE_GAME_MAKES = the_game_makes()
+if os.path.isfile(GAME_JAR) and len(THE_GAME_MAKES) < 2_000:
+    fail(f"the game's jar is here and only {len(THE_GAME_MAKES)} item or block "
+         f"name(s) could be read out of it, so every check in this file that "
+         f"asks whether a thing exists is checking nothing at all")
+
+
+print("-" * 70)
+
+REST = strip_comments(read(SRC, "rules/RestRules.java"), keep_strings=True)
+REST_BLOCK = strip_comments(read(SRC, "block/RestBlock.java"), keep_strings=True)
+KEEPER = strip_comments(read(SRC, "event/RestKeeper.java"), keep_strings=True)
+if not REST:
+    fail("nothing says how to rest anywhere but a bed, so the pack is back to "
+         "one bed carried everywhere and never placed")
+else:
+    _flat = re.sub(r"\s+", " ", REST)
+    KIND_NAMES = dict(re.findall(
+        r'public static final String (BAG|HAMMOCK|ROPE) = "(\w+)";', REST))
+    _kinds = re.search(r"List<String> KINDS = List\.of\((.*?)\);", _flat)
+    kinds = [KIND_NAMES[one] for one in
+             re.findall(r"[A-Z]+", _kinds.group(1) if _kinds else "")
+             if one in KIND_NAMES]
+    _colours = re.search(r"List<String> COLOURS = List\.of\((.*?)\);", _flat)
+    colours = re.findall(r'"([a-z_]+)"', _colours.group(1) if _colours else "")
+    rope = KIND_NAMES.get("ROPE", "")
+    refusals = dict(re.findall(
+        r'public static final String (OCCUPIED|TOO_FAR|NO_ROOM|NO_ROPE|NOT_NOW'
+        r'|UNSAFE) = "(\w+)";', REST))
+
+    if len(kinds) != 2:
+        fail(f"there {'is' if len(kinds) == 1 else 'are'} {len(kinds)} kind(s) "
+             f"of rest and the clock is divided between two, so either an hour "
+             f"of the day has nothing that works in it or one thing works all "
+             f"day — which deletes the night")
+    if len(colours) != 16:
+        fail(f"there are {len(colours)} colour(s) of rest and the game has "
+             f"sixteen dyes, so at least one dye has nothing to make with it")
+    if not rope:
+        fail("a hammock has nothing to hang from, so sixteen of the blocks can "
+             "never be slept in")
+
+    # Every colour is one the game really has. An invented one is a block
+    # nobody can craft, and it looks exactly like a block nobody has crafted.
+    if THE_GAME_MAKES:
+        for colour in colours:
+            if f"minecraft:{colour}_wool" not in THE_GAME_MAKES:
+                fail(f"{colour} is not one of the game's own dyes, so the "
+                     f"{colour} bag and hammock are blocks with no recipe that "
+                     f"can ever fire")
+
+    rests = [f"{colour}_{kind}" for kind in kinds for colour in colours]
+    # Everything the rules ask for exists, all the way out to the world.
+    for name in rests + ([rope] if rope else []):
+        for kind, where in (
+                ("a model", f"assets/{NS}/models/block/{name}.json"),
+                ("an item model", f"assets/{NS}/models/item/{name}.json"),
+                ("a blockstate", f"assets/{NS}/blockstates/{name}.json"),
+                ("a texture", f"assets/{NS}/textures/block/{name}.png"),
+                ("a loot table", f"data/{NS}/loot_table/blocks/{name}.json"),
+                ("a recipe", f"data/{NS}/recipe/{name}.json")):
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} has no {kind}, so it is a block a player can see "
+                     f"in a creative tab and never use")
+        if f"block.{NS}.{name}" not in lang:
+            fail(f"{name} has no name, so it reads as its own translation key")
+
+    # And every one of them comes back when it is broken. The module's whole
+    # theme: a bag that vanishes when a creeper clips the floor under it is
+    # the same failure as a grave with too few slots, only smaller.
+    for name in rests + ([rope] if rope else []):
+        table = read(RES, "data", NS, "loot_table/blocks", name + ".json")
+        if not table:
+            continue
+        if f'"{NS}:{name}"' not in table:
+            fail(f"{name} does not give itself back when it is broken, so a "
+                 f"creeper at the foot of your camp costs you the camp")
+
+    # Every shaped recipe this module writes uses every symbol it declares.
+    #
+    # Found by check_loadtest.py rather than here, which is the wrong way
+    # round: a key that defines a symbol its pattern never uses makes the game
+    # refuse the whole recipe, log a line and carry on, so all sixteen
+    # hammocks quietly did not exist and every other check in this file
+    # passed. It is a property of any shaped recipe, so it is checked over all
+    # of them rather than over the two that were wrong.
+    for name in sorted(os.listdir(os.path.join(RES, "data", NS, "recipe"))
+                       if os.path.isdir(os.path.join(RES, "data", NS, "recipe"))
+                       else []):
+        if not name.endswith(".json"):
+            continue
+        written = json.loads(read(RES, "data", NS, "recipe", name))
+        if written.get("type") != "minecraft:crafting_shaped":
+            continue
+        used = {symbol for row in written.get("pattern", []) for symbol in row}
+        for symbol in sorted(written.get("key", {})):
+            if symbol not in used:
+                fail(f"{name[:-5]} defines '{symbol}' in its key and never uses "
+                     f"it in its pattern, so the game refuses the whole recipe, "
+                     f"writes a line in the log and carries on — and the item "
+                     f"is one nobody can ever craft")
+        for symbol in sorted(used - set(written.get("key", {}))):
+            if symbol != " ":
+                fail(f"{name[:-5]} uses '{symbol}' in its pattern and its key "
+                     f"does not say what that is")
+
+    # The two kinds are two things to make, not one thing twice.
+    if len(kinds) == 2 and colours:
+        def inputs(of):
+            written = read(RES, "data", NS, "recipe", of + ".json")
+            if not written:
+                return None
+            made = json.loads(written)
+            return json.dumps([made.get("pattern"), made.get("key"),
+                               made.get("ingredients")], sort_keys=True)
+
+        first = inputs(f"{colours[0]}_{kinds[0]}")
+        second = inputs(f"{colours[0]}_{kinds[1]}")
+        if first and first == second:
+            fail("a bag and a hammock are made of exactly the same things in "
+                 "the same shape, so one of the two kinds is a second name for "
+                 "the other and the clock is divided between one thing")
+
+    # Not one of the thirty-three registered by hand.
+    for where, why in (("ComfortBlocks", "no place to sleep exists at all"),
+                       ("ComfortItems", "none of them can be carried")):
+        source = squashed(strip_comments(read(SRC, "registry", where + ".java")))
+        if not source:
+            fail(f"{where} is not here, so {why}")
+            continue
+        if "RestRules.KINDS" not in source and "ComfortBlocks.RESTS" not in source:
+            fail(f"{where} names its blocks by hand rather than walking the "
+                 f"rules, so the thirty-second is missing and the symptom is "
+                 f"one dye that has nothing to make with it")
+        if "IllegalStateException" not in source:
+            fail(f"{where} does not count what it registered, so a roster that "
+                 f"half registers is a roster that half exists")
+
+    # Every refusal is reachable, and every one has a sentence of its own.
+    _why = squashed(body_of(REST_BLOCK, "public String refusal("))
+    if not _why:
+        fail("nothing works out why a rest refuses you, so all six reasons are "
+             "one silence and a player's only guess is that the pack is broken")
+    for name, word in sorted(refusals.items()):
+        if word == refusals.get("UNSAFE"):
+            # The one the game itself decides; it is answered where the game
+            # hands the problem back rather than in the check above.
+            if f"RestRules.{name}" not in squashed(REST_BLOCK):
+                fail(f"{word} is a reason the rules name and nothing can ever "
+                     f"give, so it is a sentence nobody reads")
+        elif f"RestRules.{name}" not in _why:
+            fail(f"{word} is a reason the rules name and nothing can ever "
+                 f"give, so it is a sentence nobody reads")
+        if f"rest.{NS}.{word}" not in lang:
+            fail(f"{word} has no words, so a player is refused and told a "
+                 f"translation key")
+
+    # The model and the collision box are the same four sixteenths. A thing
+    # you can see through and cannot walk past is the commonest bug there is
+    # in a decorative block, and it is never filed as one.
+    if "public static final int LIES = 4;" not in REST_BLOCK:
+        fail("a rest no longer says how tall it lies, so its model and its "
+             "collision box have nothing to agree about")
+    _model = read(RES, "assets", NS, "models/block",
+                  f"{colours[0]}_{kinds[0]}.json" if colours and kinds else "")
+    _lies = re.search(r"public static final int LIES = (\d+);", REST_BLOCK)
+    _lies = int(_lies.group(1)) if _lies else 0
+    if _model and not re.search(
+            r'"to":\s*\[\s*16,\s*%d,\s*16\s*\]' % _lies, _model):
+        fail(f"a rest is drawn a different height from the {_lies} sixteenths "
+             f"it is, so it is a block you can see through and cannot walk "
+             f"past — or the other way about, which is worse")
+
+    # And the three things the game does about a bed that this must not do.
+    if not KEEPER:
+        fail("nothing keeps a rest from behaving like a bed, so it moves your "
+             "spawn — which is the one thing this whole feature exists to "
+             "stop")
+    else:
+        _spawn = squashed(body_of(KEEPER, "public static void onSetSpawn("))
+        if "event.setCanceled(true);" not in _spawn:
+            fail("a rest moves your spawn, so it is a bed with a different "
+                 "model and three hundred blocks from home it costs you the "
+                 "base you came from")
+        if "restAt(player.level(), where) != null" not in _spawn:
+            fail("every spawn-setting in the pack is cancelled rather than "
+                 "only the ones at our own blocks, so no bed anywhere works")
+        _slept = squashed(body_of(KEEPER, "public static void onSlept("))
+        if "RestRules.skipsFrom(tick, kind)" not in _slept:
+            fail("how far the world moves while you sleep is not the number "
+                 "the rules worked out, so the hour you wake at and the hour "
+                 "the harness swept are two different hours")
+        _can = squashed(body_of(KEEPER, "public static void onCanSleep("))
+        if "RestRules.usableAt(tick).equals(rest.kind())" not in _can:
+            fail("what may be slept in at this hour is decided somewhere other "
+                 "than the rules, so the partition the harness proved is not "
+                 "the partition the game uses")
+
+    # Every rule the file declares is added up.
+    _sum = squashed(body_of(REST, "public static List<String> faults()"))
+    _rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", REST))
+    _added = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _sum))
+    if len(_rules) < 4:
+        fail(f"only {len(_rules)} resting rule(s) are declared at all, so the "
+             f"check below is checking nothing")
+    for _rule in sorted(_rules - _added):
+        fail(f"{_rule} is written, compiled and never added up by the "
+             f"resting's faults(), so it answers the harness's controls and is "
+             f"never once asked about what this module ships")
+
+    print(f"somewhere to sleep : {len(rests) + (1 if rope else 0)} block(s) over "
+          f"{len(kinds)} kind(s) and {len(colours)} colour(s), every one of them "
+          f"craftable, breakable back into itself and named, six refusals each "
+          f"with its own sentence, and not one of them moving your spawn")
+
+
 if problems:
     print(f"{len(problems)} PROBLEM(S):")
     for problem in problems:

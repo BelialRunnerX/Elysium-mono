@@ -32,6 +32,7 @@ public final class ComfortHarness {
         theCost();
         theConservation();
         theRolls();
+        theResting();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -270,5 +271,150 @@ public final class ComfortHarness {
                         + "have met anything unusual");
         System.out.println("  conservation: " + stacksSeen + " stacks and " + itemsSeen
                 + " items buried and recovered, and not one of them changed on the way");
+    }
+
+    // ==================================================================
+
+    /**
+     * Somewhere to sleep that is not a bed.
+     *
+     * <p>The claim is that the two kinds divide the clock between them with no
+     * gap and no overlap, and that you always wake on the other side of the
+     * line. A gap is an hour when neither works and nothing says why; an
+     * overlap is a pair of items that between them delete the day.
+     */
+    private static void theResting() {
+        List<String> faults = RestRules.faults();
+        check(faults.isEmpty(), "something wrong with the resting: " + faults);
+
+        // Every tick of the day, which is the only way to know there is no gap.
+        int bags = 0;
+        int hammocks = 0;
+        for (int tick = 0; tick < RestRules.DAY; tick++) {
+            String kind = RestRules.usableAt(tick);
+            check(RestRules.KINDS.contains(kind),
+                    "at tick " + tick + " you may rest in " + kind + ", which is "
+                            + "not a thing this module makes");
+            if (RestRules.BAG.equals(kind)) {
+                bags++;
+            } else {
+                hammocks++;
+            }
+            // And the one that works is the one the dark says it should be.
+            check(RestRules.BAG.equals(kind) == RestRules.isNight(tick),
+                    "at tick " + tick + " the kind that works and whether it is "
+                            + "dark disagree, so a player is told to use a "
+                            + "hammock in the pitch dark");
+        }
+        check(bags + hammocks == RestRules.DAY,
+                "the two kinds cover " + (bags + hammocks) + " of "
+                        + RestRules.DAY + " ticks");
+        check(bags > 0 && hammocks > 0,
+                "one of the two kinds is usable at no hour at all, so sixteen "
+                        + "blocks are decoration");
+
+        // Wherever you lie down, you wake where the other one is the answer,
+        // and you never skip backwards.
+        for (String kind : RestRules.KINDS) {
+            for (int tick = 0; tick < RestRules.DAY; tick++) {
+                if (!RestRules.usableAt(tick).equals(kind)) {
+                    continue;
+                }
+                int skip = RestRules.skipsFrom(tick, kind);
+                check(skip > 0 && skip < RestRules.DAY,
+                        "resting in a " + kind + " at tick " + tick + " skips "
+                                + skip + " ticks, which is either nothing at all "
+                                + "or more than a day");
+                int woke = (tick + skip) % RestRules.DAY;
+                check(woke == RestRules.wakesAt(kind),
+                        "resting in a " + kind + " at tick " + tick + " lands at "
+                                + woke + " and it is meant to land at "
+                                + RestRules.wakesAt(kind));
+                check(!RestRules.usableAt(woke).equals(kind),
+                        "resting in a " + kind + " at tick " + tick + " wakes you "
+                                + "somewhere you can lie straight back down in "
+                                + "it, which is a button that skips time");
+            }
+        }
+
+        // Controls, built to be caught.
+        check(!RestRules.faultsInColours(java.util.List.of("white")).isEmpty(),
+                "a roster of one colour is not reported, so fifteen of the "
+                        + "game's dyes could have nothing to make with them");
+        check(!RestRules.faultsInColours(java.util.List.of(
+                        "white", "white", "orange", "magenta", "light_blue",
+                        "yellow", "lime", "pink", "gray", "light_gray", "cyan",
+                        "purple", "blue", "brown", "green", "red")).isEmpty(),
+                "a colour listed twice is not reported, so one of the sixteen "
+                        + "would quietly not exist");
+        check(RestRules.faultsInColours(RestRules.COLOURS).isEmpty(),
+                "the colours this module ships are reported as faulty");
+
+        check(!RestRules.faultsInCount(longer(RestRules.roster())).isEmpty(),
+                "a roster one block too long is not reported");
+        check(!RestRules.faultsInDuplicates(twice(RestRules.roster())).isEmpty(),
+                "a roster with a block in it twice is not reported");
+        check(!RestRules.faultsInMissing(java.util.List.of()).isEmpty(),
+                "a roster with nothing in it is not reported, so every colour "
+                        + "could quietly have nothing to craft");
+        check(RestRules.faultsInCount(RestRules.roster()).isEmpty()
+                        && RestRules.faultsInDuplicates(RestRules.roster()).isEmpty()
+                        && RestRules.faultsInMissing(RestRules.roster()).isEmpty(),
+                "the roster this module ships is reported as faulty");
+
+        check(!RestRules.faultsInClock(RestRules.DUSK).isEmpty(),
+                "half a day, in which a sleeping bag is usable at no hour at "
+                        + "all, is not reported — so sixteen blocks could be "
+                        + "decoration and nothing would say so");
+        check(!RestRules.faultsInMissing(swapped(RestRules.roster())).isEmpty(),
+                "a roster of the right size with the wrong thing in it is not "
+                        + "reported, so one colour could quietly not exist");
+        check(RestRules.faultsInClock(RestRules.DAY).isEmpty(),
+                "the clock this module ships is reported as broken");
+
+        check(!RestRules.faultsInWaking(java.util.List.of("wibble")).isEmpty(),
+                "waking from something that is not a kind of rest is not "
+                        + "reported");
+        check(RestRules.faultsInWaking(RestRules.KINDS).isEmpty(),
+                "the waking this module ships is reported as broken");
+
+        check(!RestRules.faultsInRefusals(java.util.List.of("a", "b")).isEmpty(),
+                "a module with two ways to say no and six ways to fail is not "
+                        + "reported");
+        check(!RestRules.faultsInRefusals(java.util.List.of(
+                        "a", "b", "c", "d", "d")).isEmpty(),
+                "two reasons wearing one sentence are not reported");
+        check(!RestRules.faultsInRefusals(java.util.List.of(
+                        "a", "b", "c", "")).isEmpty(),
+                "a refusal with no words at all is not reported");
+        check(RestRules.faultsInRefusals(RestRules.REFUSALS).isEmpty(),
+                "the refusals this module ships are reported as faulty");
+
+        System.out.println("  somewhere to sleep: " + RestRules.roster().size()
+                + " block(s), " + RestRules.DAY + " ticks of the day swept, "
+                + bags + " of them a sleeping bag's and " + hammocks + " a "
+                + "hammock's, no gap between them and no hour that is both, and "
+                + "every rest waking you where the other one is the answer");
+    }
+
+    /** A roster one longer than it should be, for a control. */
+    private static List<String> longer(List<String> one) {
+        List<String> made = new ArrayList<>(one);
+        made.add("wibble");
+        return made;
+    }
+
+    /** A roster of the right size with one thing in it wrong, for a control. */
+    private static List<String> swapped(List<String> one) {
+        List<String> made = new ArrayList<>(one);
+        made.set(0, "wibble");
+        return made;
+    }
+
+    /** A list with everything in it twice, for a control. */
+    private static List<String> twice(List<String> one) {
+        List<String> made = new ArrayList<>(one);
+        made.addAll(one);
+        return made;
     }
 }

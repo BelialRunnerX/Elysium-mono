@@ -8,10 +8,10 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 81 | DONE | an Elysium module already replaces it |
+| 82 | DONE | an Elysium module already replaces it |
 | 22 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 11 | PLANNED | has a target module, not started |
+| 10 | PLANNED | has a target module, not started |
 | 14 | KEEP | stays in the pack on purpose |
 | 74 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -23,7 +23,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `elysium-bestiary` | 8 |
 | `elysium-atelier` | 7 |
 | `elysium-agronomy` | 4 |
-| `elysium-comforts` | 4 |
+| `elysium-comforts` | 3 |
 | `elysium-industry` | 3 |
 | `elysium-wilds` | 2 |
 | `elysium-atomics` | 2 |
@@ -64,7 +64,7 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | `Clothing_Of_The_Lowlands-1.0.8-neoforge-1.21.1.jar` | KEEP | elysium-atelier | 112 cosmetic garments, every one of them a texture and nothing else; the same retexture decision |
 | `cluttered-[NeoForge]-3.0.3-1.21.1.jar` | KEEP | elysium-atelier | its shapes are built; what is left is new stone and wood types and sixteen colours of wallpaper, which is the same retexture decision |
 | `cobblegengalore-1.21.1-0.2.9.jar` | DONE | elysium-agronomy | seven generators, one per vein, each making its own material at a rate held under a share of what mining it is worth |
-| `comforts-neoforge-9.0.5+1.21.1.jar` | PLANNED | elysium-comforts | 16 hammocks, 16 sleeping bags and a rope and nail: sleep anywhere without moving your spawn, and a hammock that skips a night without one. 44 blocks in the jar, of which 32 are the same two things in every colour |
+| `comforts-neoforge-9.0.5+1.21.1.jar` | DONE | elysium-comforts | sixteen sleeping bags, sixteen hammocks and a rope and nail, and none of them moves your spawn — which is the whole of what made exploring expensive, because every player carried a bed and never placed one. The two kinds divide the clock between them: a bag is for the night, a hammock for the day, and every one of the 24,000 ticks belongs to exactly one of them, with no hour that is both and none that is neither. You always wake on the far side of that line, so the thing you just used cannot be used again until the world has moved on. Six ways it can refuse you and six sentences to say which, and every block breaks back into itself |
 | `commoncapabilities-1.21.1-neoforge-2.11.5.jar` | DROP | elysium-logistics | a capability library for the same, and the game's own capabilities are what this module already runs on |
 | `configuration-neoforge-1.21.1-3.1.1.jar` | DROP | - | library: goes when the mods needing it go |
 | `copycats-3.0.4+mc.1.21.1-neoforge.jar` | SPLIT | elysium-atelier | blocks that wear another block's texture: a decoration idea, and it belongs with the decoration module |

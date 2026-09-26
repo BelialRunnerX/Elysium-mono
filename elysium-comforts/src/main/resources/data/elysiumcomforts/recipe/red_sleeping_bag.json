@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "..."
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:red_wool"
+    },
+    ".": {
+      "item": "minecraft:leather"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:red_sleeping_bag",
+    "count": 1
+  }
+}
