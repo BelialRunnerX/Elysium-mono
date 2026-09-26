@@ -4,6 +4,7 @@ import com.elysium.lib.trinket.ElysiumTrinket;
 import com.elysium.trinkets.item.ElysiumTrinketItem;
 import com.elysium.trinkets.trinket.CompanionTrinkets;
 import com.elysium.trinkets.trinket.CraftedTrinkets;
+import com.elysium.trinkets.trinket.FoundTrinkets;
 import com.elysium.trinkets.trinket.UniqueTrinkets;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -114,6 +115,11 @@ public class ElysiumTrinkets {
         for (ElysiumTrinket trinket : CompanionTrinkets.ALL) {
             register(trinket, 0);
         }
+
+        // The found ones are found somewhere: vanilla's chests through the
+        // generated loot modifiers, and the top shelf of the library's reward
+        // providers, which elysium-dungeons' chests roll from.
+        FoundTrinkets.registerRewards();
 
         // The one line that needs Curios to exist.
         CuriosSlots.install();

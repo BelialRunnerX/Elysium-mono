@@ -25,11 +25,16 @@ import shutil
 HERE = os.path.dirname(os.path.abspath(__file__))
 MOD = os.path.dirname(HERE)
 NS = "elysiumores"
-RES = os.path.join(MOD, "src/main/resources")
+# Where the files land. The validator points this at a scratch directory and
+# compares what comes out with what is shipped; the rules are always read from
+# the module itself, so a scratch run writes what the real rules say.
+OUT = os.environ.get("ELYSIUM_ORES_OUT", MOD)
+RES = os.path.join(OUT, "src/main/resources")
 DATA = os.path.join(RES, "data", NS)
 ASSETS = os.path.join(RES, "assets", NS)
 C = os.path.join(RES, "data", "c")
 JAVA = os.path.join(MOD, "src/main/java/com/elysium/ores")
+JAVA_OUT = os.path.join(OUT, "src/main/java/com/elysium/ores")
 
 SCAN = json.load(open(os.path.join(HERE, "pack_scan.json"), encoding="utf-8"))
 
@@ -166,6 +171,30 @@ CLOTH_YIELD = int(re.search(r"CLOTH_YIELD = (\d+);", ROSTER_SRC).group(1))
 if not ROSTER or not DROPS or not PARTS or not CLOTH_MADE_OF:
     raise SystemExit("CordonMaterials.java did not parse; the roster's shape changed")
 
+# ---------------------------------------------------------------------------
+# Where the roots come from (rules/CordonSources.java): read, never retyped.
+# ---------------------------------------------------------------------------
+SOURCES_SRC = open(os.path.join(JAVA, "rules/CordonSources.java"), encoding="utf-8").read()
+SOURCES_SRC = re.sub(r"//[^\n]*", " ", re.sub(r"/\*.*?\*/", " ", SOURCES_SRC, flags=re.S))
+SOURCES = [{"seed": seed, "table": table} for seed, table in
+           re.findall(r'\bat\("([a-z_]+)",\s*"(minecraft:[a-z_/]+)"\)', SOURCES_SRC)]
+
+
+def _chance(name):
+    m = re.search(r"public static final float " + name + r" = ([0-9.]+)F;", SOURCES_SRC)
+    if not m:
+        raise SystemExit("CordonSources has no constant " + name)
+    return float(m.group(1))
+
+
+KILL_CHANCE = _chance("KILL_CHANCE")
+CHEST_CHANCE = _chance("CHEST_CHANCE")
+if not SOURCES:
+    raise SystemExit("CordonSources.java did not parse; the table's shape changed")
+for _source in SOURCES:
+    _source["kill"] = _source["table"].startswith("minecraft:entities/")
+    _source["name"] = _source["seed"] + "_from_" + _source["table"].rsplit("/", 1)[1]
+
 # The dug ones join the families this module fills every stone with. Nothing
 # falls back on vanilla: the family's item is this module's own.
 for _row in ROSTER:
@@ -271,7 +300,7 @@ def write(path, content):
 def clean():
     for sub in ("blockstates", "models", "lang"):
         shutil.rmtree(os.path.join(ASSETS, sub), ignore_errors=True)
-    for sub in ("worldgen", "loot_table", "tags", "neoforge", "recipe"):
+    for sub in ("worldgen", "loot_table", "loot_modifiers", "loot_modifier", "tags", "neoforge", "recipe"):
         shutil.rmtree(os.path.join(DATA, sub), ignore_errors=True)
     shutil.rmtree(C, ignore_errors=True)
     shutil.rmtree(os.path.join(RES, "data", "neoforge"), ignore_errors=True)
@@ -365,9 +394,47 @@ TOOL_TAGS = {"mineable": [], "stone": [], "iron": [], "diamond": []}
 
 
 def loot_modifiers():
-    """The one global loot modifier, listed so it runs. clean() removes the directory; this puts it back."""
+    """
+    The global loot modifiers, and the index that makes them run.
+
+    The unifier, and one modifier per row of CordonSources: on the vanilla
+    table the row names, at the row's chance, roll this module's table for the
+    seed. A kill has to be the player's, or a grinder is a root mine. The
+    directory is `loot_modifiers`, plural - NeoForge's LootModifierManager
+    reads that and nothing else, and the singular it once sat in was a
+    modifier that loaded never.
+    """
+    write(os.path.join(DATA, "loot_modifiers/unifying.json"), {"type": f"{NS}:unifying", "conditions": []})
+    entries = [f"{NS}:unifying"]
+    for source in SOURCES:
+        conditions = [
+            {"condition": "neoforge:loot_table_id", "loot_table_id": source["table"]},
+            {"condition": "minecraft:random_chance",
+             "chance": KILL_CHANCE if source["kill"] else CHEST_CHANCE},
+        ]
+        if source["kill"]:
+            conditions.append({"condition": "minecraft:killed_by_player"})
+        write(os.path.join(DATA, f"loot_modifiers/{source['name']}.json"), {
+            "type": "neoforge:add_table",
+            "conditions": conditions,
+            "table": f"{NS}:cordon/{source['seed']}"})
+        entries.append(f"{NS}:{source['name']}")
     write(os.path.join(RES, "data/neoforge/loot_modifiers/global_loot_modifiers.json"),
-          {"replace": False, "entries": [f"{NS}:unifying"]})
+          {"replace": False, "entries": entries})
+    return len(entries)
+
+
+def cordon_sources():
+    """One table per seed, so a modifier has something to add: the seed, once."""
+    seeds = []
+    for source in SOURCES:
+        if source["seed"] not in seeds:
+            seeds.append(source["seed"])
+    for seed in seeds:
+        write(os.path.join(DATA, f"loot_table/cordon/{seed}.json"), {
+            "type": "minecraft:chest",
+            "pools": [{"rolls": 1, "entries": [{"type": "minecraft:item", "name": f"{NS}:{seed}"}]}]})
+    return len(seeds)
 
 
 def tool_tags():
@@ -663,7 +730,7 @@ __BODY__);
 __FAMILIES__);
 }
 """
-    write(os.path.join(JAVA, "data/OreCatalogue.java"),
+    write(os.path.join(JAVA_OUT, "data/OreCatalogue.java"),
           template.replace("__BODY__", body).replace("__FAMILIES__", family_rows))
     return len(rows)
 
@@ -674,13 +741,15 @@ def main():
     ores = ore_blocks()
     items, blocks, recipes = cordon()
     tool_tags()
-    loot_modifiers()
+    modifiers = loot_modifiers()
+    seeds = cordon_sources()
     dims = features()
     keys = language()
     rows = catalogue()
     print(f"unification tags  : {tags}")
     print(f"ore blocks        : {ores} across {len(HOSTS)} stones")
     print(f"cordon materials  : {items} items, {blocks} blocks, {recipes} recipes")
+    print(f"cordon sources    : {seeds} roots, {len(SOURCES)} sources in vanilla loot, {modifiers} loot modifiers listed")
     print(f"biome modifiers   : {dims} worlds")
     print(f"catalogue rows    : {rows}")
     print(f"language keys     : {keys}")

@@ -268,6 +268,121 @@ for path, _element, _slot, _level, is_crafted in trinkets:
              f"made; a craftable unique is neither")
 
 # ---------------------------------------------------------------------------
+# Found somewhere (trinket/FoundTrinkets.java)
+# ---------------------------------------------------------------------------
+#
+# A table nothing references is a trinket nobody finds. For a while the line
+# below this section said "all obtainable" because twenty-eight files existed,
+# and not one of them was pointed at by anything in the game. So: every found
+# trinket's table is an entry of the aggregate, the aggregate is added to
+# vanilla's chests by loot modifiers NeoForge actually lists, and the reward
+# provider that lets elysium-dungeons' chests roll one is registered - from
+# the constructor, as a whole statement, not a name in a comment.
+
+_before = len(problems)
+found_src = read_java("trinket/FoundTrinkets.java")
+found_paths = [t[0] for t in trinkets if not t[4]]
+_chests_block = re.search(r"CHESTS = List\.of\((.*?)\);", found_src, re.S)
+found_chests = re.findall(r'"(minecraft:chests/[a-z_]+)"', _chests_block.group(1)) if _chests_block else []
+_chance = re.search(r"public static final float CHEST_CHANCE = ([0-9.]+)F;", found_src)
+found_chance = float(_chance.group(1)) if _chance else None
+if not found_src:
+    fail("trinket/FoundTrinkets.java is missing, so the found trinkets are found nowhere")
+if not found_chests:
+    fail("FoundTrinkets names no vanilla chest, so no loot modifier can be written and a found "
+         "trinket is found only in a dungeon this pack may not have")
+if found_chance is None or not 0.0 < found_chance <= 0.25:
+    fail(f"FoundTrinkets.CHEST_CHANCE is {found_chance}; a found trinket is rare or it is not a find")
+
+aggregate = load_maybe(f"data/{MOD}/loot_table/trinkets/found.json")
+if aggregate is None:
+    fail("there is no aggregate table at loot_table/trinkets/found.json, so the twenty-eight tables "
+         "have nothing to be rolled from")
+    rolled = []
+else:
+    pools = aggregate.get("pools", [])
+    rolled = [entry.get("value") for pool in pools for entry in pool.get("entries", [])
+              if entry.get("type") == "minecraft:loot_table"]
+    if len(pools) != 1 or pools[0].get("rolls") != 1:
+        fail("the aggregate rolls other than once from one pool, so a chest hands out a handful of "
+             "rules at a time")
+    for entry in (pools[0].get("entries", []) if pools else []):
+        if entry.get("type") != "minecraft:loot_table":
+            fail(f"the aggregate carries a {entry.get('type')} entry; it is a table of tables and nothing else")
+    if len(rolled) != len(set(rolled)):
+        fail("the aggregate lists a table twice, so that trinket is found at twice the rate of the rest")
+for path in found_paths:
+    if f"{MOD}:trinkets/{path}" not in rolled:
+        fail(f"{path} is a found trinket the aggregate table never rolls, so its loot table is a file "
+             f"nothing in the game reads and the trinket exists only in the creative tab")
+for value in rolled:
+    stem = value.split("/", 1)[-1] if isinstance(value, str) else ""
+    if stem not in found_paths:
+        fail(f"the aggregate rolls {value}, which is not a found trinket")
+
+modifier_dir = f"data/{MOD}/loot_modifiers"
+glm = load_maybe("data/neoforge/loot_modifiers/global_loot_modifiers.json") or {}
+if glm.get("replace"):
+    fail("global_loot_modifiers replaces the list, so installing this module switches every other "
+         "mod's loot modifiers off")
+listed = glm.get("entries", [])
+adders = 0
+for chest in found_chests:
+    name = "found_in_" + chest.rsplit("/", 1)[1]
+    body = load_maybe(f"{modifier_dir}/{name}.json")
+    if body is None:
+        fail(f"{chest} has no loot modifier at {modifier_dir}/{name}.json, so a chest FoundTrinkets "
+             f"names holds nothing")
+        continue
+    if body.get("type") != "neoforge:add_table" or body.get("table") != f"{MOD}:trinkets/found":
+        fail(f"{modifier_dir}/{name}.json does not add {MOD}:trinkets/found")
+    else:
+        adders += 1
+    conditions = body.get("conditions", [])
+    ids = [c.get("loot_table_id") for c in conditions if c.get("condition") == "neoforge:loot_table_id"]
+    if ids != [chest]:
+        fail(f"{modifier_dir}/{name}.json listens for {ids} rather than {chest}, so it fires on the "
+             f"wrong chest or on every table there is")
+    chances = [c.get("chance") for c in conditions if c.get("condition") == "minecraft:random_chance"]
+    if found_chance is None or len(chances) != 1 or abs(chances[0] - found_chance) > 1e-6:
+        fail(f"{modifier_dir}/{name}.json rolls at {chances} rather than FoundTrinkets.CHEST_CHANCE, "
+             f"so a chest pays at a rate the Java never said")
+    if f"{MOD}:{name}" not in listed:
+        fail(f"{MOD}:{name} is not listed in global_loot_modifiers, so it is shipped and never runs")
+if os.path.isdir(os.path.join(RES, modifier_dir)):
+    for filename in sorted(os.listdir(os.path.join(RES, modifier_dir))):
+        if filename.endswith(".json") and filename[:-5] not in \
+                {"found_in_" + c.rsplit("/", 1)[1] for c in found_chests}:
+            fail(f"{modifier_dir}/{filename} answers to no chest in FoundTrinkets, so it is a rate "
+                 f"nobody decided")
+if adders == 0 and aggregate is not None:
+    fail("no loot modifier adds the aggregate table, so it is rolled by nothing in the game")
+
+# The provider: registered as a whole statement, and a rule with a share.
+_trinkets_ctor = read_java("ElysiumTrinkets.java")
+_ctor_body = _trinkets_ctor[_trinkets_ctor.find("public ElysiumTrinkets(IEventBus modEventBus) {"):]
+_ctor_body = _ctor_body[:_ctor_body.find("\n    }\n")]
+if "FoundTrinkets.registerRewards();" not in _ctor_body:
+    fail("the mod constructor never calls FoundTrinkets.registerRewards();, so the reward provider is "
+         "never registered and a dungeon chest cannot hold a found trinket")
+if "ElysiumRewards.register(FoundTrinkets::roll);" not in found_src:
+    fail("FoundTrinkets.registerRewards does not put FoundTrinkets::roll on the library's shelf")
+if "if (tier < ElysiumRewards.MAX_TIER) {" not in found_src:
+    fail("the provider answers every tier, so a first-room chest pays what the deepest one does")
+if "if (random.nextFloat() >= REWARD_CHANCE) {" not in found_src:
+    fail("the provider never declines at the top tier, so half of every top chest is trinkets and "
+         "elysium-core's shelf is shadowed")
+if "for (ElysiumTrinket trinket : UniqueTrinkets.ALL) {" not in found_src \
+        or "for (ElysiumTrinket trinket : CompanionTrinkets.ALL) {" not in found_src:
+    fail("FoundTrinkets does not walk both rosters, so a companion or a unique is never a reward")
+if "return item == null ? ItemStack.EMPTY : new ItemStack(item.get());" not in found_src:
+    fail("the provider resolves a trinket with no item, which is the unbound-holder crash")
+
+if len(problems) == _before:
+    print(f"found somewhere    : {len(found_paths)} found trinkets in one aggregate, added to "
+          f"{len(found_chests)} vanilla chests at {found_chance:.0%} and to the tier-3 reward shelf")
+
+# ---------------------------------------------------------------------------
 # The potion charm (SPEC_CLONE P12.3)
 # ---------------------------------------------------------------------------
 #
@@ -420,7 +535,7 @@ if os.path.isdir(recipe_dir):
 
 if len(problems) == _before:
     print(f"recipes            : {len(crafted)} crafted trinkets, all with a valid recipe")
-    print(f"loot tables        : {len(unique)} found trinkets, all obtainable")
+    print(f"loot tables        : {len(unique)} found trinkets, each with a table the aggregate rolls")
 
 # ---------------------------------------------------------------------------
 # The one Curios import

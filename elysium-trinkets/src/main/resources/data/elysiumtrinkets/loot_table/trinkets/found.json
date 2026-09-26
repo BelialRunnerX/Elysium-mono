@@ -1,0 +1,122 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/widows_thimble"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/cracked_reliquary"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/nine_tenths_charm"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/iron_discipline"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/ashen_mantle"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/splintbone_fetish"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/empty_reliquary"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/gravebound_coil"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/ratchet_gauntlet"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/duellists_cuff"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/hollow_chime"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/carrion_signet"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/pale_tourniquet"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/deadmans_ledger"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/quiet_hours"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/unsworn_bell"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/auditors_seal"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/long_memory"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/tithe_bracelet"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/debtors_knot"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/prospectors_lens"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/cartographers_nail"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/longsight"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/reforgers_loupe"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/mote"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/carrion_drone"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/lattice_shard"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "elysiumtrinkets:trinkets/purge_drone"
+        }
+      ]
+    }
+  ]
+}

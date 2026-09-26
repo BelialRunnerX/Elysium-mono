@@ -72,6 +72,8 @@ MODELS = os.path.join(RES, f"assets/{MOD}/models/item")
 LANG = os.path.join(RES, f"assets/{MOD}/lang/en_us.json")
 RECIPES = os.path.join(RES, f"data/{MOD}/recipe")
 LOOT = os.path.join(RES, f"data/{MOD}/loot_table/trinkets")
+MODIFIERS = os.path.join(RES, f"data/{MOD}/loot_modifiers")
+GLOBAL = os.path.join(RES, "data/neoforge/loot_modifiers/global_loot_modifiers.json")
 
 # The metal each element is cast in. Element decides the glow; this decides the
 # body, so two Void trinkets in different slots still look like a matched set.
@@ -107,9 +109,15 @@ def read_trinkets():
     return found
 
 
-def write(path, obj):
+def write(path, obj, always=False):
+    """
+    Write one JSON file. A file that already exists is left alone unless
+    `always`: the sprites and the recipes are a hand's to improve, but a file
+    that is a function of the roster - the aggregate table, the modifiers -
+    has to track the roster, and a stale one is a trinket nothing rolls.
+    """
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    if os.path.exists(path):
+    if os.path.exists(path) and not always:
         return False
     with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(obj, handle, indent=2)
@@ -538,6 +546,52 @@ def write_lang(entries):
     return added
 
 
+# ---------------------------------------------------------------------------
+# Where a found trinket is found (trinket/FoundTrinkets.java)
+# ---------------------------------------------------------------------------
+#
+# The chests and the chance are read out of the Java that also registers the
+# reward provider, so the two ways in are one table. The aggregate rolls once
+# over every found trinket; one modifier per chest adds it.
+
+def read_found():
+    """(chests, chance) out of FoundTrinkets.java."""
+    source = open(os.path.join(JAVA, "FoundTrinkets.java"), encoding="utf-8").read()
+    source = re.sub(r"/\*.*?\*/", " ", source, flags=re.S)
+    source = re.sub(r"//[^\n]*", " ", source)
+    block = re.search(r"CHESTS = List\.of\((.*?)\);", source, re.S)
+    chests = re.findall(r'"(minecraft:chests/[a-z_]+)"', block.group(1)) if block else []
+    chance = re.search(r"public static final float CHEST_CHANCE = ([0-9.]+)F;", source)
+    if not chests or not chance:
+        raise SystemExit("FoundTrinkets.java did not parse: no chests or no chance")
+    return chests, float(chance.group(1))
+
+
+def write_found(entries):
+    """The aggregate, one modifier per chest, and the index that runs them."""
+    chests, chance = read_found()
+    found = [path for path, _element, _slot, _level, crafted in entries if not crafted]
+    write(os.path.join(LOOT, "found.json"),
+          {"type": "minecraft:chest",
+           "pools": [{"rolls": 1,
+                      "entries": [{"type": "minecraft:loot_table",
+                                   "value": f"{MOD}:trinkets/{path}"} for path in found]}]},
+          always=True)
+    names = []
+    for chest in chests:
+        name = "found_in_" + chest.rsplit("/", 1)[1]
+        write(os.path.join(MODIFIERS, name + ".json"),
+              {"type": "neoforge:add_table",
+               "conditions": [
+                   {"condition": "neoforge:loot_table_id", "loot_table_id": chest},
+                   {"condition": "minecraft:random_chance", "chance": chance}],
+               "table": f"{MOD}:trinkets/found"},
+              always=True)
+        names.append(f"{MOD}:{name}")
+    write(GLOBAL, {"replace": False, "entries": names}, always=True)
+    return len(found), len(names)
+
+
 def main():
     entries = read_trinkets()
     unique = sum(1 for e in entries if not e[4])
@@ -550,6 +604,8 @@ def main():
     print(f"curios files       : {write_curios(entries)}")
     print(f"recipes written    : {write_recipes(entries)}")
     print(f"loot tables written: {write_loot(entries)}")
+    rolled, chests = write_found(entries)
+    print(f"found trinkets     : {rolled} in one aggregate, added to {chests} vanilla chests")
     print(f"potion charm files : {write_potion_charm()}")
     print(f"companion slot icon: {write_companion_slot()}")
     print(f"lang keys added    : {write_lang(entries)}")
