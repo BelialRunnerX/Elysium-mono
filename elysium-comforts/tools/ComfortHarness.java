@@ -52,6 +52,7 @@ public final class ComfortHarness {
         theChimes();
         theStations();
         thePost();
+        theLighting();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -60,8 +61,8 @@ public final class ComfortHarness {
         System.out.println(checks + " checks: a grave is built around what it is given "
                 + "rather than given a size, it is never in the void or in bedrock, it "
                 + "is yours until you have plainly given up on it, over a million "
-                + "random inventories not one item went missing, and no two players "
-                + "ever share a roll");
+                + "random inventories not one item went missing, no two players "
+                + "ever share a roll, and a room can be furnished without being lit");
     }
 
     // ==================================================================
@@ -1033,5 +1034,296 @@ public final class ComfortHarness {
                 + "addresses nobody wrote, every one of them inside the band "
                 + PostRules.SOONEST + " to " + PostRules.LATEST + " ticks and "
                 + "never quicker for being further");
+    }
+
+    // ==================================================================
+
+    /**
+     * Every claim {@link LightRules} makes, executed.
+     *
+     * <p>The rules are a table plus ten sweeps over it, and a table is exactly
+     * the thing that looks right in a diff while being wrong. Each rule here is
+     * handed a roster built to be caught, so that a rule which has quietly
+     * stopped being able to fail says so.
+     */
+    private static void theLighting() {
+        check(LightRules.faults().isEmpty(), "the fittings that ship report "
+                + LightRules.faults().size() + " fault(s): " + LightRules.faults());
+
+        // The table is the shape it claims to be.
+        check(LightRules.KINDS.size() == 6, "there are "
+                + LightRules.KINDS.size() + " kind(s) of fitting and the module "
+                + "is written around six");
+        check(LightRules.COLOURS.size() == 16, "there are "
+                + LightRules.COLOURS.size() + " colour(s) and the game dyes in 16");
+        for (LightRules.Fitting one : LightRules.FITTINGS) {
+            check(LightRules.fitting(one.id()) == one, one.id()
+                    + " is in the roster and cannot be looked up by name");
+            check(LightRules.KINDS.contains(one.kind()), one.id() + " is a "
+                    + one.kind() + ", which is not one of the kinds");
+            check(one.light() >= 0 && one.light() <= 15, one.id() + " gives "
+                    + one.light() + " light and a block gives nought to fifteen");
+            check(one.cost() >= 1, one.id() + " costs " + one.cost());
+            check(one.dyed() == !one.colour().isEmpty(), one.id()
+                    + " disagrees with itself about whether it is dyed");
+        }
+        check(LightRules.fitting("a fitting nobody wrote") == null,
+                "a fitting nobody wrote is found in the roster");
+
+        // The compact constructor refuses nonsense.
+        check(threwOn(() -> new LightRules.Fitting("", LightRules.HELD, 1, 1, "")),
+                "a fitting with no name is accepted");
+        check(threwOn(() -> new LightRules.Fitting("control", "not a kind", 1, 1, "")),
+                "a fitting of a kind that does not exist is accepted");
+        check(threwOn(() -> new LightRules.Fitting("control", LightRules.HELD, 16, 1, "")),
+                "a fitting brighter than a block can be is accepted");
+        check(threwOn(() -> new LightRules.Fitting("control", LightRules.HELD, -1, 1, "")),
+                "a fitting darker than a block can be is accepted");
+        check(threwOn(() -> new LightRules.Fitting("control", LightRules.HELD, 1, 0, "")),
+                "a fitting that costs nothing is accepted");
+        check(threwOn(() -> new LightRules.Fitting("control", LightRules.HELD, 1, 1, null)),
+                "a fitting with a null colour is accepted");
+
+        // A dyed set is one shape, however many colours it has.
+        List<LightRules.Fitting> shapes = LightRules.shapes(LightRules.FITTINGS);
+        check(shapes.size() < LightRules.FITTINGS.size(), "the roster has "
+                + LightRules.FITTINGS.size() + " fitting(s) and just as many "
+                + "shapes, so nothing is collapsing the dyed set");
+        int dyedShapes = 0;
+        for (LightRules.Fitting one : shapes) {
+            if (one.dyed()) {
+                dyedShapes++;
+            }
+        }
+        check(dyedShapes == 1, "the shapes hold " + dyedShapes + " dyed "
+                + "fitting(s), and the roster has one dyed set");
+
+        // Adding colours to a dyed set changes nothing about what the roster is like.
+        List<LightRules.Fitting> widened = new ArrayList<>(LightRules.FITTINGS);
+        for (int extra = 0; extra < 40; extra++) {
+            widened.add(new LightRules.Fitting("control_" + extra + "_"
+                    + LightRules.HELD, LightRules.HELD, 6, 3, "control" + extra));
+        }
+        check(LightRules.shapes(widened).size() == shapes.size(),
+                "forty more colours of candle holder changed the roster from "
+                + shapes.size() + " shape(s) to "
+                + LightRules.shapes(widened).size() + ", so a dyed set can "
+                + "outvote everything else by being dyed harder");
+
+        // dim() counts, and counts at the boundary the right way round.
+        Random random = new Random(20_260_926L);
+        int swept = 0;
+        for (int round = 0; round < 200_000; round++) {
+            int stillDark = random.nextInt(16);
+            int wanted = 0;
+            for (LightRules.Fitting one : LightRules.FITTINGS) {
+                if (one.light() <= stillDark) {
+                    wanted++;
+                }
+            }
+            check(LightRules.dim(LightRules.FITTINGS, stillDark) == wanted,
+                    "at or under " + stillDark + " light the roster has " + wanted
+                    + " fitting(s) and dim() says "
+                    + LightRules.dim(LightRules.FITTINGS, stillDark));
+            swept++;
+        }
+        check(LightRules.dim(List.of(new LightRules.Fitting("control",
+                        LightRules.HELD, 7, 1, "")), 7) == 1,
+                "a fitting exactly at the top of the band is not counted as dim, "
+                + "so the band is open at the top and the number means nothing");
+        check(LightRules.dim(List.of(new LightRules.Fitting("control",
+                        LightRules.HELD, 8, 1, "")), 7) == 0,
+                "a fitting one over the top of the band is counted as dim");
+
+        // Each rule, handed something built to be caught.
+        List<LightRules.Fitting> glaring = new ArrayList<>(LightRules.FITTINGS);
+        glaring.add(new LightRules.Fitting("control_" + LightRules.FLOOR,
+                LightRules.FLOOR, 15, 99, ""));
+        check(!LightRules.faultsInGlare(glaring, LightRules.BRIGHTEST).isEmpty(),
+                "a fitting at the game's own full light is not reported");
+        check(LightRules.faultsInGlare(LightRules.FITTINGS,
+                LightRules.BRIGHTEST).isEmpty(),
+                "the fittings that ship are reported as too bright");
+
+        check(!LightRules.faultsInNames(List.of(
+                        new LightRules.Fitting("control", LightRules.HELD, 1, 1, ""),
+                        new LightRules.Fitting("control", LightRules.HUNG, 2, 2, "")))
+                .isEmpty(), "two fittings under one name are not reported");
+
+        check(!LightRules.faultsInGaps(LightRules.FITTINGS,
+                        List.of(LightRules.HELD, "a kind nothing is")).isEmpty(),
+                "a kind of fitting nothing in the roster is is not reported");
+
+        check(!LightRules.faultsInKinds(List.of(
+                        new LightRules.Fitting("control", LightRules.HELD, 1, 1, "")),
+                        List.of(LightRules.HUNG)).isEmpty(),
+                "a fitting of a kind the module does not have is not reported");
+
+        check(!LightRules.faultsInBargains(List.of(
+                        new LightRules.Fitting("bright", LightRules.HUNG, 12, 3, ""),
+                        new LightRules.Fitting("dim", LightRules.HUNG, 4, 3, "")))
+                .isEmpty(), "a fitting that is brighter and no dearer than "
+                + "another of its kind is not reported");
+        check(LightRules.faultsInBargains(List.of(
+                        new LightRules.Fitting("bright", LightRules.HUNG, 12, 3, ""),
+                        new LightRules.Fitting("dim", LightRules.FLOOR, 4, 3, "")))
+                .isEmpty(), "two fittings of different kinds are compared on "
+                + "price, and a lamp is not a lantern");
+
+        check(!LightRules.faultsInColour(List.of(
+                        new LightRules.Fitting("red_x", LightRules.HELD, 6, 3, "red"),
+                        new LightRules.Fitting("blue_x", LightRules.HELD, 9, 3, "blue")))
+                .isEmpty(), "two colours of one fitting at two light levels are "
+                + "not reported");
+        check(!LightRules.faultsInColour(List.of(
+                        new LightRules.Fitting("red_x", LightRules.HELD, 6, 3, "red"),
+                        new LightRules.Fitting("blue_x", LightRules.HELD, 6, 5, "blue")))
+                .isEmpty(), "two colours of one fitting at two prices are not "
+                + "reported");
+
+        check(!LightRules.faultsInUnlit(List.of(
+                        new LightRules.Fitting("control", LightRules.HELD, 1, 1, "")))
+                .isEmpty(), "a roster in which everything gives light is not "
+                + "reported");
+        check(LightRules.faultsInUnlit(LightRules.FITTINGS).isEmpty(),
+                "the fittings that ship are reported as all giving light");
+
+        check(!LightRules.faultsInGrid(List.of(
+                        new LightRules.Fitting("control", LightRules.FLOOR,
+                                1, LightRules.GRID + 1, "")),
+                        List.of(), LightRules.GRID).isEmpty(),
+                "a fitting costing more than a crafting grid holds is not "
+                + "reported, so its recipe is dropped at load and nothing says so");
+        check(LightRules.faultsInGrid(List.of(
+                        new LightRules.Fitting("control", LightRules.FLOOR,
+                                1, LightRules.GRID, "")),
+                        List.of(), LightRules.GRID).isEmpty(),
+                "a fitting costing exactly what a crafting grid holds is "
+                + "reported, so the last usable price is refused");
+        check(LightRules.faultsInGrid(List.of(
+                        new LightRules.Fitting("control", LightRules.FLOOR,
+                                1, LightRules.GRID + 1, "")),
+                        List.of("control"), LightRules.GRID).isEmpty(),
+                "a fitting this module already has is priced by this table's "
+                + "rule, and it is made somewhere else");
+        for (LightRules.Fitting one : LightRules.FITTINGS) {
+            if (LightRules.ALREADY.contains(one.id())) {
+                continue;
+            }
+            check(one.cost() <= LightRules.GRID, one.id() + " costs "
+                    + one.cost() + " and a crafting grid holds " + LightRules.GRID);
+        }
+
+        check(!LightRules.faultsInDoubles(List.of(
+                        new LightRules.Fitting("rope", LightRules.STRUNG, 0, 1, ""),
+                        new LightRules.Fitting(RestRules.ROPE, LightRules.STRUNG,
+                                0, 1, "")),
+                        List.of(RestRules.ROPE)).isEmpty(),
+                "a fitting called rope beside a block called " + RestRules.ROPE
+                + " is not reported, so the pack ships two ropes");
+        check(!LightRules.faultsInDoubles(List.of(
+                        new LightRules.Fitting("nail", LightRules.STRUNG, 0, 1, ""),
+                        new LightRules.Fitting(RestRules.ROPE, LightRules.STRUNG,
+                                0, 1, "")),
+                        List.of(RestRules.ROPE)).isEmpty(),
+                "a fitting whose name is the tail of a block this module already "
+                + "has is not reported");
+        check(LightRules.faultsInDoubles(List.of(
+                        new LightRules.Fitting(RestRules.ROPE, LightRules.STRUNG,
+                                0, 1, "")), List.of(RestRules.ROPE)).isEmpty(),
+                "the block this module already has is reported as a double of "
+                + "itself, so the right answer fails the rule");
+        check(LightRules.faultsInDoubles(List.of(
+                        new LightRules.Fitting("doormat", LightRules.UNDERFOOT,
+                                0, 2, ""),
+                        new LightRules.Fitting(RestRules.ROPE, LightRules.STRUNG,
+                                0, 1, "")), List.of(RestRules.ROPE)).isEmpty(),
+                "a fitting sharing no part of its name with anything this module "
+                + "has is reported as a double");
+        check(!LightRules.faultsInDoubles(LightRules.FITTINGS,
+                        List.of("a block nothing here is")).isEmpty(),
+                "a block this module is said to already have that no fitting "
+                + "is, is not reported — so the registry counts itself against "
+                + "a number that is one too small");
+        check(LightRules.faultsInDoubles(LightRules.FITTINGS,
+                        LightRules.ALREADY).isEmpty(),
+                "the fittings that ship are reported as doubling something "
+                + "this module already has");
+        check(LightRules.ALREADY.contains(RestRules.ROPE), "the rope this module "
+                + "already has is not in the list of things it already has, so "
+                + "nothing stops a second one");
+
+        check(!LightRules.faultsInMatching(List.of(
+                        new LightRules.Fitting("red_x", LightRules.HELD,
+                                LightRules.STILL_DARK + 1, 3, "red")),
+                        LightRules.STILL_DARK).isEmpty(),
+                "a dyed fitting over the band is not reported");
+        check(LightRules.faultsInMatching(List.of(
+                        new LightRules.Fitting("x", LightRules.HELD,
+                                LightRules.STILL_DARK + 1, 3, "")),
+                        LightRules.STILL_DARK).isEmpty(),
+                "an undyed fitting over the band is reported as a dyed one, so "
+                + "the rule is not about the set a player places by the dozen");
+
+        // The darkness rule, walked past its own edge rather than argued about.
+        List<LightRules.Fitting> lit = new ArrayList<>();
+        for (int at = 0; at < 9; at++) {
+            lit.add(new LightRules.Fitting("control_" + at, LightRules.HELD,
+                    12, at + 1, ""));
+        }
+        check(!LightRules.faultsInDarkness(lit, LightRules.STILL_DARK,
+                LightRules.DIM_SHARE).isEmpty(),
+                "a roster of nine bright shapes and nothing dim is not reported");
+        for (int at = 0; at < 4; at++) {
+            lit.add(new LightRules.Fitting("dim_" + at, LightRules.HELD,
+                    LightRules.STILL_DARK, 20 + at, ""));
+        }
+        check(!LightRules.faultsInDarkness(lit, LightRules.STILL_DARK,
+                LightRules.DIM_SHARE).isEmpty(),
+                "a roster of thirteen shapes, four of them dim, is passed, and "
+                + "a third of thirteen is four and a third");
+        lit.add(new LightRules.Fitting("dim_4", LightRules.HELD,
+                LightRules.STILL_DARK, 24, ""));
+        check(LightRules.faultsInDarkness(lit, LightRules.STILL_DARK,
+                LightRules.DIM_SHARE).isEmpty(),
+                "a roster of fourteen shapes, five of them dim, is reported as "
+                + "too bright, and a third of fourteen is under five");
+        check(LightRules.faultsInDarkness(List.of(), LightRules.STILL_DARK,
+                LightRules.DIM_SHARE).isEmpty(),
+                "an empty roster is reported rather than passed over");
+
+        // And the share is read from the shapes, not from the blocks.
+        List<LightRules.Fitting> dyedBright = new ArrayList<>();
+        for (String colour : LightRules.COLOURS) {
+            dyedBright.add(new LightRules.Fitting(colour + "_x", LightRules.HELD,
+                    1, 1, colour));
+        }
+        for (int at = 0; at < 8; at++) {
+            dyedBright.add(new LightRules.Fitting("control_" + at, LightRules.HUNG,
+                    12, at + 1, ""));
+        }
+        check(!LightRules.faultsInDarkness(dyedBright, LightRules.STILL_DARK,
+                LightRules.DIM_SHARE).isEmpty(),
+                "sixteen colours of one dim thing and eight bright ones is "
+                + "reported as dark enough, so the share is counted in blocks "
+                + "and a dyed set answers the question sixteen times");
+
+        check(!LightRules.faultsInDyedSets(List.of(
+                        new LightRules.Fitting("red_x", LightRules.HELD, 6, 3, "red")),
+                        List.of("red", "blue")).isEmpty(),
+                "a dyed set missing a colour is not reported");
+        check(LightRules.faultsInDyedSets(List.of(
+                        new LightRules.Fitting("x", LightRules.HELD, 6, 3, "")),
+                        List.of("red", "blue")).isEmpty(),
+                "a kind with no dyed set at all is reported as missing colours");
+
+        System.out.println("  the lighting: " + LightRules.FITTINGS.size()
+                + " fitting(s) in " + shapes.size() + " shape(s) over "
+                + LightRules.KINDS.size() + " kind(s), " + swept + " counts of "
+                + "a band nobody asked for, nothing over " + LightRules.BRIGHTEST
+                + " light, nothing brighter for less, and "
+                + LightRules.dim(shapes, LightRules.STILL_DARK) + " of "
+                + shapes.size() + " shape(s) still dark enough at "
+                + LightRules.STILL_DARK + " to leave the bestiary somewhere to be");
     }
 }

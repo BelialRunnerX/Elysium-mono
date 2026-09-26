@@ -940,3 +940,59 @@ Stress is conserved. What the sources push equals what the loads draw plus
 what is idle, on every network, including ones with cycles in them — a network
 that gains torque going round a loop is a perpetual motion machine, and a
 player finds that long before anybody finds it by reading.
+
+## 15. Lighting a room, and the number that does not belong to the module
+
+*Written while converting `supplementaries: the comforts`, 2026-09-26.*
+
+A decoration module is where a bestiary quietly dies, and this is the one
+conversion failure that leaves no trace at all.
+
+The jar has thirty-odd blocks that light a room. Each one is fine. Each one is
+prettier than a torch, most are cheaper, and several are brighter. Nobody
+decides anything; each block is added on its own merits and each is defensible
+on its own merits. What happens next is that light stops being a resource,
+which would be a small loss — except that `elysium-bestiary`'s haunts each
+name a band of light they spawn in, and almost all of those bands are dark.
+A decoration roster in which every fitting is bright and cheap does not make
+those creatures rarer. It makes them impossible anywhere a player has
+decorated, which is everywhere a player spends time.
+
+Nothing reports that. Every block works. Every room looks good. The pack
+simply stops having a night in it, and the symptom reaches the author as "the
+mobs feel a bit sparse lately".
+
+**So the rule this row is really about is not in this module.**
+`LightRules.STILL_DARK` is seven, and seven is not a taste: it is the
+brightest light level at which a majority of `elysium-bestiary`'s own nine
+monsters still spawn. At seven, five of nine appear; at eight, two of nine do.
+`elysium-comforts/validate.py` works that number out again from
+`HauntRules.HAUNTS` on every run rather than trusting the copy, and two
+negative tests move it — one from this side and one from the bestiary's — so
+that a band widened over there fails the build over here.
+
+The general rule, for the decoration rows still to come:
+
+> A decoration roster that touches a resource another module has built rules
+> on is not a decoration roster. Find the module that owns the resource, take
+> its number, and check it is still that module's number every run.
+
+Light is the obvious one. Sound is the same shape of problem and
+`elysium-comforts`' chimes already answer it. Storage, speed of travel and
+anything that shortens a walk are the others.
+
+### Two smaller things this row turned up
+
+**A jar can be a different jar than the manifest thinks.** The pack carries
+`supplementaries-1.21.1-3.9.5`; `tools/pack-jars.txt` named `3.8.8`, and
+`3.8.8` was sitting in `mods/_superseded` — put there by a version bump rather
+than by §4b. Read the jar that is actually in the instance, not the one the
+list names, and fix the list. Retiring a jar and superseding a jar look
+identical from the folder; only `docs/MANIFEST.md` distinguishes them.
+
+**A hand edit in a generated file is not a decision, it is a countdown.**
+This jar's `SPLIT` status had been typed into `docs/MANIFEST.md` directly.
+`tools/manifest.py` knew nothing about it, so the next regeneration silently
+turned it back into a catalogue row. The status now lives in the `DECISIONS`
+table with everything else. If a row in a generated document says something
+the generator cannot say, the generator is what needs changing.

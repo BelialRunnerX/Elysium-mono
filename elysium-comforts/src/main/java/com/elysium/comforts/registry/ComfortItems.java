@@ -61,10 +61,15 @@ public final class ComfortItems {
                     ComfortBlocks.PIGEONHOLES.get(one)));
         }
         made.put("mailbox", ITEMS.registerSimpleBlockItem(ComfortBlocks.MAILBOX));
+        for (String one : ComfortBlocks.FITTINGS.keySet()) {
+            made.put(one, ITEMS.registerSimpleBlockItem(ComfortBlocks.FITTINGS.get(one)));
+        }
         int wanted = com.elysium.comforts.rules.RestRules.roster().size()
                 + com.elysium.comforts.rules.ChimeRules.roster().size()
                 + com.elysium.comforts.rules.StationRules.STATIONS.size()
                 + com.elysium.comforts.rules.PostRules.pigeonholes().size()
+                + com.elysium.comforts.rules.LightRules.FITTINGS.size()
+                - com.elysium.comforts.rules.LightRules.ALREADY.size()
                 + 1;
         if (made.size() != wanted) {
             throw new IllegalStateException("the rules ask for " + wanted

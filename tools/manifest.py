@@ -260,7 +260,18 @@ DECISIONS = [
     # about forty door styles, all of them wooden, which is the half we
     # deliberately do not duplicate. Roofs, bridges, paths and lights are
     # shapes this module does not have at all.
-    (r"^mcw-|^chipped|^amendments|^supplementaries|^beautify|^bellsandwhistles",
+    # Four mods in a trench coat, and the only jar three different modules
+    # have a claim on at once. Its status lived as a hand edit in the
+    # generated file for weeks and was silently undone the next time anybody
+    # regenerated -- which is the failure this whole table exists to prevent,
+    # so the decision is written here where it is regenerated with everything
+    # else. Note it has to come before the catalogue rule below: the first
+    # pattern that matches wins.
+    (r"^supplementaries", "SPLIT", "elysium-atelier",
+     "four mods in a trench coat: fittings here, machines to logistics, "
+     "comforts to comforts. The comforts are done -- 30 light fittings held "
+     "to a number elysium-bestiary owns. See docs/SPLITS.md"),
+    (r"^mcw-|^chipped|^amendments|^beautify|^bellsandwhistles",
      "PLANNED", "elysium-atelier",
      "doors, trapdoors, gates, fences and panes exist in the materials the game lacks "
      "them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do "

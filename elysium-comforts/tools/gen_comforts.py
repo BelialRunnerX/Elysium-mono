@@ -133,6 +133,142 @@ KINDS = [KIND_NAMES[one] for one in re.findall(r"[A-Z]+", _kinds.group(1))
 _colours = re.search(r"List<String> COLOURS = List\.of\((.*?)\);", _squashed)
 COLOURS = re.findall(r'"([a-z_]+)"', _colours.group(1)) if _colours else []
 ROPE = KIND_NAMES.get("ROPE", "rope_and_nail")
+
+# ---------------------------------------------------------------------------
+# The fittings that light a room, read out of LightRules
+# ---------------------------------------------------------------------------
+#
+# Which fittings exist, how much light each gives and what each costs are
+# rules. What one looks like, and which items the cost is paid in, are art and
+# live here. The one number that is never written here is the count in a
+# recipe: it is read off the row, because a recipe that costs eight when the
+# table says six is a table that proves things about a block nobody can make.
+
+LIGHT_SOURCE = rules("LightRules.java")
+FITTING_KINDS = dict(re.findall(
+    r'public static final String (HELD|HUNG|FLOOR|HEARTH|UNDERFOOT|STRUNG)'
+    r' = "(\w+)";', LIGHT_SOURCE))
+LIGHT_NUMBERS = {name: int(value) for name, value in re.findall(
+    r"public static final int (BRIGHTEST|STILL_DARK|GRID) = (\d+);",
+    LIGHT_SOURCE)}
+
+
+def _piece(term):
+    """One term of a name: a quoted piece, or a constant the rules define."""
+    term = term.strip()
+    if term.startswith('"'):
+        return term[1:-1]
+    if term == "RestRules.ROPE":
+        return ROPE
+    if term in FITTING_KINDS:
+        return FITTING_KINDS[term]
+    print("LightRules builds a name out of %s and this generator cannot read "
+          "it" % term)
+    sys.exit(2)
+
+
+def _count(term):
+    term = term.strip()
+    if term.isdigit():
+        return int(term)
+    if term in LIGHT_NUMBERS:
+        return LIGHT_NUMBERS[term]
+    print("LightRules writes %s where a number goes and this generator cannot "
+          "read it" % term)
+    sys.exit(2)
+
+
+def _fitting_rows():
+    """Every fitting, as (name, kind, light, cost, colour)."""
+    at = LIGHT_SOURCE.find("private static List<Fitting> fittings()")
+    if at < 0:
+        print("LightRules no longer builds its roster in fittings()")
+        sys.exit(2)
+    body = LIGHT_SOURCE[at:]
+    body = body[:body.find("\n    }")]
+    rows = []
+    for call in re.findall(r"new Fitting\(([^()]*)\)", body):
+        args = [one.strip() for one in call.split(",")]
+        if len(args) != 5:
+            print("a fitting is written with %d field(s) and a Fitting has "
+                  "five" % len(args))
+            sys.exit(2)
+        kind = _piece(args[1])
+        light, cost = _count(args[2]), _count(args[3])
+        if args[4] == "colour":
+            for colour in COLOURS:
+                rows.append((colour + "_" + kind, kind, light, cost, colour))
+        else:
+            name = "".join(_piece(one) for one in args[0].split("+"))
+            rows.append((name, kind, light, cost, ""))
+    if not rows:
+        print("LightRules names no fittings at all")
+        sys.exit(2)
+    return rows
+
+
+FITTINGS = _fitting_rows()
+_already = re.search(r"List<String> ALREADY = List\.of\((.*?)\);",
+                     re.sub(r"\s+", " ", LIGHT_SOURCE))
+ALREADY = ([_piece(one) for one in _already.group(1).split(",")]
+           if _already else [])
+#: The ones this generator is responsible for. Whatever the module already has
+#: was drawn, modelled and priced where it was registered, and drawing it again
+#: here would quietly overwrite that with something else's idea of it.
+MADE_HERE = [row for row in FITTINGS if row[0] not in ALREADY]
+BLOCKS = BLOCKS + [_row[0] for _row in MADE_HERE]
+
+#: What a fitting is paid in. Each is (the item most of it is, the one item
+#: that makes it that fitting) and the recipe is (cost - 1) of the first and
+#: one of the second -- so the length of the ingredient list is the row's own
+#: price and cannot drift from it.
+FITTING_PARTS = {
+    "candle_holder": ("minecraft:iron_nugget", "minecraft:candle"),
+    "soul_candle_holder": ("minecraft:iron_nugget", "minecraft:soul_torch"),
+    "cupric_candle_holder": ("minecraft:copper_ingot", "minecraft:candle"),
+    "ender_candle_holder": ("minecraft:iron_nugget", "minecraft:ender_pearl"),
+    "candelabra": ("minecraft:gold_nugget", "minecraft:candle"),
+    "gold_lantern": ("minecraft:gold_nugget", "minecraft:torch"),
+    "lead_lantern": ("minecraft:iron_nugget", "minecraft:torch"),
+    "stone_lamp": ("minecraft:stone", "minecraft:glowstone_dust"),
+    "deepslate_lamp": ("minecraft:deepslate", "minecraft:glowstone_dust"),
+    "blackstone_lamp": ("minecraft:blackstone", "minecraft:glowstone_dust"),
+    "end_stone_lamp": ("minecraft:end_stone", "minecraft:glowstone_dust"),
+    "fire_pit": ("minecraft:stick", "minecraft:coal"),
+    "doormat": ("minecraft:white_wool", "minecraft:string"),
+}
+for _row in MADE_HERE:
+    if _row[4]:
+        continue
+    if _row[0] not in FITTING_PARTS:
+        print("LightRules has a fitting called %s and nothing here says what "
+              "it is made of" % _row[0])
+        sys.exit(2)
+
+
+def fitting_parts(name, colour):
+    """The two items a fitting is paid in, dyed ones included."""
+    if colour:
+        return ("minecraft:iron_nugget", "minecraft:%s_candle" % colour)
+    return FITTING_PARTS[name]
+
+
+#: The warm end of a flame, for the glow on a lit fitting. A fitting that gives
+#: no light gets none of it, which is how a doormat reads as a doormat.
+#: What you bump into, per kind, in the game's own sixteenths. Kept the same
+#: as FittingBlock's own shapes by validate.py, because a model and a collision
+#: box that disagree is a block you can stand inside.
+FITTING_BOXES = {
+    FITTING_KINDS["HELD"]: ((5, 0, 5), (11, 7, 11)),
+    FITTING_KINDS["HUNG"]: ((5, 3, 5), (11, 15, 11)),
+    FITTING_KINDS["FLOOR"]: ((0, 0, 0), (16, 16, 16)),
+    FITTING_KINDS["HEARTH"]: ((0, 0, 0), (16, 6, 16)),
+    FITTING_KINDS["UNDERFOOT"]: ((0, 0, 0), (16, 1, 16)),
+}
+
+FLAME = [(255, 236, 170), (255, 198, 92), (232, 140, 44)]
+METAL = [(52, 52, 58), (96, 96, 104), (142, 142, 152), (188, 188, 198)]
+
 REFUSALS = dict(re.findall(
     r'public static final String (OCCUPIED|TOO_FAR|NO_ROOM|NO_ROPE|NOT_NOW'
     r'|UNSAFE) = "(\w+)";', REST_SOURCE))
@@ -487,6 +623,77 @@ def rope_sprite():
     return image
 
 
+def _glow(light, brightest):
+    """The colour a flame is at this light level.
+
+    A fitting that gives four light and one that gives fourteen drawn the same
+    is a texture pack that lies about the one thing this module is for, and the
+    player finds out by walking into a room they thought they had lit.
+    """
+    if light <= 0:
+        return None
+    lit = max(0.0, min(1.0, float(light) / float(max(1, brightest))))
+    cold, hot = FLAME[2], FLAME[0]
+    return tuple(int(cold[at] + (hot[at] - cold[at]) * lit) for at in range(3))
+
+
+def fitting_sprite(name, kind, light, colour):
+    """One fitting, drawn as the thing it is and lit as brightly as it burns."""
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    flame = _glow(light, LIGHT_NUMBERS.get("BRIGHTEST", 14))
+    wax = CLOTH[colour] if colour else (226, 220, 198)
+    if kind == FITTING_KINDS["UNDERFOOT"]:
+        # A woven mat. No glow at all, which is the point of it being here.
+        for y in range(16):
+            for x in range(16):
+                shade = ROPE_SHADE[((x // 2) + (y // 2)) % len(ROPE_SHADE)]
+                draw.point((x, y), fill=rgba(shade))
+        draw.rectangle([0, 0, 15, 15], outline=rgba(ROPE_SHADE[0]))
+        return image
+    if kind == FITTING_KINDS["FLOOR"]:
+        # A block of stone with a lit seam through it.
+        for y in range(16):
+            for x in range(16):
+                mix = (x * 37 + y * 59 + len(name) * 17) % 256
+                shade = STONE[1] if mix < 150 else STONE[2]
+                draw.point((x, y), fill=rgba(shade))
+        if flame:
+            for at in range(2, 14, 4):
+                draw.line([(at, 2), (at, 13)], fill=rgba(flame))
+                draw.line([(2, at), (13, at)], fill=rgba(flame))
+        return image
+    if kind == FITTING_KINDS["HEARTH"]:
+        # Logs, and what is on them.
+        draw.rectangle([0, 10, 15, 15], fill=rgba(WOOD[1]))
+        for at in (1, 6, 11):
+            draw.rectangle([at, 10, at + 3, 15], outline=rgba(WOOD[0]))
+        if flame:
+            draw.polygon([(7, 1), (11, 7), (7, 10), (4, 7)], fill=rgba(flame))
+            draw.polygon([(7, 4), (9, 7), (7, 9), (6, 7)],
+                         fill=rgba(FLAME[0]))
+        return image
+    if kind == FITTING_KINDS["HUNG"]:
+        # A frame with something burning inside it.
+        draw.rectangle([4, 2, 11, 13], fill=rgba(METAL[1]), outline=rgba(METAL[0]))
+        draw.line([(7, 0), (8, 0)], fill=rgba(METAL[2]))
+        draw.line([(7, 1), (8, 1)], fill=rgba(METAL[2]))
+        if flame:
+            draw.rectangle([6, 5, 9, 11], fill=rgba(flame))
+            draw.rectangle([7, 7, 8, 9], fill=rgba(FLAME[0]))
+        draw.line([(4, 7), (11, 7)], fill=rgba(METAL[0]))
+        return image
+    # Held: a foot, a stem, wax, and a flame on top.
+    draw.rectangle([4, 13, 11, 15], fill=rgba(METAL[1]), outline=rgba(METAL[0]))
+    draw.rectangle([6, 9, 9, 13], fill=rgba(METAL[2]))
+    draw.rectangle([6, 4, 9, 9], fill=rgba(wax),
+                   outline=rgba(tuple(max(0, one - 40) for one in wax)))
+    if flame:
+        draw.polygon([(7, 0), (9, 3), (7, 4), (6, 3)], fill=rgba(flame))
+        draw.point((7, 2), fill=rgba(FLAME[0]))
+    return image
+
+
 def draw_all():
     folder = os.path.join(ASSETS, "textures/block")
     os.makedirs(folder, exist_ok=True)
@@ -519,6 +726,13 @@ def draw_all():
         drawn += 1
     mailbox_sprite().save(os.path.join(folder, "mailbox.png"))
     drawn += 1
+    # Every fitting this module is responsible for. Walked rather than listed,
+    # for the reason everything else here is: a fitting with no sprite is a
+    # missing-texture cube found by the player who crafts it.
+    for one in MADE_HERE:
+        fitting_sprite(one[0], one[1], one[2], one[4]).save(
+            os.path.join(folder, one[0] + ".png"))
+        drawn += 1
     # The post's own items: a sheet or a box each, and wax on the sealed ones.
     # Walked rather than listed, because a kind of mail with no sprite is an item
     # that renders as the missing-texture cube and is found by whoever crafts it
@@ -681,6 +895,28 @@ def models_and_states():
           {"variants": {"": {"model": f"{NS}:block/{ROPE}"}}})
     write(os.path.join(ASSETS, "models/item", ROPE + ".json"),
           {"parent": f"{NS}:block/{ROPE}"})
+
+    # The fittings. The box each one is drawn in is the box FittingBlock says
+    # you bump into: a model bigger than its shape is a block a player walks
+    # through, and a model smaller is one they stop short of, and both read as
+    # the game being broken rather than as a number being wrong.
+    for one in MADE_HERE:
+        texture = f"{NS}:block/{one[0]}"
+        box = FITTING_BOXES[one[1]]
+        write(os.path.join(ASSETS, "models/block", one[0] + ".json"), {
+            "parent": "block/block",
+            "textures": {"all": texture, "particle": texture},
+            "elements": [{
+                "from": list(box[0]),
+                "to": list(box[1]),
+                "faces": {side: {"texture": "#all"} for side in
+                          ("down", "up", "north", "south", "west", "east")},
+            }],
+        })
+        write(os.path.join(ASSETS, "blockstates", one[0] + ".json"),
+              {"variants": {"": {"model": f"{NS}:block/{one[0]}"}}})
+        write(os.path.join(ASSETS, "models/item", one[0] + ".json"),
+              {"parent": f"{NS}:block/{one[0]}"})
 
     for name in STATION_IDS:
         texture = f"{NS}:block/{name}"
@@ -883,6 +1119,21 @@ def data_files():
             "result": {"id": f"{NS}:{name}", "count": 1},
         })
         written += 1
+    # The fittings: one recipe each, and its length is the row's price rather
+    # than a number typed here. The loot tables come off BLOCKS with everything
+    # else, because a second loop writing the same files is a second loop that
+    # can come to disagree with the first.
+    for one in MADE_HERE:
+        body, heart = fitting_parts(one[0], one[4])
+        write(os.path.join(DATA, "recipe", one[0] + ".json"), {
+            "type": "minecraft:crafting_shapeless",
+            "category": "misc",
+            "group": "elysium_fittings",
+            "ingredients": ([{"item": body}] * (one[3] - 1)) + [{"item": heart}],
+            "result": {"id": f"{NS}:{one[0]}", "count": 1},
+        })
+        written += 1
+
     write(os.path.join(DATA, "recipe", ROPE + ".json"), {
         "type": "minecraft:crafting_shaped",
         "category": "misc",
@@ -987,6 +1238,8 @@ for _name in STATION_IDS:
 for _name in PIGEONHOLES:
     NAMES[_name] = titled(_name)
 NAMES["mailbox"] = "Mailbox"
+for _one in MADE_HERE:
+    NAMES[_one[0]] = titled(_one[0])
 
 #: One sentence per way a rest can decline, because a block that answers "you
 #: cannot sleep here" to all six is a block a player has to guess at.

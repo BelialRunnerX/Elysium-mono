@@ -3,12 +3,14 @@ package com.elysium.comforts.registry;
 import com.elysium.comforts.ElysiumComforts;
 import com.elysium.comforts.block.GraveBlock;
 import com.elysium.comforts.block.ChimeBlock;
+import com.elysium.comforts.block.FittingBlock;
 import com.elysium.comforts.block.RestBlock;
 import com.elysium.comforts.block.RopeBlock;
 import com.elysium.comforts.block.MailboxBlock;
 import com.elysium.comforts.block.PigeonholeBlock;
 import com.elysium.comforts.block.StationBlock;
 import com.elysium.comforts.rules.ChimeRules;
+import com.elysium.comforts.rules.LightRules;
 import com.elysium.comforts.rules.RestRules;
 import com.elysium.comforts.rules.PostRules;
 import com.elysium.comforts.rules.StationRules;
@@ -167,4 +169,70 @@ public final class ComfortBlocks {
                     .sound(SoundType.WOOD)
                     .strength(2.0F)
                     .noOcclusion()));
+
+    /**
+     * Every fitting that lights a room, walked out of the rules.
+     *
+     * <p>Two things here are load-bearing. The light level is read off the row
+     * rather than typed, so the number a player measures in a room and the
+     * number {@link LightRules} proves things about are the same number and
+     * cannot come apart. And anything the module already has is skipped rather
+     * than registered again — {@link LightRules#ALREADY} — because a rope
+     * registered twice is two items in the creative tab, one of which does
+     * half of what the other does, and nothing anywhere reports it.
+     */
+    public static final java.util.Map<String, DeferredBlock<FittingBlock>>
+            FITTINGS = fittings();
+
+    private static java.util.Map<String, DeferredBlock<FittingBlock>> fittings() {
+        java.util.Map<String, DeferredBlock<FittingBlock>> made =
+                new java.util.LinkedHashMap<>();
+        for (LightRules.Fitting one : LightRules.FITTINGS) {
+            if (LightRules.ALREADY.contains(one.id())) {
+                continue;
+            }
+            made.put(one.id(), BLOCKS.register(one.id(),
+                    () -> new FittingBlock(fittingLike(one.kind())
+                            .lightLevel(state -> one.light())
+                            .noOcclusion(), one.id())));
+        }
+        int wanted = LightRules.FITTINGS.size() - LightRules.ALREADY.size();
+        if (made.size() != wanted) {
+            throw new IllegalStateException("the rules ask for " + wanted
+                    + " fitting(s) this module does not already have and "
+                    + made.size() + " were registered");
+        }
+        return java.util.Map.copyOf(made);
+    }
+
+    /**
+     * What a kind of fitting is made of.
+     *
+     * <p>Material and hardness only. Nothing here says anything about light:
+     * that comes off the row, one line up, where a rule can see it.
+     */
+    private static BlockBehaviour.Properties fittingLike(String kind) {
+        return switch (kind) {
+            case LightRules.FLOOR -> BlockBehaviour.Properties
+                    .ofFullCopy(Blocks.STONE)
+                    .mapColor(MapColor.STONE)
+                    .sound(SoundType.STONE)
+                    .strength(1.5F);
+            case LightRules.UNDERFOOT -> BlockBehaviour.Properties
+                    .ofFullCopy(Blocks.WHITE_WOOL)
+                    .mapColor(MapColor.WOOL)
+                    .sound(SoundType.WOOL)
+                    .strength(0.1F);
+            case LightRules.HEARTH -> BlockBehaviour.Properties
+                    .ofFullCopy(Blocks.CAMPFIRE)
+                    .mapColor(MapColor.WOOD)
+                    .sound(SoundType.WOOD)
+                    .strength(2.0F);
+            default -> BlockBehaviour.Properties
+                    .ofFullCopy(Blocks.LANTERN)
+                    .mapColor(MapColor.METAL)
+                    .sound(SoundType.LANTERN)
+                    .strength(0.4F);
+        };
+    }
 }

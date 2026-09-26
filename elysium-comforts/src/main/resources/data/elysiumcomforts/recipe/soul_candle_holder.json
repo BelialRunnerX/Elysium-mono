@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "elysium_fittings",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_nugget"
+    },
+    {
+      "item": "minecraft:soul_torch"
+    }
+  ],
+  "result": {
+    "id": "elysiumcomforts:soul_candle_holder",
+    "count": 1
+  }
+}

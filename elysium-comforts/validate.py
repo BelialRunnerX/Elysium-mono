@@ -1506,6 +1506,293 @@ else:
           f"in the hands it is addressed to")
 
 
+# ---------------------------------------------------------------------------
+# 8. WHAT LIGHTING A ROOM COSTS
+# ---------------------------------------------------------------------------
+#
+# A decoration module is where a bestiary quietly dies. Thirty pretty light
+# sources, each fine on its own, each brighter and cheaper than a torch, and
+# somewhere else in the pack nine monsters that only spawn in the dark. Nobody
+# decides to remove them; they are removed by the sum of thirty decisions that
+# were each about how a room looks.
+#
+# So this section is mostly about one number. STILL_DARK is not a taste: it is
+# the brightest light at which a majority of elysium-bestiary's own monsters
+# still spawn, worked out here from that module's table rather than trusted,
+# because the copy in LightRules is a copy and copies drift.
+
+print("-" * 70)
+
+LIGHT = strip_comments(read(SRC, "rules/LightRules.java"), keep_strings=True)
+FITTING = strip_comments(read(SRC, "block/FittingBlock.java"), keep_strings=True)
+LIGHT_BLOCKS = strip_comments(read(SRC, "registry/ComfortBlocks.java"),
+                              keep_strings=True)
+HAUNTS_AT = os.path.join(ROOT, "elysium-bestiary/src/main/java/com/elysium/"
+                               "bestiary/rules/HauntRules.java")
+if not LIGHT:
+    fail("nothing says what a light fitting gives or costs, so a decoration "
+         "block can be brighter than glowstone and cheaper than a torch and "
+         "the only thing that reports it is a player wondering where the "
+         "monsters went")
+else:
+    _light = squashed(LIGHT)
+    fitting_kinds = dict(re.findall(
+        r'public static final String (HELD|HUNG|FLOOR|HEARTH|UNDERFOOT|STRUNG)'
+        r' = "(\w+)";', LIGHT))
+    light_numbers = {name: int(value) for name, value in re.findall(
+        r"public static final int (BRIGHTEST|STILL_DARK|GRID) = (\d+);", LIGHT)}
+    for wanted in ("HELD", "HUNG", "FLOOR", "HEARTH", "UNDERFOOT", "STRUNG"):
+        if wanted not in fitting_kinds:
+            fail(f"LightRules no longer names a {wanted} fitting, and this "
+                 f"section is written around the six kinds")
+    for wanted in ("BRIGHTEST", "STILL_DARK", "GRID"):
+        if wanted not in light_numbers:
+            fail(f"LightRules no longer names {wanted}, so the number this "
+                 f"module is held to is whatever anybody types")
+
+    # ---- the table, as the rules build it --------------------------------
+    def _light_piece(term):
+        term = term.strip()
+        if term.startswith('"'):
+            return term[1:-1]
+        if term == "RestRules.ROPE":
+            return rope
+        return fitting_kinds.get(term, "")
+
+    def _light_number(term):
+        term = term.strip()
+        return int(term) if term.isdigit() else light_numbers.get(term, -1)
+
+    fittings = []
+    _body = body_of(LIGHT, "private static List<Fitting> fittings()")
+    for _call in re.findall(r"new Fitting\(([^()]*)\)", _body):
+        _args = [one.strip() for one in _call.split(",")]
+        if len(_args) != 5:
+            fail(f"a fitting is written with {len(_args)} field(s) and a "
+                 f"Fitting has five")
+            continue
+        _kind = _light_piece(_args[1])
+        _lit, _cost = _light_number(_args[2]), _light_number(_args[3])
+        if _args[4] == "colour":
+            for _colour in colours:
+                fittings.append((_colour + "_" + _kind, _kind, _lit, _cost,
+                                 _colour))
+        else:
+            fittings.append(("".join(_light_piece(one)
+                                     for one in _args[0].split("+")),
+                             _kind, _lit, _cost, ""))
+    _already = re.search(r"List<String> ALREADY = List\.of\((.*?)\);", _light)
+    already = ([_light_piece(one) for one in _already.group(1).split(",")]
+               if _already else [])
+    made_here = [one for one in fittings if one[0] not in already]
+    if len(fittings) < 20:
+        fail(f"only {len(fittings)} fitting(s) could be read out of LightRules, "
+             f"so every check below is checking almost nothing")
+    if not already:
+        fail("LightRules names nothing this module already has, so nothing "
+             "stops a second rope being registered beside the first")
+    for one in already:
+        if one not in [row[0] for row in fittings]:
+            fail(f"{one} is named as a block this module already has and no "
+                 f"fitting is it, so the roster and the registry disagree "
+                 f"about what this module contains")
+
+    # ---- the number the bestiary decides ---------------------------------
+    if not os.path.isfile(HAUNTS_AT):
+        fail("elysium-bestiary's haunts are not where this module expects "
+             "them, so the one number holding a decoration roster to a "
+             "bestiary is a number nothing checks")
+    else:
+        _haunts = strip_comments(open(HAUNTS_AT, encoding="utf-8").read(),
+                                 keep_strings=True)
+        _haunt_numbers = {name: int(value) for name, value in re.findall(
+            r"public static final int (\w+) = (\d+);", _haunts)}
+        _table = re.search(r"List<Haunt> HAUNTS = List\.of\((.*?)\);",
+                           squashed(_haunts), re.S)
+        bands = []
+        if _table:
+            for _row in re.findall(r"new Haunt\(([^()]*)\)", _table.group(1)):
+                _parts = [one.strip() for one in _row.split(",")]
+                if len(_parts) < 4:
+                    continue
+                _dark, _bright = _parts[2], _parts[3]
+                _dark = (int(_dark) if _dark.isdigit()
+                         else _haunt_numbers.get(_dark, -1))
+                _bright = (int(_bright) if _bright.isdigit()
+                           else _haunt_numbers.get(_bright, -1))
+                if _dark >= 0 and _bright >= 0:
+                    bands.append((_dark, _bright))
+        if len(bands) < 5:
+            fail(f"only {len(bands)} monster band(s) could be read out of "
+                 f"elysium-bestiary, so the number this module copies from it "
+                 f"is checked against nothing")
+        else:
+            # The last light level at which more than half of them still turn
+            # up. Past it, a lit room is a room they are not in.
+            worked_out = -1
+            for _level in range(16):
+                _in = sum(1 for _dark, _bright in bands
+                          if _dark <= _level <= _bright)
+                if _in * 2 > len(bands):
+                    worked_out = _level
+            if worked_out != light_numbers.get("STILL_DARK", -1):
+                fail(f"this module keeps {light_numbers.get('STILL_DARK')} as "
+                     f"the light a room can be and still have the bestiary in "
+                     f"it, and elysium-bestiary's own {len(bands)} monsters say "
+                     f"that number is {worked_out} — so either a band moved "
+                     f"over there or this number was typed, and the pack now "
+                     f"has decoration that empties a room without saying so")
+
+    # ---- the rules are all asked -----------------------------------------
+    _fsum = squashed(body_of(LIGHT, "public static List<String> faults()"))
+    _rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", LIGHT))
+    _added = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _fsum))
+    if len(_rules) < 9:
+        fail(f"only {len(_rules)} lighting rule(s) are declared at all, so the "
+             f"check below is checking nothing")
+    for _rule in sorted(_rules - _added):
+        fail(f"{_rule} is written, compiled and never added up by the "
+             f"lighting's faults(), so it answers the harness's controls and "
+             f"is never once asked about what this module ships")
+    if re.search(r"\bif\s*\(", _fsum):
+        fail("the lighting's faults() has a branch in it, so a rule can be "
+             "added up only sometimes and the roster it ships can be the "
+             "sometimes it is not")
+
+    # ---- every fitting is a block, and none of them twice -----------------
+    _reg = squashed(body_of(LIGHT_BLOCKS,
+                            "private static java.util.Map<String, "
+                            "DeferredBlock<FittingBlock>> fittings()"))
+    if not _reg:
+        fail("nothing registers the fittings, so a module full of rules about "
+             "light ships no light")
+    else:
+        if "for (LightRules.Fitting one : LightRules.FITTINGS)" not in _reg:
+            fail("the fittings are not registered by walking LightRules' own "
+                 "roster, so the roster this module proves things about and "
+                 "the blocks it ships are two lists that can differ")
+        if "LightRules.ALREADY.contains(one.id())" not in _reg:
+            fail("nothing skips what this module already has, so the rope a "
+                 "hammock hangs from is registered a second time and the pack "
+                 "ships two of it")
+        _level = re.search(r"\.lightLevel\((.*?)\)\s*\.", _reg)
+        if not _level:
+            fail("no fitting is given a light level at all, so every one of "
+                 "them is dark and the whole table is about nothing")
+        elif ".light()" not in _level.group(1):
+            fail("a fitting's light level is not read off its row, so the "
+                 "number a player measures in a room and the number these "
+                 "rules prove things about are two numbers that can differ")
+        if re.search(r"lightLevel\([^)]*\b\d+\b", _reg):
+            fail("a light level is typed into the registration, which is a "
+                 "number no rule here can see")
+    for one in already:
+        _times = len(re.findall(r"BLOCKS\.register\(RestRules\.ROPE\b",
+                                LIGHT_BLOCKS))
+        if _times != 1:
+            fail(f"{one} is registered {_times} time(s) and this module needs "
+                 f"exactly one of it")
+
+    # ---- what a player bumps into is what they see ------------------------
+    _shapes = dict(re.findall(
+        r"private static final VoxelShape (\w+) = box\(([^;]*)\);", FITTING))
+    _switch = dict(re.findall(r"case LightRules\.(\w+) -> (\w+);", FITTING))
+    boxes = {}
+    for _const, _shape in _switch.items():
+        if _shape not in _shapes or _const not in fitting_kinds:
+            continue
+        _numbers = [int(float(one.strip().rstrip("Dd")))
+                    for one in _shapes[_shape].split(",")]
+        if len(_numbers) == 6:
+            boxes[fitting_kinds[_const]] = (_numbers[:3], _numbers[3:])
+    if FITTING and not boxes:
+        fail("FittingBlock no longer chooses its shape by the kind on its row, "
+             "so what a player bumps into is the same for a doormat and a lamp")
+    elif FITTING:
+        # A lamp is a block of stone and is meant to be a whole cube. Every
+        # other kind is something you put in a room, and a kind that has lost
+        # its shape is a doormat you bark your shins on.
+        for _kind in sorted({one[1] for one in made_here}
+                            - {fitting_kinds.get("FLOOR", "")}):
+            if _kind not in boxes:
+                fail(f"nothing says what shape a {_kind} is, so it is a full "
+                     f"cube a player cannot see the edges of and cannot walk "
+                     f"past")
+    if re.search(r"\b(light|Light)\s*=\s*\d+", FITTING):
+        fail("FittingBlock has a light level written into it, so the block and "
+             "its row can say different things about the same fitting")
+
+    # ---- and every one of them is really in the jar -----------------------
+    priced = 0
+    for name, kind, lit, cost, colour in made_here:
+        for what, where in (
+                ("texture", f"assets/{NS}/textures/block/{name}.png"),
+                ("model", f"assets/{NS}/models/block/{name}.json"),
+                ("item model", f"assets/{NS}/models/item/{name}.json"),
+                ("blockstate", f"assets/{NS}/blockstates/{name}.json"),
+                ("loot table", f"data/{NS}/loot_table/blocks/{name}.json")):
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} has no {what}, so it is a fitting a player "
+                     f"cannot see, place or break back into itself")
+        if f"block.{NS}.{name}" not in lang:
+            fail(f"{name} has no name in the language file")
+        _model_at = os.path.join(RES, f"assets/{NS}/models/block/{name}.json")
+        if os.path.isfile(_model_at) and kind in boxes:
+            _drawn = json.load(open(_model_at, encoding="utf-8"))
+            _element = (_drawn.get("elements") or [{}])[0]
+            _want = boxes[kind]
+            if [_element.get("from"), _element.get("to")] != [list(_want[0]),
+                                                              list(_want[1])]:
+                fail(f"{name} is drawn from {_element.get('from')} to "
+                     f"{_element.get('to')} and FittingBlock says you bump into "
+                     f"{_want[0]} to {_want[1]}, so a player either walks "
+                     f"through it or stops short of it")
+        _recipe_at = os.path.join(RES, f"data/{NS}/recipe/{name}.json")
+        if not os.path.isfile(_recipe_at):
+            fail(f"{name} can be seen in the creative tab and nowhere else, "
+                 f"because nothing says how to make one")
+            continue
+        _recipe = json.load(open(_recipe_at, encoding="utf-8"))
+        _parts = _recipe.get("ingredients") or []
+        if _recipe.get("type") != "minecraft:crafting_shapeless":
+            fail(f"{name} is made by a {_recipe.get('type')} and this module "
+                 f"prices its fittings by how many items they take, which only "
+                 f"a shapeless recipe counts")
+        elif len(_parts) != cost:
+            fail(f"{name} costs {cost} in the rules and {len(_parts)} on disk, "
+                 f"so every rule this module has about what lighting a room "
+                 f"costs is about a price the game does not charge")
+        elif cost > light_numbers.get("GRID", 9):
+            fail(f"{name} costs {cost} and a crafting grid holds "
+                 f"{light_numbers.get('GRID')}, so the recipe is dropped at "
+                 f"load and the block cannot be made at all")
+        else:
+            priced += 1
+        for _part in _parts:
+            _item = _part.get("item", "")
+            if THE_GAME_MAKES and _item not in THE_GAME_MAKES:
+                fail(f"{name} is made out of {_item}, which the game does not "
+                     f"make — so the recipe is dropped at load and the only "
+                     f"symptom is a block nobody can craft")
+
+    seen = set()
+    dim = 0
+    for name, kind, lit, cost, colour in fittings:
+        key = kind + " (dyed)" if colour else name
+        if key in seen:
+            continue
+        seen.add(key)
+        if lit <= light_numbers.get("STILL_DARK", 7):
+            dim += 1
+    print(f"lighting a room    : {len(fittings)} fitting(s) in {len(seen)} "
+          f"shape(s) over {len(fitting_kinds)} kind(s), {priced} of them priced "
+          f"on disk at exactly what their row says, nothing over "
+          f"{light_numbers.get('BRIGHTEST')} light, and {dim} of {len(seen)} "
+          f"shape(s) at or under {light_numbers.get('STILL_DARK')} — which is "
+          f"elysium-bestiary's own number for the brightest a room can be and "
+          f"still have most of its monsters in it")
+
+
 if problems:
     print(f"{len(problems)} PROBLEM(S):")
     for problem in problems:
