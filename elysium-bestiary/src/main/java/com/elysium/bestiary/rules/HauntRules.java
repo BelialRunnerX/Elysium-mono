@@ -137,9 +137,75 @@ public final class HauntRules {
             new Haunt("keener", "#minecraft:is_taiga", 0, 4, 0, SKY, 1, 2),
             new Haunt("hollow_lord", "#minecraft:is_overworld", 0, 0, BEDROCK, 0, 1, 1));
 
-    /** The haunt of one beast, or null. */
+    /**
+     * Where the twelve animals are.
+     *
+     * <p>The same four claims, about the half of the world that does not
+     * attack you. Land animals are out in the daylight, which is the whole
+     * difference between meeting one and meeting something in
+     * {@link #HAUNTS}; swimmers are in the water, where the game has never
+     * cared what the light is.
+     *
+     * <p>One kind of animal is somewhere a player certainly goes, for the
+     * same reason one beast of each family is: a roster everybody has to go
+     * looking for is a roster most players never see.
+     */
+    public static final List<Haunt> THE_FAUNA = List.of(
+            new Haunt("moorstag", "#minecraft:is_forest", 9, FULL_LIGHT, 60, SKY, 2, 4),
+            new Haunt("dunemare", "#minecraft:is_badlands", 9, FULL_LIGHT, 60, SKY, 1, 3),
+            new Haunt("fellox", "#minecraft:is_overworld", 9, FULL_LIGHT, 0, SKY, 1, 3),
+            new Haunt("stonemole", "#minecraft:is_overworld", 9, FULL_LIGHT, 0, SKY, 1, 2),
+            new Haunt("quillrat", "#minecraft:is_taiga", 9, FULL_LIGHT, 0, SKY, 2, 3),
+            new Haunt("brackhog", "#minecraft:is_jungle", 9, FULL_LIGHT, 0, SKY, 1, 3),
+            new Haunt("cragjay", "#minecraft:is_overworld", 9, FULL_LIGHT, 60, SKY, 2, 4),
+            new Haunt("mirefowl", "#minecraft:is_river", 9, FULL_LIGHT, 0, SKY, 2, 3),
+            new Haunt("ashquail", "#minecraft:is_savanna", 9, FULL_LIGHT, 0, SKY, 2, 3),
+            new Haunt("glasseel", "#minecraft:is_ocean", PITCH_DARK, FULL_LIGHT,
+                    BEDROCK, 64, 2, 4),
+            new Haunt("silverfin", "#minecraft:is_ocean", PITCH_DARK, FULL_LIGHT,
+                    BEDROCK, 64, 2, 4),
+            new Haunt("shalecrab", "#minecraft:is_beach", PITCH_DARK, FULL_LIGHT,
+                    0, 96, 1, 2));
+
+    /** Both tables, in one list. */
+    public static List<Haunt> everyHaunt() {
+        List<Haunt> all = new ArrayList<>(HAUNTS);
+        all.addAll(THE_FAUNA);
+        return List.copyOf(all);
+    }
+
+    /**
+     * Anything a haunt can be about: something with a name and a width.
+     *
+     * <p>A haunt does not care whether the thing it places hunts you. Both
+     * rosters are checked by the same four rules, and the alternative — a
+     * second copy of them with {@code Animal} written where {@code Beast} is —
+     * is the shape of bug this project has spent its whole life closing.
+     */
+    public record Creature(String id, float width) {
+    }
+
+    /** The bestiary, as things a haunt can be about. */
+    public static List<Creature> theseBeasts(List<BeastRules.Beast> beasts) {
+        List<Creature> made = new ArrayList<>(beasts.size());
+        for (BeastRules.Beast beast : beasts) {
+            made.add(new Creature(beast.id(), beast.width()));
+        }
+        return List.copyOf(made);
+    }
+
+    /** And the fauna. */
+    public static List<Creature> theseAnimals(List<FaunaRules.Animal> animals) {
+        List<Creature> made = new ArrayList<>(animals.size());
+        for (FaunaRules.Animal animal : animals) {
+            made.add(new Creature(animal.id(), animal.width()));
+        }
+        return List.copyOf(made);
+    }
+
+    /** The haunt of one beast or animal, or null. */
     public static Haunt haunt(String beast) {
-        for (Haunt one : HAUNTS) {
+        for (Haunt one : everyHaunt()) {
             if (one.beast().equals(beast)) {
                 return one;
             }
@@ -150,7 +216,7 @@ public final class HauntRules {
     /** Every biome tag any of them names. */
     public static List<String> everywhere() {
         Set<String> found = new LinkedHashSet<>();
-        for (Haunt one : HAUNTS) {
+        for (Haunt one : everyHaunt()) {
             found.add(one.where());
         }
         return List.copyOf(found);
@@ -163,10 +229,14 @@ public final class HauntRules {
     /** Everything wrong with the haunts. Must be empty. */
     public static List<String> faults() {
         List<String> bad = new ArrayList<>();
-        bad.addAll(faultsInCover(BeastRules.BEASTS, HAUNTS));
+        bad.addAll(faultsInCover(theseBeasts(BeastRules.BEASTS), HAUNTS));
         bad.addAll(faultsInBands(HAUNTS));
-        bad.addAll(faultsInRoom(BeastRules.BEASTS, HAUNTS));
+        bad.addAll(faultsInRoom(theseBeasts(BeastRules.BEASTS), HAUNTS));
         bad.addAll(faultsInDominance(BeastRules.BEASTS));
+        bad.addAll(faultsInCover(theseAnimals(FaunaRules.ANIMALS), THE_FAUNA));
+        bad.addAll(faultsInBands(THE_FAUNA));
+        bad.addAll(faultsInRoom(theseAnimals(FaunaRules.ANIMALS), THE_FAUNA));
+        bad.addAll(faultsInTwoPlaces(everyHaunt()));
         return List.copyOf(bad);
     }
 
@@ -175,11 +245,11 @@ public final class HauntRules {
      *
      * <p>Handed both sides so a control can pass a pair built to be caught.
      */
-    public static List<String> faultsInCover(List<BeastRules.Beast> beasts,
+    public static List<String> faultsInCover(List<Creature> beasts,
                                              List<Haunt> haunts) {
         List<String> bad = new ArrayList<>();
         Set<String> named = new LinkedHashSet<>();
-        for (BeastRules.Beast beast : beasts) {
+        for (Creature beast : beasts) {
             named.add(beast.id());
             boolean any = false;
             for (Haunt one : haunts) {
@@ -253,12 +323,12 @@ public final class HauntRules {
      * reads as a mob rarer than it is meant to be and cannot be diagnosed
      * from anything a player can see.
      */
-    public static List<String> faultsInRoom(List<BeastRules.Beast> beasts,
+    public static List<String> faultsInRoom(List<Creature> beasts,
                                             List<Haunt> haunts) {
         List<String> bad = new ArrayList<>();
         for (Haunt one : haunts) {
-            BeastRules.Beast beast = null;
-            for (BeastRules.Beast candidate : beasts) {
+            Creature beast = null;
+            for (Creature candidate : beasts) {
                 if (candidate.id().equals(one.beast())) {
                     beast = candidate;
                 }
@@ -273,6 +343,25 @@ public final class HauntRules {
                         + room + " square blocks of floor where there are "
                         + ROOM_FOR_A_PACK + "; the game gives up placing them "
                         + "and it spawns rarer than its weight says");
+            }
+        }
+        return bad;
+    }
+
+    /**
+     * Whether anything is placed by both tables.
+     *
+     * <p>Two haunts for one name would be two spawn rules for one entity, and
+     * the second one wins silently — which is how a thing meant to be found
+     * in a forest turns up in the ocean and nothing anywhere says why.
+     */
+    public static List<String> faultsInTwoPlaces(List<Haunt> haunts) {
+        List<String> bad = new ArrayList<>();
+        Set<String> seen = new LinkedHashSet<>();
+        for (Haunt one : haunts) {
+            if (!seen.add(one.beast())) {
+                bad.add(one.beast() + " is placed by both tables, so one of the "
+                        + "two spawn rules quietly wins and nothing says which");
             }
         }
         return bad;

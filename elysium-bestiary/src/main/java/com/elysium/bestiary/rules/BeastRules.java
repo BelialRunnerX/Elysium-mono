@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Things that hunt you. The JDK and nothing else at all.
@@ -502,6 +503,113 @@ public final class BeastRules {
             names.add(beast.id());
         }
         return List.copyOf(names);
+    }
+
+    // ==================================================================
+    // What each family leaves behind
+    // ==================================================================
+
+    /**
+     * The three things a family drops.
+     *
+     * @param staple  the common one, which every tier leaves
+     * @param essence the one that says which family it was
+     * @param rare    one per tier, hardest last
+     */
+    public record Leavings(String staple, String essence, List<String> rare) {
+
+        public Leavings {
+            Objects.requireNonNull(staple, "a family that leaves nothing common");
+            Objects.requireNonNull(essence, "a family with no essence");
+            Objects.requireNonNull(rare, "a family with no rare drop at any tier");
+            rare = List.copyOf(rare);
+        }
+
+        /** Everything this family can leave, at any tier. */
+        public List<String> everything() {
+            List<String> all = new ArrayList<>();
+            all.add(staple);
+            all.add(essence);
+            all.addAll(rare);
+            return List.copyOf(all);
+        }
+    }
+
+    /**
+     * Which things each family leaves.
+     *
+     * <p>These lived in the generator until the fauna arrived. That was fine
+     * while nothing else in the pack cared what a beast dropped, and stopped
+     * being fine the moment something did: a rule that says "no animal you can
+     * keep in a pen leaves what something in the dark leaves" cannot be
+     * written against a table in a Python file, and a drop nothing can reason
+     * about is a drop that can quietly become the thing that makes a whole
+     * ladder pointless.
+     *
+     * <p>They are also the only place in this module where an item is named by
+     * hand, which is why {@code validate.py} looks every one of them up in the
+     * game's own language file.
+     */
+    public static final Map<String, Leavings> LEFT_BY = Map.of(
+            PROWLER, new Leavings("minecraft:string", "minecraft:spider_eye",
+                    List.of("minecraft:iron_nugget", "minecraft:iron_ingot",
+                            "minecraft:diamond")),
+            BRUTE, new Leavings("minecraft:bone", "minecraft:leather",
+                    List.of("minecraft:flint", "minecraft:gold_ingot",
+                            "minecraft:emerald")),
+            WIGHT, new Leavings("minecraft:rotten_flesh", "minecraft:glowstone_dust",
+                    List.of("minecraft:coal", "minecraft:amethyst_shard",
+                            "minecraft:echo_shard")));
+
+    /** The three things this beast leaves, in the order the pools are written. */
+    public static List<String> leaves(Beast beast) {
+        Leavings left = LEFT_BY.get(beast.family());
+        if (left == null) {
+            return List.of();
+        }
+        List<String> rare = left.rare();
+        int at = Math.max(0, Math.min(rare.size() - 1, beast.tier() - 1));
+        return List.of(left.staple(), left.essence(), rare.get(at));
+    }
+
+    /**
+     * Whether the three families leave three different sets of things.
+     *
+     * <p>Handed the table so a control can pass one built to be caught. Two
+     * families that leave the same thing are two families a player farms the
+     * same way, and the whole reason there are three of them is that they are
+     * three different reasons to go out at night.
+     */
+    public static List<String> faultsInLeavings(Map<String, Leavings> left) {
+        List<String> bad = new ArrayList<>();
+        for (String family : FAMILIES) {
+            if (!left.containsKey(family)) {
+                bad.add("nothing says what a " + family + " leaves, so every "
+                        + "one of them drops whatever the generator felt like "
+                        + "on the day and no rule anywhere can see it");
+            }
+        }
+        int rungs = family(FAMILIES.get(0)).size();
+        for (Map.Entry<String, Leavings> entry : left.entrySet()) {
+            if (entry.getValue().rare().size() != rungs) {
+                bad.add(entry.getKey() + " has " + entry.getValue().rare().size()
+                        + " rare drop(s) for " + rungs + " tier(s), so one tier "
+                        + "leaves what another leaves and climbing buys nothing");
+            }
+        }
+        Map<String, String> seen = new LinkedHashMap<>();
+        for (Map.Entry<String, Leavings> entry : left.entrySet()) {
+            for (String thing : entry.getValue().everything()) {
+                String already = seen.put(thing, entry.getKey());
+                if (already != null && !already.equals(entry.getKey())) {
+                    bad.add(thing + " is left by a " + already + " and by a "
+                            + entry.getKey() + ", so two of the three families "
+                            + "are one family as far as a player farming them "
+                            + "is concerned");
+                }
+            }
+        }
+        return bad;
     }
 
     /** The beast with this id, or null. */

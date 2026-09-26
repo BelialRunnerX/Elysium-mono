@@ -62,6 +62,7 @@ public final class BeastHarness {
         theBaseGame();
         theDark();
         theHaunts();
+        theFauna();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -435,11 +436,11 @@ public final class BeastHarness {
         // Controls, built to be caught, because over this roster every rule
         // above can only ever answer no.
         BeastRules.Beast first = BeastRules.BEASTS.get(0);
-        check(!HauntRules.faultsInCover(BeastRules.BEASTS,
+        check(!HauntRules.faultsInCover(HauntRules.theseBeasts(BeastRules.BEASTS),
                         java.util.List.of()).isEmpty(),
                 "a roster where nothing is anywhere is not reported, so every "
                         + "beast in the pack could be one nobody ever meets");
-        check(!HauntRules.faultsInCover(java.util.List.of(first),
+        check(!HauntRules.faultsInCover(HauntRules.theseBeasts(java.util.List.of(first)),
                         java.util.List.of(
                                 new HauntRules.Haunt(first.id(),
                                         "#minecraft:is_overworld", 0, 7, 0, 64, 1, 2),
@@ -447,7 +448,7 @@ public final class BeastHarness {
                                         "#minecraft:is_forest", 0, 7, 0, 64, 1, 2)))
                         .isEmpty(),
                 "one beast in two places is not reported");
-        check(!HauntRules.faultsInCover(java.util.List.of(first),
+        check(!HauntRules.faultsInCover(HauntRules.theseBeasts(java.util.List.of(first)),
                         java.util.List.of(
                                 new HauntRules.Haunt(first.id(),
                                         "#minecraft:is_overworld", 0, 7, 0, 64, 1, 2),
@@ -455,7 +456,7 @@ public final class BeastHarness {
                                         "#minecraft:is_forest", 0, 7, 0, 64, 1, 2)))
                         .isEmpty(),
                 "somewhere that is not a beast's is not reported");
-        check(HauntRules.faultsInCover(BeastRules.BEASTS, HauntRules.HAUNTS)
+        check(HauntRules.faultsInCover(HauntRules.theseBeasts(BeastRules.BEASTS), HauntRules.HAUNTS)
                         .isEmpty(),
                 "the haunts this module ships are reported as faulty");
 
@@ -487,12 +488,12 @@ public final class BeastHarness {
         check(HauntRules.faultsInBands(HauntRules.HAUNTS).isEmpty(),
                 "the bands this module ships are reported as faulty");
 
-        check(!HauntRules.faultsInRoom(BeastRules.BEASTS, java.util.List.of(
+        check(!HauntRules.faultsInRoom(HauntRules.theseBeasts(BeastRules.BEASTS), java.util.List.of(
                         new HauntRules.Haunt("siege_beast", "#minecraft:is_nether",
                                 0, 7, 0, 64, 1, 60))).isEmpty(),
                 "sixty siege beasts at a time are not reported, so a weight "
                         + "could promise a rate the game cannot place");
-        check(HauntRules.faultsInRoom(BeastRules.BEASTS, HauntRules.HAUNTS)
+        check(HauntRules.faultsInRoom(HauntRules.theseBeasts(BeastRules.BEASTS), HauntRules.HAUNTS)
                         .isEmpty(),
                 "the groups this module ships are reported as too big");
 
@@ -544,5 +545,175 @@ public final class BeastHarness {
                 + "place that exists, in a light band with something in it, at "
                 + "a height the world has, and in a group that fits on the "
                 + "floor it is asked to stand on");
+    }
+
+    // ==================================================================
+
+    /**
+     * The half of the world that does not attack you.
+     *
+     * <p>The claim that matters is not that these twelve animals are balanced
+     * — that would go on being true right up until somebody added a
+     * thirteenth. It is that the <em>derivation</em> cannot produce an
+     * unbalanced one: a bigger yield always costs a longer wait, so what an
+     * hour of pen is worth depends on the kind of animal and on nothing else.
+     * Anything added tomorrow inherits that.
+     */
+    private static void theFauna() {
+        java.util.List<String> faults = FaunaRules.faults();
+        check(faults.isEmpty(), "something wrong with the fauna: " + faults);
+
+        // The derivation, over far more rosters than this one.
+        Random random = new Random(8_812_403L);
+        int swept = 0;
+        for (int round = 0; round < 200_000; round++) {
+            String kind = FaunaRules.KINDS.get(random.nextInt(FaunaRules.KINDS.size()));
+            int yield = 1 + random.nextInt(40);
+            FaunaRules.Animal one = new FaunaRules.Animal("a" + round, kind,
+                    1.0D + random.nextInt(40), 0.1D + random.nextDouble(),
+                    0.2F + random.nextFloat(), 0.2F + random.nextFloat(),
+                    "minecraft:wheat", "minecraft:stick", yield, 1 + random.nextInt(99));
+            FaunaRules.Animal more = new FaunaRules.Animal("b" + round, kind,
+                    one.health(), one.speed(), one.width(), one.height(),
+                    one.eats(), one.gives(), yield + 1, one.weight());
+            swept++;
+            check(FaunaRules.patienceOf(more) > FaunaRules.patienceOf(one),
+                    "an animal that leaves more does not wait longer, so leaving "
+                            + "more is free and one row of the roster is the "
+                            + "answer to every pen");
+            double worth = FaunaRules.worthAnHour(one);
+            double meant = FaunaRules.rateOf(kind);
+            check(Math.abs(worth - meant) <= meant * 0.01D,
+                    "an hour of " + kind + " is worth " + worth + " and the rate "
+                            + "for that kind is " + meant);
+        }
+
+        // Every kind is worth keeping, whatever is in it.
+        double best = 0.0D;
+        double worst = Double.MAX_VALUE;
+        for (String kind : FaunaRules.KINDS) {
+            best = Math.max(best, FaunaRules.rateOf(kind));
+            worst = Math.min(worst, FaunaRules.rateOf(kind));
+        }
+        check(best <= worst * FaunaRules.MOST_TIMES_ANOTHER,
+                "the best kind of animal is worth " + (best / worst) + " times the "
+                        + "worst, and " + FaunaRules.MOST_TIMES_ANOTHER + " is the "
+                        + "line past which every pen in the pack holds one thing");
+
+        // Controls, built to be caught, because over this roster every rule
+        // above can only ever answer no.
+        FaunaRules.Animal big = new FaunaRules.Animal("control", FaunaRules.GRAZER,
+                10.0D, 0.3D, 1.0F, 1.0F, "minecraft:wheat", "minecraft:mutton", 4, 10);
+        FaunaRules.Animal small = new FaunaRules.Animal("control_two",
+                FaunaRules.GRAZER, 10.0D, 0.3D, 0.5F, 1.0F, "minecraft:wheat",
+                "minecraft:beef", 5, 10);
+
+        check(!FaunaRules.faultsInKinds(java.util.List.of(
+                        new FaunaRules.Animal("control", "wibble", 10.0D, 0.3D,
+                                1.0F, 1.0F, "minecraft:wheat", "minecraft:mutton",
+                                2, 10))).isEmpty(),
+                "an animal that is not any kind of animal is not reported, so "
+                        + "nothing knows what an hour of keeping one is worth");
+        check(!FaunaRules.faultsInKinds(java.util.List.of(big, big)).isEmpty(),
+                "one animal written twice is not reported");
+        check(!FaunaRules.faultsInKinds(java.util.List.of(big)).isEmpty(),
+                "a kind with one animal in it is not reported, so a kind could be "
+                        + "one animal with a label on it");
+        check(FaunaRules.faultsInKinds(FaunaRules.ANIMALS).isEmpty(),
+                "the kinds this module ships are reported as faulty");
+
+        check(!FaunaRules.faultsInYields(java.util.List.of(big, small)).isEmpty(),
+                "an animal that gives more per trip and more per square block "
+                        + "than another of its own kind is not reported, so one "
+                        + "row could be the answer to every pen");
+        check(FaunaRules.faultsInYields(FaunaRules.ANIMALS).isEmpty(),
+                "the roster this module ships has an animal nobody would keep");
+
+        check(!FaunaRules.faultsInPatience(java.util.List.of(
+                        new FaunaRules.Animal("control", FaunaRules.GRAZER, 10.0D,
+                                0.3D, 1.0F, 1.0F, "minecraft:wheat",
+                                "minecraft:mutton", 400, 10))).isEmpty(),
+                "a wait nobody would sit through is not reported");
+        check(FaunaRules.faultsInPatience(FaunaRules.ANIMALS).isEmpty(),
+                "the waits this module ships are reported as unreasonable");
+
+        check(!FaunaRules.faultsInSpread(java.util.Map.of(
+                        FaunaRules.GRAZER, 3.0D, FaunaRules.FORAGER, 1.0D,
+                        FaunaRules.FOWL, 1.0D, FaunaRules.SWIMMER, 1.0D)).isEmpty(),
+                "one kind of animal worth three times another is not reported, "
+                        + "so every pen in the pack could hold one thing");
+        check(!FaunaRules.faultsInSpread(java.util.Map.of(
+                        FaunaRules.GRAZER, 1.0D, FaunaRules.FORAGER, 1.0D,
+                        FaunaRules.FOWL, 1.0D)).isEmpty(),
+                "a kind with no tilt at all is not reported, so keeping one "
+                        + "would throw rather than be worth something");
+        check(!FaunaRules.faultsInSpread(java.util.Map.of(
+                        FaunaRules.GRAZER, 1.0D, FaunaRules.FORAGER, 1.0D,
+                        FaunaRules.FOWL, 1.0D, FaunaRules.SWIMMER, 0.0D)).isEmpty(),
+                "a kind worth nothing an hour is not reported");
+        check(FaunaRules.faultsInSpread(FaunaRules.TILT).isEmpty(),
+                "the spread this module ships is reported as too wide");
+
+        check(!FaunaRules.faultsInLoop(java.util.List.of(
+                        new FaunaRules.Animal("control", FaunaRules.GRAZER, 10.0D,
+                                0.3D, 1.0F, 1.0F, "minecraft:wheat",
+                                "minecraft:wheat", 4, 10))).isEmpty(),
+                "a pen that makes what it is fed is not reported, so two animals "
+                        + "and a fence are a machine that ends hunger");
+        check(FaunaRules.faultsInLoop(FaunaRules.ANIMALS).isEmpty(),
+                "the roster this module ships is reported as feeding itself");
+
+        check(!FaunaRules.faultsInOverlap(java.util.List.of(
+                        new FaunaRules.Animal("control", FaunaRules.GRAZER, 10.0D,
+                                0.3D, 1.0F, 1.0F, "minecraft:wheat",
+                                BeastRules.leaves(BeastRules.BEASTS.get(0)).get(0),
+                                4, 10)), BeastRules.BEASTS).isEmpty(),
+                "an animal you can keep in a pen leaving what something in the "
+                        + "dark leaves is not reported, so the ladder the "
+                        + "bestiary is built on is one nobody has to climb");
+        check(FaunaRules.faultsInOverlap(FaunaRules.ANIMALS, BeastRules.BEASTS)
+                        .isEmpty(),
+                "the fauna this module ships is reported as making the bestiary "
+                        + "pointless");
+
+        check(!FaunaRules.faultsInDaylight(FaunaRules.ANIMALS, java.util.List.of(
+                        new HauntRules.Haunt("moorstag", "#minecraft:is_forest",
+                                0, 7, 0, 64, 1, 2))).isEmpty(),
+                "a land animal that spawns in the pitch dark is not reported, so "
+                        + "the half of the roster that does not attack you is in "
+                        + "the caves with the half that does");
+        check(FaunaRules.faultsInDaylight(FaunaRules.ANIMALS, HauntRules.THE_FAUNA)
+                        .isEmpty(),
+                "the daylight this module ships its animals in is reported as "
+                        + "wrong");
+
+        check(!FaunaRules.faultsInReach(FaunaRules.ANIMALS, java.util.List.of())
+                        .isEmpty(),
+                "a roster no kind of which is anywhere a player certainly goes "
+                        + "is not reported");
+        check(FaunaRules.faultsInReach(FaunaRules.ANIMALS, HauntRules.THE_FAUNA)
+                        .isEmpty(),
+                "the places this module puts its animals are reported as out of "
+                        + "the way");
+
+        // And a haunt for every one of them, on the bestiary's own rules.
+        check(HauntRules.faultsInCover(
+                        HauntRules.theseAnimals(FaunaRules.ANIMALS),
+                        HauntRules.THE_FAUNA).isEmpty(),
+                "an animal is somewhere nothing says, or somewhere that is not "
+                        + "an animal");
+        check(HauntRules.faultsInTwoPlaces(HauntRules.everyHaunt()).isEmpty(),
+                "something is placed by both tables at once");
+        check(!HauntRules.faultsInTwoPlaces(java.util.List.of(
+                        HauntRules.HAUNTS.get(0), HauntRules.HAUNTS.get(0)))
+                        .isEmpty(),
+                "one name in both tables is not reported, so one of two spawn "
+                        + "rules would quietly win and nothing would say which");
+
+        System.out.println("  the fauna: " + FaunaRules.ANIMALS.size()
+                + " animal(s) over " + FaunaRules.KINDS.size() + " kind(s), "
+                + swept + " derivations swept, every bigger yield a longer wait, "
+                + "no pen that feeds itself and nothing in one that something in "
+                + "the dark already drops");
     }
 }

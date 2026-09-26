@@ -47,7 +47,11 @@ public class ElysiumBestiary {
         com.elysium.bestiary.registry.BeastEntities.TYPES.register(modEventBus);
         com.elysium.bestiary.registry.BeastItems.ITEMS.register(modEventBus);
         com.elysium.bestiary.registry.BeastItems.TABS.register(modEventBus);
-        LOGGER.info("Elysium Bestiary ready: {} beast(s)",
-                com.elysium.bestiary.rules.BeastRules.BEASTS.size());
+        com.elysium.bestiary.registry.FaunaEntities.TYPES.register(modEventBus);
+        com.elysium.bestiary.registry.FaunaItems.ITEMS.register(modEventBus);
+        com.elysium.bestiary.registry.FaunaItems.TABS.register(modEventBus);
+        LOGGER.info("Elysium Bestiary ready: {} beast(s) and {} animal(s)",
+                com.elysium.bestiary.rules.BeastRules.BEASTS.size(),
+                com.elysium.bestiary.rules.FaunaRules.ANIMALS.size());
     }
 }

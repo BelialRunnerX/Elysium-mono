@@ -31,6 +31,11 @@ DATA = os.path.join(OUT, "src/main/resources/data", NS)
 
 RULES = os.path.join(MOD, "src/main/java/com/elysium/bestiary/rules/BeastRules.java")
 MODEL = os.path.join(MOD, "src/main/java/com/elysium/bestiary/client/BeastModel.java")
+SHARED = os.path.join(MOD, "src/main/java/com/elysium/bestiary/client/CreatureModel.java")
+FAUNA_MODEL = os.path.join(MOD,
+                           "src/main/java/com/elysium/bestiary/client/FaunaModel.java")
+FAUNA_RULES = os.path.join(MOD,
+                           "src/main/java/com/elysium/bestiary/rules/FaunaRules.java")
 
 try:
     from PIL import Image, ImageDraw
@@ -57,6 +62,9 @@ def read(path):
 
 RULES_SOURCE = read(RULES)
 MODEL_SOURCE = read(MODEL)
+SHARED_SOURCE = read(SHARED)
+FAUNA_MODEL_SOURCE = read(FAUNA_MODEL)
+FAUNA_RULES_SOURCE = read(FAUNA_RULES)
 
 FAMILY = {}
 for name, value in re.findall(
@@ -154,17 +162,18 @@ REWARDS = earned()
 PART_NAME = {}
 for name, value in re.findall(
         r'public static final String (HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT)'
-        r' = "(\w+)";', MODEL_SOURCE):
+        r' = "(\w+)";', SHARED_SOURCE):
     PART_NAME[name] = value
 if len(PART_NAME) != 6:
     sys.exit("the six parts are not six any more")
 
-SHEET = int(re.search(r"public static final int SHEET = (\d+);", MODEL_SOURCE).group(1))
+SHEET = int(re.search(r"public static final int SHEET = (\d+);",
+                      SHARED_SOURCE).group(1))
 
 SLOTS = {}
 for name, x, y, wide, tall in re.findall(
         r"(HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT), new int\[\]\{"
-        r"(\d+), (\d+), (\d+), (\d+)\}", MODEL_SOURCE):
+        r"(\d+), (\d+), (\d+), (\d+)\}", SHARED_SOURCE):
     SLOTS[PART_NAME[name]] = (int(x), int(y), int(wide), int(tall))
 if len(SLOTS) != 6:
     sys.exit("read %d slots off the sheet rather than six" % len(SLOTS))
@@ -310,23 +319,31 @@ def skin(beast):
 # the drop count come to the drop count. validate.py reads the written JSON
 # back and works the expectation out again.
 
-STAPLE = {
-    "prowler": "minecraft:string",
-    "brute": "minecraft:bone",
-    "wight": "minecraft:rotten_flesh",
-}
-
-ESSENCE = {
-    "prowler": "minecraft:spider_eye",
-    "brute": "minecraft:leather",
-    "wight": "minecraft:glowstone_dust",
-}
-
-RARE = {
-    "prowler": ["minecraft:iron_nugget", "minecraft:iron_ingot", "minecraft:diamond"],
-    "brute": ["minecraft:flint", "minecraft:gold_ingot", "minecraft:emerald"],
-    "wight": ["minecraft:coal", "minecraft:amethyst_shard", "minecraft:echo_shard"],
-}
+# What each family leaves, read out of BeastRules rather than decided here.
+#
+# These were three dicts in this file until the fauna arrived. A drop written
+# in a generator is a drop no harness has ever seen, and the rule that says no
+# animal you can keep in a pen leaves what something in the dark leaves cannot
+# be written against a Python dict at all.
+_LEAVINGS = re.search(r"Map<String, Leavings> LEFT_BY = Map\.of\((.*?)\);",
+                      re.sub(r"\s+", " ", RULES_SOURCE))
+if not _LEAVINGS:
+    print("BeastRules no longer says what any family leaves")
+    sys.exit(2)
+STAPLE = {}
+ESSENCE = {}
+RARE = {}
+for _family, _staple, _essence, _rare in re.findall(
+        r'(\w+), new Leavings\("([a-z_:]+)", "([a-z_:]+)", List\.of\(([^)]*)\)\)',
+        _LEAVINGS.group(1)):
+    _key = _family.lower()
+    STAPLE[_key] = _staple
+    ESSENCE[_key] = _essence
+    RARE[_key] = re.findall(r'"([a-z_:]+)"', _rare)
+if sorted(STAPLE) != sorted(SHAPES):
+    print("BeastRules names %s families of drops and %s families of beast"
+          % (sorted(STAPLE), sorted(SHAPES)))
+    sys.exit(2)
 
 
 def pools(drops):
@@ -413,15 +430,208 @@ def _number(text):
     return _WORDS[text] if text in _WORDS else int(text)
 
 
+_HAUNT_TABLE = re.search(r"List<Haunt> HAUNTS = List\.of\((.*?)\); ",
+                         re.sub(r"\s+", " ", HAUNT_SOURCE))
+if not _HAUNT_TABLE:
+    print("HauntRules no longer has a table of haunts in it at all")
+    sys.exit(2)
 HAUNTS = [{"beast": one[0], "where": one[1], "darkest": _number(one[2]),
            "brightest": _number(one[3]), "lowest": _number(one[4]),
            "highest": _number(one[5]), "least": int(one[6]),
            "most": int(one[7])}
-          for one in _HAUNT.findall(re.sub(r"\s+", " ", HAUNT_SOURCE))]
+          for one in _HAUNT.findall(_HAUNT_TABLE.group(1))]
 BY_ID = {beast["id"]: beast for beast in BEASTS}
 if len(HAUNTS) != len(BEASTS):
     print("HauntRules has %d haunt(s) for %d beast(s)" % (len(HAUNTS), len(BEASTS)))
     sys.exit(2)
+
+
+# ---------------------------------------------------------------------------
+# The other half of the world
+# ---------------------------------------------------------------------------
+#
+# Twelve animals, read out of FaunaRules and FaunaModel exactly as the nine
+# beasts are read out of BeastRules and BeastModel. Nothing about an animal is
+# decided here: not its wait, not its yield, not where it is. A generator that
+# decides anything is a generator whose decisions no harness has ever seen.
+
+_SQUASHED_FAUNA = re.sub(r"\s+", " ", FAUNA_RULES_SOURCE)
+_KIND_NAME = dict(re.findall(
+    r'public static final String (GRAZER|FORAGER|FOWL|SWIMMER) = "(\w+)";',
+    _SQUASHED_FAUNA))
+if len(_KIND_NAME) != 4:
+    print("FaunaRules names %d kind(s) of animal rather than four" % len(_KIND_NAME))
+    sys.exit(2)
+
+_ANIMAL_TABLE = re.search(r"List<Animal> ANIMALS = List\.of\((.*?)\); ", _SQUASHED_FAUNA)
+if not _ANIMAL_TABLE:
+    print("FaunaRules no longer has a roster of animals in it at all")
+    sys.exit(2)
+ANIMALS = [{"id": one[0], "kind": _KIND_NAME[one[1]], "health": float(one[2]),
+            "speed": float(one[3]), "width": float(one[4]), "height": float(one[5]),
+            "eats": one[6], "gives": one[7], "yield": int(one[8]),
+            "weight": int(one[9])}
+           for one in re.findall(
+               r'new Animal\("([a-z_]+)", (GRAZER|FORAGER|FOWL|SWIMMER), '
+               r'([\d.]+)D, ([\d.]+)D, ([\d.]+)F, ([\d.]+)F, '
+               r'"([a-z_:]+)", "([a-z_:]+)", (\d+), (\d+)\)',
+               _ANIMAL_TABLE.group(1))]
+if not ANIMALS:
+    print("no animals could be read out of FaunaRules")
+    sys.exit(2)
+
+_FAUNA_HAUNT_TABLE = re.search(r"List<Haunt> THE_FAUNA = List\.of\((.*?)\); ",
+                               re.sub(r"\s+", " ", HAUNT_SOURCE))
+if not _FAUNA_HAUNT_TABLE:
+    print("HauntRules no longer says where any animal is")
+    sys.exit(2)
+FAUNA_HAUNTS = [{"beast": one[0], "where": one[1], "darkest": _number(one[2]),
+                 "brightest": _number(one[3]), "lowest": _number(one[4]),
+                 "highest": _number(one[5]), "least": int(one[6]),
+                 "most": int(one[7])}
+                for one in _HAUNT.findall(_FAUNA_HAUNT_TABLE.group(1))]
+BY_ANIMAL = {animal["id"]: animal for animal in ANIMALS}
+if len(FAUNA_HAUNTS) != len(ANIMALS):
+    print("HauntRules has %d haunt(s) for %d animal(s)"
+          % (len(FAUNA_HAUNTS), len(ANIMALS)))
+    sys.exit(2)
+
+FAUNA_SHAPES = {}
+for block in re.finditer(
+        r'made\.put\(FaunaRules\.(GRAZER|FORAGER|FOWL|SWIMMER), List\.of\((.*?)\)\);',
+        FAUNA_MODEL_SOURCE, re.S):
+    parts = []
+    for row in PART_ROW.finditer(block.group(2)):
+        parts.append({
+            "name": PART_NAME[row.group(1)],
+            "pivot": (float(row.group(2)), float(row.group(3)), float(row.group(4))),
+            "box": (float(row.group(5)), float(row.group(6)), float(row.group(7))),
+            "size": (int(row.group(8)), int(row.group(9)), int(row.group(10))),
+        })
+    FAUNA_SHAPES[_KIND_NAME[block.group(1)]] = parts
+if len(FAUNA_SHAPES) != 4 or any(len(parts) != 6 for parts in FAUNA_SHAPES.values()):
+    print("read %s shapes off FaunaModel rather than four of six parts each"
+          % {name: len(parts) for name, parts in FAUNA_SHAPES.items()})
+    sys.exit(2)
+for _kind, _parts in FAUNA_SHAPES.items():
+    for _part in _parts:
+        _wide, _tall, _deep = _part["size"]
+        _slot = SLOTS[_part["name"]]
+        if 2 * _deep + 2 * _wide > _slot[2] or _deep + _tall > _slot[3]:
+            print("a %s's %s unwraps to %dx%d and its corner of the sheet is %dx%d"
+                  % (_kind, _part["name"], 2 * _deep + 2 * _wide, _deep + _tall,
+                     _slot[2], _slot[3]))
+            sys.exit(2)
+
+# One ramp per kind, so a field of animals reads as four groups before it
+# reads as twelve names — the same claim the bestiary's palette makes about
+# families, and the reason neither palette is per-creature.
+FAUNA_RAMPS = {
+    "grazer": [(46, 36, 22), (86, 68, 42), (124, 100, 64), (168, 142, 96)],
+    "forager": [(32, 40, 24), (60, 74, 44), (92, 108, 68), (132, 150, 102)],
+    "fowl": [(54, 48, 34), (98, 88, 62), (140, 128, 94), (186, 174, 134)],
+    "swimmer": [(22, 42, 48), (40, 76, 86), (62, 110, 124), (96, 154, 170)],
+}
+
+FAUNA_EYES = {"grazer": (30, 22, 14), "forager": (24, 18, 12),
+              "fowl": (36, 28, 18), "swimmer": (226, 226, 210)}
+
+
+def fauna_shade(kind, step):
+    return lit(FAUNA_RAMPS[kind][step], 0)
+
+
+def fauna_grain(image, box, kind, seed):
+    """The same fixed hash the bestiary uses, so the sheets are reproducible."""
+    x0, y0, wide, tall = box
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([x0, y0, x0 + wide - 1, y0 + tall - 1], fill=fauna_shade(kind, 1))
+    for y in range(tall):
+        for x in range(wide):
+            mix = (x * 41 + y * 97 + seed * 23) % 256
+            if mix < 44:
+                draw.point((x0 + x, y0 + y), fill=fauna_shade(kind, 0))
+            elif mix < 92:
+                draw.point((x0 + x, y0 + y), fill=fauna_shade(kind, 2))
+    draw.line([(x0, y0), (x0 + wide - 1, y0)], fill=fauna_shade(kind, 3))
+
+
+def fauna_unwrap(image, part, kind):
+    wide, tall, deep = part["size"]
+    x0, y0 = SLOTS[part["name"]][0], SLOTS[part["name"]][1]
+    seed = sum(ord(letter) for letter in part["name"])
+    faces = {
+        "top": (x0 + deep, y0, wide, deep),
+        "bottom": (x0 + deep + wide, y0, wide, deep),
+        "right": (x0, y0 + deep, deep, tall),
+        "front": (x0 + deep, y0 + deep, wide, tall),
+        "left": (x0 + deep + wide, y0 + deep, deep, tall),
+        "back": (x0 + deep + wide + deep, y0 + deep, wide, tall),
+    }
+    for index, (name, box) in enumerate(faces.items()):
+        fauna_grain(image, box, kind, seed + index * 7)
+    return faces
+
+
+def fauna_face(image, faces, kind):
+    x0, y0, wide, tall = faces["front"]
+    draw = ImageDraw.Draw(image)
+    colour = FAUNA_EYES[kind] + (255,)
+    left = x0 + max(1, wide // 4)
+    right = x0 + wide - max(1, wide // 4) - 1
+    row = y0 + max(1, tall // 3)
+    draw.point((left, row), fill=colour)
+    draw.point((right, row), fill=colour)
+    if kind == "fowl":
+        draw.line([(x0 + wide // 2, y0 + tall - 2), (x0 + wide // 2, y0 + tall - 1)],
+                  fill=lit(FAUNA_RAMPS[kind][3], 40))
+    if kind == "swimmer":
+        draw.line([(x0, y0 + tall // 2), (x0 + wide - 1, y0 + tall // 2)],
+                  fill=fauna_shade(kind, 3))
+
+
+def fauna_skin(animal):
+    image = Image.new("RGBA", (SHEET, SHEET), CLEAR)
+    for part in FAUNA_SHAPES[animal["kind"]]:
+        faces = fauna_unwrap(image, part, animal["kind"])
+        if part["name"] == PART_NAME["HEAD"]:
+            fauna_face(image, faces, animal["kind"])
+    return image
+
+
+def fauna_loot(animal):
+    """
+    One pool, and its expectation is exactly what the row says it leaves.
+
+    A uniform roll from nothing to twice the yield averages the yield, which
+    is the same arithmetic the bestiary's three pools use and the same reason:
+    validate.py reads the written file back and works the expectation out
+    again rather than believing this.
+    """
+    return {
+        "type": "minecraft:entity",
+        "pools": [pool(animal["gives"], animal["yield"] * 2, True)],
+    }
+
+
+FAUNA_REASONS = {
+    "moorstag": "It watches you the whole way across the clearing and does not run.",
+    "dunemare": "Nothing else out there is that colour on purpose.",
+    "fellox": "It will move when it has finished, and not before.",
+    "stonemole": "You hear the digging stop. It has heard you too.",
+    "quillrat": "Picking one up is a decision you make exactly once.",
+    "brackhog": "It got to the mushrooms first and it is not sorry.",
+    "cragjay": "It has been following you for a mile, for no reason it will share.",
+    "mirefowl": "Loud, and entirely unbothered about being loud.",
+    "ashquail": "Three steps, stop, three steps. Never four.",
+    "glasseel": "You see the shadow before you see the thing.",
+    "silverfin": "A whole shoal turns at once, as if the water told them.",
+    "shalecrab": "It has found somewhere to be and it is not moving.",
+}
+
+
+def titled_fauna(name):
+    return " ".join(word.capitalize() for word in name.split("_"))
 
 
 def main():
@@ -449,8 +659,6 @@ def main():
     for family in sorted(SHAPES):
         lang["bestiary.%s.family.%s" % (NS, family)] = titled(family)
 
-    write(os.path.join(ASSETS, "lang/en_us.json"), dict(sorted(lang.items())))
-
     # One modifier per beast rather than one per family.
     #
     # It used to be one per family, all of them in #minecraft:is_overworld,
@@ -472,8 +680,44 @@ def main():
                   }],
               })
 
-    print("elysium-bestiary: %d beast(s), %d sheet(s), %d loot table(s), "
-          "%d spawn rule(s)" % (len(BEASTS), len(BEASTS), len(BEASTS), len(HAUNTS)))
+    for animal in ANIMALS:
+        fauna_skin(animal).save(os.path.join(entity_textures, animal["id"] + ".png"))
+
+        write(os.path.join(ASSETS, "models/item", animal["id"] + "_spawn_egg.json"),
+              {"parent": "minecraft:item/template_spawn_egg"})
+
+        write(os.path.join(DATA, "loot_table/entities", animal["id"] + ".json"),
+              fauna_loot(animal))
+
+        lang["entity.%s.%s" % (NS, animal["id"])] = titled_fauna(animal["id"])
+        lang["item.%s.%s_spawn_egg" % (NS, animal["id"])] = \
+            titled_fauna(animal["id"]) + " Spawn Egg"
+        lang["bestiary.%s.why.%s" % (NS, animal["id"])] = FAUNA_REASONS[animal["id"]]
+
+    for kind in sorted(FAUNA_SHAPES):
+        lang["bestiary.%s.kind.%s" % (NS, kind)] = titled_fauna(kind)
+    lang["itemGroup.elysiumbestiary.fauna"] = "Elysium Fauna"
+
+    write(os.path.join(ASSETS, "lang/en_us.json"), dict(sorted(lang.items())))
+
+    for haunt in FAUNA_HAUNTS:
+        write(os.path.join(DATA, "neoforge/biome_modifier",
+                           "add_%s_spawns.json" % haunt["beast"]),
+              {
+                  "type": "neoforge:add_spawns",
+                  "biomes": haunt["where"],
+                  "spawners": [{
+                      "type": "%s:%s" % (NS, haunt["beast"]),
+                      "weight": BY_ANIMAL[haunt["beast"]]["weight"],
+                      "minCount": haunt["least"],
+                      "maxCount": haunt["most"],
+                  }],
+              })
+
+    print("elysium-bestiary: %d beast(s) and %d animal(s), %d sheet(s), "
+          "%d loot table(s), %d spawn rule(s)"
+          % (len(BEASTS), len(ANIMALS), len(BEASTS) + len(ANIMALS),
+             len(BEASTS) + len(ANIMALS), len(HAUNTS) + len(FAUNA_HAUNTS)))
 
 
 if __name__ == "__main__":

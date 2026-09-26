@@ -3,16 +3,9 @@ package com.elysium.bestiary.client;
 import com.elysium.bestiary.ElysiumBestiary;
 import com.elysium.bestiary.entity.BeastEntity;
 import com.elysium.bestiary.rules.BeastRules;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.LinkedHashMap;
@@ -23,112 +16,11 @@ import java.util.Map;
  * Three shapes for nine beasts, and every one of them exactly the size of the
  * thing you are swinging at.
  *
- * <h2>The bug this is built to make impossible</h2>
- *
- * A modded mob whose model is not the size of its hitbox is the single most
- * common visual bug in a big pack, and it is never filed as one. It shows up
- * as "I keep missing it", or as an arrow that stops in mid-air a foot from
- * something, or as a mob that wades through a wall. It happens because the
- * hitbox is a pair of numbers in one file and the model is a pile of boxes in
- * another, and nothing compares them.
- *
- * <p>So the boxes are not typed into a mesh builder here. They are a table —
- * {@link #SHAPES} — which {@link #createLayer} builds and {@link #bounds}
- * measures, and the renderer scales whatever comes out of it onto the hitbox
- * the entity actually has. A beast added tomorrow with a size nobody thought
- * about is still exactly as big as it looks, because the size it looks is
- * computed from the size it is.
- *
- * <h2>And why the texture offsets are constants rather than packed</h2>
- *
- * Every family uses the same six parts, so every part gets a fixed corner of
- * the sheet big enough for the largest box any family puts there. A packer
- * would be an algorithm living in both this file and the generator that draws
- * the sheets, and two copies of an algorithm is the same bug as two copies of
- * a hitbox.
+ * <p>The boxes, the sheet slots and the measuring are all in
+ * {@link CreatureModel}, which the fauna uses too. What is here is the table
+ * of three shapes and the one thing a wight does that nothing else does.
  */
-public class BeastModel extends EntityModel<BeastEntity> {
-
-    /**
-     * One box, hung off one pivot.
-     *
-     * @param name    which of the six it is
-     * @param pivotX  where it turns, across
-     * @param pivotY  where it turns, up — negative is up, as the game counts
-     * @param pivotZ  where it turns, along
-     * @param boxX    the near corner of the box, from the pivot
-     * @param boxY    and down
-     * @param boxZ    and along
-     * @param wide    how big the box is, in pixels
-     * @param tall    ...
-     * @param deep    ...
-     */
-    public record Part(String name, float pivotX, float pivotY, float pivotZ,
-                       float boxX, float boxY, float boxZ, int wide, int tall, int deep) {
-
-        public float lowX() {
-            return pivotX + boxX;
-        }
-
-        public float highX() {
-            return pivotX + boxX + wide;
-        }
-
-        public float lowY() {
-            return pivotY + boxY;
-        }
-
-        public float highY() {
-            return pivotY + boxY + tall;
-        }
-
-        public float lowZ() {
-            return pivotZ + boxZ;
-        }
-
-        public float highZ() {
-            return pivotZ + boxZ + deep;
-        }
-
-        /** How much of a texture sheet this box needs, unwrapped. */
-        public int sheetWide() {
-            return 2 * deep + 2 * wide;
-        }
-
-        /** And how far down. */
-        public int sheetTall() {
-            return deep + tall;
-        }
-    }
-
-    public static final String HEAD = "head";
-    public static final String BODY = "body";
-    public static final String ARM_LEFT = "arm_left";
-    public static final String ARM_RIGHT = "arm_right";
-    public static final String LEG_LEFT = "leg_left";
-    public static final String LEG_RIGHT = "leg_right";
-
-    /** The six, in the order everything walks them. */
-    public static final List<String> PARTS =
-            List.of(HEAD, BODY, ARM_LEFT, ARM_RIGHT, LEG_LEFT, LEG_RIGHT);
-
-    /** How big a sheet one beast gets. */
-    public static final int SHEET = 128;
-
-    /**
-     * Where each part's unwrapped box starts on the sheet.
-     *
-     * <p>Fixed corners rather than a packing, so the generator that draws the
-     * sheets and the mesh that reads them cannot disagree. Each slot is bigger
-     * than the biggest box any family puts in it; the harness proves it.
-     */
-    public static final Map<String, int[]> SLOTS = Map.of(
-            HEAD, new int[]{0, 0, 48, 24},
-            BODY, new int[]{0, 32, 72, 32},
-            ARM_LEFT, new int[]{0, 72, 24, 32},
-            ARM_RIGHT, new int[]{32, 72, 24, 32},
-            LEG_LEFT, new int[]{64, 72, 24, 32},
-            LEG_RIGHT, new int[]{96, 72, 24, 32});
+public class BeastModel extends CreatureModel<BeastEntity> {
 
     /**
      * The three shapes.
@@ -167,31 +59,13 @@ public class BeastModel extends EntityModel<BeastEntity> {
         return Map.copyOf(made);
     }
 
-    /** How big one shape actually is, in pixels, measured rather than declared. */
-    public record Bounds(float wide, float tall, float deep) {
-    }
-
-    /** Measure a shape. */
+    /** Measure one of the three. */
     public static Bounds bounds(String family) {
         List<Part> parts = SHAPES.get(family);
         if (parts == null || parts.isEmpty()) {
             throw new IllegalArgumentException("nothing is shaped like a " + family);
         }
-        float lowX = Float.MAX_VALUE;
-        float highX = -Float.MAX_VALUE;
-        float lowY = Float.MAX_VALUE;
-        float highY = -Float.MAX_VALUE;
-        float lowZ = Float.MAX_VALUE;
-        float highZ = -Float.MAX_VALUE;
-        for (Part part : parts) {
-            lowX = Math.min(lowX, part.lowX());
-            highX = Math.max(highX, part.highX());
-            lowY = Math.min(lowY, part.lowY());
-            highY = Math.max(highY, part.highY());
-            lowZ = Math.min(lowZ, part.lowZ());
-            highZ = Math.max(highZ, part.highZ());
-        }
-        return new Bounds(highX - lowX, highY - lowY, highZ - lowZ);
+        return CreatureModel.bounds(parts);
     }
 
     /** One layer per family. */
@@ -208,66 +82,25 @@ public class BeastModel extends EntityModel<BeastEntity> {
     }
 
     public static LayerDefinition createLayer(String family) {
-        MeshDefinition mesh = new MeshDefinition();
-        PartDefinition root = mesh.getRoot();
-        PartDefinition beast = root.addOrReplaceChild("beast", CubeListBuilder.create(),
-                PartPose.offset(0.0F, 24.0F, 0.0F));
-        for (Part part : SHAPES.get(family)) {
-            int[] slot = SLOTS.get(part.name());
-            beast.addOrReplaceChild(part.name(), CubeListBuilder.create()
-                            .texOffs(slot[0], slot[1])
-                            .addBox(part.boxX(), part.boxY(), part.boxZ(),
-                                    part.wide(), part.tall(), part.deep()),
-                    PartPose.offset(part.pivotX(), part.pivotY(), part.pivotZ()));
-        }
-        return LayerDefinition.create(mesh, SHEET, SHEET);
+        return CreatureModel.createLayer(SHAPES.get(family));
     }
-
-    private final ModelPart root;
-    private final Map<String, ModelPart> parts = new LinkedHashMap<>();
 
     public BeastModel(ModelPart root) {
-        this.root = root;
-        ModelPart beast = root.getChild("beast");
-        for (String name : PARTS) {
-            parts.put(name, beast.getChild(name));
-        }
+        super(root);
     }
 
+    /**
+     * A wight's arms drift whether it is moving or not.
+     *
+     * <p>Which is the only thing that tells one apart from a prowler at a
+     * distance in the dark.
+     */
     @Override
-    public void setupAnim(BeastEntity beast, float limbSwing, float limbSwingAmount,
-                          float ageInTicks, float netHeadYaw, float headPitch) {
-        ModelPart head = parts.get(HEAD);
-        head.yRot = netHeadYaw * ((float) Math.PI / 180.0F);
-        head.xRot = headPitch * ((float) Math.PI / 180.0F);
-
-        // A walk cycle, and nothing more clever than that. What is on screen
-        // has to be readable at twenty blocks in the dark, which rules out
-        // anything subtle by definition.
-        float swing = phase(limbSwing);
-        float amount = Math.min(limbSwingAmount, 1.0F);
-        parts.get(LEG_LEFT).xRot = (float) Math.cos(swing) * 1.4F * amount;
-        parts.get(LEG_RIGHT).xRot = (float) Math.cos(swing + Math.PI) * 1.4F * amount;
-        parts.get(ARM_LEFT).xRot = (float) Math.cos(swing + Math.PI) * 1.0F * amount;
-        parts.get(ARM_RIGHT).xRot = (float) Math.cos(swing) * 1.0F * amount;
-
-        // A wight's arms drift whether it is moving or not, which is the only
-        // thing that tells one apart from a prowler at a distance in the dark.
+    protected void idle(BeastEntity beast, float ageInTicks, float moving) {
         if (BeastRules.WIGHT.equals(beast.beast().family())) {
             float drift = (float) Math.sin(ageInTicks * 0.06F) * 0.12F;
             parts.get(ARM_LEFT).xRot += drift - 0.35F;
             parts.get(ARM_RIGHT).xRot -= drift + 0.35F;
         }
-    }
-
-    /** Where in the walk cycle a limb is, at the game's own stride. */
-    private static float phase(float limbSwing) {
-        return limbSwing * 0.6662F;
-    }
-
-    @Override
-    public void renderToBuffer(PoseStack pose, VertexConsumer buffer, int light,
-                               int overlay, int colour) {
-        root.render(pose, buffer, light, overlay, colour);
     }
 }

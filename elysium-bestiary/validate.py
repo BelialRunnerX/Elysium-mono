@@ -186,6 +186,48 @@ for name in sorted(os.listdir(PURE)) if os.path.isdir(PURE) else []:
     for used in re.findall(r"import\s+(com\.elysium\.[\w.]+);", without_package):
         fail(f"rules/{name} imports {used}; the rules are the JDK alone")
 
+# ---------------------------------------------------------------------------
+# What exists at all
+# ---------------------------------------------------------------------------
+#
+# Two rosters name items by hand — what a beast leaves and what an animal
+# leaves and eats — and a name with a letter too many in it produces a loot
+# table that averages the right number of nothing. So both are looked up here,
+# once, in the game's own language file (which names every item and block it
+# ships) and in this pack's.
+
+GAME_JAR = os.path.join(os.environ.get("ELYSIUM_MC_LIBS", "/tmp/mc"), "vanilla.jar")
+
+
+def the_game_makes():
+    if not os.path.isfile(GAME_JAR):
+        return set()
+    import zipfile
+    with zipfile.ZipFile(GAME_JAR) as jar:
+        named = json.loads(jar.read("assets/minecraft/lang/en_us.json"))
+    return {"minecraft:" + key.split(".", 2)[2] for key in named
+            if key.startswith(("item.minecraft.", "block.minecraft."))}
+
+
+def the_pack_makes():
+    found = set()
+    for where, _, names in os.walk(ROOT):
+        if not where.replace(os.sep, "/").endswith("/lang"):
+            continue
+        for name in names:
+            if name != "en_us.json":
+                continue
+            for key in json.loads(read(where, name)):
+                parts = key.split(".", 2)
+                if len(parts) == 3 and parts[0] in ("item", "block"):
+                    found.add(parts[1] + ":" + parts[2])
+    return found
+
+
+THE_GAME_MAKES = the_game_makes()
+THE_PACK_HAS = the_pack_makes()
+
+
 harness_out = ""
 if not os.path.isfile(HARNESS):
     fail("there is no harness, so whether a harder beast is worth more is an opinion")
@@ -348,6 +390,14 @@ if generator is not None and harness_out:
 
 model = read(SRC, "client/BeastModel.java")
 model_plain = strip_comments(model)
+# The boxes, the sheet and the measuring moved into CreatureModel when the
+# fauna arrived, because a second copy of them with Animal written where Beast
+# is would be the same mistake as two copies of a hitbox, one level up.
+shared = read(SRC, "client/CreatureModel.java")
+shared_plain = strip_comments(shared)
+if not shared:
+    fail("there is nothing shared between the two rosters' models any more, so "
+         "the sheet arithmetic is written twice and the two copies will drift")
 
 # Read here rather than borrowed off the generator. A generator that will not
 # start is one of the states these checks exist to describe, and a check that
@@ -378,7 +428,7 @@ if not beasts:
 
 PART_NAMES = dict(re.findall(
     r'public static final String (HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT)'
-    r' = "(\w+)";', strip_comments(model, keep_strings=True)))
+    r' = "(\w+)";', strip_comments(shared, keep_strings=True)))
 
 shapes = {}
 for block in re.finditer(
@@ -409,10 +459,10 @@ for family, parts in sorted(shapes.items()):
 slots = {}
 for name, x, y, wide, tall in re.findall(
         r"(HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT), new int\[\]\{"
-        r"(\d+), (\d+), (\d+), (\d+)\}", model_plain):
+        r"(\d+), (\d+), (\d+), (\d+)\}", shared_plain):
     slots[name] = (int(x), int(y), int(wide), int(tall))
 
-sheet = re.search(r"public static final int SHEET = (\d+);", model_plain)
+sheet = re.search(r"public static final int SHEET = (\d+);", shared_plain)
 sheet = int(sheet.group(1)) if sheet else 0
 
 if len(slots) != 6:
@@ -467,10 +517,18 @@ if "pose.scale(across, up, across);" not in scaling:
     fail("the shape is not squashed onto the hitbox at all, so every beast is the size "
          "of the shape it shares with two others")
 
-bounds_body = squashed(body_of(model_plain, "public static Bounds bounds(String family)"))
+bounds_body = squashed(body_of(shared_plain,
+                               "public static Bounds bounds(List<Part> parts)"))
 if "return new Bounds(highX - lowX, highY - lowY, highZ - lowZ);" not in bounds_body:
     fail("a shape's size is no longer measured across its own boxes, so the renderer "
          "squashes onto a number somebody typed")
+# And both rosters ask that one function rather than each keeping a copy.
+for who, where in (("BeastModel", model_plain),
+                   ("FaunaModel", strip_comments(read(SRC, "client/FaunaModel.java")))):
+    if "return CreatureModel.bounds(parts);" not in squashed(where):
+        fail(f"{who} measures its own shapes instead of asking the one function "
+             f"that both rosters share, so the two copies can disagree about how "
+             f"big something is and only one of them is the one the renderer uses")
 
 if shapes and beasts:
     PIXELS = 16.0
@@ -561,48 +619,28 @@ if beasts and said_earned:
     # check in this file passing. So every name in every table is looked up
     # in the game's own language file, which names every item and block the
     # game ships, and in this pack's.
-    VANILLA_JAR = os.path.join(os.environ.get("ELYSIUM_MC_LIBS", "/tmp/mc"),
-                               "vanilla.jar")
     dropped = set()
     for beast in beasts:
         table = read(RES, "data", NS, "loot_table/entities", beast["id"] + ".json")
         if not table:
             continue
-        for pool in json.loads(table).get("pools", []):
-            for entry in pool.get("entries", []):
+        for poolset in json.loads(table).get("pools", []):
+            for entry in poolset.get("entries", []):
                 if entry.get("type") == "minecraft:item" and entry.get("name"):
                     dropped.add(entry["name"])
     if not dropped:
         fail("no loot table names a single item, so the nine of them hand out "
              "nothing and the arithmetic above is balancing zero against zero")
-    elif not os.path.isfile(VANILLA_JAR):
+    elif not THE_GAME_MAKES:
         print("what it drops      : the game's jar is not here, so the drops "
               "were not looked up in it")
     else:
-        import zipfile
-        with zipfile.ZipFile(VANILLA_JAR) as jar:
-            _lang = json.loads(jar.read("assets/minecraft/lang/en_us.json"))
-        THE_GAME_HAS = {"minecraft:" + key.split(".", 2)[2] for key in _lang
-                        if key.startswith(("item.minecraft.", "block.minecraft."))}
-        # The pack's own, taken from the language files the generators write,
-        # so a drop may be something this project makes as well.
-        THE_PACK_HAS = set()
-        for where, _, names in os.walk(ROOT):
-            if not where.replace(os.sep, "/").endswith("/lang"):
-                continue
-            for name in names:
-                if name != "en_us.json":
-                    continue
-                for key in json.loads(read(where, name)):
-                    parts = key.split(".", 2)
-                    if len(parts) == 3 and parts[0] in ("item", "block"):
-                        THE_PACK_HAS.add(parts[1] + ":" + parts[2])
-        if len(THE_GAME_HAS) < 2_000:
-            fail(f"only {len(THE_GAME_HAS)} name(s) could be read out of the "
+        if len(THE_GAME_MAKES) < 2_000:
+            fail(f"only {len(THE_GAME_MAKES)} name(s) could be read out of the "
                  f"game's language file, so the check below is checking nothing")
         else:
             missing = sorted(one for one in dropped
-                             if one not in THE_GAME_HAS
+                             if one not in THE_GAME_MAKES
                              and one not in THE_PACK_HAS)
             if missing:
                 fail(f"{len(missing)} thing(s) are dropped and neither the game "
@@ -882,9 +920,17 @@ if not HAUNT_RULES:
          "is registered, rendered, looted, harnessed and never met — which is "
          "the quietest bug a pack can have")
 else:
-    haunts = re.findall(
-        r'new Haunt\("([a-z_]+)", "(#?[a-z_:]+)", (-?\w+), (-?\w+), (-?\w+), '
-        r'(-?\w+), (\d+), (\d+)\)', re.sub(r"\s+", " ", HAUNT_RULES))
+    _one_line = re.sub(r"\s+", " ", HAUNT_RULES)
+    _beast_table = re.search(r"List<Haunt> HAUNTS = List\.of\((.*?)\); ", _one_line)
+    _fauna_table = re.search(r"List<Haunt> THE_FAUNA = List\.of\((.*?)\); ", _one_line)
+    if not _beast_table or not _fauna_table:
+        fail("one of the two tables of haunts is gone, so half the things this "
+             "module registers are somewhere nothing says")
+    _HAUNT_ROW = (r'new Haunt\("([a-z_]+)", "(#?[a-z_:]+)", (-?\w+), (-?\w+), '
+                  r'(-?\w+), (-?\w+), (\d+), (\d+)\)')
+    haunts = re.findall(_HAUNT_ROW, _beast_table.group(1) if _beast_table else "")
+    fauna_haunts = re.findall(_HAUNT_ROW,
+                              _fauna_table.group(1) if _fauna_table else "")
     if len(haunts) != len(beasts):
         fail(f"there are {len(haunts)} haunt(s) for {len(beasts)} beast(s), so "
              f"one of them is somewhere twice or nowhere at all")
@@ -939,7 +985,8 @@ else:
              "living in the pitch dark spawns in daylight")
 
     # And what the world is written out as has to agree with the haunt.
-    for beast, where, darkest, brightest, lowest, highest, least, most in haunts:
+    for beast, where, darkest, brightest, lowest, highest, least, most in \
+            haunts + fauna_haunts:
         path = os.path.join(RES, "data", NS, "neoforge/biome_modifier",
                             f"add_{beast}_spawns.json")
         if not os.path.isfile(path):
@@ -957,7 +1004,8 @@ else:
                      f"spawn rule says {spawner.get('minCount')} to "
                      f"{spawner.get('maxCount')}")
 
-    print(f"where they are     : {len(haunts)} haunt(s), every biome tag one "
+    print(f"where they are     : {len(haunts) + len(fauna_haunts)} haunt(s), "
+          f"every biome tag one "
           f"the game really ships, every light and height band one a world has "
           f"and one the game is actually told about, and every group small "
           f"enough to fit where it is asked to appear")
@@ -1025,6 +1073,314 @@ else:
           f"happen without something in the world, each given one here, each "
           f"going out on its own, and a check after registration that none of "
           f"them was left empty")
+
+
+# ---------------------------------------------------------------------------
+# The other half of the world
+# ---------------------------------------------------------------------------
+#
+# Twelve animals that do not attack you. Everything below is the bestiary's
+# own checks aimed at the second roster: that it is read out of the rules
+# rather than typed here, that every one of them is exactly as big as it
+# looks, that what it leaves is what the arithmetic says and is a thing that
+# exists, and that not one of the twelve was registered by hand.
+
+print("-" * 70)
+
+FAUNA_RULES = strip_comments(read(SRC, "rules/FaunaRules.java"), keep_strings=True)
+FAUNA_MODEL = strip_comments(read(SRC, "client/FaunaModel.java"), keep_strings=True)
+FAUNA_ENTITY = strip_comments(read(SRC, "entity/FaunaEntity.java"), keep_strings=True)
+if not FAUNA_RULES:
+    fail("nothing says what an animal is, so this module is nine things that "
+         "hunt you and nothing that does not — which is not a harder world, it "
+         "is a thinner one")
+else:
+    KIND_NAMES = dict(re.findall(
+        r'public static final String (GRAZER|FORAGER|FOWL|SWIMMER) = "(\w+)";',
+        FAUNA_RULES))
+    _fauna_one_line = re.sub(r"\s+", " ", FAUNA_RULES)
+    _roster = re.search(r"List<Animal> ANIMALS = List\.of\((.*?)\); ",
+                        _fauna_one_line)
+    animals = []
+    for row in re.finditer(
+            r'new Animal\("([a-z_]+)", (GRAZER|FORAGER|FOWL|SWIMMER), '
+            r'([\d.]+)D, ([\d.]+)D, ([\d.]+)F, ([\d.]+)F, '
+            r'"([a-z_:]+)", "([a-z_:]+)", (\d+), (\d+)\)',
+            _roster.group(1) if _roster else ""):
+        animals.append({
+            "id": row.group(1),
+            "kind": KIND_NAMES.get(row.group(2), row.group(2)),
+            "width": float(row.group(5)),
+            "height": float(row.group(6)),
+            "eats": row.group(7),
+            "gives": row.group(8),
+            "yield": int(row.group(9)),
+            "weight": int(row.group(10)),
+        })
+    if not animals:
+        fail("this file can no longer read the fauna out of the rules, so "
+             "everything below is checking an empty list and passing")
+
+    # Every rule the fauna declares is added up, for the same reason the
+    # haunts' are: a rule that answers its controls and is never asked about
+    # the roster is a rule that is not running.
+    _fauna_sum = squashed(body_of(FAUNA_RULES, "public static List<String> faults()"))
+    _fauna_rules = set(re.findall(
+        r"public static List<String> (faultsIn\w+)\(", FAUNA_RULES))
+    _fauna_added = set(re.findall(
+        r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _fauna_sum))
+    if len(_fauna_rules) < 6:
+        fail(f"only {len(_fauna_rules)} fauna rule(s) are declared at all, so "
+             f"the check below is checking nothing")
+    for _rule in sorted(_fauna_rules - _fauna_added):
+        fail(f"{_rule} is written, compiled and never added up by the fauna's "
+             f"faults(), so it answers the harness's controls and is never "
+             f"once asked about the roster this pack ships")
+
+    # Four shapes, six parts each, every box inside the corner of the sheet it
+    # is drawn in. The same arithmetic the bestiary's sheet section does,
+    # against the same slots, because both rosters draw on one sheet layout.
+    fauna_shapes = {}
+    for block in re.finditer(
+            r"made\.put\(FaunaRules\.(GRAZER|FORAGER|FOWL|SWIMMER), "
+            r"List\.of\((.*?)\)\);", strip_comments(FAUNA_MODEL), re.S):
+        parts = []
+        for row in re.finditer(
+                r"new Part\((HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT), "
+                r"([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, "
+                r"([-\d.]+)F, (\d+), (\d+), (\d+)\)", block.group(2)):
+            parts.append({
+                "name": row.group(1),
+                "pivot": (float(row.group(2)), float(row.group(3)),
+                          float(row.group(4))),
+                "box": (float(row.group(5)), float(row.group(6)),
+                        float(row.group(7))),
+                "size": (int(row.group(8)), int(row.group(9)), int(row.group(10))),
+            })
+        fauna_shapes[KIND_NAMES.get(block.group(1), block.group(1))] = parts
+    for kind in sorted({animal["kind"] for animal in animals}):
+        if kind not in fauna_shapes:
+            fail(f"nothing is shaped like a {kind}, so every animal of that kind "
+                 f"is a crash the first time one is drawn")
+    for kind, parts in sorted(fauna_shapes.items()):
+        if len(parts) != 6:
+            fail(f"a {kind} is made of {len(parts)} part(s) rather than six; the "
+                 f"walk cycle reaches for all six by name and will not find them")
+        for part in parts:
+            wide, tall, deep = part["size"]
+            slot = slots.get(part["name"])
+            if slot is None:
+                fail(f"a {kind}'s {part['name']} has no corner of the sheet at "
+                     f"all, so it is drawn out of whatever happens to be at the "
+                     f"origin")
+                continue
+            if 2 * deep + 2 * wide > slot[2] or deep + tall > slot[3]:
+                fail(f"a {kind}'s {part['name']} unwraps to "
+                     f"{2 * deep + 2 * wide}x{deep + tall} and its corner of the "
+                     f"sheet is {slot[2]}x{slot[3]}, so one of its faces is drawn "
+                     f"in another part's corner")
+
+    # And exactly as big as it looks, worked out the same way.
+    fauna_renderer = strip_comments(read(SRC, "client/FaunaRenderer.java"))
+    fauna_scaling = squashed(body_of(fauna_renderer,
+                                     "protected void scale(FaunaEntity beast,"))
+    for wanted, why in (
+            ("float across = row.width() * PIXELS / Math.max(shape.wide(), "
+             "shape.deep());",
+             "how wide an animal is drawn is no longer worked out from how wide "
+             "it is, so an animal whose row is edited keeps the size of whatever "
+             "it was before"),
+            ("float up = row.height() * PIXELS / shape.tall();",
+             "how tall an animal is drawn is no longer worked out from how tall "
+             "it is, which is a head above its own hitbox"),
+            ("pose.scale(across, up, across);",
+             "the shape is not squashed onto the hitbox at all, so every animal "
+             "is the size of the shape it shares with two others")):
+        if wanted not in fauna_scaling:
+            fail(why)
+    if fauna_shapes and animals:
+        measured = {}
+        for kind, parts in sorted(fauna_shapes.items()):
+            low = [float("inf")] * 3
+            high = [float("-inf")] * 3
+            for part in parts:
+                for axis in range(3):
+                    start = part["pivot"][axis] + part["box"][axis]
+                    low[axis] = min(low[axis], start)
+                    high[axis] = max(high[axis], start + part["size"][axis])
+            measured[kind] = (high[0] - low[0], high[1] - low[1], high[2] - low[2])
+            if min(measured[kind]) <= 0.0:
+                fail(f"a {kind} has no extent in one direction, so it is drawn as "
+                     f"a sheet of paper")
+        for animal in animals:
+            if animal["kind"] not in measured:
+                continue
+            wide, tall, deep = measured[animal["kind"]]
+            across = animal["width"] * 16.0 / max(wide, deep)
+            up = animal["height"] * 16.0 / tall
+            drawn = (wide * across, tall * up, deep * across)
+            box = (animal["width"] * 16.0, animal["height"] * 16.0)
+            if abs(drawn[1] - box[1]) > 1e-6:
+                fail(f"{animal['id']} is drawn {drawn[1] / 16.0:.2f} blocks tall "
+                     f"in a hitbox {box[1] / 16.0:.2f} blocks tall")
+            if abs(max(drawn[0], drawn[2]) - box[0]) > 1e-6:
+                fail(f"{animal['id']} does not touch the sides of its own hitbox, "
+                     f"so there is a band around it that can be hit and cannot "
+                     f"be seen")
+
+    # What it leaves, read back out of the file rather than believed.
+    rate_of = {}
+    for kind, tilt in re.findall(r"(GRAZER|FORAGER|FOWL|SWIMMER), ([\d.]+)D",
+                                 _fauna_one_line):
+        rate_of[KIND_NAMES.get(kind, kind)] = float(tilt)
+    dropped_by_animals = set()
+    for animal in animals:
+        path = os.path.join(RES, "data", NS, "loot_table/entities",
+                            animal["id"] + ".json")
+        if not os.path.isfile(path):
+            fail(f"{animal['id']} has no loot table, so killing one leaves "
+                 f"nothing and the whole point of keeping one is gone")
+            continue
+        table = json.loads(read(path))
+        expected = 0.0
+        for poolset in table.get("pools", []):
+            rolls = poolset.get("rolls", 1)
+            for entry in poolset.get("entries", []):
+                if entry.get("type") == "minecraft:item" and entry.get("name"):
+                    dropped_by_animals.add(entry["name"])
+                for function in entry.get("functions", []):
+                    if function.get("function") != "minecraft:set_count":
+                        continue
+                    count = function.get("count", {})
+                    if count.get("type") != "minecraft:uniform":
+                        fail(f"{animal['id']}'s loot uses a {count.get('type')} "
+                             f"count, which this file cannot work an expectation "
+                             f"out of, so what it leaves has stopped being checked")
+                        continue
+                    expected += rolls * (count.get("min", 0.0)
+                                         + count.get("max", 0.0)) / 2.0
+        if abs(expected - animal["yield"]) > 1e-9:
+            fail(f"{animal['id']}'s loot table leaves {expected} items on average "
+                 f"and its row says {animal['yield']}, so the wait the arithmetic "
+                 f"worked out is a wait for something else")
+        if dropped_by_animals and animal["gives"] not in dropped_by_animals:
+            fail(f"{animal['id']} leaves {animal['gives']} in its row and its "
+                 f"loot table hands out something else")
+    if animals and not dropped_by_animals:
+        fail("no animal's loot table names a single item, so the twelve of them "
+             "leave nothing at all")
+
+    # Everything they leave and everything they eat exists.
+    if THE_GAME_MAKES:
+        if len(THE_GAME_MAKES) < 2_000:
+            fail(f"only {len(THE_GAME_MAKES)} name(s) could be read out of the "
+                 f"game's language file, so the check below is checking nothing")
+        else:
+            for animal in animals:
+                for what, why in ((animal["eats"], "is bred with"),
+                                  (animal["gives"], "leaves")):
+                    if what not in THE_GAME_MAKES and what not in THE_PACK_HAS:
+                        fail(f"{animal['id']} {why} {what} and neither the game "
+                             f"nor this pack makes it, so it is an animal that "
+                             f"cannot be bred or one that leaves nothing")
+
+    # Not one of the twelve registered by hand.
+    fauna_entities = read(SRC, "registry/FaunaEntities.java")
+    fauna_items = read(SRC, "registry/FaunaItems.java")
+    for where, source, why in (
+            ("FaunaEntities", fauna_entities, "no animal exists at all"),
+            ("FaunaItems", fauna_items, "no animal can be put in front of you "
+                                        "to look at")):
+        if not source:
+            fail(f"{where} is not here, so {why}")
+            continue
+        if "for (FaunaRules.Animal animal : FaunaRules.ANIMALS) {" \
+                not in squashed(strip_comments(source)):
+            fail(f"{where} no longer walks the roster, so it registers whichever "
+                 f"animals somebody remembered — and eleven of twelve is a pack "
+                 f"that works until somebody meets the twelfth")
+        if f"!= FaunaRules.ANIMALS.size()" not in strip_comments(source):
+            fail(f"{where} does not count what it registered, so a roster that "
+                 f"half registers is a roster that half exists")
+    for field, where in (("TYPES", "FaunaEntities"), ("ITEMS", "FaunaItems"),
+                         ("TABS", "FaunaItems")):
+        wanted = f"com.elysium.bestiary.registry.{where}.{field}.register(modEventBus);"
+        if wanted not in main:
+            fail(f"{where}.{field} is declared and never put on the bus, so "
+                 f"everything in it is written, compiled, and absent from the game")
+
+    # A swimmer is a water creature and is placed in water. The game counts
+    # the two buckets separately, and a fish in the land bucket crowds out
+    # every animal in the world — which reads as "this pack has too few cows"
+    # and is diagnosed nowhere.
+    _category = squashed(body_of(strip_comments(fauna_entities),
+                                 "public static MobCategory categoryOf("))
+    if "MobCategory.WATER_CREATURE" not in _category \
+            or "MobCategory.CREATURE" not in _category:
+        fail("the fauna no longer sorts itself into the game's two spawn "
+             "buckets, so either the fish crowd out the animals or the animals "
+             "crowd out the fish")
+    _placement = squashed(body_of(strip_comments(fauna_entities),
+                                  "public static void onSpawnPlacement("))
+    if "SpawnPlacementTypes.IN_WATER" not in _placement:
+        fail("nothing is placed in the water, so the swimmers are put on the "
+             "ground and the ocean is empty")
+
+    # And the animal itself reads its row rather than storing it.
+    _lookup = squashed(body_of(FAUNA_ENTITY, "public FaunaRules.Animal animal()"))
+    if "String name = EntityType.getKey(getType()).getPath();" not in _lookup:
+        fail("an animal no longer finds its own row by the name it was "
+             "registered under, so whatever it is storing instead can be "
+             "stored wrong")
+    _dimensions = squashed(body_of(FAUNA_ENTITY,
+                                   "public net.minecraft.world.entity."
+                                   "EntityDimensions getDefaultDimensions("))
+    if "return net.minecraft.world.entity.EntityDimensions.scalable(animal.width(), " \
+            "animal.height());" not in _dimensions:
+        fail("an animal's dimensions are not its row's, so it is the size of "
+             "whichever animal the game happened to build the type for")
+    _love = squashed(body_of(FAUNA_ENTITY, "public void resetLove()"))
+    if "setAge(FaunaRules.patienceOf(animal()));" not in _love:
+        fail("how long an animal waits before it will breed again is not the "
+             "number the arithmetic worked out, so the one thing that stops a "
+             "single row of the roster being the answer to every pen is a "
+             "number nothing checks")
+    _food = squashed(body_of(FAUNA_ENTITY, "public Ingredient food()"))
+    if "animal().eats()" not in _food:
+        fail("what an animal is bred with is no longer its own row's, so the "
+             "rule that says no pen makes what a pen consumes is a rule about "
+             "a table the game never reads")
+    _spawn = squashed(body_of(FAUNA_ENTITY, "public static boolean canSpawn("))
+    if "HauntRules.haunt(id);" not in _spawn:
+        fail("an animal spawns wherever the game feels like, so its light and "
+             "height bands are a table nothing reads")
+
+    # Every animal drawn, every kind given a layer, and neither loop written out.
+    client = squashed(strip_comments(read(SRC, "client/BestiaryClient.java")))
+    if "for (FaunaRules.Animal animal : FaunaRules.ANIMALS) {" not in client:
+        fail("the renderers are not walked from the roster, so an animal added "
+             "tomorrow is a black-and-magenta cube and only the player who "
+             "meets it will ever know")
+    if "for (String kind : FaunaRules.KINDS) {" not in client:
+        fail("the model layers are not walked from the kinds, so a kind with no "
+             "layer is a crash the first time one is drawn")
+
+    # The words.
+    for animal in animals:
+        for key in (f"entity.{NS}.{animal['id']}",
+                    f"item.{NS}.{animal['id']}_spawn_egg",
+                    f"bestiary.{NS}.why.{animal['id']}"):
+            if key not in lang:
+                fail(f"{key} has no name, so it reads as its own translation key")
+        if not os.path.isfile(os.path.join(RES, "assets", NS, "textures/entity",
+                                           animal["id"] + ".png")):
+            fail(f"{animal['id']} has no sheet, so it is drawn as whatever the "
+                 f"renderer finds at that path, which is nothing")
+
+    print(f"the other half     : {len(animals)} animal(s) over "
+          f"{len(fauna_shapes)} shape(s), every one exactly as big as it looks, "
+          f"leaving what the arithmetic says it leaves, bred on something the "
+          f"game really makes, and not one of them registered by hand")
 
 
 if problems:
