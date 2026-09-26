@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#elysiumbestiary:vale_coldmarsh",
+  "spawners": [
+    {
+      "type": "elysiumbestiary:shadewood_spider",
+      "weight": 20,
+      "minCount": 1,
+      "maxCount": 2
+    }
+  ]
+}

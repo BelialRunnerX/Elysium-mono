@@ -74,6 +74,7 @@ public final class BeastHarness {
         theFarm2();
         theCourts();
         theWarded();
+        theVale();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -2133,5 +2134,174 @@ public final class BeastHarness {
                 + " pairs swept against that band with " + doors + " door(s) and "
                 + textures + " texture(s) among them, and not one of this module's "
                 + "own at either end");
+    }
+
+    /**
+     * Twenty-eight things that live in the Vale.
+     *
+     * <p>The claim under test is one no single fight can show: that walking
+     * further out is always harder rather than riskier. The failure it guards
+     * against is not a bug, it is an ordering — a roster gets filled in the
+     * order somebody thought of the creatures and placed for flavour, because
+     * "the devil belongs in the sulphur springs" is a much better sentence than
+     * "the devil belongs two rings out".
+     *
+     * <p>So the sweep walks every crossing against every band, and checks the
+     * rule agrees with the arithmetic at each of them.
+     */
+    private static void theVale() {
+        List<String> faults = DenizenRules.faults();
+        check(faults.isEmpty(), "something wrong with the Vale's roster: " + faults);
+
+        DenizenRules.Denizen first = DenizenRules.DENIZENS.get(0);
+
+        check(!DenizenRules.faultsInNames(List.of(first, first)).isEmpty(),
+                "two creatures written under one name are not reported");
+        check(DenizenRules.faultsInNames(DenizenRules.DENIZENS).isEmpty(),
+                "the creatures this module ships are reported as doubled");
+
+        check(!DenizenRules.faultsInPlaces(List.of(new DenizenRules.Denizen("control",
+                        "nowhere", 0, 10.0D, 1.0D, 0.3D, 20)),
+                DenizenRules.PLACES).isEmpty(),
+                "a creature living in a crossing the Vale does not have is not "
+                        + "reported");
+        check(DenizenRules.faultsInPlaces(DenizenRules.DENIZENS,
+                        DenizenRules.PLACES).isEmpty(),
+                "the creatures this module ships live where the Vale does not go");
+
+        // The column that is allowed to lie, and the rule that catches it.
+        check(!DenizenRules.faultsInDistance(List.of(new DenizenRules.Denizen(
+                        "control", "sulphur_springs", 1, 10.0D, 1.0D, 0.3D, 20)))
+                .isEmpty(),
+                "a creature written as nearer than its own crossing is not "
+                        + "reported, and that is exactly the mistake a roster makes "
+                        + "when the flavour is decided first");
+        check(DenizenRules.faultsInDistance(DenizenRules.DENIZENS).isEmpty(),
+                "something this module ships is written into the wrong ring");
+
+        check(!DenizenRules.faultsInEmptyPlaces(List.of(first),
+                        DenizenRules.PLACES).isEmpty(),
+                "a crossing with nothing in it is not reported");
+        check(DenizenRules.faultsInEmptyPlaces(DenizenRules.DENIZENS,
+                        DenizenRules.PLACES).isEmpty(),
+                "a crossing this module ships has nothing living in it");
+
+        // Both ends of the gradient.
+        check(!DenizenRules.faultsInGradient(List.of(new DenizenRules.Denizen(
+                        "control", "sulphur_springs", 3, 6.0D, 0.0D, 0.2D, 20)))
+                .isEmpty(),
+                "something three rings out that a player could have met at the "
+                        + "portal is not reported, so the walk bought them nothing");
+        check(!DenizenRules.faultsInGradient(List.of(new DenizenRules.Denizen(
+                        "control", "verdant_vale", 0, 400.0D, 20.0D, 0.6D, 20)))
+                .isEmpty(),
+                "something at the portal harder than what is three rings out is "
+                        + "not reported, so which direction the player walked stops "
+                        + "being a decision");
+        check(DenizenRules.faultsInGradient(DenizenRules.DENIZENS).isEmpty(),
+                "something this module ships is outside its own ring's band");
+
+        check(DenizenRules.faultsInBands().isEmpty(),
+                "a band this module ships has a floor above its own ceiling, so "
+                        + "that ring has stopped being anywhere on the gradient");
+
+        check(!DenizenRules.faultsInCeiling(List.of(new DenizenRules.Denizen(
+                        "control", "sulphur_springs", 3, 900.0D, 90.0D, 0.9D, 20)),
+                BeastRules.BEASTS).isEmpty(),
+                "something in the Vale harder than the hardest thing in the world "
+                        + "is not reported");
+        check(!DenizenRules.faultsInCeiling(DenizenRules.DENIZENS,
+                        List.of()).isEmpty(),
+                "a Vale with no beast to be held under is not reported");
+        check(DenizenRules.faultsInCeiling(DenizenRules.DENIZENS,
+                        BeastRules.BEASTS).isEmpty(),
+                "something this module ships out-fights the hardest beast");
+
+        check(!DenizenRules.faultsInRarity(DenizenRules.DENIZENS, 1_000).isEmpty(),
+                "a roster nobody could meet is not reported");
+        check(DenizenRules.faultsInRarity(DenizenRules.DENIZENS,
+                        DenizenRules.LEAST_WEIGHT).isEmpty(),
+                "the creatures this module ships are reported as too rare");
+
+        check(DenizenRules.faultsInShapes(DenizenRules.DENIZENS,
+                        MythRules.forms()).isEmpty(),
+                "a ring this module ships is drawn with a shape it does not have");
+        check(DenizenRules.faultsInLeavings(DenizenRules.DENIZENS).isEmpty(),
+                "something this module ships leaves nothing behind");
+
+        check(threwOn(() -> new DenizenRules.Denizen("control", "", 0,
+                        10.0D, 1.0D, 0.3D, 20)),
+                "a creature living nowhere in the Vale is accepted");
+        check(threwOn(() -> new DenizenRules.Denizen("control", "verdant_vale", -1,
+                        10.0D, 1.0D, 0.3D, 20)),
+                "a creature inside the middle of the dimension is accepted");
+
+        // Sweep one: the rings themselves. Every crossing has to come out at
+        // the distance the two bands put it, or the whole gradient is measured
+        // against the wrong map.
+        int places = 0;
+        for (String place : DenizenRules.PLACES) {
+            int at = DenizenRules.PLACES.indexOf(place);
+            int warmth = at / DenizenRules.WETS;
+            int wet = at % DenizenRules.WETS;
+            int wanted = Math.abs(warmth - DenizenRules.WARMTHS / 2)
+                    + Math.abs(wet - DenizenRules.WETS / 2);
+            check(DenizenRules.ring(place) == wanted,
+                    place + " is " + DenizenRules.ring(place) + " ring(s) out and "
+                            + "its bands put it at " + wanted);
+            check(wanted >= 0 && wanted < DenizenRules.RINGS,
+                    place + " is " + wanted + " ring(s) out and there are only "
+                            + DenizenRules.RINGS);
+            places++;
+        }
+        check(places == DenizenRules.WARMTHS * DenizenRules.WETS,
+                "the Vale has " + places + " crossing(s) here and "
+                        + DenizenRules.WARMTHS * DenizenRules.WETS + " where it is "
+                        + "laid out, so this roster is filling a different map");
+
+        // Sweep two: the gradient, against the arithmetic rather than a table.
+        int swept = 0;
+        int below = 0;
+        int above = 0;
+        java.util.Random random = new java.util.Random(28_4409L);
+        for (int round = 0; round < 200_000; round++) {
+            int ring = random.nextInt(DenizenRules.RINGS);
+            String place = "";
+            for (String maybe : DenizenRules.PLACES) {
+                if (DenizenRules.ring(maybe) == ring) {
+                    place = maybe;
+                    break;
+                }
+            }
+            double health = 4.0D + random.nextInt(240);
+            double damage = random.nextInt(24);
+            DenizenRules.Denizen made = new DenizenRules.Denizen("v" + round,
+                    place, ring, health, damage, 0.26D, 20);
+            double[] band = DenizenRules.band(ring);
+            boolean outside = made.threat() < band[0] || made.threat() >= band[1];
+            check(outside == !DenizenRules.faultsInGradient(List.of(made)).isEmpty(),
+                    "something worth " + Math.round(made.threat()) + " in ring "
+                            + ring + " is reported wrongly");
+            if (made.threat() < band[0]) {
+                below++;
+            }
+            if (made.threat() >= band[1]) {
+                above++;
+            }
+            swept++;
+        }
+        check(below > 0 && above > 0,
+                "the sweep never built anything under a floor or never built "
+                        + "anything over a ceiling, so it is walking one end of the "
+                        + "gradient and reporting that both ends hold");
+
+        System.out.println("  the Vale: " + DenizenRules.DENIZENS.size()
+                + " creature(s) across all " + DenizenRules.PLACES.size()
+                + " crossing(s) of a dimension that already existed, in "
+                + DenizenRules.RINGS + " ring(s) whose bands of danger tile and "
+                + "rise, " + swept + " placements swept against those bands with "
+                + below + " too soft and " + above + " too hard among them, and "
+                + "not one of this module's own in a ring its own crossing does "
+                + "not put it in");
     }
 }

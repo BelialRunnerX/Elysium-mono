@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#elysiumbestiary:vale_pinewold",
+  "spawners": [
+    {
+      "type": "elysiumbestiary:scavenger",
+      "weight": 34,
+      "minCount": 1,
+      "maxCount": 2
+    }
+  ]
+}

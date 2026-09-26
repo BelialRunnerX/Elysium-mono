@@ -3025,6 +3025,263 @@ else:
 
 
 
+# ---------------------------------------------------------------------------
+# The Vale's own
+# ---------------------------------------------------------------------------
+#
+# The roster that fills a dimension somebody else's module already built, and
+# the section with the most to check that no rule can see. The gradient the
+# rules prove is a fact about where things are; where things are is a spawn
+# rule on disk naming a biome in another module's data. A name with a letter
+# wrong there is a creature that never appears, and it looks exactly like a
+# creature that is rare — which is the failure this whole module keeps writing
+# checks against, and which this section caught on its first run.
+
+print("-" * 70)
+
+VALE_SRC = strip_comments(read(SRC, "rules/DenizenRules.java"), keep_strings=True)
+VALE_ENTITY = strip_comments(read(SRC, "entity/DenizenEntity.java"), keep_strings=True)
+VALE_REG = strip_comments(read(SRC, "registry/DenizenEntities.java"), keep_strings=True)
+
+
+def the_pack_grows():
+    """Every biome any module in this pack actually writes."""
+    found = set()
+    for where, _, names in os.walk(ROOT):
+        tidy = where.replace(os.sep, "/")
+        if not tidy.endswith("/worldgen/biome"):
+            continue
+        parts = tidy.split("/")
+        if len(parts) < 4:
+            continue
+        namespace = parts[-3]
+        for name in names:
+            if name.endswith(".json"):
+                found.add(f"{namespace}:{name[:-5]}")
+    return found
+
+
+THE_PACK_GROWS = the_pack_grows()
+
+if not VALE_SRC:
+    fail("nothing says what lives in the Vale, so fifteen biomes that were "
+         "proved to partition a climate plane have nothing in any of them")
+else:
+    _vale = squashed(VALE_SRC)
+    denizens = re.findall(
+        r'new Denizen\("([a-z_]+)", "([a-z_]+)", (\d+), ([\d.]+)D, ([\d.]+)D,'
+        r' ([\d.]+)D, (\d+)\)', _vale)
+    places = re.findall(r'"([a-z_]+)"',
+                        re.search(r"List<String> PLACES = List\.of\((.*?)\);",
+                                  _vale).group(1)) if "PLACES = List.of(" in _vale else []
+    if len(denizens) < 8:
+        fail(f"only {len(denizens)} creature(s) could be read out of the Vale's "
+             f"rules, so every check below is walking a short list and passing")
+
+    for row in denizens:
+        name = row[0]
+        for kind, where in (
+                ("texture", f"assets/{NS}/textures/entity/{name}.png"),
+                ("spawn egg model",
+                 f"assets/{NS}/models/item/{name}_spawn_egg.json"),
+                ("loot table", f"data/{NS}/loot_table/entities/{name}.json"),
+                ("spawn rule",
+                 f"data/{NS}/neoforge/biome_modifier/add_{name}_spawns.json")):
+            if not os.path.isfile(os.path.join(RES, where)):
+                fail(f"{name} has no {kind}, so it is a creature the rules "
+                     f"describe and the world never shows")
+        for key, why in (
+                (f"entity.{NS}.{name}",
+                 "reads as its own translation key wherever the game names it"),
+                (f"bestiary.{NS}.ring.{name}",
+                 "has no sentence saying how far out it lives, and 'further out "
+                 "is harder' is only useful to a player who has been told that "
+                 "further out is the thing that matters here")):
+            if key not in lang:
+                fail(f"{name} {why}")
+
+    # The check this section exists for. The rules prove a gradient over
+    # crossings; the crossings are biomes in another module, and a spawn rule
+    # naming one that does not exist is a creature that never appears.
+    for row in denizens:
+        where = os.path.join(RES, f"data/{NS}/neoforge/biome_modifier",
+                             f"add_{row[0]}_spawns.json")
+        if not os.path.isfile(where):
+            continue
+        try:
+            written = json.loads(read(os.path.dirname(where),
+                                      os.path.basename(where)))
+        except ValueError:
+            fail(f"{row[0]}'s spawn rule is not readable as JSON, so the game "
+                 f"refuses the whole data pack over one creature")
+            continue
+        biomes = written.get("biomes")
+        if not isinstance(biomes, str) or not biomes.startswith("#"):
+            continue
+        # The modifier names a tag, so the biome is one step further on. A
+        # check that stopped at the tag would pass for a tag that is empty or
+        # that holds a biome nothing grows -- which is the same creature that
+        # never appears, reached through one more file.
+        plain = biomes[1:].split(":", 1)[-1]
+        tag_at = os.path.join(RES, f"data/{NS}/tags/worldgen/biome",
+                              f"{plain}.json")
+        if not os.path.isfile(tag_at):
+            fail(f"{row[0]} is put in {biomes} and this module writes no such "
+                 f"tag, so it is a creature that never appears")
+            continue
+        try:
+            held = json.loads(read(os.path.dirname(tag_at),
+                                   os.path.basename(tag_at))).get("values", [])
+        except ValueError:
+            fail(f"{plain} is not readable as JSON, so the game refuses the "
+                 f"whole data pack over one tag")
+            continue
+        if not held:
+            fail(f"{row[0]} is put in {biomes} and that tag holds nothing, so "
+                 f"it is a creature that never appears — which looks exactly "
+                 f"like one that is rare")
+        for grown in held:
+            if THE_PACK_GROWS and grown not in THE_PACK_GROWS:
+                fail(f"{row[0]} is put in {biomes}, which holds {grown}, and no "
+                     f"module in this pack grows a biome of that name")
+            if not str(grown).endswith(row[1]):
+                fail(f"{row[0]} lives in {row[1]} in the rules and its tag holds "
+                     f"{grown}, so the gradient the rules prove is about "
+                     f"somewhere the world does not put it")
+
+    # Every crossing the rules name has to be a biome the pack really grows,
+    # even the ones nothing happens to live in yet.
+    if THE_PACK_GROWS:
+        for place in places:
+            if not any(grown.endswith(place) for grown in THE_PACK_GROWS):
+                fail(f"the Vale's roster names {place} and no module in this "
+                     f"pack grows a biome of that name, so the map this "
+                     f"gradient is measured over is not the map the world has")
+
+    if not VALE_ENTITY:
+        fail("there is no entity for the Vale's own, so nothing the rules "
+             "describe is alive")
+    else:
+        _ventity = squashed(VALE_ENTITY)
+        if "DenizenRules.denizen(name)" not in _ventity:
+            fail("a creature does not find its own row by the name it was "
+                 "registered under, so whatever it is storing instead can be "
+                 "stored wrong")
+        _rings = squashed(body_of(VALE_ENTITY, "public int ringsOut()"))
+        if "denizen().ring()" not in _rings:
+            fail("how far out one of these lives is not the row's own, so what "
+                 "the renderer draws and what the rules prove are two different "
+                 "numbers")
+
+    if not VALE_REG:
+        fail("nothing registers the Vale's own, so all twenty-eight are rows")
+    else:
+        _vreg = squashed(VALE_REG)
+        _vregister = squashed(body_of(VALE_REG, "register() {"))
+        if "for (DenizenRules.Denizen one : DenizenRules.DENIZENS) {" not in _vregister:
+            fail("the Vale's own are named by hand rather than walked from the "
+                 "rules, so a twenty-ninth is a row nothing registers")
+        if "made.size() != DenizenRules.DENIZENS.size()" not in _vreg:
+            fail("nothing counts the creatures that were registered, so a roster "
+                 "that half registers is a roster that half exists")
+
+    _vmod = squashed(strip_comments(read(SRC, "ElysiumBestiary.java")))
+    if "DenizenEntities.ALL.size()" not in _vmod:
+        fail("the Vale's register is never touched while the mod is being built, "
+             "so whether twenty-eight creatures exist depends on when FML "
+             "happens to load the class")
+
+    _vclient = squashed(strip_comments(read(SRC, "client/BestiaryClient.java")))
+    if "new DenizenRenderer(context," not in _vclient:
+        fail("the Vale's own have no renderer registered, so the first one a "
+             "player meets takes the client down with it")
+    if "event.registerLayerDefinition(DenizenModel.LAYERS.get(form)," not in _vclient:
+        fail("the Vale's model layers are never registered, so baking one throws "
+             "and the renderer that was registered cannot be built")
+    _vrender = strip_comments(read(SRC, "client/DenizenRenderer.java"))
+    if "one.ringsOut()" not in squashed(_vrender):
+        fail("nothing on the screen says how far out a creature lives, so a "
+             "player has to work it out from how badly the fight went — which is "
+             "the coin flip this roster exists to remove")
+
+    # Every rule the file declares is added up, and faults() is a list.
+    _vsum = squashed(body_of(VALE_SRC, "public static List<String> faults()"))
+    _vrules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", VALE_SRC))
+    _vadded = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _vsum))
+    if len(_vrules) < 8:
+        fail(f"only {len(_vrules)} Vale rule(s) are declared at all, so the check "
+             f"below is checking nothing")
+    if re.search(r"\bif\s*\(", _vsum):
+        fail("the Vale's faults() has a condition in it, so some rule is added "
+             "up only sometimes")
+    for _vrule in sorted(_vrules - _vadded):
+        fail(f"{_vrule} is written, compiled and never added up by the Vale's "
+             f"faults(), so it answers the harness's controls and is never once "
+             f"asked about what this module ships")
+
+    print(f"the Vale            : {len(denizens)} creature(s) across "
+          f"{len(places)} crossing(s), every one of them put on disk in the "
+          f"biome its row names and in a biome this pack really grows, and how "
+          f"far out each lives drawn on the screen rather than left for the "
+          f"player to work out from how badly the fight went")
+
+
+
+# ---------------------------------------------------------------------------
+# All of them at once
+# ---------------------------------------------------------------------------
+#
+# Eight rosters, one registry. Every section above checks its own roster for
+# creatures written twice; none of them can see a name used once in two
+# different tables, and that is the one that hurts — the second register throws
+# at load with a message about entity types, or the generator writes one
+# creature's spawn rule over another's and the loser simply never appears.
+#
+# This section exists because it happened: `goblin` was a kindred and a denizen
+# of the Vale, `maggot` was in a court and in the Vale, and what reported it
+# was a spawn rule pointing at the wrong tag two sections further down.
+
+ROSTERS = (
+    ("the beasts", "BeastRules.java", r'new Beast\("([a-z_]+)"'),
+    ("the fauna", "FaunaRules.java", r'new Animal\("([a-z_]+)"'),
+    ("the myths", "MythRules.java", r'new Myth\("([a-z_]+)"'),
+    ("the companions", "CompanionRules.java", r'new Companion\("([a-z_]+)"'),
+    ("the kindred", "KindredRules.java", r'new Kin\("([a-z_]+)"'),
+    ("the courts", "CourtRules.java", r'new Member\("([a-z_]+)"'),
+    ("the warded", "WardRules.java", r'new Warded\("([a-z_]+)"'),
+    ("the Vale", "DenizenRules.java", r'new Denizen\("([a-z_]+)"'),
+)
+
+_named = {}
+_creatures = 0
+_rosters_read = 0
+for _label, _file, _pattern in ROSTERS:
+    _text = read(PURE, _file)
+    if not _text:
+        fail(f"{_file} is missing, so {_label} is a roster nothing in this "
+             f"module can check against any other")
+        continue
+    _rosters_read += 1
+    for _name in re.findall(_pattern, squashed(strip_comments(_text, keep_strings=True))):
+        _creatures += 1
+        _named.setdefault(_name, []).append(_label)
+
+if _rosters_read < len(ROSTERS):
+    fail(f"only {_rosters_read} of {len(ROSTERS)} roster(s) could be read, so "
+         f"the check below is comparing a subset against itself")
+else:
+    for _name, _in in sorted(_named.items()):
+        if len(_in) > 1:
+            fail(f"{_name} is a creature in {' and in '.join(_in)}, and they all "
+                 f"register onto one registry — so the second one throws at load, "
+                 f"or the generator writes one's spawn rule over the other's and "
+                 f"the loser never appears")
+    print(f"every roster        : {_creatures} creature(s) across "
+          f"{_rosters_read} roster(s), every one of them under a name no other "
+          f"roster in this module uses")
+
+
+
 if problems:
     print(f"{len(problems)} problem(s):")
     for problem in problems:

@@ -518,6 +518,94 @@ if _unshaded_ward or _unworded_ward:
     sys.exit(2)
 
 
+# The twenty-eight that live in the Vale, read out of DenizenRules: where each
+# one lives and how far out that is are rules and are proved about; what colour
+# it is, is art.
+VALE_SOURCE = read(os.path.join(
+    MOD, "src/main/java/com/elysium/bestiary/rules/DenizenRules.java"))
+DENIZENS = [
+    {"id": one[0], "place": one[1], "ring": int(one[2]), "weight": int(one[6])}
+    for one in re.findall(
+        r'new Denizen\("([a-z_]+)", "([a-z_]+)", (\d+), ([\d.]+)D, ([\d.]+)D,'
+        r' ([\d.]+)D, (\d+)\)', re.sub(r"\s+", " ", VALE_SOURCE))
+]
+if len(DENIZENS) != 28:
+    print("DenizenRules reads as %d creature(s) rather than twenty-eight"
+          % len(DENIZENS))
+    sys.exit(2)
+
+#: The fifteen crossings, read out of the rules rather than repeated, so the
+#: spawn rules cannot point at a biome the roster no longer names.
+VALE_PLACES = re.findall(r'"([a-z_]+)"',
+                         re.search(r"List<String> PLACES = List\.of\((.*?)\);",
+                                   re.sub(r"\s+", " ", VALE_SOURCE)).group(1))
+_homeless_vale = sorted({one["place"] for one in DENIZENS} - set(VALE_PLACES))
+if _homeless_vale:
+    print("no crossing of the Vale called %s" % _homeless_vale)
+    sys.exit(2)
+
+#: What each leaves behind, worked out the way the rules work it out.
+_vale_leavings = re.search(r"List<String> LEAVINGS = List\.of\((.*?)\);",
+                           re.sub(r"\s+", " ", VALE_SOURCE))
+VALE_LEAVING_LIST = (re.findall(r'"([\w:]+)"', _vale_leavings.group(1))
+                     if _vale_leavings else [])
+if not VALE_LEAVING_LIST:
+    print("DenizenRules names nothing that anything leaves behind")
+    sys.exit(2)
+VALE_LEAVINGS = {one["id"]: VALE_LEAVING_LIST[at % len(VALE_LEAVING_LIST)]
+                 for at, one in enumerate(DENIZENS)}
+
+#: One sentence per ring, because "it is further out" is only useful to a player
+#: who has been told that further out is the thing that matters here.
+RING_WORDS = {
+    0: "Near the way in. Whatever else the Vale is, it is not this.",
+    1: "One ring out. Far enough that going back is a decision.",
+    2: "Two rings out. Nothing here is what met you at the portal.",
+    3: "The far edge. Everything here is worse than everything behind you.",
+}
+
+#: And what each ring looks like: colder and stranger the further out it is,
+#: so that how far a player has walked reads off the creature rather than off
+#: how badly the fight went.
+RING_SHADES = {
+    0: ((168, 196, 142), (78, 94, 66)),
+    1: ((146, 168, 156), (66, 78, 72)),
+    2: ((118, 128, 160), (52, 58, 76)),
+    3: ((92, 84, 128), (40, 36, 60)),
+}
+_unshaded_ring = sorted({one["ring"] for one in DENIZENS} - set(RING_SHADES))
+_unworded_ring = sorted({one["ring"] for one in DENIZENS} - set(RING_WORDS))
+if _unshaded_ring or _unworded_ring:
+    print("no shades for ring %s and no sentence for ring %s"
+          % (_unshaded_ring, _unworded_ring))
+    sys.exit(2)
+
+
+def vale_skin(one):
+    """A denizen, on the same 64x64 sheet every creature here uses.
+
+    The colour is the ring's, so that how far out a player has walked reads off
+    what they are looking at rather than off how badly the fight went -- which
+    is the whole claim of this roster, and the one thing a player cannot work
+    out from a single encounter. The marks down the side count the rings, for
+    the same reason and for anybody who cannot tell the four apart by colour.
+    """
+    light, dark = RING_SHADES[one["ring"]]
+    image = Image.new("RGBA", (64, 64), light + (255,))
+    draw = ImageDraw.Draw(image)
+    seed = sum(ord(letter) for letter in one["id"])
+    for y in range(64):
+        for x in range(64):
+            if (x * 13 + y * 5 + seed) % 21 < 6:
+                draw.point((x, y), fill=dark + (255,))
+    for mark in range(one["ring"] + 1):
+        draw.rectangle([60, 4 + mark * 6, 63, 7 + mark * 6],
+                       fill=(240, 236, 214, 255))
+    draw.rectangle([6, 8, 9, 11], fill=(246, 246, 240, 255))
+    draw.rectangle([14, 8, 17, 11], fill=(246, 246, 240, 255))
+    return image
+
+
 def ward_skin(one):
     """A warded creature, on the same 64x64 sheet every creature here uses.
 
@@ -1362,6 +1450,54 @@ def main():
                       "maxCount": 2 if myth["bane"] != "NUMBERS" else 4,
                   }],
               })
+
+    # The twenty-eight that live in the Vale.
+    for one in DENIZENS:
+        vale_skin(one).save(os.path.join(entity_textures, one["id"] + ".png"))
+
+        write(os.path.join(ASSETS, "models/item", one["id"] + "_spawn_egg.json"),
+              {"parent": "minecraft:item/template_spawn_egg"})
+
+        write(os.path.join(DATA, "loot_table/entities", one["id"] + ".json"), {
+            "type": "minecraft:entity",
+            "pools": [{
+                "rolls": 1,
+                "entries": [{"type": "minecraft:item",
+                             "name": VALE_LEAVINGS[one["id"]]}],
+                "conditions": [{"condition": "minecraft:killed_by_player"}],
+            }],
+        })
+
+        # The row's own crossing, named as the Vale's own biome. This is the
+        # half of the claim no rule can see: the gradient is a fact about where
+        # things are, and where things are is this line.
+        write(os.path.join(DATA, "neoforge/biome_modifier",
+                           "add_%s_spawns.json" % one["id"]),
+              {
+                  "type": "neoforge:add_spawns",
+                  "biomes": "#%s:vale_%s" % (NS, one["place"]),
+                  "spawners": [{
+                      "type": "%s:%s" % (NS, one["id"]),
+                      "weight": one["weight"],
+                      "minCount": 1,
+                      "maxCount": 2,
+                  }],
+              })
+
+        lang["entity.%s.%s" % (NS, one["id"])] = titled(one["id"])
+        lang["item.%s.%s_spawn_egg" % (NS, one["id"])] = \
+            titled(one["id"]) + " Spawn Egg"
+        lang["bestiary.%s.ring.%s" % (NS, one["id"])] = RING_WORDS[one["ring"]]
+        lang["bestiary.%s.crossing.%s" % (NS, one["id"])] = titled(one["place"])
+
+    # One tag per crossing, holding the one biome it is. A modifier that named
+    # the biome outright would be a mob tied to one biome, which vanishes the
+    # day somebody adds a world preset -- and a tag with one thing in it is
+    # still a thing a pack can add to.
+    for place in VALE_PLACES:
+        write(os.path.join(DATA, "tags/worldgen/biome", "vale_%s.json" % place),
+              {"values": ["elysiumwilds:vale_%s" % place]})
+        lang["bestiary.%s.vale.%s" % (NS, place)] = titled(place)
 
     # The thirteen that exist to be fought with particular gear.
     for one in WARDED:
