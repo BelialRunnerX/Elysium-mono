@@ -1248,7 +1248,10 @@ _command = strip_comments(read(SRC, "command/ColonyCommand.java"))
 if "withSteward(" not in _command:
     fail("there is no way for a player to say who decides placement, so the only "
          "control they have is whether they happen to be standing there")
-if "Colonies.ownedBy(" not in body_of(_command, "private static int hand"):
+# "mine" is the player's own town: the one underfoot when it is theirs, else the
+# first they own. Both the stewardship and the report commands go through it.
+_mine = body_of(_command, "private static Colonies.Settlement mine")
+if "Colonies.Settlement town = mine(player);" not in body_of(_command, "private static int hand")         or "if (here != null && player.getUUID().equals(here.owner())) {" not in _mine         or "return Colonies.ownedBy(player);" not in _mine:
     fail("the stewardship command does not check whose colony it is, so a player can "
          "reach across the map and change who runs somebody else's town")
 

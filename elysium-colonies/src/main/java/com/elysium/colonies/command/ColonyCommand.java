@@ -147,7 +147,7 @@ public final class ColonyCommand {
             source.sendFailure(Component.translatable("elysium.colony.nobody"));
             return 0;
         }
-        Colonies.Settlement town = Colonies.ownedBy(player);
+        Colonies.Settlement town = mine(player);
         if (town == null) {
             source.sendSuccess(() -> Component.translatable("elysium.colony.none")
                     .withStyle(ChatFormatting.GRAY), false);
@@ -168,7 +168,7 @@ public final class ColonyCommand {
             return 0;
         }
         ServerLevel level = player.serverLevel();
-        Colonies.Settlement town = Colonies.ownedBy(player);
+        Colonies.Settlement town = mine(player);
         if (town == null) {
             source.sendSuccess(() -> Component.translatable("elysium.colony.none")
                     .withStyle(ChatFormatting.GRAY), false);
@@ -201,11 +201,13 @@ public final class ColonyCommand {
 
         boolean townDecides = StewardRules.maySite(ledger.stewardship(), town.day(),
                 ledger.lastSeen());
-        int away = StewardRules.everVisited(ledger.lastSeen())
-                ? town.day() - ledger.lastSeen() : -1;
-        source.sendSuccess(() -> Component.translatable(
-                        townDecides ? "elysium.colony.siting.town"
-                                : "elysium.colony.siting.owner",
+        boolean visited = StewardRules.everVisited(ledger.lastSeen());
+        int away = visited ? town.day() - ledger.lastSeen() : 0;
+        // A town nobody has stood in yet says so, rather than showing the
+        // never-visited sentinel as a count of days.
+        String siting = (townDecides ? "elysium.colony.siting.town"
+                : "elysium.colony.siting.owner") + (visited ? "" : ".never");
+        source.sendSuccess(() -> Component.translatable(siting,
                         Component.translatable("elysium.colony.steward.name."
                                 + ledger.stewardship().id()),
                         away)
@@ -484,6 +486,19 @@ public final class ColonyCommand {
             }
         }
         return false;
+    }
+
+    /**
+     * The player's settlement: the one they stand in when it is theirs, else
+     * the first they own. A player who claimed two towns asks about the one
+     * around them.
+     */
+    private static Colonies.Settlement mine(ServerPlayer player) {
+        Colonies.Settlement here = standingIn(player);
+        if (here != null && player.getUUID().equals(here.owner())) {
+            return here;
+        }
+        return Colonies.ownedBy(player);
     }
 
     private static Colonies.Settlement standingIn(ServerPlayer player) {
