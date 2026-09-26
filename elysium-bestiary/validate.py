@@ -39,6 +39,15 @@ ROOT = os.path.dirname(WORK)
 RES = os.path.join(WORK, "src/main/resources")
 SRC = os.path.join(WORK, "src/main/java/com/elysium/bestiary")
 PURE = os.path.join(SRC, "rules")
+# The library's ability roster and shapes. The summons are the only thing in
+# this module's rules that reaches outside it, both of those classes are pure
+# JDK like the rules are, and elysium-lib sits below everything -- so they are
+# staged with them and the harness compiles against them the way the game will.
+# The same arrangement elysium-arcana uses, and for the same reason: a harness
+# that cannot see what the summons are measured against cannot check the one
+# property they exist for.
+BELOW = [os.path.join(os.path.dirname(WORK),
+                      "elysium-lib/src/main/java/com/elysium/lib/ability")]
 HARNESS = os.path.join(WORK, "tools/BeastHarness.java")
 HARNESS_MAIN = "com.elysium.bestiary.rules.BeastHarness"
 GENERATOR = os.path.join(WORK, "tools/gen_bestiary.py")
@@ -184,7 +193,15 @@ for name in sorted(os.listdir(PURE)) if os.path.isdir(PURE) else []:
             fail(f"rules/{name} reaches for {forbidden}; the rules are the JDK alone, "
                  f"so a harness can derive a hundred thousand bestiaries without a game")
     for used in re.findall(r"import\s+(com\.elysium\.[\w.]+);", without_package):
-        fail(f"rules/{name} imports {used}; the rules are the JDK alone")
+        # The library is below everything and its ability classes are pure JDK
+        # too, so a table here may be built on one there -- which is what stops
+        # the summons and the abilities that call them up growing two sets of
+        # cooldowns that drift apart. Anything else is a table reaching
+        # sideways, and elysium-arcana draws the same line for the same reason.
+        if used.startswith("com.elysium.lib."):
+            continue
+        fail(f"rules/{name} imports {used}; a table here is the JDK and the "
+             f"library, and nothing else")
 
 # ---------------------------------------------------------------------------
 # What exists at all
@@ -249,6 +266,17 @@ else:
         staged = os.path.join(tmp, "src")
         os.makedirs(staged)
         sources = [os.path.join(PURE, n) for n in os.listdir(PURE) if n.endswith(".java")]
+        # And whatever sits below and is pure JDK too. Without it the summons'
+        # own rules do not compile, and the one thing they prove -- that nothing
+        # outlives the cooldown meant to limit it -- is measured against
+        # cooldowns the harness cannot see.
+        for folder in BELOW:
+            if not os.path.isdir(folder):
+                fail(f"{folder} is not where this expects it, so the rules below "
+                     f"this module cannot be compiled against")
+                continue
+            sources += [os.path.join(folder, n) for n in os.listdir(folder)
+                        if n.endswith(".java")]
         for source in sources + [HARNESS]:
             open(os.path.join(staged, os.path.basename(source)), "w",
                  encoding="utf-8").write(read(source))
@@ -1592,6 +1620,176 @@ else:
           f"one each and none spare, each with exactly one branch to happen in, "
           f"no beast named in it, and every magnitude asked of the rules rather "
           f"than typed")
+
+
+# ---------------------------------------------------------------------------
+# The two things an ability puts in the world
+# ---------------------------------------------------------------------------
+#
+# Three of the thirty abilities cannot happen without an entity existing: two
+# throw a bolt and one calls up a shade. Both were registered, wired into the
+# library and spawned by those three abilities for a while with **nothing
+# drawing either of them** — which is not a quiet failure. An entity type with
+# no renderer takes the client down the first time one appears, and the appeal
+# of that bug is that nobody on the team ever presses the button.
+#
+# So this section is mostly about the far end: the entity exists, the renderer
+# is registered, the layer is registered, the texture is on disk, and the
+# numbers the entity carries are the rules' numbers rather than its own.
+
+print("-" * 70)
+
+SUMMON = strip_comments(read(SRC, "rules/SummonRules.java"), keep_strings=True)
+BOLT_ENTITY = strip_comments(read(SRC, "entity/RelicBoltEntity.java"),
+                             keep_strings=True)
+SHADE_ENTITY = strip_comments(read(SRC, "entity/ShadeEntity.java"),
+                              keep_strings=True)
+SUMMON_REG = strip_comments(read(SRC, "registry/SummonEntities.java"),
+                            keep_strings=True)
+CLIENT = strip_comments(read(SRC, "client/BestiaryClient.java"), keep_strings=True)
+if not SUMMON:
+    fail("nothing says what an ability puts in the world or what it is worth, "
+         "so three of the thirty abilities could call up anything at all")
+else:
+    _summon = squashed(SUMMON)
+    summons = re.findall(
+        r'new Summon\((\w+), \w+\.(\w+), ([\d_]+), ([\d.]+)D, ([\w.]+),'
+        r' ([\d.]+)F, ([\d.]+)F, (true|false)\)', _summon)
+    if len(summons) < 2:
+        fail(f"only {len(summons)} summon(s) could be read out of the rules, so "
+             f"every check below is walking a short list and passing")
+
+    ids = []
+    for row in summons:
+        ids.append("bolt" if row[0] == "BOLT" else row[0].lower())
+
+    # Each one exists all the way out to something a player can see.
+    for name in ids:
+        where = f"assets/{NS}/textures/entity/{name}.png"
+        if not os.path.isfile(os.path.join(RES, where)):
+            fail(f"{name} has no texture, so the first one a player summons is "
+                 f"a black-and-magenta cube")
+        if f"entity.{NS}.{name}" not in lang:
+            fail(f"{name} has no name, so it reads as its own translation key "
+                 f"wherever the game shows it")
+
+    # And the renderer. This is the check the section was written for.
+    if not CLIENT:
+        fail("there is no client class, so nothing in this module is drawn")
+    else:
+        _client = squashed(CLIENT)
+        for named, why in (
+                ("SummonEntities.SHADE.get(), ShadeRenderer::new",
+                 "the shade has no renderer registered, so the first one a "
+                 "player summons takes the client down with it"),
+                ("SummonEntities.BOLT.get(), RelicBoltRenderer::new",
+                 "the bolt has no renderer registered, so the first thrown "
+                 "ability takes the client down with it"),
+                ("event.registerLayerDefinition(ShadeRenderer.LAYER",
+                 "the shade's model layer is never registered, so baking it "
+                 "throws and the renderer that was registered cannot be built")):
+            if named not in _client:
+                fail(why)
+        if not os.path.isfile(os.path.join(SRC, "client/ShadeRenderer.java")):
+            fail("there is no shade renderer at all")
+        if not os.path.isfile(os.path.join(SRC, "client/RelicBoltRenderer.java")):
+            fail("there is no bolt renderer at all")
+        if not os.path.isfile(os.path.join(SRC, "client/ShadeModel.java")):
+            fail("there is no shade model, so there is nothing for the renderer "
+                 "to draw")
+
+    # The library gets what it asked for, and says so loudly if it does not.
+    if not SUMMON_REG:
+        fail("nothing registers the two entity types the library needs")
+    else:
+        _reg = squashed(SUMMON_REG)
+        if "ElysiumAbilityEntities.bolt(BOLT::get);" not in _reg:
+            fail("the library is never handed a bolt, so both abilities of that "
+                 "shape pay their cost, play their sound and do nothing")
+        if "ElysiumAbilityEntities.summon(SHADE::get);" not in _reg:
+            fail("the library is never handed a summon, so the one ability of "
+                 "that shape pays its cost and does nothing")
+        if "ElysiumAbilityEntities.dress(" not in _reg:
+            fail("nothing tells a freshly thrown bolt which ability threw it, so "
+                 "a hunter's mark and a stormcall hit for the same and what the "
+                 "stormcall was priced for buys nothing")
+        if "thrown.thrownBy(ability)" not in _reg:
+            fail("the way a bolt is dressed never reaches the bolt, so the "
+                 "library hands over the ability and nothing reads it")
+        if "ElysiumAbilityEntities.missing().isEmpty()" not in _reg:
+            fail("nothing checks that the library ended up with everything it "
+                 "asked for, so a shape left unanswered is a set of abilities "
+                 "that quietly do nothing")
+        for typed in re.findall(r"\.sized\((\d+\.\d+)F", _reg):
+            fail(f"an entity is registered at a size of {typed} typed into the "
+                 f"register, which is a second set of dials beside the rules'")
+        if "SummonRules.summon(SummonRules.BOLT).wide()" not in _reg:
+            fail("the bolt's size is not the rules' own, so the hitbox the "
+                 "harness checked is not the hitbox the game builds")
+
+    # Neither entity carries a number of its own.
+    if not BOLT_ENTITY:
+        fail("there is no bolt, so two abilities throw nothing")
+    else:
+        _bolt = squashed(BOLT_ENTITY)
+        if "SummonRules.summon(SummonRules.BOLT).lasts()" not in _bolt:
+            fail("how long a bolt lives is a number typed into the entity, and "
+                 "the rules hold that number under the cooldown of every "
+                 "ability that throws one — so the two can drift apart and the "
+                 "cooldown stops being a limit")
+        if "SummonRules.hurtOfBolt(ability)" not in _bolt:
+            fail("a bolt does not ask what the ability that threw it was priced "
+                 "at, so a hunter's mark and a stormcall hit for the same, and "
+                 "what the stormcall was priced for bought nothing")
+        for typed in re.findall(r"setBaseDamage\((\d+\.\d+)D\)", _bolt):
+            fail(f"a bolt hits for {typed} by a number typed into the entity, "
+                 f"which is a second set of dials beside the library's own "
+                 f"pricing")
+        for typed in re.findall(r"int LASTS = (\d+);", _bolt):
+            fail(f"a bolt lives {typed} ticks by a number typed into the entity")
+
+    if not SHADE_ENTITY:
+        fail("there is no shade, so the one summoning ability calls up nothing")
+    else:
+        _shade = squashed(SHADE_ENTITY)
+        if "SummonRules.summon(SummonRules.SHADE).lasts()" not in _shade:
+            fail("how long a shade stands is a number typed into the entity, "
+                 "and the rules hold that under the cooldown of the ability "
+                 "that calls one up — so a player could have two at once")
+        for asked in ("shade.health()", "shade.damage()", "SummonRules.SHADE_SPEED",
+                      "SummonRules.SHADE_NOTICES"):
+            if asked not in _shade:
+                fail(f"a shade does not ask the rules for {asked}, so the band "
+                     f"it was checked against is not the band the game gives it")
+        for typed in re.findall(r"Attributes\.\w+, (\d+\.\d+)D\)", _shade):
+            fail(f"a shade is given {typed} by a number typed into the entity, "
+                 f"which is how the first draft ended up out-hitting every "
+                 f"beast in the game with nothing saying so")
+        for typed in re.findall(r"int LASTS = (\d+);", _shade):
+            fail(f"a shade stands {typed} ticks by a number typed into the "
+                 f"entity")
+        # And the one thing nobody forgives.
+        if "Monster.class" not in _shade:
+            fail("a shade does not restrict what it hunts to things that hunt "
+                 "you, so it can turn on its summoner — the one bug in this "
+                 "kind of ability nobody forgives")
+
+    # Every rule the file declares is added up.
+    _sum = squashed(body_of(SUMMON, "public static List<String> faults()"))
+    _rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", SUMMON))
+    _added = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _sum))
+    if len(_rules) < 6:
+        fail(f"only {len(_rules)} summon rule(s) are declared at all, so the "
+             f"check below is checking nothing")
+    for _rule in sorted(_rules - _added):
+        fail(f"{_rule} is written, compiled and never added up by the summons' "
+             f"faults(), so it answers the harness's controls and is never once "
+             f"asked about what this module ships")
+
+    print(f"the summons         : {len(ids)} thing(s) the ability system cannot "
+          f"do without, each drawn by a renderer that is registered and a "
+          f"texture that is on disk, each carrying the rules' numbers rather "
+          f"than its own, and neither outlasting the cooldown meant to limit it")
 
 
 if problems:

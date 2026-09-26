@@ -1,5 +1,8 @@
 package com.elysium.bestiary.rules;
 
+import com.elysium.lib.ability.ElysiumAbilityRules;
+import com.elysium.lib.ability.ElysiumAbilityShapes;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -64,6 +67,7 @@ public final class BeastHarness {
         theHaunts();
         theFauna();
         theBehaviours();
+        theSummons();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -893,5 +897,179 @@ public final class BeastHarness {
                 + "each and none spare, " + swept + " rosters swept, and in every "
                 + "one of them the more dangerous thing's mechanic never landed "
                 + "softer and never landed less often");
+    }
+
+    /**
+     * The two things an ability puts in the world.
+     *
+     * <p>The property worth proving is one sentence: nothing an ability calls
+     * up outlives the cooldown that is supposed to limit it. Everything else
+     * here is about the same failure in smaller ways — a bolt that arrives
+     * weightless, a shade that out-fights what it was called to help with, a
+     * shape the library expects and nothing answers.
+     */
+    private static void theSummons() {
+        List<String> faults = SummonRules.faults();
+        check(faults.isEmpty(), "something wrong with the summons: " + faults);
+
+        SummonRules.Summon bolt = SummonRules.summon(SummonRules.BOLT);
+        SummonRules.Summon shade = SummonRules.summon(SummonRules.SHADE);
+        check(bolt != null, "there is no bolt, so two abilities throw nothing");
+        check(shade != null, "there is no shade, so one ability calls up nothing");
+
+        // Controls first, and the sweep after.
+        check(!SummonRules.faultsInNames(List.of(bolt, bolt)).isEmpty(),
+                "two summons written under one name are not reported");
+        check(SummonRules.faultsInNames(SummonRules.SUMMONED).isEmpty(),
+                "the summons this module ships are reported as doubled");
+
+        check(!SummonRules.faultsInShapes(List.of(new SummonRules.Summon(
+                        "control", "wibble", 20, 1.0D, 1.0D, 0.5F, 0.5F, false)),
+                        ElysiumAbilityShapes.NEED_AN_ENTITY).isEmpty(),
+                "a summon made by a shape the library has never heard of is not "
+                        + "reported");
+        check(SummonRules.faultsInShapes(SummonRules.SUMMONED,
+                        ElysiumAbilityShapes.NEED_AN_ENTITY).isEmpty(),
+                "the shapes this module answers are reported as unknown");
+
+        check(!SummonRules.faultsInGaps(List.of(),
+                        ElysiumAbilityShapes.NEED_AN_ENTITY).isEmpty(),
+                "a shape the library expects an entity for, with nothing behind "
+                        + "it, is not reported — and every ability of that shape "
+                        + "pays its cost and does nothing");
+        check(SummonRules.faultsInGaps(SummonRules.SUMMONED,
+                        ElysiumAbilityShapes.NEED_AN_ENTITY).isEmpty(),
+                "the shapes this module ships leave one unanswered");
+
+        // The rule the file exists for, in both directions.
+        check(!SummonRules.faultsInLifetimes(
+                        List.of(new SummonRules.Summon(SummonRules.SHADE,
+                                ElysiumAbilityShapes.SUMMON, 100_000, 20.0D,
+                                3.0D, 0.6F, 1.9F, true)),
+                        SummonRules.abilitiesThatSummon()).isEmpty(),
+                "a summon that stands far longer than its own cooldown is not "
+                        + "reported, so a player could have two at once and the "
+                        + "cost would stop being a limit");
+        check(SummonRules.faultsInLifetimes(SummonRules.SUMMONED,
+                        SummonRules.abilitiesThatSummon()).isEmpty(),
+                "the summons this module ships are reported as outliving their "
+                        + "own cooldowns");
+
+        check(!SummonRules.faultsInFloor(0.0D).isEmpty(),
+                "a floor of nought on contact, which makes every thrown thing "
+                        + "arrive weightless, is not reported");
+        check(SummonRules.faultsInFloor(SummonRules.IMPACT).isEmpty(),
+                "the floor this module ships is reported as nought");
+        check(!SummonRules.faultsInHurt(SummonRules.abilitiesThatSummon(), 0.0D)
+                        .isEmpty(),
+                "a thrown thing that arrives weightless is not reported");
+        check(SummonRules.faultsInHurt(SummonRules.abilitiesThatSummon(),
+                        SummonRules.IMPACT).isEmpty(),
+                "the bolts this module throws are reported as weightless");
+
+        check(!SummonRules.faultsInPricing(SummonRules.abilitiesThatSummon(),
+                        1_000.0D).isEmpty(),
+                "an ability priced to hurt whose bolt hits no harder than one "
+                        + "priced to mark is not reported, so what it was priced "
+                        + "for bought nothing");
+        check(SummonRules.faultsInPricing(SummonRules.abilitiesThatSummon(),
+                        SummonRules.IMPACT).isEmpty(),
+                "the pricing this module ships is reported as buying nothing");
+
+        check(!SummonRules.faultsInStanding(new SummonRules.Summon("control",
+                        ElysiumAbilityShapes.SUMMON, 100, 40.0D, 99.0D, 0.6F,
+                        1.9F, true), BeastRules.BEASTS).isEmpty(),
+                "a summon that out-fights every beast in the world is not "
+                        + "reported, so the player would stand behind it");
+        check(!SummonRules.faultsInStanding(new SummonRules.Summon("control",
+                        ElysiumAbilityShapes.SUMMON, 100, 1.0D, 1.0D, 0.6F,
+                        1.9F, true), BeastRules.BEASTS).isEmpty(),
+                "a summon that dies on contact is not reported, so nobody would "
+                        + "call one twice");
+        check(!SummonRules.faultsInShadeExists(null).isEmpty(),
+                "no shade at all is not reported");
+        check(SummonRules.faultsInShadeExists(shade).isEmpty(),
+                "the shade this module ships is reported as absent");
+        check(!SummonRules.faultsInMeasure(List.of()).isEmpty(),
+                "a shade measured against nothing at all is not reported");
+        check(SummonRules.faultsInMeasure(BeastRules.BEASTS).isEmpty(),
+                "the beasts this module ships are reported as nothing to "
+                        + "measure against");
+        check(SummonRules.faultsInStanding(shade, BeastRules.BEASTS).isEmpty(),
+                "the shade this module ships is reported as out of its band");
+
+        check(!SummonRules.faultsInFighting(List.of(new SummonRules.Summon(
+                        "control", ElysiumAbilityShapes.BOLT, 20, 0.0D, 1.0D,
+                        0.5F, 0.5F, true))).isEmpty(),
+                "a thrown thing that picks its own targets is not reported, and "
+                        + "a homing bolt is a different ability from the one "
+                        + "that was priced");
+        check(!SummonRules.faultsInFighting(List.of(new SummonRules.Summon(
+                        "control", ElysiumAbilityShapes.SUMMON, 20, 1.0D, 1.0D,
+                        0.5F, 0.5F, false))).isEmpty(),
+                "a summon that picks no targets is not reported, so it stands "
+                        + "where it was put");
+        check(SummonRules.faultsInFighting(SummonRules.SUMMONED).isEmpty(),
+                "the summons this module ships are reported as fighting wrongly");
+
+        check(!SummonRules.faultsInSizes(List.of(new SummonRules.Summon("control",
+                        ElysiumAbilityShapes.SUMMON, 20, 1.0D, 1.0D, 9.0F, 9.0F,
+                        true))).isEmpty(),
+                "a summon too big to follow a player through a door is not "
+                        + "reported");
+        check(SummonRules.faultsInSizes(SummonRules.SUMMONED).isEmpty(),
+                "the summons this module ships are reported as too big");
+
+        check(threwOn(() -> new SummonRules.Summon("control",
+                        ElysiumAbilityShapes.SUMMON, 0, 1.0D, 1.0D, 0.5F, 0.5F,
+                        true)),
+                "a summon that lasts no time at all is accepted");
+        check(threwOn(() -> new SummonRules.Summon("control",
+                        ElysiumAbilityShapes.SUMMON, 20, -1.0D, 1.0D, 0.5F, 0.5F,
+                        true)),
+                "a summon with less than no health is accepted");
+        check(threwOn(() -> new SummonRules.Summon("control",
+                        ElysiumAbilityShapes.SUMMON, 20, 1.0D, 1.0D, 0.0F, 0.5F,
+                        true)),
+                "a summon of no width at all, which nothing could draw, is "
+                        + "accepted");
+
+        // And the sweep: every lifetime against every cooldown the library has.
+        Random random = new Random(5_501_773L);
+        int swept = 0;
+        for (ElysiumAbilityRules.Ability ability : SummonRules.abilitiesThatSummon()) {
+            String shape = ElysiumAbilityShapes.shapeOf(ability.id());
+            SummonRules.Summon made = SummonRules.forShape(shape);
+            check(made != null, ability.id() + " is of the " + shape + " shape "
+                    + "and nothing is made for it");
+            if (made != null) {
+                check(made.lasts() < ability.cooldown(),
+                        made.id() + " stands " + made.lasts() + " against "
+                                + ability.id() + "'s cooldown of "
+                                + ability.cooldown());
+            }
+            swept++;
+        }
+        for (int round = 0; round < 200_000; round++) {
+            int lasts = 1 + random.nextInt(4_000);
+            int cooldown = 1 + random.nextInt(4_000);
+            SummonRules.Summon made = new SummonRules.Summon("s" + round,
+                    ElysiumAbilityShapes.SUMMON, lasts, 20.0D, 3.0D, 0.6F, 1.9F,
+                    true);
+            ElysiumAbilityRules.Ability priced =
+                    ElysiumAbilityRules.ability("gravewake");
+            boolean overstays = lasts >= priced.cooldown();
+            check(overstays == !SummonRules.faultsInLifetimes(List.of(made),
+                            List.of(priced)).isEmpty(),
+                    "a summon standing " + lasts + " against a cooldown of "
+                            + priced.cooldown() + " is reported wrongly");
+            swept++;
+        }
+
+        System.out.println("  the summons: " + SummonRules.SUMMONED.size()
+                + " thing(s) over " + ElysiumAbilityShapes.NEED_AN_ENTITY.size()
+                + " shape(s) the library cannot do without, " + swept
+                + " lifetimes swept against the cooldowns meant to limit them, "
+                + "and not one of this module's own outlasting its own");
     }
 }

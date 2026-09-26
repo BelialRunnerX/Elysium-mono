@@ -35,6 +35,7 @@ public final class BestiaryClient {
             event.registerLayerDefinition(FaunaModel.LAYERS.get(kind),
                     () -> FaunaModel.createLayer(kind));
         }
+        event.registerLayerDefinition(ShadeRenderer.LAYER, ShadeModel::createLayer);
     }
 
     @SubscribeEvent
@@ -47,5 +48,15 @@ public final class BestiaryClient {
             event.registerEntityRenderer(FaunaEntities.ALL.get(animal.id()).get(),
                     context -> new FaunaRenderer(context, animal.kind()));
         }
+        // And the two the ability system puts in the world. They were
+        // registered, wired into the library and spawned by three abilities
+        // for a while with nothing drawing either — which is not a quiet
+        // failure: the first shade a player summons takes the client down.
+        event.registerEntityRenderer(
+                com.elysium.bestiary.registry.SummonEntities.SHADE.get(),
+                ShadeRenderer::new);
+        event.registerEntityRenderer(
+                com.elysium.bestiary.registry.SummonEntities.BOLT.get(),
+                RelicBoltRenderer::new);
     }
 }

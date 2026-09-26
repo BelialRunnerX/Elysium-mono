@@ -131,6 +131,62 @@ if len(BEASTS) != DECLARED:
              "stopped matching one of them" % (len(BEASTS), DECLARED))
 
 
+# The two things an ability puts in the world, read out of SummonRules for the
+# same reason as everything else here: how big one is and how long it stands
+# are rules, and what it looks like is art.
+SUMMON_SOURCE = read(os.path.join(
+    MOD, "src/main/java/com/elysium/bestiary/rules/SummonRules.java"))
+SUMMONS = [
+    {"id": one[0], "lasts": int(one[1])}
+    for one in re.findall(
+        r'new Summon\((\w+), \w+\.\w+, ([\d_]+),', re.sub(r"\s+", " ", SUMMON_SOURCE))
+]
+# The table names its rows by constant -- BOLT, SHADE -- and one of those
+# constants is the library's own, so the name a texture has to be filed under
+# is not in this file at all. It is the lower-cased constant either way, which
+# is checked below rather than assumed.
+SUMMON_IDS = [one["id"].lower() for one in SUMMONS]
+if len(SUMMON_IDS) != 2 or sorted(SUMMON_IDS) != ["bolt", "shade"]:
+    print("SummonRules reads as %s rather than a bolt and a shade" % SUMMON_IDS)
+    sys.exit(2)
+
+
+def summon_skin(name):
+    """A shade, or the bolt it throws.
+
+    Both are drawn rather than reused, because both are translucent and both
+    have to read as "not a mob you can farm" at a glance. The shade is a wash
+    of the wight family's colours with nothing solid in it; the bolt is a
+    bright line on a dark core.
+    """
+    if name == "shade":
+        image = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(image)
+        for y in range(32):
+            for x in range(64):
+                # Vertical banding, fading out downwards: a shape that is
+                # there at the top and gone at the bottom.
+                mix = (x * 7 + y * 13) % 23
+                fade = max(0, 200 - y * 5)
+                if mix < 9:
+                    draw.point((x, y), fill=(122, 148, 176, fade))
+                elif mix < 15:
+                    draw.point((x, y), fill=(74, 96, 126, fade))
+                else:
+                    draw.point((x, y), fill=(44, 58, 82, max(0, fade - 40)))
+        # Two eyes, the one solid thing on it.
+        for box in ((2, 2, 3, 3), (6, 2, 7, 3)):
+            draw.rectangle(box, fill=(214, 232, 255, 255))
+        return image
+    image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 4], fill=(28, 24, 44, 255))
+    draw.rectangle([0, 5, 15, 7], fill=(150, 196, 255, 255))
+    draw.rectangle([0, 8, 15, 10], fill=(96, 132, 210, 255))
+    draw.rectangle([0, 11, 15, 15], fill=(28, 24, 44, 255))
+    return image
+
+
 def threat(beast):
     return (beast["health"] * (1.0 + beast["damage"])
             * (1.0 + beast["armour"] / 10.0) * beast["speed"] / 0.25)
@@ -722,6 +778,15 @@ def main():
                       "maxCount": haunt["most"],
                   }],
               })
+
+    # The two the ability system puts in the world. Walked rather than listed,
+    # because a summon with no skin is the black-and-magenta cube the renderer
+    # falls back to, and both of these were registered and spawned for a while
+    # with nothing drawing either.
+    for summon_id in SUMMON_IDS:
+        summon_skin(summon_id).save(
+            os.path.join(entity_textures, summon_id + ".png"))
+        lang["entity.%s.%s" % (NS, summon_id)] = titled(summon_id)
 
     for animal in ANIMALS:
         fauna_skin(animal).save(os.path.join(entity_textures, animal["id"] + ".png"))

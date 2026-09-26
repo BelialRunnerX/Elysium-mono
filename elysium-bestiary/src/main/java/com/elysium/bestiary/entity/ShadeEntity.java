@@ -1,6 +1,7 @@
 package com.elysium.bestiary.entity;
 
 import com.elysium.bestiary.registry.SummonEntities;
+import com.elysium.bestiary.rules.SummonRules;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -24,8 +25,16 @@ import net.minecraft.world.level.Level;
  */
 public class ShadeEntity extends Monster {
 
-    /** How long one stands before it goes out, in ticks. */
-    public static final int LASTS = 600;
+    /**
+     * How long one stands before it goes out, in ticks.
+     *
+     * <p>Asked of the rules, which hold it strictly under the cooldown of the
+     * ability that calls one up. A summon that outlives its own cooldown is a
+     * summon a player can have two of, and then three, and the cost stops being
+     * a limit — invisible in every screenshot, and never reported by the player
+     * who finds it.
+     */
+    public static final int LASTS = SummonRules.summon(SummonRules.SHADE).lasts();
 
     public ShadeEntity(EntityType<? extends ShadeEntity> type, Level level) {
         super(type, level);
@@ -35,12 +44,22 @@ public class ShadeEntity extends Monster {
         this(SummonEntities.SHADE.get(), level);
     }
 
+    /**
+     * What it is worth, out of the rules.
+     *
+     * <p>Every one of these four is banded there against the beasts it was
+     * called to help with: under the weakest of them on damage, so it helps
+     * rather than replaces, and over it on health, so it does not die on
+     * contact. Typing them here is how the first draft ended up with a shade
+     * that out-hit every beast in the game and nothing said so.
+     */
     public static AttributeSupplier.Builder attributes() {
+        SummonRules.Summon shade = SummonRules.summon(SummonRules.SHADE);
         return Monster.createMonsterAttributes()
-                .add(Attributes.MAX_HEALTH, 14.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.32D)
-                .add(Attributes.ATTACK_DAMAGE, 4.0D)
-                .add(Attributes.FOLLOW_RANGE, 16.0D);
+                .add(Attributes.MAX_HEALTH, shade.health())
+                .add(Attributes.MOVEMENT_SPEED, SummonRules.SHADE_SPEED)
+                .add(Attributes.ATTACK_DAMAGE, shade.damage())
+                .add(Attributes.FOLLOW_RANGE, SummonRules.SHADE_NOTICES);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.elysium.bestiary.entity;
 
 import com.elysium.bestiary.registry.SummonEntities;
+import com.elysium.bestiary.rules.SummonRules;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -22,7 +23,7 @@ public class RelicBoltEntity extends AbstractArrow {
 
     public RelicBoltEntity(EntityType<? extends RelicBoltEntity> type, Level level) {
         super(type, level);
-        setBaseDamage(4.0D);
+        setBaseDamage(SummonRules.summon(SummonRules.BOLT).damage());
     }
 
     public RelicBoltEntity(Level level, LivingEntity owner) {
@@ -54,8 +55,27 @@ public class RelicBoltEntity extends AbstractArrow {
         }
     }
 
-    /** How long one lives before it goes out, in ticks. */
-    public static final int LASTS = 60;
+    /**
+     * How long one lives before it goes out, in ticks.
+     *
+     * <p>Asked of the rules rather than typed, because the rules hold it under
+     * the cooldown of every ability that throws one. A number here would be a
+     * second set of dials beside that, and the two drift the first time either
+     * is tuned.
+     */
+    public static final int LASTS = SummonRules.summon(SummonRules.BOLT).lasts();
+
+    /**
+     * What this one hits for, given the ability that threw it.
+     *
+     * <p>Set when it is thrown rather than fixed at construction: one bolt
+     * serves every thrown ability, and what differs between a hunter's mark and
+     * a stormcall is exactly this number, which the library already worked out
+     * from what each was priced at.
+     */
+    public void thrownBy(com.elysium.lib.ability.ElysiumAbilityRules.Ability ability) {
+        setBaseDamage(SummonRules.hurtOfBolt(ability));
+    }
 
     @Override
     protected void onHitEntity(EntityHitResult hit) {

@@ -360,11 +360,25 @@ DECISIONS = [
      "mines and 10 the game digs up — each with a whole growth chain. NOT yet "
      "removable: oritech ships compat recipes naming geore items, so the third "
      "pre-check fails until those are handled"),
-    (r"^relics", "PLANNED", "elysium-arcana",
-     "relics: 30 relics across 8 slots, carrying all 30 abilities of the "
-     "shared ability system now in elysium-lib — the same system the arsenal's "
-     "uniques will use. Its 17 entities (the summons and projectiles the "
-     "actives throw) do not exist yet"),
+    (r"^relics", "DONE", "elysium-arcana",
+     "30 relics across 8 slots, carrying all 30 abilities of the shared "
+     "ability system in elysium-lib — the same system the arsenal's uniques "
+     "will use. Three of those abilities cannot happen without something "
+     "existing in the world: two throw a bolt and one calls up a shade, and "
+     "both of those now do. They are drawn, which they were not: registered, "
+     "wired into the library and spawned by three abilities with nothing "
+     "rendering either, which is not a quiet failure — an entity type with no "
+     "renderer takes the client down the first time one appears, and the "
+     "appeal of that bug is that nobody on the team ever presses the button. "
+     "Neither carries a number of its own any more. How long each stands is "
+     "held strictly under the cooldown of the ability that made it, because a "
+     "summon that outlives its own cooldown is one a player can have two of, "
+     "and then three, and the cost stops being a limit. What a bolt hits for "
+     "is the price the library already worked out for the ability that threw "
+     "it, so a hunter's mark and a stormcall differ by arithmetic rather than "
+     "by nobody noticing they were the same. A shade is held under the weakest "
+     "thing in the bestiary on damage and over it on health, so it helps "
+     "rather than replaces and does not die on contact. 45 negative tests"),
 
     # --- new, asked for by name -------------------------------------------
     # (no jar in the pack; tracked so the manifest is the whole plan)
