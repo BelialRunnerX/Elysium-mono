@@ -1,5 +1,6 @@
 {
   "parent": "block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
     "side": "elysiumkinetics:block/wide_anchor",
     "end": "elysiumkinetics:block/wide_anchor_top",

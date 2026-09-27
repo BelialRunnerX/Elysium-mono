@@ -158,6 +158,26 @@ for needed in ("neoforge", "minecraft", "elysiumlib"):
     if needed not in declared:
         fail(f"the module does not declare {needed}")
 
+# The data has the same rule as the code: a recipe whose input or result names
+# a mod this pack does not ship is a recipe for nothing the moment that mod is
+# not there - and the pack ships the game, the loader and Elysium alone.
+_recipe_dir = os.path.join(RES, "data", NS, "recipe")
+_foreign = []
+for _root, _dirs, _files in os.walk(_recipe_dir):
+    for _f in _files:
+        if not _f.endswith(".json"):
+            continue
+        _text = read(os.path.join(_root, _f)) if os.path.isabs(_root) else ""
+        for _id in re.findall(r'"(?:id|item|tag)"\s*:\s*"([a-z0-9_.-]+):', _text or open(os.path.join(_root, _f), encoding="utf-8").read()):
+            # every elysium* namespace ships in the one merged jar, so a
+            # recipe milling agronomy's barley is a recipe for something
+            # that is always there; a third party's id is the problem.
+            if not _id.startswith("elysium") and _id not in ("minecraft", "c"):
+                _foreign.append(f"{os.path.relpath(os.path.join(_root, _f), _recipe_dir)} names {_id}")
+if _foreign:
+    fail(f"{len(_foreign)} recipe(s) name a mod Age I does not depend on, so they make "
+         f"nothing when it is absent: {'; '.join(_foreign[:4])}")
+
 print(f"independence       : {len(java_files)} source file(s), no mod it replaces, "
       f"no age above it")
 
@@ -904,19 +924,18 @@ if "event.register(ANCHORS);" not in _entities:
 # set it to are widths the game draws as nothing.
 for name, widest, _made in anchors:
     states = read(RES, f"assets/{NS}/blockstates/{name}.json")
-    if not states:
-        continue
-    variants = json.loads(states).get("variants", {})
-    for axis in ("x", "y", "z"):
-        for radius in range(widest + 1):
-            if f"axis={axis},radius={radius}" not in variants:
-                fail(f"{name} has no model for a radius of {radius} on the "
-                     f"{axis} axis, so a width a player can set it to is a "
-                     f"width the game draws as a missing model")
-    if len(variants) != 3 * (widest + 1):
-        fail(f"{name} is drawn in {len(variants)} state(s) and has "
-             f"{3 * (widest + 1)}, so one of them is a state nothing reaches "
-             f"or a state that does not exist")
+    # RADIUS runs 0..WIDEST on every anchor, so every one of those states needs a
+    # model whatever the anchor's own width is; a missing one is a purple block
+    # and a line in the log at every start.
+    _wanted = {f"axis={_axis},radius={_radius}" for _axis in ("x", "y", "z")
+               for _radius in range(WIDEST + 1)}
+    _have = set(json.loads(states or "{}").get("variants", {}))
+    if _have != _wanted:
+        fail(f"{name}'s blockstate holds {len(_have)} variant(s), not the "
+             f"{len(_wanted)} the RADIUS property (0..{WIDEST}) and AXIS make: "
+             f"missing {sorted(_wanted - _have)[:4]}")
+    # (The anchor's own width only says how far a player can cycle it; the
+    # states, and so the models, are the property's, checked above.)
 
 if "IntegerProperty.create(\"radius\", 0, AnchorRules.WIDEST)" not in ANCHOR_BLOCK:
     fail("an anchor's width is not read off the rules, so the widths the block "

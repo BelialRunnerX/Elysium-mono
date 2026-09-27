@@ -5,10 +5,34 @@
       "x": 90,
       "y": 90
     },
+    "axis=x,radius=1": {
+      "model": "elysiumkinetics:block/anchor",
+      "x": 90,
+      "y": 90
+    },
+    "axis=x,radius=2": {
+      "model": "elysiumkinetics:block/anchor",
+      "x": 90,
+      "y": 90
+    },
     "axis=y,radius=0": {
       "model": "elysiumkinetics:block/anchor"
     },
+    "axis=y,radius=1": {
+      "model": "elysiumkinetics:block/anchor"
+    },
+    "axis=y,radius=2": {
+      "model": "elysiumkinetics:block/anchor"
+    },
     "axis=z,radius=0": {
+      "model": "elysiumkinetics:block/anchor",
+      "x": 90
+    },
+    "axis=z,radius=1": {
+      "model": "elysiumkinetics:block/anchor",
+      "x": 90
+    },
+    "axis=z,radius=2": {
       "model": "elysiumkinetics:block/anchor",
       "x": 90
     }

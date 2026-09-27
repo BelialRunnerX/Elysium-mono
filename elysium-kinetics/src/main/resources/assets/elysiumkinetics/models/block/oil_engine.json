@@ -1,5 +1,6 @@
 {
   "parent": "block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
     "top": "elysiumkinetics:block/oil_engine_top",
     "side": "elysiumkinetics:block/oil_engine",

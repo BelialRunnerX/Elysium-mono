@@ -667,10 +667,13 @@ def anchor_blockstate(name):
     width is three models to draw and three to keep in step, and the width is
     already the thing the block says out loud when you prod it.
     """
-    widest = ANCHOR_IDS[name]["widest"]
+    # The RADIUS property is one property for every anchor, 0 to WIDEST, so a
+    # narrow anchor still has the wide states even though it never cycles into
+    # them; a blockstate that stops at the anchor's own width leaves those
+    # states without a model, which the game reports at every start.
     variants = {}
     for axis in ("x", "y", "z"):
-        for radius in range(widest + 1):
+        for radius in range(WIDEST + 1):
             variants[f"axis={axis},radius={radius}"] = \
                 axis_blockstate(name)["variants"][f"axis={axis}"]
     return {"variants": variants}

@@ -6,6 +6,9 @@ Retire jars Elysium has replaced, and keep the licensing ledger while doing it.
     python3 tools/retire.py --mods <folder> --dry-run [jar...] the ledger rows it would write, nothing moved
     python3 tools/retire.py --mods <folder> [jar...]           move them, write the rows
     python3 tools/retire.py --mods <folder> --record-superseded  ledger rows for what was retired before this tool
+    python3 tools/retire.py --mods <folder> --all-but-ours [--list|--dry-run]
+                                                         retire every jar that is neither Elysium's nor
+                                                         something an Elysium jar (transitively) requires
 
 With no jar names, every clear jar is taken. A jar is clear when all of these
 hold, each read from the files rather than from memory:
@@ -109,6 +112,43 @@ def prune_list():
     return set(out.split())
 
 
+def keep_set(mods):
+    """Elysium's own jars and everything they require, followed to the end.
+
+    "Requires" is what a jar's mods.toml declares type="required"; an optional
+    dependency is a jar the pack can lose. The game and the loader are not jars
+    in the folder, so they fall out on their own.
+    """
+    installed = sorted(f for f in os.listdir(mods) if f.endswith(".jar"))
+    provides, needs = {}, {}
+    for f in installed:
+        try:
+            with zipfile.ZipFile(os.path.join(mods, f)) as z:
+                text = toml_of(z)
+        except zipfile.BadZipFile:
+            continue
+        for mid in describe(os.path.join(mods, f))["ids"]:
+            provides[mid] = f
+        wants = set()
+        for block in re.split(r"\n(?=\s*\[\[)", text):
+            if block.lstrip().startswith("[[dependencies"):
+                mid, kind = field(block, "modId"), field(block, "type") or "required"
+                if kind.lower() == "required":
+                    wants.add(mid)
+        needs[f] = wants
+    keep = {f for f in installed if any(mid.startswith("elysium") for mid in describe(os.path.join(mods, f))["ids"])}
+    grew = True
+    while grew:
+        grew = False
+        for f in list(keep):
+            for mid in needs.get(f, ()):
+                g = provides.get(mid)
+                if g and g not in keep:
+                    keep.add(g)
+                    grew = True
+    return keep, needs, provides
+
+
 def blockers(mods, candidates):
     """For each candidate: the remaining jars that require it, and the hard tag entries naming it."""
     cand_ids = {}
@@ -180,6 +220,8 @@ def main():
     p.add_argument("jars", nargs="*", help="jars to retire; none means every clear one")
     p.add_argument("--list", action="store_true", help="show what is clear and what blocks the rest")
     p.add_argument("--dry-run", action="store_true", help="print the ledger rows, move nothing")
+    p.add_argument("--all-but-ours", action="store_true",
+                   help="every jar that is neither Elysium's nor required, transitively, by an Elysium jar")
     p.add_argument("--record-superseded", action="store_true",
                    help="write ledger rows for jars already in mods/_superseded, nothing moved")
     a = p.parse_args()
@@ -208,13 +250,18 @@ def main():
         return 0
 
     installed = sorted(f for f in os.listdir(mods) if f.endswith(".jar"))
-    listed = prune_list()
-    candidates = [f for f in installed if f in listed]
+    if a.all_but_ours:
+        keep, needs, provides = keep_set(mods)
+        candidates = [f for f in installed if f not in keep]
+        print(f"keeping {len(keep)}: " + ", ".join(sorted(keep)))
+    else:
+        listed = prune_list()
+        candidates = [f for f in installed if f in listed]
     required, tags = blockers(mods, candidates)
     clear = [f for f in candidates if f not in required and f not in tags]
 
     if a.list or not a.jars and not clear:
-        print(f"{len(installed)} installed, {len(candidates)} marked DONE, {len(clear)} clear:")
+        print(f"{len(installed)} installed, {len(candidates)} {'not ours and not needed' if a.all_but_ours else 'marked DONE'}, {len(clear)} clear:")
         for f in clear:
             print("  " + f)
         for f in candidates:
@@ -231,7 +278,7 @@ def main():
         if jar not in installed:
             print(f"refused {jar}: not in {mods}"); refused += 1
         elif jar not in candidates:
-            print(f"refused {jar}: its manifest row is not DONE"); refused += 1
+            print(f"refused {jar}: " + ("Elysium keeps it" if a.all_but_ours else "its manifest row is not DONE")); refused += 1
         elif jar in required:
             print(f"refused {jar}: required by {sorted(required[jar])}"); refused += 1
         elif jar in tags:

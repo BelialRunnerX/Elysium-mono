@@ -9,6 +9,8 @@
 # Create's light switch.
 set -uo pipefail
 ROOT=/tmp/Elysium-mono
+# Python on Windows cannot see a /tmp path; hand it the root the way it spells it.
+export ELYSIUM_ROOT="$(cygpath -m "$ROOT" 2>/dev/null || echo "$ROOT")"
 M=$ROOT/elysium-kinetics
 R=$M/src/main/java/com/elysium/kinetics/rules/KineticRules.java
 R_KIN=$M/src/main/resources
@@ -133,8 +135,8 @@ edit $L '            if (!drawn.load().working(here) && drawn.load().leastRpm() 
 expect "a speed reported that the machine's own label never says" "not the number written on the machine"
 
 python3 - <<'PYX'
-import pathlib
-p = pathlib.Path("/tmp/Elysium-mono/elysium-kinetics/src/main/java/com/elysium/kinetics/rules/LineRules.java")
+import pathlib, os
+p = pathlib.Path(os.environ["ELYSIUM_ROOT"] + "/elysium-kinetics/src/main/java/com/elysium/kinetics/rules/LineRules.java")
 p.unlink()
 PYX
 expect "LineRules deleted outright" "no arithmetic"
@@ -255,8 +257,8 @@ rm $R_KIN/assets/elysiumkinetics/textures/block/small_cogwheel.png
 expect "a model naming a texture that is not there" "which is not there"
 
 python3 - <<'PYX'
-import json, pathlib, collections
-p = pathlib.Path("/tmp/Elysium-mono/elysium-kinetics/src/main/resources/assets/elysiumkinetics/lang/en_us.json")
+import json, pathlib, collections, os
+p = pathlib.Path(os.environ["ELYSIUM_ROOT"] + "/elysium-kinetics/src/main/resources/assets/elysiumkinetics/lang/en_us.json")
 d = json.loads(p.read_text(), object_pairs_hook=collections.OrderedDict)
 d.pop("block.elysiumkinetics.water_wheel", None)
 p.write_text(json.dumps(d, indent=2) + "\n")
@@ -264,18 +266,29 @@ PYX
 expect "a block with no name in any language" "water_wheel has no name in any language"
 
 python3 - <<'PYX'
-import pathlib
-p = pathlib.Path("/tmp/Elysium-mono/elysium-kinetics/src/main/java/com/elysium/kinetics/registry/KineticItems.java")
+import pathlib, os
+p = pathlib.Path(os.environ["ELYSIUM_ROOT"] + "/elysium-kinetics/src/main/java/com/elysium/kinetics/registry/KineticItems.java")
 s = p.read_text()
-old = "HAND_CRANK, WATER_WHEEL, WINDMILL_BEARING, SAIL,"
+old = "GEARBOX, HAND_CRANK, WATER_WHEEL,"
 assert old in s, "STALE ANCHOR in KineticItems.java"
-s = s.replace(old, "HAND_CRANK, WINDMILL_BEARING, SAIL,", 1)
+s = s.replace(old, "GEARBOX, HAND_CRANK,", 1)
 p.write_text(s)
 PYX
 expect "a block nobody can find in the creative tab" "not in the creative tab"
 
+# a narrow anchor's blockstate stopping at its own width, leaving the wide
+# states the RADIUS property still has without a model
 python3 - <<'PYX'
-import json, pathlib, glob
+import json, pathlib, os
+p = pathlib.Path(os.environ["ELYSIUM_ROOT"] + "/elysium-kinetics/src/main/resources/assets/elysiumkinetics/blockstates/anchor.json")
+d = json.loads(p.read_text())
+d["variants"] = {k: v for k, v in d["variants"].items() if k.endswith("radius=0")}
+p.write_text(json.dumps(d, indent=2) + "\n")
+PYX
+expect "an anchor whose wide states have no model" "the RADIUS property"
+
+python3 - <<'PYX'
+import json, pathlib, glob, os
 for f in glob.glob("/tmp/Elysium-mono/elysium-kinetics/src/main/resources/data/elysiumkinetics/recipe/*/*.json"):
     d = json.loads(pathlib.Path(f).read_text())
     d["pace"] = "slow"
@@ -284,8 +297,8 @@ PYX
 expect "every machine recipe at the same pace, so speed decides nothing" "the pace field does nothing"
 
 python3 - <<'PYX'
-import json, pathlib
-p = pathlib.Path("/tmp/Elysium-mono/elysium-kinetics/src/main/resources/data/elysiumkinetics/recipe/milling/bone.json")
+import json, pathlib, os
+p = pathlib.Path(os.environ["ELYSIUM_ROOT"] + "/elysium-kinetics/src/main/resources/data/elysiumkinetics/recipe/milling/bone.json")
 d = json.loads(p.read_text())
 d["result"]["id"] = "create:crushed_raw_iron"
 p.write_text(json.dumps(d, indent=2) + "\n")
@@ -293,8 +306,8 @@ PYX
 expect "a machine recipe needing a mod Age I does not depend on" "does not depend on"
 
 python3 - <<'PYX'
-import json, pathlib
-p = pathlib.Path("/tmp/Elysium-mono/elysium-kinetics/src/main/resources/data/elysiumkinetics/recipe/sawing/planks_from_logs.json")
+import json, pathlib, os
+p = pathlib.Path(os.environ["ELYSIUM_ROOT"] + "/elysium-kinetics/src/main/resources/data/elysiumkinetics/recipe/sawing/planks_from_logs.json")
 d = json.loads(p.read_text())
 d["type"] = "elysiumkinetics:pressing"
 p.write_text(json.dumps(d, indent=2) + "\n")
@@ -302,7 +315,7 @@ PYX
 expect "a sawing recipe filed under sawing and declared as pressing" "runs in another"
 
 python3 - <<'PYX'
-import shutil, pathlib
+import shutil, pathlib, os
 shutil.rmtree("/tmp/Elysium-mono/elysium-kinetics/src/main/resources/data/elysiumkinetics/recipe/mixing")
 PYX
 expect "a machine with nothing it can do" "draws torque and does no work"
@@ -330,8 +343,8 @@ edit $M/src/main/java/com/elysium/kinetics/ElysiumKinetics.java \
 expect "Age I reaching up into Age II" "depend downwards only"
 
 python3 - <<'PY'
-import pathlib
-p = pathlib.Path("/tmp/Elysium-mono/elysium-kinetics/src/main/resources/META-INF/neoforge.mods.toml")
+import pathlib, os
+p = pathlib.Path(os.environ["ELYSIUM_ROOT"] + "/elysium-kinetics/src/main/resources/META-INF/neoforge.mods.toml")
 s = p.read_text(encoding="utf-8")
 p.write_text(s + '''
 [[dependencies.${mod_id}]]
