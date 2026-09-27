@@ -1,5 +1,6 @@
 {
   "parent": "block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
     "all": "elysiumcomforts:block/yellow_glass_chimes",
     "particle": "elysiumcomforts:block/yellow_glass_chimes"

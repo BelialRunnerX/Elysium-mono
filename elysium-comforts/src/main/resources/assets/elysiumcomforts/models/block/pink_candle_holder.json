@@ -1,5 +1,6 @@
 {
   "parent": "block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
     "all": "elysiumcomforts:block/pink_candle_holder",
     "particle": "elysiumcomforts:block/pink_candle_holder"

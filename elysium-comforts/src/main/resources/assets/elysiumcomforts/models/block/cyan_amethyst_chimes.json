@@ -1,5 +1,6 @@
 {
   "parent": "block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
     "all": "elysiumcomforts:block/cyan_amethyst_chimes",
     "particle": "elysiumcomforts:block/cyan_amethyst_chimes"

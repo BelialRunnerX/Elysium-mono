@@ -822,6 +822,7 @@ def rope_model():
     texture = f"{NS}:block/{ROPE}"
     return {
         "parent": "block/block",
+        "render_type": "minecraft:cutout",
         "textures": {"all": texture, "particle": texture},
         "elements": [{
             "from": [6, 10, 6],
@@ -836,6 +837,7 @@ def hanging(name):
     texture = f"{NS}:block/{name}"
     return {
         "parent": "block/block",
+        "render_type": "minecraft:cutout",
         "textures": {"all": texture, "particle": texture},
         "elements": [{
             "from": [4, 4, 4],
@@ -903,8 +905,11 @@ def models_and_states():
     for one in MADE_HERE:
         texture = f"{NS}:block/{one[0]}"
         box = FITTING_BOXES[one[1]]
+        # A fitting's sprite has holes in it (a chime's strings, a candle's
+        # flame), so the model names the cutout layer or the holes draw black.
         write(os.path.join(ASSETS, "models/block", one[0] + ".json"), {
             "parent": "block/block",
+            "render_type": "minecraft:cutout",
             "textures": {"all": texture, "particle": texture},
             "elements": [{
                 "from": list(box[0]),
