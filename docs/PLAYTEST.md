@@ -164,4 +164,4 @@ throttle, the cart's hold, capturing, growth, the rift portal, the grave), and
 both take the screenshots. A stage is only as new as the jar the client
 booted with: rerun the launcher after every install.
 
-The dedicated server's world was remade on 27 September (the old one is `world.before-crags-*` beside it) so its overworld carries the biome list with the crags' claims; a world keeps the biome list it was made with.
+The dedicated server's world was remade twice on 27 September (the old ones are `world.before-crags-*` and `world.before-hoar-*` beside it) so its overworld carries the biome list in which every wilds biome owns its box; a world keeps the biome list it was made with, so a world made before this fix never grows a crag or a hoar hill.
