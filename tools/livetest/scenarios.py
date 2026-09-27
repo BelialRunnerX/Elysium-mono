@@ -493,3 +493,138 @@ def catalogue_everything(t):
              + "; ".join(unsummonable[:30]) + (" ..." if len(unsummonable) > 30 else ""))
     t.log.append(("catalogue", f"{placed} blocks stood, {have} items given, {summoned} creatures summoned"))
     print(f"           catalogue: {placed} blocks stood, {have} items given, {summoned} creatures summoned")
+
+
+# --- the rest of the catalogue: what the game's own commands can reach -------
+
+@scenario("atomics: the enricher, the reaction chamber and the centrifuge each make their product on a stepped-up grid")
+def atomics_machines(t):
+    rigs = [("elysiumatomics:enricher", "minecraft:raw_copper", "minecraft:copper_ingot"),
+            ("elysiumatomics:reaction_chamber", "minecraft:charcoal", "minecraft:coal"),
+            ("elysiumatomics:centrifuge", "minecraft:netherrack", "minecraft:quartz")]
+    for row, (block, put, made) in enumerate(rigs):
+        z = 2 + row * 4
+        # every atomics machine is high voltage: a diesel engine's medium grid through a transformer
+        t.setblock(2, 0, z, "elysiumindustry:diesel_engine")
+        t.hopper_into(2, 0, z, "minecraft:coal_block", 8)
+        t.setblock(3, 0, z, "elysiumindustry:gold_wire")
+        t.setblock(4, 0, z, "elysiumindustry:transformer")
+        t.setblock(5, 0, z, "elysiumindustry:steel_wire")
+        t.setblock(6, 0, z, block)
+        t.hopper_into(6, 0, z, put, 4)
+    t.advance(3000)
+    for row, (block, put, made) in enumerate(rigs):
+        _slot(t, 6, 0, 2 + row * 4, "items", 1, made, 1,
+              f"{block} made nothing of its {put} (share {t.number(6, 0, 2 + row * 4, 'share')})")
+
+
+@scenario("registries: every dimension loads, every effect applies, every enchantment sits on a sword, every damage type strikes")
+def registries(t):
+    modules = _features()
+    bad = []
+    for module, entry in sorted(modules.items()):
+        modid = entry["modid"]
+        for dim, _n in entry["kinds"].get("Dimensions", []):
+            out = t.cmd(f"execute in {modid}:{dim} run forceload add 0 0")
+            if "force loaded" not in out and "already" not in out:
+                bad.append(f"dimension {modid}:{dim}: {out[:80]}")
+            t.cmd(f"execute in {modid}:{dim} run forceload remove 0 0")
+    t.expect(not bad, "; ".join(bad))
+
+    # a probe that can be hurt: an armour stand shrugs off most damage types
+    t.setblock(2, 0, 2, "minecraft:barrier")
+    t.cmd("kill @e[tag=elysium_probe]")
+    t.cmd(f"summon minecraft:zombie {t.at(2, 1, 2)} {{NoAI:1b,PersistenceRequired:1b,Tags:[\"elysium_probe\"]}}")
+    t.advance(2)
+    t.expect("Test passed" in t.cmd("execute if entity @e[tag=elysium_probe]"), "the probe zombie was not summoned")
+    bad = []
+    for module, entry in sorted(modules.items()):
+        modid = entry["modid"]
+        for effect, _n in entry["kinds"].get("Effects", []):
+            out = t.cmd(f"effect give @e[tag=elysium_probe,limit=1] {modid}:{effect} 10 0 true")
+            if "Applied" not in out:
+                bad.append(f"effect {modid}:{effect}: {out[:80]}")
+        for kind, _n in entry["kinds"].get("Damage types", []):
+            out = t.cmd(f"damage @e[tag=elysium_probe,limit=1] 0.5 {modid}:{kind}")
+            # a type our own handlers intercept answers "invulnerable"; only an unknown type is a failure
+            if "Applied" not in out and "invulnerable" not in out:
+                bad.append(f"damage type {modid}:{kind}: {out[:80]}")
+    t.cmd("effect clear @e[tag=elysium_probe]")
+    t.expect(not bad, "; ".join(bad))
+
+    t.chest(4, 0, 2)
+    bad = []
+    for module, entry in sorted(modules.items()):
+        modid = entry["modid"]
+        for ench, _n in entry["kinds"].get("Enchantments", []):
+            out = t.cmd(f"item replace block {t.at(4, 0, 2)} container.0 with "
+                        f"minecraft:diamond_sword[minecraft:enchantments={{levels:{{\"{modid}:{ench}\":1}}}}]")
+            if "Replaced" not in out:
+                bad.append(f"enchantment {modid}:{ench}: {out[:80]}")
+    t.expect(not bad, "; ".join(bad))
+    t.cmd("kill @e[tag=elysium_probe]")
+
+
+@scenario("world: every biome can be found in its dimension, and every structure somewhere")
+def world_places(t):
+    modules = _features()
+    dims = ["minecraft:overworld"] + [f"{e['modid']}:{d}" for e in modules.values() for d, _n in e["kinds"].get("Dimensions", [])]
+    # locate searches 6 400 blocks around a point; a rare biome needs more than one point
+    origins = [(0, 0), (16000, 0), (-16000, 0), (0, 16000), (0, -16000), (16000, 16000), (-16000, -16000)]
+    missing = []
+    found = 0
+    for module, entry in sorted(modules.items()):
+        modid = entry["modid"]
+        # a module's biomes live in its own dimensions or the overworld: search those, from
+        # several points, before every other world from one
+        own = [d for d in dims if d.startswith(modid + ":")] + ["minecraft:overworld"]
+        rest = [d for d in dims if d not in own]
+        for biome, _n in entry["kinds"].get("Biomes", []):
+            hit = False
+            for dim, points in [(d, origins) for d in own] + [(d, origins[:1]) for d in rest]:
+                for ox_, oz_ in points:
+                    out = t.cmd(f"execute in {dim} positioned {ox_} 64 {oz_} run locate biome {modid}:{biome}")
+                    if "The nearest" in out:
+                        hit = True
+                        break
+                if hit:
+                    break
+            if not hit:
+                # a rare biome (a hot crag, a hoar hill) may need a far point: a grid of
+                # twenty-five, fifty thousand blocks apart, in the module's own world
+                # twenty-five, fifty thousand blocks apart, in the module's own worlds and the
+                # overworld (the wilds' crags stand in the overworld's own list)
+                worlds = list(dict.fromkeys(own + ["minecraft:overworld"]))
+                for world in worlds:
+                    for ox_ in range(-100000, 100001, 50000):
+                        for oz_ in range(-100000, 100001, 50000):
+                            out = t.cmd(f"execute in {world} positioned {ox_} 64 {oz_} run locate biome {modid}:{biome}")
+                            if "The nearest" in out:
+                                hit = True
+                                break
+                        if hit:
+                            break
+                    if hit:
+                        break
+            if hit:
+                found += 1
+            else:
+                missing.append(f"biome {modid}:{biome}")
+        for structure, _n in entry["kinds"].get("Structures", []):
+            hit = False
+            for dim in dims:
+                out = t.cmd(f"execute in {dim} run locate structure {modid}:{structure}")
+                if "The nearest" in out:
+                    hit = True
+                    break
+            if hit:
+                found += 1
+            else:
+                missing.append(f"structure {modid}:{structure}")
+    t.expect(not missing, f"{len(missing)} of {found + len(missing)} places cannot be located in any of our dimensions or the overworld: "
+             + ", ".join(missing[:30]) + (" ..." if len(missing) > 30 else ""))
+    print(f"           places: {found} biomes and structures located")
+
+
+# the mechanics, one at a time (docs/MECHANICS.md)
+import scenarios_mechanics  # noqa: E402,F401

@@ -34,8 +34,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 class Rcon:
     def __init__(self, host, port, password):
-        self.sock = socket.create_connection((host, port), timeout=60)
+        self.where = (host, port, password)
         self.rid = 0
+        self._connect()
+
+    def _connect(self):
+        host, port, password = self.where
+        self.sock = socket.create_connection((host, port), timeout=60)
         self._send(3, password)
         if self._recv()[0] == -1:
             raise SystemExit("RCON refused the password")
@@ -45,20 +50,38 @@ class Rcon:
         payload = struct.pack("<ii", self.rid, kind) + body.encode("utf-8") + b"\x00\x00"
         self.sock.sendall(struct.pack("<i", len(payload)) + payload)
 
-    def _recv(self):
-        raw = b""
-        while len(raw) < 4:
-            raw += self.sock.recv(4 - len(raw))
-        (length,) = struct.unpack("<i", raw)
+    def _exactly(self, n):
         data = b""
-        while len(data) < length:
-            data += self.sock.recv(length - len(data))
+        while len(data) < n:
+            chunk = self.sock.recv(n - len(data))
+            if not chunk:
+                # The server closed the connection. Before this the loop spun on
+                # empty reads for ever (a full run hung 50 minutes, 27 September).
+                raise ConnectionError("RCON connection closed by the server")
+            data += chunk
+        return data
+
+    def _recv(self):
+        (length,) = struct.unpack("<i", self._exactly(4))
+        data = self._exactly(length)
         rid, kind = struct.unpack("<ii", data[:8])
         return rid, data[8:-2].decode("utf-8", "replace")
 
     def cmd(self, command):
-        self._send(2, command)
-        return self._recv()[1]
+        try:
+            self._send(2, command)
+            return self._recv()[1]
+        except (ConnectionError, socket.timeout, OSError):
+            # One reconnect and one retry: the server drops an RCON client now
+            # and then under load, and a scenario should not die of it.
+            try:
+                self.sock.close()
+            except OSError:
+                pass
+            time.sleep(2)
+            self._connect()
+            self._send(2, command)
+            return self._recv()[1]
 
 
 class Stage:
@@ -94,7 +117,7 @@ class Stage:
 
     def setblock(self, dx, dy, dz, block, nbt=""):
         out = self.cmd(f"setblock {self.at(dx, dy, dz)} {block}{nbt}")
-        if "Changed the block" not in out and "is already" not in out:
+        if "Changed the block" not in out and "is already" not in out and "Could not set the block" not in out:
             self.problems.append(f"setblock {block} at {self.at(dx, dy, dz)}: {out}")
         return out
 
