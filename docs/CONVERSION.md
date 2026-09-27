@@ -1015,3 +1015,167 @@ This jar's `SPLIT` status had been typed into `docs/MANIFEST.md` directly.
 turned it back into a catalogue row. The status now lives in the `DECISIONS`
 table with everything else. If a row in a generated document says something
 the generator cannot say, the generator is what needs changing.
+
+## 16. Runs: one language for every pipe, cable, wire, conduit, bus and channel
+
+Dylan, 26 September 2026: a pipe touching a block it feeds should show *a large
+flat square on the face touching it, coloured to match the pipe*, as the cue
+that the connection is live; and pipes should be dyeable, with *dyed pipes
+joining only their own colour, undyed ones, or a block*.
+
+Six modules had a run of their own, drawn six ways: two with arms in the
+blockstate, four as a bare cube. All six now go through `elysium-lib`'s
+`run` package and `art/runs.py`:
+
+* **The state.** Six `RunLink` properties, one per face: `none`, `run`
+  (an arm), `device` (an arm and the plate). `Runs.link` decides a face by
+  one rule for everybody: another block of this kind joins if either is
+  undyed or both wear the same dye (`RunRules.mayJoin`); anything else is a
+  device if the block's own test says so - an energy handler for a cable and
+  a conduit, a fluid handler for a pipe, a grid node that is not a wire for a
+  wire, any logistics block entity for a bus, a core, a cell or a hall block
+  for a coolant channel.
+* **The plate.** `RunRules.PLATE` pixels square, `PLATE_DEPTH` deep, on a
+  device face, tinted the run's own colour (`Runs.declare`) or its dye.
+  `art/runs.py` reads the numbers off `RunRules.java`, so the models cannot
+  disagree with the rule, and every module's validator calls its `check`.
+* **The dye.** A dye used on a placed run dyes it (one dye in survival, free in
+  creative); a run and a dye at the crafting table make the run wearing the
+  `elysiumlib:run_dye` component; a picked run keeps its dye; a placed run
+  takes its item's. The block entity remembers it (`RunDyed`; a bare
+  `RunDyeBlockEntity` for the bus, the channel and the conduit, which had
+  none). A dye change re-reads the neighbours, because their link to this
+  block depends on a fact that is not in this block's state.
+* **The tints.** Body faces carry tint 0 (white or the dye); the plate carries
+  tint 1 (the run's own colour or the dye). One colour handler in the library
+  serves every declared run.
+
+What a player sees: a copper wire into a crusher ends in a copper square on
+the crusher; a red cable and a blue cable cross without joining; a plain pipe
+joins both. `RunHarness` executes the rule, `negtest_runs.sh` breaks it
+fourteen ways.
+
+### 16.1 The network: what a run carries, and to whom (27 September)
+
+Drawing the links was half of it. The first live test (§17) put a coal
+generator, three cables and a water separator in a row and read the
+separator after two hundred ticks: nothing. Each cable handed its buffer to
+its six neighbours in turn, and the second cable's first neighbour was the
+first cable, so the energy sloshed between the two of them and never
+arrived. Four of the six runs already walked their network (the solarpunk
+grid, the industry grid line, the logistics network, the reactor hall) but
+walked it by adjacency, so a red conduit and a blue one, drawn apart, still
+powered each other.
+
+* **`RunNetwork.walk`** reads the network off the six link properties: from
+  a run, through every face whose link is `run` (checked from both sides),
+  collecting every face whose link is `device`. Because the links already
+  obey the dye rule, the walk is the picture: a red cable's network ends
+  where the red ends. Bounded at 512 runs.
+* **Space cables and pipes** carry along that walk: a run hands its buffer
+  to the network's devices and never to another run, so only source-adjacent
+  runs ever hold anything and the buffer arrives in one tick however long
+  the line. A run remembers which faces poured into it this tick
+  (`energyFrom`/`fluidsFrom` wrap the capability per side) and never pours
+  back out of them, so a tank above a pipe does not get its water straight
+  back.
+* **The three walks** (`PowerGrid`, `LogisticNetwork`, `GridLine` through
+  `WireBlockEntity.connects`) step from run to run only through
+  `RunNetwork.joined`. The reactor hall counts channels geometrically and is
+  unchanged.
+* **`RunBlock` and `placedBlind`.** A run set by a command, a structure or a
+  machine arrives with every link `none` (only a player's placement reads the
+  world). `onPlace` calls `Runs.placedBlind`, which relinks such a run; and a
+  dye that arrives in the block entity's data live (a `/data merge`, a
+  structure's block entity tag) relinks through `RunBlock.runDevice`, so the
+  library can re-read a run without the block's own methods in hand.
+
+### 16.2 What else the first live run found
+
+Three bugs no validator could see, because each one is a correct-looking
+statement that the game answers differently:
+
+* **A tank saved twice.** A space machine whose one tank is both input and
+  output (the fluid tank, a pipe's buffer) listed it twice and saved it as
+  `Tank0` and `Tank1`; a load that found only `Tank0` emptied the tank again
+  reading `Tank1`. Saved once now.
+* **Solarpunk power never moved.** Every solarpunk machine spent its own
+  power through `extractEnergy`, which a consumer's extract limit of 0
+  bounds; both generators filled themselves through `receiveEnergy`, which
+  a source's receive limit of 0 bounds. Nothing in the module had ever made
+  or spent a unit. The buffer (`SolarpunkMachineEntity.Store`) now has
+  `produce`, `canSpend` and `spend` for the machine's own work; the outward
+  limits stay what a neighbour meets. Validator §7b, three negative cases.
+* **Twenty machines that never produced.** A machine's output slot refuses
+  every insert (so a hopper cannot fill the room a product needs), and
+  twenty machines asked that same slot for room with
+  `insertItem(OUT, result, true)`: the crusher, rolling mill, arc furnace,
+  separator, every atomics works, the five kinetics machines, the alloy
+  smelter, the refinery, the centrifuge, the hives and the rock generators.
+  The pot had the identical bug and agronomy's validator had caught it for
+  the pot alone. `ElysiumSlots.roomFor` in the library reads the slot; root
+  `check_slots.py` names any simulated insert into an output-named slot in
+  any module (`negtest_slots.sh`). The harvester and tree harvester lost
+  every harvest the same way, through their out-tray's own refusing
+  `insertItem`; `SolarpunkOutput.store` places instead.
+
+* **Water washed the runs away.** The game calls a block with a small
+  collision box "not solid" and lets water flow into its place, so a bucket
+  poured beside a cable, pipe, wire, conduit, bus or channel deleted the
+  line. `Runs.properties` makes every run block `forceSolidOn` (and never
+  occluding); `art/runs.py` asks for it, the plates scenario pours water at
+  the end of every line.
+* **Seven blocks the game refused to place.** The vein rock generators were
+  not in their block entity type's block list, so placing one was "an
+  unexpected error" to the player. The catalogue scenario (every block set
+  once) found it; the type now lists every vein, and agronomy's validator
+  checks that it does.
+* **A hopper could not feed a press.** A processor asked the recipes about
+  the one item in hand, and a recipe that wants four refused it, so no
+  hopper could ever feed a mycelium press or a fibre loom. The filter now
+  asks about a whole stack (validator §7d).
+
+* **A grid that never re-solved.** An industry grid line re-solves when a
+  block changes. A centrifuge wants nothing until a comb arrives, and a comb
+  arriving changes no block, so the turbine never lit and the comb sat
+  there. `GridBlockEntity.tick` now compares each node's want with the one
+  the line was last solved for and unsettles the line when it differs.
+* **A centrifuge spinning into nothing.** Its `put` filled the output slots
+  through `insertItem`, which those slots refuse; `check_slots.py` now names
+  a real insert as well as a simulated one.
+* **127 creatures without an egg.** The denizens, the courts, the kindred
+  and the warded shipped with an egg's model and name and no egg item;
+  `BeastItems.registerRoster` gives each roster its eggs and the bestiary
+  validator asks for every roster.
+
+## 17. Live tests: the pack running, asked questions
+
+Dylan, 27 September 2026: *validation should include testing pipes and
+cables, testing power generation, making sure crop farm machines actually
+farm crops and generate items, testing I/O of all block inventories.*
+
+`tools/livetest/livetest.py` runs against the dedicated test server over
+RCON. Each scenario in `tools/livetest/scenarios.py` builds a rig with
+commands on its own plot of a force-loaded stage far from spawn (9000, 200,
+9000; plots 24 apart), sprints the tick clock (`tick sprint`), and reads
+the result back with `/data get` and `/execute if block`. A scenario passes
+or says what it saw, in the words a player would use.
+
+    python3 tools/livetest/livetest.py [--only cable] [--verbose]
+
+Twenty-one scenarios: every run's plates and arms (and water poured at the end of each line); the dye rule; energy across a
+cable, water across a pipe, a red cable refusing a blue one; the industry
+grid; the solarpunk condenser, conduit, harvester and tree harvester; the
+logistics bus; each producing machine of industry, kinetics, foundry,
+agronomy and solarpunk making its product from a hopper's input; and every
+hopper-fed inventory in the pack taking its input; and the catalogue, which
+reads `docs/features.json` (`tools/catalogue.py`, the feature catalogue of
+`docs/FEATURES.md`) and sets every block once, gives every item once and
+summons every creature once, so a block the game refuses is a named
+failure rather than a player's surprise. Random ticks do not
+happen in a force-loaded chunk without a player, so crop growth and pots
+stay in the client stages (PLAYTEST.md).
+
+What it cannot see: the client. Plates, tints and dyed items are checked by
+eye in `stage_runs_client.ps1`. Atomics machines need a high-voltage source
+and are fed by the inventory scenario only.

@@ -134,7 +134,7 @@ The pack as ours alone, 26 Sep (Dylan: retire everything that isn't ours or a de
 
 Log sweep after the retirement (26 Sep, E client): `elysiumkinetics:blockstates/anchor.json` had no model for radius 1 and 2 (the RADIUS property is 0..WIDEST on every anchor, the narrow anchor's blockstate stopped at its own width) - fixed in the generator and validator. The rest of the 466 missing-model lines are third-party (industrialforegoing 320, cluttered 291, dndecor 102, born_in_chaos, tfmg) and predate the pack. Two lines worth knowing: MineColonies logs "Couldnt analyze animal: elysiumcomforts:pigeon / charred_pigeon" while sizing animals for its herders (cosmetic; for the comforts module to look at: the pigeons are Animals it cannot classify), and the recipe book drops `everycomp:mcw/...` and `stonezone:mcw/...` recipes that named the retired Macaw jars (expected, harmless).
 
-Retirement, 26 Sep, on the E instances: `tools/retire.py` moved the 46 jars the merged manifest marks DONE and nothing else requires into `mods/_superseded` in both `E:	estingbuilds\Elysium` and `E:	estingbuilds\ElysiumServer`, and wrote their licences and authors into `docs/LICENSING.md`. Left in place, still required by others: appliedenergistics2, create, woodworks. The client now runs 128 jars, the server 117 (its client-only mods live in `mods/_clientonly`).
+Retirement, 26 Sep, on the E instances: `tools/retire.py` moved the 46 jars the merged manifest marks DONE and nothing else requires into `mods/_superseded` in both `E:	estingbuilds\Elysium` and `E:\testingbuilds\ElysiumServer`, and wrote their licences and authors into `docs/LICENSING.md`. Left in place, still required by others: appliedenergistics2, create, woodworks. The client now runs 128 jars, the server 117 (its client-only mods live in `mods/_clientonly`).
 
 Merged build, 26 Sep: the first jar built from agent 8's hand-back would not open any world on either instance. Registry loading failed on `add_forge_spawns.json` and `add_hoar_spawns.json`, spawn rules for `elysiumbestiary:forge` and `elysiumbestiary:hoar`, which are court labels, not creatures. They were leftovers of the rename: the bestiary generator writes a creature's files and never deletes the old name's. Eight files removed (two spawn rules, two eggs, two loot tables, two sheets); `elysium-bestiary/validate.py` now fails on any spawn rule, egg or loot table named for a creature no roster has, and `negtest_bestiary_leftovers.sh` proves it. The comforts fittings also needed the cutout layer (121 models), caught by the root models check.
 
@@ -143,3 +143,16 @@ Open observation (26 Sep, once): after the fourth relaunch of the E client in th
 Negative tests: `tools/negtest/negtest_colonies3.sh` reports 18 caught and 9 missed on 26 Sep. The nine are exchange, trading and build-order cases whose edit anchors point at code rewritten on 24 Sep, so the mutation never lands and the case counts as missed; the rules themselves were not weakened. Re-anchoring them is a follow-up. `negtest_colonies6.sh` catches all 26 of its cases.
 
 Exporter, storage bus, monitor, detector, interface and ender link are unverified (the importer works on a fuelled grid, 26 Sep); satchel, rucksack, crate, vault inert; kitchen stations: pot and colony verified 26 Sep, skillet and board being verified; a reed rod with a barbed hook catches (26 Sep); bobbers, worm farm and tackle box unverified; fish and bee natural spawns unverified; geodes have no worldgen or recipe; Cordon alloy drops and shards have no survival source; nothing awards trinkets and companions; roadmap items in each module's spec (contraptions, IE wiring, Mekanism chemistry, frontier crops, MysticalAgriculture gear, Quark decoration, and so on).
+
+## Live tests on the dedicated server (27 September 2026)
+
+The client stages check by eye; the server answers questions.
+`tools/livetest/livetest.py` (CONVERSION.md §17) runs twenty-one scenarios over
+RCON against `E:\testingbuilds\ElysiumServer` (RCON 127.0.0.1:25575, the
+password in `ELYSIUM_RCON` or the test default), each on its own plot of a
+force-loaded stage at 9000, 200, 9000. Run it after installing a build;
+`--only <word>` runs a subset, `--verbose` prints every command and answer.
+The stage is left standing so a failing rig can be probed with `/data get`.
+Random ticks do not run there without a player, so crops and pots are
+still checked in the client (`stage_runs_client.ps1` covers the plates and
+dyes by hand placement and takes the screenshots).
