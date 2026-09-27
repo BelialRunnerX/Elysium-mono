@@ -71,8 +71,27 @@ public final class SolarpunkOutput {
 
     /** Put a stack in the tray, merging where it can. */
     public static void store(ItemStackHandler tray, ItemStack stack) {
-        if (!stack.isEmpty()) {
-            ItemHandlerHelper.insertItemStacked(tray, stack, false);
+        // Placed, not inserted: the tray's insertItem refuses everything, so
+        // that a hopper cannot fill the room a harvest needs, and the machine
+        // filling its own out-tray went through the same door and was refused
+        // too - every harvest was cut and lost, until the live test looked in
+        // the chest (27 September 2026). First onto a stack of the same, then
+        // into an empty slot.
+        for (int pass = 0; pass < 2 && !stack.isEmpty(); pass++) {
+            for (int slot = 0; slot < tray.getSlots() && !stack.isEmpty(); slot++) {
+                ItemStack held = tray.getStackInSlot(slot);
+                int limit = Math.min(tray.getSlotLimit(slot), stack.getMaxStackSize());
+                boolean onto = pass == 0
+                        ? !held.isEmpty() && ItemStack.isSameItemSameComponents(held, stack) && held.getCount() < limit
+                        : held.isEmpty();
+                if (!onto) {
+                    continue;
+                }
+                int moved = Math.min(limit - held.getCount(), stack.getCount());
+                tray.setStackInSlot(slot, held.isEmpty() ? stack.copyWithCount(moved)
+                        : held.copyWithCount(held.getCount() + moved));
+                stack.shrink(moved);
+            }
         }
     }
 

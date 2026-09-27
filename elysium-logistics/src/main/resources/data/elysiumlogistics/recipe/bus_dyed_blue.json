@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "bus_dyed",
+  "ingredients": [
+    {
+      "item": "elysiumlogistics:bus"
+    },
+    {
+      "item": "minecraft:blue_dye"
+    }
+  ],
+  "result": {
+    "id": "elysiumlogistics:bus",
+    "count": 1,
+    "components": {
+      "elysiumlib:run_dye": "blue"
+    }
+  }
+}

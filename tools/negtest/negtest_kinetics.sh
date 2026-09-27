@@ -327,7 +327,7 @@ expect "a recipe kind whose folder does not exist" "a machine nobody can give wo
 edit $K/block/MachineBlock.java '            if (!recipe.possibleAt(speed)) {' '            if (false) {'
 expect "a machine that works at any speed at all" "the pace on a recipe is decoration"
 
-edit $K/block/MachineBlock.java '            if (!items.insertItem(OUT, result, true).isEmpty()) {' '            if (false) {'
+edit $K/block/MachineBlock.java '            if (!ElysiumSlots.roomFor(items, OUT, result)) {' '            if (false) {'
 expect "a machine with a full output destroying what it makes" "destroys what it makes"
 
 edit $K/block/MachineBlock.java '    public abstract KineticRecipe.Kind kind();' '    public KineticRecipe.Kind kind() {

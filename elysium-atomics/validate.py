@@ -790,6 +790,23 @@ if f'MODID = "{NS}"' not in main_class:
 print("what it declares   : the game, the library, both ages below, and a spec the age "
       "above can read")
 
+# the coolant channel run(s): arms, plates, dye and pick as every run in the pack, checked by
+# the shared art/runs.py so six modules agree.
+import importlib.util as _ilu
+_runs_spec = _ilu.spec_from_file_location("art_runs", os.path.join(os.path.dirname(str(WORK)), "art", "runs.py"))
+_art_runs = _ilu.module_from_spec(_runs_spec)
+_runs_spec.loader.exec_module(_art_runs)
+_run_java = open(os.path.join(str(SRC), "block/CoolantChannelBlock.java"), encoding="utf-8").read()
+for _run in ("coolant_channel",):
+    for _problem in _art_runs.check("elysiumatomics", _run, str(RES), _run_java):
+        fail(_problem)
+_mod_java = open(os.path.join(str(SRC), "ElysiumAtomics.java"), encoding="utf-8").read()
+for _run in ("coolant_channel",):
+    if "com.elysium.lib.run.Runs.declare(" not in _mod_java:
+        fail(f"{_run} is not declared a run, so its plates have no colour and no tint handler")
+        break
+print("runs               : the coolant channel draw arms and plates, take a dye, and keep it")
+
 if problems:
     print(f"{len(problems)} PROBLEM(S):")
     for problem in problems:

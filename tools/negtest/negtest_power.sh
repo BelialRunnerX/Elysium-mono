@@ -18,7 +18,7 @@ try() {
   restore
 }
 
-try "Minecraft import in PowerBudget" "The budget arithmetic is" \
+try "Minecraft import in PowerBudget" "executed by the harness outside a world" \
   "sed -i \"s|^package com.elysium.solarpunk.power;|package com.elysium.solarpunk.power;\\n\\nimport net.minecraft.world.level.Level;|\" $J/power/PowerBudget.java"
 
 try "a class renamed in the enum only" "disagree about the power classes" \
@@ -59,9 +59,19 @@ try "the push extracts before offering" "stopped offering before taking" \
   "sed -i 's|source.extractEnergy(taken, false);|source.extractEnergy(grants\[i\], false);|' $J/machine/SolarpunkPower.java"
 
 try "the brownout counter leaves the buffer" "no longer driven by the buffer" \
-  "sed -i 's|^                        noteUnpaid();|                        // removed|' $J/machine/SolarpunkMachineEntity.java"
+  "sed -i 's|^                    noteUnpaid();|                    // removed|' $J/machine/SolarpunkMachineEntity.java"
 
 try "the conduit's Java drifts from the table" "the shipped Java registers" \
   "sed -i 's|\"block_class\": \"com.elysium.solarpunk.power.PowerConduitBlock\"|\"block_class\": \"com.elysium.solarpunk.power.ConduitBlock\"|' tools/gen_solarpunk.py"
+
+try "a kiln spending through the outward extract limit" "does its own work through energy.extractEnergy("   "sed -i 's|energy.spend(DRAW);|energy.extractEnergy(DRAW, false);|' $J/machine/CeramicKilnEntity.java"
+
+try "a condenser filling itself through the outward receive limit" "does its own work through energy.receiveEnergy("   "sed -i 's|energy.produce(made);|energy.receiveEnergy(made, false);|' $J/machine/SolarCondenserEntity.java"
+
+try "canSpend that forgets the brownout" "own spend path no longer drives the brownout counter"   "sed -i '/public boolean canSpend/,/^        }/ s|noteUnpaid();||' $J/machine/SolarpunkMachineEntity.java"
+
+try "the out-tray filled through the door it locks" "fills the out-tray through insertItem"   "sed -i 's|tray.setStackInSlot(slot, held.isEmpty() ? stack.copyWithCount(moved)|ItemHandlerHelper.insertItemStacked(tray, stack, false); tray.setStackInSlot(slot, held.isEmpty() ? stack.copyWithCount(moved)|' $J/machine/SolarpunkOutput.java"
+
+try "a processor judging a hopper's single item against a four-count recipe" "wants asks the recipes about the stack in hand"   "sed -i 's|recipeFor(stack.copyWithCount(stack.getMaxStackSize()))|recipeFor(stack)|' $J/machine/ProcessingMachineEntity.java"
 
 echo "---- caught $pass, missed $miss"

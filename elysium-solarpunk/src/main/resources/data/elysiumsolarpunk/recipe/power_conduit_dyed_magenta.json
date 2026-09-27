@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "power_conduit_dyed",
+  "ingredients": [
+    {
+      "item": "elysiumsolarpunk:power_conduit"
+    },
+    {
+      "item": "minecraft:magenta_dye"
+    }
+  ],
+  "result": {
+    "id": "elysiumsolarpunk:power_conduit",
+    "count": 1,
+    "components": {
+      "elysiumlib:run_dye": "magenta"
+    }
+  }
+}

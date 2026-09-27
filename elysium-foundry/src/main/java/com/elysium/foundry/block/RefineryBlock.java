@@ -1,5 +1,6 @@
 package com.elysium.foundry.block;
 
+import com.elysium.lib.item.ElysiumSlots;
 import com.elysium.foundry.recipe.RefineRecipe;
 import com.elysium.foundry.registry.FoundryBlockEntities;
 import com.elysium.foundry.registry.FoundryRecipes;
@@ -222,8 +223,8 @@ public class RefineryBlock extends GridBlock {
             RefineRecipe recipe = found.get().value();
             ItemStack result = recipe.assemble(asked, level.registryAccess());
             ItemStack recovered = recipe.recovered();
-            if (!items.insertItem(OUT, result, true).isEmpty()
-                    || !items.insertItem(RECOVERED, recovered, true).isEmpty()) {
+            if (!ElysiumSlots.roomFor(items, OUT, result)
+                    || !ElysiumSlots.roomFor(items, RECOVERED, recovered)) {
                 return;                        // no room for both; stop rather than lose either
             }
             done += IndustryRules.workPerTick(speed);

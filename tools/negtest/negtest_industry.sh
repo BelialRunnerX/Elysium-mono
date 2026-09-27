@@ -140,5 +140,8 @@ restore
 g="$(out)"
 if [[ "$g" == *"all industry checks passed"* ]]; then echo "  tree restored clean"
 else echo "  TREE LEFT BROKEN"; fail=$((fail+1)); fi
+edit $M/src/main/java/com/elysium/industry/block/GridBlockEntity.java '        if (asking != be.asked) {' '        if (false) {'
+expect "a node whose want changes never re-solving its line" "does not re-solve the line when a node's want changes"
+
 echo "industry: $pass caught, $fail missed"
 [ "$fail" -eq 0 ]

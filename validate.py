@@ -263,6 +263,17 @@ def main():
         failures.append("models")
     print()
 
+    # Cross-cutting again: a machine's output slot refuses every insert, so a
+    # machine that asks it for room through insertItem is told no for ever.
+    # Seven machines' worth of modules had the pot's own bug (agronomy caught
+    # it for the pot alone), found by feeding them on a live server.
+    print("=" * 70)
+    print("slots — no machine asks its own refusing slot for room through insertItem")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_slots.py"], cwd=HERE).returncode != 0:
+        failures.append("slots")
+    print()
+
     for name, blurb in MODS:
         directory = HERE / name
         script = directory / "validate.py"

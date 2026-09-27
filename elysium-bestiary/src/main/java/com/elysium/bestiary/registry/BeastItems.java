@@ -58,6 +58,46 @@ public final class BeastItems {
         return Map.copyOf(made);
     }
 
+    /**
+     * One egg per denizen, court member, kindred and warded creature, each
+     * roster counted on its own. These four rosters shipped with an egg's
+     * model and name and no egg, so 127 creatures could not be put in front
+     * of a player to look at (the catalogue test, 27 September 2026).
+     */
+    public static final Map<String, DeferredItem<DeferredSpawnEggItem>> DENIZEN_EGGS =
+            registerRoster("denizen", com.elysium.bestiary.rules.DenizenRules.DENIZENS.stream()
+                    .map(com.elysium.bestiary.rules.DenizenRules.Denizen::id).toList(),
+                    id -> com.elysium.bestiary.registry.DenizenEntities.ALL.get(id).get(), 0x4E5A3C, 0xC2B280);
+    public static final Map<String, DeferredItem<DeferredSpawnEggItem>> COURT_EGGS =
+            registerRoster("court", com.elysium.bestiary.rules.CourtRules.MEMBERS.stream()
+                    .map(com.elysium.bestiary.rules.CourtRules.Member::id).toList(),
+                    id -> com.elysium.bestiary.registry.CourtEntities.ALL.get(id).get(), 0x3A2E5C, 0xE0C060);
+    public static final Map<String, DeferredItem<DeferredSpawnEggItem>> KIN_EGGS =
+            registerRoster("kindred", com.elysium.bestiary.rules.KindredRules.KINDRED.stream()
+                    .map(com.elysium.bestiary.rules.KindredRules.Kin::id).toList(),
+                    id -> com.elysium.bestiary.registry.KinEntities.ALL.get(id).get(), 0x5C3A2E, 0xD08A60);
+    public static final Map<String, DeferredItem<DeferredSpawnEggItem>> WARD_EGGS =
+            registerRoster("warded", com.elysium.bestiary.rules.WardRules.WARDED.stream()
+                    .map(com.elysium.bestiary.rules.WardRules.Warded::id).toList(),
+                    id -> com.elysium.bestiary.registry.WardEntities.ALL.get(id).get(), 0x2E4A5C, 0x9AD0E0);
+
+    private static Map<String, DeferredItem<DeferredSpawnEggItem>> registerRoster(
+            String roster, java.util.List<String> ids,
+            java.util.function.Function<String, net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.Mob>> type,
+            int background, int highlight) {
+        Map<String, DeferredItem<DeferredSpawnEggItem>> made = new LinkedHashMap<>();
+        for (String id : ids) {
+            made.put(id, ITEMS.register(id + "_spawn_egg",
+                    () -> new DeferredSpawnEggItem(() -> type.apply(id), background, highlight,
+                            new Item.Properties())));
+        }
+        if (made.size() != ids.size()) {
+            throw new IllegalStateException("the " + roster + " roster has " + ids.size()
+                    + " creatures and " + made.size() + " spawn egg(s) were registered");
+        }
+        return Map.copyOf(made);
+    }
+
     /** One egg per companion, counted on its own for the same reason. */
     public static final Map<String, DeferredItem<DeferredSpawnEggItem>>
             COMPANION_EGGS = registerCompanions();

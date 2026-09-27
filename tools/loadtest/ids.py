@@ -181,6 +181,27 @@ for module, res in modules():
                 for found in re.findall(r'"(elysium[a-z]*):([a-z0-9_/]+)"', block):
                     add("data_component_type", found[0], found[1])
 
+# A recipe whose result wears one of our components names the component's
+# type, and the loader parses the value through it: a dye recipe for a run
+# carries elysiumlib:run_dye. Every such key becomes a stand-in too.
+for _module, res in modules():
+    data = os.path.join(res, "data")
+    for dirpath, _dirs, names in os.walk(data):
+        if os.path.basename(dirpath) != "recipe" and (os.sep + "recipe" + os.sep) not in dirpath:
+            continue
+        for name in names:
+            if not name.endswith(".json"):
+                continue
+            try:
+                content = json.load(open(os.path.join(dirpath, name), encoding="utf-8"))
+            except Exception:
+                continue
+            result = content.get("result")
+            components = result.get("components", {}) if isinstance(result, dict) else {}
+            for key in components:
+                if key.startswith("elysium") and ":" in key:
+                    add("data_component_type", *key.split(":", 1))
+
 for registry, identifier, extra in out:
     print(f"{registry}\t{identifier}\t{extra}")
 print(f"# {len(out)} ids", file=sys.stderr)

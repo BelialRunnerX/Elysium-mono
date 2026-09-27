@@ -104,10 +104,23 @@ public abstract class GridBlockEntity extends BlockEntity implements GridNode {
     protected void told() {
     }
 
+    /** What this node asked of the grid when it was last solved, so a change re-solves it. */
+    private float asked = -1.0F;
+
     public static void tick(Level level, BlockPos pos, BlockState state, GridBlockEntity be) {
         if (level.isClientSide) {
             be.unsettled = false;
             return;
+        }
+        // A machine whose want depends on what it holds (a centrifuge wants
+        // nothing until a comb arrives) changes the line's demand without any
+        // block changing, and nothing else would re-solve it: the turbine
+        // never lit and the comb sat there (live test, 27 September 2026).
+        IndustryRules.Machine machine = be.machine();
+        float asking = machine == null ? 0.0F : machine.draw();
+        if (asking != be.asked) {
+            be.asked = asking;
+            be.unsettled = true;
         }
         if (be.unsettled) {
             GridLine.solve(level, pos);

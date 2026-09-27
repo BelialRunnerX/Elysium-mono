@@ -142,7 +142,10 @@ public abstract class ProcessingMachineEntity extends SolarpunkMachineEntity {
 
     /** Whether any loaded recipe for this machine takes this item. */
     private boolean wants(ItemStack stack) {
-        return !stack.isEmpty() && recipeFor(stack).isPresent();
+        // Asked of a whole stack, not of what is in hand: a hopper offers one
+        // at a time, and a recipe that wants four of them refused every one,
+        // so no hopper could ever feed a press (live test, 27 September 2026).
+        return !stack.isEmpty() && recipeFor(stack.copyWithCount(stack.getMaxStackSize())).isPresent();
     }
 
     private Optional<RecipeHolder<SolarpunkProcessRecipe>> recipeFor(ItemStack input) {
@@ -192,10 +195,10 @@ public abstract class ProcessingMachineEntity extends SolarpunkMachineEntity {
             return;                      // blocked, not idle: keep the progress
         }
         int perTick = recipe.energyPerTick();
-        if (energy.extractEnergy(perTick, true) < perTick) {
+        if (!energy.canSpend(perTick)) {
             return;                      // starved: an unpaid tick buys nothing
         }
-        energy.extractEnergy(perTick, false);
+        energy.spend(perTick);
 
         if (++progress < recipe.time()) {
             return;

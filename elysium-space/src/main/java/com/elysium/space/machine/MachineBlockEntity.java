@@ -34,8 +34,15 @@ public abstract class MachineBlockEntity extends BlockEntity {
         super(type, pos, state);
         this.energy = energy;
         this.handler = new MachineTanks(inputs, outputs);
+        // A tank that is both an input and an output (a fluid tank, a pipe's
+        // buffer) is one tank, saved once: saved twice, a load that finds
+        // only the first copy empties it again reading the second.
         this.tanks = new java.util.ArrayList<>(inputs);
-        this.tanks.addAll(outputs);
+        for (FluidTank tank : outputs) {
+            if (!this.tanks.contains(tank)) {
+                this.tanks.add(tank);
+            }
+        }
     }
 
     public MachineEnergy energy() {

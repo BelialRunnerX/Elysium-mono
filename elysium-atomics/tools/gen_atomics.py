@@ -482,12 +482,12 @@ def models_and_states():
         write(os.path.join(ASSETS, "models/item", name + ".json"),
               {"parent": f"{NS}:block/{name}"})
         written += 1
-    for name, (side, end) in PIPES.items():
-        write(os.path.join(ASSETS, "models/block", name + ".json"), pillar(12, side, end))
-        write(os.path.join(ASSETS, "blockstates", name + ".json"),
-              {"variants": {"": {"model": f"{NS}:block/{name}"}}})
-        write(os.path.join(ASSETS, "models/item", name + ".json"),
-              {"parent": f"{NS}:block/{name}"})
+    # The coolant channel is a run: core, arms, plates and dye recipes come
+    # from art/runs.py, the same as every pipe, cable, wire and bus in the pack.
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)), "art"))
+    import runs as art_runs
+    for name in PIPES:
+        art_runs.write_all(NS, name, f"{NS}:block/{name}", ASSETS, DATA, write)
         written += 1
     for name, (side, top) in CORES.items():
         write(os.path.join(ASSETS, "models/block", name + ".json"), core_model(side, top))

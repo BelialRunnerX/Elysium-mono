@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "gold_wire_dyed",
+  "ingredients": [
+    {
+      "item": "elysiumindustry:gold_wire"
+    },
+    {
+      "item": "minecraft:lime_dye"
+    }
+  ],
+  "result": {
+    "id": "elysiumindustry:gold_wire",
+    "count": 1,
+    "components": {
+      "elysiumlib:run_dye": "lime"
+    }
+  }
+}

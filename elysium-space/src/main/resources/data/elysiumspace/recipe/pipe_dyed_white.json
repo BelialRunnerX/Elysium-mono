@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "pipe_dyed",
+  "ingredients": [
+    {
+      "item": "elysiumspace:pipe"
+    },
+    {
+      "item": "minecraft:white_dye"
+    }
+  ],
+  "result": {
+    "id": "elysiumspace:pipe",
+    "count": 1,
+    "components": {
+      "elysiumlib:run_dye": "white"
+    }
+  }
+}

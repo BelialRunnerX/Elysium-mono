@@ -304,5 +304,8 @@ restore
 g="$(out)"
 if [[ "$g" == *"all bestiary checks passed"* ]]; then echo "  tree restored clean"
 else echo "  TREE LEFT BROKEN"; fail=$((fail+1)); fi
+edit $M/src/main/java/com/elysium/bestiary/registry/BeastItems.java 'registerRoster("warded", com.elysium.bestiary.rules.WardRules.WARDED.stream()' 'registerRoster("warded", java.util.List.<com.elysium.bestiary.rules.WardRules.Warded>of().stream()'
+expect "a roster with an egg's name and no egg" "registers no spawn eggs for WardRules.WARDED"
+
 echo "bestiary: $pass caught, $fail missed"
 [ "$fail" -eq 0 ]

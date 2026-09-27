@@ -116,8 +116,8 @@ public class WaterReclaimerEntity extends SolarpunkMachineEntity {
         if (tank.getFluidAmount() < TANK_CAPACITY) {
             int rate = rateFor(level.isRainingAt(worldPosition.above()),
                     level.canSeeSky(worldPosition.above()));
-            if (rate > 0 && energy.extractEnergy(DRAW, true) >= DRAW) {
-                energy.extractEnergy(DRAW, false);
+            if (rate > 0 && energy.canSpend(DRAW)) {
+                energy.spend(DRAW);
                 tank.fill(new FluidStack(Fluids.WATER, rate),
                         net.neoforged.neoforge.fluids.capability.IFluidHandler
                                 .FluidAction.EXECUTE);

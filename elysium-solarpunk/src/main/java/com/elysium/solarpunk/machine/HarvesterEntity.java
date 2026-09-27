@@ -147,7 +147,7 @@ public class HarvesterEntity extends SolarpunkMachineEntity {
         if (SolarpunkOutput.isFull(tray)) {
             return;                     // nowhere to put a harvest; do not cut
         }
-        if (energy.extractEnergy(COST_PER_HARVEST, true) < COST_PER_HARVEST) {
+        if (!energy.canSpend(COST_PER_HARVEST)) {
             return;
         }
         for (int step = 0; step < SCAN_PER_TICK; step++) {
@@ -156,7 +156,7 @@ public class HarvesterEntity extends SolarpunkMachineEntity {
                 continue;
             }
             if (harvest(server, target)) {
-                energy.extractEnergy(COST_PER_HARVEST, false);
+                energy.spend(COST_PER_HARVEST);
                 return;                 // one block a tick, so the field ripples
             }
         }

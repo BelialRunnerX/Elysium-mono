@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "coolant_channel_dyed",
+  "ingredients": [
+    {
+      "item": "elysiumatomics:coolant_channel"
+    },
+    {
+      "item": "minecraft:black_dye"
+    }
+  ],
+  "result": {
+    "id": "elysiumatomics:coolant_channel",
+    "count": 1,
+    "components": {
+      "elysiumlib:run_dye": "black"
+    }
+  }
+}

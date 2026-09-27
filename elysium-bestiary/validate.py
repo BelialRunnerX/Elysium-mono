@@ -3309,6 +3309,17 @@ else:
 
 
 
+
+# Every roster with entities has its spawn eggs. Four rosters shipped with an
+# egg's model and name and no egg, so 127 creatures could not be put in front
+# of a player to look at (the catalogue test, 27 September 2026).
+_eggs_src = read(SRC, "registry/BeastItems.java")
+for _roster in ("BeastRules.BEASTS", "CompanionRules.COMPANIONS", "MythRules.MYTHS",
+                "DenizenRules.DENIZENS", "CourtRules.MEMBERS", "KindredRules.KINDRED", "WardRules.WARDED"):
+    if _roster not in _eggs_src:
+        fail(f"BeastItems registers no spawn eggs for {_roster}, so those creatures have an egg's "
+             f"model and name and no egg")
+
 if problems:
     print(f"{len(problems)} problem(s):")
     for problem in problems:

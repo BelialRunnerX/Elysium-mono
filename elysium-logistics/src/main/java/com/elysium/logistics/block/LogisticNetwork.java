@@ -2,6 +2,7 @@ package com.elysium.logistics.block;
 
 import com.elysium.logistics.rules.LogisticRules;
 import com.elysium.logistics.rules.NetRules;
+import com.elysium.lib.run.RunNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -128,8 +129,9 @@ public final class LogisticNetwork {
                     devices.add(next.immutable());
                     continue;
                 }
-                if (!carries(level, next) || !seen.add(next.immutable())) {
-                    continue;
+                if (!carries(level, next) || (carries(level, here) && !RunNetwork.joined(level, here, face))
+                        || !seen.add(next.immutable())) {
+                    continue;      // a dyed bus joins only its own colour, so the walk stops where the links stop
                 }
                 if (seen.size() > MOST_STEPS) {
                     return new Found(sorted(drawers), sorted(devices),
@@ -186,8 +188,9 @@ public final class LogisticNetwork {
                     found.add(next.immutable());
                     continue;
                 }
-                if (!carries(level, next) || !seen.add(next.immutable())) {
-                    continue;
+                if (!carries(level, next) || (carries(level, here) && !RunNetwork.joined(level, here, face))
+                        || !seen.add(next.immutable())) {
+                    continue;      // a dyed bus joins only its own colour, so the walk stops where the links stop
                 }
                 if (seen.size() > MOST_STEPS) {
                     return sorted(found);

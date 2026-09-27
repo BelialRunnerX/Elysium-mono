@@ -1,5 +1,6 @@
 package com.elysium.agronomy.block;
 
+import com.elysium.lib.item.ElysiumSlots;
 import com.elysium.agronomy.registry.AgronomyBlockEntities;
 import com.elysium.agronomy.event.Keeping;
 import com.elysium.agronomy.registry.AgronomyComponents;
@@ -491,7 +492,7 @@ public class HiveBlock extends BaseEntityBlock {
             }
             worked -= whole;
             ItemStack comb = combOf();
-            if (items.insertItem(OUT, comb, true).isEmpty()) {
+            if (ElysiumSlots.roomFor(items, OUT, comb)) {
                 items.setStackInSlot(OUT, grow(items.getStackInSlot(OUT), comb));
                 setChanged();
             }

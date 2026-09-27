@@ -3731,6 +3731,7 @@ HARNESSES = [
     ("LootRarityHarness.java", "com.elysium.lib.tier.LootRarityHarness", "loot rarity"),
     ("TierAugmentHarness.java", "com.elysium.lib.tier.TierAugmentHarness", "tier augments"),
     ("NullHarness.java", "com.elysium.lib.nihil.NullHarness", "the Null field"),
+    ("RunHarness.java", "com.elysium.lib.run.RunHarness", "runs"),
 ]
 
 missing = [name for name, _, _ in HARNESSES
@@ -4243,6 +4244,27 @@ for _dir, _, _files in os.walk(SRC):
                      f"ElysiumLib's constructor")
 print(f"riding registrations: {_riders} entry(ies) registered from another class, each "
       f"loaded before the bus fires")
+
+# Runs: one helper for every pipe, cable, wire, conduit, bus and channel.
+_runs_src = read("run/Runs.java")
+for _stmt, _why in (
+        ("return RunRules.mayJoin(dyeAt(level, pos), dyeAt(level, next)) ? RunLink.RUN : RunLink.NONE;",
+         "two runs join by something other than the dye rule"),
+        ("return device.test(level, next, side.getOpposite()) ? RunLink.DEVICE : RunLink.NONE;",
+         "a device is decided by something other than the block's own test"),
+        ("if (!player.getAbilities().instabuild) {", "dyeing a run is free in survival"),
+        ("? RunRules.plateTint(dye, ownColour(state.getBlock()))", "the plate is not tinted the run's own colour when undyed")):
+    if _stmt not in _runs_src:
+        fail(f"Runs.java: {_why}")
+_dye_body = _runs_src.split("public static ItemInteractionResult dye(")[1].split("\n    }\n")[0]     if "public static ItemInteractionResult dye(" in _runs_src else ""
+if "relinkAround(level, pos, device);" not in _dye_body:
+    fail("Runs.java: a dyed run does not tell its neighbours, so a colour change leaves stale arms")
+if 'registerComponentType("run_dye"' not in read("item/ElysiumComponents.java"):
+    fail("a dyed run item has no component to carry the dye, so a dyed pipe in a chest is a plain pipe")
+if "event.register(Runs::tint, block);" not in read("run/RunColors.java") \
+        or "event.register(Runs::itemTint, block.asItem());" not in read("run/RunColors.java"):
+    fail("the run tints are not registered for every declared run, so dye would show nowhere")
+print("runs               : the join rule, the plate, the dye and the tints, executed and shared")
 
 if problems:
     print(f"{len(problems)} PROBLEM(S):")

@@ -188,8 +188,8 @@ public class CeramicKilnEntity extends SolarpunkMachineEntity {
      * free whenever it is starved.
      */
     private boolean payForATick() {
-        if (energy.extractEnergy(DRAW, true) >= DRAW) {
-            energy.extractEnergy(DRAW, false);
+        if (energy.canSpend(DRAW)) {
+            energy.spend(DRAW);
             return true;
         }
         if (burning > 0) {

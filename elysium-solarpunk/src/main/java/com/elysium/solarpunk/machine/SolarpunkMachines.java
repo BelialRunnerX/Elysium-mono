@@ -54,6 +54,14 @@ public final class SolarpunkMachines {
                             AlgaeBioreactorEntity::new,
                             SolarpunkContent.ALGAE_BIOREACTOR.get()).build(null));
 
+    /** The conduit's dye, and nothing else: a run remembers its colour. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.lib.run.RunDyeBlockEntity>>
+            POWER_CONDUIT_ENTITY = BLOCK_ENTITIES.register("power_conduit",
+                    () -> BlockEntityType.Builder.of(
+                            (pos, state) -> new com.elysium.lib.run.RunDyeBlockEntity(
+                                    SolarpunkMachines.POWER_CONDUIT_ENTITY.get(), pos, state),
+                            SolarpunkContent.POWER_CONDUIT.get()).build(null));
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WindCapstanEntity>>
             WIND_CAPSTAN_ENTITY = BLOCK_ENTITIES.register("wind_capstan",
                     () -> BlockEntityType.Builder.of(

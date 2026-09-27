@@ -293,10 +293,12 @@ public final class LoadTest {
                 }
                 case "data_component_type" -> {
                     if (!BuiltInRegistries.DATA_COMPONENT_TYPE.containsKey(id)) {
+                        // Any value at all: a recipe result parses its component's
+                        // value through the type, so the stand-in has to accept one.
                         Registry.register(components, id,
-                                net.minecraft.core.component.DataComponentType.builder()
-                                        .persistent(com.mojang.serialization.Codec.unit(
-                                                net.minecraft.util.Unit.INSTANCE))
+                                net.minecraft.core.component.DataComponentType
+                                        .<com.mojang.serialization.Dynamic<?>>builder()
+                                        .persistent(com.mojang.serialization.Codec.PASSTHROUGH)
                                         .build());
                         count++;
                     }

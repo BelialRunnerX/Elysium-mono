@@ -1,6 +1,7 @@
 package com.elysium.solarpunk.power;
 
 import com.elysium.solarpunk.machine.SolarpunkMachineEntity;
+import com.elysium.lib.run.RunNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -152,6 +153,9 @@ public final class PowerGrid {
             BlockPos at = queue.poll();
             for (Direction face : Direction.values()) {
                 BlockPos side = at.relative(face);
+                if (isConduit(level, at) && isConduit(level, side) && !RunNetwork.joined(level, at, face)) {
+                    continue;      // a dyed conduit joins only its own colour: the walk stops where the links stop
+                }
                 if (!seen.add(side.immutable())) {
                     continue;
                 }
@@ -210,6 +214,9 @@ public final class PowerGrid {
             BlockPos at = queue.poll();
             for (Direction face : Direction.values()) {
                 BlockPos side = at.relative(face);
+                if (isConduit(level, at) && isConduit(level, side) && !RunNetwork.joined(level, at, face)) {
+                    continue;
+                }
                 if (!seen.add(side.immutable()) || !level.isLoaded(side)) {
                     continue;
                 }

@@ -457,7 +457,7 @@ refinery_src = strip_comments(read(SRC, "block/RefineryBlock.java"))
 refine_tick = body_of(refinery_src, "protected void serverTick(")
 if "items.extractItem(IN, 1, false);" not in refine_tick:
     fail("the refinery never consumes the ore it refines, which is a fourth unit out of nothing")
-if "items.insertItem(RECOVERED, recovered, true).isEmpty()" not in refine_tick:
+if "ElysiumSlots.roomFor(items, RECOVERED, recovered)" not in refine_tick:
     fail("the refinery does not check there is room for the companion before running, so it is lost")
 if "FoundryRules.refineryDraw()" not in body_of(refinery_src, "public IndustryRules.Machine machine()"):
     fail("the refinery draws something other than what the rules say its casing draws")

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "steel_wire_dyed",
+  "ingredients": [
+    {
+      "item": "elysiumindustry:steel_wire"
+    },
+    {
+      "item": "minecraft:cyan_dye"
+    }
+  ],
+  "result": {
+    "id": "elysiumindustry:steel_wire",
+    "count": 1,
+    "components": {
+      "elysiumlib:run_dye": "cyan"
+    }
+  }
+}

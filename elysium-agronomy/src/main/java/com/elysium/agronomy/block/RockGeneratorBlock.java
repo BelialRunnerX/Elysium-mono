@@ -1,5 +1,6 @@
 package com.elysium.agronomy.block;
 
+import com.elysium.lib.item.ElysiumSlots;
 import com.elysium.agronomy.registry.AgronomyBlockEntities;
 import com.elysium.agronomy.rules.AgronomyRules;
 import com.elysium.industry.block.GridBlock;
@@ -256,7 +257,7 @@ public class RockGeneratorBlock extends GridBlock {
             while (worked >= whole) {
                 worked -= whole;
                 ItemStack rock = new ItemStack(makes());
-                if (!items.insertItem(OUT, rock, true).isEmpty()) {
+                if (!ElysiumSlots.roomFor(items, OUT, rock)) {
                     worked = 0;                // full: stop counting rather than pile up
                     return;
                 }

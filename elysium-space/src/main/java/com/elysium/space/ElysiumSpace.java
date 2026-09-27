@@ -36,6 +36,10 @@ public final class ElysiumSpace {
         com.elysium.space.registry.SpaceFluids.BLOCKS.register(modEventBus);
         com.elysium.space.registry.SpaceFluids.ITEMS.register(modEventBus);
         SpaceBlocks.BLOCKS.register(modEventBus);
+        // Runs: the cable's plates are plasma-cyan, the pipe's are aetherium steel,
+        // until a dye says otherwise (RunRules).
+        com.elysium.lib.run.Runs.declare(SpaceBlocks.CABLE, 0x40C8E0);
+        com.elysium.lib.run.Runs.declare(SpaceBlocks.PIPE, 0x9AB0C8);
         com.elysium.space.worldgen.SpaceProcessors.TYPES.register(modEventBus);
         com.elysium.space.registry.SpaceData.ATTACHMENTS.register(modEventBus);
         com.elysium.space.registry.SpaceData.COMPONENTS.register(modEventBus);

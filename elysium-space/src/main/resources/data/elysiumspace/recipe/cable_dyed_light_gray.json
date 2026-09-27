@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "cable_dyed",
+  "ingredients": [
+    {
+      "item": "elysiumspace:cable"
+    },
+    {
+      "item": "minecraft:light_gray_dye"
+    }
+  ],
+  "result": {
+    "id": "elysiumspace:cable",
+    "count": 1,
+    "components": {
+      "elysiumlib:run_dye": "light_gray"
+    }
+  }
+}

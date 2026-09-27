@@ -40,6 +40,8 @@ public class ElysiumLogistics {
 
     public ElysiumLogistics(IEventBus modEventBus) {
         com.elysium.logistics.registry.LogisticBlocks.BLOCKS.register(modEventBus);
+        // The bus is a run; its plates are the network's teal until a dye says otherwise.
+        com.elysium.lib.run.Runs.declare(com.elysium.logistics.registry.LogisticBlocks.BUS, 0x5FB3CE);
         com.elysium.logistics.registry.LogisticItems.ITEMS.register(modEventBus);
         com.elysium.logistics.registry.LogisticItems.TABS.register(modEventBus);
         com.elysium.logistics.registry.LogisticBlockEntities.TYPES.register(modEventBus);

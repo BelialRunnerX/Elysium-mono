@@ -1,5 +1,6 @@
 package com.elysium.kinetics.block;
 
+import com.elysium.lib.item.ElysiumSlots;
 import com.elysium.kinetics.recipe.KineticRecipe;
 import com.elysium.kinetics.registry.KineticRecipes;
 import com.elysium.kinetics.rules.KineticRules;
@@ -235,7 +236,7 @@ public abstract class MachineBlock extends KineticBlock {
                 return;
             }
             ItemStack result = recipe.assemble(asked, level.registryAccess());
-            if (!items.insertItem(OUT, result, true).isEmpty()) {
+            if (!ElysiumSlots.roomFor(items, OUT, result)) {
                 return;                            // no room; stop rather than lose it
             }
             if (++done < recipe.ticksAt(speed)) {

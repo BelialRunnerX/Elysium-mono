@@ -1,5 +1,6 @@
 package com.elysium.industry.block;
 
+import com.elysium.lib.item.ElysiumSlots;
 import com.elysium.industry.recipe.PlantRecipe;
 import com.elysium.industry.rules.IndustryRules;
 import com.elysium.kinetics.block.KineticLine;
@@ -323,7 +324,7 @@ public abstract class PlantBlock extends GridBlock {
             PlantRecipe recipe = found.get().value();
             ItemStack result = recipe.assemble(asked, level.registryAccess());
             result.setCount(result.getCount() * plant.multiplier());
-            if (!items.insertItem(OUT, result, true).isEmpty()) {
+            if (!ElysiumSlots.roomFor(items, OUT, result)) {
                 return;                            // no room; stop rather than lose it
             }
             // Progress is made at the speed the machine is running at, so a

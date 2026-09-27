@@ -1,4 +1,6 @@
 {
+  "parent": "block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
     "t": "elysiumspace:block/cable",
     "particle": "elysiumspace:block/cable"
@@ -18,15 +20,7 @@
       "faces": {
         "north": {
           "texture": "#t",
-          "uv": [
-            5,
-            5,
-            11,
-            11
-          ]
-        },
-        "south": {
-          "texture": "#t",
+          "tintindex": 0,
           "uv": [
             5,
             5,
@@ -36,6 +30,17 @@
         },
         "east": {
           "texture": "#t",
+          "tintindex": 0,
+          "uv": [
+            5,
+            5,
+            11,
+            11
+          ]
+        },
+        "south": {
+          "texture": "#t",
+          "tintindex": 0,
           "uv": [
             5,
             5,
@@ -45,6 +50,7 @@
         },
         "west": {
           "texture": "#t",
+          "tintindex": 0,
           "uv": [
             5,
             5,
@@ -54,6 +60,7 @@
         },
         "up": {
           "texture": "#t",
+          "tintindex": 0,
           "uv": [
             5,
             5,
@@ -63,6 +70,7 @@
         },
         "down": {
           "texture": "#t",
+          "tintindex": 0,
           "uv": [
             5,
             5,

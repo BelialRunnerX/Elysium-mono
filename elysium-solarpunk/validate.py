@@ -635,11 +635,14 @@ print(f"tags               : {len(mineable)} mineable, {len(wall_tag)} walls, "
 # Independence
 # ---------------------------------------------------------------------------
 #
-# The whole argument for this being its own mod, and for neoforge.mods.toml
-# carrying no elysiumlib dependency, is that the set needs nothing else in
-# Elysium. One import is all it would take for that to stop being true while
-# the toml still says it is — and the failure lands on a player who installed
-# this mod on its own and got a crash about a missing class.
+# The argument for this being its own mod is that the set needs no content
+# module in Elysium. Since 26 September 2026 it does read the library, for one
+# reason: the power conduit is a run in the pack's shared sense (RunRules),
+# and one visual language for every pipe, cable and wire is worth the
+# dependency the toml now declares. Nothing else. One import from a content
+# module is all it would take for that to stop being true while the toml
+# still says it is — and the failure lands on a player who installed this mod
+# on its own and got a crash about a missing class.
 
 foreign = []
 for path in sorted(JAVA.rglob("*.java")):
@@ -648,7 +651,7 @@ for path in sorted(JAVA.rglob("*.java")):
             continue
         target = line[len("import "):].rstrip(";").replace("static ", "")
         if target.startswith("com.elysium.") and not target.startswith(
-                "com.elysium.solarpunk."):
+                "com.elysium.solarpunk.") and not target.startswith("com.elysium.lib.run."):
             foreign.append((path.name, target))
 
 for filename, target in foreign:
@@ -659,9 +662,9 @@ for filename, target in foreign:
 
 toml = (WORK / "src/main/resources/META-INF/neoforge.mods.toml").read_text(encoding="utf-8")
 declared = set(re.findall(r'modId="(\w+)"', toml)) - {NS}
-if declared != {"neoforge", "minecraft"}:
+if declared != {"neoforge", "minecraft", "elysiumlib"}:
     fail(f"neoforge.mods.toml declares dependencies {sorted(declared)}; this mod "
-         f"is meant to depend on neoforge and minecraft and nothing else")
+         f"is meant to depend on neoforge, minecraft and the library (for the runs) and nothing else")
 
 print(f"independence       : 0 imports from other Elysium mods, "
       f"{len(declared)} declared dependencies")
@@ -1449,6 +1452,14 @@ else:
         "ELYSIUM_ANNOTATIONS", "/opt/gradle-8.14.3/lib/annotations-24.0.1.jar")
     if os.path.isfile(_annotations):
         _cp += os.pathsep + _annotations
+    # The conduit is a run and reads the library's run package, so the
+    # library's compiled classes (compile.sh's output) join the classpath.
+    _lib_classes = os.path.join(os.environ.get("ELYSIUM_OUT", "/tmp/elysium-classes"), "elysium-lib")
+    if os.path.isdir(_lib_classes):
+        _cp += os.pathsep + _lib_classes
+    else:
+        print(f"machine numbers    : the library's classes are not at {_lib_classes}; "
+              f"run compile.sh first or the harness cannot see the runs")
 
     with tempfile.TemporaryDirectory() as scratch:
         _module = os.path.join(scratch, "module")
@@ -1795,115 +1806,56 @@ elif "notePaid()" not in _extract:
     fail("nothing clears the brownout counter on a paid tick, so every machine "
          "that is ever briefly short stays reported as browned out for good")
 
-# 8. The pipe a player sees and the pipe a player bumps into are the same pipe.
-#
-# The shape is stated twice and has to be: the model is JSON the client draws,
-# the VoxelShape is Java the server collides against. Nothing in Minecraft
-# reconciles them, so a one-pixel edit to either is a conduit you can stand
-# inside or one that stops you a pixel short of itself — and neither throws.
-#
-# Rather than copying the six arm boxes into this file, the north arm is taken
-# from the generator and the other five are *derived* by rotating it, then
-# compared against what the Java declares. That way the check cannot agree with
-# the code by construction: it works out where the arms should be from one box
-# and the rotations the blockstate claims to apply.
+# 7b. A machine's own work never goes through the outward limits. A consumer
+# lets no cable drain it (extract limit 0) and a source takes nothing from a
+# cable (receive limit 0); a machine that spends or fills itself through
+# extractEnergy/receiveEnergy is bounded by those and does nothing, which is
+# what every solarpunk machine did until the live test asked a condenser at
+# noon for a single unit (27 September 2026).
+for _q in sorted((WORK / "src/main/java/com/elysium/solarpunk/machine").glob("*Entity.java")):
+    _text = _q.read_text(encoding="utf-8")
+    for _bad in ("energy.extractEnergy(", "energy.receiveEnergy("):
+        if _bad in _text and _q.name != "SolarpunkMachineEntity.java":
+            fail(f"{_q.name} does its own work through {_bad}...), which the buffer's outward "
+                 f"limit bounds: a consumer with extract limit 0 never spends and a source with "
+                 f"receive limit 0 never fills. Use energy.spend/canSpend/produce")
+_store = _method_body(_base, "public boolean canSpend(int amount)")
+_spend = _method_body(_base, "public boolean spend(int amount)")
+if _store is None or "noteUnpaid()" not in _store or _spend is None or "notePaid()" not in _spend:
+    fail("the buffer's own spend path no longer drives the brownout counter, so a starved "
+         "machine never reports it")
 
-def _rotate_box(box, turn):
-    """One of the five rotations the multipart blockstate applies to the arm."""
-    x1, y1, z1, x2, y2, z2 = box
-    if turn == "y90":
-        points = [(16 - z1, y1, x1), (16 - z2, y2, x2)]
-    elif turn == "y180":
-        points = [(16 - x1, y1, 16 - z1), (16 - x2, y2, 16 - z2)]
-    elif turn == "y270":
-        points = [(z1, y1, 16 - x1), (z2, y2, 16 - x2)]
-    elif turn == "x270":
-        points = [(x1, 16 - z1, y1), (x2, 16 - z2, y2)]
-    elif turn == "x90":
-        points = [(x1, z1, 16 - y1), (x2, z2, 16 - y2)]
-    else:
-        raise ValueError(turn)
-    lows = [min(a, b) for a, b in zip(*points)]
-    highs = [max(a, b) for a, b in zip(*points)]
-    return tuple(lows + highs)
+# 7c. The out-tray is filled by placing, never by inserting: its insertItem
+# refuses the world, and the machine is not the world.
+_output = (WORK / "src/main/java/com/elysium/solarpunk/machine/SolarpunkOutput.java").read_text(encoding="utf-8")
+_store = _method_body(_output, "public static void store(ItemStackHandler tray, ItemStack stack)")
+if _store is None or "insertItemStacked(tray" in _store or "tray.insertItem(" in _store or "tray.setStackInSlot(" not in _store:
+    fail("SolarpunkOutput.store fills the out-tray through insertItem, which the tray refuses "
+         "for everyone, so every harvest is cut and lost. Place into the tray with setStackInSlot")
 
+# 7d. A processor's input filter judges a whole stack. A hopper offers one
+# item at a time, and a recipe that wants four of them refused each one, so
+# no hopper could feed a press or a loom (live test, 27 September 2026).
+_proc = (WORK / "src/main/java/com/elysium/solarpunk/machine/ProcessingMachineEntity.java").read_text(encoding="utf-8")
+_wants = _method_body(_proc, "private boolean wants(ItemStack stack)")
+if _wants is None or "recipeFor(stack.copyWithCount(stack.getMaxStackSize()))" not in _wants:
+    fail("ProcessingMachineEntity.wants asks the recipes about the stack in hand, so a recipe "
+         "that wants four refuses a hopper's one at a time. Ask about a whole stack")
 
+# 8. The conduit is a run: the shared check covers its shape against its
+# collision, its plates, its tints, its dye recipes and its Java.
+import importlib.util as _ilu
+_runs_spec = _ilu.spec_from_file_location("art_runs", str(WORK.parent / "art" / "runs.py"))
+_art_runs = _ilu.module_from_spec(_runs_spec)
+_runs_spec.loader.exec_module(_art_runs)
 _conduit_src = (_power / "PowerConduitBlock.java").read_text(encoding="utf-8")
-_declared_boxes = {
-    face: tuple(int(n) for n in nums.split(","))
-    for face, nums in re.findall(
-        r"ARM_SHAPES\.put\(Direction\.([A-Z]+), Block\.box\(([^)]*)\)\)",
-        _conduit_src)
-}
-_core_box = re.search(r"VoxelShape CORE = Block\.box\(([^)]*)\)", _conduit_src)
-
-if gen_solarpunk is None:
-    pass
-elif _core_box is None or len(_declared_boxes) != 6:
-    fail(f"PowerConduitBlock no longer declares a core and six arm shapes "
-         f"({len(_declared_boxes)} arm(s) found); the pipe would collide as "
-         f"whatever is left")
-else:
-    _core = tuple(int(n) for n in _core_box.group(1).split(","))
-    if _core != tuple(gen_solarpunk.PIPE_CORE):
-        fail(f"the conduit's collision core is {_core} and its model's core is "
-             f"{tuple(gen_solarpunk.PIPE_CORE)} — a player would stand inside "
-             f"the pipe, or stop short of it")
-    _north = tuple(gen_solarpunk.PIPE_ARM)
-    _derived = {
-        "NORTH": _north,
-        "EAST": _rotate_box(_north, "y90"),
-        "SOUTH": _rotate_box(_north, "y180"),
-        "WEST": _rotate_box(_north, "y270"),
-        "UP": _rotate_box(_north, "x270"),
-        "DOWN": _rotate_box(_north, "x90"),
-    }
-    for _face, _want in _derived.items():
-        if _declared_boxes.get(_face) != _want:
-            fail(f"the conduit's {_face} arm collides at "
-                 f"{_declared_boxes.get(_face)} and the model draws it at "
-                 f"{_want}; the shape a player sees and the shape they walk "
-                 f"into have drifted apart")
-
-# 9. The multipart names exactly the properties the block has.
-#
-# A blockstate naming a property the block does not declare loads as a missing
-# model — the purple cube — and the log line for it scrolls past during startup
-# among the resource-pack chatter.
-_conduit_states = json.load(
-    open(RES / f"assets/{NS}/blockstates/power_conduit.json", encoding="utf-8"))
-_when_keys = {key for case in _conduit_states.get("multipart", [])
-              for key in case.get("when", {})}
-_java_props = set(re.findall(
-    r"BooleanProperty ([A-Z]+) = BlockStateProperties\.[A-Z]+", _conduit_src))
-if _when_keys != {name.lower() for name in _java_props}:
-    fail(f"the conduit's blockstate switches on {sorted(_when_keys)} and the "
-         f"block declares {sorted(name.lower() for name in _java_props)}; a "
-         f"case that names a property the block has not got renders as the "
-         f"missing-model cube")
-elif len(_conduit_states.get("multipart", [])) != 7:
-    fail(f"the conduit's multipart has "
-         f"{len(_conduit_states.get('multipart', []))} case(s); it wants a "
-         f"core and one arm per face")
-
-# 10. The arms' outward faces are left off, and the core's are not.
-#
-# An arm that draws its end face z-fights with whatever it is plugged into,
-# which reads as a flickering seam along every pipe run in the base.
-_arm_model = json.load(open(
-    RES / f"assets/{NS}/models/block/power_conduit_arm.json", encoding="utf-8"))
-if "north" in _arm_model["elements"][0]["faces"]:
-    fail("the conduit's arm draws its outward face, which z-fights with the "
-         "block it reaches into")
-_core_model = json.load(open(
-    RES / f"assets/{NS}/models/block/power_conduit_core.json", encoding="utf-8"))
-if len(_core_model["elements"][0]["faces"]) != 6:
-    fail("the conduit's core is missing a face, so a pipe with no arm on that "
-         "side is see-through")
-
-# ---------------------------------------------------------------------------
-# C2: the automation vocabulary
-# ---------------------------------------------------------------------------
+for _problem in _art_runs.check(NS, "power_conduit", str(RES), _conduit_src):
+    fail(_problem)
+if "Runs.declare(SolarpunkContent.POWER_CONDUIT," not in (WORK / "src/main/java/com/elysium/solarpunk/ElysiumSolarpunk.java").read_text(encoding="utf-8"):
+    fail("the conduit is not declared a run, so its plates have no colour and no tint handler")
+if 'register("power_conduit"' not in (WORK / "src/main/java/com/elysium/solarpunk/machine/SolarpunkMachines.java").read_text(encoding="utf-8"):
+    fail("the conduit has no block entity to remember a dye in")
+print("runs               : the conduit draws arms and plates, takes a dye, and keeps it")
 
 _gov_src = (_power / "PowerGovernorBlock.java").read_text(encoding="utf-8")
 

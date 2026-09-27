@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "copper_wire_dyed",
+  "ingredients": [
+    {
+      "item": "elysiumindustry:copper_wire"
+    },
+    {
+      "item": "minecraft:magenta_dye"
+    }
+  ],
+  "result": {
+    "id": "elysiumindustry:copper_wire",
+    "count": 1,
+    "components": {
+      "elysiumlib:run_dye": "magenta"
+    }
+  }
+}

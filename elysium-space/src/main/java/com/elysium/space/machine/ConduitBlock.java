@@ -1,42 +1,53 @@
 package com.elysium.space.machine;
 
+import com.elysium.lib.run.RunBlock;
+import com.elysium.lib.run.RunSides;
+import com.elysium.lib.run.Runs;
 import com.mojang.serialization.MapCodec;
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.PipeBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
-
 /**
- * A cable (energy) or pipe (fluids): a core with an arm towards every
- * neighbour that can take or give what it carries, whichever mod made it.
- * Stellaris's cables and pipes, on NeoForge capabilities.
+ * A cable or a pipe: a run, in the pack's shared sense.
+ *
+ * <p>Each face is {@code none}, {@code run} or {@code device}. A run is
+ * another block of this kind whose dye this one may join; a device is
+ * anything that offers the capability this run carries - energy for a
+ * cable, fluid for a pipe - and gets the plate. The rule about dyes, the
+ * dyeing itself, the pick and the shape all come from {@link Runs}, so a
+ * cable behaves like a wire behaves like a bus.
  */
-public class ConduitBlock extends BaseEntityBlock {
+public class ConduitBlock extends BaseEntityBlock implements RunBlock {
 
     public enum Carries { ENERGY, FLUID }
-
-    public static final Map<Direction, BooleanProperty> ARMS = PipeBlock.PROPERTY_BY_DIRECTION;
 
     private static final VoxelShape CORE = Block.box(5, 5, 5, 11, 11, 11);
     private static final Map<Direction, VoxelShape> ARM_SHAPES = Map.of(
@@ -51,15 +62,11 @@ public class ConduitBlock extends BaseEntityBlock {
     public ConduitBlock(Properties properties, Carries carries,
                         Supplier<? extends BlockEntityType<? extends ConduitBlockEntity>> type,
                         BiFunction<BlockPos, BlockState, ? extends ConduitBlockEntity> factory) {
-        super(properties);
+        super(Runs.properties(properties));
         this.carries = carries;
         this.type = type;
         this.factory = factory;
-        BlockState state = stateDefinition.any();
-        for (BooleanProperty arm : ARMS.values()) {
-            state = state.setValue(arm, false);
-        }
-        registerDefaultState(state);
+        registerDefaultState(Runs.untouched(stateDefinition.any()));
     }
 
     @Override
@@ -69,48 +76,61 @@ public class ConduitBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        ARMS.values().forEach(builder::add);
+        Runs.define(builder);
     }
 
     private BlockCapability<?, Direction> capability() {
         return carries == Carries.ENERGY ? Capabilities.EnergyStorage.BLOCK : Capabilities.FluidHandler.BLOCK;
     }
 
-    private boolean connects(LevelAccessor level, BlockPos pos, Direction side) {
-        BlockPos next = pos.relative(side);
-        if (level.getBlockState(next).getBlock() == this) {
-            return true;
-        }
-        return level instanceof Level real && real.getCapability(capability(), next, side.getOpposite()) != null;
+    /** A device is whatever offers what this run carries, on the face it is touched. */
+    private boolean device(LevelAccessor level, BlockPos at, Direction face) {
+        return level instanceof Level real && real.getCapability(capability(), at, face) != null;
     }
 
-    private BlockState withArms(BlockState state, LevelAccessor level, BlockPos pos) {
-        for (Map.Entry<Direction, BooleanProperty> e : ARMS.entrySet()) {
-            state = state.setValue(e.getValue(), connects(level, pos, e.getKey()));
-        }
-        return state;
+    @Override
+    public Runs.DeviceTest runDevice() {
+        return this::device;
+    }
+
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState old, boolean moving) {
+        super.onPlace(state, level, pos, old, moving);
+        Runs.placedBlind(level, pos, state, this::device);
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return withArms(defaultBlockState(), context.getLevel(), context.getClickedPos());
+        return Runs.relink(context.getLevel(), context.getClickedPos(), defaultBlockState(), this::device);
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity by, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, by, stack);
+        Runs.placed(level, pos, stack, this::device);
     }
 
     @Override
     protected BlockState updateShape(BlockState state, Direction side, BlockState neighbour, LevelAccessor level,
                                      BlockPos pos, BlockPos neighbourPos) {
-        return state.setValue(ARMS.get(side), connects(level, pos, side));
+        return state.setValue(RunSides.BY_SIDE.get(side), Runs.link(level, pos, side, this, this::device));
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack held, BlockState state, Level level, BlockPos pos,
+                                              Player player, InteractionHand hand, BlockHitResult hit) {
+        return Runs.dye(held, level, pos, player, hand, this::device);
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos,
+                                       Player player) {
+        return Runs.clone(super.getCloneItemStack(state, target, level, pos, player), level, pos);
     }
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        VoxelShape shape = CORE;
-        for (Map.Entry<Direction, BooleanProperty> e : ARMS.entrySet()) {
-            if (state.getValue(e.getValue())) {
-                shape = Shapes.or(shape, ARM_SHAPES.get(e.getKey()));
-            }
-        }
-        return shape;
+        return Runs.shape(state, CORE, ARM_SHAPES);
     }
 
     @Override

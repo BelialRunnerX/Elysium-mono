@@ -36,6 +36,16 @@ public final class ElysiumComponents {
      * reads as tier 1 — see {@link ElysiumRuneStacks#tierOf}. Part of the stack's
      * identity, so a tier-1 and a tier-2 rune never stack together.
      */
+    /**
+     * The dye a run item wears, by the game's dye name, so a dyed pipe in a
+     * chest is the same pipe placed. See {@link com.elysium.lib.run.RunRules}.
+     */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>>
+            RUN_DYE = COMPONENTS.registerComponentType("run_dye", builder -> builder
+                    .persistent(com.mojang.serialization.Codec.STRING)
+                    .networkSynchronized(
+                            net.minecraft.network.codec.ByteBufCodecs.STRING_UTF8));
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>>
             RUNE_TIER = COMPONENTS.registerComponentType("rune_tier", builder -> builder
                     .persistent(com.mojang.serialization.Codec.INT)

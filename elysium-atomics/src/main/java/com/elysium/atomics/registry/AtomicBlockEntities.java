@@ -38,6 +38,13 @@ public final class AtomicBlockEntities {
                             com.elysium.atomics.rules.HallRules.CONTROLLER).get())
             .build(null));
 
+    /** The channel's dye, and nothing else: a run remembers its colour. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.lib.run.RunDyeBlockEntity>>
+            COOLANT_CHANNEL = TYPES.register("coolant_channel", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new com.elysium.lib.run.RunDyeBlockEntity(AtomicBlockEntities.COOLANT_CHANNEL.get(), pos, state),
+                    AtomicBlocks.COOLANT_CHANNEL.get())
+            .build(null));
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CellBlock.CellBlockEntity>>
             CELL = TYPES.register("cell", () -> BlockEntityType.Builder.of(
                     CellBlock.CellBlockEntity::new,

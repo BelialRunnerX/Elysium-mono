@@ -7,7 +7,14 @@
     },
     {
       "when": {
-        "north": "true"
+        "OR": [
+          {
+            "north": "run"
+          },
+          {
+            "north": "device"
+          }
+        ]
       },
       "apply": {
         "model": "elysiumsolarpunk:block/power_conduit_arm"
@@ -15,7 +22,22 @@
     },
     {
       "when": {
-        "east": "true"
+        "north": "device"
+      },
+      "apply": {
+        "model": "elysiumsolarpunk:block/power_conduit_plate"
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "east": "run"
+          },
+          {
+            "east": "device"
+          }
+        ]
       },
       "apply": {
         "model": "elysiumsolarpunk:block/power_conduit_arm",
@@ -24,7 +46,23 @@
     },
     {
       "when": {
-        "south": "true"
+        "east": "device"
+      },
+      "apply": {
+        "model": "elysiumsolarpunk:block/power_conduit_plate",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "south": "run"
+          },
+          {
+            "south": "device"
+          }
+        ]
       },
       "apply": {
         "model": "elysiumsolarpunk:block/power_conduit_arm",
@@ -33,7 +71,23 @@
     },
     {
       "when": {
-        "west": "true"
+        "south": "device"
+      },
+      "apply": {
+        "model": "elysiumsolarpunk:block/power_conduit_plate",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "west": "run"
+          },
+          {
+            "west": "device"
+          }
+        ]
       },
       "apply": {
         "model": "elysiumsolarpunk:block/power_conduit_arm",
@@ -42,7 +96,23 @@
     },
     {
       "when": {
-        "up": "true"
+        "west": "device"
+      },
+      "apply": {
+        "model": "elysiumsolarpunk:block/power_conduit_plate",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "up": "run"
+          },
+          {
+            "up": "device"
+          }
+        ]
       },
       "apply": {
         "model": "elysiumsolarpunk:block/power_conduit_arm",
@@ -51,10 +121,35 @@
     },
     {
       "when": {
-        "down": "true"
+        "up": "device"
+      },
+      "apply": {
+        "model": "elysiumsolarpunk:block/power_conduit_plate",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "down": "run"
+          },
+          {
+            "down": "device"
+          }
+        ]
       },
       "apply": {
         "model": "elysiumsolarpunk:block/power_conduit_arm",
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "down": "device"
+      },
+      "apply": {
+        "model": "elysiumsolarpunk:block/power_conduit_plate",
         "x": 90
       }
     }

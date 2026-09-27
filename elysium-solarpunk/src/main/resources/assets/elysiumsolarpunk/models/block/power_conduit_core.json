@@ -1,6 +1,8 @@
 {
+  "parent": "block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
-    "pipe": "elysiumsolarpunk:block/power_conduit",
+    "t": "elysiumsolarpunk:block/power_conduit",
     "particle": "elysiumsolarpunk:block/power_conduit"
   },
   "elements": [
@@ -17,58 +19,64 @@
       ],
       "faces": {
         "north": {
+          "texture": "#t",
+          "tintindex": 0,
           "uv": [
             5,
             5,
             11,
             11
-          ],
-          "texture": "#pipe"
-        },
-        "south": {
-          "uv": [
-            5,
-            5,
-            11,
-            11
-          ],
-          "texture": "#pipe"
-        },
-        "west": {
-          "uv": [
-            5,
-            5,
-            11,
-            11
-          ],
-          "texture": "#pipe"
+          ]
         },
         "east": {
+          "texture": "#t",
+          "tintindex": 0,
           "uv": [
             5,
             5,
             11,
             11
-          ],
-          "texture": "#pipe"
+          ]
+        },
+        "south": {
+          "texture": "#t",
+          "tintindex": 0,
+          "uv": [
+            5,
+            5,
+            11,
+            11
+          ]
+        },
+        "west": {
+          "texture": "#t",
+          "tintindex": 0,
+          "uv": [
+            5,
+            5,
+            11,
+            11
+          ]
         },
         "up": {
+          "texture": "#t",
+          "tintindex": 0,
           "uv": [
             5,
             5,
             11,
             11
-          ],
-          "texture": "#pipe"
+          ]
         },
         "down": {
+          "texture": "#t",
+          "tintindex": 0,
           "uv": [
             5,
             5,
             11,
             11
-          ],
-          "texture": "#pipe"
+          ]
         }
       }
     }

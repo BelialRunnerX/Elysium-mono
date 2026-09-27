@@ -330,20 +330,11 @@ CONDUIT_ARMS = {
 
 
 def conduit_models():
-    """Cables and pipes: a 6-pixel core and an arm to each connected side."""
-    faces = lambda tex: {f: {"texture": "#t", "uv": [5, 5, 11, 11]}
-                         for f in ("north", "south", "east", "west", "up", "down")}
+    """Cables and pipes are runs: core, arms, plates and dye recipes come from art/runs.py."""
+    sys.path.insert(0, os.path.join(os.path.dirname(HERE), "art"))
+    import runs as art_runs
     for name in ("cable", "pipe"):
-        tex = f"{NS}:block/{name}"
-        write(os.path.join(BM, f"{name}_core.json"), {"textures": {"t": tex, "particle": tex},
-              "elements": [{"from": [5, 5, 5], "to": [11, 11, 11], "faces": faces(tex)}]})
-        parts = [{"apply": {"model": f"{NS}:block/{name}_core"}}]
-        for side, (a, b) in CONDUIT_ARMS.items():
-            write(os.path.join(BM, f"{name}_{side}.json"), {"textures": {"t": tex, "particle": tex},
-                  "elements": [{"from": a, "to": b, "faces": faces(tex)}]})
-            parts.append({"when": {side: "true"}, "apply": {"model": f"{NS}:block/{name}_{side}"}})
-        write(os.path.join(BS, name + ".json"), {"multipart": parts})
-        write(os.path.join(IM, name + ".json"), {"parent": f"{NS}:block/{name}_core"})
+        art_runs.write_all(NS, name, f"{NS}:block/{name}", ASSETS, DATA, write)
     sys.path.insert(0, os.path.join(os.path.dirname(HERE), "art"))
     import sprites as art_sprites
     art_sprites.WORKSTATION_INLAY["cable"] = ([(x, 7) for x in range(16)] + [(x, 8) for x in range(16)], [])

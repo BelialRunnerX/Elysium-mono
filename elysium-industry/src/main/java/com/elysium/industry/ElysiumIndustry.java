@@ -40,6 +40,10 @@ public class ElysiumIndustry {
 
     public ElysiumIndustry(IEventBus modEventBus) {
         com.elysium.industry.registry.IndustryBlocks.BLOCKS.register(modEventBus);
+        // The wires are runs; each one's plates are its own metal until a dye says otherwise.
+        com.elysium.lib.run.Runs.declare(com.elysium.industry.registry.IndustryBlocks.COPPER_WIRE, 0xB87333);
+        com.elysium.lib.run.Runs.declare(com.elysium.industry.registry.IndustryBlocks.GOLD_WIRE, 0xE0B040);
+        com.elysium.lib.run.Runs.declare(com.elysium.industry.registry.IndustryBlocks.STEEL_WIRE, 0x8A9AA8);
         com.elysium.industry.registry.IndustryItems.ITEMS.register(modEventBus);
         com.elysium.industry.registry.IndustryItems.TABS.register(modEventBus);
         com.elysium.industry.registry.IndustryBlockEntities.TYPES.register(modEventBus);

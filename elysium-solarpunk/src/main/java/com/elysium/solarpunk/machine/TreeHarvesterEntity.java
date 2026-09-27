@@ -149,7 +149,7 @@ public class TreeHarvesterEntity extends SolarpunkMachineEntity {
         if (SolarpunkOutput.isFull(tray)) {
             return;
         }
-        if (energy.extractEnergy(COST_PER_TREE, true) < COST_PER_TREE) {
+        if (!energy.canSpend(COST_PER_TREE)) {
             return;
         }
         for (int step = 0; step < SCAN_PER_TICK; step++) {
@@ -158,7 +158,7 @@ public class TreeHarvesterEntity extends SolarpunkMachineEntity {
                 continue;
             }
             if (fell(server, base)) {
-                energy.extractEnergy(COST_PER_TREE, false);
+                energy.spend(COST_PER_TREE);
                 return;                 // one tree a tick at most
             }
         }

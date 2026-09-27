@@ -75,7 +75,7 @@ public class SolarCondenserEntity extends SolarpunkMachineEntity {
                 level.getBrightness(LightLayer.SKY, worldPosition.above())
                         - level.getSkyDarken());
         if (made > 0) {
-            energy.receiveEnergy(made, false);
+            energy.produce(made);
         }
         SolarpunkPower.push(level, worldPosition, energy, TRANSFER);
     }

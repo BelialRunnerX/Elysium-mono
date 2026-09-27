@@ -94,7 +94,7 @@ public class WindCapstanEntity extends SolarpunkMachineEntity {
         int made = outputFor(level.canSeeSky(worldPosition.above()),
                 exposure(), worldPosition.getY());
         if (made > 0) {
-            energy.receiveEnergy(made, false);
+            energy.produce(made);
         }
         SolarpunkPower.push(level, worldPosition, energy, TRANSFER);
     }

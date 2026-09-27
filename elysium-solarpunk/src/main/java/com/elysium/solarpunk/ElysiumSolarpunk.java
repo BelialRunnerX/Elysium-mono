@@ -65,6 +65,8 @@ public class ElysiumSolarpunk {
         // every get() in that class is inside a lambda that runs after the
         // registry events have fired.
         SolarpunkContent.register(modEventBus);
+        // The conduit is a run; its plates are brass until a dye says otherwise.
+        com.elysium.lib.run.Runs.declare(SolarpunkContent.POWER_CONDUIT, 0xC8A24A);
 
         LOGGER.info("Elysium Solarpunk ready: {} blocks", SolarpunkContent.blockCount());
     }

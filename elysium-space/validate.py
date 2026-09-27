@@ -421,6 +421,23 @@ for f in os.listdir(os.path.join(DATA, "damage_type")):
     for k in (f"death.attack.{msg}", f"death.attack.{msg}.player"):
         if k not in lang:
             fail(f"damage type {f[:-5]} dies with the raw key {k}")
+# The cable and the pipe are runs: arms, plates, dye and pick as every run in
+# the pack, checked by the shared art/runs.py so six modules agree.
+import importlib.util as _ilu
+_runs_spec = _ilu.spec_from_file_location("art_runs", os.path.join(os.path.dirname(WORK), "art", "runs.py"))
+_art_runs = _ilu.module_from_spec(_runs_spec)
+_runs_spec.loader.exec_module(_art_runs)
+_conduit_src = open(os.path.join(SRC, "machine/ConduitBlock.java"), encoding="utf-8").read()
+for _run in ("cable", "pipe"):
+    for _problem in _art_runs.check("elysiumspace", _run, RES, _conduit_src):
+        fail(_problem)
+if "com.elysium.lib.run.Runs.declare(SpaceBlocks.CABLE," not in open(os.path.join(SRC, "ElysiumSpace.java"), encoding="utf-8").read() \
+        or "com.elysium.lib.run.Runs.declare(SpaceBlocks.PIPE," not in open(os.path.join(SRC, "ElysiumSpace.java"), encoding="utf-8").read():
+    fail("the cable or the pipe is not declared a run, so its plates have no colour and no tint handler")
+if "implements RunDyed" not in open(os.path.join(SRC, "machine/ConduitBlockEntity.java"), encoding="utf-8").read():
+    fail("a conduit forgets its dye: the block entity does not carry it")
+print("runs               : the cable and the pipe draw arms and plates, take a dye, and keep it")
+
 # Machines run on the tested rules, and pipes respect inputs and outputs.
 def _src(rel):
     return strip_comments(open(os.path.join(SRC, rel), encoding="utf-8").read())

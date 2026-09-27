@@ -48,6 +48,8 @@ public class ElysiumAtomics {
 
     public ElysiumAtomics(IEventBus modEventBus) {
         com.elysium.atomics.registry.AtomicBlocks.BLOCKS.register(modEventBus);
+        // The coolant channel is a run; its plates are ice-blue until a dye says otherwise.
+        com.elysium.lib.run.Runs.declare(com.elysium.atomics.registry.AtomicBlocks.COOLANT_CHANNEL, 0x7FD6E8);
         com.elysium.atomics.registry.AtomicItems.ITEMS.register(modEventBus);
         com.elysium.atomics.registry.AtomicItems.TABS.register(modEventBus);
         com.elysium.atomics.registry.AtomicBlockEntities.TYPES.register(modEventBus);

@@ -490,12 +490,12 @@ def engine_model(front, side, top):
 
 def models_and_states():
     written = 0
+    # The wires are runs: core, arms, plates and dye recipes come from
+    # art/runs.py, the same as every pipe, cable, conduit and bus in the pack.
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)), "art"))
+    import runs as art_runs
     for name in WIRES:
-        write(os.path.join(ASSETS, "models/block", name + ".json"), wire_model(name))
-        write(os.path.join(ASSETS, "blockstates", name + ".json"),
-              {"variants": {"": {"model": f"{NS}:block/{name}"}}})
-        write(os.path.join(ASSETS, "models/item", name + ".json"),
-              {"parent": f"{NS}:block/{name}"})
+        art_runs.write_all(NS, name, f"{NS}:block/{name}", ASSETS, DATA, write)
         written += 1
     for name, (top, side) in CUBES.items():
         write(os.path.join(ASSETS, "models/block", name + ".json"), cube(top, side))

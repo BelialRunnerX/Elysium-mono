@@ -920,6 +920,34 @@ if f'MODID = "{NS}"' not in main_class:
 print("what it declares   : the game, the library, the age below, and a spec the ages "
       "above can read")
 
+# the wires run(s): arms, plates, dye and pick as every run in the pack, checked by
+# the shared art/runs.py so six modules agree.
+import importlib.util as _ilu
+_runs_spec = _ilu.spec_from_file_location("art_runs", os.path.join(os.path.dirname(str(WORK)), "art", "runs.py"))
+_art_runs = _ilu.module_from_spec(_runs_spec)
+_runs_spec.loader.exec_module(_art_runs)
+_run_java = open(os.path.join(str(SRC), "block/WireBlock.java"), encoding="utf-8").read()
+for _run in ("copper_wire", "gold_wire", "steel_wire"):
+    for _problem in _art_runs.check("elysiumindustry", _run, str(RES), _run_java):
+        fail(_problem)
+_mod_java = open(os.path.join(str(SRC), "ElysiumIndustry.java"), encoding="utf-8").read()
+for _run in ("copper_wire", "gold_wire", "steel_wire"):
+    if "com.elysium.lib.run.Runs.declare(" not in _mod_java:
+        fail(f"{_run} is not declared a run, so its plates have no colour and no tint handler")
+        break
+print("runs               : the wires draw arms and plates, take a dye, and keep it")
+
+
+# A node whose want changes with what it holds re-solves its line. A centrifuge
+# wants nothing until a comb arrives, and nothing else re-solved the line when
+# one did: the turbine never lit and the comb sat there (live test, 27
+# September 2026). The tick compares the want with the last solved one.
+_gbe = strip_comments(read(SRC, "block/GridBlockEntity.java"))
+_gtick = body_of(_gbe, "public static void tick(Level level, BlockPos pos, BlockState state, GridBlockEntity be)")
+if "IndustryRules.Machine machine = be.machine();" not in _gtick or "if (asking != be.asked) {" not in _gtick:
+    fail("GridBlockEntity.tick does not re-solve the line when a node's want changes, so a machine "
+         "that starts wanting power after the line was solved is never fed")
+
 if problems:
     print(f"{len(problems)} PROBLEM(S):")
     for problem in problems:

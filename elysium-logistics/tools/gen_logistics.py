@@ -352,12 +352,11 @@ def models_and_states():
               {"parent": f"{NS}:block/{tier}_0"})
         written += 1
 
-    low, high = BUS_BOX
-    bus = pillar(high - low, "bus", "bus_end")
-    write(os.path.join(ASSETS, "models/block", "bus.json"), bus)
-    write(os.path.join(ASSETS, "blockstates", "bus.json"),
-          {"variants": {"": {"model": f"{NS}:block/bus"}}})
-    write(os.path.join(ASSETS, "models/item", "bus.json"), {"parent": f"{NS}:block/bus"})
+    # The bus is a run: core, arms, plates and dye recipes come from
+    # art/runs.py, the same as every pipe, cable, wire and conduit in the pack.
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)), "art"))
+    import runs as art_runs
+    art_runs.write_all(NS, "bus", f"{NS}:block/bus", ASSETS, DATA, write)
     written += 1
 
     write(os.path.join(ASSETS, "models/block", "controller.json"),

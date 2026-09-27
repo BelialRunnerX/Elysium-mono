@@ -57,7 +57,7 @@ public abstract class SolarpunkMachineEntity extends BlockEntity {
      */
     public static final int BROWNOUT_AFTER = 40;
 
-    protected final EnergyStorage energy;
+    protected final Store energy;
 
     private int unpaidTicks;
 
@@ -65,36 +65,80 @@ public abstract class SolarpunkMachineEntity extends BlockEntity {
                                      BlockState state,
                                      int capacity, int maxReceive, int maxExtract) {
         super(type, pos, state);
-        this.energy = new EnergyStorage(capacity, maxReceive, maxExtract) {
-            @Override
-            public int receiveEnergy(int toReceive, boolean simulate) {
-                int received = super.receiveEnergy(toReceive, simulate);
-                if (received > 0 && !simulate) {
-                    setChanged();
-                }
-                return received;
-            }
+        this.energy = new Store(capacity, maxReceive, maxExtract);
+    }
 
-            @Override
-            public int extractEnergy(int toExtract, boolean simulate) {
-                int extracted = super.extractEnergy(toExtract, simulate);
-                if (toExtract > 0) {
-                    if (extracted < toExtract) {
-                        // Asked, and the buffer could not cover it. Counted on
-                        // the simulated call as well as the real one, because
-                        // the simulated call is the only one a starved machine
-                        // ever makes — it gives up before spending.
-                        noteUnpaid();
-                    } else if (!simulate) {
-                        notePaid();
-                    }
-                }
-                if (extracted > 0 && !simulate) {
-                    setChanged();
-                }
-                return extracted;
+    /**
+     * The machine's buffer. What a neighbour may put in or take out is
+     * bounded by the receive and extract limits, as any FE store; what the
+     * machine itself makes or spends is not, because a consumer lets no
+     * cable drain it (extract limit 0) and a source takes nothing from a
+     * cable (receive limit 0), and each still has to do its own work.
+     * Before this every machine went through the outward limits for its
+     * own work, so a condenser made nothing and a kiln never fired.
+     */
+    protected class Store extends EnergyStorage {
+        Store(int capacity, int maxReceive, int maxExtract) {
+            super(capacity, maxReceive, maxExtract);
+        }
+
+        /** Adds what the machine made itself; returns what fit. */
+        public int produce(int amount) {
+            int added = Math.max(0, Math.min(capacity - energy, amount));
+            if (added > 0) {
+                energy += added;
+                setChanged();
             }
-        };
+            return added;
+        }
+
+        /** Whether the buffer covers a cost; a short buffer is noted as unpaid, the way a starved machine is. */
+        public boolean canSpend(int amount) {
+            if (energy < amount) {
+                noteUnpaid();
+                return false;
+            }
+            return true;
+        }
+
+        /** Spends a cost the machine's own work incurred. */
+        public boolean spend(int amount) {
+            if (!canSpend(amount)) {
+                return false;
+            }
+            energy -= amount;
+            notePaid();
+            setChanged();
+            return true;
+        }
+        @Override
+        public int receiveEnergy(int toReceive, boolean simulate) {
+            int received = super.receiveEnergy(toReceive, simulate);
+            if (received > 0 && !simulate) {
+                setChanged();
+            }
+            return received;
+        }
+
+        @Override
+        public int extractEnergy(int toExtract, boolean simulate) {
+            int extracted = super.extractEnergy(toExtract, simulate);
+            if (toExtract > 0) {
+                if (extracted < toExtract) {
+                    // Asked, and the buffer could not cover it. Counted on
+                    // the simulated call as well as the real one, because
+                    // the simulated call is the only one a starved machine
+                    // ever makes — it gives up before spending.
+                    noteUnpaid();
+                } else if (!simulate) {
+                    notePaid();
+                }
+            }
+            if (extracted > 0 && !simulate) {
+                setChanged();
+            }
+            return extracted;
+        }
     }
 
     public EnergyStorage getEnergy() {

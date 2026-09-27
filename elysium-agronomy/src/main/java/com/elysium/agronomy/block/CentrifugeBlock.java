@@ -1,5 +1,6 @@
 package com.elysium.agronomy.block;
 
+import com.elysium.lib.item.ElysiumSlots;
 import com.elysium.agronomy.registry.AgronomyBlockEntities;
 import com.elysium.agronomy.registry.AgronomyItems;
 import com.elysium.agronomy.rules.AgronomyRules;
@@ -231,7 +232,7 @@ public class CentrifugeBlock extends GridBlock {
                     continue;
                 }
                 coming.setCount(counts.get(at));
-                if (!items.insertItem(FIRST_OUT + at, coming, true).isEmpty()) {
+                if (!ElysiumSlots.roomFor(items, FIRST_OUT + at, coming)) {
                     return false;
                 }
             }
@@ -244,7 +245,10 @@ public class CentrifugeBlock extends GridBlock {
             }
             ItemStack coming = what.copy();
             coming.setCount(count);
-            items.insertItem(slot, coming, false);
+            // Placed, not inserted: the output slots refuse every insert so a
+            // hopper cannot fill them, and the machine went through the same
+            // door - every comb spun into nothing (live test, 27 September 2026).
+            items.setStackInSlot(slot, ElysiumSlots.grown(items.getStackInSlot(slot), coming));
         }
 
         @Override

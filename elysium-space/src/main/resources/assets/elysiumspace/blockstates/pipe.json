@@ -7,50 +7,150 @@
     },
     {
       "when": {
-        "north": "true"
+        "OR": [
+          {
+            "north": "run"
+          },
+          {
+            "north": "device"
+          }
+        ]
       },
       "apply": {
-        "model": "elysiumspace:block/pipe_north"
+        "model": "elysiumspace:block/pipe_arm"
       }
     },
     {
       "when": {
-        "south": "true"
+        "north": "device"
       },
       "apply": {
-        "model": "elysiumspace:block/pipe_south"
+        "model": "elysiumspace:block/pipe_plate"
       }
     },
     {
       "when": {
-        "west": "true"
+        "OR": [
+          {
+            "east": "run"
+          },
+          {
+            "east": "device"
+          }
+        ]
       },
       "apply": {
-        "model": "elysiumspace:block/pipe_west"
+        "model": "elysiumspace:block/pipe_arm",
+        "y": 90
       }
     },
     {
       "when": {
-        "east": "true"
+        "east": "device"
       },
       "apply": {
-        "model": "elysiumspace:block/pipe_east"
+        "model": "elysiumspace:block/pipe_plate",
+        "y": 90
       }
     },
     {
       "when": {
-        "down": "true"
+        "OR": [
+          {
+            "south": "run"
+          },
+          {
+            "south": "device"
+          }
+        ]
       },
       "apply": {
-        "model": "elysiumspace:block/pipe_down"
+        "model": "elysiumspace:block/pipe_arm",
+        "y": 180
       }
     },
     {
       "when": {
-        "up": "true"
+        "south": "device"
       },
       "apply": {
-        "model": "elysiumspace:block/pipe_up"
+        "model": "elysiumspace:block/pipe_plate",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "west": "run"
+          },
+          {
+            "west": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumspace:block/pipe_arm",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "device"
+      },
+      "apply": {
+        "model": "elysiumspace:block/pipe_plate",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "up": "run"
+          },
+          {
+            "up": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumspace:block/pipe_arm",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "up": "device"
+      },
+      "apply": {
+        "model": "elysiumspace:block/pipe_plate",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "down": "run"
+          },
+          {
+            "down": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumspace:block/pipe_arm",
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "down": "device"
+      },
+      "apply": {
+        "model": "elysiumspace:block/pipe_plate",
+        "x": 90
       }
     }
   ]

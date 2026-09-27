@@ -124,5 +124,9 @@ restore
 g="$(out)"
 if [[ "$g" == *"all agronomy checks passed"* ]]; then echo "  tree restored clean"
 else echo "  TREE LEFT BROKEN"; fail=$((fail+1)); fi
+echo "the vein generators and their entity"
+edit $S/registry/AgronomyBlockEntities.java '        for (DeferredBlock<Block> vein : AgronomyBlocks.VEINS.values()) {' '        for (DeferredBlock<Block> vein : java.util.List.<DeferredBlock<Block>>of()) {'
+expect "a vein generator the game refuses to place" "does not list the vein generators"
+
 echo "agronomy: $pass caught, $fail missed"
 [ "$fail" -eq 0 ]

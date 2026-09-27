@@ -1,7 +1,157 @@
 {
-  "variants": {
-    "": {
-      "model": "elysiumindustry:block/gold_wire"
+  "multipart": [
+    {
+      "apply": {
+        "model": "elysiumindustry:block/gold_wire_core"
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "north": "run"
+          },
+          {
+            "north": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumindustry:block/gold_wire_arm"
+      }
+    },
+    {
+      "when": {
+        "north": "device"
+      },
+      "apply": {
+        "model": "elysiumindustry:block/gold_wire_plate"
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "east": "run"
+          },
+          {
+            "east": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumindustry:block/gold_wire_arm",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "device"
+      },
+      "apply": {
+        "model": "elysiumindustry:block/gold_wire_plate",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "south": "run"
+          },
+          {
+            "south": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumindustry:block/gold_wire_arm",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "device"
+      },
+      "apply": {
+        "model": "elysiumindustry:block/gold_wire_plate",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "west": "run"
+          },
+          {
+            "west": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumindustry:block/gold_wire_arm",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "device"
+      },
+      "apply": {
+        "model": "elysiumindustry:block/gold_wire_plate",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "up": "run"
+          },
+          {
+            "up": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumindustry:block/gold_wire_arm",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "up": "device"
+      },
+      "apply": {
+        "model": "elysiumindustry:block/gold_wire_plate",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "down": "run"
+          },
+          {
+            "down": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumindustry:block/gold_wire_arm",
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "down": "device"
+      },
+      "apply": {
+        "model": "elysiumindustry:block/gold_wire_plate",
+        "x": 90
+      }
     }
-  }
+  ]
 }

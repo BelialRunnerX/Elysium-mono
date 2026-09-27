@@ -93,8 +93,8 @@ public final class SpaceBlockEntities {
                 (be, side) -> new net.neoforged.neoforge.items.wrapper.InvWrapper(be));
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, FREIGHT_TERMINAL.get(),
                 (be, side) -> be.fuelTank());
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, CABLE.get(), (be, side) -> be.energy());
-        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, PIPE.get(), (be, side) -> be.fluids());
+        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, CABLE.get(), (be, side) -> be.energyFrom(side));
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, PIPE.get(), (be, side) -> be.fluidsFrom(side));
     }
 
     private static <T extends MachineBlockEntity> void register(RegisterCapabilitiesEvent event, BlockEntityType<T> type) {

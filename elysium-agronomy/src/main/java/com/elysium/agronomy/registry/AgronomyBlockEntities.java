@@ -1,5 +1,7 @@
 package com.elysium.agronomy.registry;
 
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.minecraft.world.level.block.Block;
 import com.elysium.agronomy.ElysiumAgronomy;
 import com.elysium.agronomy.block.AcceleratorBlock;
 import com.elysium.agronomy.block.HiveBlock;
@@ -106,10 +108,26 @@ public final class AgronomyBlockEntities {
             ROCK_GENERATOR = TYPES.register("rock_generator",
                     () -> BlockEntityType.Builder.of(
                             RockGeneratorBlock.RockGeneratorBlockEntity::new,
-                            AgronomyBlocks.ROCK_GENERATOR.get(),
-                            AgronomyBlocks.DRIVEN_ROCK_GENERATOR.get(),
-                            AgronomyBlocks.INDUSTRIAL_ROCK_GENERATOR.get())
+                            rockGeneratorBlocks())
             .build(null));
+
+    /**
+     * Every block the rock generator's entity may sit in: the three rungs and
+     * one generator per vein. A block left off this list is one the game
+     * refuses to place at all - "an unexpected error" to the player's face -
+     * which is how the seven vein generators shipped until the catalogue
+     * test set each block once (27 September 2026).
+     */
+    private static Block[] rockGeneratorBlocks() {
+        java.util.List<Block> out = new java.util.ArrayList<>(java.util.List.of(
+                AgronomyBlocks.ROCK_GENERATOR.get(),
+                AgronomyBlocks.DRIVEN_ROCK_GENERATOR.get(),
+                AgronomyBlocks.INDUSTRIAL_ROCK_GENERATOR.get()));
+        for (DeferredBlock<Block> vein : AgronomyBlocks.VEINS.values()) {
+            out.add(vein.get());
+        }
+        return out.toArray(new Block[0]);
+    }
 
     /** The middle of an altar. */
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.agronomy.block.AwakeningAltarBlock.AltarBlockEntity>>

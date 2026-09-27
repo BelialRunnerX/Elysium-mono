@@ -1,7 +1,157 @@
 {
-  "variants": {
-    "": {
-      "model": "elysiumatomics:block/coolant_channel"
+  "multipart": [
+    {
+      "apply": {
+        "model": "elysiumatomics:block/coolant_channel_core"
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "north": "run"
+          },
+          {
+            "north": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumatomics:block/coolant_channel_arm"
+      }
+    },
+    {
+      "when": {
+        "north": "device"
+      },
+      "apply": {
+        "model": "elysiumatomics:block/coolant_channel_plate"
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "east": "run"
+          },
+          {
+            "east": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumatomics:block/coolant_channel_arm",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "device"
+      },
+      "apply": {
+        "model": "elysiumatomics:block/coolant_channel_plate",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "south": "run"
+          },
+          {
+            "south": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumatomics:block/coolant_channel_arm",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "device"
+      },
+      "apply": {
+        "model": "elysiumatomics:block/coolant_channel_plate",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "west": "run"
+          },
+          {
+            "west": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumatomics:block/coolant_channel_arm",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "device"
+      },
+      "apply": {
+        "model": "elysiumatomics:block/coolant_channel_plate",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "up": "run"
+          },
+          {
+            "up": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumatomics:block/coolant_channel_arm",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "up": "device"
+      },
+      "apply": {
+        "model": "elysiumatomics:block/coolant_channel_plate",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "down": "run"
+          },
+          {
+            "down": "device"
+          }
+        ]
+      },
+      "apply": {
+        "model": "elysiumatomics:block/coolant_channel_arm",
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "down": "device"
+      },
+      "apply": {
+        "model": "elysiumatomics:block/coolant_channel_plate",
+        "x": 90
+      }
     }
-  }
+  ]
 }

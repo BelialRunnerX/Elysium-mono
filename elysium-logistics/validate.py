@@ -630,15 +630,22 @@ for tier in ("timber_drawer", "brass_drawer", "steel_drawer"):
              f"read at a glance — which is the one thing a drawer is better at than a "
              f"chest")
 
-bus_box = re.search(r"SHAPE = box\((\d+), \d+, \d+, (\d+), \d+, \d+\)",
-                    strip_comments(read(SRC, "block/BusBlock.java")))
-bus_model = os.path.join(RES, "assets", NS, "models/block/bus.json")
-if bus_box and os.path.isfile(bus_model):
-    element = json.load(open(bus_model, encoding="utf-8"))["elements"][0]
-    if float(element["from"][0]) != float(bus_box.group(1)) \
-            or float(element["to"][0]) != float(bus_box.group(2)):
-        fail("the bus's model and its collision box are different sizes, so it can be "
-             "hit where it cannot be seen or the other way round")
+# the bus run(s): arms, plates, dye and pick as every run in the pack, checked by
+# the shared art/runs.py so six modules agree.
+import importlib.util as _ilu
+_runs_spec = _ilu.spec_from_file_location("art_runs", os.path.join(os.path.dirname(str(WORK)), "art", "runs.py"))
+_art_runs = _ilu.module_from_spec(_runs_spec)
+_runs_spec.loader.exec_module(_art_runs)
+_run_java = open(os.path.join(str(SRC), "block/BusBlock.java"), encoding="utf-8").read()
+for _run in ("bus",):
+    for _problem in _art_runs.check("elysiumlogistics", _run, str(RES), _run_java):
+        fail(_problem)
+_mod_java = open(os.path.join(str(SRC), "ElysiumLogistics.java"), encoding="utf-8").read()
+for _run in ("bus",):
+    if "com.elysium.lib.run.Runs.declare(" not in _mod_java:
+        fail(f"{_run} is not declared a run, so its plates have no colour and no tint handler")
+        break
+print("runs               : the bus draw arms and plates, take a dye, and keep it")
 
 # --- the blocks, and the ways they can be made to lose things -------------
 

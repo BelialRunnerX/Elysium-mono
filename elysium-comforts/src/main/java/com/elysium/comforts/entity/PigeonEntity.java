@@ -97,6 +97,9 @@ public class PigeonEntity extends Animal {
         return Animal.createLivingAttributes()
                 .add(Attributes.MAX_HEALTH, 6.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
+                // MineColonies sizes every animal for its herders by reading this;
+                // a bird without it is an error in its log at every start.
+                .add(Attributes.FOLLOW_RANGE, 16.0D)
                 .add(Attributes.FLYING_SPEED, 0.4D);
     }
 

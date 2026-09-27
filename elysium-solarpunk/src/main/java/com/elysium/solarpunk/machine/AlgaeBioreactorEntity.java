@@ -98,10 +98,10 @@ public class AlgaeBioreactorEntity extends SolarpunkMachineEntity {
             progress = 0;
             return;
         }
-        if (energy.extractEnergy(DRAW, true) < DRAW) {
+        if (!energy.canSpend(DRAW)) {
             return;
         }
-        energy.extractEnergy(DRAW, false);
+        energy.spend(DRAW);
 
         if (++progress < GROW_TICKS) {
             return;

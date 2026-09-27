@@ -789,7 +789,7 @@ for needed, why in (
 tick = body_of(machine_java, "protected void serverTick(")
 if "recipe.possibleAt(speed)" not in tick:
     fail("a machine works at any speed, so the pace on a recipe is decoration")
-if "insertItem(OUT, result, true)" not in tick:
+if "ElysiumSlots.roomFor(items, OUT, result)" not in tick:
     fail("a machine with a full output destroys what it makes next")
 
 machines = [name for name in sorted(os.listdir(os.path.join(SRC, "block")))

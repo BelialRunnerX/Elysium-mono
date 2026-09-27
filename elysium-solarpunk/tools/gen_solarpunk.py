@@ -54,6 +54,7 @@ deleting its row from the table below. Nothing else has to be remembered.
 import json
 import math
 import os
+import sys
 import pathlib
 import shutil
 
@@ -1619,6 +1620,14 @@ def _pipe_faces(texture, box, skip=None):
 
 
 def _write_pipe(base, render):
+    if base == "power_conduit":
+        # The conduit is a run: core, arms, plates and dye recipes come from
+        # art/runs.py, the same as every pipe, cable, wire and bus in the pack.
+        sys.path.insert(0, str(MODULE.parent / "art"))
+        import runs as art_runs
+        art_runs.write_all(NS, base, f"{NS}:block/{base}", str(RES / "assets" / NS), str(RES / "data" / NS),
+                           lambda path, obj: write_json(os.path.relpath(path, str(RES)), obj))
+        return
     texture = f"{NS}:block/{base}"
     core = {
         "textures": {"pipe": texture, "particle": texture},

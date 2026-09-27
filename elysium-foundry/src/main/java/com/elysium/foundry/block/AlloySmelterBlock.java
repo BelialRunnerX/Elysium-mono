@@ -1,5 +1,6 @@
 package com.elysium.foundry.block;
 
+import com.elysium.lib.item.ElysiumSlots;
 import com.elysium.foundry.recipe.AlloyRecipe;
 import com.elysium.foundry.registry.FoundryBlockEntities;
 import com.elysium.foundry.registry.FoundryRecipes;
@@ -225,7 +226,7 @@ public class AlloySmelterBlock extends GridBlock {
             }
             AlloyRecipe recipe = found.get().value();
             ItemStack result = recipe.assemble(asked, level.registryAccess());
-            if (!items.insertItem(OUT, result, true).isEmpty()) {
+            if (!ElysiumSlots.roomFor(items, OUT, result)) {
                 return;                        // no room; stop rather than lose it
             }
             // The same work units the ages below count in, so a share that

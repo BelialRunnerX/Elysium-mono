@@ -19,6 +19,17 @@ ${mod_description}
     ordering="NONE"
     side="BOTH"
 
+# The library, for the runs: the power conduit is a run in the pack's shared
+# sense (RunRules), and the shared helper is what makes a conduit behave like
+# a wire behaves like a bus. Solarpunk stood alone before this; one shared
+# visual language for every pipe in the pack is worth the dependency.
+[[dependencies.${mod_id}]]
+    modId="elysiumlib"
+    type="required"
+    versionRange="[1.0.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
 [[dependencies.${mod_id}]]
     modId="minecraft"
     type="required"

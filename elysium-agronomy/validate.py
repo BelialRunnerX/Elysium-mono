@@ -2872,10 +2872,23 @@ print(f"crates and cabinets: {len(kitchen_crated)} crate(s) that open back into 
 # agro-kitchen: end
 # ===========================================================================
 
+# The rock generator's block entity type lists every block it may sit in,
+# the vein generators included. A block left off the list is one the game
+# refuses to place ("an unexpected error occurred"), which is how the seven
+# vein generators shipped until the catalogue test set each block once
+# (27 September 2026).
+_be_src = read(SRC, "registry/AgronomyBlockEntities.java")
+_rock_blocks = body_of(_be_src, "private static Block[] rockGeneratorBlocks()")
+if _rock_blocks is None or "AgronomyBlocks.VEINS.values()" not in _rock_blocks:
+    fail("the rock generator entity type does not list the vein generators, so the game refuses "
+         "to place a copper or iron generator at all")
+
+
 if problems:
     print(f"{len(problems)} PROBLEM(S):")
     for problem in problems:
         print("  - " + problem)
     sys.exit(1)
+
 
 print("all agronomy checks passed")

@@ -37,6 +37,13 @@ public final class LogisticBlockEntities {
                     LogisticBlocks.STEEL_DRAWER.get())
             .build(null));
 
+    /** The bus's dye, and nothing else: a run remembers its colour. */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.elysium.lib.run.RunDyeBlockEntity>>
+            BUS = TYPES.register("bus", () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new com.elysium.lib.run.RunDyeBlockEntity(LogisticBlockEntities.BUS.get(), pos, state),
+                    LogisticBlocks.BUS.get())
+            .build(null));
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ControllerBlock.ControllerBlockEntity>>
             CONTROLLER = TYPES.register("controller", () -> BlockEntityType.Builder.of(
                     ControllerBlock.ControllerBlockEntity::new,
