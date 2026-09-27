@@ -38,7 +38,7 @@ edit $S/event/ColonyLife.java 'return Colonies.inside(level, town.id(), owner.bl
 expect "attendance meaning merely logged in" "other side of the world"
 
 echo "what the gate must not touch"
-edit $S/event/ColonyLife.java 'int traded = FrontierExchange.settle(level, town, world);' \
+edit $S/event/ColonyLife.java 'int traded = FrontierExchange.settle(level, town);' \
                               'int traded = 0;'
 expect "a town that stops trading" "no longer happens at all"
 
@@ -78,7 +78,7 @@ echo "the command and the ledger"
 edit $S/command/ColonyCommand.java 'memory.record(town.id(), memory.ledgerOf(town.id()).withSteward(who));' ''
 expect "no way to say who decides" "whether they happen to be standing there"
 
-edit $S/command/ColonyCommand.java 'Colonies.Settlement town = Colonies.ownedBy(player);
+edit $S/command/ColonyCommand.java 'Colonies.Settlement town = mine(player);
         if (town == null) {
             source.sendSuccess(() -> Component.translatable("elysium.colony.none")
                     .withStyle(ChatFormatting.GRAY), false);

@@ -308,7 +308,7 @@ PYX
 expect "a machine with nothing it can do" "draws torque and does no work"
 
 K=$M/src/main/java/com/elysium/kinetics
-edit $K/recipe/KineticRecipe.java '        MIXING("mixing");' '        MIXING("stirring");'
+edit $K/recipe/KineticRecipe.java '        MIXING("mixing"),' '        MIXING("stirring"),'
 expect "a recipe kind whose folder does not exist" "a machine nobody can give work to"
 
 edit $K/block/MachineBlock.java '            if (!recipe.possibleAt(speed)) {' '            if (false) {'

@@ -74,15 +74,16 @@ edit $S/event/ColonyLife.java 'ledger = ledger.foundedOn(town.day());' '{ }'
 expect "a grant that never starts or never ends" "never starts"
 
 edit $S/event/ColonyLife.java 'if (report(level, town, ReliefRules.stuckFor(town.day(),
-                    ledger.lastProgress()))) {' 'if (false) {'
+                        ledger.lastProgress()))) {' 'if (false) {'
 expect "going on quietly forever" "how this ends"
 
-edit $S/event/ColonyLife.java '&& ReliefRules.dueToReport(town.day(), ledger.lastReported())' ''
+edit $S/event/ColonyLife.java 'if (ReliefRules.dueToReport(town.day(), ledger.lastReported())) {' 'if (true) {'
 expect "a stuck town reported every day" "stops being read on the third"
 
-edit $S/rules/ReliefRules.java 'public static final int GRANT_DAYS = 12;' \
-                               'public static final int GRANT_DAYS = 90;'
-expect "founding a colony for the free materials" "month of free materials"
+# The grant now runs a hundred days by design; what keeps that from being free
+# materials for months is that a stuck town is reported alongside it.
+edit $S/event/ColonyLife.java '|| ReliefRules.alsoReport(town.day(), ledger.lastProgress())' '|| false'
+expect "a stuck town silent until its grant is spent" "sits silent for months"
 
 edit $S/rules/ReliefRules.java 'if (granted(day, foundedOn)) {
             return Relief.GRANT;

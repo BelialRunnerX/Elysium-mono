@@ -118,25 +118,25 @@ edit $S/rules/OreRules.java 'public final class OreRules {' \
 expect "rules that reach outside the JDK" "the JDK and nothing else"
 
 echo "the matrix"
-rm -f $R/assets/elysiumores/textures/block/netherrack_lead_ore.png
+rm -f $R/assets/elysiumores/textures/block/cinder_lead_ore.png
 expect "an ore with no texture" "no texture"
 
-rm -f $R/data/elysiumores/worldgen/placed_feature/netherrack_lead_ore.json
+rm -f $R/data/elysiumores/worldgen/placed_feature/cinder_lead_ore.json
 expect "an ore with no placement" "no placed feature"
 
 python3 -c "
 import json
-p='$R/data/elysiumores/worldgen/placed_feature/netherrack_lead_ore.json'
+p='$R/data/elysiumores/worldgen/placed_feature/cinder_lead_ore.json'
 d=json.load(open(p)); d['placement']=[s for s in d['placement'] if 'family_present' not in str(s.get('type'))]
 json.dump(d,open(p,'w'),indent=2)"
 expect "an ore that generates whether the material exists or not" "does not begin with the family gate"
 
-edit $R/data/elysiumores/worldgen/placed_feature/netherrack_lead_ore.json \
+edit $R/data/elysiumores/worldgen/placed_feature/cinder_lead_ore.json \
   '"family": "lead"' '"family": "gold"'
 expect "an ore gated on somebody else's material" "gates on gold"
 
-edit $R/data/elysiumores/worldgen/configured_feature/netherrack_lead_ore.json \
-  '"Name": "elysiumores:netherrack_lead_ore"' '"Name": "minecraft:stone"'
+edit $R/data/elysiumores/worldgen/configured_feature/cinder_lead_ore.json \
+  '"Name": "elysiumores:cinder_lead_ore"' '"Name": "minecraft:stone"'
 expect "a feature that places something other than itself" "places minecraft:stone rather than itself"
 
 python3 -c "
@@ -156,14 +156,14 @@ expect "ores added while the terrain is still being built" "underground_ores"
 python3 -c "
 import json
 p='$R/data/minecraft/tags/block/needs_diamond_tool.json'
-d=json.load(open(p)); d['values'].append('elysiumores:netherrack_lead_ore')
+d=json.load(open(p)); d['values'].append('elysiumores:cinder_lead_ore')
 json.dump(d,open(p,'w'),indent=2)"
 expect "an ore in two tool tags at once" "tool tag(s)"
 
 python3 -c "
 import json
 p='$R/assets/elysiumores/lang/en_us.json'
-d=json.load(open(p)); d.pop('block.elysiumores.netherrack_lead_ore')
+d=json.load(open(p)); d.pop('block.elysiumores.cinder_lead_ore')
 json.dump(d,open(p,'w'),indent=2)"
 expect "an ore with no name" "reads a raw key"
 
@@ -185,7 +185,7 @@ expect "a tag that replaces every other mod's entries" "thrown away"
 python3 -c "
 import json
 p='$R/data/c/tags/block/ores/lead.json'
-d=json.load(open(p)); d['values']=[v for v in d['values'] if not (isinstance(v,str) and 'netherrack' in v)]
+d=json.load(open(p)); d['values']=[v for v in d['values'] if not (isinstance(v,str) and 'cinder' in v)]
 json.dump(d,open(p,'w'),indent=2)"
 expect "this module's own ore left out of its family" "ores"
 

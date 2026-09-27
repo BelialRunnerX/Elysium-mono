@@ -36,7 +36,7 @@ edit $G '    "bus": "Bus",' '    "conduit": "Bus",'
 regen
 expect "a block with no name but its id" "has no name in the language file"
 
-edit $S/registry/LogisticItems.java '            TIMBER_DRAWER, BRASS_DRAWER, STEEL_DRAWER, BUS, CONTROLLER);' '            TIMBER_DRAWER, BRASS_DRAWER, STEEL_DRAWER, BUS);'
+edit $S/registry/LogisticItems.java '            TIMBER_DRAWER, BRASS_DRAWER, STEEL_DRAWER, BUS, CONTROLLER,' '            TIMBER_DRAWER, BRASS_DRAWER, STEEL_DRAWER, BUS,'
 expect "a block in no creative tab" "is in no creative tab"
 
 edit $S/block/BusBlock.java 'box(5, 5, 5, 11, 11, 11)' 'box(3, 3, 3, 13, 13, 13)'

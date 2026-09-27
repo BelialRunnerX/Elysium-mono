@@ -27,8 +27,12 @@ edit $S/event/ColonyProgress.java 'import com.elysium.colonies.colony.Colonies;'
 import com.minecolonies.api.colony.IColonyManager;'
 expect "a second file betting on somebody else's API" "exactly one may"
 
-edit $S/colony/Colonies.java 'public record Settlement(int citizens, @Nullable UUID owner) {
-    }' 'public record Settlement(int citizens, @Nullable UUID owner) {
+edit $S/colony/Colonies.java 'public record Settlement(int id, String name, int citizens, @Nullable UUID owner,
+                             ResourceLocation dimension, BlockPos centre, int day,
+                             double happiness) {
+    }' 'public record Settlement(int id, String name, int citizens, @Nullable UUID owner,
+                             ResourceLocation dimension, BlockPos centre, int day,
+                             double happiness) {
     }
     public static IColony raw(Level level, BlockPos at) {
         return IColonyManager.getInstance().getClosestIColony(level, at);
@@ -51,7 +55,7 @@ edit $S/event/ColonyRaids.java 'if (!ColonyRules.promotes(tier)) {' \
 expect "one difficulty curve multiplied by another" "neither author would recognise"
 
 echo "a town is progress"
-edit $S/event/ColonyProgress.java 'ColonyRules.worldFloor(town.citizens())' 'town.citizens() / 5'
+edit $S/event/ColonyProgress.java 'ColonyRules.worldFloor(sizes)' 'largest / 5'
 expect "a colony's tier decided outside the rules" "harness proves nothing about it"
 
 edit $S/event/ColonyProgress.java 'if (ElysiumTiers.lift(player, floor)) {' \
@@ -69,12 +73,19 @@ expect "a colony read on the client" "different numbers on it"
 
 echo "a town is conspicuous"
 edit $S/event/ColonyStanding.java 'ElysiumStanding.addFloorSource(player -> {
-            Colonies.Settlement town = Colonies.ownedBy(player);
-            return town == null ? 0 : ColonyRules.noticeFloor(town.citizens());
+            java.util.List<Colonies.Settlement> towns = Colonies.memberOf(player);
+            if (towns.isEmpty()) {
+                return 0;
+            }
+            java.util.List<Integer> sizes = new java.util.ArrayList<>();
+            for (Colonies.Settlement town : towns) {
+                sizes.add(town.citizens());
+            }
+            return ColonyRules.noticeFloor(sizes);
         });' ''
 expect "a town of thirty quietly forgotten" "quietly forgotten"
 
-edit $S/event/ColonyStanding.java 'ColonyRules.noticeFloor(town.citizens())' 'town.citizens() * 2'
+edit $S/event/ColonyStanding.java 'ColonyRules.noticeFloor(sizes)' 'sizes.size() * 2'
 expect "how noticed a settlement is, decided outside the rules" "decided outside the rules"
 
 edit $S/ElysiumColonies.java 'com.elysium.colonies.event.ColonyStanding.install();' ''

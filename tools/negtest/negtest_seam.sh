@@ -122,7 +122,7 @@ rm -f $M/src/main/resources/assets/elysiumkinetics/textures/block/dynamo.png
 expect "a dynamo whose model names a texture that is not there" "which is not there"
 
 edit $M/src/main/java/com/elysium/kinetics/registry/KineticItems.java '        made.add(DYNAMO);
-        return java.util.List.copyOf(made);' '        return java.util.List.copyOf(made);'
+        made.addAll(ANCHORS.values());' '        made.addAll(ANCHORS.values());'
 expect "a dynamo nobody can find in the creative tab" "is not in the creative tab"
 
 echo "the contract the later ages read"
