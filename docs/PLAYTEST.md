@@ -128,6 +128,8 @@ The E instances carry the NeoForge ports of Tridot and Valoria (built from `C:\C
 
 ## Known gaps (do not file as bugs)
 
+Merged build, 26 Sep: the first jar built from agent 8's hand-back would not open any world on either instance. Registry loading failed on `add_forge_spawns.json` and `add_hoar_spawns.json`, spawn rules for `elysiumbestiary:forge` and `elysiumbestiary:hoar`, which are court labels, not creatures. They were leftovers of the rename: the bestiary generator writes a creature's files and never deletes the old name's. Eight files removed (two spawn rules, two eggs, two loot tables, two sheets); `elysium-bestiary/validate.py` now fails on any spawn rule, egg or loot table named for a creature no roster has, and `negtest_bestiary_leftovers.sh` proves it. The comforts fittings also needed the cutout layer (121 models), caught by the root models check.
+
 Open observation (26 Sep, once): after the fourth relaunch of the E client in the same world, the player spawned at Dunwell (-9600, 9216), fell through unloaded terrain to y -6300, and the integrated server hung in a chunk-load wait (ModernFix watchdog dumps, server thread in `ServerChunkCache.getChunk`). Nothing Elysium is on the stack. The client had been force-stopped several times that hour, so a region file at that far site may be at fault; if it recurs, check the region files before anything else.
 
 Negative tests: `tools/negtest/negtest_colonies3.sh` reports 18 caught and 9 missed on 26 Sep. The nine are exchange, trading and build-order cases whose edit anchors point at code rewritten on 24 Sep, so the mutation never lands and the case counts as missed; the rules themselves were not weakened. Re-anchoring them is a follow-up. `negtest_colonies6.sh` catches all 26 of its cases.

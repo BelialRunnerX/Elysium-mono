@@ -3283,6 +3283,30 @@ else:
           f"{_rosters_read} roster(s), every one of them under a name no other "
           f"roster in this module uses")
 
+    # The generator writes a creature's files and never removes them, so a
+    # rename leaves the old name's spawn rule, egg and loot behind (a sheet too,
+    # but a sheet nobody draws is only disk). The
+    # game refuses to load a spawn rule for an entity type it does not have -
+    # the whole registry layer fails, and no world opens - so every file named
+    # for a creature has to be named for one the rosters still have.
+    _leftovers = []
+    for _folder, _pattern in (
+            (f"data/{NS}/neoforge/biome_modifier", r"^add_([a-z_]+)_spawns\.json$"),
+            (f"assets/{NS}/models/item", r"^([a-z_]+)_spawn_egg\.json$"),
+            (f"data/{NS}/loot_table/entities", r"^([a-z_]+)\.json$")):
+        _dir = os.path.join(RES, _folder)
+        for _entry in sorted(os.listdir(_dir)) if os.path.isdir(_dir) else []:
+            _m = re.match(_pattern, _entry)
+            if _m and _m.group(1) not in _named:
+                _leftovers.append(f"{_folder}/{_entry}")
+    if _leftovers:
+        fail(f"{len(_leftovers)} file(s) are named for a creature no roster has - "
+             f"a rename's leftovers, and a spawn rule among them stops every world "
+             f"from loading: {', '.join(_leftovers[:6])}")
+    else:
+        print(f"no leftovers        : every spawn rule, egg and loot table on "
+              f"disk is named for a creature a roster still has")
+
 
 
 if problems:
