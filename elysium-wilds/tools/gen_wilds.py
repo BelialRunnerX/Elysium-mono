@@ -874,6 +874,46 @@ def overworld_files(shape):
     return written
 
 
+AXES = ("temperature", "humidity", "continentalness", "erosion", "depth", "weirdness")
+
+
+def within(inner, outer):
+    """Whether one climate box lies wholly inside another, offset included."""
+    for axis in AXES:
+        low, high = inner[axis]
+        olow, ohigh = outer[axis]
+        if low < olow - 1e-9 or high > ohigh + 1e-9:
+            return False
+    return inner["offset"] >= outer["offset"] - 1e-9
+
+
+def unshadowed(vanilla, ours):
+    """
+    Vanilla's entries, less the ones a claim of ours covers whole.
+
+    The game hands a point to the nearest box, and a point inside two boxes is
+    at distance nought from both: a tie, settled by the order the tree happens
+    to hold them in. Our crags sat in exactly the game's peak boxes (wider on
+    one axis), so the peaks won every tie and eight crags never generated
+    anywhere (the live world scan, 27 September 2026). A vanilla claim that
+    lies wholly inside one of ours cannot be nearest anywhere ours is not, so
+    it goes, and our list is in front of vanilla's in fact as well as in order.
+    """
+    # Every biome of ours presses this claim. The crags pressed it first; the
+    # hoar hill, whose wide box holds a dozen of the game's cold claims whole,
+    # lost every tie the same way and never generated either (the second live
+    # world scan, 27 September 2026). A box of ours is where that biome is.
+    kept = []
+    dropped = 0
+    for entry in vanilla:
+        if any(within(entry["parameters"], one["parameters"]) for one in ours):
+            dropped += 1
+            continue
+        kept.append(entry)
+    print(f"shadowed claims    : {dropped} of vanilla's entries lay wholly inside one of ours and gave way")
+    return kept
+
+
 def preset_files(shape):
     """
     The three world presets, with our list in front of vanilla's.
@@ -885,7 +925,7 @@ def preset_files(shape):
     """
     entries = [{"biome": name, "parameters": parameters}
                for name, parameters in overworld_claims(shape)]
-    entries += vanilla_entries()
+    entries += unshadowed(vanilla_entries(), entries)
     written = 0
     for name in sorted(os.listdir(VANILLA_PRESETS)):
         if not name.endswith(".json"):

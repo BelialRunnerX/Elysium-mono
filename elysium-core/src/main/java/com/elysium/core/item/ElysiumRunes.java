@@ -198,7 +198,7 @@ public final class ElysiumRunes {
         float cap = BARRIER_CAPACITY * ElysiumRune.tierSum(player, BARRIER);
         float current = player.getAbsorptionAmount();
         if (current < cap) {
-            player.setAbsorptionAmount(Math.min(cap, current + BARRIER_RECHARGE * scale));
+            com.elysium.lib.combat.ElysiumAbsorption.set(player, Math.min(cap, current + BARRIER_RECHARGE * scale));
         }
     }
 

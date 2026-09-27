@@ -114,16 +114,11 @@ public class FaunaEntity extends Animal {
         super.setInLoveTime(ticks);
     }
 
-    @Override
-    protected void customServerAiStep() {
-        super.customServerAiStep();
-        if (getAge() == 0 && !isInLove()) {
-            // The game counts down from its own number; ours is the floor
-            // under it, so an animal that has just bred cannot breed again
-            // before its row says it may.
-            resetLove();
-        }
-    }
+    // No step that puts a grown animal back on its cooldown whenever it is
+    // not in love: that left a player one tick in which to feed it, and no
+    // animal of ours ever bred (the mechanics survey, 27 September 2026).
+    // The cooldown is set where the game sets its own, in resetLove, after a
+    // breeding, and lasts the row's patience instead of the game's number.
 
     @Override
     public void resetLove() {

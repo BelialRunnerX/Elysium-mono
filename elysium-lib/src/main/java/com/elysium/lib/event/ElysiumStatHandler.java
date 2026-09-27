@@ -144,7 +144,7 @@ public final class ElysiumStatHandler {
         }
         float current = player.getAbsorptionAmount();
         if (current < cap) {
-            player.setAbsorptionAmount(Math.min(cap, current + 1.0F));
+            com.elysium.lib.combat.ElysiumAbsorption.set(player, Math.min(cap, current + 1.0F));
         }
     }
 

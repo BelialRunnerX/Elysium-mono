@@ -111,8 +111,8 @@ public final class CordonSources {
             at("null_shard", "minecraft:entities/enderman"),
             at("null_shard", "minecraft:chests/end_city_treasure"),
             // Project Remains and the Containment Vaults
-            at("relic_shard", "minecraft:chests/trail_ruins_rare"),
-            at("relic_shard", "minecraft:chests/trail_ruins_common"),
+            at("relic_shard", "minecraft:archaeology/trail_ruins_rare"),
+            at("relic_shard", "minecraft:archaeology/trail_ruins_common"),
             at("relic_shard", "minecraft:chests/desert_pyramid"),
             // the anomalies' shards
             at("phasium", "minecraft:entities/enderman"),

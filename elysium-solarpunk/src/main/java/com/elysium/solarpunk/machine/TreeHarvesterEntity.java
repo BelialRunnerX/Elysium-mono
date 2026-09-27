@@ -179,9 +179,24 @@ public class TreeHarvesterEntity extends SolarpunkMachineEntity {
         }
 
         // Every drop from every log, gathered before anything is broken.
+        // The canopy comes down with the trunk: leaves are where saplings come
+        // from, and a machine that took only logs never had one to replant with
+        // (the mechanics survey, 27 September 2026).
+        Set<BlockPos> leaves = new HashSet<>();
+        for (BlockPos log : logs) {
+            for (Direction face : Direction.values()) {
+                BlockPos next = log.relative(face);
+                if (server.getBlockState(next).is(BlockTags.LEAVES)) {
+                    leaves.add(next.immutable());
+                }
+            }
+        }
         List<ItemStack> harvest = new ArrayList<>();
         for (BlockPos log : logs) {
             harvest.addAll(Block.getDrops(server.getBlockState(log), server, log, null));
+        }
+        for (BlockPos leaf : leaves) {
+            harvest.addAll(Block.getDrops(server.getBlockState(leaf), server, leaf, null));
         }
         if (!SolarpunkOutput.fits(tray, harvest)) {
             return false;               // leave the tree standing until there is room
@@ -192,6 +207,10 @@ public class TreeHarvesterEntity extends SolarpunkMachineEntity {
             // Air rather than destroyBlock: the drops are already accounted
             // for, and destroyBlock would scatter a second copy on the ground.
             server.setBlock(log, net.minecraft.world.level.block.Blocks.AIR
+                    .defaultBlockState(), Block.UPDATE_ALL);
+        }
+        for (BlockPos leaf : leaves) {
+            server.setBlock(leaf, net.minecraft.world.level.block.Blocks.AIR
                     .defaultBlockState(), Block.UPDATE_ALL);
         }
         for (ItemStack drop : harvest) {

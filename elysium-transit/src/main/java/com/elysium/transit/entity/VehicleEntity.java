@@ -216,7 +216,29 @@ public class VehicleEntity extends Entity {
     @Override
     public InteractionResult interact(Player player, InteractionHand hand) {
         if (player.isSecondaryUseActive()) {
+            // Sneaking is how the cargo is reached: a stack in hand goes in, an
+            // empty hand takes the first stack out, and a hand with something
+            // that does not fit hears what the vehicle has to say. Before this
+            // nothing in the game could fill or empty a hold (the mechanics
+            // survey, 27 September 2026).
             if (!level().isClientSide) {
+                ItemStack held = player.getItemInHand(hand);
+                if (!held.isEmpty()) {
+                    ItemStack left = net.neoforged.neoforge.items.ItemHandlerHelper.insertItemStacked(cargo(), held.copy(), false);
+                    if (left.getCount() != held.getCount()) {
+                        player.setItemInHand(hand, left);
+                        level().playSound(null, this, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.NEUTRAL, 0.6F, 1.0F);
+                        return InteractionResult.CONSUME;
+                    }
+                } else {
+                    for (int slot = 0; slot < cargo().getSlots(); slot++) {
+                        ItemStack stack = cargo().getStackInSlot(slot);
+                        if (!stack.isEmpty()) {
+                            player.setItemInHand(hand, cargo().extractItem(slot, stack.getCount(), false));
+                            return InteractionResult.CONSUME;
+                        }
+                    }
+                }
                 player.displayClientMessage(says(), true);
             }
             return InteractionResult.sidedSuccess(level().isClientSide);
@@ -257,7 +279,11 @@ public class VehicleEntity extends Entity {
         if (level().isClientSide || isRemoved()) {
             return false;
         }
-        if (source.getEntity() instanceof Player player && !player.getAbilities().instabuild) {
+        // Everything that ends a vehicle hands back the vehicle and its
+        // cargo, except a creative player taking it away: a cactus, a mob or
+        // a fire used to erase a truck and sixty-four diamonds without a
+        // trace (the mechanics survey, 27 September 2026).
+        if (!(source.getEntity() instanceof Player player && player.getAbilities().instabuild)) {
             spill();
         }
         discard();

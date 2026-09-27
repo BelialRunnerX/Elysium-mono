@@ -80,6 +80,9 @@ public class ReactorPortBlock extends BaseEntityBlock {
                                                Player player, BlockHitResult hit) {
         if (!level.isClientSide
                 && level.getBlockEntity(pos) instanceof ReactorPortBlockEntity port) {
+            if (player.isSecondaryUseActive()) {
+                port.cycleStep();       // the throttle: nothing set it before 27 September 2026
+            }
             player.displayClientMessage(port.saying(), false);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
@@ -115,6 +118,12 @@ public class ReactorPortBlock extends BaseEntityBlock {
 
         /** One of {@link AtomicRules#THROTTLE_STEPS}, as the player set it. */
         private int step = 1;
+
+        /** The next throttle step, wrapping from the top back to the first. */
+        public void cycleStep() {
+            step = step % AtomicRules.THROTTLE_STEPS + 1;
+            setChanged();
+        }
 
         /** Where the hall is sitting, in degrees. */
         private float temperature = AtomicRules.AMBIENT;

@@ -575,7 +575,10 @@ def tags():
               f"{NS}:emberwood_trapdoor", f"{NS}:emberwood_button",
               f"{NS}:emberwood_pressure_plate"] + logs
 
-    block_tag("logs_that_burn", logs)
+    # Not in logs_that_burn: the game's own charcoal recipe takes that tag, and
+    # two recipes for one log let the game pick its charcoal over ours (the
+    # mechanics survey, 27 September 2026). Our smelting reads #elysiumflora:emberwood_logs.
+    block_tag("logs_that_burn", [])
     block_tag("planks", [f"{NS}:emberwood_planks"])
     block_tag("leaves", [f"{NS}:emberwood_leaves"])
     block_tag("saplings", [f"{NS}:emberwood_sapling"])
@@ -595,7 +598,7 @@ def tags():
                                   f"{NS}:wild_loomflax", f"{NS}:wild_downbloom"])
     block_tag("flower_pots", [])
 
-    item_tag("logs_that_burn", logs)
+    item_tag("logs_that_burn", [])
     item_tag("planks", [f"{NS}:emberwood_planks"])
     item_tag("leaves", [f"{NS}:emberwood_leaves"])
     item_tag("saplings", [f"{NS}:emberwood_sapling"])

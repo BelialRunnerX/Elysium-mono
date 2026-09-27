@@ -32,6 +32,13 @@ if old not in s:
 open(p,'w',encoding='utf-8').write(s.replace(old, new, 1))
 " "$@" || { echo "STALE ANCHOR"; exit 2; }; }
 
+echo "a grade's attribute looked up under its plain name, which the game of 1.21.1 does not have"
+edit $S/forge/ForgeEvents.java '        for (String prefix : PREFIXES) {' '        for (String prefix : new String[] {""}) {'
+expect "the plain-name lookup that made every grade a nothing" "looked up under its plain name alone"
+
+edit $S/rules/ForgeRules.java 'share("attack_damage", 0.100F)' 'share("attack_dmg", 0.100F)'
+expect "a grade naming an attribute the game has not got" "does not have under that name"
+
 echo "the band, which is what keeps the pickaxe a tool"
 edit $R '    public static final float BROAD_SHARE = 0.55F;' '    public static final float BROAD_SHARE = 1.2F;'
 expect "a hammer faster than the pickaxe it replaces" "crafting ingredient"
@@ -122,12 +129,12 @@ expect_regen "a hammer you can make without ever making a pickaxe" "without ever
 edit $G '''            write(os.path.join(ASSETS, "models/item", id + ".json"),
                   {"parent": "item/handheld",''' '''            write(os.path.join(ASSETS, "models/item", id + ".json"),
                   {"parent": "item/generated",'''
-expect_regen "tools that lie flat in a player's hand" "lie flat"
+expect_regen "tools that lie flat in a player's hand" "lies flat"
 
 edit $G '''                  {"parent": "item/handheld",
                    "textures": {"layer0": f"{NS}:item/{tier}_{row[0]}"}})''' '''                  {"parent": "item/generated",
                    "textures": {"layer0": f"{NS}:item/{tier}_{row[0]}"}})'''
-expect_regen "weapons that lie flat in a player's hand" "lie flat"
+expect_regen "weapons that lie flat in a player's hand" "lies flat"
 
 echo "independence and the seam"
 edit $R 'import java.util.ArrayList;' 'import net.minecraft.world.item.Item;
@@ -163,11 +170,8 @@ edit $W '            for (int rung = 1; rung < LADDER.size(); rung++) {' \
         '            for (int rung = 1; rung < TIERS.size(); rung++) {'
 expect "a ladder walked in the order the registry lists it" "reports every weapon in the module as broken"
 
-edit $W '    public static final List<String> LADDER =
-            List.of("wooden", "stone", "iron", "diamond", "netherite");' \
-        '    public static final List<String> LADDER =
-            List.of("wooden", "stone", "golden", "iron", "diamond", "netherite");'
-expect "gold put on the ladder it is a side-grade to" "wrong about the game"
+edit $W '                game("golden", 0.55F, SIDE_HASTE, false),' '                game("golden", 0.55F, SIDE_HASTE, true),'
+expect "gold put on the ladder it is a side-grade to" "WeaponHarness failed"
 
 edit $W '            if (ours.dominates(sword)) {' '            if (false) {'
 expect "a weapon set never measured against the game's own sword" "it has deleted one"

@@ -182,6 +182,7 @@ public final class CourtRoles {
                     self.getY(),
                     self.getZ() + (self.getRandom().nextDouble() - 0.5D) * 4.0D,
                     self.getYRot(), 0.0F);
+            fresh.calledOut();
             server.addFreshEntity(fresh);
             self.counted();
         }

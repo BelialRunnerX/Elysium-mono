@@ -155,6 +155,18 @@ public class ArchBlock extends HorizontalDirectionalBlock
     }
 
     @Override
+    protected BlockState updateShape(BlockState state, Direction side, BlockState neighbour,
+                                     net.minecraft.world.level.LevelAccessor level, BlockPos pos,
+                                     BlockPos neighbourPos) {
+        // A waterlogged shape is water to its neighbours: without this tick
+        // the water in a balcony never flowed (the mechanics survey, 27 September 2026).
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        return super.updateShape(state, side, neighbour, level, pos, neighbourPos);
+    }
+
+    @Override
     public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED)
                 ? Fluids.WATER.getSource(false) : super.getFluidState(state);

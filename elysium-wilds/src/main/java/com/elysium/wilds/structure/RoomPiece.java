@@ -35,11 +35,17 @@ public class RoomPiece extends StructurePiece {
     public RoomPiece(String room, BoundingBox box) {
         super(WildStructures.ROOM.get(), 0, box);
         this.room = room;
+        // A piece with no orientation places its blocks at its own relative
+        // coordinates - beside the world's origin, not inside its box - so
+        // every keep, camp and lodge located fine and stood nowhere (the
+        // mechanics survey, 27 September 2026).
+        setOrientation(net.minecraft.core.Direction.NORTH);
     }
 
     public RoomPiece(CompoundTag tag) {
         super(WildStructures.ROOM.get(), tag);
         this.room = tag.getString("Room");
+        setOrientation(net.minecraft.core.Direction.NORTH);
     }
 
     /** The box a room at these grid coordinates fills. */

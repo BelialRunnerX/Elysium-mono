@@ -74,6 +74,18 @@ public class KitchenCropBlock extends CropBlock {
      * a model for each of them all the same so that a crop somebody
      * bone-meals in creative is never a purple cube.
      */
+    /**
+     * Farmland, or any dirt: the wild patches the world grows put a ripe crop
+     * on grass, and a crop that stands only on farmland made every patch fail
+     * to place (the mechanics survey, 27 September 2026). On dirt it still
+     * grows, slowly, the way the game grows a crop on dry farmland.
+     */
+    @Override
+    protected boolean mayPlaceOn(BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos) {
+        return state.is(net.minecraft.world.level.block.Blocks.FARMLAND)
+                || state.is(net.minecraft.tags.BlockTags.DIRT);
+    }
+
     @Override
     public int getMaxAge() {
         CropRules.Crop found = rules();

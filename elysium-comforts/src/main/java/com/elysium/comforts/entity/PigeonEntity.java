@@ -107,8 +107,13 @@ public class PigeonEntity extends Animal {
     protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new PanicGoal(this, 1.4D));
+        // Two birds fed seeds find each other: the food and the offspring were
+        // written and the goal that joins them was not, so no pigeon ever bred
+        // (the mechanics survey, 27 September 2026).
+        goalSelector.addGoal(2, new net.minecraft.world.entity.ai.goal.BreedGoal(this, 1.0D));
         goalSelector.addGoal(2, new TemptGoal(this, 1.1D,
                 Ingredient.of(Items.WHEAT_SEEDS), false));
+        goalSelector.addGoal(3, new net.minecraft.world.entity.ai.goal.FollowParentGoal(this, 1.1D));
         goalSelector.addGoal(3, new WaterAvoidingRandomFlyingGoal(this, 1.0D));
         goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 8.0F));
         goalSelector.addGoal(5, new RandomLookAroundGoal(this));
@@ -145,6 +150,7 @@ public class PigeonEntity extends Animal {
     @Override
     public void aiStep() {
         super.aiStep();
+        roost();
         if (level().isClientSide()) {
             return;
         }
@@ -195,6 +201,28 @@ public class PigeonEntity extends Animal {
     /** Somewhere for a bird to have been. */
     public void cameOutOf(BlockPos hole) {
         PigeonholeBlock.used(level(), hole, tired());
+    }
+
+    /**
+     * A bird beside a pigeonhole roosts in it now and then, and a roost is
+     * used: nothing else ever called {@link #cameOutOf}, so no pigeonhole
+     * ever fouled and the shovel had nothing to clean (the mechanics survey,
+     * 27 September 2026). Once every {@link #ROOST_EVERY} ticks, the nearest
+     * pigeonhole within a block.
+     */
+    private static final int ROOST_EVERY = 600;
+
+    private void roost() {
+        if (level().isClientSide() || tickCount % ROOST_EVERY != 0) {
+            return;
+        }
+        BlockPos here = blockPosition();
+        for (BlockPos near : BlockPos.betweenClosed(here.offset(-1, -1, -1), here.offset(1, 1, 1))) {
+            if (level().getBlockState(near).getBlock() instanceof PigeonholeBlock) {
+                cameOutOf(near.immutable());
+                return;
+            }
+        }
     }
 
     @Override

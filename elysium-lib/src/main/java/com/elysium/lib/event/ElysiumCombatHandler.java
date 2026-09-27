@@ -307,7 +307,7 @@ public final class ElysiumCombatHandler {
             double overheal = com.elysium.lib.attribute.ElysiumAttributeValues.has(thief, "overheal")
                     ? com.elysium.lib.attribute.ElysiumAttributeValues.chance(thief, "overheal") : 0.0D;
             if (overheal > 0.0D) {
-                thief.setAbsorptionAmount(ElysiumCombatRules.overhealAbsorption(thief.getAbsorptionAmount(),
+                com.elysium.lib.combat.ElysiumAbsorption.set(thief, ElysiumCombatRules.overhealAbsorption(thief.getAbsorptionAmount(),
                         landed, thief.getMaxHealth(), overheal));
             }
         }

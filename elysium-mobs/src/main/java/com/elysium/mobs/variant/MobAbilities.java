@@ -59,7 +59,10 @@ public final class MobAbilities {
                 float cap = perLevel * curve(mobLevel);
                 float current = mob.getAbsorptionAmount();
                 if (current < cap) {
-                    mob.setAbsorptionAmount(Math.min(cap, current + cap * 0.10F));
+                    // The game clamps absorption to the max_absorption attribute,
+                    // which is 0 on a mob nobody gave one: the bulwark stayed at
+                    // 0.0 for ever (the mechanics survey, 27 September 2026).
+                    com.elysium.lib.combat.ElysiumAbsorption.set(mob, Math.min(cap, current + cap * 0.10F));
                 }
             }
 

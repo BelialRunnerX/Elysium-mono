@@ -66,6 +66,16 @@ public final class ElysiumAbilityUse {
     }
 
     /** An effect on the user, for as long as the ability lasts. */
+    /**
+     * A passive kept up on its wearer: the ability's own effect for {@code ticks},
+     * ambient and quiet, renewed by whoever wears the thing. The wearing module
+     * calls this every few ticks; before it did, a passive relic was a tooltip
+     * (the mechanics survey, 27 September 2026).
+     */
+    public static void sustain(ElysiumAbilityRules.Ability ability, Player user, int ticks) {
+        user.addEffect(new MobEffectInstance(effectFor(ability), ticks, strengthOf(ability), true, false));
+    }
+
     private static boolean onSelf(ElysiumAbilityRules.Ability ability, Player user) {
         int lasts = Math.max(1, ElysiumAbilityShapes.lastsOf(ability));
         user.addEffect(new MobEffectInstance(effectFor(ability), lasts,

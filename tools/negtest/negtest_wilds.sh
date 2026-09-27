@@ -253,5 +253,18 @@ else echo "  TREE LEFT BROKEN (validator)"; fail=$((fail+1)); fi
 g="$(worldout)"
 if [[ "$g" == *"multi-noise world(s)"* ]]; then echo "  worlds restored clean"
 else echo "  WORLDS LEFT BROKEN"; fail=$((fail+1)); fi
+echo "the room pieces stand where their box is"
+edit $M/src/main/java/com/elysium/wilds/structure/RoomPiece.java '        this.room = tag.getString("Room");
+        setOrientation(net.minecraft.core.Direction.NORTH);' '        this.room = tag.getString("Room");'
+expect "a room piece loaded without an orientation" "built without an orientation"
+
+echo "a crag shadowed by the game's own peaks"
+edit $M/tools/gen_wilds.py '    entries += unshadowed(vanilla_entries(), entries)' '    entries += vanilla_entries()'
+expect_regen "vanilla claims left inside our boxes" "wholly inside a crag"
+
+echo "only the crags pressing the claim, the hoar hill left to lose its ties"
+edit $M/tools/gen_wilds.py '    entries += unshadowed(vanilla_entries(), entries)' '    entries += unshadowed(vanilla_entries(), [one for one in entries if one["biome"].endswith("_crag")])'
+expect_regen "vanilla claims left inside the hoar hill's box" "wholly inside a crag"
+
 echo "wilds: $pass caught, $fail missed"
 [ "$fail" -eq 0 ]

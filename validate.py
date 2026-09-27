@@ -274,6 +274,13 @@ def main():
         failures.append("slots")
     print()
 
+    print("=" * 70)
+    print("absorption — every shield goes through the helper that raises the ceiling")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_absorption.py"], cwd=HERE).returncode != 0:
+        failures.append("absorption")
+    print()
+
     for name, blurb in MODS:
         directory = HERE / name
         script = directory / "validate.py"

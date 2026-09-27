@@ -1,9 +1,4 @@
 {
   "replace": false,
-  "values": [
-    "elysiumflora:emberwood_log",
-    "elysiumflora:emberwood_wood",
-    "elysiumflora:stripped_emberwood_log",
-    "elysiumflora:stripped_emberwood_wood"
-  ]
+  "values": []
 }

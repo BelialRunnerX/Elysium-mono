@@ -23,6 +23,23 @@ public class CinderBoar extends Hoglin implements Animated {
         setImmuneToZombification(true);
     }
 
+    /**
+     * Never a zoglin. The constructor said so, and the hoglin's own load
+     * read the saved flag back over it - false, for a boar summoned or loaded
+     * from a chunk - so a cinder boar turned within a Nether day's ticks of
+     * standing in the overworld (the mechanics survey, 27 September 2026).
+     */
+    @Override
+    public boolean isConverting() {
+        return false;
+    }
+
+    @Override
+    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        setImmuneToZombification(true);
+    }
+
     @Override
     public boolean removeWhenFarAway(double distance) {
         return false;

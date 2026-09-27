@@ -236,11 +236,11 @@ public final class ElysiumBosses {
                 return;
             }
             if (phase == 0) {
-                setAbsorptionAmount(getMaxHealth() * 0.25F);
+                com.elysium.lib.combat.ElysiumAbsorption.set(this, getMaxHealth() * 0.25F);
                 return;
             }
             // The shield goes, and it stops holding back.
-            setAbsorptionAmount(0.0F);
+            com.elysium.lib.combat.ElysiumAbsorption.set(this, 0.0F);
             addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST,
                     20 * 60 * 5, 1, false, true));
         }
@@ -251,7 +251,7 @@ public final class ElysiumBosses {
                 // Rebuilds its field while it still has one.
                 float cap = getMaxHealth() * 0.25F;
                 if (getAbsorptionAmount() < cap) {
-                    setAbsorptionAmount(Math.min(cap, getAbsorptionAmount() + cap * 0.02F));
+                    com.elysium.lib.combat.ElysiumAbsorption.set(this, Math.min(cap, getAbsorptionAmount() + cap * 0.02F));
                 }
             }
         }

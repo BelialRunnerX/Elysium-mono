@@ -120,14 +120,29 @@ public final class ForgeEvents {
      * nothing rather than a crash on the first sword a player picks up.
      */
     public static Holder<Attribute> attributeNamed(String name) {
-        ResourceLocation id = name.indexOf(':') >= 0
-                ? ResourceLocation.tryParse(name)
-                : ResourceLocation.withDefaultNamespace(name);
-        if (id == null) {
-            return null;
+        if (name.indexOf(':') >= 0) {
+            ResourceLocation id = ResourceLocation.tryParse(name);
+            return id == null ? null : BuiltInRegistries.ATTRIBUTE.getHolder(id).orElse(null);
         }
-        return BuiltInRegistries.ATTRIBUTE.getHolder(id).orElse(null);
+        // The roster names attributes plainly ("attack_damage"); the game of 1.21.1
+        // files them under "generic." and the player's own under "player.", so a
+        // plain name is tried under each. Before this, every grade resolved to no
+        // attribute and a heavy sword hit as hard as a plain one (the client
+        // stage, 27 September 2026).
+        for (String prefix : PREFIXES) {
+            ResourceLocation id = ResourceLocation.tryParse(prefix + name);
+            if (id != null) {
+                Holder<Attribute> found = BuiltInRegistries.ATTRIBUTE.getHolder(id).orElse(null);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
+
+    /** Where the game of 1.21.1 files a plainly named attribute, tried in this order. */
+    public static final String[] PREFIXES = {"", "generic.", "player."};
 
     @SubscribeEvent
     public static void onTooltip(ItemTooltipEvent event) {

@@ -922,6 +922,42 @@ if "if (grade == null) { return; }" not in applying:
     fail("a grade whose name no longer exists is not handled, so a world saved under "
          "an older roster crashes rather than treating the gear as ungraded")
 
+# Every attribute a grade names must be one the game of 1.21.1 has. The roster
+# names them plainly ("attack_damage"); the game files them under "generic." and
+# the player's own under "player.", and a name under neither is a grade that
+# silently does nothing -- which every grade was until 27 September 2026.
+naming = squashed(body_of(events, "public static Holder<Attribute> attributeNamed("))
+if "for (String prefix : PREFIXES)" not in naming or '"generic.", "player."' not in events:
+    fail("a grade's attribute is looked up under its plain name alone, which the game "
+         "of 1.21.1 does not have (it files attack_damage under generic. and "
+         "block_break_speed under player.), so every grade resolves to no attribute "
+         "and a heavy sword hits as hard as a plain one")
+_game_attributes = {
+    "generic.armor", "generic.armor_toughness", "generic.attack_damage", "generic.attack_knockback",
+    "generic.attack_speed", "generic.block_interaction_range", "generic.burning_time",
+    "generic.entity_interaction_range", "generic.explosion_knockback_resistance",
+    "generic.fall_damage_multiplier", "generic.flying_speed", "generic.follow_range", "generic.gravity",
+    "generic.jump_strength", "generic.knockback_resistance", "generic.luck", "generic.max_absorption",
+    "generic.max_health", "generic.movement_efficiency", "generic.movement_speed", "generic.oxygen_bonus",
+    "generic.safe_fall_distance", "generic.scale", "generic.step_height", "generic.water_movement_efficiency",
+    "player.block_break_speed", "player.block_interaction_range", "player.entity_interaction_range",
+    "player.mining_efficiency", "player.sneaking_speed", "player.submerged_mining_speed",
+    "player.sweeping_damage_ratio"}
+_mc_jar_for_attributes = os.environ.get("MC_JAR")
+if _mc_jar_for_attributes and os.path.exists(_mc_jar_for_attributes):
+    import zipfile as _zipfile
+    with _zipfile.ZipFile(_mc_jar_for_attributes) as _z:
+        _lang = json.loads(_z.read("assets/minecraft/lang/en_us.json").decode("utf-8"))
+    _game_attributes = {k[len("attribute.name."):] for k in _lang if k.startswith("attribute.name.")}
+_rules_src = strip_comments(read(SRC, "rules/ForgeRules.java"), True)
+_named = set(re.findall(r'(?:share|flat|add)\("([a-z_.:]+)"', _rules_src))
+for _name in sorted(_named):
+    _candidates = [_name] if ":" in _name else [_name, "generic." + _name, "player." + _name]
+    if not any(c.removeprefix("minecraft:") in _game_attributes for c in _candidates):
+        fail(f"the grade roster names the attribute '{_name}', which the game of 1.21.1 does not "
+             f"have under that name, generic. or player., so every grade that changes it does nothing")
+_attribute_note = f"{len(_named)} attribute(s) named by the grades, every one the game has"
+
 colouring = squashed(body_of(events, "public static ChatFormatting colourOf("))
 if "float worth = grade.worth();" not in colouring:
     fail("a grade's colour is not read from what it is worth, so a grade retuned "
@@ -969,6 +1005,7 @@ if "if (made.size() != ForgeRules.HAMMERS.size()) { throw new IllegalStateExcept
         not in forge_items:
     fail("nothing counts the hammers registered against the table")
 
+print(f"grade attributes   : {_attribute_note}")
 print(f"reforging          : {len(grade_rows)} grade(s) across {len(gear_rows)} kinds "
       f"of gear, {len(hammer_rows)} hammer(s) that roll them, every grade named and "
       f"every hammer craftable")

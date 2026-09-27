@@ -123,6 +123,16 @@ public class CourtEntity extends Monster {
         return Math.max(0, member().most() - called);
     }
 
+    /**
+     * Born with no room to call: a herald's copy is a herald too, and a copy
+     * that called in turn made a court with no end (the mechanics survey,
+     * 27 September 2026). The cap is the caller's, so the called are counted
+     * out at birth.
+     */
+    public void calledOut() {
+        called = member().most();
+    }
+
     @Override
     public void aiStep() {
         super.aiStep();

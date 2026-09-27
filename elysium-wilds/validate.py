@@ -1124,9 +1124,31 @@ for name in presets:
     ours_count = len(roster) * len(re.findall(
         r"Span\(", re.search(r"STRANGENESS\s*=\s*List\.of\((.*?)\);",
                              over_src, re.S).group(1))) if roster else 0
-    if len(entries) != ours_count + len(vanilla_claims):
-        fail(f"{name} lists {len(entries)} entries and the rules plus the dump "
-             f"come to {ours_count + len(vanilla_claims)}")
+    # A vanilla claim that lies wholly inside one of our crags' boxes is a tie
+    # everywhere it is, and the game settles ties by the order its tree happens
+    # to hold, not the order of the list: the crags lost every one and eight
+    # of them never generated (the live world scan, 27 September 2026). The
+    # generator drops those claims, so the count is the rules plus the dump
+    # less the shadowed ones, and none of them may be in the file.
+    def _within(inner, outer):
+        for axis in ("temperature", "humidity", "continentalness", "erosion", "depth", "weirdness"):
+            if inner[axis][0] < outer[axis][0] - 1e-9 or inner[axis][1] > outer[axis][1] + 1e-9:
+                return False
+        return inner["offset"] >= outer["offset"] - 1e-9
+    def _boxed(numbers):
+        return {"temperature": numbers[0:2], "humidity": numbers[2:4], "continentalness": numbers[4:6],
+                "erosion": numbers[6:8], "depth": numbers[8:10], "weirdness": numbers[10:12], "offset": numbers[12]}
+    # Every box of ours presses the claim, not the crags alone: the hoar hill's wide box
+    # held the game's cold claims whole, lost every tie and never generated either.
+    our_boxes = [one["parameters"] for one in entries[:ours_count]]
+    shadowed = sum(1 for _claim_name, numbers in vanilla_claims if any(_within(_boxed(numbers), box) for box in our_boxes))
+    if any(_within(one["parameters"], box) for one in entries[ours_count:] for box in our_boxes):
+        fail(f"{name} still lists a vanilla claim wholly inside a crag's box or another of ours, which "
+             f"the game may hand every tie to, so that biome never generates")
+        continue
+    if len(entries) != ours_count + len(vanilla_claims) - shadowed:
+        fail(f"{name} lists {len(entries)} entries and the rules plus the dump less the "
+             f"{shadowed} claim(s) our boxes shadow come to {ours_count + len(vanilla_claims) - shadowed}")
         continue
 
     # Ours first. That is not a style choice: ties go to whoever was declared
@@ -1144,7 +1166,9 @@ for name in presets:
 
     # Vanilla's half, entry for entry, in order, exactly as the game builds it.
     off = []
-    for at, (biome, numbers) in enumerate(vanilla_claims):
+    carried = [(biome, numbers) for biome, numbers in vanilla_claims
+               if not any(_within(_boxed(numbers), box) for box in our_boxes)]
+    for at, (biome, numbers) in enumerate(carried):
         got = tail[at]
         if got["biome"] != biome:
             off.append(f"entry {at} is {got['biome']} and the game's own is "
@@ -1216,6 +1240,16 @@ print("the seam           : the rules pointed at every dimension file in the "
 # ---------------------------------------------------------------------------
 
 print("-" * 70)
+
+# A room piece places its blocks where its box is only when it has an
+# orientation: with none, the game's placeBlock uses the piece's relative
+# coordinates as world coordinates, and eight kinds of structure located fine
+# and stood nowhere (the mechanics survey, 27 September 2026).
+_room_src = read(SRC, "structure/RoomPiece.java")
+if _room_src.count("setOrientation(net.minecraft.core.Direction.NORTH);") < 2:
+    fail("RoomPiece is built without an orientation in one of its constructors, so its blocks land beside "
+         "the world's origin instead of inside its box")
+
 if problems:
     print(f"{len(problems)} problem(s):")
     for problem in problems:
