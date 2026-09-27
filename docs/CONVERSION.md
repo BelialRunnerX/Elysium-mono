@@ -1148,6 +1148,95 @@ statement that the game answers differently:
   `BeastItems.registerRoster` gives each roster its eggs and the bestiary
   validator asks for every roster.
 
+### 16.3 The mechanics pass (27 September, later)
+
+`docs/MECHANICS.md` lists every runtime mechanic of every module with how a
+server exercises it; `tools/livetest/scenarios_mechanics.py` runs the ones a
+server can reach. Its first passes found, and this fixes:
+
+* **Absorption clamped to nothing.** The game clamps absorption to the
+  `max_absorption` attribute (0 unless a potion raised it), so the Praetor's
+  field, the bulwark drones, overheal, the stat shield and the barrier rune
+  all set 0. `ElysiumAbsorption` raises the ceiling first; root
+  `check_absorption.py` names any other call.
+* **Relics with passive abilities did nothing** while carried: only the
+  active ran on use. `RelicPassives` keeps the passives up through the
+  library's own `ElysiumAbilityUse.sustain`, fires periodic ones on their
+  clock and the on-hit, on-hurt, on-kill and low-health ones from events.
+* **No fauna bred**: a step put every grown animal back on its cooldown
+  whenever it was not in love. **No pigeon bred**: there was no breed goal.
+  **No pigeonhole fouled**: nothing called the roost; pigeons beside a hole
+  now roost every 600 ticks.
+* **A herald's court never ended**: copies were heralds with room to call;
+  copies are born counted out.
+* **Vehicles**: a cactus, a mob or a fire erased a truck and its cargo;
+  every destroyer but a creative player now spills it. Nothing could reach a
+  hold; sneaking with a stack puts it in, an empty hand takes one out.
+* **The reactor hall's throttle** had no setter (sneak-use cycles it). **The
+  tree harvester never replanted** because leaves were never cut: the canopy
+  comes down with the trunk, so saplings reach the tray.
+* **Eight crag biomes never generated.** Their climate boxes were the
+  game's own peak boxes, a little wider on one axis; a point inside two boxes
+  is at distance nought from both and the game settles the tie by the order
+  its tree holds, not the list's, so the peaks won every one. The generator
+  now drops a vanilla claim that lies wholly inside a crag's box (150 of
+  7 593) and the validator counts and forbids them. A world made before this
+  keeps its old list: the test server's world was remade.
+* **Every wilds structure stood nowhere.** A room piece built without an
+  orientation places its blocks at its own relative coordinates, beside the
+  world's origin, so the keep, camp, hamlet, lodge, mine, ruin, shrine and
+  watchtower all located and none of them existed. Pieces face north now;
+  the wilds validator asks for it and the live test scans a placed keep.
+* **Cinder boars turned into zoglins.** The constructor made them immune;
+  the hoglin's own load read the saved flag back over it, false for any boar
+  summoned or loaded from a chunk. They never convert now, whatever loads.
+* **Kitchen crops stood only on farmland**, so the wild patches the world
+  grows failed to place on grass; they stand on dirt too.
+* **Emberwood logs smelted into the game's charcoal**, not ours: they leave
+  `logs_that_burn`. **An axe never stripped emberwood**: the table existed
+  and nothing read it. **Trail-ruins relic shards** targeted chest tables
+  that do not exist in 1.21.1 (`archaeology/trail_ruins_*` now). **Atelier's
+  waterlogged shapes never spread their water** (no fluid tick).
+
+### 16.4 The client stage (27 September, evening)
+
+`stage_mechanics_client.ps1` (now in `tools/livetest/stages/`, with the
+`mc.ps1` driver) walks the test client through the mechanics only a player
+reaches: a relic's passive, an axe on emberwood, a heavy grade, the reactor
+throttle, a cart's hold, capturing, budding and crop growth under a player's
+random ticks, a rift key and its portal, and a grave. Screenshots `mech_*.png`.
+Its first honest run (the first run was against a client eleven hours old,
+which had none of the day's fixes: a stage is only as new as the jar the
+client booted with, so the launcher is rerun after every install) found:
+
+* **Every grade did nothing.** The roster names attributes plainly
+  (`attack_damage`, `block_break_speed`); the game of 1.21.1 files them under
+  `generic.` and the player's own under `player.`, so every lookup returned no
+  attribute and a heavy iron sword hit for 6.0, exactly a plain one.
+  `ForgeEvents.attributeNamed` tries the plain name, `generic.` and `player.`;
+  the arsenal validator now checks every name the roster uses against the
+  game's own attribute list (from the vanilla jar's lang file when `MC_JAR` is
+  set) and refuses a plain-name-only lookup. Two negative cases.
+* **The hoar hill never generated** for the same reason as the crags: a
+  wide box of ours holds a dozen of the game's cold claims whole, every point
+  inside is a tie, and the game's tree gave every tie to the game. The shadow
+  rule now runs for every biome of ours, not the crags alone: 2 230 of
+  vanilla's 7 593 claims lie wholly inside one of our boxes and give way. A
+  box of ours is where that biome is; the validator's own model had assumed
+  as much all along. Worlds made before this keep their old list.
+* Verified as built: the wanderer's charm keeps `minecraft:speed` up while
+  held and it lapses within 45 ticks of putting it down; an axe strips
+  emberwood (and oak, as the control); a three-cube hall forms and its port's
+  throttle steps 512 → 1024 → 1536 FE/t on sneaking uses; a cart takes 32
+  cobblestone from a sneaking hand and hands it back to an empty one; a
+  capturing III sword dropped a cow spawn egg from eight cows; a rift key
+  lights a 2×3 frame and a player standing in the portal for a few seconds
+  arrives in a dungeon room (a walk overshoots a one-block portal); a grave
+  holds five gold ingots and twelve levels of experience with nothing on the
+  floor; budding iron grew the whole chain to 25 clusters under fast random
+  ticks; 49 onions all left age 0. (A corner crop that vanished on placement
+  vanished for vanilla wheat too, so it is the rig, not the pack.)
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and

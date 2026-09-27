@@ -79,9 +79,17 @@ boot with no registry errors and no missing Elysium models.
       creatures, 36 structures, 7 dimensions). The `catalogue` live scenario
       then sets every block once, gives every item once and summons every
       creature once on the test server; its first pass found the seven vein
-      generators the game refused to place. Still to do: the mechanics that
-      no validator line or live scenario covers yet, listed per module in
-      FEATURES.md, each to get a scenario or a rule.
+      generators the game refused to place. `docs/MECHANICS.md` then listed
+      every runtime mechanic (four surveys, 29 modules) with how a server
+      exercises it; `scenarios_mechanics.py` runs the reachable ones and its
+      first passes found the absorption clamp, dead relic passives, animals
+      that never bred, the herald chain and a dozen more (CONVERSION.md
+      §16.3). Player-only mechanics are marked `client-only` for the stages.
+      The client stage `stage_mechanics_client.ps1` then took the player-only
+      ones on the test client and found every grade doing nothing (§16.4);
+      the world scan found the hoar hill never generating (every wilds box
+      now shadows the vanilla claims inside it). Left: the remaining
+      `client-only` rows (menus, screens, natural spawns, colony autonomy).
 - [x] **P13 Two mod folders on the stick.** (27 Sep) `tools/modfolders.py`
       rebuilds `E:\Elysium-client-mods` and `E:\Elysium-server-mods` from the
       test server's mods folder, sorting each jar by the sides its mods file
@@ -95,4 +103,10 @@ boot with no registry errors and no missing Elysium models.
       cubes, a real part hierarchy, a generated sheet in the sci-fi palette;
       simpler only where the animal is simple (birds, small fauna). Built from
       body plans in the mobs generator's `art` package, per roster kind.
+      Dylan, 27 Sep: **the eight Elysium mobs keep their models exactly as
+      they are** (`elysium-mobs`; reference renders in
+      `docs/reference/mobs/`), and every other creature is patterned after
+      their complexity but with a **different shape**: no hunched clawed
+      humanoid recoloured, but a body plan of its own (quadruped, insectile,
+      serpentine, winged, floating) at the same density of cubes and joints.
       Last, by Dylan's order.

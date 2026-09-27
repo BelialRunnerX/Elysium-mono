@@ -147,12 +147,21 @@ Exporter, storage bus, monitor, detector, interface and ender link are unverifie
 ## Live tests on the dedicated server (27 September 2026)
 
 The client stages check by eye; the server answers questions.
-`tools/livetest/livetest.py` (CONVERSION.md §17) runs twenty-one scenarios over
+`tools/livetest/livetest.py` (CONVERSION.md §17) runs fifty-four scenarios (the
+twenty-one core ones, the mechanics pass, the catalogue, the registries and the
+world sweep) over
 RCON against `E:\testingbuilds\ElysiumServer` (RCON 127.0.0.1:25575, the
 password in `ELYSIUM_RCON` or the test default), each on its own plot of a
 force-loaded stage at 9000, 200, 9000. Run it after installing a build;
 `--only <word>` runs a subset, `--verbose` prints every command and answer.
 The stage is left standing so a failing rig can be probed with `/data get`.
 Random ticks do not run there without a player, so crops and pots are
-still checked in the client (`stage_runs_client.ps1` covers the plates and
-dyes by hand placement and takes the screenshots).
+still checked in the client. The client stages live in
+`tools/livetest/stages/` with their driver `mc.ps1`: `stage_runs_client.ps1`
+covers the plates and dyes by hand placement, `stage_mechanics_client.ps1`
+the player-only mechanics (relic passives, stripping, grades, the reactor
+throttle, the cart's hold, capturing, growth, the rift portal, the grave), and
+both take the screenshots. A stage is only as new as the jar the client
+booted with: rerun the launcher after every install.
+
+The dedicated server's world was remade on 27 September (the old one is `world.before-crags-*` beside it) so its overworld carries the biome list with the crags' claims; a world keeps the biome list it was made with.
