@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:obsidian_block"
+    },
+    {
+      "item": "elysiumarcana:obsidian_block"
+    },
+    {
+      "item": "elysiumarcana:obsidian_block"
+    },
+    {
+      "item": "minecraft:glow_ink_sac"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_obsidian",
+    "count": 1
+  }
+}

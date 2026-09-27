@@ -38,7 +38,10 @@ replaced Apotheosis and elysium-space replaced Stellaris:
   observation, and where the licence allows it, source);
 * every number lives in a pure rules class a harness executes;
 * art is generated or drawn by us — **no third-party assets are copied**;
-* names, lore and flavour are re-themed into Elysium's own world;
+* names, lore and flavour are re-themed into Elysium's own world, which
+  `check_names.py` enforces and `docs/NAMING.md` explains — it was prose
+  for months and 134 creature ids kept the names of the mods they came
+  from the whole time;
 * the original jar is then unnecessary and comes out of the pack.
 
 Licensing is the user's to settle with authors where it ever needs settling
@@ -410,6 +413,105 @@ against the 189 remaining jars on the device and both came back clean:
 `(new) …` design-note rows as removable, because both are marked DONE. A prune
 list that tells you to delete the thing doing the replacing is worse than no
 list, so it now excludes both.
+
+### The third prune, 2026-09-26
+
+**envelope** moved to `mods/_superseded/` in both instances, now that
+`elysium-comforts` carries the post. Both scripted pre-checks were run against
+the 174 remaining jars on the device and both came back clean:
+
+* **Required dependencies** — nothing remaining declares `envelope`
+  `type="required"`.
+* **Tag entries** — no tag file in any remaining jar names an `envelope:` id at
+  all, required or optional.
+
+Two copies went across: `0.7.5`, which was the live one, and `0.7.3`, which was
+already in `_superseded` from an earlier version bump. Both are kept.
+
+### The fourth prune, 2026-09-26
+
+**mobs_of_mythology** moved to `mods/_superseded/` in both instances, now that
+`elysium-bestiary` carries its eight creatures. Both scripted pre-checks were
+run against the 172 remaining jars on the device and both came back clean:
+
+* **Required dependencies** — nothing remaining declares it `type="required"`.
+* **Tag entries** — no tag file in any remaining jar names a
+  `mobs_of_mythology:` id at all, required or optional.
+
+### The fifth prune that did not happen, 2026-09-26
+
+**friendsandfoes stays**, and it is worth writing down why, because the jar
+looks ready to go: `elysium-bestiary` now carries every one of its creatures.
+
+It carries nothing else, and the jar is four mods in a trench coat. Reading
+its own language file rather than a memory of it: ten creatures, **29 blocks**
+(eleven wooden beehives, fifteen of copper button and lightning rod across the
+oxidation states, the buttercup and its pot, the crab egg), **six items** that
+are not spawn eggs (two totems, the wildfire crown and its fragment, the crab
+claw, a disc), and a **villager profession** with five tiers of trades, a
+job-site point of interest, three village house variants and a hero-of-the-
+village gift.
+
+So the row became **SPLIT** rather than DONE, with six pieces in
+`docs/SPLITS.md` and one of them finished. `tools/prune.py` will not offer the
+jar until every piece is, which is the behaviour it already had and the reason
+the status column is what prune reads rather than a judgement made at the time.
+
+Both pre-checks were run anyway, against the 176 remaining jars, so that
+whoever finishes the split does not have to: **nothing declares
+`friendsandfoes` a required dependency**, and **no tag file in any remaining
+jar names a `friendsandfoes:` id at all**. 7,210 tag files scanned. When the
+last piece lands the jar can go without a second look.
+
+### The sixth prune that did not happen, 2026-09-26
+
+**fangs_n_claws stays**, for the reason friendsandfoes stays, and the pattern is
+worth naming now that it has happened twice: *a creature mod is rarely only a
+creature mod*. Read this one's language file and the twenty-seven creatures come
+with four armour sets, ten weapons, six effects, five enchantments, three blocks
+and a shelf of materials and food. Converting the creatures and calling the jar
+done would drop all of that without anybody deciding to.
+
+So **SPLIT** again, six pieces in `docs/SPLITS.md`, one of them finished. The
+four that remain in `MANIFEST.md` are now genuinely four whole jars rather than
+four jars with a creature roster sitting on top of them.
+
+Both pre-checks were run anyway, against the 176 remaining jars: **nothing
+declares `fangs_n_claws` a required dependency**, and **no tag file in any
+remaining jar names a `fangs_n_claws:` id at all**. 7,228 tag files scanned.
+
+**The rule this suggests for the two that are left.** `born_in_chaos` has 86
+entity keys, 362 items and 133 blocks, and `mob_grinding_utils` has 82 blocks
+and no creatures at all. Neither is going to be one module's work either.
+Whoever takes them should read the jar's own language file first and split
+before starting, rather than converting a roster and discovering the rest
+afterwards — which is the order this session did it in twice.
+
+### The fifth prune, 2026-09-26
+
+**GeOre** moved to `mods/_superseded/` in both instances. It has been marked
+DONE for some time and stayed in the pack anyway, and the reason is the one
+this section is about: `oritech` ships thirty-two compat recipes that assemble
+a `geore:budding_x` out of two `geore:x_shard`. Take the jar out and those
+recipes name items that do not exist, the game drops them at load, and a
+feature is gone with nothing saying so.
+
+Both scripted pre-checks were clean and had been for weeks — **nothing declares
+`GeOre` a required dependency** and **no tag file in any remaining jar names a
+`geore:` id** (6,961 tag files scanned across 176 jars). It was always the
+third thing, the one that is not automatic, that held it.
+
+What unblocked it was noticing what those thirty-two recipes actually *are*:
+the only way in the whole pack to get a budding block other than finding one.
+`elysium-arcana` ships thirty materials with a full growth chain each and never
+had a way to start one. It does now — `BuddingRules`, thirty seedings, paid in
+the material's own blocks — and the capability is ours rather than a third
+party's, which is the whole programme.
+
+The one thing genuinely lost: oritech's recipes ran in its *assembler*, and the
+replacement is a crafting table. A player who had automated budding blocks now
+crafts them. `oritech: the machines` is still PLANNED for `elysium-industry`;
+when that lands, the assembler is ours and can have the recipe too.
 
 ### The fourth thing: the licensing ledger
 
@@ -857,3 +959,59 @@ Stress is conserved. What the sources push equals what the loads draw plus
 what is idle, on every network, including ones with cycles in them — a network
 that gains torque going round a loop is a perpetual motion machine, and a
 player finds that long before anybody finds it by reading.
+
+## 15. Lighting a room, and the number that does not belong to the module
+
+*Written while converting `supplementaries: the comforts`, 2026-09-26.*
+
+A decoration module is where a bestiary quietly dies, and this is the one
+conversion failure that leaves no trace at all.
+
+The jar has thirty-odd blocks that light a room. Each one is fine. Each one is
+prettier than a torch, most are cheaper, and several are brighter. Nobody
+decides anything; each block is added on its own merits and each is defensible
+on its own merits. What happens next is that light stops being a resource,
+which would be a small loss — except that `elysium-bestiary`'s haunts each
+name a band of light they spawn in, and almost all of those bands are dark.
+A decoration roster in which every fitting is bright and cheap does not make
+those creatures rarer. It makes them impossible anywhere a player has
+decorated, which is everywhere a player spends time.
+
+Nothing reports that. Every block works. Every room looks good. The pack
+simply stops having a night in it, and the symptom reaches the author as "the
+mobs feel a bit sparse lately".
+
+**So the rule this row is really about is not in this module.**
+`LightRules.STILL_DARK` is seven, and seven is not a taste: it is the
+brightest light level at which a majority of `elysium-bestiary`'s own nine
+monsters still spawn. At seven, five of nine appear; at eight, two of nine do.
+`elysium-comforts/validate.py` works that number out again from
+`HauntRules.HAUNTS` on every run rather than trusting the copy, and two
+negative tests move it — one from this side and one from the bestiary's — so
+that a band widened over there fails the build over here.
+
+The general rule, for the decoration rows still to come:
+
+> A decoration roster that touches a resource another module has built rules
+> on is not a decoration roster. Find the module that owns the resource, take
+> its number, and check it is still that module's number every run.
+
+Light is the obvious one. Sound is the same shape of problem and
+`elysium-comforts`' chimes already answer it. Storage, speed of travel and
+anything that shortens a walk are the others.
+
+### Two smaller things this row turned up
+
+**A jar can be a different jar than the manifest thinks.** The pack carries
+`supplementaries-1.21.1-3.9.5`; `tools/pack-jars.txt` named `3.8.8`, and
+`3.8.8` was sitting in `mods/_superseded` — put there by a version bump rather
+than by §4b. Read the jar that is actually in the instance, not the one the
+list names, and fix the list. Retiring a jar and superseding a jar look
+identical from the folder; only `docs/MANIFEST.md` distinguishes them.
+
+**A hand edit in a generated file is not a decision, it is a countdown.**
+This jar's `SPLIT` status had been typed into `docs/MANIFEST.md` directly.
+`tools/manifest.py` knew nothing about it, so the next regeneration silently
+turned it back into a catalogue row. The status now lives in the `DECISIONS`
+table with everything else. If a row in a generated document says something
+the generator cannot say, the generator is what needs changing.

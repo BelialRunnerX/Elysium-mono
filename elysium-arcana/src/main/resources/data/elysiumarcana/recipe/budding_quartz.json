@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:quartz_block"
+    },
+    {
+      "item": "elysiumarcana:quartz_block"
+    },
+    {
+      "item": "minecraft:glow_ink_sac"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_quartz",
+    "count": 1
+  }
+}

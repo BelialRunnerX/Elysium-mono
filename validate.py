@@ -102,6 +102,19 @@ def main():
         failures.append("retexture")
     print()
 
+    # Beside the retexture check, because the two are halves of one promise.
+    # That one holds the art to "ours, not theirs" and has done from the
+    # start; this one holds the names, and did not exist until 26 September,
+    # by which time 134 of the bestiary's 176 creature ids were the names of
+    # the mods they had been converted from. Every other check passed the
+    # whole time. See docs/NAMING.md.
+    print("=" * 70)
+    print("names — ours, and not a coinage anybody else made up")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_names.py"], cwd=HERE).returncode != 0:
+        failures.append("names")
+    print()
+
     # First, because it decides whether anything below can be believed. A
     # module validator whose report block is not the last thing in the file
     # runs its later checks into a list nobody prints, and then announces

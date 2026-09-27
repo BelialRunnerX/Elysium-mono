@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:uraninite_block"
+    },
+    {
+      "item": "elysiumarcana:uraninite_block"
+    },
+    {
+      "item": "elysiumarcana:uraninite_block"
+    },
+    {
+      "item": "elysiumarcana:uraninite_block"
+    },
+    {
+      "item": "elysiumarcana:uraninite_block"
+    },
+    {
+      "item": "elysiumarcana:uraninite_block"
+    },
+    {
+      "item": "elysiumarcana:uraninite_block"
+    },
+    {
+      "item": "elysiumarcana:uraninite_block"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_uraninite",
+    "count": 1
+  }
+}

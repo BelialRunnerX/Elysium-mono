@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "pigeonhole",
+  "pattern": [
+    "ppp",
+    "php",
+    "ppp"
+  ],
+  "key": {
+    "p": {
+      "item": "minecraft:crimson_planks"
+    },
+    "h": {
+      "item": "minecraft:hay_block"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:crimson_pigeonhole",
+    "count": 1
+  }
+}

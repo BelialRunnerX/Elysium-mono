@@ -12,6 +12,7 @@ RE=$M/src/main/java/com/elysium/bestiary/registry/BeastEntities.java
 RI=$M/src/main/java/com/elysium/bestiary/registry/BeastItems.java
 G=$M/tools/gen_bestiary.py
 V=$M/validate.py
+SH=$M/src/main/java/com/elysium/bestiary/client/CreatureModel.java
 H=$M/tools/BeastHarness.java
 SNAP=/tmp/bestiary_snap.tar
 pass=0; fail=0
@@ -67,16 +68,16 @@ expect "a top tier worth so much more to farm that nothing else is" "grinder for
 edit $R 'public static final double TILT_PER_TIER = 0.06D;' 'public static final double TILT_PER_TIER = 0.0D;'
 expect "a ladder that pays no better at the top than at the bottom" "getting stronger buys nothing"
 
-edit $R 'new Beast("siege_beast", BRUTE, 3, 90.0D, 12.0D, 0.26D, 10.0D, 10, 2.0F, 3.0F)' \
-        'new Beast("siege_beast", BRUTE, 3, 400.0D, 12.0D, 0.26D, 10.0D, 10, 2.0F, 3.0F)'
+edit $R 'new Beast("siegehulk", BRUTE, 3, 90.0D, 12.0D, 0.26D, 10.0D, 10, 2.0F, 3.0F)' \
+        'new Beast("siegehulk", BRUTE, 3, 400.0D, 12.0D, 0.26D, 10.0D, 10, 2.0F, 3.0F)'
 expect "a mob that is an event rather than a mob" "it is an event"
 
-edit $R 'new Beast("shardling", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F)' \
-        'new Beast("shardling", PROWLER, 1, 4.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F)'
+edit $R 'new Beast("spallet", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F)' \
+        'new Beast("spallet", PROWLER, 1, 4.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F)'
 expect "a beast less dangerous than a zombie" "less dangerous than a zombie"
 
-edit $R 'new Beast("shardling", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F)' \
-        'new Beast("shardling", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 900, 0.6F, 1.1F)'
+edit $R 'new Beast("spallet", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 80, 0.6F, 1.1F)' \
+        'new Beast("spallet", PROWLER, 1, 18.0D, 3.0D, 0.34D, 0.0D, 900, 0.6F, 1.1F)'
 expect "one beast that is most of everything you ever meet" "of everything you meet"
 
 echo "the reward written down a second time"
@@ -93,13 +94,13 @@ edit $H '            System.out.println("EARNED " + beast.id() + " " + reward.ex
 expect "a harness that stops printing the table it derived" "believed rather than checked"
 
 echo "the sheet"
-edit $MD '            BODY, new int[]{0, 32, 72, 32},' '            BODY, new int[]{0, 16, 72, 32},'
+edit $SH '            BODY, new int[]{0, 32, 72, 32},' '            BODY, new int[]{0, 16, 72, 32},'
 expect "two parts drawn over one another on the sheet" "overlap on the sheet"
 
-edit $MD '            LEG_RIGHT, new int[]{96, 72, 24, 32});' '            LEG_RIGHT, new int[]{120, 72, 24, 32});'
+edit $SH '            LEG_RIGHT, new int[]{96, 72, 24, 32});' '            LEG_RIGHT, new int[]{120, 72, 24, 32});'
 expect "a part drawn off the edge of the sheet" "runs off a 128-pixel sheet"
 
-edit $MD '            HEAD, new int[]{0, 0, 48, 24},' '            HEAD, new int[]{0, 0, 12, 24},'
+edit $SH '            HEAD, new int[]{0, 0, 48, 24},' '            HEAD, new int[]{0, 0, 12, 24},'
 expect "a box bigger than the corner of the sheet it is drawn in" "another part's corner"
 
 echo "as big as it looks"
@@ -113,7 +114,7 @@ expect "a head above its own hitbox" "no longer worked out from how tall it is"
 edit $RD '        pose.scale(across, up, across);' '        pose.scale(1.0F, 1.0F, 1.0F);'
 expect "a shape never squashed onto the hitbox at all" "not squashed onto the hitbox"
 
-edit $MD '        return new Bounds(highX - lowX, highY - lowY, highZ - lowZ);' \
+edit $SH '        return new Bounds(highX - lowX, highY - lowY, highZ - lowZ);' \
         '        return new Bounds(16.0F, 32.0F, 16.0F);'
 expect "a shape whose size is typed rather than measured" "squashes onto a number somebody typed"
 
@@ -136,22 +137,31 @@ edit $G '        "count": {"type": "minecraft:uniform", "min": 0.0, "max": float
         '        "count": {"type": "minecraft:constant", "value": float(most)},'
 expect_regen "a count nothing can work an expectation out of" "has stopped being checked"
 
-edit $G '    "prowler": "minecraft:string",' '    "prowler": "minecraft:stringg",'
+edit $R '            PROWLER, new Leavings("minecraft:string", "minecraft:spider_eye",' \
+        '            PROWLER, new Leavings("minecraft:stringg", "minecraft:spider_eye",'
 expect_regen "a staple drop with a letter too many in it" "neither the game nor this pack makes them"
 
-edit $G '    "wight": ["minecraft:coal", "minecraft:amethyst_shard", "minecraft:echo_shard"],' \
-        '    "wight": ["minecraft:coal", "minecraft:amethyst_shard", "minecraft:echoshard"],'
+edit $R '                    List.of("minecraft:coal", "minecraft:amethyst_shard",
+                            "minecraft:echo_shard")));' \
+        '                    List.of("minecraft:coal", "minecraft:amethyst_shard",
+                            "minecraft:echoshard")));'
 expect_regen "a rare drop only the hardest wight ever leaves, misspelt" "neither the game nor this pack makes them"
 
 edit $V '                if entry.get("type") == "minecraft:item" and entry.get("name"):' \
         '                if entry.get("type") == "minecraft:itemm" and entry.get("name"):'
 expect "a sweep that reads no drops at all out of nine loot tables" "balancing zero against zero"
 
-edit $V '        THE_GAME_HAS = {"minecraft:" + key.split(".", 2)[2] for key in _lang
-                        if key.startswith(("item.minecraft.", "block.minecraft."))}' \
-        '        THE_GAME_HAS = {"minecraft:" + key.split(".", 2)[2] for key in _lang
-                        if key.startswith(("item.mojang.", "block.mojang."))}'
-expect "a game list that reads as empty, so the check below it checks nothing" "so the check below is checking nothing"
+edit $V '    return {"minecraft:" + key.split(".", 2)[2] for key in named
+            if key.startswith(("item.minecraft.", "block.minecraft."))}' \
+        '    return {"minecraft:" + key.split(".", 2)[2] for key in named
+            if key.startswith(("item.mojang.", "block.mojang."))}'
+expect "a game list that reads as empty, so both drop checks quietly stop" "is checking nothing at all"
+
+edit $V '    for where, _, names in os.walk(ROOT):
+        if not where.replace(os.sep, "/").endswith("/lang"):' \
+        '    for where, _, names in os.walk(ROOT):
+        if not where.replace(os.sep, "/").endswith("/langue"):'
+expect "a pack list that reads as empty, so our own drops read as invented" "reads as invented"
 
 echo "what you meet"
 edit $G '                      "weight": BY_ID[haunt["beast"]]["weight"],' \
@@ -162,7 +172,7 @@ edit $G '                  "biomes": haunt["where"],' '                  "biomes
 expect_regen "a bestiary most players never meet" "a third of the bestiary is a rumour"
 
 edit $G '                  "spawners": [{' '                  "spawners": [{
-                      "type": "%s:shardling" % NS,
+                      "type": "%s:spallet" % NS,
                       "weight": 1,
                       "minCount": 1,
                       "maxCount": 1,
@@ -173,23 +183,23 @@ edit $G '                      "minCount": haunt["least"],' '                   
 expect_regen "a spawn roll that puts nothing there" "puts nothing there"
 
 echo "the words, and the tree"
-edit $G '    "shardling": "It comes apart when you hit it and the pieces keep coming.",' \
-        '    "shardling": "A mob.",'
+edit $G '    "spallet": "It comes apart when you hit it and the pieces keep coming.",' \
+        '    "spallet": "A mob.",'
 expect_regen "a beast described in four words" "tells a player nothing they could not see"
 
 python3 - <<'PYX'
 import json, pathlib
 p = pathlib.Path("/tmp/Elysium-mono/elysium-bestiary/src/main/resources/assets/elysiumbestiary/lang/en_us.json")
 words = json.loads(p.read_text(encoding="utf-8"))
-del words["entity.elysiumbestiary.stalker"]
+del words["entity.elysiumbestiary.prowlframe"]
 p.write_text(json.dumps(words, indent=2) + "\n", encoding="utf-8")
 PYX
-expect "a beast that reads as its own translation key" "entity.elysiumbestiary.stalker has no name"
+expect "a beast that reads as its own translation key" "entity.elysiumbestiary.prowlframe has no name"
 
 python3 - <<'PYX'
 import pathlib
 from PIL import Image
-p = pathlib.Path("/tmp/Elysium-mono/elysium-bestiary/src/main/resources/assets/elysiumbestiary/textures/entity/ripper.png")
+p = pathlib.Path("/tmp/Elysium-mono/elysium-bestiary/src/main/resources/assets/elysiumbestiary/textures/entity/shearjaw.png")
 image = Image.open(p).convert("RGBA")
 image.putpixel((3, 3), (255, 0, 255, 255))
 image.save(p)
@@ -234,7 +244,7 @@ edit $RI '        for (BeastRules.Beast beast : BeastRules.BEASTS) {
             int background'
 expect "a beast with no spawn egg to look at it with" "cannot be put in the world"
 
-edit $EN '        String name = EntityType.getKey(getType()).getPath();' '        String name = "ripper";'
+edit $EN '        String name = EntityType.getKey(getType()).getPath();' '        String name = "shearjaw";'
 expect "a beast that no longer finds its own row" "finds its own row by the name"
 
 edit $EN '        return BeastRules.earned(beast()).experience();

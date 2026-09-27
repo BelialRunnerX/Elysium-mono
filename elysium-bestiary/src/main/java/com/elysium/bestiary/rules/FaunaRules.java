@@ -181,29 +181,29 @@ public final class FaunaRules {
      * worked out from them.
      */
     public static final List<Animal> ANIMALS = List.of(
-            new Animal("moorstag", GRAZER, 12.0D, 0.28D, 1.3F, 1.6F,
+            new Animal("fenstag", GRAZER, 12.0D, 0.28D, 1.3F, 1.6F,
                     "minecraft:wheat", "minecraft:mutton", 4, 60),
-            new Animal("dunemare", GRAZER, 15.0D, 0.32D, 1.4F, 1.8F,
+            new Animal("dunecharger", GRAZER, 15.0D, 0.32D, 1.4F, 1.8F,
                     "minecraft:carrot", "minecraft:rabbit_hide", 5, 30),
-            new Animal("fellox", GRAZER, 18.0D, 0.20D, 1.5F, 1.7F,
+            new Animal("ferrox", GRAZER, 18.0D, 0.20D, 1.5F, 1.7F,
                     "minecraft:wheat", "minecraft:beef", 6, 40),
-            new Animal("stonemole", FORAGER, 6.0D, 0.24D, 0.6F, 0.5F,
+            new Animal("cragmole", FORAGER, 6.0D, 0.24D, 0.6F, 0.5F,
                     "minecraft:melon_slice", "minecraft:clay_ball", 2, 90),
-            new Animal("quillrat", FORAGER, 8.0D, 0.30D, 0.7F, 0.6F,
+            new Animal("quillmite", FORAGER, 8.0D, 0.30D, 0.7F, 0.6F,
                     "minecraft:beetroot", "minecraft:brown_mushroom", 3, 70),
-            new Animal("brackhog", FORAGER, 10.0D, 0.26D, 0.9F, 0.9F,
+            new Animal("brackhide", FORAGER, 10.0D, 0.26D, 0.9F, 0.9F,
                     "minecraft:potato", "minecraft:porkchop", 4, 50),
-            new Animal("cragjay", FOWL, 4.0D, 0.34D, 0.4F, 0.6F,
+            new Animal("cragwing", FOWL, 4.0D, 0.34D, 0.4F, 0.6F,
                     "minecraft:pumpkin_seeds", "minecraft:egg", 1, 100),
-            new Animal("mirefowl", FOWL, 5.0D, 0.25D, 0.5F, 0.8F,
+            new Animal("mirewing", FOWL, 5.0D, 0.25D, 0.5F, 0.8F,
                     "minecraft:wheat_seeds", "minecraft:feather", 2, 80),
-            new Animal("ashquail", FOWL, 6.0D, 0.22D, 0.6F, 0.7F,
+            new Animal("ashwing", FOWL, 6.0D, 0.22D, 0.6F, 0.7F,
                     "minecraft:melon_seeds", "minecraft:chicken", 3, 55),
-            new Animal("glasseel", SWIMMER, 4.0D, 0.40D, 0.4F, 0.4F,
+            new Animal("glassfin", SWIMMER, 4.0D, 0.40D, 0.4F, 0.4F,
                     "minecraft:kelp", "minecraft:salmon", 2, 85),
-            new Animal("silverfin", SWIMMER, 6.0D, 0.36D, 0.5F, 0.4F,
+            new Animal("chromefin", SWIMMER, 6.0D, 0.36D, 0.5F, 0.4F,
                     "minecraft:kelp", "minecraft:cod", 3, 65),
-            new Animal("shalecrab", SWIMMER, 9.0D, 0.18D, 0.7F, 0.5F,
+            new Animal("shaleshell", SWIMMER, 9.0D, 0.18D, 0.7F, 0.5F,
                     "minecraft:seagrass", "minecraft:tropical_fish", 4, 45));
 
     /** The animal with this id, or null. */
@@ -280,8 +280,9 @@ public final class FaunaRules {
     public static List<String> faults() {
         List<String> bad = new ArrayList<>();
         bad.addAll(faultsInKinds(ANIMALS));
+        bad.addAll(faultsInGroups(ANIMALS));
         bad.addAll(faultsInYields(ANIMALS));
-        bad.addAll(faultsInPatience(ANIMALS));
+        bad.addAll(faultsInPatience(ANIMALS, LEAST_PATIENCE, MOST_PATIENCE));
         bad.addAll(faultsInSpread(TILT));
         bad.addAll(faultsInLoop(ANIMALS));
         bad.addAll(faultsInOverlap(ANIMALS, BeastRules.BEASTS));
@@ -290,7 +291,15 @@ public final class FaunaRules {
         return List.copyOf(bad);
     }
 
-    /** Whether every animal is one of the four kinds and every kind is a roster. */
+    /**
+     * Whether every animal is one of the four kinds, once.
+     *
+     * <p>Separate from {@link #faultsInGroups} because a roster built to be
+     * caught by one of them trips the other as well: a single animal of a
+     * made-up kind is also three kinds short of a roster, and a rule that
+     * answers a control aimed at its neighbour is a rule that can be deleted
+     * without anything noticing.
+     */
     public static List<String> faultsInKinds(List<Animal> animals) {
         List<String> bad = new ArrayList<>();
         Set<String> named = new LinkedHashSet<>();
@@ -305,6 +314,12 @@ public final class FaunaRules {
                         + "a set of numbers nothing reads");
             }
         }
+        return bad;
+    }
+
+    /** Whether each kind has enough in it to read as a kind. */
+    public static List<String> faultsInGroups(List<Animal> animals) {
+        List<String> bad = new ArrayList<>();
         Map<String, Integer> counted = new LinkedHashMap<>();
         for (Animal one : animals) {
             counted.merge(one.kind(), 1, Integer::sum);
@@ -371,25 +386,30 @@ public final class FaunaRules {
     /**
      * Whether the wait each yield works out to is a wait anybody would sit through.
      *
-     * <p>Handed the animals so a control can pass a roster built to be caught.
+     * <p>Handed the two ends as well as the roster, because over this roster
+     * the floor is out of reach: with the tilts this module ships, the
+     * shortest wait any yield can work out to is longer than
+     * {@link #LEAST_PATIENCE}, so a rule that read the constant itself could
+     * only ever answer no about half of what it claims to check.
      */
-    public static List<String> faultsInPatience(List<Animal> animals) {
+    public static List<String> faultsInPatience(List<Animal> animals,
+                                                int least, int most) {
         List<String> bad = new ArrayList<>();
         for (Animal one : animals) {
             if (!KINDS.contains(one.kind())) {
                 continue;
             }
             int waits = patienceOf(one);
-            if (waits < LEAST_PATIENCE) {
+            if (waits < least) {
                 bad.add(one.id() + " is ready again after " + waits + " ticks, "
-                        + "which is under " + LEAST_PATIENCE + " — a pen that "
-                        + "produces faster than a player can walk to it is a "
-                        + "pile of items, not an animal");
+                        + "which is under " + least + " — a pen that produces "
+                        + "faster than a player can walk to it is a pile of "
+                        + "items, not an animal");
             }
-            if (waits > MOST_PATIENCE) {
+            if (waits > most) {
                 bad.add(one.id() + " is ready again after " + waits + " ticks, "
-                        + "which is over " + MOST_PATIENCE + " — nobody waits "
-                        + "that long and the animal is decoration");
+                        + "which is over " + most + " — nobody waits that long "
+                        + "and the animal is decoration");
             }
         }
         return bad;
@@ -414,7 +434,8 @@ public final class FaunaRules {
                 bad.add("nothing says what an hour of keeping a " + kind
                         + " is worth, so every one of them is a row of numbers "
                         + "the arithmetic throws on");
-            } else if (one <= 0.0D) {
+            }
+            if (one != null && one <= 0.0D) {
                 bad.add("an hour of " + kind + " is worth " + one + " times the "
                         + "middling animal, so keeping one costs a player time "
                         + "and gives them nothing");
@@ -476,8 +497,8 @@ public final class FaunaRules {
      * Whether anything you can farm is something you would otherwise fight for.
      *
      * <p>Handed both rosters so a control can pass a pair built to be caught.
-     * A pen that produces what the hollow lord produces is a pen that makes
-     * the hollow lord pointless, and the bestiary's whole ladder is built on
+     * A pen that produces what the nullprime produces is a pen that makes
+     * the nullprime pointless, and the bestiary's whole ladder is built on
      * the assumption that the only way to get what a beast leaves is to meet
      * one.
      */

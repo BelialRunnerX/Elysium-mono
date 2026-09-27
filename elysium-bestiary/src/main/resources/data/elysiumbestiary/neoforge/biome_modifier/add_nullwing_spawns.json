@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#minecraft:is_mountain",
+  "spawners": [
+    {
+      "type": "elysiumbestiary:nullwing",
+      "weight": 60,
+      "minCount": 1,
+      "maxCount": 2
+    }
+  ]
+}

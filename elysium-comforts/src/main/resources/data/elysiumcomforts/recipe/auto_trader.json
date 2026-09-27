@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ppp",
+    "pep",
+    "ppp"
+  ],
+  "key": {
+    "p": {
+      "item": "minecraft:oak_planks"
+    },
+    "e": {
+      "item": "minecraft:hopper"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:auto_trader",
+    "count": 1
+  }
+}

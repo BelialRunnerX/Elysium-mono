@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,occupied=false": {
+      "model": "elysiumcomforts:block/cyan_sleeping_bag"
+    },
+    "facing=north,occupied=true": {
+      "model": "elysiumcomforts:block/cyan_sleeping_bag"
+    },
+    "facing=east,occupied=false": {
+      "model": "elysiumcomforts:block/cyan_sleeping_bag",
+      "y": 90
+    },
+    "facing=east,occupied=true": {
+      "model": "elysiumcomforts:block/cyan_sleeping_bag",
+      "y": 90
+    },
+    "facing=south,occupied=false": {
+      "model": "elysiumcomforts:block/cyan_sleeping_bag",
+      "y": 180
+    },
+    "facing=south,occupied=true": {
+      "model": "elysiumcomforts:block/cyan_sleeping_bag",
+      "y": 180
+    },
+    "facing=west,occupied=false": {
+      "model": "elysiumcomforts:block/cyan_sleeping_bag",
+      "y": 270
+    },
+    "facing=west,occupied=true": {
+      "model": "elysiumcomforts:block/cyan_sleeping_bag",
+      "y": 270
+    }
+  }
+}

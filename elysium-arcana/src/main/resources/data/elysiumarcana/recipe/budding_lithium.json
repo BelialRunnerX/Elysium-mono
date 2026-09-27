@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "elysium_seeding",
+  "ingredients": [
+    {
+      "item": "elysiumarcana:lithium_block"
+    },
+    {
+      "item": "elysiumarcana:lithium_block"
+    },
+    {
+      "item": "elysiumarcana:lithium_block"
+    },
+    {
+      "item": "elysiumarcana:lithium_block"
+    },
+    {
+      "item": "elysiumarcana:lithium_block"
+    },
+    {
+      "item": "elysiumarcana:lithium_block"
+    },
+    {
+      "item": "minecraft:echo_shard"
+    }
+  ],
+  "result": {
+    "id": "elysiumarcana:budding_lithium",
+    "count": 1
+  }
+}

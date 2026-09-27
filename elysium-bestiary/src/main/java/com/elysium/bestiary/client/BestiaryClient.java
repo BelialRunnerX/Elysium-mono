@@ -35,6 +35,32 @@ public final class BestiaryClient {
             event.registerLayerDefinition(FaunaModel.LAYERS.get(kind),
                     () -> FaunaModel.createLayer(kind));
         }
+        event.registerLayerDefinition(ShadeRenderer.LAYER, ShadeModel::createLayer);
+        event.registerLayerDefinition(CompanionModel.LAYER,
+                CompanionModel::createLayer);
+        // One layer per shape a myth can wear, walked from the rules. A myth
+        // whose layer was never registered is a bake that throws, which takes
+        // the renderer with it.
+        for (String form : com.elysium.bestiary.rules.MythRules.forms()) {
+            event.registerLayerDefinition(DenizenModel.LAYERS.get(form),
+                    () -> DenizenModel.createLayer(form));
+        }
+        for (String form : com.elysium.bestiary.rules.MythRules.forms()) {
+            event.registerLayerDefinition(WardModel.LAYERS.get(form),
+                    () -> WardModel.createLayer(form));
+        }
+        for (String form : com.elysium.bestiary.rules.MythRules.forms()) {
+            event.registerLayerDefinition(CourtModel.LAYERS.get(form),
+                    () -> CourtModel.createLayer(form));
+        }
+        for (String form : com.elysium.bestiary.rules.MythRules.forms()) {
+            event.registerLayerDefinition(KinModel.LAYERS.get(form),
+                    () -> KinModel.createLayer(form));
+        }
+        for (String form : com.elysium.bestiary.rules.MythRules.forms()) {
+            event.registerLayerDefinition(MythModel.LAYERS.get(form),
+                    () -> MythModel.createLayer(form));
+        }
     }
 
     @SubscribeEvent
@@ -46,6 +72,61 @@ public final class BestiaryClient {
         for (FaunaRules.Animal animal : FaunaRules.ANIMALS) {
             event.registerEntityRenderer(FaunaEntities.ALL.get(animal.id()).get(),
                     context -> new FaunaRenderer(context, animal.kind()));
+        }
+        // And the two the ability system puts in the world. They were
+        // registered, wired into the library and spawned by three abilities
+        // for a while with nothing drawing either — which is not a quiet
+        // failure: the first shade a player summons takes the client down.
+        event.registerEntityRenderer(
+                com.elysium.bestiary.registry.SummonEntities.SHADE.get(),
+                ShadeRenderer::new);
+        event.registerEntityRenderer(
+                com.elysium.bestiary.registry.SummonEntities.BOLT.get(),
+                RelicBoltRenderer::new);
+        for (com.elysium.bestiary.rules.MythRules.Myth myth
+                : com.elysium.bestiary.rules.MythRules.MYTHS) {
+            event.registerEntityRenderer(
+                    com.elysium.bestiary.registry.MythEntities.ALL
+                            .get(myth.id()).get(),
+                    context -> new MythRenderer(context, myth.form()));
+        }
+        for (com.elysium.bestiary.rules.DenizenRules.Denizen one
+                : com.elysium.bestiary.rules.DenizenRules.DENIZENS) {
+            event.registerEntityRenderer(
+                    com.elysium.bestiary.registry.DenizenEntities.ALL
+                            .get(one.id()).get(),
+                    context -> new DenizenRenderer(context,
+                            com.elysium.bestiary.rules.DenizenRules.shapeOf(one)));
+        }
+        for (com.elysium.bestiary.rules.WardRules.Warded one
+                : com.elysium.bestiary.rules.WardRules.WARDED) {
+            event.registerEntityRenderer(
+                    com.elysium.bestiary.registry.WardEntities.ALL
+                            .get(one.id()).get(),
+                    context -> new WardRenderer(context,
+                            com.elysium.bestiary.rules.WardRules.shapeOf(one)));
+        }
+        for (com.elysium.bestiary.rules.CourtRules.Member one
+                : com.elysium.bestiary.rules.CourtRules.MEMBERS) {
+            event.registerEntityRenderer(
+                    com.elysium.bestiary.registry.CourtEntities.ALL
+                            .get(one.id()).get(),
+                    context -> new CourtRenderer(context,
+                            com.elysium.bestiary.rules.CourtRules.shapeOf(one)));
+        }
+        for (com.elysium.bestiary.rules.KindredRules.Kin one
+                : com.elysium.bestiary.rules.KindredRules.KINDRED) {
+            event.registerEntityRenderer(
+                    com.elysium.bestiary.registry.KinEntities.ALL
+                            .get(one.id()).get(),
+                    context -> new KinRenderer(context,
+                            com.elysium.bestiary.rules.KindredRules.shapeOf(one)));
+        }
+        for (com.elysium.bestiary.rules.CompanionRules.Companion one
+                : com.elysium.bestiary.rules.CompanionRules.COMPANIONS) {
+            event.registerEntityRenderer(
+                    com.elysium.bestiary.registry.CompanionEntities.ALL
+                            .get(one.id()).get(), CompanionRenderer::new);
         }
     }
 }

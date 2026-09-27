@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ccc",
+    "mmm"
+  ],
+  "key": {
+    "c": {
+      "item": "minecraft:orange_wool"
+    },
+    "m": {
+      "item": "minecraft:bamboo"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:orange_bamboo_chimes",
+    "count": 1
+  }
+}

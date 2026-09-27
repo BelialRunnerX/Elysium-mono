@@ -185,7 +185,7 @@ sophisticatedstorage-1.21.1-1.5.85.2071.jar
 sophisticatedstoragecreateintegration-1.21.1-0.1.21.209.jar
 stonezone-1.21-2.11.17-neoforge.jar
 structurize-1.0.832-1.21.1.jar
-supplementaries-1.21.1-3.8.8-neoforge.jar
+supplementaries-1.21.1-3.9.5-neoforge.jar
 tfmg-1.2.2.jar
 tide-neoforge-1.21.1-2.1.1.jar
 titanium-1.21-4.0.43.jar

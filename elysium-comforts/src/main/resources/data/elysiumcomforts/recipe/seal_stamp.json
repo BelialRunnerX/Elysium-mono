@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " s ",
+    " s ",
+    " i "
+  ],
+  "key": {
+    "s": {
+      "tag": "minecraft:wooden_slabs"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:seal_stamp",
+    "count": 1
+  }
+}

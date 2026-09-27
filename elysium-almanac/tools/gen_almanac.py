@@ -105,27 +105,27 @@ QUESTS = {
                          "The hardest single hit in the pack and the slowest "
                          "swing behind it. Bring it to something large and "
                          "leave it at home the rest of the time."),
-    "shardling": ("Something in the dark",
-                  "A shardling is the smallest thing that hunts you and the "
+    "spallet": ("Something in the dark",
+                  "A spallet is the smallest thing that hunts you and the "
                   "one you will meet first. It comes apart when you hit it "
                   "and the pieces keep coming."),
     "the_three_families": ("Three kinds of trouble",
-                           "A husk ox will not be knocked back and a mourner "
+                           "A drayhulk will not be knocked back and a carrier "
                            "burns at dawn. Everything in the dark is one of "
                            "three families and each wants a different answer."),
     "worth_the_trouble": ("Worth the trouble",
                           "The second rung of all three ladders. Every one of "
                           "them is worth more than the thing below it, and "
                           "that is a promise this pack actually checks."),
-    "the_hollow_lord": ("The hollow lord",
+    "the_hollow_lord": ("The nullprime",
                         "It waited a long time for something, and it was not "
                         "you. Bring the heaviest thing you have and do it in "
                         "daylight if you can arrange that."),
-    "the_siege_beast": ("The siege beast",
+    "the_siege_beast": ("The siegehulk",
                         "Three metres of it, and it goes through the wall "
                         "rather than round it. The hardest thing in the "
                         "bestiary and the best-paid."),
-    "the_stalker": ("The stalker",
+    "the_stalker": ("The prowlframe",
                     "You will hear it stop following you, and that is the bad "
                     "part. The top of the prowlers, and the fastest thing "
                     "that will ever chase you."),

@@ -58,6 +58,63 @@ public final class BeastItems {
         return Map.copyOf(made);
     }
 
+    /** One egg per companion, counted on its own for the same reason. */
+    public static final Map<String, DeferredItem<DeferredSpawnEggItem>>
+            COMPANION_EGGS = registerCompanions();
+
+    private static Map<String, DeferredItem<DeferredSpawnEggItem>>
+            registerCompanions() {
+        Map<String, DeferredItem<DeferredSpawnEggItem>> made = new LinkedHashMap<>();
+        for (com.elysium.bestiary.rules.CompanionRules.Companion one
+                : com.elysium.bestiary.rules.CompanionRules.COMPANIONS) {
+            made.put(one.id(), ITEMS.register(one.id() + "_spawn_egg",
+                    () -> new DeferredSpawnEggItem(
+                            () -> com.elysium.bestiary.registry.CompanionEntities
+                                    .ALL.get(one.id()).get(),
+                            0x6E7F5C, 0xD6C48A, new Item.Properties())));
+        }
+        if (made.size()
+                != com.elysium.bestiary.rules.CompanionRules.COMPANIONS.size()) {
+            throw new IllegalStateException("the rules name "
+                    + com.elysium.bestiary.rules.CompanionRules.COMPANIONS.size()
+                    + " companion(s) and " + made.size()
+                    + " spawn egg(s) were registered");
+        }
+        return Map.copyOf(made);
+    }
+
+    /**
+     * One egg per myth, on the same register as the beasts'.
+     *
+     * <p>Their own map rather than mixed into the beasts', because the two
+     * rosters are counted separately and a count that covers both is a count
+     * that passes while one of them is half empty.
+     */
+    public static final Map<String, DeferredItem<DeferredSpawnEggItem>> MYTH_EGGS =
+            registerMyths();
+
+    private static Map<String, DeferredItem<DeferredSpawnEggItem>> registerMyths() {
+        Map<String, DeferredItem<DeferredSpawnEggItem>> made = new LinkedHashMap<>();
+        for (com.elysium.bestiary.rules.MythRules.Myth myth
+                : com.elysium.bestiary.rules.MythRules.MYTHS) {
+            int background = 0x2B2B33;
+            int highlight = TIER_COLOUR[Math.min(TIER_COLOUR.length - 1,
+                    Math.max(0, myth.tier() - 1))];
+            made.put(myth.id(), ITEMS.register(myth.id() + "_spawn_egg",
+                    () -> new DeferredSpawnEggItem(
+                            () -> com.elysium.bestiary.registry.MythEntities.ALL
+                                    .get(myth.id()).get(),
+                            background, highlight, new Item.Properties())));
+        }
+        if (made.size() != com.elysium.bestiary.rules.MythRules.MYTHS.size()) {
+            throw new IllegalStateException("the rules name "
+                    + com.elysium.bestiary.rules.MythRules.MYTHS.size()
+                    + " myth(s) and " + made.size()
+                    + " spawn egg(s) were registered");
+        }
+        return Map.copyOf(made);
+    }
+
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = TABS.register(
             "bestiary", () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.elysiumbestiary"))
@@ -66,6 +123,14 @@ public final class BeastItems {
                     .displayItems((parameters, output) -> {
                         for (BeastRules.Beast beast : BeastRules.BEASTS) {
                             output.accept(EGGS.get(beast.id()).get());
+                        }
+                        for (com.elysium.bestiary.rules.MythRules.Myth myth
+                                : com.elysium.bestiary.rules.MythRules.MYTHS) {
+                            output.accept(MYTH_EGGS.get(myth.id()).get());
+                        }
+                        for (com.elysium.bestiary.rules.CompanionRules.Companion one
+                                : com.elysium.bestiary.rules.CompanionRules.COMPANIONS) {
+                            output.accept(COMPANION_EGGS.get(one.id()).get());
                         }
                     })
                     .build());

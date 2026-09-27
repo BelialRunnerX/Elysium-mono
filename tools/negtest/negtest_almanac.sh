@@ -238,7 +238,7 @@ echo "the half of the pack that is not machines"
 edit $R '        SLAY,' '        SLAY_UNUSED,'
 expect "a task kind the book uses and the rules no longer have" "does not compile against the JDK alone"
 
-edit $R '                    Task.slay(BST + "shardling", 1)),' '                    Task.slay(BST + "shardlet", 1)),'
+edit $R '                    Task.slay(BST + "spallet", 1)),' '                    Task.slay(BST + "shardlet", 1)),'
 expect "a quest pointing at a beast nothing spawns" "nothing in the tree spawns it"
 
 edit $R '                    Task.have(ARS + "iron_greatsword", 1)),' '                    Task.have(ARS + "iron_glaive", 1)),'

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ccc",
+    "mmm"
+  ],
+  "key": {
+    "c": {
+      "item": "minecraft:yellow_wool"
+    },
+    "m": {
+      "item": "minecraft:glass_pane"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:yellow_glass_chimes",
+    "count": 1
+  }
+}

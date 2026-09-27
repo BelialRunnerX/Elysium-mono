@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ccc",
+    "mmm"
+  ],
+  "key": {
+    "c": {
+      "item": "minecraft:light_blue_wool"
+    },
+    "m": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:light_blue_copper_chimes",
+    "count": 1
+  }
+}

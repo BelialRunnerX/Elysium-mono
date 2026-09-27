@@ -1,0 +1,41 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "all": "elysiumcomforts:block/light_blue_candle_holder",
+    "particle": "elysiumcomforts:block/light_blue_candle_holder"
+  },
+  "elements": [
+    {
+      "from": [
+        5,
+        0,
+        5
+      ],
+      "to": [
+        11,
+        7,
+        11
+      ],
+      "faces": {
+        "down": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all"
+        },
+        "north": {
+          "texture": "#all"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        },
+        "east": {
+          "texture": "#all"
+        }
+      }
+    }
+  ]
+}

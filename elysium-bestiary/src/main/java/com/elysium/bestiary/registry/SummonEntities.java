@@ -4,6 +4,7 @@ import com.elysium.bestiary.ElysiumBestiary;
 import com.elysium.bestiary.entity.RelicBoltEntity;
 import com.elysium.bestiary.entity.ShadeEntity;
 import com.elysium.lib.ability.act.ElysiumAbilityEntities;
+import com.elysium.bestiary.rules.SummonRules;
 import com.elysium.lib.ability.ElysiumAbilityShapes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -40,7 +41,8 @@ public final class SummonEntities {
             BOLT = BeastEntities.TYPES.register(ElysiumAbilityShapes.BOLT,
                     () -> EntityType.Builder.<RelicBoltEntity>of(
                                     RelicBoltEntity::new, MobCategory.MISC)
-                            .sized(0.5F, 0.5F)
+                            .sized(SummonRules.summon(SummonRules.BOLT).wide(),
+                                    SummonRules.summon(SummonRules.BOLT).tall())
                             .clientTrackingRange(4)
                             .updateInterval(20)
                             .build(ElysiumAbilityShapes.BOLT));
@@ -49,7 +51,8 @@ public final class SummonEntities {
             SHADE = BeastEntities.TYPES.register("shade",
                     () -> EntityType.Builder.<ShadeEntity>of(ShadeEntity::new,
                                     MobCategory.MISC)
-                            .sized(0.6F, 1.9F)
+                            .sized(SummonRules.summon(SummonRules.SHADE).wide(),
+                                    SummonRules.summon(SummonRules.SHADE).tall())
                             .clientTrackingRange(8)
                             .build("shade"));
 
@@ -70,6 +73,15 @@ public final class SummonEntities {
         event.enqueueWork(() -> {
             ElysiumAbilityEntities.bolt(BOLT::get);
             ElysiumAbilityEntities.summon(SHADE::get);
+            // And how each freshly thrown thing is told what threw it. The
+            // library worked out what every ability is worth in damage; without
+            // this a hunter's mark and a stormcall hit for the same and the
+            // stormcall's price buys nothing.
+            ElysiumAbilityEntities.dress((made, ability) -> {
+                if (made instanceof RelicBoltEntity thrown) {
+                    thrown.thrownBy(ability);
+                }
+            });
             if (!ElysiumAbilityEntities.missing().isEmpty()) {
                 throw new IllegalStateException("after this module has "
                         + "registered, these ability shapes still have nothing "

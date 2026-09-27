@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#elysiumbestiary:vale_cinder_flats",
+  "spawners": [
+    {
+      "type": "elysiumbestiary:cinderprime",
+      "weight": 10,
+      "minCount": 1,
+      "maxCount": 2
+    }
+  ]
+}

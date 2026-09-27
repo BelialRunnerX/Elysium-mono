@@ -127,15 +127,15 @@ public final class HauntRules {
      * somewhere to be.
      */
     public static final List<Haunt> HAUNTS = List.of(
-            new Haunt("shardling", "#minecraft:is_overworld", 0, 7, 0, SKY, 2, 4),
-            new Haunt("ripper", "#minecraft:is_forest", 0, 7, 0, SKY, 2, 3),
-            new Haunt("stalker", "#minecraft:is_mountain", 0, 4, 60, SKY, 1, 2),
-            new Haunt("husk_ox", "#minecraft:is_badlands", 0, 15, BEDROCK, 96, 1, 3),
-            new Haunt("breaker", "#minecraft:is_overworld", 0, 4, BEDROCK, 32, 1, 2),
-            new Haunt("siege_beast", "#minecraft:is_nether", 0, 11, 0, 128, 1, 1),
-            new Haunt("mourner", "#minecraft:spawns_snow_foxes", 0, 7, 0, SKY, 1, 3),
-            new Haunt("keener", "#minecraft:is_taiga", 0, 4, 0, SKY, 1, 2),
-            new Haunt("hollow_lord", "#minecraft:is_overworld", 0, 0, BEDROCK, 0, 1, 1));
+            new Haunt("spallet", "#minecraft:is_overworld", 0, 7, 0, SKY, 2, 4),
+            new Haunt("shearjaw", "#minecraft:is_forest", 0, 7, 0, SKY, 2, 3),
+            new Haunt("prowlframe", "#minecraft:is_mountain", 0, 4, 60, SKY, 1, 2),
+            new Haunt("drayhulk", "#minecraft:is_badlands", 0, 15, BEDROCK, 96, 1, 3),
+            new Haunt("pileframe", "#minecraft:is_overworld", 0, 4, BEDROCK, 32, 1, 2),
+            new Haunt("siegehulk", "#minecraft:is_nether", 0, 11, 0, 128, 1, 1),
+            new Haunt("carrier", "#minecraft:spawns_snow_foxes", 0, 7, 0, SKY, 1, 3),
+            new Haunt("sidetone", "#minecraft:is_taiga", 0, 4, 0, SKY, 1, 2),
+            new Haunt("nullprime", "#minecraft:is_overworld", 0, 0, BEDROCK, 0, 1, 1));
 
     /**
      * Where the twelve animals are.
@@ -151,20 +151,20 @@ public final class HauntRules {
      * looking for is a roster most players never see.
      */
     public static final List<Haunt> THE_FAUNA = List.of(
-            new Haunt("moorstag", "#minecraft:is_forest", 9, FULL_LIGHT, 60, SKY, 2, 4),
-            new Haunt("dunemare", "#minecraft:is_badlands", 9, FULL_LIGHT, 60, SKY, 1, 3),
-            new Haunt("fellox", "#minecraft:is_overworld", 9, FULL_LIGHT, 0, SKY, 1, 3),
-            new Haunt("stonemole", "#minecraft:is_overworld", 9, FULL_LIGHT, 0, SKY, 1, 2),
-            new Haunt("quillrat", "#minecraft:is_taiga", 9, FULL_LIGHT, 0, SKY, 2, 3),
-            new Haunt("brackhog", "#minecraft:is_jungle", 9, FULL_LIGHT, 0, SKY, 1, 3),
-            new Haunt("cragjay", "#minecraft:is_overworld", 9, FULL_LIGHT, 60, SKY, 2, 4),
-            new Haunt("mirefowl", "#minecraft:is_river", 9, FULL_LIGHT, 0, SKY, 2, 3),
-            new Haunt("ashquail", "#minecraft:is_savanna", 9, FULL_LIGHT, 0, SKY, 2, 3),
-            new Haunt("glasseel", "#minecraft:is_ocean", PITCH_DARK, FULL_LIGHT,
+            new Haunt("fenstag", "#minecraft:is_forest", 9, FULL_LIGHT, 60, SKY, 2, 4),
+            new Haunt("dunecharger", "#minecraft:is_badlands", 9, FULL_LIGHT, 60, SKY, 1, 3),
+            new Haunt("ferrox", "#minecraft:is_overworld", 9, FULL_LIGHT, 0, SKY, 1, 3),
+            new Haunt("cragmole", "#minecraft:is_overworld", 9, FULL_LIGHT, 0, SKY, 1, 2),
+            new Haunt("quillmite", "#minecraft:is_taiga", 9, FULL_LIGHT, 0, SKY, 2, 3),
+            new Haunt("brackhide", "#minecraft:is_jungle", 9, FULL_LIGHT, 0, SKY, 1, 3),
+            new Haunt("cragwing", "#minecraft:is_overworld", 9, FULL_LIGHT, 60, SKY, 2, 4),
+            new Haunt("mirewing", "#minecraft:is_river", 9, FULL_LIGHT, 0, SKY, 2, 3),
+            new Haunt("ashwing", "#minecraft:is_savanna", 9, FULL_LIGHT, 0, SKY, 2, 3),
+            new Haunt("glassfin", "#minecraft:is_ocean", PITCH_DARK, FULL_LIGHT,
                     BEDROCK, 64, 2, 4),
-            new Haunt("silverfin", "#minecraft:is_ocean", PITCH_DARK, FULL_LIGHT,
+            new Haunt("chromefin", "#minecraft:is_ocean", PITCH_DARK, FULL_LIGHT,
                     BEDROCK, 64, 2, 4),
-            new Haunt("shalecrab", "#minecraft:is_beach", PITCH_DARK, FULL_LIGHT,
+            new Haunt("shaleshell", "#minecraft:is_beach", PITCH_DARK, FULL_LIGHT,
                     0, 96, 1, 2));
 
     /** Both tables, in one list. */

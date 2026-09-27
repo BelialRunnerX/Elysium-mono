@@ -366,7 +366,69 @@ def loot_and_recipes():
             "result": {"id": f"{NS}:{material}_spyglass", "count": 1},
         })
         count += 4
+
+        # And the one this module never had: a way of getting a budding block
+        # other than finding one. Without it, thirty-two recipes in somebody
+        # else's jar are the only way, which is why that jar is still in the
+        # mods folder with DONE written next to it.
+        priced = BY_MATERIAL.get(material)
+        if priced is not None:
+            write(os.path.join(DATA, "recipe", f"budding_{material}.json"),
+                  seeding(priced))
+            count += 1
     return count
+
+
+# How a budding block is made, read out of BuddingRules: what each costs and
+# what it is paid in are rules and are proved about.
+BUDDING_SOURCE = read(os.path.join(
+    MOD, "src/main/java/com/elysium/arcana/rules/BuddingRules.java"))
+BUDDINGS = [
+    {"material": one[0], "from": one[1], "shards": int(one[2]),
+     "catalyst": one[3]}
+    for one in re.findall(
+        r'new Budding\("(\w+)", "(\w+)", (\d+), (\w+)\)',
+        re.sub(r"\s+", " ", BUDDING_SOURCE))
+]
+_catalysts = dict(re.findall(
+    r'public static final String (\w+_CATALYST) = "([\w:]+)";', BUDDING_SOURCE))
+for _one in BUDDINGS:
+    _one["catalyst"] = _catalysts.get(_one["catalyst"], _one["catalyst"])
+_shards_to_a_block = re.search(r"int CLUSTER_GIVES = (\d+);", BUDDING_SOURCE)
+SHARDS_TO_A_BLOCK = int(_shards_to_a_block.group(1)) if _shards_to_a_block else 0
+if len(BUDDINGS) != 30 or not SHARDS_TO_A_BLOCK:
+    print("BuddingRules reads as %d seeding(s) and %d shard(s) to a block"
+          % (len(BUDDINGS), SHARDS_TO_A_BLOCK))
+    sys.exit(2)
+_unnamed = [one["material"] for one in BUDDINGS if ":" not in one["catalyst"]]
+if _unnamed:
+    print("no catalyst behind %s" % _unnamed)
+    sys.exit(2)
+
+
+BY_MATERIAL = {one["material"]: one for one in BUDDINGS}
+
+
+def seeding(one):
+    """The recipe that makes a budding block.
+
+    Shapeless, and paid in blocks rather than shards because a crafting grid
+    holds nine things and the dearest of these is thirty-two shards. The rules
+    hold every price to a whole number of blocks and to eight of them plus the
+    catalyst, so this function never has to decide what to do about a price it
+    cannot express -- which is the decision that would otherwise be made by
+    silently rounding.
+    """
+    blocks = one["shards"] // SHARDS_TO_A_BLOCK
+    return {
+        "type": "minecraft:crafting_shapeless",
+        "category": "building",
+        "group": "elysium_seeding",
+        "ingredients": (
+            [{"item": "%s:%s_block" % (NS, one["material"])}] * blocks
+            + [{"item": one["catalyst"]}]),
+        "result": {"id": "%s:budding_%s" % (NS, one["material"]), "count": 1},
+    }
 
 
 def drops(name):

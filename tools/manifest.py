@@ -52,7 +52,13 @@ DECISIONS = [
     (r"^create-1\.|^create_connected|^create-stuff|^createaddition|^createdeco",
      "PLANNED", "elysium-kinetics", "Age I: rotation, stress, contraptions"),
     (r"^create", "PLANNED", "elysium-kinetics", "Create addon: folds into Age I"),
-    (r"^CreateDragonsPlus|^copycats|^sliceanddice|^interiors", "PLANNED",
+    (r"^CreateDragonsPlus", "DROP", "-",
+     "read rather than assumed: its own language file names no entity at all. "
+     "61 blocks and 57 items, and every one of them is a liquid dye or a dye "
+     "bucket for some other mod's palette, plus dragon breath and a blaze "
+     "smithing template. The row that sent it to the bestiary was written from "
+     "the mod's name"),
+    (r"^copycats|^sliceanddice|^interiors", "PLANNED",
      "elysium-kinetics", "Create addon: folds into Age I"),
 
     # --- age II: industry -------------------------------------------------
@@ -184,20 +190,58 @@ DECISIONS = [
     # It is not their catalogues. Nine is nine. Marking these DONE would take
     # sixty creatures out of the pack and put nine in their place, which is the
     # atelier mistake with fur on it.
-    (r"^born_in_chaos|^fangs_n_claws|^mobs_of_mythology", "PLANNED",
-     "elysium-bestiary",
-     "nine hostile beasts exist on a proved reward ladder; their catalogues "
-     "(dozens of mobs each, bosses, their own gear and items) do not"),
-    (r"^naturalist", "PLANNED", "elysium-bestiary",
-     "passive fauna, ambience and a field guide; the bestiary is hostile mobs only "
-     "and has nothing that does not attack you"),
-    (r"^friendsandfoes|^knightquest", "PLANNED", "elysium-bestiary",
-     "mobs built around one mechanic each, and structures and gear alongside them; "
-     "the bestiary has three behaviours and no structures at all"),
-    (r"^mob_grinding_utils", "PLANNED", "elysium-bestiary",
-     "farming infrastructure rather than creatures - fans, saws, spawner tooling; "
-     "it is filed here because it is about mobs and belongs with whatever ends up "
-     "owning automation of them"),
+    (r"^born_in_chaos", "SPLIT", "elysium-bestiary",
+     "58 distinct creatures under 86 entity keys, 240 items, 133 blocks and 61 "
+     "effects — counted out of the jar's own language file rather than guessed. "
+     "Seven different jobs, so it is split rather than given one module. The "
+     "creatures are the mini-bosses and their courts, which is the jar that "
+     "decides what a boss is here. See docs/SPLITS.md"),
+    (r"^fangs_n_claws", "SPLIT", "elysium-bestiary",
+     "27 creatures, four armour sets, ten weapons, six effects, five "
+     "enchantments and three blocks: five different jobs in one jar, so it is "
+     "split rather than given one module. The creatures are done. See "
+     "docs/SPLITS.md"),
+    (r"^mobs_of_mythology", "DONE", "elysium-bestiary",
+     "eight creatures that are dangerous in a way better armour does not "
+     "answer. The nine beasts are a ladder and the answer to every one of them "
+     "is the same answer, more of it — which is the spine of the pack and "
+     "should stay a ladder, but a world where every fight has one answer is a "
+     "world where the fights stop being decisions by about the third hour. A "
+     "basilisk's stare is not survived by wearing more, a chupacabra taking "
+     "the top off your health bar is not healed back by eating more, a drake's "
+     "breath goes through what you are holding up, an automaton is marked by "
+     "nothing but a blunt weapon, kobolds are braver for each other and their "
+     "thief takes what is in your hand and runs, a pegasus goes where you "
+     "cannot follow, and what a sporeling leaves behind is still there when "
+     "you stop to breathe. Each has exactly one of these and no two share one, "
+     "because two creatures whose danger is the same danger are one creature "
+     "with two models. Each names the thing that beats it and no two name the "
+     "same thing, and the validator holds every one of those names to "
+     "something the pack really makes — a danger with no counter is not "
+     "difficulty, it is a wall, and from inside one they feel the same. And "
+     "none of them is also the hardest thing on its own rung: every myth is "
+     "held under the beast it stands beside on the plain numbers, so gearing "
+     "up still answers something. One entity class, one branch per way past "
+     "armour with no creature named in any of them, and eight shapes borrowed "
+     "from the beasts and the fauna rather than eight bespoke models. 44 "
+     "negative tests"),
+    (r"^naturalist", "SPLIT", "elysium-bestiary",
+     "50 creatures, 122 items and a field guide: three different jobs in one "
+     "jar, so it is split rather than given one module. See docs/SPLITS.md"),
+    (r"^friendsandfoes", "SPLIT", "elysium-bestiary",
+     "ten creatures, 29 blocks, six items and a villager profession: four "
+     "different jobs in one jar, so it is split rather than given one module. "
+     "The creatures are done. See docs/SPLITS.md"),
+    (r"^knightquest", "SPLIT", "elysium-bestiary",
+     "four mods in a trench coat: 173 of its 200 items are gear and only 13 of "
+     "its keys are creatures, so the armour belongs where the armour is. See "
+     "docs/SPLITS.md"),
+    (r"^mob_grinding_utils", "SPLIT", "elysium-bestiary",
+     "farming infrastructure rather than creatures — fans, saws, spikes, "
+     "hoppers, an experience chain and spawner tooling. Two jobs: what a farm "
+     "is made of, which is the mob economy and belongs where the mob economy "
+     "is proved, and what makes a mob appear at all, which is the spawner "
+     "module's. See docs/SPLITS.md"),
 
     # --- atelier (decoration) ---------------------------------------------
     # Not DONE, and the distinction matters. Twelve shapes in sixteen materials
@@ -216,7 +260,18 @@ DECISIONS = [
     # about forty door styles, all of them wooden, which is the half we
     # deliberately do not duplicate. Roofs, bridges, paths and lights are
     # shapes this module does not have at all.
-    (r"^mcw-|^chipped|^amendments|^supplementaries|^beautify|^bellsandwhistles",
+    # Four mods in a trench coat, and the only jar three different modules
+    # have a claim on at once. Its status lived as a hand edit in the
+    # generated file for weeks and was silently undone the next time anybody
+    # regenerated -- which is the failure this whole table exists to prevent,
+    # so the decision is written here where it is regenerated with everything
+    # else. Note it has to come before the catalogue rule below: the first
+    # pattern that matches wins.
+    (r"^supplementaries", "SPLIT", "elysium-atelier",
+     "four mods in a trench coat: fittings here, machines to logistics, "
+     "comforts to comforts. The comforts are done -- 30 light fittings held "
+     "to a number elysium-bestiary owns. See docs/SPLITS.md"),
+    (r"^mcw-|^chipped|^amendments|^beautify|^bellsandwhistles",
      "PLANNED", "elysium-atelier",
      "doors, trapdoors, gates, fences and panes exist in the materials the game lacks "
      "them in (36 blocks); their catalogues, and roofs, bridges, paths and lights, do "
@@ -227,8 +282,18 @@ DECISIONS = [
      "PLANNED", "elysium-atelier", "building and decoration"),
     # Five blocks whose whole content is an ambient sound, which is what
     # elysium-comforts is for rather than what a decoration module is.
-    (r"^Chimes", "PLANNED", "elysium-comforts",
-     "an ambient sound and the five blocks that make it"),
+    (r"^Chimes", "DONE", "elysium-comforts",
+     "ninety-six chimes: six materials, each ringing at a note of its own and "
+     "derived from where it sits in the list rather than typed, in each of the "
+     "game's sixteen dyes. What they are actually for is the arithmetic: an "
+     "ambient block goes wrong when the player who likes one hangs eleven "
+     "more, so the wait between sounds is multiplied by how many are within "
+     "earshot and a room of two hundred is no louder than a room of one — "
+     "swept from one chime to two hundred and fifty-six at every strength of "
+     "wind. The wait doubles as what keeps it cheap: a chime sleeps, sounds, "
+     "counts its neighbours once, and goes back to sleep, so the cost follows "
+     "the sounds and the sounds are capped. Height and sky decide the wind, so "
+     "a roof is still the answer to a noisy one"),
 
     # --- wilds ------------------------------------------------------------
     (r"^wwoo|^\[Neoforge\]ctov", "PLANNED", "elysium-wilds",
@@ -263,12 +328,57 @@ DECISIONS = [
     # cover is that mod's other six blocks: the trading station, the breeder,
     # the converter, the incubator, the farmer and the iron farm. Those are
     # automation, which is a different question from carrying.
-    (r"^easy-villagers", "PLANNED", "elysium-comforts",
-     "a villager can be carried, with its whole ledger and its restock clock intact; "
-     "the trading station, breeder, converter, incubator, farmer and iron farm are not "
-     "started"),
-    (r"^comforts|^towntalk|^envelope|^SimplyTooltips",
-     "PLANNED", "elysium-comforts", "quality of life"),
+    (r"^easy-villagers", "DONE", "elysium-comforts",
+     "a villager you can pick up with its whole ledger and its restock clock "
+     "intact, and eight blocks that each do one thing you would otherwise do "
+     "standing there — trade, trade unattended, breed, cure, raise, farm, iron, "
+     "and simply look at what one is carrying. What automating a villager buys "
+     "is attention rather than speed, so not one of the eight is better value "
+     "than a pair of hands and not one of them is quicker: a station that were "
+     "both would be a reason never to stand at a villager again, and a "
+     "multiplier on emeralds is a multiplier on everything. Swept over a "
+     "hundred thousand stations nobody wrote. The villager is moved rather than "
+     "copied at every step, so there is never a moment when two of it exist, "
+     "and breaking the block hands it back"),
+    (r"^comforts", "DONE", "elysium-comforts",
+     "sixteen sleeping bags, sixteen hammocks and a rope and nail, and none of "
+     "them moves your spawn — which is the whole of what made exploring "
+     "expensive, because every player carried a bed and never placed one. The "
+     "two kinds divide the clock between them: a bag is for the night, a "
+     "hammock for the day, and every one of the 24,000 ticks belongs to exactly "
+     "one of them, with no hour that is both and none that is neither. You "
+     "always wake on the far side of that line, so the thing you just used "
+     "cannot be used again until the world has moved on. Six ways it can refuse "
+     "you and six sentences to say which, and every block breaks back into "
+     "itself"),
+    (r"^envelope", "DONE", "elysium-comforts",
+     "the post. Eleven woods of pigeonhole — one per wood the pack builds in, "
+     "so a player who has only found birch can still build one — a mailbox that "
+     "takes an address for three levels, eight kinds of mail across letters, "
+     "parcels and payment on delivery, 108 wax seals, an address tag, a stamp, "
+     "and two birds that carry it. A parcel takes time: handling at both ends "
+     "plus a tick a block, flat past five thousand, which puts every delivery "
+     "between thirty seconds and five minutes however far it goes. Nothing "
+     "arrives instantly and nothing is ever out of reach. The shortest payback "
+     "window outlasts the longest delivery, so the feature cannot be used to "
+     "take somebody's goods and wait out their clock; lost mail is worth a "
+     "quarter of what was posted, so losing a parcel is never the better play. "
+     "A pigeon carried to the Nether becomes a charred pigeon and carrying it "
+     "back turns it into a pigeon again, and the rules hold that loop shut so "
+     "nobody loses a bird through a portal. A parcel in the air is never in two "
+     "places and never in none: a full box sends it round again, a broken box "
+     "drops it, and opening one empties it before it hands anything over. 99 "
+     "negative tests"),
+    (r"^towntalk", "DROP", "-",
+     "2,291 recorded sound files in the minecolonies namespace and nothing else "
+     "— no item, no block, no entity, one class. It is voice acting for the mod "
+     "elysium-colonies adds on to; this project writes its own code and draws "
+     "its own art, and does not record voices"),
+    (r"^SimplyTooltips", "KEEP", "-",
+     "client-only, and its language file names no item and no block: 31 keys, "
+     "every one of them a keybind or a line in its own editor. Converting it "
+     "would mean writing tooltip UI, and the GUI is the one thing this project "
+     "is told to leave alone"),
 
     # --- arcana -----------------------------------------------------------
     (r"^ProjectE|^projectexpansion", "DONE", "elysium-arcana",
@@ -276,14 +386,29 @@ DECISIONS = [
      "to contain no arrangement that makes value out of nothing"),
     (r"^GeOre", "DONE", "elysium-arcana",
      "geodes: 210 blocks and 60 items across 30 materials — 20 the foundry "
-     "mines and 10 the game digs up — each with a whole growth chain. NOT yet "
-     "removable: oritech ships compat recipes naming geore items, so the third "
-     "pre-check fails until those are handled"),
-    (r"^relics", "PLANNED", "elysium-arcana",
-     "relics: 30 relics across 8 slots, carrying all 30 abilities of the "
-     "shared ability system now in elysium-lib — the same system the arsenal's "
-     "uniques will use. Its 17 entities (the summons and projectiles the "
-     "actives throw) do not exist yet"),
+     "mines and 10 the game digs up — each with a whole growth chain, and a "
+     "way of seeding a budding block rather than only finding one. Retired to "
+     "mods/_superseded on 26 September, once that last piece existed: the "
+     "thirty-two oritech compat recipes it was waiting on are replaced"),
+    (r"^relics", "DONE", "elysium-arcana",
+     "30 relics across 8 slots, carrying all 30 abilities of the shared "
+     "ability system in elysium-lib — the same system the arsenal's uniques "
+     "will use. Three of those abilities cannot happen without something "
+     "existing in the world: two throw a bolt and one calls up a shade, and "
+     "both of those now do. They are drawn, which they were not: registered, "
+     "wired into the library and spawned by three abilities with nothing "
+     "rendering either, which is not a quiet failure — an entity type with no "
+     "renderer takes the client down the first time one appears, and the "
+     "appeal of that bug is that nobody on the team ever presses the button. "
+     "Neither carries a number of its own any more. How long each stands is "
+     "held strictly under the cooldown of the ability that made it, because a "
+     "summon that outlives its own cooldown is one a player can have two of, "
+     "and then three, and the cost stops being a limit. What a bolt hits for "
+     "is the price the library already worked out for the ability that threw "
+     "it, so a hunter's mark and a stormcall differ by arithmetic rather than "
+     "by nobody noticing they were the same. A shade is held under the weakest "
+     "thing in the bestiary on damage and over it on health, so it helps "
+     "rather than replaces and does not die on contact. 45 negative tests"),
 
     # --- new, asked for by name -------------------------------------------
     # (no jar in the pack; tracked so the manifest is the whole plan)

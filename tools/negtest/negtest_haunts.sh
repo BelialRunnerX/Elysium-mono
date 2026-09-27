@@ -51,9 +51,9 @@ expect "one beast in two places, unreported" "one beast in two places is not rep
 edit $R '            if (!named.contains(one.beast())) {' '            if (false) {'
 expect "a haunt belonging to nothing, unreported" "somewhere that is not a beast's is not reported"
 
-edit $R '            new Haunt("keener", "#minecraft:is_taiga", 0, 4, 0, SKY, 1, 2),
-            new Haunt("hollow_lord", "#minecraft:is_overworld", 0, 0, BEDROCK, 0, 1, 1));' \
-        '            new Haunt("hollow_lord", "#minecraft:is_overworld", 0, 0, BEDROCK, 0, 1, 1));'
+edit $R '            new Haunt("sidetone", "#minecraft:is_taiga", 0, 4, 0, SKY, 1, 2),
+            new Haunt("nullprime", "#minecraft:is_overworld", 0, 0, BEDROCK, 0, 1, 1));' \
+        '            new Haunt("nullprime", "#minecraft:is_overworld", 0, 0, BEDROCK, 0, 1, 1));'
 expect "a beast dropped out of the table entirely" "somewhere twice or nowhere at all"
 
 echo "a band a world really has"
@@ -84,7 +84,7 @@ expect "the floor loosened until nothing is ever too big" "sixty siege beasts at
 
 edit $R '    public static final double ROOM_FOR_A_PACK = 144.0D;' \
         '    public static final double ROOM_FOR_A_PACK = 1.0D;'
-expect "the floor tightened until this pack's own groups do not fit" "square blocks for a full group and there are 1.0"
+expect "the floor tightened until this pack's own groups do not fit" "square blocks of floor where there are 1.0"
 
 edit $R '            double room = one.most() * beast.width() * beast.width();' \
         '            double room = beast.width() * beast.width();'
@@ -119,15 +119,18 @@ edit $R '            if (least <= 0 || most < least) {' '            if (false) 
 expect "a group of none accepted as a group" "a group of none is accepted as a group"
 
 echo "the rules added up rather than merely written"
-edit $R '        bad.addAll(faultsInRoom(BeastRules.BEASTS, HAUNTS));' '        '
-expect "a rule that answers its controls and is never asked about the roster" "never added up by"
+edit $R '        bad.addAll(faultsInRoom(theseBeasts(BeastRules.BEASTS), HAUNTS));' '        '
+expect "a haunt rule added up for one of the two tables and not the other" "never asked about HAUNTS"
+
+edit $R '        bad.addAll(faultsInDominance(BeastRules.BEASTS));' '        '
+expect "a haunt rule that answers its controls and is never asked about the roster" "never added up by"
 
 edit $R '    public static List<String> faultsInBands(List<Haunt> haunts) {' \
         '    public static java.util.List<String> faultsInBands(List<Haunt> haunts) {'
 expect "the band rule taken out from under the validator" "bands are bands a world really has"
 
-edit $R '    public static List<String> faultsInRoom(List<BeastRules.Beast> beasts,' \
-        '    public static java.util.List<String> faultsInRoom(List<BeastRules.Beast> beasts,'
+edit $R '    public static List<String> faultsInRoom(List<Creature> beasts,' \
+        '    public static java.util.List<String> faultsInRoom(List<Creature> beasts,'
 expect "the room rule taken out from under the validator" "fits on the floor it is asked to stand on"
 
 edit $R '    public static List<String> faultsInDominance(List<BeastRules.Beast> beasts) {' \
@@ -156,15 +159,15 @@ edit $G '           "highest": _number(one[5]), "least": int(one[6]),
            "most": int(one[6])}'
 expect_regen "a group size written out the wrong way round" "and its spawn rule says 4 to 2"
 
-rm -f $W/add_stalker_spawns.json
+rm -f $W/add_prowlframe_spawns.json
 expect "a beast with a haunt and no spawn rule in the world" "has a haunt and no spawn rule in the world"
 
-edit $R '            new Haunt("keener", "#minecraft:is_taiga", 0, 4, 0, SKY, 1, 2),' \
-        '            new Haunt("keener", "#c:is_cold", 0, 4, 0, SKY, 1, 2),'
+edit $R '            new Haunt("sidetone", "#minecraft:is_taiga", 0, 4, 0, SKY, 1, 2),' \
+        '            new Haunt("sidetone", "#c:is_cold", 0, 4, 0, SKY, 1, 2),'
 expect_regen "a biome tag that reads like a tag and is not one" "neither the game nor this pack has such a tag"
 
-edit $R '            new Haunt("shardling", "#minecraft:is_overworld", 0, 7, 0, SKY, 2, 4),' \
-        '            new Haunt("shardling", "#minecraft:is_forest", 0, 7, 0, SKY, 2, 4),'
+edit $R '            new Haunt("spallet", "#minecraft:is_overworld", 0, 7, 0, SKY, 2, 4),' \
+        '            new Haunt("spallet", "#minecraft:is_forest", 0, 7, 0, SKY, 2, 4),'
 expect_regen "a whole family nobody who stays in the plains ever meets" "nothing in the prowler family is in #minecraft:is_overworld"
 
 echo "the checks themselves"

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "///"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:lime_wool"
+    },
+    "/": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:lime_hammock",
+    "count": 1
+  }
+}

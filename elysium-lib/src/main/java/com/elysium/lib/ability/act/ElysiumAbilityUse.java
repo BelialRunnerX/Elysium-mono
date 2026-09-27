@@ -114,6 +114,11 @@ public final class ElysiumAbilityUse {
             }
             bolt.setPos(user.getEyePosition().add(look));
             bolt.setDeltaMovement(look.scale(1.0D + at * 0.1D));
+            // What this one hits for is the ability's own price, worked out
+            // above and handed over here. Without this every thrown ability
+            // hits for the same, and the difference between a mark and a
+            // stormcall is a number nobody can see.
+            ElysiumAbilityEntities.dressed(bolt, ability);
             level.addFreshEntity(bolt);
         }
         sound(user);
@@ -133,6 +138,7 @@ public final class ElysiumAbilityUse {
                 return false;
             }
             shade.setPos(user.getX() + at - count / 2.0D, user.getY(), user.getZ());
+            ElysiumAbilityEntities.dressed(shade, ability);
             level.addFreshEntity(shade);
         }
         sound(user);

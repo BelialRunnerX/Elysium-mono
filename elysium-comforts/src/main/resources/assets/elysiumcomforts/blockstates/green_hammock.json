@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,occupied=false": {
+      "model": "elysiumcomforts:block/green_hammock"
+    },
+    "facing=north,occupied=true": {
+      "model": "elysiumcomforts:block/green_hammock"
+    },
+    "facing=east,occupied=false": {
+      "model": "elysiumcomforts:block/green_hammock",
+      "y": 90
+    },
+    "facing=east,occupied=true": {
+      "model": "elysiumcomforts:block/green_hammock",
+      "y": 90
+    },
+    "facing=south,occupied=false": {
+      "model": "elysiumcomforts:block/green_hammock",
+      "y": 180
+    },
+    "facing=south,occupied=true": {
+      "model": "elysiumcomforts:block/green_hammock",
+      "y": 180
+    },
+    "facing=west,occupied=false": {
+      "model": "elysiumcomforts:block/green_hammock",
+      "y": 270
+    },
+    "facing=west,occupied=true": {
+      "model": "elysiumcomforts:block/green_hammock",
+      "y": 270
+    }
+  }
+}

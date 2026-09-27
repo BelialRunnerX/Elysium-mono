@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumbestiary:block/absorption_hopper"
+    },
+    "facing=east": {
+      "model": "elysiumbestiary:block/absorption_hopper",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumbestiary:block/absorption_hopper",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumbestiary:block/absorption_hopper",
+      "y": 270
+    }
+  }
+}

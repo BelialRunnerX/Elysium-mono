@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumbestiary:block/dread_soil"
+    },
+    "facing=east": {
+      "model": "elysiumbestiary:block/dread_soil",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumbestiary:block/dread_soil",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumbestiary:block/dread_soil",
+      "y": 270
+    }
+  }
+}

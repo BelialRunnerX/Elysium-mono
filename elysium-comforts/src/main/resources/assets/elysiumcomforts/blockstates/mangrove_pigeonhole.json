@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=north,waste=0": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole"
+    },
+    "facing=north,waste=1": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole"
+    },
+    "facing=north,waste=2": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole"
+    },
+    "facing=north,waste=3": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole"
+    },
+    "facing=east,waste=0": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole",
+      "y": 90
+    },
+    "facing=east,waste=1": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole",
+      "y": 90
+    },
+    "facing=east,waste=2": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole",
+      "y": 90
+    },
+    "facing=east,waste=3": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole",
+      "y": 90
+    },
+    "facing=south,waste=0": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole",
+      "y": 180
+    },
+    "facing=south,waste=1": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole",
+      "y": 180
+    },
+    "facing=south,waste=2": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole",
+      "y": 180
+    },
+    "facing=south,waste=3": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole",
+      "y": 180
+    },
+    "facing=west,waste=0": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole",
+      "y": 270
+    },
+    "facing=west,waste=1": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole",
+      "y": 270
+    },
+    "facing=west,waste=2": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole",
+      "y": 270
+    },
+    "facing=west,waste=3": {
+      "model": "elysiumcomforts:block/mangrove_pigeonhole",
+      "y": 270
+    }
+  }
+}

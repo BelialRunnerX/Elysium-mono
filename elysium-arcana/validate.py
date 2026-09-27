@@ -693,6 +693,130 @@ print(f"geodes             : {len(geode_materials)} material(s) — "
 
 
 # ---------------------------------------------------------------------------
+# 7b. How a budding block is made
+# ---------------------------------------------------------------------------
+#
+# The section that lets a jar leave the mods folder. GeOre has been marked DONE
+# and stayed in the pack because oritech ships thirty-two compat recipes that
+# assemble a geore budding block out of geore shards — take the jar out and
+# those recipes name items that do not exist, the game drops them at load, and
+# a feature is simply gone with nothing saying so. This is that capability in
+# this module's own items.
+#
+# What is checked here is the half no rule can see: that the recipe on disk is
+# paid in the material's own blocks, in the number the rules price it at, and
+# that it fits in a grid.
+
+BUDDING_SRC = strip_comments(read(SRC, "rules/BuddingRules.java"), keep_strings=True)
+
+if not BUDDING_SRC:
+    fail("nothing says how a budding block is made, so the only way to get one "
+         "is to find one — and the jar that used to provide the other way "
+         "cannot leave the pack")
+else:
+    _budding = squashed(BUDDING_SRC)
+    seedings = re.findall(r'new Budding\("(\w+)", "(\w+)", (\d+), (\w+)\)', _budding)
+    catalysts = dict(re.findall(
+        r'public static final String (\w+_CATALYST) = "([\w:]+)";', BUDDING_SRC))
+    _gives = re.search(r"int CLUSTER_GIVES = (\d+);", _budding)
+    to_a_block = int(_gives.group(1)) if _gives else 0
+    _grid = re.search(r"int GRID = (\d+);", _budding)
+    grid = int(_grid.group(1)) if _grid else 0
+
+    if len(seedings) < 10 or not to_a_block or not grid:
+        fail(f"only {len(seedings)} seeding(s), {to_a_block} shard(s) to a block "
+             f"and a grid of {grid} could be read, so the checks below are "
+             f"walking a short list and passing")
+
+    # The number the payback arithmetic is entirely about has to be the number
+    # the cluster loot tables actually hand out. One of the two is generated
+    # and the other is reasoning, and they drift the moment nobody checks.
+    for material, _from, _shards, _catalyst in seedings:
+        at = os.path.join(RES, f"data/{NS}/loot_table/blocks",
+                          f"{material}_cluster.json")
+        if not os.path.isfile(at):
+            fail(f"{material} has no cluster loot table, so what a grown geode "
+                 f"gives back is nothing the payback arithmetic can be checked "
+                 f"against")
+            continue
+        try:
+            written = json.loads(read(os.path.dirname(at), os.path.basename(at)))
+        except ValueError:
+            fail(f"{material}'s cluster loot table is not readable as JSON")
+            continue
+        handed = None
+        for pool in written.get("pools", []):
+            for entry in pool.get("entries", []):
+                for function in entry.get("functions", []):
+                    if function.get("function") == "minecraft:set_count":
+                        handed = function.get("count")
+        if handed is not None and handed != to_a_block:
+            fail(f"a {material} cluster hands out {handed} shard(s) and the "
+                 f"seeding arithmetic is worked out against {to_a_block}, so "
+                 f"every payback this module proves is about a number the game "
+                 f"does not use")
+
+    # And the recipe on disk: its own blocks, the right number of them, the
+    # catalyst the rules name, and small enough to exist.
+    for material, from_material, shards, catalyst in seedings:
+        at = os.path.join(RES, f"data/{NS}/recipe", f"budding_{material}.json")
+        if not os.path.isfile(at):
+            fail(f"there is no recipe that makes a budding {material}, so that "
+                 f"material is the one a player has to go and find")
+            continue
+        try:
+            written = json.loads(read(os.path.dirname(at), os.path.basename(at)))
+        except ValueError:
+            fail(f"budding_{material}'s recipe is not readable as JSON, so the "
+                 f"game refuses the whole data pack over one seeding")
+            continue
+        named = [one.get("item") for one in written.get("ingredients", [])]
+        wanted = catalysts.get(catalyst, catalyst)
+        blocks = [one for one in named if one == f"{NS}:{material}_block"]
+        if to_a_block and len(blocks) != int(shards) // to_a_block:
+            fail(f"budding_{material} is made of {len(blocks)} of its own "
+                 f"block(s) and the rules price it at {shards} shard(s), which "
+                 f"is {int(shards) // to_a_block} — so what the player pays and "
+                 f"what this module proves about the price are different numbers")
+        for one in named:
+            if one == wanted or one == f"{NS}:{material}_block":
+                continue
+            fail(f"budding_{material} is made with {one}, which is neither its "
+                 f"own block nor the catalyst its row names — so the recipe is "
+                 f"a way of turning one material into another that the rules "
+                 f"never saw")
+        if grid and len(named) > grid:
+            fail(f"budding_{material} is made of {len(named)} things in a grid "
+                 f"of {grid}, so the game drops it at load and that material "
+                 f"quietly cannot be seeded")
+        if from_material != material:
+            fail(f"budding_{material} is priced in {from_material} shards, so "
+                 f"it is a source of something the player has not rather than a "
+                 f"multiplier on something they have")
+
+    # Every rule the file declares is added up, and faults() is a list.
+    _bsum = squashed(body_of(BUDDING_SRC, "public static List<String> faults()"))
+    _brules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", BUDDING_SRC))
+    _badded = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _bsum))
+    if len(_brules) < 6:
+        fail(f"only {len(_brules)} seeding rule(s) are declared at all, so the "
+             f"check below is checking nothing")
+    if re.search(r"\bif\s*\(", _bsum):
+        fail("the seedings' faults() has a condition in it, so some rule is "
+             "added up only sometimes")
+    for _brule in sorted(_brules - _badded):
+        fail(f"{_brule} is written, compiled and never added up by the "
+             f"seedings' faults(), so it answers the harness's controls and is "
+             f"never once asked about what this module ships")
+
+    print(f"the seeding        : {len(seedings)} material(s), every one of them "
+          f"made of its own blocks in the number its row prices, with a catalyst "
+          f"that is not another material's shard, small enough for a grid of "
+          f"{grid} — so GeOre can leave the mods folder")
+
+
+
+# ---------------------------------------------------------------------------
 # 8. Thirty relics, and the ability system they are built on
 # ---------------------------------------------------------------------------
 #

@@ -37,6 +37,7 @@ public class ElysiumComforts {
         com.elysium.comforts.registry.ComfortBlocks.BLOCKS.register(modEventBus);
         com.elysium.comforts.registry.ComfortBlockEntities.TYPES.register(modEventBus);
         com.elysium.comforts.registry.ComfortComponents.TYPES.register(modEventBus);
+        com.elysium.comforts.registry.ComfortEntities.TYPES.register(modEventBus);
         com.elysium.comforts.registry.ComfortItems.ITEMS.register(modEventBus);
         com.elysium.comforts.registry.ComfortItems.TABS.register(modEventBus);
         LOGGER.info("Elysium Comforts ready");

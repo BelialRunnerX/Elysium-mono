@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#elysiumbestiary:vale_rime_barrens",
+  "spawners": [
+    {
+      "type": "elysiumbestiary:rimeprime",
+      "weight": 10,
+      "minCount": 1,
+      "maxCount": 2
+    }
+  ]
+}

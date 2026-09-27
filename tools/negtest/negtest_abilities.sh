@@ -103,11 +103,8 @@ echo "the two entities the abilities cannot happen without"
 edit $E '            ElysiumAbilityEntities.summon(SHADE::get);' '            ElysiumAbilityEntities.bolt(BOLT::get);'
 expect "a summoning ability with nothing to summon" "so every ability of that shape does nothing and says nothing" best
 
-edit $E '            ElysiumAbilityEntities.bolt(BOLT::get);
-            ElysiumAbilityEntities.summon(SHADE::get);
-            if (!ElysiumAbilityEntities.missing().isEmpty()) {' '            ElysiumAbilityEntities.bolt(BOLT::get);
-            ElysiumAbilityEntities.summon(SHADE::get);
-            if (false) {'
+edit $E '            if (!ElysiumAbilityEntities.missing().isEmpty()) {' \
+        '            if (false) {'
 expect "nothing checking that every shape was given something" "ship as a relic that does nothing" best
 
 edit $E '        event.enqueueWork(() -> {' '        if (true) {'

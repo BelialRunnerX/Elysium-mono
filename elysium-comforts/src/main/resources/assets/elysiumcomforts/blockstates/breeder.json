@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,occupied=false": {
+      "model": "elysiumcomforts:block/breeder"
+    },
+    "facing=north,occupied=true": {
+      "model": "elysiumcomforts:block/breeder"
+    },
+    "facing=east,occupied=false": {
+      "model": "elysiumcomforts:block/breeder",
+      "y": 90
+    },
+    "facing=east,occupied=true": {
+      "model": "elysiumcomforts:block/breeder",
+      "y": 90
+    },
+    "facing=south,occupied=false": {
+      "model": "elysiumcomforts:block/breeder",
+      "y": 180
+    },
+    "facing=south,occupied=true": {
+      "model": "elysiumcomforts:block/breeder",
+      "y": 180
+    },
+    "facing=west,occupied=false": {
+      "model": "elysiumcomforts:block/breeder",
+      "y": 270
+    },
+    "facing=west,occupied=true": {
+      "model": "elysiumcomforts:block/breeder",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "elysiumbestiary:block/grinder_spikes"
+    },
+    "facing=east": {
+      "model": "elysiumbestiary:block/grinder_spikes",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "elysiumbestiary:block/grinder_spikes",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "elysiumbestiary:block/grinder_spikes",
+      "y": 270
+    }
+  }
+}

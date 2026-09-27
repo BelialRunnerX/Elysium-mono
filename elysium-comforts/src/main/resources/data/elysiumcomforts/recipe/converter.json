@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ppp",
+    "pep",
+    "ppp"
+  ],
+  "key": {
+    "p": {
+      "item": "minecraft:oak_planks"
+    },
+    "e": {
+      "item": "minecraft:golden_apple"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:converter",
+    "count": 1
+  }
+}

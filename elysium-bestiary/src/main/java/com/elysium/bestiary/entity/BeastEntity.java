@@ -39,10 +39,49 @@ public class BeastEntity extends Monster {
     /** How far a beast will follow you before it gives up. */
     public static final double FOLLOWS_FOR = 24.0D;
 
+    /** Whether this one came off another of its kind rather than out of the dark. */
+    private boolean piece;
+
+    /** How many of its family it has called up and not outlived. */
+    private int called;
+
+    /** Ticks until it may do what it does again. */
+    private int waits;
+
     public BeastEntity(EntityType<? extends BeastEntity> type, Level level) {
         super(type, level);
         setPersistenceRequired();
         this.xpReward = BeastRules.earned(beast()).experience();
+    }
+
+    /** Whether this one is a piece of something rather than a whole one. */
+    public boolean piece() {
+        return piece;
+    }
+
+    /**
+     * Say so, and become half of what it came off.
+     *
+     * <p>Both halves of that matter: a piece that is a whole beast is a
+     * bestiary where one mob is worth two, and a piece that can itself come
+     * apart is a room that fills up until the server stops.
+     */
+    public void becomeAPiece() {
+        piece = true;
+        getAttribute(Attributes.MAX_HEALTH).setBaseValue(
+                Math.max(1.0D, beast().health() / 2.0D));
+        setHealth(getMaxHealth());
+        this.xpReward = 0;
+    }
+
+    /** How many of its family it has called up. */
+    public int called() {
+        return called;
+    }
+
+    /** One more. */
+    public void calledOneMore() {
+        called++;
     }
 
     /** The row this beast is, by the name it was registered under. */
@@ -110,7 +149,49 @@ public class BeastEntity extends Monster {
                 && !level().isClientSide) {
             setRemainingFireTicks(8 * 20);
         }
+        // What it does, on its own clock. The clock is in the rules: a wait
+        // typed here would be a second set of dials beside the first, and the
+        // two would disagree the first time anybody edited one.
+        if (!level().isClientSide) {
+            if (waits > 0) {
+                waits--;
+            } else if (com.elysium.bestiary.entity.act.BeastActs.perform(this,
+                    getTarget())) {
+                waits = com.elysium.bestiary.rules.BehaviourRules.waitsOf(beast(),
+                        BeastRules.BEASTS);
+            }
+        }
         super.aiStep();
+    }
+
+    /**
+     * And what it does when it dies, which only one of them does.
+     *
+     * <p>Here rather than in {@code aiStep} because a thing that happens on
+     * death cannot happen on a clock, and the executor has to be given the
+     * chance whatever the beast is — asking "is this the one that splits?"
+     * here would be the branch per creature this module is built to avoid.
+     */
+    @Override
+    public void die(net.minecraft.world.damagesource.DamageSource cause) {
+        super.die(cause);
+        if (!level().isClientSide) {
+            com.elysium.bestiary.entity.act.BeastActs.perform(this, getTarget());
+        }
+    }
+
+    @Override
+    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putBoolean("ElysiumPiece", piece);
+        tag.putInt("ElysiumCalled", called);
+    }
+
+    @Override
+    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        piece = tag.getBoolean("ElysiumPiece");
+        called = tag.getInt("ElysiumCalled");
     }
 
     /**

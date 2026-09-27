@@ -138,6 +138,31 @@ def main():
                             f"never runs it — a check that passes by never "
                             f"being asked")
 
+    # And the negative tests' own count. tools/negtest/README.md opens with a
+    # number, and that number is what anybody asking "how well is this tested"
+    # reads. It went one high for a whole feature because a script was edited
+    # rather than added and the count was bumped anyway — which is the same
+    # class of mistake as a roster with thirty-one of thirty-two blocks
+    # registered, except that the thing miscounted is the checking itself.
+    scripts = sorted((HERE / "tools" / "negtest").glob("negtest_*.sh"))
+    readme = HERE / "tools" / "negtest" / "README.md"
+    if not scripts:
+        problems.append("tools/negtest holds no scripts at all, so every "
+                        "validator in this tree is unproven")
+    elif not readme.is_file():
+        problems.append("tools/negtest has no README, so nothing states how "
+                        "many scripts there are and the count cannot be wrong")
+    else:
+        said = re.search(r"^(\d+) scripts\.", readme.read_text(encoding="utf-8"),
+                         flags=re.M)
+        if not said:
+            problems.append("tools/negtest/README.md does not open with a count "
+                            "of the scripts, so nothing can check it")
+        elif int(said.group(1)) != len(scripts):
+            problems.append(f"tools/negtest/README.md says {said.group(1)} "
+                            f"script(s) and there are {len(scripts)} — a number "
+                            f"people read as how well this tree is tested")
+
     if problems:
         print(f"{len(problems)} PROBLEM(S):")
         for problem in problems:

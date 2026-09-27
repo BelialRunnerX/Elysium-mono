@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ppp",
+    "psp",
+    "pwp"
+  ],
+  "key": {
+    "p": {
+      "item": "minecraft:paper"
+    },
+    "w": {
+      "item": "minecraft:red_dye"
+    },
+    "s": {
+      "item": "elysiumcomforts:seal_stamp"
+    }
+  },
+  "result": {
+    "id": "elysiumcomforts:sealed_package",
+    "count": 1
+  }
+}

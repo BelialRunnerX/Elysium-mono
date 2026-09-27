@@ -1,0 +1,12 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#elysiumbestiary:vale_sulphur_springs",
+  "spawners": [
+    {
+      "type": "elysiumbestiary:sulphprime",
+      "weight": 10,
+      "minCount": 1,
+      "maxCount": 2
+    }
+  ]
+}
