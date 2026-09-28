@@ -28,11 +28,14 @@ public class ArmorySmithingMenu extends AbstractContainerMenu {
     /** How many blueprint papers one plan costs; a template costs one too and is used up when crafting. */
     public static final int PAPER_PER_PLAN = 1;
 
-    public static final int INPUT_X = 30;
+    // Right of the part list (8..108), which the input slot used to sit under.
+    public static final int INPUT_X = 112;
     public static final int INPUT_Y = 47;
-    public static final int OUTPUT_X = 130;
+    public static final int OUTPUT_X = 150;
     public static final int OUTPUT_Y = 47;
-    public static final int INVENTORY_Y = 84;
+    // Sixteen more pixels above the inventory: five list rows ran over the inventory
+    // rule and its heading (the client stage, 27 September 2026).
+    public static final int INVENTORY_Y = 100;
 
     private final Container input = new SimpleContainer(1) {
         @Override

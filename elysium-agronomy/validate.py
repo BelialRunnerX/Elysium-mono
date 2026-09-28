@@ -2253,8 +2253,9 @@ if "return new com.elysium.agronomy.block.TackleBoxBlock(timber().noOcclusion())
         not in fb_blocks:
     fail("the tackle box is a plain block, so it holds nothing")
 fb_box = FB_SOURCES["block/TackleBoxBlock.java"]
-if "super(MenuType.GENERIC_9x3, id);" not in fb_box:
-    fail("the tackle box opens on a menu type of its own, which needs a screen nobody "
+if "super(com.elysium.lib.menu.ElysiumChests.type(ROWS), id);" not in fb_box:
+    fail("the tackle box opens on a menu type that is not the library's chest type for its rows, "
+         "so it gets the game's grey screen or none; it used to say: needs a screen nobody "
          "drew")
 if "return container.canPlaceItem(getContainerSlot(), stack);" not in fb_box:
     fail("the tackle box's slots take anything, so it is a chest with a fish on it")
@@ -2840,10 +2841,10 @@ if "for (String wood : KitchenBlocks.WOODS) { " \
         "all.add(KitchenBlocks.CABINETS.get(wood).get()); }" not in squashed(entities_src):
     fail("the cabinet block entity type no longer names every cabinet, so some "
          "wood's cabinet holds nothing")
-if "return ChestMenu.threeRows(id, inventory, this);" not in body_of(
+if "return com.elysium.lib.menu.ElysiumChests.threeRows(id, inventory, this);" not in body_of(
         cabinet_sq, "protected AbstractContainerMenu createMenu(int id, Inventory inventory) {"):
-    fail("a cabinet opens something other than the game's three-row chest menu, "
-         "so it is a screen of ours that nothing themes")
+    fail("a cabinet opens something other than the library's three-row chest menu, "
+         "so it is either a screen of ours that nothing themes or the game's grey one")
 if "return KitchenRules.cabinetSlots();" not in body_of(
         cabinet_sq, "public int getContainerSize() {") \
         or "private NonNullList<ItemStack> items = " \

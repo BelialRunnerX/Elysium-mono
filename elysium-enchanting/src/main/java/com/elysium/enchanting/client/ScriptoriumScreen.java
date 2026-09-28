@@ -35,14 +35,14 @@ public class ScriptoriumScreen extends AbstractContainerScreen<ScriptoriumMenu> 
     private static final int ARROW_W = 12;
     private static final int ARROW_H = 12;
     private static final int BUY_X = 44;
-    private static final int BUY_Y = 58;
+    private static final int BUY_Y = 66;
     private static final int BUY_W = 90;
     private static final int BUY_H = 18;
 
     public ScriptoriumScreen(ScriptoriumMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = 176;
-        this.imageHeight = 166;
+        this.imageHeight = 182;
         this.inventoryLabelY = ScriptoriumMenu.INVENTORY_Y - 11;
     }
 
@@ -98,16 +98,18 @@ public class ScriptoriumScreen extends AbstractContainerScreen<ScriptoriumMenu> 
                 ElysiumPalette.GAP, 44);
         int level = menu.number(ScriptoriumMenu.LEVEL);
         if (level > 0) {
-            ElysiumUI.value(g, Component.translatable("elysiumenchanting.library.buy",
+            // Cut to the button: at full length the line ran under the output slot
+            // (the client stage, 27 September 2026).
+            ElysiumUI.value(g, ElysiumUI.truncate(Component.translatable("elysiumenchanting.library.buy",
                             Component.literal(String.valueOf(level)),
                             Component.literal(String.valueOf(
                                     menu.number(ScriptoriumMenu.PRICE))),
                             Component.literal(String.valueOf(
-                                    menu.number(ScriptoriumMenu.EXPERIENCE)))),
+                                    menu.number(ScriptoriumMenu.EXPERIENCE)))), BUY_W - 8),
                     BUY_X + 4, BUY_Y + 5, ElysiumPalette.TEXT);
         } else {
-            ElysiumUI.faint(g, Component.translatable("elysiumenchanting.library.empty"),
-                    BUY_X + 4, BUY_Y + 5);
+            ElysiumUI.faint(g, ElysiumUI.truncate(Component.translatable("elysiumenchanting.library.empty"),
+                    BUY_W - 8), BUY_X + 4, BUY_Y + 5);
         }
         ElysiumUI.faint(g, Component.translatable("container.inventory"),
                 ElysiumPalette.GAP, inventoryLabelY);

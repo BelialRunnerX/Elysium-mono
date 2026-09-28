@@ -32,7 +32,8 @@ public class MachineMenu extends AbstractContainerMenu {
     /** Ints per tank: amount, capacity, fluid id. */
     static final int PER_TANK = 3;
 
-    public static final int SLOT_X = 80;
+    // At the right edge: at 80 the energy line ran under it (the client stage, 27 September 2026).
+    public static final int SLOT_X = 150;
     public static final int SLOT_Y = 20;
     public static final int INVENTORY_Y = 84;
 

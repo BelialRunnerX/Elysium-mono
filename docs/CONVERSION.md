@@ -1255,6 +1255,29 @@ the stage found:
   stale reference world, not the pack. A Graftguard then killed the new
   survival player twice within seconds of standing on land.
 
+`stage_screens_client.ps1` opened every menu block once (POLISH.md P14). It
+photographed five screens drawing over themselves and five boxes on the
+game's grey chest screen:
+
+* **Screens too short for what they held.** The arcane table's four stat
+  lines ran over its two slots and its three offers over the inventory rule;
+  the machine screen's energy line ran under the fuel slot; the scriptorium's
+  buy line lay across the inventory rule; the smithing table's part list
+  covered its input slot and the inventory heading; the salvager's button sat
+  on the rule. Each has sixteen more pixels above the inventory now (182
+  tall, `INVENTORY_Y` 100), the machine's slot is at the right edge, the
+  smithing input is right of its list, and the scriptorium's line is cut to
+  its button.
+* **Boxes outside the theme.** Cabinets, the tackle box, the freight
+  terminal, packs and the per-player loot chests opened
+  `ChestMenu.threeRows` or `MenuType.GENERIC_9xN`: the game's menu types and
+  so the game's grey screen, which `check_ui.py` could not see because its
+  rule is about screens we write. The library now declares a chest menu type
+  per row count (`ElysiumChests`, one to six) under the kit's
+  `ElysiumChestScreen`; every box goes through it, the module validators
+  that had pinned the game's menu pin the library's, `check_ui.py` refuses
+  the game's, and negative cases cover both.
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and

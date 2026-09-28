@@ -29,7 +29,7 @@ public class ArmorySmithingScreen extends AbstractContainerScreen<ArmorySmithing
     public ArmorySmithingScreen(ArmorySmithingMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = 176;
-        this.imageHeight = 166;
+        this.imageHeight = 182;
         this.inventoryLabelY = ArmorySmithingMenu.INVENTORY_Y - 11;
     }
 

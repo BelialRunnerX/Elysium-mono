@@ -150,7 +150,7 @@ public class TackleBoxBlock extends BaseEntityBlock {
         private final Container box;
 
         public Menu(int id, Inventory inventory, Container box) {
-            super(MenuType.GENERIC_9x3, id);
+            super(com.elysium.lib.menu.ElysiumChests.type(ROWS), id);     // the kit's box screen, not the game's grey one
             checkContainerSize(box, ROWS * 9);
             this.box = box;
             box.startOpen(inventory.player);

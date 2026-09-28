@@ -115,6 +115,19 @@ boot with no registry errors and no missing Elysium models.
       MineColonies stack is client only; the server folder is the set the
       dedicated test server boots with, the client folder the set the test
       client boots with.
+- [~] **P14 Screens as photographed.** (27 Sep, night: `stage_screens_client.ps1`)
+      Five screens drew their content over one another: the arcane table's
+      stat lines over its slots, the machine screen's energy line under its
+      fuel slot, the scriptorium's buy line over the inventory rule, the
+      smithing table's part list over its input slot and the inventory
+      heading, the salvager's button on the rule. Each crowded screen has
+      sixteen more pixels above the inventory (182 tall) and its slots moved
+      clear. Five boxes opened the game's grey chest screen (cabinets, the
+      tackle box, the freight terminal, packs, the per-player loot chests):
+      the library now owns a chest menu type per row count under the kit's
+      `ElysiumChestScreen`, every box goes through `ElysiumChests`, and
+      `check_ui.py` refuses the game's. Left: status lines truncated to one
+      line ("Add essence to ..", "A book, and some..") could wrap.
 - [ ] **P10 Creature models.** Every creature added since the original eight
       Elysium mobs gets a model in the same class as those: a hundred-plus
       cubes, a real part hierarchy, a generated sheet in the sci-fi palette;

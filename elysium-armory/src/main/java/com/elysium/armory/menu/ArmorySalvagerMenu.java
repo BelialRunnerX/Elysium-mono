@@ -34,7 +34,8 @@ public class ArmorySalvagerMenu extends AbstractContainerMenu {
     public static final int INPUT_Y = 35;
     public static final int OUTPUT_X = 80;
     public static final int OUTPUT_Y = 17;
-    public static final int INVENTORY_Y = 84;
+    // Sixteen more pixels above the inventory: the button sat on the inventory rule.
+    public static final int INVENTORY_Y = 100;
 
     /** The button id the screen sends when the lever is pulled. */
     public static final int SALVAGE = 0;

@@ -34,7 +34,7 @@ public class ArcaneTableScreen extends AbstractContainerScreen<ArcaneTableMenu> 
     public ArcaneTableScreen(ArcaneTableMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = 176;
-        this.imageHeight = 166;
+        this.imageHeight = 182;
         this.inventoryLabelY = ArcaneTableMenu.INVENTORY_Y - 11;
     }
 

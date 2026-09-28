@@ -43,10 +43,12 @@ import java.util.Optional;
 public class ScriptoriumMenu extends AbstractContainerMenu {
 
     public static final int INPUT_X = 15;
-    public static final int INPUT_Y = 58;
+    public static final int INPUT_Y = 66;
     public static final int OUTPUT_X = 143;
-    public static final int OUTPUT_Y = 58;
-    public static final int INVENTORY_Y = 84;
+    public static final int OUTPUT_Y = 66;
+    // Sixteen more pixels above the inventory: the buy line, the slots and the
+    // inventory rule were drawn over one another (the client stage, 27 September 2026).
+    public static final int INVENTORY_Y = 100;
 
     /** What the screen reads out of the container data. */
     public static final int SELECTED = 0;

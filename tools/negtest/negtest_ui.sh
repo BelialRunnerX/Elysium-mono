@@ -11,6 +11,7 @@ ROOT=/tmp/Elysium-mono
 SNAP=/tmp/ui_snap.tar
 pass=0; fail=0
 (cd $ROOT && tar cf $SNAP check_ui.py check_validators.py elysium-lib/ui \
+    elysium-agronomy/src/main/java/com/elysium/agronomy/block/CabinetBlock.java \
     elysium-lib/src/main/java/com/elysium/lib/client \
     elysium-space/src/main/java/com/elysium/space/client \
     elysium-core/src/main/java/com/elysium/core/screen)
@@ -141,6 +142,10 @@ restore
 echo
 echo "restoring and re-checking"
 restore
+echo "a box on the game's grey chest screen"
+edit $ROOT/elysium-agronomy/src/main/java/com/elysium/agronomy/block/CabinetBlock.java 'return com.elysium.lib.menu.ElysiumChests.threeRows(id, inventory, this);' 'return ChestMenu.threeRows(id, inventory, this);'
+expect "a cabinet back on the game's chest menu" "nothing themes"
+
 g="$(out)"
 if [[ "$g" == *"all in the kit"* ]]; then echo "  tree restored clean"
 else echo "  TREE LEFT BROKEN"; fail=$((fail+1)); fi

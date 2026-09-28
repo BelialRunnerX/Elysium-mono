@@ -189,6 +189,24 @@ for module, path, body in surfaces:
              f"scale above 1 — the kit draws, it does not blit")
 
 # ---------------------------------------------------------------------------
+# 2b. No vanilla chest menus. A cabinet, a tackle box, a freight terminal, a
+# pack and the loot chests all opened ChestMenu.threeRows or MenuType.GENERIC_9xN,
+# which is the game's grey chest screen: boxes outside the theme that no rule
+# about screens we write could see (the client stage, 27 September 2026). Every
+# box goes through the library's ElysiumChests, whose types the kit's screen owns.
+# ---------------------------------------------------------------------------
+
+VANILLA_CHEST = re.compile(r"\bChestMenu\.(?:oneRow|twoRows|threeRows|fourRows|fiveRows|sixRows)\("
+                           r"|\bMenuType\.GENERIC_9x[1-6]\b|\bMenuType\.GENERIC_3x3\b")
+
+for _name, (_module, _path, _body) in sources.items():
+    if _name == "ElysiumChests":
+        continue
+    if VANILLA_CHEST.search(_body):
+        fail(f"{_module}/{os.path.basename(_path)}: opens the game's own chest menu, which is "
+             f"the game's grey screen that nothing themes — go through ElysiumChests")
+
+# ---------------------------------------------------------------------------
 # 3b. The chooser's filter, and the two ways a filter goes wrong
 # ---------------------------------------------------------------------------
 #
@@ -313,4 +331,4 @@ if problems:
 print(f"one interface      : {screens} screen(s) across {len(list(modules()))} module(s), "
       f"all in the kit; {len(palette.PALETTE)} colours and {len(palette.METRICS)} metrics "
       f"generated, measured and matching; no vanilla widgets, no blits, no hand-picked "
-      f"colours, no English in a screen")
+      f"colours, no English in a screen, and no box on the game's grey chest screen")

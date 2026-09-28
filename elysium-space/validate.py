@@ -1158,9 +1158,9 @@ else:
     if "implements WorldlyContainer" not in _terminal:
         fail("a hopper cannot fill a terminal, so the logistics system cannot be "
              "automated, which is the only reason to have one")
-    if "ChestMenu.threeRows" not in _terminal:
-        fail("a terminal opens something other than a chest screen, so a player has "
-             "to learn a new window for a box")
+    if "ElysiumChests.threeRows" not in _terminal:
+        fail("a terminal opens something other than the library's chest screen, so a player "
+             "has to learn a new window for a box, or gets the game's grey one")
 
     _caps = _src(SRC, "registry/SpaceBlockEntities.java")
     for _cap in ("Capabilities.ItemHandler.BLOCK, FREIGHT_TERMINAL.get()",

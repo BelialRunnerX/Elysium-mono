@@ -182,8 +182,6 @@ public final class LootKeeper {
     /** As many rows as the container has, so a barrel is not a double chest. */
     private static ChestMenu rowsFor(int id, net.minecraft.world.entity.player.Inventory inventory,
                                      SimpleContainer container) {
-        return container.getContainerSize() > 27
-                ? ChestMenu.sixRows(id, inventory, container)
-                : ChestMenu.threeRows(id, inventory, container);
+        return com.elysium.lib.menu.ElysiumChests.rowsFor(id, inventory, container);
     }
 }

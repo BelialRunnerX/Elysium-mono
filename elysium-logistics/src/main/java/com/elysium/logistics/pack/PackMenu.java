@@ -36,13 +36,12 @@ import java.util.function.BooleanSupplier;
 public class PackMenu extends AbstractContainerMenu {
 
     /** The game's chest menus, by how many rows they have. */
-    private static final List<MenuType<?>> BY_ROWS = List.of(
-            MenuType.GENERIC_9x1, MenuType.GENERIC_9x2, MenuType.GENERIC_9x3,
-            MenuType.GENERIC_9x4, MenuType.GENERIC_9x5, MenuType.GENERIC_9x6);
 
     /** The chest menu that shows this many rows. */
     public static MenuType<?> typeFor(int rows) {
-        return BY_ROWS.get(Math.max(1, Math.min(BY_ROWS.size(), rows)) - 1);
+        // The library's chest type for this many rows, so the kit's box screen opens
+        // rather than the game's grey one (the client stage, 27 September 2026).
+        return com.elysium.lib.menu.ElysiumChests.type(Math.max(1, Math.min(com.elysium.lib.menu.ElysiumChests.MOST_ROWS, rows)));
     }
 
     private final Page page;

@@ -41,10 +41,13 @@ import java.util.List;
 public class ArcaneTableMenu extends AbstractContainerMenu {
 
     public static final int ITEM_X = 15;
-    public static final int ITEM_Y = 47;
+    public static final int ITEM_Y = 64;
     public static final int LAPIS_X = 35;
-    public static final int LAPIS_Y = 47;
-    public static final int INVENTORY_Y = 84;
+    public static final int LAPIS_Y = 64;
+    // The upper half was 52 pixels for four stat lines, two slots and three offers,
+    // and the client stage of 27 September 2026 photographed them drawn over one
+    // another: sixteen more pixels above the inventory, like every crowded screen.
+    public static final int INVENTORY_Y = 100;
 
     /** What the screen reads out of the container data. */
     public static final int ETERNA = 0;

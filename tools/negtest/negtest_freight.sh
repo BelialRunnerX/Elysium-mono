@@ -109,8 +109,8 @@ expect "a terminal no comparator can read" "comparator cannot read"
 edit $S/freight/FreightTerminalBlockEntity.java 'implements WorldlyContainer {' '{'
 expect "a terminal no hopper can fill" "hopper cannot fill"
 
-edit $S/freight/FreightTerminalBlockEntity.java 'return ChestMenu.threeRows(id, inventory, this);' 'return null;'
-expect "a terminal that opens something other than a chest" "other than a chest screen"
+edit $S/freight/FreightTerminalBlockEntity.java 'return com.elysium.lib.menu.ElysiumChests.threeRows(id, inventory, this);' 'return null;'
+expect "a terminal that opens something other than a chest" "other than the library's chest screen"
 
 edit $S/registry/SpaceBlockEntities.java 'event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, FREIGHT_TERMINAL.get(),' 'if (false) event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, FREIGHT_TERMINALX.get(),'
 expect "a terminal no pipe can reach" "cannot reach it"

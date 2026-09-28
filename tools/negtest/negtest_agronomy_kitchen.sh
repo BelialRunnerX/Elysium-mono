@@ -272,7 +272,7 @@ expect "cabinets that are plain blocks" "the cabinets are plain blocks"
 edit $BE '        for (String wood : KitchenBlocks.WOODS) {' '        for (String wood : java.util.List.of("oak")) {'
 expect "a cabinet with no block entity" "no longer names every cabinet"
 
-edit $CA '            return ChestMenu.threeRows(id, inventory, this);' '            return ChestMenu.oneRow(id, inventory);'
+edit $CA '            return com.elysium.lib.menu.ElysiumChests.threeRows(id, inventory, this);' '            return ChestMenu.oneRow(id, inventory);'
 expect "a cabinet opening some other menu" "three-row chest menu"
 
 edit $CA '            return KitchenRules.cabinetSlots();' '            return 9;'

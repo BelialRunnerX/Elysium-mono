@@ -18,14 +18,14 @@ import net.minecraft.world.entity.player.Inventory;
 public class ArmorySalvagerScreen extends AbstractContainerScreen<ArmorySalvagerMenu> {
 
     private static final int BUTTON_X = 20;
-    private static final int BUTTON_Y = 58;
+    private static final int BUTTON_Y = 64;
     private static final int BUTTON_W = 44;
     private static final int BUTTON_H = 14;
 
     public ArmorySalvagerScreen(ArmorySalvagerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = 176;
-        this.imageHeight = 166;
+        this.imageHeight = 182;
         this.inventoryLabelY = ArmorySalvagerMenu.INVENTORY_Y - 11;
     }
 

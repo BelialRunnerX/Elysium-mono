@@ -4272,4 +4272,18 @@ if problems:
         print("  - " + problem)
     sys.exit(1)
 
+# The boxes. Every chest menu type the library declares opens under the kit's
+# screen, and there is one per row count the game's generic menus have.
+_chests = squashed(read("menu/ElysiumChests.java"))
+_chest_screens = squashed(read("client/ElysiumChestScreens.java"))
+if "public static final int MOST_ROWS = 6;" not in _chests \
+        or "for (int rows = 1; rows <= MOST_ROWS; rows++) {" not in _chests:
+    fail("the library does not declare a chest menu type for every row count a box can "
+         "have, so some box falls back to the game's grey screen")
+if ("for (DeferredHolder<MenuType<?>, MenuType<ChestMenu>> type : ElysiumChests.TYPES) { "
+        "event.<ChestMenu, ElysiumChestScreen<ChestMenu>>register(type.get(), "
+        "(menu, inventory, title) -> new ElysiumChestScreen<>(menu, inventory, title)); }") not in _chest_screens:
+    fail("the kit's box screen is not registered for every chest menu type the library "
+         "declares, so a box of some row count opens with no screen at all")
+print("the boxes          : a chest menu type per row count, one to six, each under the kit's screen")
 print("all library checks passed")

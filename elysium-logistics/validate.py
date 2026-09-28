@@ -1320,7 +1320,7 @@ need(menu_src, "public boolean mayPickup(Player player) { return false; }",
 need(menu_src, "if (locked >= 0 && type == ClickType.SWAP && button == locked) { return; }",
      "a number key swaps the open bag out from under its own screen")
 need(menu_src, "super(typeFor(rows), id);",
-     "a pack's screen is not one of the game's own chest screens")
+     "a pack's screen is not the library's chest screen sized to its rows")
 need(menu_src, "this.page = new Page(store, PackRules.firstOn(pageNumber), "
                "PackRules.shownOn(store.capacity(), pageNumber), level, still);",
      "a pack's screen is not a page the rules laid out, so a big pack is capped "
@@ -1328,7 +1328,7 @@ need(menu_src, "this.page = new Page(store, PackRules.firstOn(pageNumber), "
 if re.search(r"Registries\.MENU\b|IMenuTypeExtension|new MenuType<",
              "".join(strip_comments(read(path)) for path in java_files)):
     fail("the module registers a menu type of its own, which is a new screen; a "
-         "pack opens the game's own chest")
+         "pack opens the library's chest screen")
 
 item_src = squashed(read(SRC, "pack/PackItem.java"))
 need(item_src, "bag.set(LogisticComponents.PAGE.get(), PackRules.nextPage(room, page));",

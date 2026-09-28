@@ -138,7 +138,7 @@ public class FreightTerminalBlockEntity extends BaseContainerBlockEntity
 
     @Override
     protected AbstractContainerMenu createMenu(int id, Inventory inventory) {
-        return ChestMenu.threeRows(id, inventory, this);
+        return com.elysium.lib.menu.ElysiumChests.threeRows(id, inventory, this);
     }
 
     /**
