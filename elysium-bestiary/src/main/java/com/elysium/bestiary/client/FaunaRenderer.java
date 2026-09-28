@@ -28,7 +28,7 @@ public class FaunaRenderer extends MobRenderer<FaunaEntity, FaunaModel> {
     public static final float PIXELS = 16.0F;
 
     public FaunaRenderer(EntityRendererProvider.Context context, String kind) {
-        super(context, new FaunaModel(context.bakeLayer(FaunaModel.LAYERS.get(kind))),
+        super(context, new FaunaModel(context.bakeLayer(FaunaModel.LAYERS.get(kind)), kind),
                 0.3F);
     }
 

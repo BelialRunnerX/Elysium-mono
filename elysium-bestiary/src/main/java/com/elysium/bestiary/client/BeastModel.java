@@ -1,36 +1,47 @@
 package com.elysium.bestiary.client;
 
-import com.elysium.bestiary.ElysiumBestiary;
+import com.elysium.bestiary.client.CreatureModel.Part;
+import com.elysium.bestiary.client.shape.Shapes;
 import com.elysium.bestiary.entity.BeastEntity;
 import com.elysium.bestiary.rules.BeastRules;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.resources.ResourceLocation;
+
+import static com.elysium.bestiary.client.CreatureModel.ARM_LEFT;
+import static com.elysium.bestiary.client.CreatureModel.ARM_RIGHT;
+import static com.elysium.bestiary.client.CreatureModel.BODY;
+import static com.elysium.bestiary.client.CreatureModel.HEAD;
+import static com.elysium.bestiary.client.CreatureModel.LEG_LEFT;
+import static com.elysium.bestiary.client.CreatureModel.LEG_RIGHT;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Three shapes for nine beasts, and every one of them exactly the size of the
- * thing you are swinging at.
+ * A beast, drawn as its family's body plan.
  *
- * <p>The boxes, the sheet slots and the measuring are all in
- * {@link CreatureModel}, which the fauna uses too. What is here is the table
- * of three shapes and the one thing a wight does that nothing else does.
+ * <p>Nine beasts over three shapes, each shape a body plan from
+ * {@code art/bodyplans.py} generated into {@code client/shape} — a hundred-plus
+ * boxes in a part tree, with its sheet from the same rows and its bounds
+ * measured through the hierarchy (docs/POLISH.md P10). This class is the seam:
+ * the renderer asks it for a layer, a model and a size by family, and it asks
+ * {@link Shapes}. The renderer still squashes whatever comes out onto the
+ * row's hitbox, so a plan drawn at any size stands exactly as tall as the thing
+ * a player swings at.
+ *
+ * <p>{@link #SHAPES} is the six-box table the beasts used to be. It stays here
+ * because the kin, the court, the denizens, the wards and the myths still
+ * borrow a beast's shape by name from {@link CreatureModel}'s table form,
+ * until each of them has a plan of its own; nothing here draws it.
  */
-public class BeastModel extends CreatureModel<BeastEntity> {
+public class BeastModel extends EntityModel<BeastEntity> {
 
-    /**
-     * The three shapes.
-     *
-     * <p>A prowler is low and long and leads with its head; a brute is a door
-     * with arms; a wight is a tall thin thing with arms too long for it. Every
-     * one of them is thirty-two pixels tall and sixteen across, because the
-     * renderer squashes the whole shape onto whatever hitbox the beast has and
-     * a shape that started a different size would land a different size.
-     */
+    /** The six-box shapes, kept for the kinds that borrow them (see the class comment). */
     public static final Map<String, List<Part>> SHAPES = shapes();
 
     private static Map<String, List<Part>> shapes() {
@@ -59,48 +70,41 @@ public class BeastModel extends CreatureModel<BeastEntity> {
         return Map.copyOf(made);
     }
 
-    /** Measure one of the three. */
-    public static Bounds bounds(String family) {
-        List<Part> parts = SHAPES.get(family);
-        if (parts == null || parts.isEmpty()) {
-            throw new IllegalArgumentException("nothing is shaped like a " + family);
-        }
-        return CreatureModel.bounds(parts);
-    }
+    /** One layer per family, as {@link Shapes} names them. */
+    public static final Map<String, ModelLayerLocation> LAYERS = Shapes.LAYERS;
 
-    /** One layer per family. */
-    public static final Map<String, ModelLayerLocation> LAYERS = layers();
-
-    private static Map<String, ModelLayerLocation> layers() {
-        Map<String, ModelLayerLocation> made = new LinkedHashMap<>();
-        for (String family : BeastRules.FAMILIES) {
-            made.put(family, new ModelLayerLocation(
-                    ResourceLocation.fromNamespaceAndPath(ElysiumBestiary.MODID, family),
-                    "main"));
-        }
-        return Map.copyOf(made);
-    }
-
+    /** The mesh for one family: its shape's. */
     public static LayerDefinition createLayer(String family) {
-        return CreatureModel.createLayer(SHAPES.get(family));
-    }
-
-    public BeastModel(ModelPart root) {
-        super(root);
+        return Shapes.layer(family);
     }
 
     /**
-     * A wight's arms drift whether it is moving or not.
-     *
-     * <p>Which is the only thing that tells one apart from a prowler at a
-     * distance in the dark.
+     * How big a family's shape is, measured through its part tree at bind
+     * pose, in the same record the other kinds report theirs in.
      */
-    @Override
-    protected void idle(BeastEntity beast, float ageInTicks, float moving) {
-        if (BeastRules.WIGHT.equals(beast.beast().family())) {
-            float drift = (float) Math.sin(ageInTicks * 0.06F) * 0.12F;
-            parts.get(ARM_LEFT).xRot += drift - 0.35F;
-            parts.get(ARM_RIGHT).xRot -= drift + 0.35F;
+    public static CreatureModel.Bounds bounds(String family) {
+        if (!Shapes.FAMILIES.contains(family)) {
+            throw new IllegalArgumentException("nothing is shaped like a " + family);
         }
+        float[] size = Shapes.bounds(family);
+        return new CreatureModel.Bounds(size[0], size[1], size[2]);
+    }
+
+    private final EntityModel<BeastEntity> inner;
+
+    public BeastModel(ModelPart root, String family) {
+        this.inner = Shapes.model(family, root);
+    }
+
+    @Override
+    public void setupAnim(BeastEntity creature, float limbSwing, float limbSwingAmount,
+                          float ageInTicks, float netHeadYaw, float headPitch) {
+        this.inner.setupAnim(creature, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+    }
+
+    @Override
+    public void renderToBuffer(PoseStack pose, VertexConsumer buffer, int light,
+                               int overlay, int colour) {
+        this.inner.renderToBuffer(pose, buffer, light, overlay, colour);
     }
 }

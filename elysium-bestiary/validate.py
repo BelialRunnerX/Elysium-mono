@@ -566,13 +566,8 @@ bounds_body = squashed(body_of(shared_plain,
 if "return new Bounds(highX - lowX, highY - lowY, highZ - lowZ);" not in bounds_body:
     fail("a shape's size is no longer measured across its own boxes, so the renderer "
          "squashes onto a number somebody typed")
-# And both rosters ask that one function rather than each keeping a copy.
-for who, where in (("BeastModel", model_plain),
-                   ("FaunaModel", strip_comments(read(SRC, "client/FaunaModel.java")))):
-    if "return CreatureModel.bounds(parts);" not in squashed(where):
-        fail(f"{who} measures its own shapes instead of asking the one function "
-             f"that both rosters share, so the two copies can disagree about how "
-             f"big something is and only one of them is the one the renderer uses")
+# The beasts and the animals measure their body plans through the hierarchy
+# (4b below): their models ask Shapes for what the generator measured.
 
 if shapes and beasts:
     PIXELS = 16.0
@@ -616,6 +611,88 @@ if shapes and beasts:
                  f"is a band around it that can be hit and cannot be seen")
     print(f"as big as it looks : {len(beasts)} beasts, every one of them exactly as "
           f"tall and as wide on screen as the box you swing at")
+
+# ---------------------------------------------------------------------------
+# 4b. The shapes (docs/POLISH.md P10)
+# ---------------------------------------------------------------------------
+#
+# Every beast wears a body plan from art/bodyplans.py: a hundred-plus boxes in
+# a real part tree, generated with its sheet from the same rows. The six-box
+# table above is what the other kinds still borrow; the beasts are drawn by the
+# classes under client/shape, which Shapes.java lists by family and BeastModel
+# delegates to. What is checked: a class per family, dense enough, measured,
+# listed, delegated to, and every beast's sheet the size its shape was packed to.
+shape_dir = os.path.join(SRC, "client/shape")
+shapes_registry = strip_comments(read(SRC, "client/shape/Shapes.java"), keep_strings=True) \
+    if os.path.isfile(os.path.join(shape_dir, "Shapes.java")) else ""
+if not shapes_registry:
+    fail("there is no client/shape/Shapes.java, so no family has a body plan and every beast "
+         "is back to six boxes")
+shape_boxes = {}
+shape_sheets = {}
+_animal_kinds = sorted(set(re.findall(r'new Animal\("\w+", (GRAZER|FORAGER|FOWL|SWIMMER),',
+                                       strip_comments(read(SRC, "rules/FaunaRules.java"), keep_strings=True))))
+_animal_kinds = [k.lower() for k in _animal_kinds]
+for family in sorted({beast["family"] for beast in beasts} | set(_animal_kinds)):
+    cls = family.capitalize() + "Shape"
+    path = os.path.join(shape_dir, cls + ".java")
+    if not os.path.isfile(path):
+        fail(f"a {family} has no shape class (client/shape/{cls}.java), so every beast in that "
+             f"family has no body plan")
+        continue
+    src = strip_comments(read(SRC, "client/shape/" + cls + ".java"))
+    boxes = src.count(".addBox(")
+    shape_boxes[family] = boxes
+    # A beast is patterned on the eight; an animal is simpler where the animal is
+    # simple (a bird, a fish), but never six boxes again.
+    least = 100 if family in {beast["family"] for beast in beasts} else 28
+    if boxes < least:
+        fail(f"a {family}'s shape is {boxes} box(es); it needs {least} and more, or it is a "
+             f"recoloured six-box mob with extra steps")
+    # A tree is parts hung from parts: a tenth of the boxes at least are parents.
+    if "addOrReplaceChild(" not in src or src.count("PartDefinition ") < max(4, boxes // 10):
+        fail(f"a {family}'s shape is a flat list of boxes rather than a part tree, so nothing on "
+             f"it turns with the part it sits on")
+    for constant in ("WIDE", "TALL", "DEEP", "SHEET"):
+        if not re.search(r"public static final (?:float|int) %s = " % constant, src):
+            fail(f"a {family}'s shape does not publish its {constant}, so the renderer has nothing "
+                 f"to squash onto the hitbox")
+    sheet_match = re.search(r"public static final int SHEET = (\d+);", src)
+    shape_sheets[family] = int(sheet_match.group(1)) if sheet_match else 0
+    # Three switches in the registry: the layer, the model and the bounds. A
+    # family listed in two of them is drawn and then squashed onto nothing.
+    if shapes_registry and shapes_registry.count(f'case "{family}"') < 3:
+        fail(f"Shapes.java does not list the {family} in every one of its three switches, "
+             f"so its class is written and never drawn, or drawn and never measured")
+for _who, _key in (("BeastModel", "family"), ("FaunaModel", "kind")):
+    _model_src = squashed(strip_comments(read(SRC, "client/%s.java" % _who)))
+    for needed, why in (("Shapes.model(%s, root)" % _key, "the model of its %s's shape" % _key),
+                        ("this.inner.setupAnim(", "its shape's walk"),
+                        ("Shapes.bounds(%s)" % _key, "its shape's measured bounds")):
+        if needed not in _model_src:
+            fail(f"{_who} no longer delegates to {why}, so the shapes are generated and the "
+                 f"creatures are drawn as something else")
+_entity_textures = os.path.join(ROOT, "elysium-bestiary/src/main/resources/assets/elysiumbestiary/textures/entity")
+_animals = [{"id": _id, "family": _kind.lower()} for _id, _kind in re.findall(
+    r'new Animal\("(\w+)", (GRAZER|FORAGER|FOWL|SWIMMER),',
+    strip_comments(read(SRC, "rules/FaunaRules.java"), keep_strings=True))]
+for beast in beasts + _animals:
+    sheet = shape_sheets.get(beast["family"])
+    png = os.path.join(_entity_textures, beast["id"] + ".png")
+    if not sheet or not os.path.isfile(png):
+        continue
+    try:
+        from PIL import Image as _Image
+        with _Image.open(png) as _img:
+            if _img.size != (sheet, sheet):
+                fail(f"{beast['id']}'s sheet is {_img.size[0]}x{_img.size[1]} and its shape was packed "
+                     f"to {sheet}: the model reads pixels that are not there")
+    except ImportError:
+        break
+if shape_boxes:
+    print(f"the shapes         : {len(shape_boxes)} body plan(s) of "
+          f"{', '.join(str(shape_boxes[f]) for f in sorted(shape_boxes))} boxes, each a part tree "
+          f"with its bounds published, listed by family or kind and worn by every beast and animal")
 
 # ---------------------------------------------------------------------------
 # 6. What it leaves

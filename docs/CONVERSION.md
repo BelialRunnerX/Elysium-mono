@@ -1278,6 +1278,26 @@ game's grey chest screen:
   that had pinned the game's menu pin the library's, `check_ui.py` refuses
   the game's, and negative cases cover both.
 
+### 16.5 Creature body plans, the first slice (27 September, night)
+
+P10 begins. The eight Elysium mobs keep their models; everything else gets a
+plan of its own at their density. `art/bodyplans.py` builds a plan from a row
+of proportions with the organic primitives the eight use (chains, ovoids,
+plates, limbs, digits) laid along a spine turned a quarter turn, so a torso
+lies down instead of standing up: a quadruped, a knuckle-walking hulk, a
+stilt-legged insectile walker. `art/creature.py` emits the Java model with a
+real part tree, measures the bind pose through the hierarchy for the
+renderer's hitbox scaling, and builds the skin (materials by part role,
+accents on the visor, the leading shells and the claw tips). The bestiary
+generator dresses its nine beasts in the three plans and paints every beast's
+sheet from the same rows; its validator wants a class per family, a hundred
+boxes and a part tree in it, published bounds, a registry entry, a delegating
+BeastModel and a sheet of the packed size; three negative cases. Each plan
+was rendered headless through the mobs' PoseCapture and preview.py before
+it shipped, and the first quadruped's head floated a body-length away until
+the torso was laid along a turned spine — which is the whole reason the
+render loop exists.
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and

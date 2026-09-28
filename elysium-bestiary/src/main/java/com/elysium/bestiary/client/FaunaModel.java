@@ -1,29 +1,45 @@
 package com.elysium.bestiary.client;
 
-import com.elysium.bestiary.ElysiumBestiary;
+import com.elysium.bestiary.client.CreatureModel.Part;
+import com.elysium.bestiary.client.shape.Shapes;
 import com.elysium.bestiary.entity.FaunaEntity;
 import com.elysium.bestiary.rules.FaunaRules;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.resources.ResourceLocation;
+
+import static com.elysium.bestiary.client.CreatureModel.ARM_LEFT;
+import static com.elysium.bestiary.client.CreatureModel.ARM_RIGHT;
+import static com.elysium.bestiary.client.CreatureModel.BODY;
+import static com.elysium.bestiary.client.CreatureModel.HEAD;
+import static com.elysium.bestiary.client.CreatureModel.LEG_LEFT;
+import static com.elysium.bestiary.client.CreatureModel.LEG_RIGHT;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Four shapes for twelve animals, on the bestiary's own boxes.
+ * An animal, drawn as its kind's body plan.
  *
- * <p>A grazer is a body on four legs with its head out in front of it; a
- * forager is the same thing low to the ground; a fowl stands up; a swimmer is
- * a long thing with fins where the legs would be. The six part names are the
- * bestiary's six, because {@link CreatureModel} walks them by name and a fifth
- * shape with a fifth vocabulary would be a second walk cycle to keep in step.
+ * <p>Twelve animals over four kinds, each kind a body plan from
+ * {@code art/bodyplans.py} generated into {@code client/shape}: the grazers
+ * and foragers are quadrupeds of different builds, the fowl a winged thing,
+ * the swimmers fish (docs/POLISH.md P10). Like {@link BeastModel}, this is
+ * the seam the renderer talks to; {@link Shapes} holds the plans, and the
+ * renderer squashes whatever comes out onto the row's hitbox.
+ *
+ * <p>{@link #SHAPES} is the six-box table the animals used to be, kept for the
+ * kinds that still borrow an animal's shape by name until they have plans of
+ * their own; nothing here draws it.
  */
-public class FaunaModel extends CreatureModel<FaunaEntity> {
+public class FaunaModel extends EntityModel<FaunaEntity> {
 
-    /** The four shapes. */
+    /** The six-box shapes, kept for the kinds that borrow them (see the class comment). */
     public static final Map<String, List<Part>> SHAPES = shapes();
 
     private static Map<String, List<Part>> shapes() {
@@ -59,68 +75,48 @@ public class FaunaModel extends CreatureModel<FaunaEntity> {
         return Map.copyOf(made);
     }
 
-    /** Measure one of the four. */
-    public static Bounds bounds(String kind) {
-        List<Part> parts = SHAPES.get(kind);
-        if (parts == null || parts.isEmpty()) {
-            throw new IllegalArgumentException("nothing is shaped like a " + kind);
-        }
-        return CreatureModel.bounds(parts);
-    }
-
-    /** One layer per kind. */
+    /** One layer per kind, as {@link Shapes} names them. */
     public static final Map<String, ModelLayerLocation> LAYERS = layers();
 
     private static Map<String, ModelLayerLocation> layers() {
         Map<String, ModelLayerLocation> made = new LinkedHashMap<>();
         for (String kind : FaunaRules.KINDS) {
-            made.put(kind, new ModelLayerLocation(
-                    ResourceLocation.fromNamespaceAndPath(ElysiumBestiary.MODID, kind),
-                    "main"));
+            made.put(kind, Shapes.LAYERS.containsKey(kind) ? Shapes.LAYERS.get(kind)
+                    : new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(
+                            com.elysium.bestiary.ElysiumBestiary.MODID, kind), "main"));
         }
         return Map.copyOf(made);
     }
 
+    /** The mesh for one kind: its shape's. */
     public static LayerDefinition createLayer(String kind) {
-        return CreatureModel.createLayer(SHAPES.get(kind));
+        return Shapes.layer(kind);
     }
 
-    public FaunaModel(ModelPart root) {
-        super(root);
-    }
-
-    /**
-     * What each kind does when it is standing still.
-     *
-     * <p>A grazer or a forager puts its head down to eat, a fowl bobs, and a
-     * swimmer's tail never stops. Which is the difference between a pen that
-     * looks alive and a pen full of statues, and — like the wight's drift —
-     * the only thing that tells two animals of the same shape apart across a
-     * field.
-     */
-    @Override
-    protected void idle(FaunaEntity animal, float ageInTicks, float moving) {
-        float still = 1.0F - moving;
-        switch (animal.animal().kind()) {
-            case FaunaRules.GRAZER, FaunaRules.FORAGER -> parts.get(HEAD).xRot +=
-                    still * (0.5F + (float) Math.sin(ageInTicks * 0.05F) * 0.25F);
-            case FaunaRules.FOWL -> {
-                float bob = (float) Math.sin(ageInTicks * 0.18F) * 0.22F;
-                parts.get(HEAD).xRot += still * bob;
-                parts.get(ARM_LEFT).zRot = -0.15F + bob * 0.4F;
-                parts.get(ARM_RIGHT).zRot = 0.15F - bob * 0.4F;
-            }
-            case FaunaRules.SWIMMER -> {
-                float wag = (float) Math.sin(ageInTicks * 0.25F) * 0.45F;
-                parts.get(LEG_LEFT).yRot = wag;
-                parts.get(LEG_RIGHT).yRot = wag;
-                parts.get(LEG_LEFT).xRot = 0.0F;
-                parts.get(LEG_RIGHT).xRot = 0.0F;
-                parts.get(ARM_LEFT).zRot = -0.3F - wag * 0.3F;
-                parts.get(ARM_RIGHT).zRot = 0.3F + wag * 0.3F;
-            }
-            default -> {
-            }
+    /** How big a kind's shape is, measured through its part tree at bind pose. */
+    public static CreatureModel.Bounds bounds(String kind) {
+        if (!Shapes.FAMILIES.contains(kind)) {
+            throw new IllegalArgumentException("nothing is shaped like a " + kind);
         }
+        float[] size = Shapes.bounds(kind);
+        return new CreatureModel.Bounds(size[0], size[1], size[2]);
+    }
+
+    private final EntityModel<FaunaEntity> inner;
+
+    public FaunaModel(ModelPart root, String kind) {
+        this.inner = Shapes.model(kind, root);
+    }
+
+    @Override
+    public void setupAnim(FaunaEntity creature, float limbSwing, float limbSwingAmount,
+                          float ageInTicks, float netHeadYaw, float headPitch) {
+        this.inner.setupAnim(creature, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+    }
+
+    @Override
+    public void renderToBuffer(PoseStack pose, VertexConsumer buffer, int light,
+                               int overlay, int colour) {
+        this.inner.renderToBuffer(pose, buffer, light, overlay, colour);
     }
 }

@@ -142,4 +142,17 @@ boot with no registry errors and no missing Elysium models.
       their complexity but with a **different shape**: no hunched clawed
       humanoid recoloured, but a body plan of its own (quadruped, insectile,
       serpentine, winged, floating) at the same density of cubes and joints.
-      Last, by Dylan's order.
+      Last, by Dylan's order. **Begun 27 Sep, night** (Dylan: "now might be a
+      good time to start making more advanced textures and models for mobs"):
+      `art/bodyplans.py` holds the plans (a quadruped, a knuckle-walking hulk,
+      a stilt-legged insectile walker so far) and `art/creature.py` turns a
+      plan into a model class with its bounds measured through the part tree
+      and a skin; `gen_bestiary.py` now dresses the nine beasts in them
+      (113, 124 and 138 boxes; the six-box table stays only for the kinds
+      that still borrow it). Rendered headless through the mobs' PoseCapture
+      before shipping. The twelve animals followed the same night: the
+      grazers and foragers as two quadruped builds, the fowl as a winged
+      plan (76 boxes) and the swimmers as a fish (30, simpler where the
+      animal is simple). Next: the kin, court, denizens, wards, myths, shades
+      and companions (which still borrow the six-box tables), then space, the
+      pigeons and the bees.

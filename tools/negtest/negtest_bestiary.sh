@@ -126,6 +126,25 @@ expect "a family missing a limb the walk cycle reaches for by name" "rather than
 edit $MD '        made.put(BeastRules.WIGHT, List.of(' '        made.put("ghoul", List.of('
 expect "a family of beasts with no shape at all" "nothing is shaped like a wight"
 
+echo "the shapes"
+python3 - "$M/src/main/java/com/elysium/bestiary/client/shape/ProwlerShape.java" <<'PY'
+import re, sys
+p = sys.argv[1]; s = open(p, encoding="utf-8").read()
+# Drop every toe, joints and tips alike: two dozen boxes, enough to fall under a hundred.
+s = re.sub(r'\n        (?:PartDefinition \w+ = )?[a-zA-Z0-9]+\.addOrReplaceChild\("leg_[a-z_]+_toe_\d+_\d+",\n[^;]*;', "", s)
+open(p, "w", encoding="utf-8").write(s)
+PY
+expect "a shape thinned below the eight's density" "recoloured six-box mob"
+
+edit $M/src/main/java/com/elysium/bestiary/client/shape/Shapes.java '            case "wight" -> { return WightShape.createBodyLayer(); }' '            case "ghoul" -> { return WightShape.createBodyLayer(); }'
+expect "a family the registry stopped listing" "does not list the wight"
+
+edit $M/src/main/java/com/elysium/bestiary/client/BeastModel.java '        this.inner.setupAnim(creature, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);' '        // stood still'
+expect "a beast that stopped walking its shape's walk" "no longer delegates to its shape's walk"
+
+edit $M/src/main/java/com/elysium/bestiary/client/shape/Shapes.java '            case "fowl" -> { return FowlShape.createBodyLayer(); }' '            case "hen" -> { return FowlShape.createBodyLayer(); }'
+expect "an animal kind the registry stopped listing" "does not list the fowl"
+
 echo "what it leaves"
 edit $G '    return [staple, essence, rare]' '    return [staple + 2, essence, rare]'
 expect_regen "a loot table that hands out more than the bestiary is balanced on" "is not the reward a player gets"

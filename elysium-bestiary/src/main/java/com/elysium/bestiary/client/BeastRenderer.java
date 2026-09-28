@@ -30,7 +30,7 @@ public class BeastRenderer extends MobRenderer<BeastEntity, BeastModel> {
     public static final float PIXELS = 16.0F;
 
     public BeastRenderer(EntityRendererProvider.Context context, String family) {
-        super(context, new BeastModel(context.bakeLayer(BeastModel.LAYERS.get(family))),
+        super(context, new BeastModel(context.bakeLayer(BeastModel.LAYERS.get(family)), family),
                 0.4F);
     }
 
@@ -46,7 +46,7 @@ public class BeastRenderer extends MobRenderer<BeastEntity, BeastModel> {
     @Override
     protected void scale(BeastEntity beast, PoseStack pose, float partialTick) {
         BeastRules.Beast row = beast.beast();
-        BeastModel.Bounds shape = BeastModel.bounds(row.family());
+        CreatureModel.Bounds shape = BeastModel.bounds(row.family());
         float across = row.width() * PIXELS / Math.max(shape.wide(), shape.deep());
         float up = row.height() * PIXELS / shape.tall();
         pose.scale(across, up, across);
