@@ -74,7 +74,13 @@ public final class CharacterSheet {
                 // than failing to parse the sheet at all.
                 research(player),
                 Integer.toString(com.elysium.lib.discovery.ElysiumDiscoveries
-                        .catalogued(player))));
+                        .catalogued(player)),
+                // Fields 10 to 12, the Ledger Web: what is held (starts included),
+                // the points free, and the erasures in the bag — read the same
+                // forgiving way as everything before them.
+                String.join(PAIR, com.elysium.lib.tree.ElysiumTreeState.held(player)),
+                Integer.toString(com.elysium.lib.tree.ElysiumTreeState.free(player)),
+                Integer.toString(com.elysium.lib.tree.ElysiumTreeState.erasures(player))));
     }
 
     /** The six tracks, packed the same way the stats are. */
@@ -100,7 +106,15 @@ public final class CharacterSheet {
                          int favor,
                          int suspicion,
                          Map<ElysiumResearchField, Integer> research,
-                         int catalogued) {
+                         int catalogued,
+                         java.util.List<String> held,
+                         int treeFree,
+                         int erasures) {
+
+        /** Whether a node of the Ledger Web is held, as the server last said. */
+        public boolean holds(String node) {
+            return held.contains(node);
+        }
 
         public int points(ElysiumResearchField field) {
             Integer held = research.get(field);
@@ -141,7 +155,7 @@ public final class CharacterSheet {
     /** The sheet a client draws before the server has told it anything. */
     public static Parsed empty() {
         return new Parsed(null, null, 1, 0, 1, new java.util.LinkedHashMap<>(), 0, 0,
-                new java.util.LinkedHashMap<>(), 0);
+                new java.util.LinkedHashMap<>(), 0, java.util.List.of(), 0, 0);
     }
 
     /**
@@ -204,9 +218,19 @@ public final class CharacterSheet {
             }
         }
         int catalogued = fields.length > 9 ? parseInt(fields[9], 0) : 0;
+        java.util.List<String> held = new java.util.ArrayList<>();
+        if (fields.length > 10 && !fields[10].isEmpty()) {
+            for (String id : fields[10].split(PAIR)) {
+                if (!id.isEmpty()) {
+                    held.add(id);
+                }
+            }
+        }
+        int treeFree = fields.length > 11 ? parseInt(fields[11], 0) : 0;
+        int erasures = fields.length > 12 ? parseInt(fields[12], 0) : 0;
 
         return new Parsed(race, job, level, xp, Math.max(1, xpNext), stats,
-                favor, suspicion, research, catalogued);
+                favor, suspicion, research, catalogued, held, treeFree, erasures);
     }
 
     private static int parseInt(String text, int fallback) {

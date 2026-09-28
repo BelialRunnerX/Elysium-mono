@@ -77,6 +77,77 @@ public final class ElysiumCommand {
                     printTier(context.getSource(), player);
                     return 1;
                 }))
+                // Levels for a test: experience granted through the same path a
+                // kill grants it, until the level asked for. Operators only.
+                .then(Commands.literal("level")
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.argument("level", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 400))
+                                .executes(context -> {
+                                    Player player = context.getSource().getPlayerOrException();
+                                    int wanted = com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "level");
+                                    int guard = 0;
+                                    while (com.elysium.lib.character.ElysiumCharacter.getLevel(player) < wanted && guard++ < 10000) {
+                                        com.elysium.lib.character.ElysiumCharacter.addXp(player,
+                                                com.elysium.lib.character.ElysiumCharacter.xpToNext(
+                                                        com.elysium.lib.character.ElysiumCharacter.getLevel(player)));
+                                    }
+                                    com.elysium.lib.network.ElysiumNetwork.syncSheet(player);
+                                    context.getSource().sendSuccess(() -> Component.literal("Level "
+                                            + com.elysium.lib.character.ElysiumCharacter.getLevel(player)), false);
+                                    return 1;
+                                })))
+                .then(Commands.literal("tree")
+                        .then(Commands.literal("points").executes(context -> {
+                            Player player = context.getSource().getPlayerOrException();
+                            context.getSource().sendSuccess(() -> Component.translatable("elysium.tree.points",
+                                    com.elysium.lib.tree.ElysiumTreeState.free(player),
+                                    com.elysium.lib.tree.ElysiumTreeState.spent(player),
+                                    com.elysium.lib.tree.ElysiumTreeState.erasures(player)), false);
+                            return 1;
+                        }))
+                        .then(Commands.literal("held").executes(context -> {
+                            Player player = context.getSource().getPlayerOrException();
+                            context.getSource().sendSuccess(() -> Component.literal(
+                                    String.join(" ", com.elysium.lib.tree.ElysiumTreeState.held(player))), false);
+                            return 1;
+                        }))
+                        .then(Commands.literal("allocate")
+                                .then(Commands.argument("node", com.mojang.brigadier.arguments.StringArgumentType.word())
+                                        .executes(context -> {
+                                            Player player = context.getSource().getPlayerOrException();
+                                            String node = com.mojang.brigadier.arguments.StringArgumentType.getString(context, "node");
+                                            String why = com.elysium.lib.tree.ElysiumTreeState.allocate(player, node);
+                                            if (why != null) {
+                                                context.getSource().sendFailure(Component.translatable(why));
+                                                return 0;
+                                            }
+                                            com.elysium.lib.network.ElysiumNetwork.syncSheet(player);
+                                            context.getSource().sendSuccess(() -> Component.translatable(
+                                                    "elysium.tree.allocated", node), false);
+                                            return 1;
+                                        })))
+                        .then(Commands.literal("refund")
+                                .then(Commands.argument("node", com.mojang.brigadier.arguments.StringArgumentType.word())
+                                        .executes(context -> {
+                                            Player player = context.getSource().getPlayerOrException();
+                                            String node = com.mojang.brigadier.arguments.StringArgumentType.getString(context, "node");
+                                            String why = com.elysium.lib.tree.ElysiumTreeState.refund(player, node, true);
+                                            if (why != null) {
+                                                context.getSource().sendFailure(Component.translatable(why));
+                                                return 0;
+                                            }
+                                            com.elysium.lib.network.ElysiumNetwork.syncSheet(player);
+                                            context.getSource().sendSuccess(() -> Component.translatable(
+                                                    "elysium.tree.refunded", node), false);
+                                            return 1;
+                                        })))
+                        .then(Commands.literal("reset").executes(context -> {
+                            Player player = context.getSource().getPlayerOrException();
+                            int given = com.elysium.lib.tree.ElysiumTreeState.reset(player);
+                            com.elysium.lib.network.ElysiumNetwork.syncSheet(player);
+                            context.getSource().sendSuccess(() -> Component.translatable("elysium.tree.reset", given), false);
+                            return 1;
+                        })))
                 .then(Commands.literal("respec").executes(context -> {
                     Player player = context.getSource().getPlayerOrException();
                     ElysiumCharacter.respec(player);

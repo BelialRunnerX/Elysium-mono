@@ -3766,6 +3766,7 @@ HARNESSES = [
     ("RunHarness.java", "com.elysium.lib.run.RunHarness", "runs"),
     ("SoundHarness.java", "SoundHarness", "sound table"),
     ("KindTagsHarness.java", "KindTagsHarness", "kind tags"),
+    ("TreeHarness.java", "TreeHarness", "ledger web"),
 ]
 
 # What each harness printed, by label, for the sections below that hold a
@@ -4547,6 +4548,102 @@ if not _kind_faults and _kind_lines:
     print(f"kind tags          : {len(_kinds)} kind(s) from the harness, every vanilla tag a list vanilla has "
           f"and every gear kind on one the enchanting tables read; the pack walks the registry, "
           f"asks the one resolver, and cannot be turned off")
+
+# ---------------------------------------------------------------------------
+# The Ledger Web (docs/SKILLTREE.md; docs/SPEC_SKILLTREE.md)
+# ---------------------------------------------------------------------------
+#
+# Dylan, 28 Sep 2026: "test the skill tree but also make it more expansive
+# path of exile style". The tree is now the library's: a rules table
+# (tree/ElysiumTreeRules), a layout (ElysiumTree), a player's state
+# (ElysiumTreeState), the words (ElysiumTreeNames) and a tab on the character
+# sheet (screen/ElysiumWebTab). TreeHarness builds the web on the JDK and
+# holds it to itself — size, reach, spacing, notables, keystones, ceilings.
+# What is held here is everything the harness cannot see: that the words are
+# in the language file, that the doctrines the keystones set exist and pair
+# the same way, that the stat sheet counts the web, that the network carries
+# the two clicks, and that the state keeps its two promises (a taken node
+# touches a held one; a given-back node leaves the rest connected).
+_web_faults = []
+_tree_files = {rel: (COMMENT.sub(" ", read(rel)) if os.path.isfile(os.path.join(SRC, rel)) else "")
+               for rel in ("tree/ElysiumTreeRules.java", "tree/ElysiumTree.java", "tree/ElysiumTreeState.java",
+                           "tree/ElysiumTreeNames.java", "screen/ElysiumWebTab.java")}
+for _rel, _text in _tree_files.items():
+    if not _text:
+        _web_faults.append(f"{_rel} is missing, and the Ledger Web is not a web without it")
+_rules_text = _tree_files["tree/ElysiumTreeRules.java"]
+_state_text = _tree_files["tree/ElysiumTreeState.java"]
+_web_lang = json.load(open(os.path.join(RES, "assets/elysiumlib/lang/en_us.json"), encoding="utf-8"))
+_web_summary = HARNESS_TEXT.get("ledger web", "")
+_web_nodes = re.search(r"ledger web: (\d+) node\(s\)", _web_summary)
+if not _web_nodes:
+    _web_faults.append("the ledger web harness printed no node count, so the web's size is unknown")
+elif int(_web_nodes.group(1)) < 400:
+    _web_faults.append(f"the web is {_web_nodes.group(1)} node(s); four hundred and more is the size asked for")
+if _rules_text:
+    _subjects = re.findall(r'new Subject\("(\w+)", RING_\w+, List\.of\(([^)]*)\), "([^"]+)", (null|"\w+")\)', _rules_text)
+    _rule_stats = re.findall(r'"(\w+)"', _rules_text[_rules_text.find("STATS = List.of("):_rules_text.find(");", _rules_text.find("STATS = List.of("))])
+    if len(_subjects) < 14:
+        _web_faults.append(f"only {len(_subjects)} cluster(s) on the second ring; the web has fourteen systems and elements there")
+    if "new Subject(stat, RING_STATS" not in _rules_text:
+        _web_faults.append("the first ring no longer makes a cluster per stat")
+    for _id in [row[0] for row in _subjects] + _rule_stats:
+        for _k in ("elysium.tree.notable." + _id, "elysium.tree.subject." + _id):
+            if _k not in _web_lang:
+                _web_faults.append(f"the cluster \"{_id}\" has no words: {_k} is not in the language file")
+    _keystones = re.findall(r'new Keystone\("(\w+)", "(\w+)", "(\w+)"\)', _rules_text)
+    _rule_pairs = set(tuple(p) for p in re.findall(r'\{"(\w+)", "(\w+)"\}', _rules_text[_rules_text.find("OPPOSED"):]))
+    _doctrine_text = COMMENT.sub(" ", read("doctrine/ElysiumDoctrine.java"))
+    _doctrine_ids = set(re.findall(r'^\s+[A-Z_]+\("(\w+)",', _doctrine_text, re.M))
+    _doctrine_pairs = set(tuple(p) for p in re.findall(r'\{"(\w+)", "(\w+)"\}', _doctrine_text))
+    for _doctrine, _gain, _loss in _keystones:
+        if _doctrine not in _doctrine_ids:
+            _web_faults.append(f"the keystone \"{_doctrine}\" commits to a doctrine ElysiumDoctrine does not have, so "
+                               f"its tag is set and nothing reads it")
+        if "elysium.doctrine." + _doctrine not in _web_lang:
+            _web_faults.append(f"the keystone \"{_doctrine}\" has no words: elysium.doctrine.{_doctrine} is not in the language file")
+    if _rule_pairs != _doctrine_pairs:
+        _web_faults.append(f"the keystone pairs in the rules {sorted(_rule_pairs)} and the doctrine pairs "
+                           f"{sorted(_doctrine_pairs)} differ, so a pair one side excludes the other allows")
+    for _stat in _rule_stats:
+        if "elysium.stat." + _stat not in _web_lang:
+            _web_faults.append(f"the stat \"{_stat}\" has no words: elysium.stat.{_stat} is not in the language file")
+if _state_text:
+    for _why in re.findall(r'WHY_\w+ = "([\w.]+)"', _state_text):
+        if _why not in _web_lang:
+            _web_faults.append(f"the refusal {_why} has no words in the language file, so a player is refused in a raw key")
+    for _needed, _what in (("adjacent", "a taken node no longer has to touch a held one"),
+                           ("ElysiumTree.rootedWithin(after, starts(player)).size() != after.size()",
+                            "a given-back node no longer has to leave the rest hanging off a start"),
+                           ("player.addTag(", "a keystone taken sets no doctrine tag, so nothing in the pack reads it"),
+                           ("player.removeTag(", "a keystone given back leaves its doctrine tag on"),
+                           ("takeErasure(player)", "a refund costs nothing"),
+                           ("opposedTo(", "both keystones of a pair can be held")):
+        if _needed not in _state_text:
+            _web_faults.append(f"the tree state: {_what} ({_needed!r} is gone)")
+_stats_text = COMMENT.sub(" ", read("stats/ElysiumStats.java"))
+if "ElysiumTreeState.block(player)" not in _stats_text:
+    _web_faults.append("ElysiumStats.innate no longer adds the web's block, so every node is a picture")
+_net_text = COMMENT.sub(" ", read("network/ElysiumNetwork.java"))
+for _payload in ("TreeAllocate", "TreeRefund"):
+    if f"ElysiumPayloads.{_payload}.TYPE" not in _net_text:
+        _web_faults.append(f"the network no longer carries {_payload}, so a click on the web reaches nothing")
+_screen_text = COMMENT.sub(" ", read("screen/ElysiumCharacterScreen.java"))
+if "TAB_WEB" not in _screen_text or "web.render(" not in _screen_text:
+    _web_faults.append("the character sheet has no Web tab, so the web is drawn nowhere")
+_webtab_text = _tree_files["screen/ElysiumWebTab.java"]
+if _webtab_text and ("static String find(" not in _webtab_text or "web.charTyped(" not in _screen_text
+                     or "web.keyPressed(" not in _screen_text):
+    _web_faults.append("the web has no search box, or the sheet does not hand it the keys: a node cannot be found by name")
+for _key in ("elysium.tree.search", "elysium.tree.search.none", "elysium.tree.hint"):
+    if _key not in _web_lang:
+        _web_faults.append(f"{_key} is not in the language file")
+for _fault in _web_faults:
+    fail(_fault)
+if not _web_faults and _web_nodes:
+    print(f"the ledger web     : {_web_nodes.group(1)} nodes from the rules, every cluster, keystone, stat and "
+          f"refusal with words, the doctrines paired the same way on both sides, the stat sheet counting it, "
+          f"the two clicks carried and the state keeping its promises")
 
 # ---------------------------------------------------------------------------
 # Registrations that ride on another class's DeferredRegister

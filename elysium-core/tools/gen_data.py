@@ -136,6 +136,8 @@ SIMPLE_ITEMS = [
     "sigil_of_enhancement",
     "sigil_of_withdrawal",
     "sigil_of_rebirth",
+    # The Ledger Web's refund: one node back per erasure (docs/SKILLTREE.md).
+    "ledger_erasure",
 ] + list(RATIONS) + ELEMENTAL_RUNES + UTILITY_RUNES + WEAPONS + TOOLS + [
     "elysium_helmet",
     "plasma_chestplate",
@@ -235,6 +237,13 @@ for ration, (display, _ingredient) in RATIONS.items():
     lang[f"item.{NS}.{ration}"] = display
 
 lang.update({
+    # --- the tier command and the claim's tier line: written by hand into the
+    # generated file once (Sep 2026) and lost on the next regen, so they live
+    # here now, where every other line of the file comes from.
+    "elysium.command.tier.header": "World tier: %s (%s)",
+    "elysium.command.tier.from": "Character level %s, world floor %s",
+    "elysium.command.tier.share": "Everything percentile this tier buys: %s%% of the way",
+    "elysium.claim.world_tier": "Your holdings are known: world tier %s, %s. The worlds answer in kind.",
     # --- items, named as the Sleeping Empire archive names them ------------
     "item.elysium.elysium_helmet": "Elysium Helm",
     "item.elysium.plasma_chestplate": "Plasma Carapace",
@@ -950,6 +959,21 @@ for _sigil, _catalyst in (("socketing", "minecraft:ender_pearl"),
           shaped([" d ", "dcd", " d "],
                  {"d": f"{NS}:gem_dust", "c": _catalyst},
                  f"{NS}:sigil_of_{_sigil}", category="equipment"))
+
+# A Ledger Erasure: a page struck out of the ledger. Paper round a book,
+# with the dust that ties every ledger item to the runes.
+write(f"data/{NS}/recipe/ledger_erasure.json",
+      shaped([" d ", "pbp", " d "],
+             {"d": f"{NS}:gem_dust", "p": "minecraft:paper", "b": "minecraft:book"},
+             f"{NS}:ledger_erasure", category="misc"))
+
+# The Empire's ores, tagged: elysium:empire_ores for anything that counts
+# them, and the common #c:ores so vein miners and ore finders see the three.
+# These were the retired skill-tree generator's to write (28 Sep 2026); the
+# tags outlive the tree.
+for _tag_path in (f"data/{NS}/tags/block/empire_ores.json", "data/c/tags/block/ores.json"):
+    write(_tag_path, {"replace": False,
+                      "values": [f"{NS}:aetherium_ore", f"{NS}:neutronium_ore", f"{NS}:voidglass_ore"]})
 
 # Dust has no shaped recipe of its own: it is what grinding a rune produces.
 # The grinding is a recipe with no fixed result — what comes out depends on the

@@ -136,4 +136,36 @@ public final class ElysiumPayloads {
             return TYPE;
         }
     }
+
+    /** Client to server: take a node on the Ledger Web. The server decides whether it can be. */
+    public record TreeAllocate(String node) implements CustomPacketPayload {
+
+        public static final CustomPacketPayload.Type<TreeAllocate> TYPE =
+                new CustomPacketPayload.Type<>(
+                        ResourceLocation.fromNamespaceAndPath(ElysiumLib.MODID, "tree_allocate"));
+
+        public static final StreamCodec<ByteBuf, TreeAllocate> STREAM_CODEC =
+                StreamCodec.composite(ByteBufCodecs.STRING_UTF8, TreeAllocate::node, TreeAllocate::new);
+
+        @Override
+        public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+    }
+
+    /** Client to server: give a node on the Ledger Web back, for a Ledger Erasure. */
+    public record TreeRefund(String node) implements CustomPacketPayload {
+
+        public static final CustomPacketPayload.Type<TreeRefund> TYPE =
+                new CustomPacketPayload.Type<>(
+                        ResourceLocation.fromNamespaceAndPath(ElysiumLib.MODID, "tree_refund"));
+
+        public static final StreamCodec<ByteBuf, TreeRefund> STREAM_CODEC =
+                StreamCodec.composite(ByteBufCodecs.STRING_UTF8, TreeRefund::node, TreeRefund::new);
+
+        @Override
+        public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+    }
 }

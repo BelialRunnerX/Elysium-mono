@@ -232,6 +232,10 @@ public class Elysium {
     public static final DeferredHolder<Item, Item> GEM_DUST =
             register("gem_dust", () -> new Item(new Item.Properties()));
 
+    /** A Ledger Erasure: one node of the Ledger Web given back (handed to ElysiumTreeState.erasure in the constructor). */
+    public static final DeferredHolder<Item, Item> LEDGER_ERASURE =
+            register("ledger_erasure", () -> new Item(new Item.Properties()));
+
     public static final DeferredHolder<Item, Item> GEM_CASE =
             register("gem_case", com.elysium.core.item.GemCaseItem::new);
 
@@ -537,6 +541,8 @@ public class Elysium {
     // ------------------------------------------------------------------
 
     public Elysium(IEventBus modEventBus, ModContainer container) {
+        // The Ledger Web's refund is this mod's item; the library only knows one is handed in.
+        com.elysium.lib.tree.ElysiumTreeState.erasure = LEDGER_ERASURE;
         // Order matters, and all of it has to happen before the registry
         // events fire — which is why it is in the constructor rather than in a
         // setup listener.

@@ -63,6 +63,46 @@ public final class ElysiumNetwork {
                 ElysiumPayloads.SpendPoints.TYPE,
                 ElysiumPayloads.SpendPoints.STREAM_CODEC,
                 ElysiumNetwork::onSpend);
+
+        registrar.playToServer(
+                ElysiumPayloads.TreeAllocate.TYPE,
+                ElysiumPayloads.TreeAllocate.STREAM_CODEC,
+                ElysiumNetwork::onTreeAllocate);
+
+        registrar.playToServer(
+                ElysiumPayloads.TreeRefund.TYPE,
+                ElysiumPayloads.TreeRefund.STREAM_CODEC,
+                ElysiumNetwork::onTreeRefund);
+    }
+
+    /**
+     * A node taken on the Ledger Web. The state says whether it can be and
+     * why not; the answer is a fresh sheet pushed, not a screen reopened, so
+     * the web stays where the player had panned it.
+     */
+    private static void onTreeAllocate(ElysiumPayloads.TreeAllocate payload, IPayloadContext context) {
+        Player player = context.player();
+        if (player == null) {
+            return;
+        }
+        String why = com.elysium.lib.tree.ElysiumTreeState.allocate(player, payload.node());
+        if (why != null) {
+            player.displayClientMessage(Component.translatable(why).withStyle(ChatFormatting.RED), true);
+        }
+        syncSheet(player);
+    }
+
+    /** A node given back on the Ledger Web, for an erasure. */
+    private static void onTreeRefund(ElysiumPayloads.TreeRefund payload, IPayloadContext context) {
+        Player player = context.player();
+        if (player == null) {
+            return;
+        }
+        String why = com.elysium.lib.tree.ElysiumTreeState.refund(player, payload.node(), true);
+        if (why != null) {
+            player.displayClientMessage(Component.translatable(why).withStyle(ChatFormatting.RED), true);
+        }
+        syncSheet(player);
     }
 
     // ------------------------------------------------------------------

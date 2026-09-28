@@ -187,8 +187,8 @@ someone whose terms apply to whatever was derived from their work, and the
 | 2026-09-26 | `polymorph-neoforge-1.1.0+1.21.1.jar` | polymorph | 1.1.0+1.21.1 | LGPL-3.0-or-later | Illusive Soulworks | COPYING, COPYING.LESSER, LICENSE | - | interface and convenience: not content |
 | 2026-09-26 | `potentials-neoforge-1.21-0.7.1.jar` | potentials | 0.7.1 | MIT | Fej1Fun | none | - | interface and convenience: not content |
 | 2026-09-26 | `prickle-neoforge-1.21.1-21.1.11.jar` | prickle | 21.1.11 | LGPL 2.1 | Darkhax | license_prickle.txt | - | library: goes when the mods needing it go |
-| 2026-09-26 | `puffish_attributes-0.8.3-1.21-neoforge.jar` | puffish_attributes | 0.8.3 | LGPL-3.0 | Pufferfish | none | elysium-core | read by the skill tree |
-| 2026-09-26 | `puffish_skills-0.18.3-1.21-neoforge.jar` | puffish_skills | 0.18.3 | All Rights Reserved | Pufferfish | LICENSE-RESOURCES.txt, LICENSE.txt | elysium-core | the skill tree ships as a datapack for it |
+| 2026-09-26 | `puffish_attributes-0.8.3-1.21-neoforge.jar` | puffish_attributes | 0.8.3 | LGPL-3.0 | Pufferfish | none | elysium-core | read by the retired skill tree (28 Sep 2026: the Ledger Web is the pack's own; nothing of this is used) |
+| 2026-09-26 | `puffish_skills-0.18.3-1.21-neoforge.jar` | puffish_skills | 0.18.3 | All Rights Reserved | Pufferfish | LICENSE-RESOURCES.txt, LICENSE.txt | elysium-core | the old skill tree shipped as a datapack for it; retired 28 Sep 2026, datapack removed, nothing of it used |
 | 2026-09-26 | `resourcefulconfig-neoforge-1.21-3.0.11.jar` | resourcefulconfig | 3.0.11 | MIT | ? | none | - | library: goes when the mods needing it go |
 | 2026-09-26 | `resourcefullib-neoforge-1.21-3.0.12.jar` | resourcefullib | 3.0.12 | MIT | ThatGravyBoat, Epic_Oreo | none | - | library: goes when the mods needing it go |
 | 2026-09-26 | `ritchiesprojectilelib-2.1.2-mc.1.21.1-neoforge.jar` | ritchiesprojectilelib | 2.1.2 | MIT License | rbasamoyai | none | - | library: goes when the mods needing it go |

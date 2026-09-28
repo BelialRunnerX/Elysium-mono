@@ -15,10 +15,7 @@
 #                         already exists, so step 1's hand-written recipes win.
 #   3. art/build.py       the named sprites and blocks, which step 2 then
 #                         declines to overwrite.
-#   4. gen_skilltree.py   the Pufferfish's Skills category, which adds to the
-#                         language file rather than owning it and so has to
-#                         run after anything that rewrites it.
-#   5. gen_trinkets.py    and the two mods with their own tables.
+#   4. gen_trinkets.py    and the two mods with their own tables.
 #      gen_mobs.py / gen_npcs.py
 #
 # Everything here is derived. If a file changes and you did not edit a table,
@@ -32,10 +29,6 @@ echo "== elysium-lib: hud ==";              python3 elysium-lib/tools/gen_hud.py
 echo "== elysium-core: data ==";           python3 elysium-core/tools/gen_data.py
 echo "== elysium-core: sprites ==";        python3 art/build.py
 echo "== elysium-core: material gear ==";  python3 elysium-core/tools/gen_material_gear.py
-# After gen_data.py, which clears data/, and after gen_material_gear.py, which
-# rewrites the language file wholesale. The skill tree adds to that file rather
-# than owning it, so anything that rewrites it has to have finished first.
-echo "== elysium-core: skill tree ==";     python3 elysium-core/tools/gen_skilltree.py
 echo "== elysium-trinkets ==";             python3 elysium-trinkets/tools/gen_trinkets.py
 echo "== elysium-solarpunk ==";            python3 elysium-solarpunk/tools/gen_solarpunk.py
 echo "== elysium-mobs ==";                 (cd elysium-mobs && python3 tools/gen_mobs.py)

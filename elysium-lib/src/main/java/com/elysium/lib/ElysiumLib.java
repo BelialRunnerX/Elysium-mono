@@ -91,6 +91,7 @@ public class ElysiumLib {
         // match the bus they were registered on, and leaves the library broken
         // when it is installed on its own.
         ElysiumCharacter.ATTACHMENTS.register(modEventBus);
+        com.elysium.lib.tree.ElysiumTreeState.register(modEventBus);
         com.elysium.lib.menu.ElysiumChests.MENUS.register(modEventBus);
         ElysiumStanding.ATTACHMENTS.register(modEventBus);
         ElysiumCommission.ATTACHMENTS.register(modEventBus);

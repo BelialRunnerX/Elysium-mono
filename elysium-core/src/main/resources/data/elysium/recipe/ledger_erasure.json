@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " d ",
+    "pbp",
+    " d "
+  ],
+  "key": {
+    "d": {
+      "item": "elysium:gem_dust"
+    },
+    "p": {
+      "item": "minecraft:paper"
+    },
+    "b": {
+      "item": "minecraft:book"
+    }
+  },
+  "result": {
+    "id": "elysium:ledger_erasure",
+    "count": 1
+  }
+}

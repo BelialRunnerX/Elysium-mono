@@ -66,13 +66,18 @@ public class ElysiumCharacterScreen extends Screen {
     private static final int TAB_STATS = 1;
     private static final int TAB_STANDING = 2;
     private static final int TAB_RESEARCH = 3;
+    private static final int TAB_WEB = 4;
 
     private static final Component[] TAB_LABELS = {
             Component.translatable("elysium.screen.tab.character"),
             Component.translatable("elysium.screen.tab.stats"),
             Component.translatable("elysium.screen.tab.standing"),
             Component.translatable("elysium.screen.tab.research"),
+            Component.translatable("elysium.screen.tab.web"),
     };
+
+    /** The Ledger Web's canvas, which keeps its own pan and zoom across frames. */
+    private final ElysiumWebTab web = new ElysiumWebTab();
 
     /**
      * The sheet this screen is drawing, and the points left to spend.
@@ -282,6 +287,14 @@ public class ElysiumCharacterScreen extends Screen {
             case TAB_STATS -> renderStatsTab(g, x, y, inner, bodyBottom, mouseX, mouseY);
             case TAB_STANDING -> renderStandingTab(g, x, y, inner, bodyBottom, mouseX, mouseY);
             case TAB_RESEARCH -> renderResearchTab(g, x, y, inner, bodyBottom, mouseX, mouseY);
+            case TAB_WEB -> {
+                // The server answers a click with a fresh sheet pushed, not a
+                // screen reopened; the web reads the newest one every frame.
+                if (com.elysium.lib.client.ElysiumClientState.hasSheet()) {
+                    sheet = com.elysium.lib.client.ElysiumClientState.sheet();
+                }
+                web.render(g, x, y, inner, bodyBottom - y, mouseX, mouseY, sheet);
+            }
             default -> renderCharacterTab(g, x, y, inner, bodyBottom);
         }
 
@@ -322,7 +335,10 @@ public class ElysiumCharacterScreen extends Screen {
         int research = line + ElysiumPalette.GAP
                 + ElysiumResearchField.values().length * researchRowHeight()
                 + ElysiumPalette.GAP + line;
-        return Math.max(stats, research);
+        // The web wants room to be a web: the tallest tab by design, and
+        // measured here like the others so nothing is clipped.
+        int webTab = line + 2 + 150;
+        return Math.max(Math.max(stats, research), webTab);
     }
 
     /** One field: a name and rank line, a bar, and the next unlock beneath. */
@@ -770,6 +786,9 @@ public class ElysiumCharacterScreen extends Screen {
      */
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (tab == TAB_WEB && web.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
         if (button == 0) {
             for (int i = hits.size() - 1; i >= 0; i--) {
                 Hit hit = hits.get(i);
@@ -780,6 +799,46 @@ public class ElysiumCharacterScreen extends Screen {
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean charTyped(char c, int modifiers) {
+        if (tab == TAB_WEB && web.charTyped(c)) {
+            return true;
+        }
+        return super.charTyped(c, modifiers);
+    }
+
+    @Override
+    public boolean keyPressed(int key, int scan, int modifiers) {
+        if (tab == TAB_WEB && web.keyPressed(key)) {
+            return true;
+        }
+        return super.keyPressed(key, scan, modifiers);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
+        if (tab == TAB_WEB && web.mouseDragged(mouseX, mouseY, button, dx, dy)) {
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dx, dy);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (tab == TAB_WEB && web.mouseReleased(mouseX, mouseY, button)) {
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (tab == TAB_WEB && web.mouseScrolled(mouseX, mouseY, scrollY)) {
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     private void confirm() {

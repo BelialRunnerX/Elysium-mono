@@ -57,7 +57,28 @@ public enum ElysiumDoctrine {
     ACCLIMATISED("acclimatised", 1.0F, 1.0F, 0.20F),
 
     /** Deep-lunged: a larger share, bought with a deeper commitment. */
-    DEEP_LUNGED("deep_lunged", 1.0F, 1.0F, 0.35F);
+    DEEP_LUNGED("deep_lunged", 1.0F, 1.0F, 0.35F),
+
+    // --- the Ledger Web's own keystones (28 Sep 2026) --------------------
+    // Three more pairs, each read through the same three dials, so every
+    // reader in the pack sees them the way it always saw a doctrine.
+    /** Ordered line: the Empire's drill. Watched a little more, sheltered a little. */
+    ORDERED("ordered", 1.10F, 1.0F, 0.10F),
+
+    /** Irregular order: nobody's drill. Less noticed, nothing to shelter behind. */
+    IRREGULAR("irregular", 0.85F, 1.0F, 0.0F),
+
+    /** Bonded: the Works' bond covers you, and the Works keeps its books on you. */
+    BONDED("bonded", 1.20F, 1.0F, 0.25F),
+
+    /** Freehold: your own name on the bench, and only your own coat between you and the weather. */
+    FREEHOLD("freehold", 0.90F, 1.0F, 0.05F),
+
+    /** Stormborn: the sky's own. What it throws, you were raised in. */
+    STORMBORN("stormborn", 1.15F, 1.0F, 0.30F),
+
+    /** Surfacer: never below, never out in it. The quiet life, and no share at all. */
+    SURFACER("surfacer", 0.80F, 1.0F, 0.0F);
 
     /** Every tag this mod recognises begins with this. */
     public static final String PREFIX = "elysium.doctrine.";
@@ -128,5 +149,8 @@ public enum ElysiumDoctrine {
             {"sanctioned", "clandestine"},
             {"warranted", "unsworn_writ"},
             {"acclimatised", "deep_lunged"},
+            {"ordered", "irregular"},
+            {"bonded", "freehold"},
+            {"stormborn", "surfacer"},
     };
 }

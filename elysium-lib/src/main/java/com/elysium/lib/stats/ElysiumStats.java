@@ -123,7 +123,10 @@ public final class ElysiumStats {
             growth = growth.plus(job.getGrowth());
         }
 
-        return block.plus(growth.times(levels)).plus(ElysiumCharacter.getSpent(player));
+        // The Ledger Web is the second thing a level buys, and it lands here
+        // beside the first, so every reader of the stat sheet sees it.
+        return block.plus(growth.times(levels)).plus(ElysiumCharacter.getSpent(player))
+                .plus(com.elysium.lib.tree.ElysiumTreeState.block(player));
     }
 
     /**

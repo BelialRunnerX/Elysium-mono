@@ -5,14 +5,15 @@ expansive path of exile style."
 
 ## Where it stands
 
-The skill tree that exists is the Extraction Ledger: 45 nodes written by
-`elysium-core/tools/gen_skilltree.py` as a Pufferfish's Skills category, with
-six doctrines (`ElysiumDoctrine`) set as scoreboard tags by its exclusive
-commitments. Pufferfish's Skills is not one of the seven jars the pack ships,
-so **in the pack as it stands the tree does not exist**: nothing draws it,
-nothing can allocate a node, and the doctrines can only be reached with
-`/tag`. Testing it in the game therefore means building the thing that shows
-it. Making it expansive means designing it as a web rather than a ladder.
+**Built, 28 September 2026** (CONVERSION.md §16.9): the Ledger Web is in the
+library — `tree/ElysiumTreeRules` (the table), `ElysiumTree` (the layout, 419
+nodes), `ElysiumTreeState` (what a player holds; allocate and refund with
+their reasons; the doctrine tags), `ElysiumTreeNames`, and the Web tab of the
+character sheet (`screen/ElysiumWebTab`). The old Extraction Ledger — 45
+nodes as a Pufferfish's Skills datapack, for a mod the pack never shipped, so
+a tree nothing drew — is retired; its six doctrines are six of the twelve
+keystones. The player's guide is `docs/SKILLTREE.md`. What follows is the
+design as it was written before the build, kept because the build follows it.
 
 ## What "Path of Exile style" means here
 

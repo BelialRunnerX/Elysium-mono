@@ -29,27 +29,20 @@ import zipfile
 FORBIDDEN = []
 
 REQUIRED = [
-    ("data/elysium/puffish_skills/config.json",
-     "the file that names the category; without it the mod never loads the "
-     "tree, whatever else is in the jar"),
-    ("data/elysium/puffish_skills/categories/extraction_ledger/category.json",
-     "the skill tree's category; without it Pufferfish's Skills shows nothing"),
-    ("data/elysium/puffish_skills/categories/extraction_ledger/definitions.json",
-     "the forty-five skills themselves"),
-    ("data/elysium/puffish_skills/categories/extraction_ledger/skills.json",
-     "where those skills sit on the tree"),
-    ("data/elysium/puffish_skills/categories/extraction_ledger/connections.json",
-     "what connects to what, including the exclusive commitments"),
-    ("data/elysium/puffish_skills/categories/extraction_ledger/experience.json",
-     "how points are earned; without it the tree opens with one point and "
-     "nothing a player does ever gives another"),
+    # The skill tree is the library's Ledger Web (28 Sep 2026): Java, not a
+    # datapack, so nothing of it is a file this list can miss. What the jar
+    # has to carry is the erasure a refund costs, with its words.
+    ("assets/elysium/models/item/ledger_erasure.json",
+     "the Ledger Erasure's model; without it a refund's price is a purple cube"),
+    ("data/elysium/recipe/ledger_erasure.json",
+     "the Ledger Erasure's recipe; without it a node can never be given back"),
     ("data/elysium/tags/block/empire_ores.json",
-     "the tag the experience file tests Empire ores against"),
+     "the tag the Empire's ores are counted by"),
 ]
 
 # A shipped tree whose text is missing renders as raw keys, which looks like a
 # broken mod rather than a missing translation.
-REQUIRED_LANG = ("assets/elysium/lang/en_us.json", "elysium.skilltree.")
+REQUIRED_LANG = ("assets/elysium/lang/en_us.json", "item.elysium.ledger_erasure")
 
 
 def check(path):

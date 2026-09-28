@@ -146,6 +146,19 @@ def sigil(seal, glow):
     return c
 
 
+def erasure(glow):
+    """A page struck out of the ledger: pale paper, a line through the entry."""
+    c = Canvas()
+    page = union(rect(4, 2, 12, 14))
+    c.plate(page, METAL["stone"])
+    # Three faint lines of entry, then the strike-through in the glow colour.
+    for y in (5, 8, 11):
+        c.engrave({(x, y) for x in range(6, 11)}, METAL["stone"], shade=1)
+    c.carve([(x, 8) for x in range(5, 12)], GLOW[glow], within=page)
+    c.outline(METAL["stone"][0])
+    return c
+
+
 def gem_case(metal, glow):
     """The box the tablets are kept in."""
     c = Canvas()

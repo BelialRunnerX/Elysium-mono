@@ -146,6 +146,8 @@ def main():
                        ("rebirth", "dimensional")]:
         sprites.sigil(seal, glow).save(out(f"item/sigil_of_{seal}.png"))
     sprites.gem_case("voidsteel", "aetherium").save(out("item/gem_case.png"))
+    # The Ledger Web's refund (docs/SKILLTREE.md): a page struck out.
+    sprites.erasure("aetherium").save(out("item/ledger_erasure.png"))
 
     # -- weapons -----------------------------------------------------------
     sprites.sword("voidsteel", "void").save(out("item/voidcut_blade.png"))

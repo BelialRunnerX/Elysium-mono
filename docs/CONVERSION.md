@@ -1494,6 +1494,80 @@ Three negtests (`negtest_kind_tags.sh`, ten breaks; `negtest_use_paths.sh`,
 four; `negtest_quick_move.sh`, three), a case in `negtest_wilds.sh`, and
 the root checks wired into `validate.py` (24 cross-cutting now).
 
+### 16.9 The Ledger Web (28 September, evening)
+
+Dylan, 28 September: *"Need to both test the skill tree but also make it
+more expansive path of exile style."* Testing it found the first thing:
+the skill tree was a Pufferfish's Skills datapack of forty-five nodes, and
+Pufferfish's Skills was never one of the seven jars the pack ships — so in
+the pack as shipped, the tree did not exist. Nothing drew it, nothing could
+allocate a node, and its six doctrines could only be reached with `/tag`
+(two of its exclusive pairs, Ordered/Irregular, set tags the doctrine enum
+did not even have). Testing it meant building the thing that shows it.
+
+What was built is the pack's own, in the library, the way everything else
+is built: a rules table, a layout that is arithmetic over the table, a
+harness, a validator holding the rest to it, and a screen that draws the
+same object the server allocates from.
+
+* `tree/ElysiumTreeRules`: twenty-six clusters — one per stat on ring one,
+  one per system and element on ring two (the Seam, the Line, the Weather,
+  the Empire, the Works, the Bench, the Kitchen, the Road, the Deep, Void,
+  Plasma, Neural, Dimensional, Kinetic) — each with the stats its small
+  nodes rotate through and its notable; twelve keystones in six pairs (the
+  six doctrines and six new ones: Ordered/Irregular, Bonded/Freehold,
+  Stormborn/Surfacer, read through the same three dials every reader of a
+  doctrine already uses), each a doctrine plus a trade of twelve of one
+  stat for six of another; fifteen starts, one per origin and calling, each
+  entering the web beside the cluster its rules name; one point a level from
+  level two; `faults()`.
+* `ElysiumTree`: the layout. A hub, ring one at 150 with roads between
+  neighbours and six spokes, ring two at 252 with roads between neighbours
+  and a road in to the nearest ring-one cluster, keystones on a short road
+  outward, starts on the rim. A cluster is entered through the small node
+  nearest the road, and its notable is linked to every third small, so the
+  heart of a cluster is never one step from the road. 419 nodes: 292 small,
+  26 notable, 12 keystone, 15 start, 73 road, one hub. Adding a subject row
+  adds its cluster, roads and gates without a point placed by hand.
+* `TreeHarness` builds it on the JDK: no faults, four hundred and more,
+  every node reachable from every start, no two frames overlapping (which
+  is what moved ring one out from 118 to 150), one notable a cluster, every
+  keystone's opposite across the web, a start's first ten nodes about its
+  subject, and no forty-point build buying more of a stat than the ceiling.
+  It prints the web; `tools/tree_preview.py` draws it, which is how the
+  layout was read before anything in the game drew it.
+* `ElysiumTreeState`: the held nodes as one attachment (starts are held
+  without being stored, so a character who declared before the web existed
+  has them); allocate touches a held node, spends a free point, refuses an
+  opposed keystone; refund leaves the held set connected and costs a Ledger
+  Erasure (paper, a book, gem dust) outside creative; keystones set and
+  clear the doctrine tags. Every refusal is a translation key the screen and
+  the command both print. The web's block lands in `ElysiumStats.innate`
+  beside the spent stat points, so every reader of the sheet sees it.
+* The Web tab on the character sheet: a pannable, zoomable canvas of fills
+  in the kit's palette (beaded links, dots, framed squares, diamonds), held
+  nodes lit, takeable nodes in the accent, hover explaining a node, click
+  and right-click sent as two new payloads, the server answering with a
+  sheet pushed rather than a screen reopened so the web stays where it was
+  panned. `/elysium tree points|held|allocate|refund|reset` are the same
+  calls by command; `/elysium level <n>` grants levels for a test through
+  the path a kill grants them.
+
+The client stage (`stage_web_client.ps1`: forty levels granted, nodes taken
+and refused by command with their reasons, the tab opened, a node hovered
+and one clicked, an erasure paid in survival) found the one thing the
+harness could not: every refund was refused as a bridge. A player holds two
+starts, which are two roots, and the first rule asked the whole held set to
+be one connected piece — which no player with two starts could satisfy. The
+rule is now "everything still held hangs off some start"
+(`ElysiumTree.rootedWithin`), and the harness holds two roots, a road and a
+leaf to it.
+
+Retired: the datapack, `gen_skilltree.py`, its ninety-two language lines,
+its negtest, the ship check's six required files and the regen step; the
+core validator now refuses any of it coming back. Held by `negtest_web.sh`
+(eight breaks through the library validator) and the harness.
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and

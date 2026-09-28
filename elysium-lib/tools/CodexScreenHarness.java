@@ -106,7 +106,7 @@ public final class CodexScreenHarness {
                                                int level, int favour) {
         Map<com.elysium.lib.stats.ElysiumStat, Integer> stats = new LinkedHashMap<>();
         return new CharacterSheet.Parsed(race, job, level, 0, 100, stats, favour, 0,
-                new java.util.LinkedHashMap<>(), 0);
+                new java.util.LinkedHashMap<>(), 0, java.util.List.of(), 0, 0);
     }
 
     /** The whole point: the tab a player is on survives a point being spent. */
