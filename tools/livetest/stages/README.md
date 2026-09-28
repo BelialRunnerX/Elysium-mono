@@ -51,6 +51,17 @@ Pitfalls the creature stage taught (28 Sep):
 * `Select-Object -First` on the stage's output ends the pipeline and the
   stage with it; redirect to a log and read that.
 
+`stage_menus_client.ps1` puts hands on the ten menus that need them
+(POLISH.md P12): a station placed, the things given, the menu opened, every
+hotbar slot shift-clicked in (so nothing has to know where `/give` or a closed
+menu put a thing), the control pressed at its window point, ESC, and the
+inventory read back with `/data get`. Geometry: `guiScale:0` at 1600x900 is
+GUI scale 3, so leftPos is 179, topPos (300 - imageHeight) / 2, and a gui point
+is three window pixels; a shift-click is the shift key held around a click.
+The Curios screen opens on G; a piece needs affixes before the augmenting
+table has anything to raise (the armoury's reforging table gives it some).
+It found the two gaps in CONVERSION.md §16.8.
+
 The reference world (`reference/`): the dedicated test server's `world/level.dat`
 and `world/serverconfig`, copied as they are. `elysium-run-e.ps1 -FreshWorld`
 runs them through `StripPlayer.java` (player removed, renamed, cheats on,

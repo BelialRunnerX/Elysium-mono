@@ -1391,6 +1391,109 @@ essence hint over the two lines its target and cost use, the infusion
 basin's reason inside a taller button, the scriptorium's offer and empty
 line inside a taller button.
 
+### 16.8 Hands on the menus: the kind tags, and the empty hand (28 September, afternoon)
+
+The last `client-only` rows of P12 were the menus that need a hand on them:
+things shift-clicked in, a control pressed, the outcome read back.
+`tools/livetest/stages/stage_menus_client.ps1` does that for ten stations
+on the test client (GUI scale 3 at 1600x900: leftPos 179, topPos
+(300 - height) / 2, three window pixels to a gui point; every hotbar slot
+is shift-clicked in turn so the stage never has to know where `/give` or a
+closed menu put a thing) and reads the player's inventory back with
+`/data get`. Eight of the ten did what their screens say. Two did not, and
+neither had ever been seen by a validator, a harness or the live suite.
+
+**No Elysium gear could be enchanted.** The infusion basin answered "Not on
+this" to an aetherium sword with a Sharpness book in it, and the arcane
+table's first offer did nothing to it. Vanilla does not enchant by class; it
+enchants by item tag — Sharpness goes on `#minecraft:enchantable/sharp_weapon`,
+which is `#minecraft:swords` and `#minecraft:axes`, which are lists of six
+vanilla items each — and the pack's jar carried none of those tags for any of
+its gear: not the core's weapons and armour, not the material gear, not the
+armoury's, the arsenal's, the rods, the suit. Every enchanting station in the
+enchanting module, and every enchantment `gen_enchanting.py` writes against
+those tags, was inert on the pack's own gear.
+
+The fix is not a tag file per module. The gear is registered by five modules
+from their own rules tables (a material table, a tier table, a part list), and
+a file that repeated those tables would be wrong the first time one changed,
+silently, with "Not on this" the only symptom. Instead the library writes the
+tags itself: `data/ElysiumKindPack` is a `PackResources` added through
+`AddPackFindersEvent` (server data, required, fixed at the top, hidden) that,
+each time the packs are listed — after every item exists — walks the item
+registry, asks `ElysiumLootCategory` what kind of gear each item in an
+`elysium*` namespace is (the one resolver every other system asks), and asks
+`item/ElysiumKindTags` which of vanilla's lists that kind is on (a sword-like
+kind on `#minecraft:swords`; a hammer inherits a pickaxe's; an elytra is named
+in three lists and gets all three; the `c:` lists NeoForge 21.1 ships beside
+them). The result is served as `data/<ns>/tags/item/*.json` that merge into
+vanilla's as a file in a jar would. On the test server: 632 items on 31 lists.
+Nothing is listed by name anywhere, so a new piece of gear is tagged the day
+it is registered.
+
+Three things hold it. `KindTagsHarness` executes the table on the JDK (every
+row a kind the tree has, every gear kind resolved) and prints it; the
+library's validator holds every tag it names to a list that
+`vanilla-assets.jar` or the NeoForge jar actually has and every gear kind to
+a list `#minecraft:enchantable/durability` reaches. `check_kind_tags.py` holds
+the seam to the modules: every class extending a vanilla base the resolver
+reads as nothing in particular (`DiggerItem`, `ProjectileWeaponItem`,
+`TieredItem`) has to say what it is through `ElysiumKinded` — which found the
+arsenal's broad tools reading as "some weapon" and its bows as nothing at all,
+both now kinded — and every module's id has to carry the pack's prefix. And
+the `gear_kind_tags` live scenario puts one piece from each module in a chest
+and asks the chest whether it carries the list it enchants by; the stage then
+watched the basin put Sharpness I on the sword, the arcane table Sharpness II,
+the scriptorium copy Sharpness II from a filed Sharpness III.
+
+**The transmuter's chooser had never opened.** Used with an item, the
+transmuter dissolves the stack to motes and learns the item; used with an
+empty hand it is meant to open the chooser of everything learned. It could
+not: `useItemOn` answered the empty hand with `sidedSuccess`, and the game
+only asks `useWithoutItem` when `useItemOn` answers
+`PASS_TO_DEFAULT_BLOCK_INTERACTION`. The chooser code was reachable by
+nothing. The logistics terminal had the same shape (its empty-hand readout
+never showed). Both now pass the empty hand, and `check_use_paths.py` holds
+every block in every module that overrides both paths to passing somewhere
+in `useItemOn` — the literal, or a hand-off to a library helper that passes
+(`Runs.dye`, which the conduits use). Twenty-six blocks, two of them found
+wanting.
+
+**The Emerald Bastion crashed the integrated server.** The colony stage
+(`stage_seven_client.ps1`, re-run on the same build) travelled to the
+Bastion, and on arrival the client sat at "Connection Lost":
+its integrated server had died generating a Bastion chunk with
+`IllegalStateException: Requested chunk unavailable during world generation`
+out of `LakeFeature.place`. `minecraft:lake` is vanilla's deprecated lake
+feature, and for a lake of *water* it ends with an ice pass that asks the
+biome under every column of the lake; a lake placed near a chunk's edge asks
+a chunk the generation region does not hold, and the chunk fails. Vanilla
+never trips it because vanilla only fills that feature with lava, which
+skips the pass. The Bastion's three biomes carried a mud-rimmed water lake
+(`gen_space.py`, `lakes()`); the oil lakes are oil and were never at risk.
+Force-generating sixteen 15x15-chunk patches of the Bastion on the dedicated
+server reproduced it. The lake is gone (the Bastion's water is its rivers),
+and `check_worldgen.py` now refuses a water `minecraft:lake` in any module;
+`negtest_wilds.sh` writes one and watches it refused.
+
+**A shift-click took results for nothing.** The stage shift-clicks a
+result out of its slot, as a player would, and read back a cut rune with
+the rune and all sixteen dust still in the table, an augmented sword beside
+the original with the sigil untouched, a blueprint with all eight papers
+left. A result slot charges in `Slot.onTake` — the bench's `pay()`, the
+reforging table's `take(chosen)`, the smithing table's paper — and the game
+calls that for a plain click by itself; for a shift-click it calls the
+menu's own `quickMoveStack` and nothing else, and every vanilla
+`quickMoveStack` ends by calling `onTake` for what moved. Three menus here
+(`TwoInputBenchMenu`, `ArmorySmithingMenu`, `ArmoryReforgingMenu`) did not,
+which was a free result and a duplicated input on every shift-click. They
+do now, and `check_quick_move.py` holds every menu in every module that
+overrides `quickMoveStack` while a slot of it charges in `onTake`.
+
+Three negtests (`negtest_kind_tags.sh`, ten breaks; `negtest_use_paths.sh`,
+four; `negtest_quick_move.sh`, three), a case in `negtest_wilds.sh`, and
+the root checks wired into `validate.py` (24 cross-cutting now).
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and

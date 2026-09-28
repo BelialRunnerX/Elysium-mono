@@ -217,6 +217,12 @@ edit $R '    public static final double FURTHEST_WORTH_WALKING = 20_000.0D;' \
         '    public static final double FURTHEST_WORTH_WALKING = 5_000.0D;'
 expect_world "a world with a biome further off than the pack will make anybody walk" "blocks away, which is a compass telling a player"
 
+mkdir -p $M/src/main/resources/data/elysiumwilds/worldgen/configured_feature
+cat > $M/src/main/resources/data/elysiumwilds/worldgen/configured_feature/negtest_pond.json <<'EOF'
+{"type": "minecraft:lake", "config": {"fluid": {"type": "minecraft:simple_state_provider", "state": {"Name": "minecraft:water", "Properties": {"level": "0"}}}, "barrier": {"type": "minecraft:simple_state_provider", "state": {"Name": "minecraft:mud"}}}}
+EOF
+expect_world "a water lake, which crashes a chunk near its edge" "a minecraft:lake filled with water"
+
 python3 - <<'PYX'
 import json, pathlib
 p = pathlib.Path("/tmp/Elysium-mono/elysium-space/src/main/resources/data/elysiumspace/dimension/emerald_bastion.json")

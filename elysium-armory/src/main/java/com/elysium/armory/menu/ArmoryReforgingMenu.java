@@ -174,6 +174,13 @@ public class ArmoryReforgingMenu extends AbstractContainerMenu {
         } else {
             slot.setChanged();
         }
+        if (stack.getCount() == copy.getCount()) {
+            return ItemStack.EMPTY;
+        }
+        // The take is what a result slot charges for (pay(), the choice's
+        // take): a quick-move that skipped it handed the result over for
+        // nothing and left the inputs in place (found by hand, 28 Sep 2026).
+        slot.onTake(player, stack);
         return copy;
     }
 

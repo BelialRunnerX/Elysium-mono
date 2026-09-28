@@ -53,8 +53,14 @@ public class TransmuterBlock extends Block {
     protected ItemInteractionResult useItemOn(ItemStack held, BlockState state, Level level,
                                               BlockPos pos, Player player,
                                               InteractionHand hand, BlockHitResult hit) {
-        if (level.isClientSide || held.isEmpty()) {
-            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        // An empty hand is the other gesture, and the game only asks
+        // useWithoutItem when this says so: any other answer here, and the
+        // chooser could never open (found by hand, 28 Sep 2026).
+        if (held.isEmpty()) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+        if (level.isClientSide) {
+            return ItemInteractionResult.sidedSuccess(true);
         }
         int count = player.isSecondaryUseActive() ? 1 : held.getCount();
         Component said = Transmuting.dissolve(player, held, count);

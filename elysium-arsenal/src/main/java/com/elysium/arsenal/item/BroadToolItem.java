@@ -38,7 +38,7 @@ import java.util.List;
  * a hammer that cleared nine blocks of grass every time a player brushed a
  * leaf would be unusable rather than powerful.
  */
-public class BroadToolItem extends DiggerItem {
+public class BroadToolItem extends DiggerItem implements com.elysium.lib.item.ElysiumKinded {
 
     /**
      * Whether we are already inside a break of our own.
@@ -66,6 +66,17 @@ public class BroadToolItem extends DiggerItem {
 
     public String shape() {
         return shape;
+    }
+
+    /**
+     * What the library calls this shape. A DiggerItem is no particular tool
+     * to a class test, so the tool says: the hammer and excavator and paxel
+     * are kinds the gear tree has, and a scythe is read as a hoe, which is
+     * the block tag it mines by and the vanilla list it enchants from.
+     */
+    @Override
+    public String gearKind() {
+        return "scythe".equals(shape) ? "hoe" : shape;
     }
 
     public boolean wide() {

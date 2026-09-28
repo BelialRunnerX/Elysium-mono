@@ -216,6 +216,35 @@ for line in said.splitlines():
     elif kind == "FAR":
         fail(f"{world}: {rest}")
 
+# A surface water lake, anywhere. `minecraft:lake` is vanilla's deprecated
+# LakeFeature, and for a WATER lake it ends with an ice pass that asks the
+# biome under every column of the lake; a lake placed near a chunk's edge asks
+# past the generation region and the chunk fails with "Requested chunk
+# unavailable during world generation" — which in a singleplayer world is the
+# integrated server crashing (the Emerald Bastion, 28 Sep 2026). Vanilla only
+# ever fills the feature with lava, which skips that pass; any other fluid is
+# fine too. Water is the one that is not.
+water_lakes = 0
+for module in sorted(os.listdir(ROOT)):
+    root = os.path.join(ROOT, module, "src/main/resources/data")
+    if not module.startswith("elysium-") or not os.path.isdir(root):
+        continue
+    for path in sorted(glob.glob(os.path.join(root, "*", "worldgen", "configured_feature", "**", "*.json"), recursive=True)):
+        try:
+            feature = json.load(open(path, encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if feature.get("type") != "minecraft:lake":
+            continue
+        fluid = feature.get("config", {}).get("fluid", {})
+        state = fluid.get("state", {}) if isinstance(fluid, dict) else {}
+        name = state.get("Name", "") if isinstance(state, dict) else ""
+        if name == "minecraft:water":
+            water_lakes += 1
+            fail(f"{os.path.relpath(path, ROOT)}: a minecraft:lake filled with water, whose ice pass reads biomes "
+                 f"past the generation region and crashes the chunk near an edge; give it another fluid or "
+                 f"let the rivers carry the water")
+
 if problems:
     print("worldgen           : FAILED")
     for problem in problems:

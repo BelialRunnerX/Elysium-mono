@@ -148,6 +148,12 @@ public class ElysiumLib {
         // worn rather than at the one stack in hand.
         com.elysium.lib.set.ElysiumGearSets.register();
 
+        // The vanilla kind tags of every piece of gear the pack registers,
+        // written as a data pack from the registry when the packs are listed.
+        modEventBus.addListener(
+                (net.neoforged.neoforge.event.AddPackFindersEvent packs) ->
+                        com.elysium.lib.data.ElysiumKindPack.addFinder(packs));
+
         // "Uncap everything": vanilla's attribute ceilings, lifted once the
         // game is set up. Guarded inside — a failure logs and leaves vanilla's.
         modEventBus.addListener(

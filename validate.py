@@ -79,6 +79,35 @@ def main():
         failures.append("gear")
     print()
 
+    # The seam between the library's kind-tag pack and the modules' gear
+    # classes: a class the resolver cannot place is gear on no vanilla list,
+    # which reads in game as "Not on this" at every enchanting table.
+    print("=" * 70)
+    print("kind tags — every gear class is one the kind-tag pack can place")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_kind_tags.py"], cwd=HERE).returncode != 0:
+        failures.append("kind tags")
+    print()
+
+    # A game contract no module sees whole: a block with both use paths has
+    # to pass the empty hand, or its second path is code nothing reaches.
+    print("=" * 70)
+    print("use paths — the empty hand reaches useWithoutItem")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_use_paths.py"], cwd=HERE).returncode != 0:
+        failures.append("use paths")
+    print()
+
+    # Vanilla's other menu contract: a shift-click goes through the menu's
+    # own quickMoveStack, and a slot that charges in onTake is charged only
+    # if that method says so.
+    print("=" * 70)
+    print("quick move — a slot that charges on take charges on a shift-click")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_quick_move.py"], cwd=HERE).returncode != 0:
+        failures.append("quick move")
+    print()
+
     # The conversion programme's own bookkeeping. It is checked here because
     # the programme runs for longer than anybody's memory of it: a mod that
     # nobody decided about is a mod nobody converts, and that failure is

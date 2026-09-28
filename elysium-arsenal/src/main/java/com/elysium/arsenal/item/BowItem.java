@@ -27,7 +27,7 @@ import java.util.function.Predicate;
  * That is what makes retuning the ladder change every bow already in a world
  * rather than only the ones made afterwards.
  */
-public class BowItem extends ProjectileWeaponItem {
+public class BowItem extends ProjectileWeaponItem implements com.elysium.lib.item.ElysiumKinded {
 
     private final RangedRules.Bow bow;
 
@@ -39,6 +39,12 @@ public class BowItem extends ProjectileWeaponItem {
     /** Which bow this is, at its own tier. */
     public RangedRules.Bow bow() {
         return bow;
+    }
+
+    /** A ProjectileWeaponItem is any launcher to a class test; this one is a bow. */
+    @Override
+    public String gearKind() {
+        return "bow";
     }
 
     /** Whether it takes bolts rather than arrows. */

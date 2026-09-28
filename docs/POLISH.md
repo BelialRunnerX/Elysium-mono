@@ -144,7 +144,7 @@ boot with no registry errors and no missing Elysium models.
       machines that asked their own refusing output slot for room and never
       produced (§16.2); all fixed, each with a rule and negative cases.
       Rerun it after any change to a machine, a run or a capability.
-- [~] **P12 Feature catalogue and one-by-one validation.** (Dylan, 27 Sep)
+- [x] **P12 Feature catalogue and one-by-one validation.** (Dylan, 27 Sep)
       `tools/catalogue.py` reads every module and writes `docs/FEATURES.md`
       and `docs/features.json`: every block, item, creature, biome,
       enchantment, effect, structure, dimension, world feature, advancement,
@@ -164,10 +164,34 @@ boot with no registry errors and no missing Elysium models.
       the world scan found the hoar hill never generating (every wilds box
       now shadows the vanilla claims inside it). `stage_screens_client.ps1`
       then opened all fifteen menu screens and counted a night's natural
-      spawns; `stage_firstjoin_client.ps1` covered first join (P3). Left: the
-      `client-only` rows that need hands on the menus (smithing, reforging,
-      infusion, the transmuter's items, trinkets worn) and colony autonomy
-      (`stage_seven_client.ps1`, run 26 Sep).
+      spawns; `stage_firstjoin_client.ps1` covered first join (P3).
+      `stage_menus_client.ps1` (28 Sep, afternoon) then put hands on the ten
+      menus that need them — the gear smithing table (a blueprint made), the
+      armoury's reforging table (a rarity chosen, seven affixes rolled), the
+      reforge table (a rune socketed, then a reforge), the augmenting table,
+      the infusion basin, the arcane table, the scriptorium (a Sharpness III
+      book filed, a Sharpness II copy bought), the gem cutting table (a rune
+      cut to tier 2), the transmuter and a trinket worn through the Curios
+      screen — and found two things no test had: **no Elysium gear could be
+      enchanted** (the basin said "Not on this" to every sword: vanilla
+      enchants by item tag, and the pack's gear was on none of them), fixed
+      by a data pack the library writes from the registry at load
+      (`ElysiumKindPack` + `ElysiumKindTags`, 632 items on 31 lists; the
+      `gear_kind_tags` live scenario and `check_kind_tags.py` hold it); and
+      **the transmuter's chooser had never once opened** (its `useItemOn`
+      consumed the empty hand, so the game never asked `useWithoutItem`;
+      the logistics terminal had the same shape; `check_use_paths.py` holds
+      every block with both paths). Colony autonomy re-run on the same build
+      (`stage_seven_client.ps1`: no colony has founded itself in the young
+      test world yet, a settlement located, travel to the Bastion and back) —
+      and on arrival in the Bastion the integrated server crashed generating
+      a Bastion chunk: **a water `minecraft:lake` reads biomes past the
+      generation region** (vanilla only ever fills it with lava). The lake
+      is gone; `check_worldgen.py` refuses a water lake anywhere. And the
+      stage's own shift-clicks showed **three menus handing a result over
+      for nothing** (a quick-move that never called the slot's `onTake`, so
+      the inputs stayed): fixed, `check_quick_move.py` holds every menu.
+      See CONVERSION.md §16.8.
 - [x] **P13 Two mod folders on the stick.** (27 Sep) `tools/modfolders.py`
       rebuilds `E:\Elysium-client-mods` and `E:\Elysium-server-mods` from the
       test server's mods folder, sorting each jar by the sides its mods file

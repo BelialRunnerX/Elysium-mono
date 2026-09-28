@@ -89,6 +89,17 @@ public final class ElysiumLootCategory {
         return kind.equals(NONE) ? null : kind;
     }
 
+    /**
+     * The kind this item is, or null for anything that is not gear: the same
+     * answer {@link #of(ItemStack)} gives, for the callers that hold an item
+     * and no stack — the kind-tag pack walking the registry.
+     */
+    @Nullable
+    public static String of(Item item) {
+        String kind = RESOLVED.computeIfAbsent(item, ElysiumLootCategory::resolve);
+        return kind.equals(NONE) ? null : kind;
+    }
+
     /** Whether a stack answers to a selector — {@code "melee_weapon"}, {@code "not:armor"}, {@code "any"}. */
     public static boolean is(ItemStack stack, String selector) {
         String kind = of(stack);

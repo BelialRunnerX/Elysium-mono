@@ -631,6 +631,31 @@ def world_places(t):
 # the mechanics, one at a time (docs/MECHANICS.md)
 import scenarios_mechanics  # noqa: E402,F401
 
+@scenario("gear: every module's gear is on the vanilla list it enchants by (POLISH.md P12)")
+def gear_kind_tags(t):
+    # The vanilla kind tags of the pack's gear are written by the library as a
+    # data pack from the registry, never as files, so no static pass over the
+    # jars can see them. This is the proof they are there: one piece of gear
+    # per module that makes gear, put in a chest, and the chest asked whether
+    # what it holds carries the list vanilla enchants by.
+    for slot, (item, tag) in enumerate((("elysium:aetherium_sword", "#minecraft:swords"),
+                                        ("elysium:iron_hammer", "#minecraft:pickaxes"),
+                                        ("elysium:elysium_helmet", "#minecraft:head_armor"),
+                                        ("elysiumarmory:katana", "#minecraft:swords"),
+                                        ("elysiumarmory:boots", "#minecraft:foot_armor"),
+                                        ("elysiumarmory:elytra", "#minecraft:enchantable/equippable"),
+                                        ("elysiumarsenal:iron_sabre", "#minecraft:swords"),
+                                        ("elysiumarsenal:iron_hammer", "#minecraft:pickaxes"),
+                                        ("elysiumarsenal:iron_shortbow", "#minecraft:enchantable/bow"),
+                                        ("elysiumagronomy:oak_rod", "#minecraft:enchantable/fishing"),
+                                        ("elysiumspace:space_suit_chestplate", "#minecraft:chest_armor"))):
+        t.chest(2, 0, 2 + slot)
+        put = t.cmd(f"item replace block {t.at(2, 0, 2 + slot)} container.0 with {item}")
+        t.expect("Replaced" in put, f"{item} could not be put in a chest: {put[:80]}")
+        found = t.cmd(f"execute if items block {t.at(2, 0, 2 + slot)} container.0 {tag}")
+        t.expect("passed" in found, f"{item} is not on {tag}, so it enchants at no table: {found[:80]}")
+
+
 @scenario("ores: a mined ore yields the family's canonical material through the unifier (POLISH.md P7)")
 def ores_unified_drops(t):
     # The ore tables hand the block to Java, and the unifying loot modifier

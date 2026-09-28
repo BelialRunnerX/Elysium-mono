@@ -52,8 +52,14 @@ public class TerminalBlock extends Block {
     protected ItemInteractionResult useItemOn(ItemStack held, BlockState state, Level level,
                                               BlockPos pos, Player player,
                                               InteractionHand hand, BlockHitResult hit) {
-        if (level.isClientSide || held.isEmpty()) {
-            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        // An empty hand asks the core what it has; the game only routes it
+        // to useWithoutItem when this passes, so anything else here is a
+        // terminal that never answers an empty hand.
+        if (held.isEmpty()) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+        if (level.isClientSide) {
+            return ItemInteractionResult.sidedSuccess(true);
         }
         AssemblyCoreBlock.AssemblyCoreBlockEntity core = coreNear(level, pos);
         if (core == null) {

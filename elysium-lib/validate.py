@@ -3765,7 +3765,12 @@ HARNESSES = [
     ("NullHarness.java", "com.elysium.lib.nihil.NullHarness", "the Null field"),
     ("RunHarness.java", "com.elysium.lib.run.RunHarness", "runs"),
     ("SoundHarness.java", "SoundHarness", "sound table"),
+    ("KindTagsHarness.java", "KindTagsHarness", "kind tags"),
 ]
+
+# What each harness printed, by label, for the sections below that hold a
+# table's output to something outside the JDK (the kind tags to vanilla's).
+HARNESS_TEXT = {}
 
 missing = [name for name, _, _ in HARNESSES
            if not os.path.isfile(os.path.join(WORK, "tools", name))]
@@ -3840,6 +3845,7 @@ else:
                                os.pathsep.join([classpath, library, tools]), main],
                               label)
                 if summary is not None:
+                    HARNESS_TEXT[label] = summary
                     print(f"{label:<19}: " + summary.split("\n")[0])
 
 # ---------------------------------------------------------------------------
@@ -4417,6 +4423,130 @@ if _names_jei:
 if not _names_jei and _plugin and _kinds and _jei_dep and _jei_dep.group(1) == "optional":
     print("the recipe browser : one plugin JEI loads itself, nothing else naming JEI, the dependency "
           "optional, and the kinds read off the table the modules fill")
+
+# ---------------------------------------------------------------------------
+# Kind tags: the pack's gear is on vanilla's lists (docs/POLISH.md P12)
+# ---------------------------------------------------------------------------
+#
+# Found by hand at the infusion basin, 28 Sep 2026: "Not on this" for every
+# Elysium sword, because vanilla enchants by item tag and the pack's gear was
+# on none of them. The fix is not a file per module — the gear comes from
+# rules tables and a file that repeated them would drift — but a data pack
+# the library writes from the registry: data/ElysiumKindPack asks
+# ElysiumLootCategory what kind each of the pack's items is and
+# item/ElysiumKindTags which vanilla lists that kind is on. Each line below
+# is one the pack cannot lose without the basin going back to "Not on this".
+_pack_rel = "data/ElysiumKindPack.java"
+_pack = COMMENT.sub(" ", read(_pack_rel)) if os.path.isfile(os.path.join(SRC, _pack_rel)) else ""
+_lib_main = COMMENT.sub(" ", read("ElysiumLib.java"))
+_kind_table = COMMENT.sub(" ", read("item/ElysiumKindTags.java")) \
+    if os.path.isfile(os.path.join(SRC, "item/ElysiumKindTags.java")) else ""
+_kind_faults = []
+if not _pack:
+    _kind_faults.append("there is no data/ElysiumKindPack.java, so no piece of the pack's gear is on a vanilla "
+                        "list and none of it can be enchanted")
+else:
+    for needed, why in (("implements PackResources", "is not a pack the game can read"),
+                        ("event.getPackType() != PackType.SERVER_DATA", "would offer itself as a resource pack too"),
+                        ("new PackSelectionConfig(true, Pack.Position.TOP, true)",
+                         "can be turned off, or moved under a pack that replaces its tags"),
+                        ("ElysiumLootCategory.of(", "no longer asks the one resolver what an item is"),
+                        ("ElysiumKindTags.tagsFor(", "no longer reads the table for the tags a kind carries"),
+                        ("startsWith(ElysiumKindTags.NAMESPACE_PREFIX)", "tags other mods' items, or none"),
+                        ("BuiltInRegistries.ITEM.entrySet()", "no longer walks the registry, which is the whole point"),
+                        ('addProperty("replace", false)', "would replace vanilla's lists instead of joining them"),
+                        ("ElysiumKindTags.TAG_FOLDER", "writes its files somewhere the tag loader does not look"),
+                        ("public boolean isHidden()", "lists itself in the datapack screen as a thing to turn off")):
+        if needed not in _pack:
+            _kind_faults.append(f"the kind-tag pack {why} ({needed!r} is gone)")
+    if "instanceof" in _pack:
+        _kind_faults.append("the kind-tag pack decides for itself what an item is with instanceof; "
+                            "ElysiumLootCategory is the resolver, and a second one drifts from it")
+if "ElysiumKindPack.addFinder(packs)" not in _lib_main:
+    _kind_faults.append("ElysiumLib no longer adds the kind-tag pack's finder to the mod bus, so the pack is "
+                        "a class nothing runs")
+if not _kind_table:
+    _kind_faults.append("there is no item/ElysiumKindTags.java, so no kind maps to a vanilla list")
+
+# The harness printed every kind with its tags. Each vanilla tag it names has
+# to be a list vanilla has (a misspelt tag is silently empty), and every kind
+# that is gear has to land on a list vanilla's enchantable/durability reaches,
+# or it is gear nothing can enchant.
+_kind_lines = HARNESS_TEXT.get("kind tags", "")
+_kinds = {}
+if _kind_lines:
+    import zipfile as _zipfile
+    _mc_jar = next((p for p in (os.environ.get("MC_JAR", ""), "/tmp/mc/libs/vanilla-assets.jar",
+                                "C:/tmp/mc/libs/vanilla-assets.jar") if p and os.path.isfile(p)), None)
+    _nf_jar = None
+    if os.path.isfile(classpath_file):
+        for _entry in open(classpath_file, encoding="utf-8").read().strip().split(os.pathsep):
+            if "neoforge-" in os.path.basename(_entry) and _entry.endswith(".jar") and os.path.isfile(_entry):
+                _nf_jar = _entry
+                break
+
+    def _tag_values(jar, namespace, path):
+        """The values of a tag file in a jar, or None when the jar has no such tag."""
+        with _zipfile.ZipFile(jar) as z:
+            name = f"data/{namespace}/tags/item/{path}.json"
+            if name not in z.namelist():
+                return None
+            return [v if isinstance(v, str) else v.get("id", "")
+                    for v in json.loads(z.read(name)).get("values", [])]
+
+    def _closure(jar, tag, seen):
+        """Every tag reachable from a vanilla tag, the tag itself included."""
+        if tag in seen:
+            return seen
+        seen.add(tag)
+        ns, path = tag.split(":", 1)
+        for value in _tag_values(jar, ns, path) or []:
+            if value.startswith("#"):
+                _closure(jar, value[1:], seen)
+        return seen
+
+    for _line in _kind_lines.split("\n"):
+        _m = re.match(r"kind (\w+) -> (.*)$", _line.strip())
+        if _m:
+            _kinds[_m.group(1)] = _m.group(2).split()
+    if not _kinds:
+        _kind_faults.append("the kind-tag harness printed no kinds, so nothing here can be held to vanilla")
+    _enchantable = _closure(_mc_jar, "minecraft:enchantable/durability", set()) if _mc_jar else set()
+    _tree_rows = re.findall(r'\{"(\w+)", (?:"(\w+)"|null)\}', COMMENT.sub(" ", read("item/ElysiumGearTree.java")))
+    _parent = {name: parent for name, parent in _tree_rows}
+    _leaves = [name for name in _parent if name not in _parent.values()]
+
+    def _lineage(kind):
+        out = []
+        while kind and kind not in out:
+            out.append(kind)
+            kind = _parent.get(kind)
+        return out
+
+    for _kind, _tags in _kinds.items():
+        for _tag in _tags:
+            _ns, _path = _tag.split(":", 1)
+            _jar = _mc_jar if _ns == "minecraft" else _nf_jar if _ns == "c" else None
+            if _jar is None:
+                continue
+            if _tag_values(_jar, _ns, _path) is None:
+                _kind_faults.append(f"the kind \"{_kind}\" is put on {_tag}, which is not a list "
+                                    f"{os.path.basename(_jar)} has; a tag nothing reads is a tag that does nothing")
+        if _mc_jar and _kind in _leaves and not {"curio", "projectile"} & set(_lineage(_kind)):
+            if not any(t in _enchantable for t in _tags):
+                _kind_faults.append(f"the kind \"{_kind}\" is on no list that minecraft:enchantable/durability "
+                                    f"reaches ({_tags}), so a {_kind} cannot be enchanted at any table")
+    if not _mc_jar:
+        print("kind tags          : vanilla's lists not checked, no vanilla-assets.jar (set MC_JAR)")
+    elif not _nf_jar:
+        print("kind tags          : the c: lists not checked, no NeoForge jar on the classpath")
+
+for _fault in _kind_faults:
+    fail(_fault)
+if not _kind_faults and _kind_lines:
+    print(f"kind tags          : {len(_kinds)} kind(s) from the harness, every vanilla tag a list vanilla has "
+          f"and every gear kind on one the enchanting tables read; the pack walks the registry, "
+          f"asks the one resolver, and cannot be turned off")
 
 # ---------------------------------------------------------------------------
 # Registrations that ride on another class's DeferredRegister

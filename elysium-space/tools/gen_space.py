@@ -1108,21 +1108,16 @@ def ores():
     return names
 
 
-def lakes():
-    write(os.path.join(WG, "configured_feature/emerald_bastion_lake.json"), {"type": "minecraft:lake",
-          "config": {"fluid": {"type": "minecraft:simple_state_provider",
-                               "state": {"Name": "minecraft:water", "Properties": {"level": "0"}}},
-                     "barrier": {"type": "minecraft:simple_state_provider",
-                                 "state": {"Name": "minecraft:mud"}}}})
-    write(os.path.join(WG, "placed_feature/emerald_bastion_lake.json"), {
-        "feature": f"{NS}:emerald_bastion_lake",
-        "placement": [{"type": "minecraft:rarity_filter", "chance": 6}, {"type": "minecraft:in_square"},
-                      {"type": "minecraft:heightmap", "heightmap": "WORLD_SURFACE_WG"},
-                      {"type": "minecraft:biome"}]})
-    return f"{NS}:emerald_bastion_lake"
+# No surface water lakes. The Bastion had one (minecraft:lake filled with
+# water, mud-rimmed) until 28 Sep 2026, when it crashed the integrated server
+# generating the dimension: LakeFeature's ice pass asks the biome under every
+# column of a water lake, and a lake placed near a chunk's edge asks past the
+# generation region ("Requested chunk unavailable during world generation").
+# Vanilla only ever fills that feature with lava, which skips the pass; the
+# Bastion's water is its rivers. check_worldgen.py refuses a water lake anywhere.
 
 
-def bastion_biomes(ore_features, lake):
+def bastion_biomes(ore_features):
     plains = vjson("data/minecraft/worldgen/biome/plains.json")
     base = {
         "has_precipitation": True, "temperature": 0.8, "downfall": 0.6,
@@ -1136,10 +1131,9 @@ def bastion_biomes(ore_features, lake):
         "spawn_costs": {},
         "carvers": {"air": ["minecraft:cave", "minecraft:cave_extra_underground", "minecraft:canyon"]},
     }
-    # Feature steps (11): lakes at 1, ores at 6, vegetation at 9.
+    # Feature steps (11): ores at 6, vegetation at 9; no lakes (see above).
     def features(trees):
         steps = [[] for _ in range(11)]
-        steps[1] = [lake]
         steps[6] = list(ore_features)
         steps[9] = ([f"{NS}:emgrove_grove"] if trees else []) + [
             "minecraft:patch_grass_plain", "minecraft:flower_plains"]
@@ -1515,9 +1509,8 @@ def main():
     recipes()
     tags()
     emgrove()
-    lake = lakes()
     ores_ = ores()
-    bastion_biomes(ores_, lake)
+    bastion_biomes(ores_)
     bastion_terrain()
     damage_types()
     oil_lakes()
