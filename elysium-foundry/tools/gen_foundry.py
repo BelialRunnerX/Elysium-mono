@@ -521,8 +521,19 @@ def recipes():
                 "smelting", {"item": mine}, "elysiumatomics:uranium_ingot", 200, 0.7)
             made[f"{name}_blasting"] = cooked(
                 "blasting", {"item": mine}, "elysiumatomics:uranium_ingot", 100, 0.7)
+        elif material in ONE_FORM and ONE_FORM[material] == "gem":
+            # A gem: the ground gives it whole when nothing else supplies the
+            # family's raw form. When something does (the agronomy's chunks sit
+            # in c:raw_materials/<gem>, and the ore-drop search finds raw
+            # materials before gems), the chunk is what lands and this is the
+            # step that takes it on: a furnace, as for every mined metal. Found
+            # by the live suite's ore scenario, 28 Sep 2026 (POLISH.md P7).
+            made[f"{name}_from_raw"] = cooked(
+                "smelting", {"tag": f"c:raw_materials/{material}"}, mine, 200)
+            made[f"{name}_from_raw_blasting"] = cooked(
+                "blasting", {"tag": f"c:raw_materials/{material}"}, mine, 100)
         elif material in ONE_FORM:
-            pass                              # a gem: the ground gives it whole
+            pass                              # a dust or a raw form that is its own thing
         elif form == "ingot":
             made[f"{name}_from_nuggets"] = shaped(
                 ["NNN", "NNN", "NNN"], {"N": refer(material, "nugget")}, mine)

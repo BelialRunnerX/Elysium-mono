@@ -31,6 +31,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * Two metals in, one alloy out. The only machine the fourth age adds.
@@ -232,6 +233,7 @@ public class AlloySmelterBlock extends GridBlock {
             // The same work units the ages below count in, so a share that
             // moves halfway through neither invents nor throws away progress.
             done += IndustryRules.workPerTick(speed);
+            ElysiumVoices.hum(level, pos, "roar");
             if (done < IndustryRules.workFor(recipe.ticks())) {
                 return;
             }

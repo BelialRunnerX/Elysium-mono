@@ -466,6 +466,28 @@ if "return slot == IN;" not in body_of(refinery_src, "public boolean isItemValid
 if "theRecovery();" not in read(HARNESS):
     fail("the harness never runs theRecovery, so the companions are checked by reading")
 
+# A gem's raw form is taken on to the gem. The ground gives a gem whole only
+# when nothing else supplies the family's raw form; the agronomy's chunks sit
+# in c:raw_materials/<gem> and the ore-drop search finds raw materials before
+# gems, so what a bort ore drops is a bort chunk, and without this step the
+# foundry's four gems were things nothing in the pack could make (the live
+# suite's ore scenario, 28 Sep 2026; POLISH.md P7).
+_gem_forms = re.search(r"ONE_FORM = \{([^}]*)\}", generator)
+_gems = [m for m, form in re.findall(r'"([a-z_]+)": "([a-z]+)"', _gem_forms.group(1) if _gem_forms else "")
+         if form == "gem"]
+if len(_gems) < 4:
+    fail(f"the generator names {len(_gems)} gem(s) in ONE_FORM; the foundry's four gems are gone from it")
+for _gem in _gems:
+    for _suffix, _kind in (("_from_raw", "smelting"), ("_from_raw_blasting", "blasting")):
+        _body = json.loads(read(recipe_dir, f"{_gem}{_suffix}.json") or "{}")
+        if not _body:
+            fail(f"{_gem} cannot be smelted from its raw chunk ({_gem}{_suffix}.json is missing), so the "
+                 f"chunk an ore drops is a dead end and the gem is a thing nothing makes")
+            continue
+        if _body.get("type") != f"minecraft:{_kind}"                 or _body.get("ingredient", {}).get("tag") != f"c:raw_materials/{_gem}"                 or _body.get("result", {}).get("id") != f"{NS}:{_gem}":
+            fail(f"{_gem}{_suffix}.json is not a {_kind} of #c:raw_materials/{_gem} into {NS}:{_gem}, so a "
+                 f"chunk from the ground still does not become the gem")
+
 # The design document's price list is held to the rules.
 def deep(name, depth=0):
     tier, parts = java_chain.get(name, (0, {}))

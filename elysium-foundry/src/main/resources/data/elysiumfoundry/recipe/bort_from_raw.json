@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "tag": "c:raw_materials/bort"
+  },
+  "result": {
+    "id": "elysiumfoundry:bort"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

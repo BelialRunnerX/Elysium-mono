@@ -9,8 +9,12 @@ F=$S/rules/FoundryRules.java
 G=$M/tools/gen_foundry.py
 SNAP=/tmp/foundry_snap.tar
 pass=0; fail=0
-(cd $ROOT && tar cf $SNAP elysium-foundry)
-restore() { rm -rf $ROOT/elysium-foundry && (cd $ROOT && tar xf $SNAP); }
+# The agronomy's raw-material tags are in the snapshot too: since its resource
+# chunks arrived, every ore family the pack generates has a second supplier,
+# and the debt cases below have to take both away to leave a family unsupplied.
+A=$ROOT/elysium-agronomy/src/main/resources/data/c/tags/item/raw_materials
+(cd $ROOT && tar cf $SNAP elysium-foundry elysium-agronomy/src/main/resources/data/c/tags/item/raw_materials)
+restore() { rm -rf $ROOT/elysium-foundry $A && (cd $ROOT && tar xf $SNAP); }
 out() { (cd $M && timeout 300 python3 validate.py 2>&1); }
 expect() { local w="$2" g; g="$(out)"
   if [[ "$g" == *"$w"* ]]; then echo "  caught : $1"; pass=$((pass+1));
@@ -83,16 +87,19 @@ edit $G 'CASINGS = {1: "steel", 2: "invar", 3: "stainless", 4: "starsteel"}' 'CA
 regen
 expect "casings that differ between the rules and the generator" "the casings differ"
 
-edit $G 'SOMEBODY_ELSE = {"iron", "copper", "gold", "steel", "uranium", "redstone_dust"}' 'SOMEBODY_ELSE = {"iron", "copper", "gold", "uranium", "redstone_dust"}'
+edit $G 'SOMEBODY_ELSE = {"iron", "copper", "gold", "steel", "uranium", "redstone_dust",' 'SOMEBODY_ELSE = {"iron", "copper", "gold", "uranium", "redstone_dust",'
 regen
 expect "a second copy of somebody else's metal" "registers a second copy"
 
 echo "the debt"
-rm $R/data/c/tags/item/ingots/tin.json $R/data/c/tags/item/raw_materials/tin.json
+rm $R/data/c/tags/item/ingots/tin.json $R/data/c/tags/item/raw_materials/tin.json $A/tin.json
 expect "an ore family the pack generates and nothing supplies" "drop nothing once the mods"
 
-rm -rf $R/data/c/tags/item/gems
+rm -rf $R/data/c/tags/item/gems $A/bort.json $A/certus_quartz.json $A/fluorite.json $A/rime_shard.json
 expect "gems with no tag to be dropped through" "drop nothing once the mods"
+
+rm $R/data/elysiumfoundry/recipe/bort_from_raw.json
+expect "a gem whose raw chunk is a dead end" "cannot be smelted from its raw chunk"
 
 edit $R/assets/elysiumfoundry/lang/en_us.json '"Tin Ingot"' '"Tin Ingot "'
 expect "a generated file quietly edited by hand" "edited by hand"

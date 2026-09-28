@@ -630,3 +630,22 @@ def world_places(t):
 
 # the mechanics, one at a time (docs/MECHANICS.md)
 import scenarios_mechanics  # noqa: E402,F401
+
+@scenario("ores: a mined ore yields the family's canonical material through the unifier (POLISH.md P7)")
+def ores_unified_drops(t):
+    # The ore tables hand the block to Java, and the unifying loot modifier
+    # resolves the family's canonical item at runtime, so a static pass over
+    # the jars reads raw uranium and the foundry's gems as things nothing makes.
+    # This is the proof they are made: loot the ore where it stands into a
+    # chest and ask the chest whether what landed carries the family's tag.
+    # What lands is the family's raw form (the agronomy's chunk, which the
+    # ore-drop search finds under raw_materials before gems); the foundry's
+    # furnace recipes take it on to the gem, and its validator holds that.
+    for dx, ore, tag in ((2, "elysiumores:pale_uranium_ore", "#c:raw_materials/uranium"),
+                         (5, "elysiumores:cinder_bort_ore", "#c:raw_materials/bort"),
+                         (8, "elysiumores:stone_certus_quartz_ore", "#c:raw_materials/certus_quartz")):
+        t.setblock(dx, 0, 2, ore)
+        t.chest(dx, 0, 4)
+        t.cmd(f"loot insert {t.at(dx, 0, 4)} mine {t.at(dx, 0, 2)} minecraft:diamond_pickaxe")
+        found = t.cmd(f"execute if items block {t.at(dx, 0, 4)} container.* {tag}")
+        t.expect("passed" in found, f"{ore} did not put an item tagged {tag} in the chest: {found[:80]}")

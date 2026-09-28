@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "tag": "c:raw_materials/rime_shard"
+  },
+  "result": {
+    "id": "elysiumfoundry:rime_shard"
+  },
+  "experience": 0.3,
+  "cookingtime": 100
+}

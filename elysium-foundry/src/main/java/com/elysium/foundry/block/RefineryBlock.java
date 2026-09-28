@@ -31,6 +31,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * Raw ore in, the metal and its companion out. The fourth age's second and
@@ -228,6 +229,7 @@ public class RefineryBlock extends GridBlock {
                 return;                        // no room for both; stop rather than lose either
             }
             done += IndustryRules.workPerTick(speed);
+            ElysiumVoices.hum(level, pos, "roar");
             if (done < IndustryRules.workFor(recipe.ticks())) {
                 return;
             }
