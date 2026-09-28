@@ -76,9 +76,11 @@ boot with no registry errors and no missing Elysium models.
       serial differs per encode); `check_sound.py` holds every name a module
       asks for to the table and every voice to something that asks for it;
       `negtest_sound.sh`. Vorbis through `soundfile`/libsndfile 1.2.2, already
-      on the machine. Left: hear them in the game and tune the descriptions
-      by ear (the numbers are a first draft); block-place and fitting sounds
-      (plates snapping on) stay the game's own.
+      on the machine. Heard in the game the same day: with subtitles on the
+      client captions "Wight calls" over the creature stage, and the log
+      names no missing Elysium sound event (`creatures_7_subtitles.png`).
+      Left: tune the descriptions by ear (the numbers are a first draft);
+      block-place and fitting sounds (plates snapping on) stay the game's own.
 - [ ] **P6 Recipe browsing.** JEI left with the retirement. A player has no way
       to look a recipe up in game. Dylan's decision (28 Sep): "support JEI
       though but leave it as a non dependency". So: a JEI plugin in the
