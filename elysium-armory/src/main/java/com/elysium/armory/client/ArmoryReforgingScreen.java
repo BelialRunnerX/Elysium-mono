@@ -66,10 +66,11 @@ public class ArmoryReforgingScreen extends AbstractContainerScreen<ArmoryReforgi
                 ElysiumPalette.GAP, ElysiumPalette.GAP);
         int y = ArmoryReforgingMenu.CHOICE_Y + 22;
         if (menu.target() <= 0) {
-            ElysiumUI.faint(g, ElysiumUI.truncate(
-                    Component.translatable("elysiumarmory.reforge.no_essence"),
-                    imageWidth - ArmoryReforgingMenu.CHOICE_X - 8),
-                    ArmoryReforgingMenu.CHOICE_X, y);
+            // Wrapped over the two lines the target and its cost use, rather
+            // than cut to "Add essence to .." (POLISH.md P14, 28 Sep 2026).
+            ElysiumUI.wrapped(g, Component.translatable("elysiumarmory.reforge.no_essence"),
+                    ArmoryReforgingMenu.CHOICE_X, y, imageWidth - ArmoryReforgingMenu.CHOICE_X - 8,
+                    ElysiumPalette.TEXT_FAINT, y + 2 * ElysiumUI.lineHeight() + 1);
         } else {
             ElysiumUI.value(g, ElysiumUI.truncate(
                     Component.translatable("elysiumarmory.reforge.target",

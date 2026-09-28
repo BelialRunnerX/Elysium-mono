@@ -37,7 +37,7 @@ public class ScriptoriumScreen extends AbstractContainerScreen<ScriptoriumMenu> 
     private static final int BUY_X = 44;
     private static final int BUY_Y = 66;
     private static final int BUY_W = 90;
-    private static final int BUY_H = 18;
+    private static final int BUY_H = 26;   // two lines of a wrapped offer
 
     public ScriptoriumScreen(ScriptoriumMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -98,18 +98,19 @@ public class ScriptoriumScreen extends AbstractContainerScreen<ScriptoriumMenu> 
                 ElysiumPalette.GAP, 44);
         int level = menu.number(ScriptoriumMenu.LEVEL);
         if (level > 0) {
-            // Cut to the button: at full length the line ran under the output slot
-            // (the client stage, 27 September 2026).
-            ElysiumUI.value(g, ElysiumUI.truncate(Component.translatable("elysiumenchanting.library.buy",
+            // Wrapped inside the button rather than cut: at full length the line
+            // ran under the output slot (the client stage, 27 September 2026),
+            // and cut to one line it read "Buy level 3 for.." (POLISH.md P14).
+            ElysiumUI.wrapped(g, Component.translatable("elysiumenchanting.library.buy",
                             Component.literal(String.valueOf(level)),
                             Component.literal(String.valueOf(
                                     menu.number(ScriptoriumMenu.PRICE))),
                             Component.literal(String.valueOf(
-                                    menu.number(ScriptoriumMenu.EXPERIENCE)))), BUY_W - 8),
-                    BUY_X + 4, BUY_Y + 5, ElysiumPalette.TEXT);
+                                    menu.number(ScriptoriumMenu.EXPERIENCE)))),
+                    BUY_X + 4, BUY_Y + 4, BUY_W - 8, ElysiumPalette.TEXT, BUY_Y + BUY_H - 3);
         } else {
-            ElysiumUI.faint(g, ElysiumUI.truncate(Component.translatable("elysiumenchanting.library.empty"),
-                    BUY_W - 8), BUY_X + 4, BUY_Y + 5);
+            ElysiumUI.wrapped(g, Component.translatable("elysiumenchanting.library.empty"),
+                    BUY_X + 4, BUY_Y + 4, BUY_W - 8, ElysiumPalette.TEXT_FAINT, BUY_Y + BUY_H - 3);
         }
         ElysiumUI.faint(g, Component.translatable("container.inventory"),
                 ElysiumPalette.GAP, inventoryLabelY);

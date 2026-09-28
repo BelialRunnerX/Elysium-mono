@@ -23,7 +23,7 @@ public class InfusionScreen extends AbstractContainerScreen<InfusionMenu> {
     private static final int BUTTON_X = 80;
     private static final int BUTTON_Y = 46;
     private static final int BUTTON_W = 86;
-    private static final int BUTTON_H = 20;
+    private static final int BUTTON_H = 24;   // two lines of a wrapped reason
 
     public InfusionScreen(InfusionMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -85,9 +85,11 @@ public class InfusionScreen extends AbstractContainerScreen<InfusionMenu> {
                             Component.literal(String.valueOf(menu.number(InfusionMenu.LAPIS)))),
                     BUTTON_X + 4, BUTTON_Y + 6, ElysiumPalette.TEXT);
         } else {
-            ElysiumUI.faint(g, ElysiumUI.truncate(
-                            Component.translatable(reason(status)), BUTTON_W + 4),
-                    BUTTON_X + 4, BUTTON_Y + 6);
+            // Wrapped rather than cut: "A book, and some.." told the player
+            // nothing (the client stage, 27 September 2026; POLISH.md P14).
+            ElysiumUI.wrapped(g, Component.translatable(reason(status)),
+                    BUTTON_X + 4, BUTTON_Y + 3, BUTTON_W - 8, ElysiumPalette.TEXT_FAINT,
+                    BUTTON_Y + BUTTON_H - 3);
         }
         ElysiumUI.faint(g, Component.translatable("container.inventory"),
                 ElysiumPalette.GAP, inventoryLabelY);
