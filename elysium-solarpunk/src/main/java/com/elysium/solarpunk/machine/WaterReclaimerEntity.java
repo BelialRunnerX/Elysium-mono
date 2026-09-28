@@ -12,6 +12,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * Condenses clean water out of air and rain, and stores it.
@@ -118,6 +119,7 @@ public class WaterReclaimerEntity extends SolarpunkMachineEntity {
                     level.canSeeSky(worldPosition.above()));
             if (rate > 0 && energy.canSpend(DRAW)) {
                 energy.spend(DRAW);
+                ElysiumVoices.hum(level, worldPosition, "pump");
                 tank.fill(new FluidStack(Fluids.WATER, rate),
                         net.neoforged.neoforge.fluids.capability.IFluidHandler
                                 .FluidAction.EXECUTE);

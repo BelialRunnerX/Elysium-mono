@@ -83,5 +83,9 @@ foreach ($id in $rowTwo) {
 MC-Cmd '/execute as @e[type=!player,distance=..60] run data merge entity @s {NoAI:0b}'
 MC-Cmd '/tp @s 900.5 94 -236.5 0 14'; Start-Sleep -Seconds 6
 MC-Shot "$Out\creatures_6_moving.png" 0.5
+# What they say: with subtitles on (options.txt showSubtitles:true) the captions at the
+# bottom right name each call and hum the client is playing (POLISH.md P5).
+MC-Cmd '/tp @s 900.5 91 -222.5 0 10'; Start-Sleep -Seconds 8
+MC-Shot "$Out\creatures_7_subtitles.png" 0.5
 MC-Cmd '/gamerule doMobSpawning true'
 "creatures stage done"

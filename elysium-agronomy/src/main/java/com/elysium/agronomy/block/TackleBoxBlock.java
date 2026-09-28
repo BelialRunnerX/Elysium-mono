@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * A tackle box: a chest that holds tackle and nothing else.
@@ -67,6 +68,7 @@ public class TackleBoxBlock extends BaseEntityBlock {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
                                                Player player, BlockHitResult hit) {
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof Box box) {
+            ElysiumVoices.click(level, pos, "station");
             player.openMenu(box);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);

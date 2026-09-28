@@ -29,6 +29,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.pathfinder.PathType;
 import org.jetbrains.annotations.Nullable;
+import com.elysium.lib.sound.ElysiumVoices;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.damagesource.DamageSource;
 
 /**
  * One bee. Which one it is, it is told.
@@ -279,5 +282,32 @@ public class BeeEntity extends Animal {
     /** The entity type for a species, for anything that has to spawn one. */
     public static EntityType<BeeEntity> typeOf(String species) {
         return BeeEntities.of(species);
+    }
+
+    // --- what it says (elysium-lib sound table, POLISH.md P5) ---------------
+
+    /** The voice this one speaks with, a name in ElysiumSoundRules. */
+    public String voice() {
+        return "bee";
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return ElysiumVoices.ambient(voice(), super.getAmbientSound());
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return ElysiumVoices.hurt(voice(), super.getHurtSound(source));
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return ElysiumVoices.death(voice(), super.getDeathSound());
+    }
+
+    @Override
+    public float getVoicePitch() {
+        return ElysiumVoices.pitchOf(this);
     }
 }

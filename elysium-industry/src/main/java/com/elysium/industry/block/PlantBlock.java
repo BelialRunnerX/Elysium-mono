@@ -237,6 +237,16 @@ public abstract class PlantBlock extends GridBlock {
         }
 
         @Override
+        protected String hum() {
+            return "whine";
+        }
+
+        @Override
+        protected boolean humming() {
+            return lineRunning && !items.getStackInSlot(IN).isEmpty() && speed() > 0.0F;
+        }
+
+        @Override
         public void driven(float speed, boolean running) {
             rpm = speed;
             lineRunning = running;

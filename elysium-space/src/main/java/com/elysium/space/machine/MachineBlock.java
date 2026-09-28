@@ -28,6 +28,7 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * One block class for every space machine. Right-click with a bucket to pour
@@ -154,6 +155,7 @@ public class MachineBlock extends BaseEntityBlock {
                 if (player.isShiftKeyDown() || !(player instanceof net.minecraft.server.level.ServerPlayer server)) {
                     player.displayClientMessage(machine.status(), true);        // a glance, without the screen
                 } else {
+                    ElysiumVoices.click(level, pos, "station");
                     server.openMenu(new net.minecraft.world.SimpleMenuProvider(
                             (id, inventory, p) -> new MachineMenu(id, inventory, machine), state.getBlock().getName()),
                             buf -> {

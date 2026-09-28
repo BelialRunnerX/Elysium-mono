@@ -281,6 +281,32 @@ if orphans:
          f"can never show a cause is worse than one that does not list it")
 
 # ---------------------------------------------------------------------------
+# An undeclared player cannot be hurt
+# ---------------------------------------------------------------------------
+#
+# The declaration screen is modal and refuses ESC, so from the first tick of a
+# new world until Confirm the player can neither move nor fight. A beast found
+# one at a night spawn under the screen and killed them (28 Sep 2026). The
+# shield is a cancelled damage event until a race and a calling are recorded,
+# and it ends the moment they are.
+_shield_path = os.path.join(SRC, "event/ElysiumUndeclaredShield.java")
+shield_src = COMMENT.sub(" ", read("event/ElysiumUndeclaredShield.java")) if os.path.isfile(_shield_path) else ""
+if not shield_src:
+    fail("event/ElysiumUndeclaredShield.java is gone, so a new player is helpless "
+         "under the declaration screen and whatever finds them there has them")
+else:
+    if "@EventBusSubscriber(modid = ElysiumLib.MODID)" not in shield_src             or "LivingIncomingDamageEvent" not in shield_src:
+        fail("the undeclared shield is not subscribed to incoming damage, so it "
+             "shields nothing")
+    if "!ElysiumCharacter.hasChosen(player)" not in shield_src:
+        fail("the undeclared shield no longer asks whether the player has chosen, "
+             "so it either shields everyone forever or nobody")
+    if "event.setCanceled(true)" not in shield_src:
+        fail("the undeclared shield sees the damage and lets it through")
+    print("the undeclared     : a player under the declaration screen takes no damage "
+          "until a race and a calling are recorded")
+
+# ---------------------------------------------------------------------------
 # Everything on the character sheet explains itself on hover
 # ---------------------------------------------------------------------------
 #
@@ -3732,6 +3758,7 @@ HARNESSES = [
     ("TierAugmentHarness.java", "com.elysium.lib.tier.TierAugmentHarness", "tier augments"),
     ("NullHarness.java", "com.elysium.lib.nihil.NullHarness", "the Null field"),
     ("RunHarness.java", "com.elysium.lib.run.RunHarness", "runs"),
+    ("SoundHarness.java", "SoundHarness", "sound table"),
 ]
 
 missing = [name for name, _, _ in HARNESSES
@@ -4212,6 +4239,118 @@ else:
 print(f"valoria effects    : the Null field as a sixth hazard with a gauge and a ward, "
       f"{len(re.findall(r'\"([a-z_]+)\"', re.search(r'VALORIA_ROWS = List\.of\((.*?)\);', _spec_src, re.S).group(1)))} "
       f"attributes, seven effects and {len(_ench_json)} enchantments, all read by a rule")
+
+# ---------------------------------------------------------------------------
+# Sound (docs/POLISH.md P5)
+# ---------------------------------------------------------------------------
+#
+# The pack shipped no sound at all until 28 Sep 2026: no sounds.json, no .ogg,
+# every creature and machine silent. Now every clip is synthesised from
+# sound/ElysiumSoundRules.java by tools/gen_sounds.py through art/sound.py, and
+# ElysiumSounds registers an event per clip from the same table. What is held
+# here: the table, the registry, sounds.json, the files and the subtitles are
+# one set; every file is a Vorbis clip the game can play, mono at the rate the
+# game's own sounds are, no longer than a call and no quieter than a whisper;
+# and the shipped files are what the generator makes.
+sys.path.insert(0, os.path.join(os.path.dirname(WORK), "tools"))
+import samefile as _samefile  # noqa: E402
+_sound_rules = COMMENT.sub(" ", read("sound/ElysiumSoundRules.java"))
+_sound_reg = COMMENT.sub(" ", read("sound/ElysiumSounds.java"))
+_voices_src = COMMENT.sub(" ", read("sound/ElysiumVoices.java"))
+_sounds_json_path = os.path.join(RES, "assets", "elysiumlib", "sounds.json")
+if not _sound_rules or not _sound_reg or not _voices_src:
+    fail("the sound table, its registry or the voices helper is gone, so the pack is silent again")
+else:
+    _voice_ids = re.findall(r'voice\("(\w+)",', _sound_rules)
+    _hum_ids = re.findall(r'new Hum\("(\w+)",', _sound_rules)
+    _click_ids = re.findall(r'new Click\("(\w+)",', _sound_rules)
+    _calls = re.findall(r'"(\w+)"', re.search(r'CALLS = List\.of\(([^)]*)\)', _sound_rules).group(1))
+    _expected = ["voice.%s.%s" % (v, c) for v in _voice_ids for c in _calls] \
+        + ["hum.%s" % h for h in _hum_ids] + ["click.%s" % c for c in _click_ids]
+    if len(_voice_ids) < 20 or len(_hum_ids) < 6 or not _click_ids:
+        fail(f"the sound table has {len(_voice_ids)} voice(s), {len(_hum_ids)} hum(s) and "
+             f"{len(_click_ids)} click(s); the rosters and the engines need more than that")
+    for needed in ('for (ElysiumSoundRules.Voice voice : ElysiumSoundRules.VOICES)',
+                   'for (ElysiumSoundRules.Hum hum : ElysiumSoundRules.HUMS)',
+                   'for (ElysiumSoundRules.Click click : ElysiumSoundRules.CLICKS)'):
+        if needed not in _sound_reg:
+            fail("ElysiumSounds no longer registers from the table, so a voice added to the rules "
+                 "is a clip nothing can play")
+    if "ElysiumSounds.register(modEventBus)" not in COMMENT.sub(" ", read("ElysiumLib.java")):
+        fail("ElysiumSounds is never put on the bus, so not one sound event exists at runtime")
+    _sounds_json = json.load(open(_sounds_json_path, encoding="utf-8")) if os.path.isfile(_sounds_json_path) else None
+    if _sounds_json is None:
+        fail("assets/elysiumlib/sounds.json is missing, so every registered event points at nothing")
+    else:
+        _listed = sorted(_sounds_json)
+        if _listed != sorted(_expected):
+            _off = sorted(set(_listed) ^ set(_expected))
+            fail(f"sounds.json and the sound table disagree on {len(_off)} event(s) ({_off[:4]}); "
+                 f"an event without a file is silent, a file without an event is dead weight")
+        _lang_now = json.load(open(os.path.join(RES, "assets", "elysiumlib", "lang/en_us.json"), encoding="utf-8"))
+        _sound_dir = os.path.join(RES, "assets", "elysiumlib", "sounds")
+        try:
+            import soundfile as _sf
+        except ImportError:
+            _sf = None
+            fail("the soundfile module is missing, so no clip can be checked (pip install soundfile)")
+        _checked = 0
+        for _name, _entry in sorted(_sounds_json.items()):
+            _sub = _entry.get("subtitle")
+            if not _sub or _sub not in _lang_now:
+                fail(f"{_name} has no translated subtitle, so a player reading the screen sees a raw key")
+            for _one in _entry.get("sounds", []):
+                _ref = _one["name"] if isinstance(_one, dict) else _one
+                _rel = _ref.split(":", 1)[1] + ".ogg"
+                _path = os.path.join(_sound_dir, _rel)
+                if not os.path.isfile(_path):
+                    fail(f"{_name} names {_ref}, and there is no such file under sounds/")
+                    continue
+                if _sf is not None:
+                    try:
+                        _info = _sf.info(_path)
+                    except Exception as trouble:  # noqa: BLE001
+                        fail(f"{_rel} is not a clip the game can decode ({trouble})")
+                        continue
+                    if _info.format != "OGG" or _info.subtype != "VORBIS":
+                        fail(f"{_rel} is {_info.format}/{_info.subtype}; the game plays only Ogg Vorbis")
+                    if _info.channels != 1 or _info.samplerate != 22050:
+                        fail(f"{_rel} is {_info.channels} channel(s) at {_info.samplerate} Hz; every clip is mono at 22050")
+                    if not (0.05 <= _info.duration <= 4.0):
+                        fail(f"{_rel} runs {_info.duration:.2f} s; a call is between a twentieth of a second and four")
+                    _data, _ = _sf.read(_path, dtype="float32")
+                    _peak = float(abs(_data).max()) if _data.size else 0.0
+                    if _peak < 0.3:
+                        fail(f"{_rel} peaks at {_peak:.2f}; a clip that quiet is a clip nobody hears")
+                    _checked += 1
+        # The shipped clips are what the generator makes.
+        _gen = os.path.join(WORK, "tools/gen_sounds.py")
+        if not os.path.isfile(_gen):
+            fail("tools/gen_sounds.py is gone; the clips could drift from the table")
+        else:
+            with tempfile.TemporaryDirectory() as _scratch:
+                _run = subprocess.run([sys.executable, _gen], capture_output=True, text=True, cwd=WORK,
+                                      env={**os.environ, "ELYSIUM_LIB_OUT": _scratch, "PYTHONIOENCODING": "utf-8"})
+                if _run.returncode != 0:
+                    fail(f"tools/gen_sounds.py no longer runs: {_run.stderr.strip()[-300:]}")
+                else:
+                    _drift = []
+                    for _root, _dirs, _files in os.walk(_scratch):
+                        for _f in _files:
+                            _made = os.path.join(_root, _f)
+                            _rel = os.path.relpath(_made, _scratch)
+                            if not _samefile.same(_made, os.path.join(WORK, _rel)):
+                                _drift.append(_rel.replace(os.sep, "/"))
+                    if _drift:
+                        fail(f"{len(_drift)} shipped sound file(s) are not what tools/gen_sounds.py generates "
+                             f"({_drift[:3]}): edited by hand, or rendered from another table")
+        for needed, why in (("level.playSound(null, pos, event, SoundSource.BLOCKS, ElysiumSoundRules.HUM_VOLUME, 1.0F)",
+                             "hum"), ("% ElysiumSoundRules.HUM_EVERY", "hum on the table's cadence")):
+            if needed not in _voices_src:
+                fail(f"ElysiumVoices no longer plays a machine's {why}, so every engine is silent")
+        print(f"sound              : {len(_voice_ids)} voices x {len(_calls)}, {len(_hum_ids)} hums, "
+              f"{len(_click_ids)} clicks: {_checked} Vorbis clips on disk, each mono at 22050 Hz, listed, "
+              f"subtitled and rebuilt identical")
 
 # ---------------------------------------------------------------------------
 # Registrations that ride on another class's DeferredRegister

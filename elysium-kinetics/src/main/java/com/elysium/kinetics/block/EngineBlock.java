@@ -225,6 +225,11 @@ public class EngineBlock extends KineticBlock {
          * reason the harness can prove no engine makes energy.
          */
         @Override
+        protected String hum() {
+            return "steam";
+        }
+
+        @Override
         protected void serverTick(Level level, BlockPos pos, BlockState state) {
             EngineRules.Engine rules = rules();
             if (left > 0) {

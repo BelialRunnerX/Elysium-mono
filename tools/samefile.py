@@ -22,6 +22,19 @@ def same(made, kept):
     b = open(kept, "rb").read()
     if a == b:
         return True
+    if made.lower().endswith(".ogg") and kept.lower().endswith(".ogg"):
+        # An Ogg carries a stream serial the encoder picks fresh each time it
+        # is asked, so the same samples come out as different bytes from one
+        # call to the next. What matters is what the game hears: decode both
+        # and compare the samples (28 Sep 2026, when the pack first had sound).
+        try:
+            import numpy
+            import soundfile
+            x, rate_x = soundfile.read(made, dtype="float32")
+            y, rate_y = soundfile.read(kept, dtype="float32")
+            return rate_x == rate_y and x.shape == y.shape and bool(numpy.array_equal(x, y))
+        except Exception:
+            return False
     if not (made.lower().endswith(".png") and kept.lower().endswith(".png")):
         return False
     try:

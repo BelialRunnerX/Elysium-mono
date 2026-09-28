@@ -10,6 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * The Salvager (Silent Gear's SG-83, Apotheosis' AP-15): where gear is taken
@@ -28,6 +29,7 @@ public class ArmorySalvagerBlock extends Block {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
                                                BlockHitResult hit) {
         if (!level.isClientSide() && player instanceof ServerPlayer server) {
+            ElysiumVoices.click(level, pos, "station");
             server.openMenu(new SimpleMenuProvider((id, inventory, p) ->
                     new ArmorySalvagerMenu(id, inventory), getName()));
         }

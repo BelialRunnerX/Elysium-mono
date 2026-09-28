@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /** The Gem Cutting Table (Apotheosis' AP-13): dust spent to climb a purity. */
 public class GemCuttingTableBlock extends Block {
@@ -29,6 +30,7 @@ public class GemCuttingTableBlock extends Block {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
                                                Player player, BlockHitResult hit) {
         if (!level.isClientSide() && player instanceof ServerPlayer server) {
+            ElysiumVoices.click(level, pos, "station");
             server.openMenu(new SimpleMenuProvider((id, inventory, p) ->
                     new GemCuttingMenu(id, inventory), getName()));
         }

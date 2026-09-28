@@ -16,6 +16,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * The Gear Smithing Table (Silent Gear's SG-86): where a plan is drawn.
@@ -42,6 +43,7 @@ public class ArmorySmithingTableBlock extends Block {
                 }
             }
             parts.sort(String::compareTo);
+            ElysiumVoices.click(level, pos, "station");
             server.openMenu(new SimpleMenuProvider((id, inventory, p) ->
                     new ArmorySmithingMenu(id, inventory, parts), getName()),
                     buf -> {

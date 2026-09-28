@@ -32,6 +32,7 @@ import net.minecraft.world.level.Level.ExplosionInteraction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * A reactor core. The only block in the pack that can take the roof off.
@@ -302,6 +303,7 @@ public class ReactorBlock extends GridBlock {
             }
             float running = throttle();
             if (running > 0.0F) {
+                ElysiumVoices.hum(level, pos, "reactor");
                 fuelLeft = Math.max(0, fuelLeft - notch);
                 if (fuelLeft == 0) {
                     unsettle();

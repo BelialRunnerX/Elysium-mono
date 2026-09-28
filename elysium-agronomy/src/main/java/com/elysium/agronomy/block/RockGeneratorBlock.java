@@ -28,6 +28,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.Map;
 import org.jetbrains.annotations.Nullable;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * A rock generator: the oldest cheat in Minecraft, made explicit and priced.
@@ -253,6 +254,7 @@ public class RockGeneratorBlock extends GridBlock {
                 return;
             }
             worked += Math.max(1, Math.round(perHour * AgronomyRules.WORK_FULL));
+            ElysiumVoices.hum(level, pos, "shaft");
             int whole = AgronomyRules.TICKS_PER_HOUR * AgronomyRules.WORK_FULL;
             while (worked >= whole) {
                 worked -= whole;

@@ -86,6 +86,16 @@ public abstract class SpindleBlock extends GridBlock {
         }
 
         @Override
+        protected String hum() {
+            return "electric";
+        }
+
+        @Override
+        protected boolean humming() {
+            return lineRunning;
+        }
+
+        @Override
         public void driven(float speed, boolean running) {
             boolean changed = lineRunning != running || Math.abs(rpm - speed) > 0.01F;
             rpm = speed;

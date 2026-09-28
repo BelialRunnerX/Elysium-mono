@@ -22,6 +22,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.Optional;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * Fires clay and glass on less fuel than a furnace needs.
@@ -233,6 +234,7 @@ public class CeramicKilnEntity extends SolarpunkMachineEntity {
         if (!payForATick()) {
             return;
         }
+        ElysiumVoices.hum(level, worldPosition, "roar");
         if (++progress < COOK_TICKS) {
             return;
         }

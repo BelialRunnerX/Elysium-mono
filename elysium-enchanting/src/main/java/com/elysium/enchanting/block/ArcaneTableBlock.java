@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * The Arcane Table: an enchanting table that reads the room.
@@ -44,6 +45,7 @@ public class ArcaneTableBlock extends Block {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
                                                Player player, BlockHitResult hit) {
         if (!level.isClientSide() && player instanceof ServerPlayer server) {
+            ElysiumVoices.click(level, pos, "station");
             server.openMenu(new Provider(pos), buf -> buf.writeBlockPos(pos));
         }
         return InteractionResult.sidedSuccess(level.isClientSide());

@@ -35,32 +35,75 @@ boot with no registry errors and no missing Elysium models.
       away within seconds** and spilled the kit to the sea floor (fixed:
       the headstone is declared solid and a death in deep water now leaves a
       grave holding everything; CONVERSION.md §16.4). The test rig's fresh
-      world now spawns on land for its seed. Left: a toast that says where to
-      start was not seen (the declaration screen covers the join; decide
-      whether the codex in the hotbar is that pointer), and P4.
-- [ ] **P4 Fresh reference world.** The launcher's reference `level.dat` still
-      carries `valoria:the_valoria`; re-save it from the seven-jar pack. Its
-      spawn point (64, 50, -96) is an ocean floor under the wilds' biome list,
-      so every fresh test world drowns the new player while the declaration
-      screen is up: re-save from a world made under the current preset.
+      world now spawns on land for its seed. 28 Sep: a beast killed the new
+      player under the modal declaration screen at a night spawn, so
+      `ElysiumUndeclaredShield` cancels incoming damage until a race and a
+      calling are recorded (rule in the library validator,
+      `negtest_undeclared.sh`); the stage reruns clean on the P4 reference.
+      The codex in the hotbar is the pointer to where to start (decided, 28
+      Sep; a toast over the declaration screen would be covered by it).
+- [x] **P4 Fresh reference world.** (28 Sep) The reference is now the
+      dedicated test server's own `level.dat` and `serverconfig`, copied into
+      `tools/livetest/stages/reference/` from a world the seven-jar pack
+      generated under the current wilds preset: no Valoria dimension, no
+      retired mod's config or datapack, and the game's own spawn for its seed
+      (`-80 71 128`, on land). `StripPlayer` turns cheats on for the stages
+      and the launcher no longer overrides the spawn. Because a world made
+      from a preset carries the overworld's biome list inline, the wilds
+      validator now holds the reference's list to `normal.json` entry for
+      entry (the hoar-hill class of bug), with a negtest; re-save the
+      reference from the server whenever the preset changes.
 
 ## 2. What is missing that a finished pack has
 
-- [ ] **P5 Sound.** The pack ships no `sounds.json` and no `.ogg` at all:
-      every creature, machine and fitting is silent. Synthesise a sci-fi sound
-      set from one generator (ambient, hurt, death per creature kind; a hum
-      per engine class; clicks for stations) and wire the entities and blocks
-      to it. Generated, like the art.
+- [x] **P5 Sound.** (28 Sep) The pack shipped no `sounds.json` and no
+      `.ogg` at all. Now every clip is synthesised: `art/sound.py` (numpy
+      oscillators, noise, envelopes, one-pole filters, a comb, a small room)
+      renders a voice's three calls (idle, hurt, death), a machine's looped
+      hum and a station's click from numbers in
+      `elysium-lib/.../sound/ElysiumSoundRules.java` (33 voices, 8 hums, 3
+      clicks; pure, `SoundHarness`); `elysium-lib/tools/gen_sounds.py` writes
+      110 OGG Vorbis clips (mono, 22 050 Hz, 1.2 MB in all), `sounds.json` and
+      a subtitle per event; `ElysiumSounds` registers one event per clip from
+      the same table. Every creature class (22, the eight included) answers
+      for a voice through `ElysiumVoices` — the bestiary by family, kind or
+      form, the fish by water, the eight by id — 28 machines hum while they
+      run (kinetics and industry through their bases; space, solarpunk,
+      atomics, agronomy, foundry, logistics at their work sites) and 13
+      stations click as they open. The library validator holds table,
+      registry, files and subtitles to one another and rebuilds the clips
+      (`samefile` compares an `.ogg` by its decoded samples, since the Ogg
+      serial differs per encode); `check_sound.py` holds every name a module
+      asks for to the table and every voice to something that asks for it;
+      `negtest_sound.sh`. Vorbis through `soundfile`/libsndfile 1.2.2, already
+      on the machine. Left: hear them in the game and tune the descriptions
+      by ear (the numbers are a first draft); block-place and fitting sounds
+      (plates snapping on) stay the game's own.
 - [ ] **P6 Recipe browsing.** JEI left with the retirement. A player has no way
-      to look a recipe up in game. Decision for Dylan: keep JEI as a tool
-      (one row on the ledger) or grow the almanac into a recipe book.
-- [ ] **P7 Unreachable items.** A static pass over the jar lists items no
-      recipe or loot table produces. Most are made in code (fish, buds, gear
-      parts, summons); the ones to check by hand: `elysium:emperor_crown`,
-      `elysiumatomics:raw_uranium`, `elysiumindustry:coke`,
-      `elysiumsolarpunk:biomass_briquette`, `elysiumspawners:spawner`,
-      `elysiumspace:*_bucket`, `*_canister`, `elysiumflora:*_seeds`,
-      `elysiumfoundry:bort|certus_quartz|fluorite|rime_shard`.
+      to look a recipe up in game. Dylan's decision (28 Sep): "support JEI
+      though but leave it as a non dependency". So: a JEI plugin in the
+      library for every Elysium recipe kind and machine, compiled against the
+      JEI API, declared optional in the manifest, and loaded only when JEI is
+      installed; the pack boots and plays without it. JEI itself stays a
+      player's choice, not a jar we ship.
+- [x] **P7 Unreachable items.** (28 Sep) A static pass over the jar lists
+      items no recipe or loot table produces. Checked by hand, each is made
+      in code: the Emperor's Crown drops (`ElysiumCrownDrops`), coke comes out
+      of the coke oven, the briquette out of the bioreactor, the spawner is
+      what a vanilla spawner becomes under silk touch, the space buckets fill
+      at their fluids and the canisters are bottled at the separator and
+      refinery, the flora's seeds come off the wild plants worldgen places,
+      and raw uranium and the foundry's four gems come out of the ores
+      module's ore blocks, whose tables hand the block to Java and whose
+      unifying loot modifier resolves the family's canonical item at
+      runtime. The live suite now proves that last one (`ores:` scenario:
+      loot the ore into a chest, ask the chest for the family tag), and it
+      found the one real gap: what lands for a gem family is the agronomy's
+      chunk (in `c:raw_materials/<gem>`, which the ore-drop search finds
+      before `c:gems/<gem>`), and nothing turned a chunk into the gem. The
+      foundry generator now writes a furnace and a blast-furnace recipe from
+      each gem's raw tag to the gem; the foundry validator holds the four,
+      with a negtest.
 - [x] **P8 MineColonies and the pigeons.** (done: the pigeon lacked `FOLLOW_RANGE`, which MineColonies' RecipeAnalyzer reads for every animal) MineColonies logs "Couldnt analyze
       animal: elysiumcomforts:pigeon" while sizing animals for its herders.
       Find what it reads and give the pigeon it.

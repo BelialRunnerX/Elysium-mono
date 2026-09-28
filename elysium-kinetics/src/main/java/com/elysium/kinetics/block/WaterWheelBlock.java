@@ -106,6 +106,11 @@ public class WaterWheelBlock extends KineticBlock {
         }
 
         @Override
+        protected String hum() {
+            return "pump";
+        }
+
+        @Override
         protected void serverTick(Level level, BlockPos pos, BlockState state) {
             if (++sinceLooked < LOOK_EVERY) {
                 return;

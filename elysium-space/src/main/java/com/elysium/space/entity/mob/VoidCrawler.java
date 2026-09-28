@@ -15,6 +15,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * The moon caves' four-armed crawler (Stellaris's star crawler): slow, heavy
@@ -66,13 +67,32 @@ public class VoidCrawler extends Monster implements Animated {
         return "attack".equals(state) ? attack : null;
     }
 
+
+
+    // --- what it says (elysium-lib sound table, POLISH.md P5) ---------------
+
+    /** The voice this one speaks with, a name in ElysiumSoundRules. */
+    public String voice() {
+        return "void_crawler";
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return ElysiumVoices.ambient(voice(), super.getAmbientSound());
+    }
+
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.SPIDER_HURT;
+        return ElysiumVoices.hurt(voice(), super.getHurtSound(source));
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        return SoundEvents.SPIDER_DEATH;
+        return ElysiumVoices.death(voice(), super.getDeathSound());
+    }
+
+    @Override
+    public float getVoicePitch() {
+        return ElysiumVoices.pitchOf(this);
     }
 }

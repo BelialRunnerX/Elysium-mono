@@ -150,6 +150,16 @@ public abstract class FueledBlock extends GridBlock {
             return burning > 0 && engine != null ? engine.output() : null;
         }
 
+        @Override
+        protected String hum() {
+            return "roar";
+        }
+
+        @Override
+        protected boolean humming() {
+            return lit();
+        }
+
         /** Whether the fire is lit. */
         public boolean lit() {
             return burning > 0;

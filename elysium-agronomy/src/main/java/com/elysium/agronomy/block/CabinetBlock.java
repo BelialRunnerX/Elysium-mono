@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * A kitchen cabinet: a chest with a door on it, in every wood.
@@ -63,6 +64,7 @@ public class CabinetBlock extends BaseEntityBlock {
                                                Player player, BlockHitResult hit) {
         if (!level.isClientSide
                 && level.getBlockEntity(pos) instanceof CabinetBlockEntity cabinet) {
+            ElysiumVoices.click(level, pos, "station");
             player.openMenu(cabinet);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);

@@ -650,8 +650,13 @@ for path in sorted(JAVA.rglob("*.java")):
         if not line.startswith("import "):
             continue
         target = line[len("import "):].rstrip(";").replace("static ", "")
+        # The library is a declared, required dependency (neoforge.mods.toml
+        # says why: one visual language for every run), and the sound table
+        # rides on the same declaration: a machine that hums asks the library
+        # for its hum (POLISH.md P5, 28 Sep). Anything else of ours is foreign.
         if target.startswith("com.elysium.") and not target.startswith(
-                "com.elysium.solarpunk.") and not target.startswith("com.elysium.lib.run."):
+                "com.elysium.solarpunk.") and not target.startswith(
+                ("com.elysium.lib.run.", "com.elysium.lib.sound.")):
             foreign.append((path.name, target))
 
 for filename, target in foreign:

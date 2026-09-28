@@ -1311,6 +1311,58 @@ from the rows it is drawn with; each module's validator asks for the
 generated class, its density, its published sheet size and the sheets to
 match. The space mobs are Stellaris's own ported models and keep them.
 
+### 16.6 Sound, the reference world and the undeclared (28 September)
+
+Three polish items landed together because the second uncovered the third.
+
+**The reference world (P4).** The launcher's reference `level.dat` still
+carried `valoria:the_valoria` and an ocean spawn. The reference is now the
+dedicated test server's own `world/level.dat` and `serverconfig`, copied into
+`tools/livetest/stages/reference/` from a world the seven-jar pack generated
+under the current wilds preset. A world made from a preset carries the
+overworld's biome list inline (6 203 entries), which is exactly how the hoar
+hill went unseen for a day: the world was older than the preset. So
+`elysium-wilds/validate.py` now reads the reference with `tools/nbtlite.py`
+and holds its list to `normal.json` entry for entry, with a negtest.
+`StripPlayer` turns cheats on and resets the clock and weather to a clear
+morning, since the copied world was saved at whatever hour the server was at.
+
+**The undeclared (P3).** The first fresh world from the new reference joined
+at night, and a beast killed the new player under the modal declaration
+screen, which refuses ESC: every command in the stage after that went to a
+dead player. `ElysiumUndeclaredShield` cancels incoming damage until a race
+and a calling are recorded; rule in the library validator,
+`negtest_undeclared.sh`. The first-join stage reruns clean.
+
+**Sound (P5).** The pack shipped no sound at all. Every clip is now
+synthesised from numbers: `art/sound.py` is the instrument (oscillators,
+noise, envelopes, one-pole filters, a comb, a small room, all numpy),
+`ElysiumSoundRules` the score (33 voices, 8 hums, 3 clicks; pure,
+harness-checked), `gen_sounds.py` the performance (110 Ogg Vorbis clips,
+mono at 22 050 Hz, `sounds.json`, a subtitle per event), `ElysiumSounds`
+the registry from the same table. Every creature class answers for a voice
+through `ElysiumVoices` (the bestiary by family, kind or form; the fish by
+water; the eight by id), 28 machines hum while they run and 13 stations
+click as they open. Two things worth knowing: Vorbis encoding is not
+byte-deterministic (the Ogg stream serial is picked fresh per encode, though
+the decoded samples are identical), so `samefile.same` compares an `.ogg` by
+its decoded samples; and `soundfile` with libsndfile 1.2.2 was already on
+the machine, so no encoder was installed. `check_sound.py` holds the seam:
+every name a module asks for is in the table, every voice in the table is
+asked for.
+
+**The unreachable (P7).** The static list of items nothing makes was
+checked by hand and every entry is made in code, which the pass could not
+see: the crown drops, coke is ovened, briquettes grown, spawners silk-touched,
+buckets filled, canisters bottled, seeds taken off wild plants, and the ores
+module's ore blocks hand themselves to Java, whose unifying loot modifier
+resolves the family's canonical item at runtime. The live suite now proves
+that last one by looting an ore into a chest and asking the chest for the
+family tag, and the proof found the one real gap: a gem ore drops the
+agronomy's chunk (raw materials rank before gems in the ore-drop search) and
+nothing turned a chunk into the foundry's gem. Two generated furnace recipes
+per gem close it, with a foundry rule and a negtest.
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and

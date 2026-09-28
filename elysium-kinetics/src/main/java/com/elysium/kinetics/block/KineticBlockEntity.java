@@ -12,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * What every block on a line has in common.
@@ -127,6 +128,14 @@ public abstract class KineticBlockEntity extends BlockEntity implements KineticN
             KineticLine.solve(level, pos);
         }
         be.serverTick(level, pos, state);
+        if (be.running && be.hum() != null) {
+            ElysiumVoices.hum(level, pos, be.hum());
+        }
+    }
+
+    /** What this block sounds like while the line turns, or null for a shaft that says nothing. */
+    protected String hum() {
+        return null;
     }
 
     /** What this block does each tick once it knows how fast it is turning. */

@@ -8,6 +8,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.level.Level;
+import com.elysium.lib.sound.ElysiumVoices;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.damagesource.DamageSource;
 
 /**
  * The Pale Moon's villagers (Stellaris's alien). A villager in every way that
@@ -55,5 +58,32 @@ public class Moonfolk extends Villager implements Animated {
     @Override
     public AnimationState animation(String state) {
         return "shake".equals(state) ? shake : null;
+    }
+
+    // --- what it says (elysium-lib sound table, POLISH.md P5) ---------------
+
+    /** The voice this one speaks with, a name in ElysiumSoundRules. */
+    public String voice() {
+        return "moonfolk";
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return ElysiumVoices.ambient(voice(), super.getAmbientSound());
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return ElysiumVoices.hurt(voice(), super.getHurtSound(source));
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return ElysiumVoices.death(voice(), super.getDeathSound());
+    }
+
+    @Override
+    public float getVoicePitch() {
+        return ElysiumVoices.pitchOf(this);
     }
 }

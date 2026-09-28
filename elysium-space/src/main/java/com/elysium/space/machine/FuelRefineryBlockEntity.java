@@ -11,6 +11,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 import java.util.List;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /** Oil and power to rocket fuel and diesel (Stellaris's recipe: 10 oil to 5 fuel and 5 diesel for 100 FE). */
 public class FuelRefineryBlockEntity extends MachineBlockEntity {
@@ -38,15 +39,22 @@ public class FuelRefineryBlockEntity extends MachineBlockEntity {
         return fuel;
     }
 
+    private boolean refining;
+
     @Override
     public void serverTick() {
+        if (refining) {
+            ElysiumVoices.hum(level, worldPosition, "roar");
+        }
         if (++ticks < MachineRules.BATCH_TICKS) {
             return;
         }
         ticks = 0;
+        refining = false;
         if (MachineRules.refineryBatches(oil.getFluidAmount(), fuel.getSpace(), diesel.getSpace(),
                 energy.getEnergyStored()) > 0) {
             energy.consume(MachineRules.REFINERY_FE_PER_BATCH);
+            refining = true;
             oil.drain(MachineRules.OIL_PER_BATCH, IFluidHandler.FluidAction.EXECUTE);
             fuel.fill(new FluidStack(SpaceFluids.FUEL.source.get(), MachineRules.FUEL_PER_BATCH),
                     IFluidHandler.FluidAction.EXECUTE);

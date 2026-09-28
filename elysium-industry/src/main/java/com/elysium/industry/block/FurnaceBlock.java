@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * The block a player prods to find out why their multiblock has not formed.
@@ -299,6 +300,9 @@ public class FurnaceBlock extends BaseEntityBlock {
                 return;
             }
             furnace.work(level);
+            if (state.getValue(FORMED)) {
+                ElysiumVoices.hum(level, pos, "roar");
+            }
         }
 
         /**

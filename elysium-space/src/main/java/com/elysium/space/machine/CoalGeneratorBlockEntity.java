@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.List;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /** Burns anything a furnace burns for {@link MachineRules#COAL_FE_PER_TICK} FE a tick. */
 public class CoalGeneratorBlockEntity extends MachineBlockEntity {
@@ -60,6 +61,7 @@ public class CoalGeneratorBlockEntity extends MachineBlockEntity {
         if (burnLeft > 0 && !energy.isFull()) {
             energy.produce(MachineRules.COAL_FE_PER_TICK);
             burnLeft--;
+            ElysiumVoices.hum(level, worldPosition, "roar");
             setChanged();
         }
         pushEnergy(MachineRules.PUSH_PER_TICK);

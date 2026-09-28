@@ -128,6 +128,7 @@ public class ElysiumLib {
         com.elysium.lib.attribute.ElysiumAttributes.register(modEventBus);
         com.elysium.lib.combat.ElysiumEffects.register(modEventBus);
         com.elysium.lib.combat.ElysiumPotions.register(modEventBus);
+        com.elysium.lib.sound.ElysiumSounds.register(modEventBus);
 
         // §8.5's rooms. Registered rather than enumerated, so a content mod can
         // declare a room of its own and have the hazard tick read it — the

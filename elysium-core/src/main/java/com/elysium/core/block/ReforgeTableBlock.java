@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * The Reforge Table.
@@ -56,6 +57,7 @@ public class ReforgeTableBlock extends Block implements EntityBlock {
                 // A workstation is the one place a player reliably stands
                 // still, so it is where the Empire posts your standing.
                 player.displayClientMessage(ElysiumStanding.report(player), true);
+                ElysiumVoices.click(level, pos, "station");
                 player.openMenu(menuProvider);
             }
         }

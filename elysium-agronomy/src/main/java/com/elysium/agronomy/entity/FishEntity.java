@@ -12,6 +12,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import com.elysium.lib.sound.ElysiumVoices;
+import net.minecraft.world.damagesource.DamageSource;
 
 /**
  * One fish. Which one it is, it is told.
@@ -141,5 +143,32 @@ public class FishEntity extends AbstractFish {
         stack.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME,
                 net.minecraft.network.chat.Component.translatable(
                         "item.elysiumagronomy." + species() + "_bucket"));
+    }
+
+    // --- what it says (elysium-lib sound table, POLISH.md P5) ---------------
+
+    /** The voice this one speaks with, a name in ElysiumSoundRules. */
+    public String voice() {
+        return "fish_" + rules().family().water();
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return ElysiumVoices.ambient(voice(), super.getAmbientSound());
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return ElysiumVoices.hurt(voice(), super.getHurtSound(source));
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return ElysiumVoices.death(voice(), super.getDeathSound());
+    }
+
+    @Override
+    public float getVoicePitch() {
+        return ElysiumVoices.pitchOf(this);
     }
 }

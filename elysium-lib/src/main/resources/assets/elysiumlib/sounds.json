@@ -1,0 +1,686 @@
+{
+  "click.snap": {
+    "subtitle": "subtitles.elysiumlib.click.snap",
+    "sounds": [
+      "elysiumlib:click/snap"
+    ]
+  },
+  "click.station": {
+    "subtitle": "subtitles.elysiumlib.click.station",
+    "sounds": [
+      "elysiumlib:click/station"
+    ]
+  },
+  "click.switch": {
+    "subtitle": "subtitles.elysiumlib.click.switch",
+    "sounds": [
+      "elysiumlib:click/switch"
+    ]
+  },
+  "hum.diesel": {
+    "subtitle": "subtitles.elysiumlib.hum.diesel",
+    "sounds": [
+      {
+        "name": "elysiumlib:hum/diesel",
+        "stream": false
+      }
+    ]
+  },
+  "hum.electric": {
+    "subtitle": "subtitles.elysiumlib.hum.electric",
+    "sounds": [
+      {
+        "name": "elysiumlib:hum/electric",
+        "stream": false
+      }
+    ]
+  },
+  "hum.pump": {
+    "subtitle": "subtitles.elysiumlib.hum.pump",
+    "sounds": [
+      {
+        "name": "elysiumlib:hum/pump",
+        "stream": false
+      }
+    ]
+  },
+  "hum.reactor": {
+    "subtitle": "subtitles.elysiumlib.hum.reactor",
+    "sounds": [
+      {
+        "name": "elysiumlib:hum/reactor",
+        "stream": false
+      }
+    ]
+  },
+  "hum.roar": {
+    "subtitle": "subtitles.elysiumlib.hum.roar",
+    "sounds": [
+      {
+        "name": "elysiumlib:hum/roar",
+        "stream": false
+      }
+    ]
+  },
+  "hum.shaft": {
+    "subtitle": "subtitles.elysiumlib.hum.shaft",
+    "sounds": [
+      {
+        "name": "elysiumlib:hum/shaft",
+        "stream": false
+      }
+    ]
+  },
+  "hum.steam": {
+    "subtitle": "subtitles.elysiumlib.hum.steam",
+    "sounds": [
+      {
+        "name": "elysiumlib:hum/steam",
+        "stream": false
+      }
+    ]
+  },
+  "hum.whine": {
+    "subtitle": "subtitles.elysiumlib.hum.whine",
+    "sounds": [
+      {
+        "name": "elysiumlib:hum/whine",
+        "stream": false
+      }
+    ]
+  },
+  "voice.adept.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.adept.ambient",
+    "sounds": [
+      "elysiumlib:voice/adept/ambient"
+    ]
+  },
+  "voice.adept.death": {
+    "subtitle": "subtitles.elysiumlib.voice.adept.death",
+    "sounds": [
+      "elysiumlib:voice/adept/death"
+    ]
+  },
+  "voice.adept.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.adept.hurt",
+    "sounds": [
+      "elysiumlib:voice/adept/hurt"
+    ]
+  },
+  "voice.bee.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.bee.ambient",
+    "sounds": [
+      "elysiumlib:voice/bee/ambient"
+    ]
+  },
+  "voice.bee.death": {
+    "subtitle": "subtitles.elysiumlib.voice.bee.death",
+    "sounds": [
+      "elysiumlib:voice/bee/death"
+    ]
+  },
+  "voice.bee.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.bee.hurt",
+    "sounds": [
+      "elysiumlib:voice/bee/hurt"
+    ]
+  },
+  "voice.brute.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.brute.ambient",
+    "sounds": [
+      "elysiumlib:voice/brute/ambient"
+    ]
+  },
+  "voice.brute.death": {
+    "subtitle": "subtitles.elysiumlib.voice.brute.death",
+    "sounds": [
+      "elysiumlib:voice/brute/death"
+    ]
+  },
+  "voice.brute.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.brute.hurt",
+    "sounds": [
+      "elysiumlib:voice/brute/hurt"
+    ]
+  },
+  "voice.bulwark.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.bulwark.ambient",
+    "sounds": [
+      "elysiumlib:voice/bulwark/ambient"
+    ]
+  },
+  "voice.bulwark.death": {
+    "subtitle": "subtitles.elysiumlib.voice.bulwark.death",
+    "sounds": [
+      "elysiumlib:voice/bulwark/death"
+    ]
+  },
+  "voice.bulwark.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.bulwark.hurt",
+    "sounds": [
+      "elysiumlib:voice/bulwark/hurt"
+    ]
+  },
+  "voice.choir.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.choir.ambient",
+    "sounds": [
+      "elysiumlib:voice/choir/ambient"
+    ]
+  },
+  "voice.choir.death": {
+    "subtitle": "subtitles.elysiumlib.voice.choir.death",
+    "sounds": [
+      "elysiumlib:voice/choir/death"
+    ]
+  },
+  "voice.choir.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.choir.hurt",
+    "sounds": [
+      "elysiumlib:voice/choir/hurt"
+    ]
+  },
+  "voice.cinder_boar.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.cinder_boar.ambient",
+    "sounds": [
+      "elysiumlib:voice/cinder_boar/ambient"
+    ]
+  },
+  "voice.cinder_boar.death": {
+    "subtitle": "subtitles.elysiumlib.voice.cinder_boar.death",
+    "sounds": [
+      "elysiumlib:voice/cinder_boar/death"
+    ]
+  },
+  "voice.cinder_boar.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.cinder_boar.hurt",
+    "sounds": [
+      "elysiumlib:voice/cinder_boar/hurt"
+    ]
+  },
+  "voice.cinderling.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.cinderling.ambient",
+    "sounds": [
+      "elysiumlib:voice/cinderling/ambient"
+    ]
+  },
+  "voice.cinderling.death": {
+    "subtitle": "subtitles.elysiumlib.voice.cinderling.death",
+    "sounds": [
+      "elysiumlib:voice/cinderling/death"
+    ]
+  },
+  "voice.cinderling.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.cinderling.hurt",
+    "sounds": [
+      "elysiumlib:voice/cinderling/hurt"
+    ]
+  },
+  "voice.cinderling_brute.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.cinderling_brute.ambient",
+    "sounds": [
+      "elysiumlib:voice/cinderling_brute/ambient"
+    ]
+  },
+  "voice.cinderling_brute.death": {
+    "subtitle": "subtitles.elysiumlib.voice.cinderling_brute.death",
+    "sounds": [
+      "elysiumlib:voice/cinderling_brute/death"
+    ]
+  },
+  "voice.cinderling_brute.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.cinderling_brute.hurt",
+    "sounds": [
+      "elysiumlib:voice/cinderling_brute/hurt"
+    ]
+  },
+  "voice.drone.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.drone.ambient",
+    "sounds": [
+      "elysiumlib:voice/drone/ambient"
+    ]
+  },
+  "voice.drone.death": {
+    "subtitle": "subtitles.elysiumlib.voice.drone.death",
+    "sounds": [
+      "elysiumlib:voice/drone/death"
+    ]
+  },
+  "voice.drone.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.drone.hurt",
+    "sounds": [
+      "elysiumlib:voice/drone/hurt"
+    ]
+  },
+  "voice.enforcer.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.enforcer.ambient",
+    "sounds": [
+      "elysiumlib:voice/enforcer/ambient"
+    ]
+  },
+  "voice.enforcer.death": {
+    "subtitle": "subtitles.elysiumlib.voice.enforcer.death",
+    "sounds": [
+      "elysiumlib:voice/enforcer/death"
+    ]
+  },
+  "voice.enforcer.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.enforcer.hurt",
+    "sounds": [
+      "elysiumlib:voice/enforcer/hurt"
+    ]
+  },
+  "voice.envoy.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.envoy.ambient",
+    "sounds": [
+      "elysiumlib:voice/envoy/ambient"
+    ]
+  },
+  "voice.envoy.death": {
+    "subtitle": "subtitles.elysiumlib.voice.envoy.death",
+    "sounds": [
+      "elysiumlib:voice/envoy/death"
+    ]
+  },
+  "voice.envoy.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.envoy.hurt",
+    "sounds": [
+      "elysiumlib:voice/envoy/hurt"
+    ]
+  },
+  "voice.fish_fresh.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.fish_fresh.ambient",
+    "sounds": [
+      "elysiumlib:voice/fish_fresh/ambient"
+    ]
+  },
+  "voice.fish_fresh.death": {
+    "subtitle": "subtitles.elysiumlib.voice.fish_fresh.death",
+    "sounds": [
+      "elysiumlib:voice/fish_fresh/death"
+    ]
+  },
+  "voice.fish_fresh.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.fish_fresh.hurt",
+    "sounds": [
+      "elysiumlib:voice/fish_fresh/hurt"
+    ]
+  },
+  "voice.fish_lava.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.fish_lava.ambient",
+    "sounds": [
+      "elysiumlib:voice/fish_lava/ambient"
+    ]
+  },
+  "voice.fish_lava.death": {
+    "subtitle": "subtitles.elysiumlib.voice.fish_lava.death",
+    "sounds": [
+      "elysiumlib:voice/fish_lava/death"
+    ]
+  },
+  "voice.fish_lava.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.fish_lava.hurt",
+    "sounds": [
+      "elysiumlib:voice/fish_lava/hurt"
+    ]
+  },
+  "voice.fish_salt.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.fish_salt.ambient",
+    "sounds": [
+      "elysiumlib:voice/fish_salt/ambient"
+    ]
+  },
+  "voice.fish_salt.death": {
+    "subtitle": "subtitles.elysiumlib.voice.fish_salt.death",
+    "sounds": [
+      "elysiumlib:voice/fish_salt/death"
+    ]
+  },
+  "voice.fish_salt.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.fish_salt.hurt",
+    "sounds": [
+      "elysiumlib:voice/fish_salt/hurt"
+    ]
+  },
+  "voice.fish_void.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.fish_void.ambient",
+    "sounds": [
+      "elysiumlib:voice/fish_void/ambient"
+    ]
+  },
+  "voice.fish_void.death": {
+    "subtitle": "subtitles.elysiumlib.voice.fish_void.death",
+    "sounds": [
+      "elysiumlib:voice/fish_void/death"
+    ]
+  },
+  "voice.fish_void.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.fish_void.hurt",
+    "sounds": [
+      "elysiumlib:voice/fish_void/hurt"
+    ]
+  },
+  "voice.floater.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.floater.ambient",
+    "sounds": [
+      "elysiumlib:voice/floater/ambient"
+    ]
+  },
+  "voice.floater.death": {
+    "subtitle": "subtitles.elysiumlib.voice.floater.death",
+    "sounds": [
+      "elysiumlib:voice/floater/death"
+    ]
+  },
+  "voice.floater.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.floater.hurt",
+    "sounds": [
+      "elysiumlib:voice/floater/hurt"
+    ]
+  },
+  "voice.forager.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.forager.ambient",
+    "sounds": [
+      "elysiumlib:voice/forager/ambient"
+    ]
+  },
+  "voice.forager.death": {
+    "subtitle": "subtitles.elysiumlib.voice.forager.death",
+    "sounds": [
+      "elysiumlib:voice/forager/death"
+    ]
+  },
+  "voice.forager.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.forager.hurt",
+    "sounds": [
+      "elysiumlib:voice/forager/hurt"
+    ]
+  },
+  "voice.fowl.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.fowl.ambient",
+    "sounds": [
+      "elysiumlib:voice/fowl/ambient"
+    ]
+  },
+  "voice.fowl.death": {
+    "subtitle": "subtitles.elysiumlib.voice.fowl.death",
+    "sounds": [
+      "elysiumlib:voice/fowl/death"
+    ]
+  },
+  "voice.fowl.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.fowl.hurt",
+    "sounds": [
+      "elysiumlib:voice/fowl/hurt"
+    ]
+  },
+  "voice.frost_raptor.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.frost_raptor.ambient",
+    "sounds": [
+      "elysiumlib:voice/frost_raptor/ambient"
+    ]
+  },
+  "voice.frost_raptor.death": {
+    "subtitle": "subtitles.elysiumlib.voice.frost_raptor.death",
+    "sounds": [
+      "elysiumlib:voice/frost_raptor/death"
+    ]
+  },
+  "voice.frost_raptor.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.frost_raptor.hurt",
+    "sounds": [
+      "elysiumlib:voice/frost_raptor/hurt"
+    ]
+  },
+  "voice.grazer.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.grazer.ambient",
+    "sounds": [
+      "elysiumlib:voice/grazer/ambient"
+    ]
+  },
+  "voice.grazer.death": {
+    "subtitle": "subtitles.elysiumlib.voice.grazer.death",
+    "sounds": [
+      "elysiumlib:voice/grazer/death"
+    ]
+  },
+  "voice.grazer.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.grazer.hurt",
+    "sounds": [
+      "elysiumlib:voice/grazer/hurt"
+    ]
+  },
+  "voice.harrier.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.harrier.ambient",
+    "sounds": [
+      "elysiumlib:voice/harrier/ambient"
+    ]
+  },
+  "voice.harrier.death": {
+    "subtitle": "subtitles.elysiumlib.voice.harrier.death",
+    "sounds": [
+      "elysiumlib:voice/harrier/death"
+    ]
+  },
+  "voice.harrier.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.harrier.hurt",
+    "sounds": [
+      "elysiumlib:voice/harrier/hurt"
+    ]
+  },
+  "voice.hollow_moonfolk.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.hollow_moonfolk.ambient",
+    "sounds": [
+      "elysiumlib:voice/hollow_moonfolk/ambient"
+    ]
+  },
+  "voice.hollow_moonfolk.death": {
+    "subtitle": "subtitles.elysiumlib.voice.hollow_moonfolk.death",
+    "sounds": [
+      "elysiumlib:voice/hollow_moonfolk/death"
+    ]
+  },
+  "voice.hollow_moonfolk.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.hollow_moonfolk.hurt",
+    "sounds": [
+      "elysiumlib:voice/hollow_moonfolk/hurt"
+    ]
+  },
+  "voice.lictor.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.lictor.ambient",
+    "sounds": [
+      "elysiumlib:voice/lictor/ambient"
+    ]
+  },
+  "voice.lictor.death": {
+    "subtitle": "subtitles.elysiumlib.voice.lictor.death",
+    "sounds": [
+      "elysiumlib:voice/lictor/death"
+    ]
+  },
+  "voice.lictor.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.lictor.hurt",
+    "sounds": [
+      "elysiumlib:voice/lictor/hurt"
+    ]
+  },
+  "voice.moonfolk.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.moonfolk.ambient",
+    "sounds": [
+      "elysiumlib:voice/moonfolk/ambient"
+    ]
+  },
+  "voice.moonfolk.death": {
+    "subtitle": "subtitles.elysiumlib.voice.moonfolk.death",
+    "sounds": [
+      "elysiumlib:voice/moonfolk/death"
+    ]
+  },
+  "voice.moonfolk.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.moonfolk.hurt",
+    "sounds": [
+      "elysiumlib:voice/moonfolk/hurt"
+    ]
+  },
+  "voice.pigeon.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.pigeon.ambient",
+    "sounds": [
+      "elysiumlib:voice/pigeon/ambient"
+    ]
+  },
+  "voice.pigeon.death": {
+    "subtitle": "subtitles.elysiumlib.voice.pigeon.death",
+    "sounds": [
+      "elysiumlib:voice/pigeon/death"
+    ]
+  },
+  "voice.pigeon.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.pigeon.hurt",
+    "sounds": [
+      "elysiumlib:voice/pigeon/hurt"
+    ]
+  },
+  "voice.praetor.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.praetor.ambient",
+    "sounds": [
+      "elysiumlib:voice/praetor/ambient"
+    ]
+  },
+  "voice.praetor.death": {
+    "subtitle": "subtitles.elysiumlib.voice.praetor.death",
+    "sounds": [
+      "elysiumlib:voice/praetor/death"
+    ]
+  },
+  "voice.praetor.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.praetor.hurt",
+    "sounds": [
+      "elysiumlib:voice/praetor/hurt"
+    ]
+  },
+  "voice.prowler.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.prowler.ambient",
+    "sounds": [
+      "elysiumlib:voice/prowler/ambient"
+    ]
+  },
+  "voice.prowler.death": {
+    "subtitle": "subtitles.elysiumlib.voice.prowler.death",
+    "sounds": [
+      "elysiumlib:voice/prowler/death"
+    ]
+  },
+  "voice.prowler.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.prowler.hurt",
+    "sounds": [
+      "elysiumlib:voice/prowler/hurt"
+    ]
+  },
+  "voice.reaver.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.reaver.ambient",
+    "sounds": [
+      "elysiumlib:voice/reaver/ambient"
+    ]
+  },
+  "voice.reaver.death": {
+    "subtitle": "subtitles.elysiumlib.voice.reaver.death",
+    "sounds": [
+      "elysiumlib:voice/reaver/death"
+    ]
+  },
+  "voice.reaver.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.reaver.hurt",
+    "sounds": [
+      "elysiumlib:voice/reaver/hurt"
+    ]
+  },
+  "voice.scavenger.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.scavenger.ambient",
+    "sounds": [
+      "elysiumlib:voice/scavenger/ambient"
+    ]
+  },
+  "voice.scavenger.death": {
+    "subtitle": "subtitles.elysiumlib.voice.scavenger.death",
+    "sounds": [
+      "elysiumlib:voice/scavenger/death"
+    ]
+  },
+  "voice.scavenger.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.scavenger.hurt",
+    "sounds": [
+      "elysiumlib:voice/scavenger/hurt"
+    ]
+  },
+  "voice.swimmer.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.swimmer.ambient",
+    "sounds": [
+      "elysiumlib:voice/swimmer/ambient"
+    ]
+  },
+  "voice.swimmer.death": {
+    "subtitle": "subtitles.elysiumlib.voice.swimmer.death",
+    "sounds": [
+      "elysiumlib:voice/swimmer/death"
+    ]
+  },
+  "voice.swimmer.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.swimmer.hurt",
+    "sounds": [
+      "elysiumlib:voice/swimmer/hurt"
+    ]
+  },
+  "voice.void_crawler.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.void_crawler.ambient",
+    "sounds": [
+      "elysiumlib:voice/void_crawler/ambient"
+    ]
+  },
+  "voice.void_crawler.death": {
+    "subtitle": "subtitles.elysiumlib.voice.void_crawler.death",
+    "sounds": [
+      "elysiumlib:voice/void_crawler/death"
+    ]
+  },
+  "voice.void_crawler.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.void_crawler.hurt",
+    "sounds": [
+      "elysiumlib:voice/void_crawler/hurt"
+    ]
+  },
+  "voice.whisper.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.whisper.ambient",
+    "sounds": [
+      "elysiumlib:voice/whisper/ambient"
+    ]
+  },
+  "voice.whisper.death": {
+    "subtitle": "subtitles.elysiumlib.voice.whisper.death",
+    "sounds": [
+      "elysiumlib:voice/whisper/death"
+    ]
+  },
+  "voice.whisper.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.whisper.hurt",
+    "sounds": [
+      "elysiumlib:voice/whisper/hurt"
+    ]
+  },
+  "voice.wight.ambient": {
+    "subtitle": "subtitles.elysiumlib.voice.wight.ambient",
+    "sounds": [
+      "elysiumlib:voice/wight/ambient"
+    ]
+  },
+  "voice.wight.death": {
+    "subtitle": "subtitles.elysiumlib.voice.wight.death",
+    "sounds": [
+      "elysiumlib:voice/wight/death"
+    ]
+  },
+  "voice.wight.hurt": {
+    "subtitle": "subtitles.elysiumlib.voice.wight.hurt",
+    "sounds": [
+      "elysiumlib:voice/wight/hurt"
+    ]
+  }
+}

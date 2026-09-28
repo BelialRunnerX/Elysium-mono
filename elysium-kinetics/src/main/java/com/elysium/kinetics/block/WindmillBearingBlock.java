@@ -175,6 +175,11 @@ public class WindmillBearingBlock extends KineticBlock {
         }
 
         @Override
+        protected String hum() {
+            return "shaft";
+        }
+
+        @Override
         protected void serverTick(Level level, BlockPos pos, BlockState state) {
             if (++sinceLooked < LOOK_EVERY) {
                 return;

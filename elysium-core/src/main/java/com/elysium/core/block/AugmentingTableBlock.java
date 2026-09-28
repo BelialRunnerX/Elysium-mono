@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /** The Augmenting Table (Apotheosis' AP-17): where a sigil is spent on a piece. */
 public class AugmentingTableBlock extends Block {
@@ -29,6 +30,7 @@ public class AugmentingTableBlock extends Block {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
                                                Player player, BlockHitResult hit) {
         if (!level.isClientSide() && player instanceof ServerPlayer server) {
+            ElysiumVoices.click(level, pos, "station");
             server.openMenu(new SimpleMenuProvider((id, inventory, p) ->
                     new AugmentingMenu(id, inventory), getName()));
         }

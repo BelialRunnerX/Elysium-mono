@@ -16,6 +16,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * Moonfolk the moon took back (Stellaris's alien zombie). Hunts players and
@@ -44,18 +45,33 @@ public class HollowMoonfolk extends Monster implements RangedAttackMob {
         RimeSpit.shoot(this, target);
     }
 
-    @Override
-    protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ZOMBIE_VILLAGER_HURT;
-    }
 
-    @Override
-    protected SoundEvent getDeathSound() {
-        return SoundEvents.ZOMBIE_VILLAGER_DEATH;
+
+
+    // --- what it says (elysium-lib sound table, POLISH.md P5) ---------------
+
+    /** The voice this one speaks with, a name in ElysiumSoundRules. */
+    public String voice() {
+        return "hollow_moonfolk";
     }
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return SoundEvents.ZOMBIE_VILLAGER_AMBIENT;
+        return ElysiumVoices.ambient(voice(), super.getAmbientSound());
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return ElysiumVoices.hurt(voice(), super.getHurtSound(source));
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return ElysiumVoices.death(voice(), super.getDeathSound());
+    }
+
+    @Override
+    public float getVoicePitch() {
+        return ElysiumVoices.pitchOf(this);
     }
 }

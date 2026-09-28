@@ -7,6 +7,9 @@ import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.level.Level;
+import com.elysium.lib.sound.ElysiumVoices;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.damagesource.DamageSource;
 
 /**
  * Cinderveil's boar (Stellaris's mogler): a hoglin that is at home on its
@@ -65,5 +68,32 @@ public class CinderBoar extends Hoglin implements Animated {
     @Override
     public AnimationState animation(String state) {
         return "attack".equals(state) ? attack : null;
+    }
+
+    // --- what it says (elysium-lib sound table, POLISH.md P5) ---------------
+
+    /** The voice this one speaks with, a name in ElysiumSoundRules. */
+    public String voice() {
+        return "cinder_boar";
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return ElysiumVoices.ambient(voice(), super.getAmbientSound());
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return ElysiumVoices.hurt(voice(), super.getHurtSound(source));
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return ElysiumVoices.death(voice(), super.getDeathSound());
+    }
+
+    @Override
+    public float getVoicePitch() {
+        return ElysiumVoices.pitchOf(this);
     }
 }

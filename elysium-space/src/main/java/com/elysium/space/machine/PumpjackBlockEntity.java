@@ -14,6 +14,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 import java.util.List;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * Pumps the oil under its chunk (Stellaris's pumpjack): 10 mB a tick for
@@ -51,6 +52,7 @@ public class PumpjackBlockEntity extends MachineBlockEntity {
         int taken = MachineRules.pumped(deposit, oil.getSpace(), energy.getEnergyStored());
         if (taken > 0) {
             energy.consume(MachineRules.PUMP_FE_PER_TICK);
+            ElysiumVoices.hum(level, worldPosition, "pump");
             oil.fill(new FluidStack(SpaceFluids.OIL.source.get(), taken), IFluidHandler.FluidAction.EXECUTE);
             chunk.setData(SpaceData.CHUNK_OIL, deposit - taken);
             setChanged();

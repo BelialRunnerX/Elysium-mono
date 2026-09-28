@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * An assembler: one job at a time, and nothing clever.
@@ -264,6 +265,7 @@ public class AssemblerBlock extends GridBlock {
                 return;
             }
             done += IndustryRules.workPerTick(share());
+            ElysiumVoices.hum(level, pos, "electric");
             while (done >= LogisticRules.assembleWork() && left > 0) {
                 if (!consume()) {
                     // The batch and the recipe have disagreed, which can only

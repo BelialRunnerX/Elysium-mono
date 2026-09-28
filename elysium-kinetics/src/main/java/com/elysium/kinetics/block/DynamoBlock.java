@@ -161,6 +161,11 @@ public class DynamoBlock extends KineticBlock {
         }
 
         @Override
+        protected String hum() {
+            return "electric";
+        }
+
+        @Override
         protected void serverTick(Level level, BlockPos pos, BlockState state) {
             making = running() ? SeamRules.output(rpm()) : 0.0F;
             int made = Math.round(making);

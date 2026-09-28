@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * Turns water and skylight into biomass fuel.
@@ -102,6 +103,7 @@ public class AlgaeBioreactorEntity extends SolarpunkMachineEntity {
             return;
         }
         energy.spend(DRAW);
+        ElysiumVoices.hum(level, worldPosition, "pump");
 
         if (++progress < GROW_TICKS) {
             return;

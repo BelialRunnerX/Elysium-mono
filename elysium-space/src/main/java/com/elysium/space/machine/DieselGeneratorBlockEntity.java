@@ -10,6 +10,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 import java.util.List;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /** Burns the refinery's diesel: 40 FE a tick, twice a coal generator. */
 public class DieselGeneratorBlockEntity extends MachineBlockEntity {
@@ -40,6 +41,9 @@ public class DieselGeneratorBlockEntity extends MachineBlockEntity {
                 energy.produce(MachineRules.DIESEL_FE_PER_BURN);
                 setChanged();
             }
+        }
+        if (running) {
+            ElysiumVoices.hum(level, worldPosition, "diesel");
         }
         pushEnergy(MachineRules.PUSH_PER_TICK);
     }

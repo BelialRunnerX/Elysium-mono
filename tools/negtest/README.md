@@ -1,6 +1,6 @@
 # The negative tests
 
-198 scripts. Each one takes a validator that passes, breaks the thing it
+200 scripts. Each one takes a validator that passes, breaks the thing it
 checks — one way at a time — and proves the validator says so.
 
 They are here because they were not, for most of this project's life. They
@@ -93,6 +93,13 @@ tag, `python3 - "$M/x.java" <<'PYX'`, walked past the heredoc pattern, which
 wanted `python3 - <<`. Two cases in `negtest_bestiary.sh` that thin or resize
 a shape class ran for real on every dry run; the diff of the tree showed it,
 which is the check the paragraphs above keep asking for. Closed in `dryrun.py`.
+
+Some scripts snapshot more than their module: `negtest_wilds.sh` keeps a copy
+of the root `validate.py` (its `V=`) and puts it back at the end. An edit made
+to the root validator while that script runs is undone when it finishes, and
+nothing says so: a cross-check wired in during a wilds run vanished this way
+(28 Sep). Do not edit anything a running script snapshots; read its `snap`
+and `V=`/`M=` lines first.
 
 A miss that is not a stale anchor: `edit()` replaces the **first** occurrence
 only, and a rule that looks for a phrase anywhere in a file is not broken by

@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.Optional;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * A machine that turns one item into another by spending power on it.
@@ -199,6 +200,7 @@ public abstract class ProcessingMachineEntity extends SolarpunkMachineEntity {
             return;                      // starved: an unpaid tick buys nothing
         }
         energy.spend(perTick);
+        ElysiumVoices.hum(level, worldPosition, "electric");
 
         if (++progress < recipe.time()) {
             return;

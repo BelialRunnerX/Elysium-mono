@@ -12,6 +12,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 import java.util.List;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * Water and power to hydrogen and oxygen (Stellaris: 5 water to 10 hydrogen
@@ -48,13 +49,20 @@ public class WaterSeparatorBlockEntity extends MachineBlockEntity {
         return oxygen;
     }
 
+    private boolean separating;
+
     @Override
     public void serverTick() {
+        if (separating) {
+            ElysiumVoices.hum(level, worldPosition, "whine");
+        }
         if (++ticks >= MachineRules.BATCH_TICKS) {
             ticks = 0;
+            separating = false;
             if (MachineRules.separatorBatches(water.getFluidAmount(), hydrogen.getSpace(), oxygen.getSpace(),
                     energy.getEnergyStored()) > 0) {
                 energy.consume(MachineRules.SEPARATOR_FE_PER_BATCH);
+                separating = true;
                 water.drain(MachineRules.WATER_PER_BATCH, IFluidHandler.FluidAction.EXECUTE);
                 hydrogen.fill(new FluidStack(SpaceFluids.HYDROGEN.source.get(), MachineRules.HYDROGEN_PER_BATCH),
                         IFluidHandler.FluidAction.EXECUTE);

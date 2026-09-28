@@ -33,6 +33,8 @@ import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import com.elysium.lib.sound.ElysiumVoices;
+import net.minecraft.world.damagesource.DamageSource;
 
 /**
  * A member of the Imperial court, met rather than fought.
@@ -810,5 +812,32 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
         ledgerSeed = tag.getLong("Ledger");
         pendingUses = tag.contains("LedgerUses") ? tag.getIntArray("LedgerUses") : null;
         offers = null;
+    }
+
+    // --- what it says (elysium-lib sound table, POLISH.md P5) ---------------
+
+    /** The voice this one speaks with, a name in ElysiumSoundRules. */
+    public String voice() {
+        return "envoy";
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return ElysiumVoices.ambient(voice(), super.getAmbientSound());
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return ElysiumVoices.hurt(voice(), super.getHurtSound(source));
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return ElysiumVoices.death(voice(), super.getDeathSound());
+    }
+
+    @Override
+    public float getVoicePitch() {
+        return ElysiumVoices.pitchOf(this);
     }
 }

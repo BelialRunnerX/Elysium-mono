@@ -20,6 +20,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * Fells grown trees around it, replants, and posts the timber downward.
@@ -159,6 +160,7 @@ public class TreeHarvesterEntity extends SolarpunkMachineEntity {
             }
             if (fell(server, base)) {
                 energy.spend(COST_PER_TREE);
+                ElysiumVoices.hum(level, worldPosition, "shaft");
                 return;                 // one tree a tick at most
             }
         }

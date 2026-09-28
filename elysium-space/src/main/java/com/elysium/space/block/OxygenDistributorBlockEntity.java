@@ -17,6 +17,7 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * Every {@link #INTERVAL} ticks: flood the air from each face with
@@ -94,6 +95,7 @@ public class OxygenDistributorBlockEntity extends MachineBlockEntity {
         }
         oxygen.drain(air, IFluidHandler.FluidAction.EXECUTE);
         energy.consume(power);
+        ElysiumVoices.hum(level, worldPosition, "electric");
         filled = Set.copyOf(room);
         OxygenField.set(level, worldPosition, filled);
         state = "elysiumspace.machine.running";

@@ -197,6 +197,17 @@ def main():
         failures.append("nullable")
     print()
 
+    # Cross-cutting because the seam is between modules: a creature answers
+    # for a voice by a family name, and the library writes the voices. A
+    # family with no voice is a wight that groans like a zombie, and nothing
+    # in either module's validator can see it (docs/POLISH.md P5).
+    print("=" * 70)
+    print("sound — every creature, machine and station asks for a sound the table has")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_sound.py"], cwd=HERE).returncode != 0:
+        failures.append("sound")
+    print()
+
     # Cross-cutting, and the one check that reads the game's codecs rather
     # than our own conventions. Four data files shipped that were valid JSON,
     # named files that exist, and blew up when a player pressed Create World.

@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * A centrifuge: what a comb is actually for.
@@ -205,6 +206,7 @@ public class CentrifugeBlock extends GridBlock {
             // grid that browns out halfway through a comb neither invents one
             // nor throws away the half that was done.
             spun += AgronomyRules.workPerTick(share());
+            ElysiumVoices.hum(level, pos, "whine");
             int whole = AgronomyRules.workFor(ApiaryRules.SPIN_TICKS);
             if (spun < whole) {
                 return;

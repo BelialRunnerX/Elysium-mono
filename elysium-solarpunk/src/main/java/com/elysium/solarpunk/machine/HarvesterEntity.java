@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.List;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * Cuts and replants the field around it, and posts the crop downward.
@@ -157,6 +158,7 @@ public class HarvesterEntity extends SolarpunkMachineEntity {
             }
             if (harvest(server, target)) {
                 energy.spend(COST_PER_HARVEST);
+                ElysiumVoices.hum(level, worldPosition, "shaft");
                 return;                 // one block a tick, so the field ripples
             }
         }

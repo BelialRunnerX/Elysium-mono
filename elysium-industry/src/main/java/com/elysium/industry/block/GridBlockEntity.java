@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * What every block on a grid has in common.
@@ -126,6 +127,19 @@ public abstract class GridBlockEntity extends BlockEntity implements GridNode {
             GridLine.solve(level, pos);
         }
         be.serverTick(level, pos, state);
+        if (be.hum() != null && be.humming()) {
+            ElysiumVoices.hum(level, pos, be.hum());
+        }
+    }
+
+    /** What this block sounds like while it works, or null for a wire that says nothing. */
+    protected String hum() {
+        return null;
+    }
+
+    /** Whether it is working this tick. */
+    protected boolean humming() {
+        return false;
     }
 
     protected void serverTick(Level level, BlockPos pos, BlockState state) {

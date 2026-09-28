@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import com.elysium.lib.sound.ElysiumVoices;
 
 /**
  * Gathers power from open sky, and more of it with height.
@@ -95,6 +96,7 @@ public class WindCapstanEntity extends SolarpunkMachineEntity {
                 exposure(), worldPosition.getY());
         if (made > 0) {
             energy.produce(made);
+            ElysiumVoices.hum(level, worldPosition, "shaft");
         }
         SolarpunkPower.push(level, worldPosition, energy, TRANSFER);
     }

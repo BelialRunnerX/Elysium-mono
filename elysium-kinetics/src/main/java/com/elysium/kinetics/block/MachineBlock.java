@@ -215,6 +215,11 @@ public abstract class MachineBlock extends KineticBlock {
         }
 
         @Override
+        protected String hum() {
+            return "shaft";
+        }
+
+        @Override
         protected void serverTick(Level level, BlockPos pos, BlockState state) {
             MachineBlock machine = block();
             ItemStack input = items.getStackInSlot(IN);
