@@ -166,3 +166,8 @@ boot with no registry errors and no missing Elysium models.
       per creature once they have been seen in the world. The space mobs stay
       as they are: they are Stellaris's own detailed models, ported, not ours
       to replace.
+      Seen in the world on 28 Sep (tools/livetest/stages/stage_creatures_client.ps1:
+      group shots and a portrait of each of fourteen kinds, in handback/screenshots/creatures):
+      the stilt, hulk, grazer, prowler, fowl, swimmer, floater, winged, insect and fish
+      plans all render and animate on their entities; the shade is translucent and
+      reaches; nothing is a magenta cube.

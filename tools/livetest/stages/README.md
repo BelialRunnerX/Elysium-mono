@@ -33,3 +33,17 @@ after every install. Screenshots land beside the script, or in
   spawns counted around the player.
 * `stage_creatures_client.ps1` - the creatures on their body plans, summoned in
   two rows and photographed standing and moving (POLISH.md P10).
+
+Pitfalls the creature stage taught (28 Sep):
+
+* A `/fill` over 32768 blocks does nothing and says so only in chat: split
+  the air fill into slabs.
+* Yaw 0 faces south (+z); the rows sit south of the camera, so `tp ... 0 <pitch>`.
+* Undead kinds burn by day and are dead before the close-ups: night plus
+  night vision, not noon.
+* Negative coordinates floor the other way: a summon at `z -212.5` is in
+  block `-213`, not `-212`. A fish summoned "into" a one-block hole at
+  `-212` sat inside the stone beside it, suffocating and "out of water",
+  which looked exactly like a fish bug and was not one. Sink a 3x3 pool.
+* `Select-Object -First` on the stage's output ends the pipeline and the
+  stage with it; redirect to a log and read that.
