@@ -1,6 +1,5 @@
 package com.elysium.bestiary.client;
 
-import com.elysium.bestiary.client.CreatureModel.Part;
 import com.elysium.bestiary.client.shape.Shapes;
 import com.elysium.bestiary.entity.FaunaEntity;
 import com.elysium.bestiary.rules.FaunaRules;
@@ -12,15 +11,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.resources.ResourceLocation;
 
-import static com.elysium.bestiary.client.CreatureModel.ARM_LEFT;
-import static com.elysium.bestiary.client.CreatureModel.ARM_RIGHT;
-import static com.elysium.bestiary.client.CreatureModel.BODY;
-import static com.elysium.bestiary.client.CreatureModel.HEAD;
-import static com.elysium.bestiary.client.CreatureModel.LEG_LEFT;
-import static com.elysium.bestiary.client.CreatureModel.LEG_RIGHT;
-
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,47 +24,10 @@ import java.util.Map;
  * the seam the renderer talks to; {@link Shapes} holds the plans, and the
  * renderer squashes whatever comes out onto the row's hitbox.
  *
- * <p>{@link #SHAPES} is the six-box table the animals used to be, kept for the
- * kinds that still borrow an animal's shape by name until they have plans of
- * their own; nothing here draws it.
+ * <p>The six-box table the animals used to be is gone: every kind in this
+ * module wears a plan, so nothing borrows a table any more (28 Sep).
  */
 public class FaunaModel extends EntityModel<FaunaEntity> {
-
-    /** The six-box shapes, kept for the kinds that borrow them (see the class comment). */
-    public static final Map<String, List<Part>> SHAPES = shapes();
-
-    private static Map<String, List<Part>> shapes() {
-        Map<String, List<Part>> made = new LinkedHashMap<>();
-        made.put(FaunaRules.GRAZER, List.of(
-                new Part(HEAD, 0.0F, -21.0F, -10.0F, -3.0F, -3.0F, -8.0F, 6, 6, 8),
-                new Part(BODY, 0.0F, -18.0F, 0.0F, -5.0F, -5.0F, -9.0F, 10, 9, 18),
-                new Part(ARM_LEFT, -3.5F, -14.0F, -6.0F, -1.5F, 0.0F, -1.5F, 3, 13, 3),
-                new Part(ARM_RIGHT, 3.5F, -14.0F, -6.0F, -1.5F, 0.0F, -1.5F, 3, 13, 3),
-                new Part(LEG_LEFT, -3.5F, -14.0F, 6.0F, -1.5F, 0.0F, -1.5F, 3, 13, 3),
-                new Part(LEG_RIGHT, 3.5F, -14.0F, 6.0F, -1.5F, 0.0F, -1.5F, 3, 13, 3)));
-        made.put(FaunaRules.FORAGER, List.of(
-                new Part(HEAD, 0.0F, -10.0F, -7.0F, -2.5F, -2.5F, -6.0F, 5, 5, 6),
-                new Part(BODY, 0.0F, -9.0F, 0.0F, -4.0F, -4.0F, -6.0F, 8, 7, 12),
-                new Part(ARM_LEFT, -3.0F, -5.0F, -4.0F, -1.5F, 0.0F, -1.5F, 3, 5, 3),
-                new Part(ARM_RIGHT, 3.0F, -5.0F, -4.0F, -1.5F, 0.0F, -1.5F, 3, 5, 3),
-                new Part(LEG_LEFT, -3.0F, -5.0F, 4.0F, -1.5F, 0.0F, -1.5F, 3, 5, 3),
-                new Part(LEG_RIGHT, 3.0F, -5.0F, 4.0F, -1.5F, 0.0F, -1.5F, 3, 5, 3)));
-        made.put(FaunaRules.FOWL, List.of(
-                new Part(HEAD, 0.0F, -16.0F, -1.0F, -2.0F, -4.0F, -4.0F, 4, 5, 5),
-                new Part(BODY, 0.0F, -11.0F, 0.0F, -3.0F, -4.0F, -4.0F, 6, 8, 8),
-                new Part(ARM_LEFT, -3.0F, -14.0F, 0.0F, -1.0F, 0.0F, -3.0F, 1, 7, 6),
-                new Part(ARM_RIGHT, 3.0F, -14.0F, 0.0F, 0.0F, 0.0F, -3.0F, 1, 7, 6),
-                new Part(LEG_LEFT, -1.5F, -6.0F, 0.0F, -1.0F, 0.0F, -1.0F, 2, 6, 2),
-                new Part(LEG_RIGHT, 1.5F, -6.0F, 0.0F, -1.0F, 0.0F, -1.0F, 2, 6, 2)));
-        made.put(FaunaRules.SWIMMER, List.of(
-                new Part(HEAD, 0.0F, -6.0F, -9.0F, -2.5F, -2.5F, -6.0F, 5, 5, 6),
-                new Part(BODY, 0.0F, -6.0F, 0.0F, -3.0F, -3.0F, -8.0F, 6, 6, 16),
-                new Part(ARM_LEFT, -3.0F, -6.0F, -2.0F, -1.0F, -2.0F, -2.5F, 1, 4, 5),
-                new Part(ARM_RIGHT, 3.0F, -6.0F, -2.0F, 0.0F, -2.0F, -2.5F, 1, 4, 5),
-                new Part(LEG_LEFT, -0.5F, -6.0F, 8.0F, -0.5F, -3.0F, 0.0F, 1, 6, 4),
-                new Part(LEG_RIGHT, 0.5F, -6.0F, 8.0F, -0.5F, -3.0F, 0.0F, 1, 6, 4)));
-        return Map.copyOf(made);
-    }
 
     /** One layer per kind, as {@link Shapes} names them. */
     public static final Map<String, ModelLayerLocation> LAYERS = layers();
@@ -94,12 +48,12 @@ public class FaunaModel extends EntityModel<FaunaEntity> {
     }
 
     /** How big a kind's shape is, measured through its part tree at bind pose. */
-    public static CreatureModel.Bounds bounds(String kind) {
+    public static Bounds bounds(String kind) {
         if (!Shapes.FAMILIES.contains(kind)) {
             throw new IllegalArgumentException("nothing is shaped like a " + kind);
         }
         float[] size = Shapes.bounds(kind);
-        return new CreatureModel.Bounds(size[0], size[1], size[2]);
+        return new Bounds(size[0], size[1], size[2]);
     }
 
     private final EntityModel<FaunaEntity> inner;

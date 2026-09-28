@@ -88,6 +88,12 @@ a heredoc tagged `PYZ` rather than `PYX` went straight through the neutering.
 Both are closed. If you add a new kind of mutation to a script, check
 `dryrun.py` knows about it.
 
+A seventh hole (28 Sep): a heredoc with an argument between the dash and the
+tag, `python3 - "$M/x.java" <<'PYX'`, walked past the heredoc pattern, which
+wanted `python3 - <<`. Two cases in `negtest_bestiary.sh` that thin or resize
+a shape class ran for real on every dry run; the diff of the tree showed it,
+which is the check the paragraphs above keep asking for. Closed in `dryrun.py`.
+
 A miss that is not a stale anchor: `edit()` replaces the **first** occurrence
 only, and a rule that looks for a phrase anywhere in a file is not broken by
 taking one of four copies of it out. `negtest_bees.sh`'s lockstep case edited

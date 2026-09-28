@@ -4,7 +4,6 @@ set -uo pipefail
 ROOT=/tmp/Elysium-mono
 M=$ROOT/elysium-bestiary
 R=$M/src/main/java/com/elysium/bestiary/rules/BeastRules.java
-MD=$M/src/main/java/com/elysium/bestiary/client/BeastModel.java
 RD=$M/src/main/java/com/elysium/bestiary/client/BeastRenderer.java
 CL=$M/src/main/java/com/elysium/bestiary/client/BestiaryClient.java
 EN=$M/src/main/java/com/elysium/bestiary/entity/BeastEntity.java
@@ -12,7 +11,6 @@ RE=$M/src/main/java/com/elysium/bestiary/registry/BeastEntities.java
 RI=$M/src/main/java/com/elysium/bestiary/registry/BeastItems.java
 G=$M/tools/gen_bestiary.py
 V=$M/validate.py
-SH=$M/src/main/java/com/elysium/bestiary/client/CreatureModel.java
 H=$M/tools/BeastHarness.java
 SNAP=/tmp/bestiary_snap.tar
 pass=0; fail=0
@@ -93,16 +91,6 @@ edit $H '            System.out.println("EARNED " + beast.id() + " " + reward.ex
                     + reward.drops());' '            if (false) { System.out.println(""); }'
 expect "a harness that stops printing the table it derived" "believed rather than checked"
 
-echo "the sheet"
-edit $SH '            BODY, new int[]{0, 32, 72, 32},' '            BODY, new int[]{0, 16, 72, 32},'
-expect "two parts drawn over one another on the sheet" "overlap on the sheet"
-
-edit $SH '            LEG_RIGHT, new int[]{96, 72, 24, 32});' '            LEG_RIGHT, new int[]{120, 72, 24, 32});'
-expect "a part drawn off the edge of the sheet" "runs off a 128-pixel sheet"
-
-edit $SH '            HEAD, new int[]{0, 0, 48, 24},' '            HEAD, new int[]{0, 0, 12, 24},'
-expect "a box bigger than the corner of the sheet it is drawn in" "another part's corner"
-
 echo "as big as it looks"
 edit $RD '        float across = row.width() * PIXELS / Math.max(shape.wide(), shape.deep());' \
         '        float across = 1.0F;'
@@ -114,19 +102,22 @@ expect "a head above its own hitbox" "no longer worked out from how tall it is"
 edit $RD '        pose.scale(across, up, across);' '        pose.scale(1.0F, 1.0F, 1.0F);'
 expect "a shape never squashed onto the hitbox at all" "not squashed onto the hitbox"
 
-edit $SH '        return new Bounds(highX - lowX, highY - lowY, highZ - lowZ);' \
-        '        return new Bounds(16.0F, 32.0F, 16.0F);'
-expect "a shape whose size is typed rather than measured" "squashes onto a number somebody typed"
-
-edit $MD '                new Part(LEG_LEFT, -2.0F, -12.0F, 0.0F, -2.0F, 0.0F, -2.0F, 4, 12, 4),
-                new Part(LEG_RIGHT, 2.0F, -12.0F, 0.0F, -2.0F, 0.0F, -2.0F, 4, 12, 4)));' \
-        '                new Part(LEG_LEFT, -2.0F, -12.0F, 0.0F, -2.0F, 0.0F, -2.0F, 4, 12, 4)));'
-expect "a family missing a limb the walk cycle reaches for by name" "rather than six"
-
-edit $MD '        made.put(BeastRules.WIGHT, List.of(' '        made.put("ghoul", List.of('
-expect "a family of beasts with no shape at all" "nothing is shaped like a wight"
-
 echo "the shapes"
+edit $R 'public static final String WIGHT = "wight";' 'public static final String WIGHT = "ghoul";'
+expect "a family of beasts with no shape at all" "no body plan"
+
+edit $M/src/main/java/com/elysium/bestiary/client/shape/ProwlerShape.java 'public static final float WIDE = ' 'public static final float WIDTH = '
+expect "a shape that stopped publishing how wide it is" "does not publish its WIDE"
+
+python3 - "$M/src/main/java/com/elysium/bestiary/client/shape/WightShape.java" <<'PYX'
+import re, sys
+p = sys.argv[1]; s = open(p, encoding="utf-8").read()
+# A size typed in by hand where the generator measured one.
+s = re.sub(r"public static final float TALL = [\d.]+F;", "public static final float TALL = 32.0F;", s, count=1)
+open(p, "w", encoding="utf-8").write(s)
+PYX
+expect "a shape whose size is typed rather than measured" "is not what the generator produces"
+
 python3 - "$M/src/main/java/com/elysium/bestiary/client/shape/ProwlerShape.java" <<'PY'
 import re, sys
 p = sys.argv[1]; s = open(p, encoding="utf-8").read()

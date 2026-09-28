@@ -37,7 +37,7 @@ public class MythRenderer extends MobRenderer<MythEntity, MythModel> {
     @Override
     protected void scale(MythEntity myth, PoseStack pose, float partialTick) {
         MythRules.Myth row = myth.myth();
-        CreatureModel.Bounds shape = MythModel.bounds(row.form());
+        Bounds shape = MythModel.bounds(row.form());
         float[] size = MythEntities.sizeOf(row);
         float across = size[0] * PIXELS / Math.max(shape.wide(), shape.deep());
         float up = size[1] * PIXELS / shape.tall();

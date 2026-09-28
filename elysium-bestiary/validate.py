@@ -19,7 +19,7 @@ every beast is exactly as big on screen as the box you are swinging at.
   1. INDEPENDENCE. The library, the game, and nothing else.
   2. PURITY, and the harness run rather than read.
   3. THE TWO DERIVATIONS, compared line by line.
-  4. THE SHEET, and the six corners nothing may spill out of.
+  4. THE SHAPES: a body plan per family and kind, dense, measured, listed.
   5. AS BIG AS IT LOOKS. The model measured against the hitbox.
   6. WHAT IT LEAVES, counted out of the written loot tables.
   7. WHAT YOU MEET, counted out of the written spawn rules.
@@ -432,17 +432,6 @@ if generator is not None and harness_out:
 # 4. The sheet
 # ---------------------------------------------------------------------------
 
-model = read(SRC, "client/BeastModel.java")
-model_plain = strip_comments(model)
-# The boxes, the sheet and the measuring moved into CreatureModel when the
-# fauna arrived, because a second copy of them with Animal written where Beast
-# is would be the same mistake as two copies of a hitbox, one level up.
-shared = read(SRC, "client/CreatureModel.java")
-shared_plain = strip_comments(shared)
-if not shared:
-    fail("there is nothing shared between the two rosters' models any more, so "
-         "the sheet arithmetic is written twice and the two copies will drift")
-
 # Read here rather than borrowed off the generator. A generator that will not
 # start is one of the states these checks exist to describe, and a check that
 # falls silent exactly then is a check that only ever reports what does not
@@ -470,75 +459,6 @@ if not beasts:
     fail("this file can no longer read the bestiary out of the rules, so everything "
          "below is checking an empty list and passing")
 
-PART_NAMES = dict(re.findall(
-    r'public static final String (HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT)'
-    r' = "(\w+)";', strip_comments(shared, keep_strings=True)))
-
-shapes = {}
-for block in re.finditer(
-        r"made\.put\(BeastRules\.(PROWLER|BRUTE|WIGHT), List\.of\((.*?)\)\);",
-        model_plain, re.S):
-    parts = []
-    for row in re.finditer(
-            r"new Part\((HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT), "
-            r"([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, "
-            r"([-\d.]+)F, (\d+), (\d+), (\d+)\)", block.group(2)):
-        parts.append({
-            "name": row.group(1),
-            "pivot": (float(row.group(2)), float(row.group(3)), float(row.group(4))),
-            "box": (float(row.group(5)), float(row.group(6)), float(row.group(7))),
-            "size": (int(row.group(8)), int(row.group(9)), int(row.group(10))),
-        })
-    shapes[FAMILY_NAMES.get(block.group(1), block.group(1))] = parts
-
-for family in sorted({beast["family"] for beast in beasts}):
-    if family not in shapes:
-        fail(f"nothing is shaped like a {family}, so every beast in that family is a "
-             f"crash the first time one is drawn")
-for family, parts in sorted(shapes.items()):
-    if len(parts) != 6:
-        fail(f"a {family} is made of {len(parts)} part(s) rather than six; the walk "
-             f"cycle reaches for all six by name and will not find them")
-
-slots = {}
-for name, x, y, wide, tall in re.findall(
-        r"(HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT), new int\[\]\{"
-        r"(\d+), (\d+), (\d+), (\d+)\}", shared_plain):
-    slots[name] = (int(x), int(y), int(wide), int(tall))
-
-sheet = re.search(r"public static final int SHEET = (\d+);", shared_plain)
-sheet = int(sheet.group(1)) if sheet else 0
-
-if len(slots) != 6:
-    fail(f"the sheet has {len(slots)} corners on it rather than six, so at least one "
-         f"part of every beast is drawn over another part")
-for name, (x, y, wide, tall) in sorted(slots.items()):
-    if x + wide > sheet or y + tall > sheet:
-        fail(f"{name}'s corner runs off a {sheet}-pixel sheet, so that part of every "
-             f"beast is transparent")
-    for other, (ox, oy, owide, otall) in sorted(slots.items()):
-        if other <= name:
-            continue
-        if x < ox + owide and ox < x + wide and y < oy + otall and oy < y + tall:
-            fail(f"{name} and {other} overlap on the sheet, so painting one repaints "
-                 f"the other and no beast can have both")
-
-for family, parts in sorted(shapes.items()):
-    for part in parts:
-        wide, tall, deep = part["size"]
-        slot = slots.get(part["name"])
-        if slot is None:
-            fail(f"a {family}'s {part['name']} has no corner of the sheet at all, so "
-                 f"it is drawn out of whatever happens to be at the origin")
-            continue
-        if 2 * deep + 2 * wide > slot[2] or deep + tall > slot[3]:
-            fail(f"a {family}'s {part['name']} unwraps to "
-                 f"{2 * deep + 2 * wide}x{deep + tall} and its corner of the sheet "
-                 f"is {slot[2]}x{slot[3]}, so one of its faces is drawn in another "
-                 f"part's corner")
-print(f"the sheet          : {len(slots)} corners on a {sheet}-pixel sheet, none "
-      f"overlapping, and every box in every family fits the corner it is drawn in")
-
 # ---------------------------------------------------------------------------
 # 5. As big as it looks
 # ---------------------------------------------------------------------------
@@ -561,66 +481,14 @@ if "pose.scale(across, up, across);" not in scaling:
     fail("the shape is not squashed onto the hitbox at all, so every beast is the size "
          "of the shape it shares with two others")
 
-bounds_body = squashed(body_of(shared_plain,
-                               "public static Bounds bounds(List<Part> parts)"))
-if "return new Bounds(highX - lowX, highY - lowY, highZ - lowZ);" not in bounds_body:
-    fail("a shape's size is no longer measured across its own boxes, so the renderer "
-         "squashes onto a number somebody typed")
-# The beasts and the animals measure their body plans through the hierarchy
-# (4b below): their models ask Shapes for what the generator measured.
-
-if shapes and beasts:
-    PIXELS = 16.0
-    measured = {}
-    for family, parts in sorted(shapes.items()):
-        low = [float("inf")] * 3
-        high = [float("-inf")] * 3
-        for part in parts:
-            for axis in range(3):
-                start = part["pivot"][axis] + part["box"][axis]
-                low[axis] = min(low[axis], start)
-                high[axis] = max(high[axis], start + part["size"][axis])
-        measured[family] = (high[0] - low[0], high[1] - low[1], high[2] - low[2])
-        if min(measured[family]) <= 0.0:
-            fail(f"a {family} has no extent in one direction, so it is drawn as a "
-                 f"sheet of paper")
-    for beast in beasts:
-        if beast["family"] not in measured:
-            # Already reported above. Carrying on rather than throwing is the
-            # point: a validator that dies partway through prints none of the
-            # problems it had already found, which is how one broken thing
-            # hides five others.
-            continue
-        wide, tall, deep = measured[beast["family"]]
-        across = beast["width"] * PIXELS / max(wide, deep)
-        up = beast["height"] * PIXELS / tall
-        drawn = (wide * across, tall * up, deep * across)
-        box = (beast["width"] * PIXELS, beast["height"] * PIXELS,
-               beast["width"] * PIXELS)
-        for axis, side in enumerate(("wide", "tall", "deep")):
-            if drawn[axis] > box[axis] + 1e-6:
-                fail(f"{beast['id']} is drawn {drawn[axis] / PIXELS:.2f} blocks {side} "
-                     f"inside a hitbox {box[axis] / PIXELS:.2f} blocks {side}, so part "
-                     f"of it is outside the thing you are swinging at")
-        if abs(drawn[1] - box[1]) > 1e-6:
-            fail(f"{beast['id']} is drawn {drawn[1] / PIXELS:.2f} blocks tall in a "
-                 f"hitbox {box[1] / PIXELS:.2f} blocks tall, so its head is either "
-                 f"above the box or floating inside it")
-        if abs(max(drawn[0], drawn[2]) - box[0]) > 1e-6:
-            fail(f"{beast['id']} does not touch the sides of its own hitbox, so there "
-                 f"is a band around it that can be hit and cannot be seen")
-    print(f"as big as it looks : {len(beasts)} beasts, every one of them exactly as "
-          f"tall and as wide on screen as the box you swing at")
-
 # ---------------------------------------------------------------------------
 # 4b. The shapes (docs/POLISH.md P10)
 # ---------------------------------------------------------------------------
 #
 # Every beast wears a body plan from art/bodyplans.py: a hundred-plus boxes in
-# a real part tree, generated with its sheet from the same rows. The six-box
-# table above is what the other kinds still borrow; the beasts are drawn by the
-# classes under client/shape, which Shapes.java lists by family and BeastModel
-# delegates to. What is checked: a class per family, dense enough, measured,
+# a real part tree, generated with its sheet from the same rows. The beasts are
+# drawn by the classes under client/shape, which Shapes.java lists by family and
+# BeastModel delegates to; the six-box table is gone (28 Sep). What is checked: a class per family, dense enough, measured,
 # listed, delegated to, and every beast's sheet the size its shape was packed to.
 shape_dir = os.path.join(SRC, "client/shape")
 shapes_registry = strip_comments(read(SRC, "client/shape/Shapes.java"), keep_strings=True) \
@@ -630,6 +498,7 @@ if not shapes_registry:
          "is back to six boxes")
 shape_boxes = {}
 shape_sheets = {}
+shape_dims = {}
 _animal_kinds = sorted(set(re.findall(r'new Animal\("\w+", (GRAZER|FORAGER|FOWL|SWIMMER),',
                                        strip_comments(read(SRC, "rules/FaunaRules.java"), keep_strings=True))))
 _animal_kinds = [k.lower() for k in _animal_kinds]
@@ -659,6 +528,10 @@ for family in sorted({beast["family"] for beast in beasts} | set(_animal_kinds))
                  f"to squash onto the hitbox")
     sheet_match = re.search(r"public static final int SHEET = (\d+);", src)
     shape_sheets[family] = int(sheet_match.group(1)) if sheet_match else 0
+    _dims = re.findall(r"public static final float (WIDE|TALL|DEEP) = ([\d.]+)F;", src)
+    if len(_dims) == 3:
+        _d = dict(_dims)
+        shape_dims[family] = (float(_d["WIDE"]), float(_d["TALL"]), float(_d["DEEP"]))
     # Three switches in the registry: the layer, the model and the bounds. A
     # family listed in two of them is drawn and then squashed onto nothing.
     if shapes_registry and shapes_registry.count(f'case "{family}"') < 3:
@@ -712,6 +585,40 @@ if _sheet_sizes and os.path.isdir(_entity_textures):
                          f"sheet nothing here wears")
     except ImportError:
         pass
+# As big as it looks, worked out on the plans' own measured bounds: the
+# renderer squashes each shape onto its row's hitbox, so every beast and
+# animal must come out exactly as tall and as wide as the box you swing at.
+_rows = [dict(beast, what="beast") for beast in beasts]
+for _id, _kind, _w, _h in re.findall(
+        r'new Animal\("(\w+)", (GRAZER|FORAGER|FOWL|SWIMMER), [\d.]+D, [\d.]+D, ([\d.]+)F, ([\d.]+)F,',
+        strip_comments(read(SRC, "rules/FaunaRules.java"), keep_strings=True)):
+    _rows.append({"id": _id, "family": _kind.lower(), "width": float(_w), "height": float(_h), "what": "animal"})
+if shape_dims and _rows:
+    PIXELS = 16.0
+    for row in _rows:
+        if row["family"] not in shape_dims:
+            continue
+        wide, tall, deep = shape_dims[row["family"]]
+        if min(wide, tall, deep) <= 0.0:
+            fail(f"a {row['family']} has no extent in one direction, so it is drawn as a sheet of paper")
+            continue
+        across = row["width"] * PIXELS / max(wide, deep)
+        up = row["height"] * PIXELS / tall
+        drawn = (wide * across, tall * up, deep * across)
+        box = (row["width"] * PIXELS, row["height"] * PIXELS, row["width"] * PIXELS)
+        for axis, side in enumerate(("wide", "tall", "deep")):
+            if drawn[axis] > box[axis] + 1e-6:
+                fail(f"{row['id']} is drawn {drawn[axis] / PIXELS:.2f} blocks {side} inside a hitbox "
+                     f"{box[axis] / PIXELS:.2f} blocks {side}, so part of it is outside the thing you are swinging at")
+        if abs(drawn[1] - box[1]) > 1e-6:
+            fail(f"{row['id']} is drawn {drawn[1] / PIXELS:.2f} blocks tall in a hitbox {box[1] / PIXELS:.2f} "
+                 f"blocks tall, so its head is either above the box or floating inside it")
+        if abs(max(drawn[0], drawn[2]) - box[0]) > 1e-6:
+            fail(f"{row['id']} does not touch the sides of its own hitbox, so there is a band around it "
+                 f"that can be hit and cannot be seen")
+    print(f"as big as it looks : {len(_rows)} beasts and animals, every one of them exactly as tall and "
+          f"as wide on screen as the box you swing at, on its plan's measured bounds")
+
 if shape_boxes:
     print(f"the shapes         : {len(shape_boxes)} body plan(s) of "
           f"{', '.join(str(shape_boxes[f]) for f in sorted(shape_boxes))} boxes, each a part tree "
@@ -923,9 +830,13 @@ if os.path.isfile(GENERATOR):
             fail("the generator does not run:\n" + built.stderr.strip()[:1200])
         else:
             drifted = []
-            for kind in ("assets", "data"):
-                here = os.path.join(RES, kind, NS)
-                there = os.path.join(tmp, "src/main/resources", kind, NS)
+            # The generated Java too: the shape classes and the shade's model
+            # are written by the generator, and a WIDE typed in by hand is a
+            # size nothing measured.
+            compared = [(os.path.join(RES, kind, NS), os.path.join(tmp, "src/main/resources", kind, NS))
+                        for kind in ("assets", "data")]
+            compared.append((os.path.join(SRC, "client"), os.path.join(tmp, "src/main/java/com/elysium/bestiary/client")))
+            for here, there in compared:
                 for base, _, names in os.walk(there):
                     for name in names:
                         fresh = os.path.join(base, name)
@@ -940,8 +851,8 @@ if os.path.isfile(GENERATOR):
             if len(drifted) > 12:
                 fail(f"...and {len(drifted) - 12} more file(s) edited by hand")
             if not drifted:
-                print("the words          : every sprite, model, loot table and spawn "
-                      "rule rebuilt and identical")
+                print("the words          : every sprite, model, shape class, loot table and "
+                      "spawn rule rebuilt and identical")
 
 # ---------------------------------------------------------------------------
 # 9. The beasts in the world, and the seam
@@ -1251,7 +1162,6 @@ else:
 print("-" * 70)
 
 FAUNA_RULES = strip_comments(read(SRC, "rules/FaunaRules.java"), keep_strings=True)
-FAUNA_MODEL = strip_comments(read(SRC, "client/FaunaModel.java"), keep_strings=True)
 FAUNA_ENTITY = strip_comments(read(SRC, "entity/FaunaEntity.java"), keep_strings=True)
 if not FAUNA_RULES:
     fail("nothing says what an animal is, so this module is nine things that "
@@ -1300,48 +1210,14 @@ else:
              f"faults(), so it answers the harness's controls and is never "
              f"once asked about the roster this pack ships")
 
-    # Four shapes, six parts each, every box inside the corner of the sheet it
-    # is drawn in. The same arithmetic the bestiary's sheet section does,
-    # against the same slots, because both rosters draw on one sheet layout.
-    fauna_shapes = {}
-    for block in re.finditer(
-            r"made\.put\(FaunaRules\.(GRAZER|FORAGER|FOWL|SWIMMER), "
-            r"List\.of\((.*?)\)\);", strip_comments(FAUNA_MODEL), re.S):
-        parts = []
-        for row in re.finditer(
-                r"new Part\((HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT), "
-                r"([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, "
-                r"([-\d.]+)F, (\d+), (\d+), (\d+)\)", block.group(2)):
-            parts.append({
-                "name": row.group(1),
-                "pivot": (float(row.group(2)), float(row.group(3)),
-                          float(row.group(4))),
-                "box": (float(row.group(5)), float(row.group(6)),
-                        float(row.group(7))),
-                "size": (int(row.group(8)), int(row.group(9)), int(row.group(10))),
-            })
-        fauna_shapes[KIND_NAMES.get(block.group(1), block.group(1))] = parts
+    # The kinds' plans: a shape class per kind, listed and measured in 4b, and
+    # every animal sized onto its plan's measured bounds there as well.
+    fauna_shapes = {kind: shape_dims[kind] for kind in sorted({animal["kind"] for animal in animals})
+                    if kind in shape_dims}
     for kind in sorted({animal["kind"] for animal in animals}):
         if kind not in fauna_shapes:
             fail(f"nothing is shaped like a {kind}, so every animal of that kind "
                  f"is a crash the first time one is drawn")
-    for kind, parts in sorted(fauna_shapes.items()):
-        if len(parts) != 6:
-            fail(f"a {kind} is made of {len(parts)} part(s) rather than six; the "
-                 f"walk cycle reaches for all six by name and will not find them")
-        for part in parts:
-            wide, tall, deep = part["size"]
-            slot = slots.get(part["name"])
-            if slot is None:
-                fail(f"a {kind}'s {part['name']} has no corner of the sheet at "
-                     f"all, so it is drawn out of whatever happens to be at the "
-                     f"origin")
-                continue
-            if 2 * deep + 2 * wide > slot[2] or deep + tall > slot[3]:
-                fail(f"a {kind}'s {part['name']} unwraps to "
-                     f"{2 * deep + 2 * wide}x{deep + tall} and its corner of the "
-                     f"sheet is {slot[2]}x{slot[3]}, so one of its faces is drawn "
-                     f"in another part's corner")
 
     # And exactly as big as it looks, worked out the same way.
     fauna_renderer = strip_comments(read(SRC, "client/FaunaRenderer.java"))
@@ -1361,36 +1237,6 @@ else:
              "is the size of the shape it shares with two others")):
         if wanted not in fauna_scaling:
             fail(why)
-    if fauna_shapes and animals:
-        measured = {}
-        for kind, parts in sorted(fauna_shapes.items()):
-            low = [float("inf")] * 3
-            high = [float("-inf")] * 3
-            for part in parts:
-                for axis in range(3):
-                    start = part["pivot"][axis] + part["box"][axis]
-                    low[axis] = min(low[axis], start)
-                    high[axis] = max(high[axis], start + part["size"][axis])
-            measured[kind] = (high[0] - low[0], high[1] - low[1], high[2] - low[2])
-            if min(measured[kind]) <= 0.0:
-                fail(f"a {kind} has no extent in one direction, so it is drawn as "
-                     f"a sheet of paper")
-        for animal in animals:
-            if animal["kind"] not in measured:
-                continue
-            wide, tall, deep = measured[animal["kind"]]
-            across = animal["width"] * 16.0 / max(wide, deep)
-            up = animal["height"] * 16.0 / tall
-            drawn = (wide * across, tall * up, deep * across)
-            box = (animal["width"] * 16.0, animal["height"] * 16.0)
-            if abs(drawn[1] - box[1]) > 1e-6:
-                fail(f"{animal['id']} is drawn {drawn[1] / 16.0:.2f} blocks tall "
-                     f"in a hitbox {box[1] / 16.0:.2f} blocks tall")
-            if abs(max(drawn[0], drawn[2]) - box[0]) > 1e-6:
-                fail(f"{animal['id']} does not touch the sides of its own hitbox, "
-                     f"so there is a band around it that can be hit and cannot "
-                     f"be seen")
-
     # What it leaves, read back out of the file rather than believed.
     rate_of = {}
     for kind, tilt in re.findall(r"(GRAZER|FORAGER|FOWL|SWIMMER), ([\d.]+)D",

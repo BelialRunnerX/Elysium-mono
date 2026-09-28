@@ -36,7 +36,7 @@ public class FaunaRenderer extends MobRenderer<FaunaEntity, FaunaModel> {
     @Override
     protected void scale(FaunaEntity beast, PoseStack pose, float partialTick) {
         FaunaRules.Animal row = beast.animal();
-        CreatureModel.Bounds shape = FaunaModel.bounds(row.kind());
+        Bounds shape = FaunaModel.bounds(row.kind());
         float across = row.width() * PIXELS / Math.max(shape.wide(), shape.deep());
         float up = row.height() * PIXELS / shape.tall();
         pose.scale(across, up, across);

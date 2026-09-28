@@ -45,7 +45,7 @@ public class DenizenRenderer extends MobRenderer<DenizenEntity, DenizenModel> {
     @Override
     protected void scale(DenizenEntity one, PoseStack pose, float partialTick) {
         DenizenRules.Denizen row = one.denizen();
-        CreatureModel.Bounds shape = DenizenModel.bounds(DenizenRules.shapeOf(row));
+        Bounds shape = DenizenModel.bounds(DenizenRules.shapeOf(row));
         float[] size = DenizenEntities.sizeOf(row);
         float across = size[0] * PIXELS / Math.max(shape.wide(), shape.deep());
         float up = size[1] * PIXELS / shape.tall();

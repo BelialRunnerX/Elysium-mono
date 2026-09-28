@@ -30,10 +30,6 @@ ASSETS = os.path.join(OUT, "src/main/resources/assets", NS)
 DATA = os.path.join(OUT, "src/main/resources/data", NS)
 
 RULES = os.path.join(MOD, "src/main/java/com/elysium/bestiary/rules/BeastRules.java")
-MODEL = os.path.join(MOD, "src/main/java/com/elysium/bestiary/client/BeastModel.java")
-SHARED = os.path.join(MOD, "src/main/java/com/elysium/bestiary/client/CreatureModel.java")
-FAUNA_MODEL = os.path.join(MOD,
-                           "src/main/java/com/elysium/bestiary/client/FaunaModel.java")
 FAUNA_RULES = os.path.join(MOD,
                            "src/main/java/com/elysium/bestiary/rules/FaunaRules.java")
 BEHAVIOURS = os.path.join(
@@ -80,9 +76,6 @@ def read(path):
 # ---------------------------------------------------------------------------
 
 RULES_SOURCE = read(RULES)
-MODEL_SOURCE = read(MODEL)
-SHARED_SOURCE = read(SHARED)
-FAUNA_MODEL_SOURCE = read(FAUNA_MODEL)
 FAUNA_RULES_SOURCE = read(FAUNA_RULES)
 BEHAVIOUR_SOURCE = read(BEHAVIOURS)
 
@@ -862,56 +855,6 @@ def round_half_up(value):
 
 REWARDS = earned()
 
-PART_NAME = {}
-for name, value in re.findall(
-        r'public static final String (HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT)'
-        r' = "(\w+)";', SHARED_SOURCE):
-    PART_NAME[name] = value
-if len(PART_NAME) != 6:
-    sys.exit("the six parts are not six any more")
-
-SHEET = int(re.search(r"public static final int SHEET = (\d+);",
-                      SHARED_SOURCE).group(1))
-
-SLOTS = {}
-for name, x, y, wide, tall in re.findall(
-        r"(HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT), new int\[\]\{"
-        r"(\d+), (\d+), (\d+), (\d+)\}", SHARED_SOURCE):
-    SLOTS[PART_NAME[name]] = (int(x), int(y), int(wide), int(tall))
-if len(SLOTS) != 6:
-    sys.exit("read %d slots off the sheet rather than six" % len(SLOTS))
-
-PART_ROW = re.compile(
-    r"new Part\((HEAD|BODY|ARM_LEFT|ARM_RIGHT|LEG_LEFT|LEG_RIGHT), "
-    r"([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, ([-\d.]+)F, "
-    r"(\d+), (\d+), (\d+)\)")
-
-SHAPES = {}
-for block in re.finditer(
-        r'made\.put\(BeastRules\.(PROWLER|BRUTE|WIGHT), List\.of\((.*?)\)\);',
-        MODEL_SOURCE, re.S):
-    parts = []
-    for row in PART_ROW.finditer(block.group(2)):
-        parts.append({
-            "name": PART_NAME[row.group(1)],
-            "pivot": (float(row.group(2)), float(row.group(3)), float(row.group(4))),
-            "box": (float(row.group(5)), float(row.group(6)), float(row.group(7))),
-            "size": (int(row.group(8)), int(row.group(9)), int(row.group(10))),
-        })
-    SHAPES[FAMILY[block.group(1)]] = parts
-if len(SHAPES) != 3 or any(len(parts) != 6 for parts in SHAPES.values()):
-    sys.exit("read %s shapes off the model rather than three of six parts each"
-             % {name: len(parts) for name, parts in SHAPES.items()})
-
-for family, parts in SHAPES.items():
-    for part in parts:
-        wide, tall, deep = part["size"]
-        slot = SLOTS[part["name"]]
-        if 2 * deep + 2 * wide > slot[2] or deep + tall > slot[3]:
-            sys.exit("a %s's %s unwraps to %dx%d and its corner of the sheet is %dx%d"
-                     % (family, part["name"], 2 * deep + 2 * wide, deep + tall,
-                        slot[2], slot[3]))
-
 # ---------------------------------------------------------------------------
 # The palette
 # ---------------------------------------------------------------------------
@@ -940,69 +883,6 @@ def shade(family, tier, step):
     return lit(RAMPS[family][step], (tier - 2) * 14)
 
 
-def grain(image, box, family, tier, seed):
-    """
-    A face: two shades scattered over a base, the same on every machine.
-
-    A fixed hash rather than random, because the sheet has to come out
-    byte-for-byte the same or the generated-file check fails for everybody
-    except whoever last ran this.
-    """
-    x0, y0, wide, tall = box
-    draw = ImageDraw.Draw(image)
-    draw.rectangle([x0, y0, x0 + wide - 1, y0 + tall - 1], fill=shade(family, tier, 1))
-    for y in range(tall):
-        for x in range(wide):
-            mix = (x * 41 + y * 97 + seed * 23) % 256
-            if mix < 44:
-                draw.point((x0 + x, y0 + y), fill=shade(family, tier, 0))
-            elif mix < 92:
-                draw.point((x0 + x, y0 + y), fill=shade(family, tier, 2))
-    draw.line([(x0, y0), (x0 + wide - 1, y0)], fill=shade(family, tier, 3))
-
-
-def unwrap(image, part, family, tier):
-    """
-    One box, laid out the way the game reads a cube: top and bottom along the
-    top row, then right, front, left and back along the second.
-    """
-    wide, tall, deep = part["size"]
-    x0, y0 = SLOTS[part["name"]][0], SLOTS[part["name"]][1]
-    seed = sum(ord(letter) for letter in part["name"])
-    faces = {
-        "top": (x0 + deep, y0, wide, deep),
-        "bottom": (x0 + deep + wide, y0, wide, deep),
-        "right": (x0, y0 + deep, deep, tall),
-        "front": (x0 + deep, y0 + deep, wide, tall),
-        "left": (x0 + deep + wide, y0 + deep, deep, tall),
-        "back": (x0 + deep + wide + deep, y0 + deep, wide, tall),
-    }
-    for index, (name, box) in enumerate(faces.items()):
-        grain(image, box, family, tier, seed + index * 7)
-    return faces
-
-
-def face_of(image, faces, family, tier):
-    """Eyes, on the front of the head and nowhere else."""
-    x0, y0, wide, tall = faces["front"]
-    draw = ImageDraw.Draw(image)
-    colour = EYES[family] + (255,)
-    left = x0 + max(1, wide // 4)
-    right = x0 + wide - max(1, wide // 4) - 1
-    row = y0 + max(1, tall // 3)
-    for at in range(max(1, wide // 8) + 1):
-        draw.point((left + at, row), fill=colour)
-        draw.point((right - at, row), fill=colour)
-    # A mouth on the brutes and a seam on the wights, so the three are three
-    # things at a glance and not one thing in three colours.
-    if family == "brute":
-        draw.line([(x0 + 2, y0 + tall - 2), (x0 + wide - 3, y0 + tall - 2)],
-                  fill=shade(family, tier, 0))
-    if family == "wight":
-        draw.line([(x0 + wide // 2, y0 + 1), (x0 + wide // 2, y0 + tall - 2)],
-                  fill=lit(EYES[family], -70))
-
-
 # ---------------------------------------------------------------------------
 # The body plans (docs/POLISH.md P10)
 # ---------------------------------------------------------------------------
@@ -1013,8 +893,8 @@ def face_of(image, faces, family, tier):
 # art/bodyplans.py: a hundred-plus boxes in a real part tree, one plan per
 # family, none of them the eight's hunched clawed humanoid. The Java model, its
 # measured bounds and every beast's sheet come out of the same rows, so the
-# UVs and the pixels cannot disagree; the six-box table stays in BeastModel for
-# the kinds that still borrow it, until they have plans of their own.
+# UVs and the pixels cannot disagree. The six-box table is gone (28 Sep): every
+# kind in the module wears a plan, so nothing borrows a table any more.
 BEAST_PLANS = {
     "prowler": ("quadruped", dict(seed=11, body_len=22, body_h=10, body_w=8, leg_len=12, leg_w=3.2,
                                   plates=6, tail_links=6, skull_w=6, skull_h=6, skull_d=1.2,
@@ -1243,16 +1123,6 @@ def write_form_skin(path, form, base, accent):
     write_texture(pathlib.Path(path), plan.rows, base, accent, sheet=sheet, skin=skin)
 
 
-def skin(beast):
-    """The six-box sheet, kept for the kinds that still borrow the table (see write_beast_skin)."""
-    image = Image.new("RGBA", (SHEET, SHEET), CLEAR)
-    for part in SHAPES[beast["family"]]:
-        faces = unwrap(image, part, beast["family"], beast["tier"])
-        if part["name"] == PART_NAME["HEAD"]:
-            face_of(image, faces, beast["family"], beast["tier"])
-    return image
-
-
 # ---------------------------------------------------------------------------
 # What they leave behind
 # ---------------------------------------------------------------------------
@@ -1284,9 +1154,9 @@ for _family, _staple, _essence, _rare in re.findall(
     STAPLE[_key] = _staple
     ESSENCE[_key] = _essence
     RARE[_key] = re.findall(r'"([a-z_:]+)"', _rare)
-if sorted(STAPLE) != sorted(SHAPES):
+if sorted(STAPLE) != sorted(FAMILY.values()):
     print("BeastRules names %s families of drops and %s families of beast"
-          % (sorted(STAPLE), sorted(SHAPES)))
+          % (sorted(STAPLE), sorted(FAMILY.values())))
     sys.exit(2)
 
 
@@ -1394,8 +1264,8 @@ if len(HAUNTS) != len(BEASTS):
 # The other half of the world
 # ---------------------------------------------------------------------------
 #
-# Twelve animals, read out of FaunaRules and FaunaModel exactly as the nine
-# beasts are read out of BeastRules and BeastModel. Nothing about an animal is
+# Twelve animals, read out of FaunaRules exactly as the nine beasts are read
+# out of BeastRules. Nothing about an animal is
 # decided here: not its wait, not its yield, not where it is. A generator that
 # decides anything is a generator whose decisions no harness has ever seen.
 
@@ -1440,36 +1310,6 @@ if len(FAUNA_HAUNTS) != len(ANIMALS):
           % (len(FAUNA_HAUNTS), len(ANIMALS)))
     sys.exit(2)
 
-FAUNA_SHAPES = {}
-for block in re.finditer(
-        r'made\.put\(FaunaRules\.(GRAZER|FORAGER|FOWL|SWIMMER), List\.of\((.*?)\)\);',
-        FAUNA_MODEL_SOURCE, re.S):
-    parts = []
-    for row in PART_ROW.finditer(block.group(2)):
-        parts.append({
-            "name": PART_NAME[row.group(1)],
-            "pivot": (float(row.group(2)), float(row.group(3)), float(row.group(4))),
-            "box": (float(row.group(5)), float(row.group(6)), float(row.group(7))),
-            "size": (int(row.group(8)), int(row.group(9)), int(row.group(10))),
-        })
-    FAUNA_SHAPES[_KIND_NAME[block.group(1)]] = parts
-if len(FAUNA_SHAPES) != 4 or any(len(parts) != 6 for parts in FAUNA_SHAPES.values()):
-    print("read %s shapes off FaunaModel rather than four of six parts each"
-          % {name: len(parts) for name, parts in FAUNA_SHAPES.items()})
-    sys.exit(2)
-for _kind, _parts in FAUNA_SHAPES.items():
-    for _part in _parts:
-        _wide, _tall, _deep = _part["size"]
-        _slot = SLOTS[_part["name"]]
-        if 2 * _deep + 2 * _wide > _slot[2] or _deep + _tall > _slot[3]:
-            print("a %s's %s unwraps to %dx%d and its corner of the sheet is %dx%d"
-                  % (_kind, _part["name"], 2 * _deep + 2 * _wide, _deep + _tall,
-                     _slot[2], _slot[3]))
-            sys.exit(2)
-
-# One ramp per kind, so a field of animals reads as four groups before it
-# reads as twelve names — the same claim the bestiary's palette makes about
-# families, and the reason neither palette is per-creature.
 FAUNA_RAMPS = {
     "grazer": [(46, 36, 22), (86, 68, 42), (124, 100, 64), (168, 142, 96)],
     "forager": [(32, 40, 24), (60, 74, 44), (92, 108, 68), (132, 150, 102)],
@@ -1481,68 +1321,6 @@ FAUNA_EYES = {"grazer": (30, 22, 14), "forager": (24, 18, 12),
               "fowl": (36, 28, 18), "swimmer": (226, 226, 210)}
 FAUNA_RAMP_HEX = {kind: "#%02x%02x%02x" % ramp[2] for kind, ramp in FAUNA_RAMPS.items()}
 FAUNA_EYE_HEX = {kind: "#%02x%02x%02x" % eye for kind, eye in FAUNA_EYES.items()}
-
-
-def fauna_shade(kind, step):
-    return lit(FAUNA_RAMPS[kind][step], 0)
-
-
-def fauna_grain(image, box, kind, seed):
-    """The same fixed hash the bestiary uses, so the sheets are reproducible."""
-    x0, y0, wide, tall = box
-    draw = ImageDraw.Draw(image)
-    draw.rectangle([x0, y0, x0 + wide - 1, y0 + tall - 1], fill=fauna_shade(kind, 1))
-    for y in range(tall):
-        for x in range(wide):
-            mix = (x * 41 + y * 97 + seed * 23) % 256
-            if mix < 44:
-                draw.point((x0 + x, y0 + y), fill=fauna_shade(kind, 0))
-            elif mix < 92:
-                draw.point((x0 + x, y0 + y), fill=fauna_shade(kind, 2))
-    draw.line([(x0, y0), (x0 + wide - 1, y0)], fill=fauna_shade(kind, 3))
-
-
-def fauna_unwrap(image, part, kind):
-    wide, tall, deep = part["size"]
-    x0, y0 = SLOTS[part["name"]][0], SLOTS[part["name"]][1]
-    seed = sum(ord(letter) for letter in part["name"])
-    faces = {
-        "top": (x0 + deep, y0, wide, deep),
-        "bottom": (x0 + deep + wide, y0, wide, deep),
-        "right": (x0, y0 + deep, deep, tall),
-        "front": (x0 + deep, y0 + deep, wide, tall),
-        "left": (x0 + deep + wide, y0 + deep, deep, tall),
-        "back": (x0 + deep + wide + deep, y0 + deep, wide, tall),
-    }
-    for index, (name, box) in enumerate(faces.items()):
-        fauna_grain(image, box, kind, seed + index * 7)
-    return faces
-
-
-def fauna_face(image, faces, kind):
-    x0, y0, wide, tall = faces["front"]
-    draw = ImageDraw.Draw(image)
-    colour = FAUNA_EYES[kind] + (255,)
-    left = x0 + max(1, wide // 4)
-    right = x0 + wide - max(1, wide // 4) - 1
-    row = y0 + max(1, tall // 3)
-    draw.point((left, row), fill=colour)
-    draw.point((right, row), fill=colour)
-    if kind == "fowl":
-        draw.line([(x0 + wide // 2, y0 + tall - 2), (x0 + wide // 2, y0 + tall - 1)],
-                  fill=lit(FAUNA_RAMPS[kind][3], 40))
-    if kind == "swimmer":
-        draw.line([(x0, y0 + tall // 2), (x0 + wide - 1, y0 + tall // 2)],
-                  fill=fauna_shade(kind, 3))
-
-
-def fauna_skin(animal):
-    image = Image.new("RGBA", (SHEET, SHEET), CLEAR)
-    for part in FAUNA_SHAPES[animal["kind"]]:
-        faces = fauna_unwrap(image, part, animal["kind"])
-        if part["name"] == PART_NAME["HEAD"]:
-            fauna_face(image, faces, animal["kind"])
-    return image
 
 
 def fauna_loot(animal):
@@ -1638,7 +1416,7 @@ def main():
             titled(beast["id"]) + " Spawn Egg"
         lang["bestiary.%s.why.%s" % (NS, beast["id"])] = REASONS[beast["id"]]
 
-    for family in sorted(SHAPES):
+    for family in sorted(FAMILY.values()):
         lang["bestiary.%s.family.%s" % (NS, family)] = titled(family)
 
     for verb, words in sorted(VERB_WORDS.items()):
@@ -2020,7 +1798,7 @@ def main():
             titled_fauna(animal["id"]) + " Spawn Egg"
         lang["bestiary.%s.why.%s" % (NS, animal["id"])] = FAUNA_REASONS[animal["id"]]
 
-    for kind in sorted(FAUNA_SHAPES):
+    for kind in sorted(_KIND_NAME.values()):
         lang["bestiary.%s.kind.%s" % (NS, kind)] = titled_fauna(kind)
     lang["itemGroup.elysiumbestiary.fauna"] = "Elysium Fauna"
 

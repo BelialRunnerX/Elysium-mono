@@ -46,7 +46,7 @@ public class KinRenderer extends MobRenderer<KinEntity, KinModel> {
     @Override
     protected void scale(KinEntity one, PoseStack pose, float partialTick) {
         KindredRules.Kin row = one.creature();
-        CreatureModel.Bounds shape = KinModel.bounds(KindredRules.shapeOf(row));
+        Bounds shape = KinModel.bounds(KindredRules.shapeOf(row));
         float[] size = KinEntities.sizeOf(row);
         float small = one.young() ? YOUNG : 1.0F;
         float across = size[0] * PIXELS / Math.max(shape.wide(), shape.deep()) * small;

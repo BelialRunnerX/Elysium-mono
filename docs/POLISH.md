@@ -161,9 +161,13 @@ boot with no registry errors and no missing Elysium models.
       species (an insect: six legs, two pairs of wings beating off each bee's
       own age, 75) and the 105 fish (30) followed, each species' sheet in its
       own colour from the same rows. The shade is a floater (86 boxes,
-      translucent, reaching when it hunts). Left: the six-box tables and
-      CreatureModel to come out, and a second pass on proportions and colour
-      per creature once they have been seen in the world. The space mobs stay
+      translucent, reaching when it hunts). The six-box tables and CreatureModel
+      came out on 28 Sep: Bounds is a record of its own, the generator and the
+      validator read nothing off a model table, the hitbox arithmetic runs on
+      every plan's measured WIDE/TALL/DEEP for beasts and animals alike, and the
+      generated shape classes are rebuilt and compared like the resources. Left:
+      a second pass on proportions and colour per creature once they have been
+      seen in the world. The space mobs stay
       as they are: they are Stellaris's own detailed models, ported, not ours
       to replace.
       Seen in the world on 28 Sep (tools/livetest/stages/stage_creatures_client.ps1:

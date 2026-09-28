@@ -185,7 +185,11 @@ s = re.sub(r'^(\w+)\(\) \{ [^\n]*python3 -c "\n(?:.*?\n)*?" "\$@"[^\n]*\n',
 # Any python heredoc, whatever it is tagged. This said PYX once, and a script
 # that tagged one PYZ went straight through and edited the tree during what was
 # supposed to be a dry run -- the same class of hole as the bare `rm`.
-s = re.sub(r"python3 - <<'(\w+)'.*?\n\1\n", "true\n", s, flags=re.S)
+# ...and whatever arguments sit between the dash and the heredoc: a case that
+# hands the file's path in as an argument (`python3 - "$M/x.java" <<'PYX'`)
+# is the same write with the path outside the body, and two such cases in
+# negtest_bestiary.sh ran for real on every dry run until 28 Sep.
+s = re.sub(r"python3 - [^\n<]*<<'(\w+)'.*?\n\1\n", "true\n", s, flags=re.S)
 # A bare multi-line `python3 -c "..."` at the top level, writing as it goes.
 # Not a heredoc, not inside a function, so nothing above sees it.
 # negtest_freight.sh opens a language file, pops a key and writes it back that

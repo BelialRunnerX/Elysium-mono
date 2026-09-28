@@ -42,7 +42,7 @@ public class WardRenderer extends MobRenderer<WardEntity, WardModel> {
     @Override
     protected void scale(WardEntity one, PoseStack pose, float partialTick) {
         WardRules.Warded row = one.warded();
-        CreatureModel.Bounds shape = WardModel.bounds(WardRules.shapeOf(row));
+        Bounds shape = WardModel.bounds(WardRules.shapeOf(row));
         float[] size = WardEntities.sizeOf(row);
         float across = size[0] * PIXELS / Math.max(shape.wide(), shape.deep());
         float up = size[1] * PIXELS / shape.tall();

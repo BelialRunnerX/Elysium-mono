@@ -46,7 +46,7 @@ public class BeastRenderer extends MobRenderer<BeastEntity, BeastModel> {
     @Override
     protected void scale(BeastEntity beast, PoseStack pose, float partialTick) {
         BeastRules.Beast row = beast.beast();
-        CreatureModel.Bounds shape = BeastModel.bounds(row.family());
+        Bounds shape = BeastModel.bounds(row.family());
         float across = row.width() * PIXELS / Math.max(shape.wide(), shape.deep());
         float up = row.height() * PIXELS / shape.tall();
         pose.scale(across, up, across);

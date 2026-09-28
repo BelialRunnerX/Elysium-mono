@@ -45,9 +45,9 @@ public class DenizenModel extends EntityModel<DenizenEntity> {
     }
 
     /** How big the form is, measured through its part tree at bind pose. */
-    public static CreatureModel.Bounds bounds(String form) {
+    public static Bounds bounds(String form) {
         float[] size = Shapes.bounds(known(form));
-        return new CreatureModel.Bounds(size[0], size[1], size[2]);
+        return new Bounds(size[0], size[1], size[2]);
     }
 
     private static String known(String form) {

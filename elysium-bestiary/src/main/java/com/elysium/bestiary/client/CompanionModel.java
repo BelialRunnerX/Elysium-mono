@@ -30,9 +30,9 @@ public class CompanionModel extends EntityModel<CompanionEntity> {
         return Shapes.layer(FORM);
     }
 
-    public static CreatureModel.Bounds bounds() {
+    public static Bounds bounds() {
         float[] size = Shapes.bounds(FORM);
-        return new CreatureModel.Bounds(size[0], size[1], size[2]);
+        return new Bounds(size[0], size[1], size[2]);
     }
 
     private final EntityModel<CompanionEntity> inner;

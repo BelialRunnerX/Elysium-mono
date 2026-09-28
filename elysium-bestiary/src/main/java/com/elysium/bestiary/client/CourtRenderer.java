@@ -45,7 +45,7 @@ public class CourtRenderer extends MobRenderer<CourtEntity, CourtModel> {
     @Override
     protected void scale(CourtEntity one, PoseStack pose, float partialTick) {
         CourtRules.Member row = one.member();
-        CreatureModel.Bounds shape = CourtModel.bounds(CourtRules.shapeOf(row));
+        Bounds shape = CourtModel.bounds(CourtRules.shapeOf(row));
         float[] size = CourtEntities.sizeOf(row);
         float small = one.turned() ? TURNED : 1.0F;
         float across = size[0] * PIXELS / Math.max(shape.wide(), shape.deep()) * small;
