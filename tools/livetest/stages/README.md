@@ -28,3 +28,6 @@ after every install. Screenshots land beside the script, or in
   -FreshWorld`, which copies a reference `level.dat` through `StripPlayer.java`
   (player removed, spawn set on land for this seed). Both live here with it;
   their paths are this machine's test rig.
+* `stage_screens_client.ps1` - every block that opens a menu, opened once and
+  photographed with a verdict, then two minutes of night with the natural
+  spawns counted around the player.

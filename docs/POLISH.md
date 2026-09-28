@@ -101,8 +101,12 @@ boot with no registry errors and no missing Elysium models.
       The client stage `stage_mechanics_client.ps1` then took the player-only
       ones on the test client and found every grade doing nothing (§16.4);
       the world scan found the hoar hill never generating (every wilds box
-      now shadows the vanilla claims inside it). Left: the remaining
-      `client-only` rows (menus, screens, natural spawns, colony autonomy).
+      now shadows the vanilla claims inside it). `stage_screens_client.ps1`
+      then opened all fifteen menu screens and counted a night's natural
+      spawns; `stage_firstjoin_client.ps1` covered first join (P3). Left: the
+      `client-only` rows that need hands on the menus (smithing, reforging,
+      infusion, the transmuter's items, trinkets worn) and colony autonomy
+      (`stage_seven_client.ps1`, run 26 Sep).
 - [x] **P13 Two mod folders on the stick.** (27 Sep) `tools/modfolders.py`
       rebuilds `E:\Elysium-client-mods` and `E:\Elysium-server-mods` from the
       test server's mods folder, sorting each jar by the sides its mods file
