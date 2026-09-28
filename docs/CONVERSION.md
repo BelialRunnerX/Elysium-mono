@@ -1237,6 +1237,24 @@ client booted with, so the launcher is rerun after every install) found:
   ticks; 49 onions all left age 0. (A corner crop that vanished on placement
   vanished for vanilla wheat too, so it is the rig, not the pack.)
 
+`stage_firstjoin_client.ps1` then remade the client's world and joined it as a
+new player (POLISH.md P3). The kit and the declaration screen are as designed;
+the stage found:
+
+* **A grave in deep water washed away.** The headstone is a 12×14×8 box, the
+  game lets water flow into any block that is not solid, and a grave made
+  where a player drowned stood for a few seconds and then spilled everything
+  to the sea floor, its "your things are at" message pointing at open water.
+  The grave is declared solid (`forceSolidOn`, as the runs already were); the
+  comforts validator requires it and a negative case removes it. The other
+  partial-shape inventory blocks in the pack are all runs, which are solid.
+  Rerun on the fix: three gold ingots lost to the same water read back out of
+  the grave's `Held`, nothing floating.
+* The test rig's reference world spawns at an ocean floor under the wilds'
+  biome list, so the new player drowned reading the screen; that is P4's
+  stale reference world, not the pack. A Graftguard then killed the new
+  survival player twice within seconds of standing on land.
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and

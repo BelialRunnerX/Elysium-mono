@@ -47,7 +47,12 @@ public final class ComfortBlocks {
                     .mapColor(MapColor.STONE)
                     .sound(SoundType.STONE)
                     .strength(1.0F, 3_600_000.0F)
-                    .noOcclusion()));
+                    .noOcclusion()
+                    // A headstone is not a full cube, and the game lets water flow
+                    // into any block that is not solid: a grave made where a player
+                    // drowned was washed away within seconds and spilled everything
+                    // to the sea floor (the first-join stage, 27 September 2026).
+                    .forceSolidOn()));
 
     /** The rope and nail a hammock hangs from. */
     public static final DeferredBlock<Block> ROPE = BLOCKS.register(RestRules.ROPE,

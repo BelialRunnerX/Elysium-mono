@@ -571,7 +571,18 @@ if ".strength(1.0F, 3_600_000.0F)" not in strength:
     fail("a grave is not blast-proof, so a creeper at the spot where somebody died "
          "takes everything they were carrying with it")
 
-print(f"comforts in the world: {len(blocks)} block(s), facing four ways, blast-proof, "
+# A headstone is not a full cube, and the game lets water flow into any block
+# that is not solid. Without forceSolidOn a grave made where a player drowned was
+# washed away within seconds and spilled everything to the sea floor (the
+# first-join stage, 27 September 2026). Solid by declaration, whatever its shape.
+grave_registration = strength[strength.find("GRAVE = BLOCKS.register("):]
+grave_registration = grave_registration[:grave_registration.find(";") + 1]
+if ".forceSolidOn()" not in grave_registration:
+    fail("the grave is not declared solid, so water flows into its headstone shape and "
+         "washes it away within seconds, spilling everything a drowned player carried "
+         "to the sea floor")
+
+print(f"comforts in the world: {len(blocks)} block(s), facing four ways, blast-proof, solid against water, "
       f"modelled and named")
 
 # ---------------------------------------------------------------------------

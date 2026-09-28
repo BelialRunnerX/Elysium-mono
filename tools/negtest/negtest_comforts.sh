@@ -32,6 +32,13 @@ open(p,'w',encoding='utf-8').write(s.replace(old, new, 1))
 " "$@" || { echo "STALE ANCHOR"; exit 2; }; }
 
 echo "the counting, which is the whole module"
+echo "a grave water can wash away"
+edit $S/registry/ComfortBlocks.java '                    .noOcclusion()
+                    // A headstone is not a full cube, and the game lets water flow' '                    .noOcclusion().sound(SoundType.STONE)
+                    // A headstone is not a full cube, and the game lets water flow'
+edit $S/registry/ComfortBlocks.java '                    .forceSolidOn()));' '                    ));'
+expect "a grave water washes away" "washes it away"
+
 edit $R '        return Math.max(1, Math.min(MOST_SLOTS, Math.max(0, stacks)));' '        return 41;'
 expect "a grave built to a number decided in advance" "ate somebody"
 

@@ -22,11 +22,24 @@ boot with no registry errors and no missing Elysium models.
       display names and no description, logo or credits. Add a one-paragraph
       description per module (from the manifest's sentence), a generated pack
       emblem as `logoFile`, and credits for the Stellaris derivation.
-- [ ] **P3 First join.** Confirm the new player gets the almanac and the codex
-      and a toast that says where to start; confirm the character pick cannot
-      be skipped and cannot be re-entered by accident.
+- [~] **P3 First join.** (27 Sep, evening: `stage_firstjoin_client.ps1` on a
+      fresh world) The new player gets the codex, the almanac, bread and
+      torches, and the "Declare yourself" screen opens over the world; ESC
+      does not close it before Confirm, a choice and Confirm record the
+      character ("Recorded: Imperial, Marksman"), `/elysium sheet` afterwards
+      opens the tabbed sheet and closes on ESC, and `/elysium stats|standing|
+      tier` answer. Found on the way: **a grave made in deep water was washed
+      away within seconds** and spilled the kit to the sea floor (fixed:
+      the headstone is declared solid and a death in deep water now leaves a
+      grave holding everything; CONVERSION.md §16.4). The test rig's fresh
+      world now spawns on land for its seed. Left: a toast that says where to
+      start was not seen (the declaration screen covers the join; decide
+      whether the codex in the hotbar is that pointer), and P4.
 - [ ] **P4 Fresh reference world.** The launcher's reference `level.dat` still
-      carries `valoria:the_valoria`; re-save it from the seven-jar pack.
+      carries `valoria:the_valoria`; re-save it from the seven-jar pack. Its
+      spawn point (64, 50, -96) is an ocean floor under the wilds' biome list,
+      so every fresh test world drowns the new player while the declaration
+      screen is up: re-save from a world made under the current preset.
 
 ## 2. What is missing that a finished pack has
 

@@ -21,3 +21,10 @@ after every install. Screenshots land beside the script, or in
 * `stage_mechanics_client.ps1` - relic passives, axe stripping, grades, the
   reactor throttle, the cart's hold, capturing, budding and crop growth, the
   rift key and portal, the grave (CONVERSION.md 16.4).
+* `stage_firstjoin_client.ps1` - a fresh world joined as a new player: the
+  kit, the declaration screen (ESC refused, a choice recorded, the sheet
+  after), the character commands, and a death in deep water keeping its grave
+  (POLISH.md P3). It remakes the client's world through `elysium-run-e.ps1
+  -FreshWorld`, which copies a reference `level.dat` through `StripPlayer.java`
+  (player removed, spawn set on land for this seed). Both live here with it;
+  their paths are this machine's test rig.
