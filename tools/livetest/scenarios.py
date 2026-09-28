@@ -86,13 +86,15 @@ def space_pipe(t):
 @scenario("space: a red cable does not carry into a blue one, and does into an undyed one")
 def space_dyed_gap(t):
     t.setblock(2, 0, 2, "elysiumspace:coal_generator")
-    t.hopper_into(2, 0, 2, "minecraft:coal", 16)
     t.fill((3, 0, 2), (4, 0, 2), "elysiumspace:cable")
     t.setblock(5, 0, 2, "elysiumspace:cable")
     t.setblock(6, 0, 2, "elysiumspace:water_separator")
     t.cmd(f"data merge block {t.at(3, 0, 2)} {{run_dye:\"red\"}}")
     t.cmd(f"data merge block {t.at(4, 0, 2)} {{run_dye:\"red\"}}")
     t.cmd(f"data merge block {t.at(5, 0, 2)} {{run_dye:\"blue\"}}")
+    # Fuel last: with coal in first, a tick or two of an undyed line carried a
+    # trickle into the separator before the dyes landed (one flake in 54, 27 Sep).
+    t.hopper_into(2, 0, 2, "minecraft:coal", 16)
     t.advance(100)
     t.expect_number(3, 0, 2, "Energy", 1, "the generator fed nothing into the red cable")
     t.expect(t.number(6, 0, 2, "Energy") in (None, 0.0), "energy crossed from a red cable into a blue one")
