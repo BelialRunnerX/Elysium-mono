@@ -47,3 +47,11 @@ Pitfalls the creature stage taught (28 Sep):
   which looked exactly like a fish bug and was not one. Sink a 3x3 pool.
 * `Select-Object -First` on the stage's output ends the pipeline and the
   stage with it; redirect to a log and read that.
+
+The reference world (`reference/`): the dedicated test server's `world/level.dat`
+and `world/serverconfig`, copied as they are. `elysium-run-e.ps1 -FreshWorld`
+runs them through `StripPlayer.java` (player removed, renamed, cheats on,
+experimental warning confirmed) into `saves/ElysiumBoot`. The file carries the
+overworld's biome list inline, so `elysium-wilds/validate.py` holds it to the
+current `normal.json`; when the preset changes, stop the server, copy its
+`world/level.dat` and `serverconfig` here again, and commit them.

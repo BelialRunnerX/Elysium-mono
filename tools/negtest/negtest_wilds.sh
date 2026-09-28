@@ -266,5 +266,15 @@ echo "only the crags pressing the claim, the hoar hill left to lose its ties"
 edit $M/tools/gen_wilds.py '    entries += unshadowed(vanilla_entries(), entries)' '    entries += unshadowed(vanilla_entries(), [one for one in entries if one["biome"].endswith("_crag")])'
 expect_regen "vanilla claims left inside the hoar hill's box" "wholly inside a crag"
 
+echo "the reference world the stages start from"
+python3 - "$M/src/main/resources/data/minecraft/worldgen/world_preset/normal.json" <<'PYX'
+import json, sys
+# The preset moves on and the saved world does not: the hoar hill, 27 Sep.
+p = sys.argv[1]; d = json.load(open(p, encoding="utf-8"))
+d["dimensions"]["minecraft:overworld"]["generator"]["biome_source"]["biomes"][0]["biome"] = "elysiumwilds:acacia_flat"
+json.dump(d, open(p, "w", encoding="utf-8"), indent=2)
+PYX
+expect "a reference world saved under an older preset" "saved under an older preset"
+
 echo "wilds: $pass caught, $fail missed"
 [ "$fail" -eq 0 ]

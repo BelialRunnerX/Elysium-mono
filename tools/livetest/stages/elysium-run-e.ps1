@@ -26,13 +26,16 @@ if ($FreshWorld) {
     $world = "$inst\saves\ElysiumBoot"
     if (Test-Path $world) { Remove-Item $world -Recurse -Force }
     New-Item -ItemType Directory -Force $world | Out-Null
-    $ref = 'C:\Users\weaks\curseforge\minecraft\Instances\Claude\saves\New World (4)'
+    # The reference world: the dedicated test server's own level.dat and serverconfig,
+    # saved from a world the seven-jar pack generated under the current wilds preset
+    # (POLISH.md P4); no Valoria dimension, no retired mod's config, the game's own spawn.
+    $ref = 'C:\Users\weaks\AppData\Local\Temp\Elysium-mono\tools\livetest\stages\reference'
     foreach ($d in 'datapacks', 'serverconfig') { if (Test-Path "$ref\$d") { Copy-Item "$ref\$d" $world -Recurse -Force } }
     $lib = 'C:\Users\weaks\curseforge\minecraft\Install\libraries'
     $last = (Get-Content 'C:\Users\weaks\curseforge\minecraft\Instances\Claude\logs\instance_audit.txt' | ? { $_ -match 'Launch attempted' })[-1]
     $cpL = ([regex]::Match($last, ' -cp (\S+) ').Groups[1].Value -split ';') | ? { $_ -notmatch '\\versions\\' }
     $cp = (@("$lib\net\minecraft\client\1.21.1-20240808.144430\client-1.21.1-20240808.144430-srg.jar") + $cpL) -join ';'
-    & "$javaHome\bin\java.exe" -cp $cp "$sp\StripPlayer.java" "$ref\level.dat" "$world\level.dat" 'ElysiumBoot' 895 72 -262 | % { Write-Host "world: $_" }
+    & "$javaHome\bin\java.exe" -cp $cp "$sp\StripPlayer.java" "$ref\level.dat" "$world\level.dat" 'ElysiumBoot' | % { Write-Host "world: $_" }
 }
 
 Remove-Item "$inst\logs\latest.log", "$inst\logs\debug.log" -Force -ErrorAction SilentlyContinue

@@ -1233,6 +1233,57 @@ if presets:
           f"still with ground of its own, and every colour, spawn and feature "
           f"in the files the arithmetic that was proved")
 
+# The reference world every client stage starts from (tools/livetest/stages/
+# reference/level.dat, POLISH.md P4) carries the overworld's biome list inline,
+# the way the game saves a world made from a preset. When the preset moves on
+# and the saved world does not, every fresh test world generates a world the
+# pack no longer ships and nothing says so: that is how the hoar hill went
+# unseen (27 Sep). So the list in the file is held to the list in the preset.
+import nbtlite  # noqa: E402
+_reference = os.path.join(ROOT, "tools/livetest/stages/reference/level.dat")
+_normal = os.path.join(preset_dir, "normal.json")
+if not os.path.isfile(_reference):
+    fail("there is no tools/livetest/stages/reference/level.dat, so the client stages "
+         "start from whatever world happens to be on the machine")
+elif os.path.isfile(_normal):
+    def _key(entry):
+        biome, params = entry
+        flat = []
+        for axis in ("temperature", "humidity", "continentalness", "erosion", "depth", "weirdness", "offset"):
+            # The game saves a span whose ends agree as one number; a preset
+            # writes it as a pair. Both are the pair.
+            value = params.get(axis, 0.0)
+            values = value if isinstance(value, list) else [value, value]
+            if len(values) == 1:
+                values = [values[0], values[0]]
+            flat.append(tuple(round(float(v), 4) for v in values))
+        return (biome, tuple(flat))
+    try:
+        _saved = nbtlite.overworld_biomes(nbtlite.read(_reference))
+    except Exception as trouble:  # noqa: BLE001
+        _saved = None
+        fail(f"the reference level.dat cannot be read ({trouble}), so nothing knows what "
+             f"world the stages start from")
+    if _saved is None:
+        if os.path.isfile(_reference):
+            fail("the reference world names a preset instead of carrying its biome list, so "
+                 "it was not made from ours and has none of our biomes in it")
+    else:
+        _wanted = json.loads(read(preset_dir, "normal.json"))["dimensions"]["minecraft:overworld"]
+        _wanted = _wanted["generator"]["biome_source"].get("biomes", [])
+        _have = sorted(_key(e) for e in _saved)
+        _want = sorted(_key((e["biome"], e.get("parameters", {}))) for e in _wanted)
+        if _have != _want:
+            _differ = len(set(_have) ^ set(_want))
+            fail(f"the reference world was saved under an older preset: {_differ} biome "
+                 f"entr{'y' if _differ == 1 else 'ies'} differ from normal.json, so every "
+                 f"fresh test world generates a world the pack no longer ships; re-save it "
+                 f"from the test server (tools/livetest/stages/README.md)")
+        else:
+            print(f"the reference      : the stages' reference world carries the preset's "
+                  f"{len(_want)} biome entries exactly, so a fresh test world is the world "
+                  f"the pack ships")
+
 print("the seam           : the rules pointed at every dimension file in the "
       "repository, a world with no row an error rather than a pass, and every "
       "register on the bus")

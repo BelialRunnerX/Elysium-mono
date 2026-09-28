@@ -20,11 +20,23 @@ public class StripPlayer {
         data.putBoolean("WasModded", true);
         data.putInt("GameType", 0);
         data.putBoolean("hardcore", false);
+        // The reference is the dedicated server's own level.dat, which never had cheats on;
+        // every stage drives the world with commands.
+        data.putBoolean("allowCommands", true);
+        // The server world was saved at whatever hour it was running at; a new
+        // player joining at night under a modal screen was slain where they stood
+        // (28 Sep). A fresh world starts at morning, in clear weather.
+        data.putLong("Time", 0L);
+        data.putLong("DayTime", 1000L);
+        data.putBoolean("raining", false);
+        data.putBoolean("thundering", false);
+        data.putInt("rainTime", 24000);
+        data.putInt("thunderTime", 24000);
+        data.putInt("clearWeatherTime", 24000);
         CompoundTag wgs = data.getCompound("WorldGenSettings");
         if (args.length >= 6) {
-            // The reference world's spawn is an ocean floor under the current biome
-            // list, and a new player drowns reading the declaration screen there:
-            // the launcher names a spot on land for this seed instead.
+            // The reference world's spawn is the one the game chose for its seed; a
+            // launcher may still name another spot for a stage that needs one.
             data.putInt("SpawnX", Integer.parseInt(args[3]));
             data.putInt("SpawnY", Integer.parseInt(args[4]));
             data.putInt("SpawnZ", Integer.parseInt(args[5]));
