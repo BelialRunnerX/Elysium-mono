@@ -27,8 +27,8 @@ public final class AgronomyClient {
 
     @SubscribeEvent
     public static void onLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(BeeModel.LAYER, BeeModel::createLayer);
-        event.registerLayerDefinition(FishModel.LAYER, FishModel::createLayer);
+        event.registerLayerDefinition(BeeRenderer.LAYER, BeeModel::createBodyLayer);
+        event.registerLayerDefinition(FishRenderer.LAYER, FishModel::createBodyLayer);
     }
 
     @SubscribeEvent

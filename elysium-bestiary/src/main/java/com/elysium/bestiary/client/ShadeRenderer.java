@@ -18,7 +18,7 @@ import net.minecraft.resources.ResourceLocation;
  * renderer is not a quiet failure — the first one a player summons takes the
  * client down with it.
  */
-public class ShadeRenderer extends MobRenderer<ShadeEntity, ShadeModel> {
+public class ShadeRenderer extends MobRenderer<ShadeEntity, ShadeModel<ShadeEntity>> {
 
     /** The layer the shade is drawn on. */
     public static final ModelLayerLocation LAYER = new ModelLayerLocation(
@@ -30,7 +30,7 @@ public class ShadeRenderer extends MobRenderer<ShadeEntity, ShadeModel> {
                     "textures/entity/" + SummonRules.SHADE + ".png");
 
     public ShadeRenderer(EntityRendererProvider.Context context) {
-        super(context, new ShadeModel(context.bakeLayer(LAYER)), 0.4F);
+        super(context, new ShadeModel<>(context.bakeLayer(LAYER)), 0.4F);
     }
 
     /** Drawn as something you can see through, because it is. */

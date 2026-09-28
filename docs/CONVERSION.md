@@ -1298,6 +1298,19 @@ it shipped, and the first quadruped's head floated a body-length away until
 the torso was laid along a turned spine — which is the whole reason the
 render loop exists.
 
+The same night the rest followed: the twelve animals (two quadruped builds,
+a winged plan, a fish), the kin, court, denizens, wards, myths and companions
+(by the form each rules class already names per row, with the roster's
+colours as base and its mark as accent), the pigeons (a small winged plan
+whose wings beat off the ground and whose legs tuck), the ninety-six bee
+species (an insect: six legs, two pairs of wings beating off each bee's own
+age) and the hundred and five fish (thirty boxes, scaled to their length),
+and the shade (a hooded floater, translucent, reaching when it hunts). Seven
+plans, eleven generated model classes, some four hundred sheets, every one
+from the rows it is drawn with; each module's validator asks for the
+generated class, its density, its published sheet size and the sheets to
+match. The space mobs are Stellaris's own ported models and keep them.
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and

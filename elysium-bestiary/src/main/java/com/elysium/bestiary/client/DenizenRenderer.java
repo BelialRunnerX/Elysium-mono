@@ -38,15 +38,14 @@ public class DenizenRenderer extends MobRenderer<DenizenEntity, DenizenModel> {
     public static final float FURTHER = 0.08F;
 
     public DenizenRenderer(EntityRendererProvider.Context context, String form) {
-        super(context, new DenizenModel(context.bakeLayer(DenizenModel.LAYERS.get(form))),
+        super(context, new DenizenModel(context.bakeLayer(DenizenModel.LAYERS.get(form)), form),
                 0.4F);
     }
 
     @Override
     protected void scale(DenizenEntity one, PoseStack pose, float partialTick) {
         DenizenRules.Denizen row = one.denizen();
-        CreatureModel.Bounds shape = CreatureModel.bounds(
-                DenizenModel.shape(DenizenRules.shapeOf(row)));
+        CreatureModel.Bounds shape = DenizenModel.bounds(DenizenRules.shapeOf(row));
         float[] size = DenizenEntities.sizeOf(row);
         float across = size[0] * PIXELS / Math.max(shape.wide(), shape.deep());
         float up = size[1] * PIXELS / shape.tall();

@@ -30,14 +30,14 @@ public class MythRenderer extends MobRenderer<MythEntity, MythModel> {
     public static final float PIXELS = 16.0F;
 
     public MythRenderer(EntityRendererProvider.Context context, String form) {
-        super(context, new MythModel(context.bakeLayer(MythModel.LAYERS.get(form))),
+        super(context, new MythModel(context.bakeLayer(MythModel.LAYERS.get(form)), form),
                 0.4F);
     }
 
     @Override
     protected void scale(MythEntity myth, PoseStack pose, float partialTick) {
         MythRules.Myth row = myth.myth();
-        CreatureModel.Bounds shape = CreatureModel.bounds(MythModel.shape(row.form()));
+        CreatureModel.Bounds shape = MythModel.bounds(row.form());
         float[] size = MythEntities.sizeOf(row);
         float across = size[0] * PIXELS / Math.max(shape.wide(), shape.deep());
         float up = size[1] * PIXELS / shape.tall();

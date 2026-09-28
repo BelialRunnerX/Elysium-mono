@@ -223,7 +223,15 @@ def anim_java(gait):
             lines.append('        this.%s.xRot = stride;' % java_field(part))
         else:
             lines.append('        this.%s.xRot = -stride;' % java_field(part))
+    if gait.get("hunt"):
+        # It reaches when it has something to reach for and hangs when it does
+        # not: the arms are the only tell that it is hunting.
+        lines.append('        boolean hunting = entity != null && entity.getTarget() != null;')
     for part, sign in gait.get("arms", ()):
+        if gait.get("hunt"):
+            lines.append('        this.%s.xRot = (hunting ? -1.4F : 0.0F) + %s(float) Math.sin(ageInTicks * 0.08F) * 0.08F;'
+                         % (java_field(part), "" if sign > 0 else "-"))
+            continue
         # Folded arms twitch with the stride and drift when standing.
         lines.append('        this.%s.xRot = %s(float) Math.cos(cycle) * %.2fF * amount'
                      ' + (float) Math.sin(ageInTicks * 0.06F) * 0.08F;'
@@ -231,11 +239,33 @@ def anim_java(gait):
     if gait.get("tail", 0.0):
         lines.append('        this.tail0.yRot = (float) Math.sin(cycle) * %.2fF * amount'
                      ' + (float) Math.sin(ageInTicks * 0.09F) * 0.10F;' % gait["tail"])
-    for part, sign in gait.get("wings", ()):
-        # Wings flap with the stride and settle folded when standing.
-        lines.append('        this.%s.zRot = %s(0.25F + (float) Math.abs(Math.sin(cycle * 2.0F)) * 0.9F * amount'
-                     ' + (float) Math.sin(ageInTicks * 0.05F) * 0.04F);'
+    if gait.get("flight"):
+        # Off the ground the wings beat off the age and the legs tuck; on it, the
+        # wings fold and the legs stride. The entity is null only in the previewer.
+        lines.append('        boolean flying = entity != null && !entity.onGround();')
+        lines.append('        float beat = (float) Math.cos(ageInTicks * 0.9F) * 0.9F + 0.4F;')
+        for part, sign in gait.get("wings", ()):
+            lines.append('        this.%s.zRot = flying ? %s(beat) : %s(0.25F + (float) Math.abs(Math.sin(cycle * 2.0F)) * 0.9F * amount);'
+                         % (java_field(part), "" if sign > 0 else "-", "" if sign > 0 else "-"))
+        for part, _phase in gait.get("legs", ()):
+            lines.append('        if (flying) { this.%s.xRot = 0.8F; }' % java_field(part))
+    else:
+        for part, sign in gait.get("wings", ()):
+            # Wings flap with the stride and settle folded when standing.
+            lines.append('        this.%s.zRot = %s(0.25F + (float) Math.abs(Math.sin(cycle * 2.0F)) * 0.9F * amount'
+                         ' + (float) Math.sin(ageInTicks * 0.05F) * 0.04F);'
+                         % (java_field(part), "" if sign > 0 else "-"))
+    for part, sign in gait.get("beat", ()):
+        # An insect's wings beat off its own age whether or not it moves; the
+        # entity id keeps two side by side out of lockstep.
+        lines.append('        this.%s.zRot = %s((float) Math.sin(ageInTicks * 2.1F + (entity == null ? 0 : entity.getId() %% 7)) * 0.6F);'
                      % (java_field(part), "" if sign > 0 else "-"))
+    if gait.get("hover"):
+        lines.append('        this.root.y = (float) Math.sin(ageInTicks * 0.12F) * %.2fF;' % gait["hover"])
+    for index, part in enumerate(gait.get("drift", ())):
+        # Tendrils drift out of step with one another off the age.
+        lines.append('        this.%s.xRot = (float) Math.sin(ageInTicks * 0.07F + %.2fF) * 0.18F;'
+                     % (java_field(part), index * 1.3))
     if gait.get("wag"):
         part, amp = gait["wag"]
         # A swimmer's tail never stops; the body follows a little behind it.
@@ -246,7 +276,8 @@ def anim_java(gait):
     if gait.get("abdomen"):
         lines.append('        this.%s.xRot = -0.90F + (float) Math.sin(ageInTicks * 0.07F) * 0.06F;'
                      % java_field(gait["abdomen"]))
-    lines.append('        this.root.y = (float) Math.abs(Math.sin(cycle)) * %.2fF * amount;' % gait["bob"])
+    if not gait.get("hover"):
+        lines.append('        this.root.y = (float) Math.abs(Math.sin(cycle)) * %.2fF * amount;' % gait["bob"])
     lines.append('        this.root.zRot = (float) Math.sin(cycle) * %.2fF * amount;' % gait["roll"])
     return "\n".join(lines)
 
@@ -260,6 +291,8 @@ def animated_parts(gait):
     if gait.get("abdomen"):
         names.append(gait["abdomen"])
     names += [part for part, _ in gait.get("wings", ())]
+    names += [part for part, _ in gait.get("beat", ())]
+    names += list(gait.get("drift", ()))
     if gait.get("wag"):
         names.append(gait["wag"][0])
         names.append("body")

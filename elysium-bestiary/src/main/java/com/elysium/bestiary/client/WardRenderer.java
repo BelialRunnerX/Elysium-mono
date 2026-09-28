@@ -35,15 +35,14 @@ public class WardRenderer extends MobRenderer<WardEntity, WardModel> {
     public static final float PIXELS = 16.0F;
 
     public WardRenderer(EntityRendererProvider.Context context, String form) {
-        super(context, new WardModel(context.bakeLayer(WardModel.LAYERS.get(form))),
+        super(context, new WardModel(context.bakeLayer(WardModel.LAYERS.get(form)), form),
                 0.4F);
     }
 
     @Override
     protected void scale(WardEntity one, PoseStack pose, float partialTick) {
         WardRules.Warded row = one.warded();
-        CreatureModel.Bounds shape = CreatureModel.bounds(
-                WardModel.shape(WardRules.shapeOf(row)));
+        CreatureModel.Bounds shape = WardModel.bounds(WardRules.shapeOf(row));
         float[] size = WardEntities.sizeOf(row);
         float across = size[0] * PIXELS / Math.max(shape.wide(), shape.deep());
         float up = size[1] * PIXELS / shape.tall();

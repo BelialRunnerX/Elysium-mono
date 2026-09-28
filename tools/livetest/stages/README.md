@@ -31,3 +31,5 @@ after every install. Screenshots land beside the script, or in
 * `stage_screens_client.ps1` - every block that opens a menu, opened once and
   photographed with a verdict, then two minutes of night with the natural
   spawns counted around the player.
+* `stage_creatures_client.ps1` - the creatures on their body plans, summoned in
+  two rows and photographed standing and moving (POLISH.md P10).

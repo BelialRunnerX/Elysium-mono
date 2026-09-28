@@ -20,7 +20,7 @@ import java.util.Map;
  * which is why the validator counts the skins on disk against the number of
  * colourings the rules say a bird can roll.
  */
-public class PigeonRenderer extends MobRenderer<PigeonEntity, PigeonModel> {
+public class PigeonRenderer extends MobRenderer<PigeonEntity, PigeonModel<PigeonEntity>> {
 
     /** The one layer every bird in this module is drawn on. */
     public static final ModelLayerLocation LAYER = new ModelLayerLocation(
@@ -30,7 +30,7 @@ public class PigeonRenderer extends MobRenderer<PigeonEntity, PigeonModel> {
     private static final Map<String, ResourceLocation> SKINS = new HashMap<>();
 
     public PigeonRenderer(EntityRendererProvider.Context context) {
-        super(context, new PigeonModel(context.bakeLayer(LAYER)), 0.25F);
+        super(context, new PigeonModel<>(context.bakeLayer(LAYER)), 0.25F);
     }
 
     @Override

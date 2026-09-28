@@ -89,7 +89,7 @@ from PIL import Image
 Image.new("RGBA", (16, 16)).save(
     "/tmp/Elysium-mono/elysium-agronomy/src/main/resources/assets/elysiumagronomy/textures/entity/bee/iron.png")
 PYX
-expect "an entity texture that is not the size the model bakes against" "32 by 32"
+expect "an entity texture that is not the size the model bakes against" "the model bakes against"
 
 echo "the machinery that keeps the two halves together"
 edit $M/src/main/java/com/elysium/agronomy/registry/BeeEntities.java \
@@ -106,11 +106,16 @@ edit $M/src/main/java/com/elysium/agronomy/registry/BeeEntities.java \
             made.put(bee.id(), TYPES.register(bee.entity(),'
 expect "a registry that stops walking the roster" "no longer walks the whole roster"
 
-edit $M/src/main/java/com/elysium/agronomy/client/BeeModel.java 'texOffs(0, 18)' 'texOffs(0, 24)'
-expect "a model whose texture offsets no longer match the texture" "generator draws into"
+python3 - <<'PYX'
+# Every wing, not just the first: one bee out of step is not lockstep.
+p = "/tmp/Elysium-mono/elysium-agronomy/src/main/java/com/elysium/agronomy/client/BeeModel.java"
+s = open(p, encoding="utf-8").read()
+open(p, "w", encoding="utf-8").write(s.replace("entity.getId() % 7", "0"))
+PYX
+expect "bees whose wings beat in lockstep" "lockstep"
 
-edit $M/src/main/java/com/elysium/agronomy/client/BeeModel.java 'LayerDefinition.create(mesh, 32, 32)' 'LayerDefinition.create(mesh, 64, 64)'
-expect "a model that changes its texture size without the generator" "mean something different"
+edit $M/src/main/java/com/elysium/agronomy/client/BeeModel.java 'public static final int SHEET = 64;' 'public static final int SHEET = 128;'
+expect "a model that changes its texture size without the generator" "the model bakes against"
 
 edit $M/src/main/java/com/elysium/agronomy/registry/BeeItems.java 'hash = hash * 31 + id.charAt(index);' 'hash = hash * 33 + id.charAt(index);'
 expect "the two colour functions drifting apart" "same colour"

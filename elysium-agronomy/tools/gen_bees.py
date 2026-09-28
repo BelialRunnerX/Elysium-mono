@@ -525,6 +525,55 @@ def chunk_sprite(material):
     return image
 
 
+def _art_path():
+    """The shared art package at the repository root, wherever this script sits."""
+    base = HERE
+    for _ in range(6):
+        if os.path.isfile(os.path.join(base, "art", "bodyplans.py")):
+            return os.path.join(base, "art")
+        base = os.path.dirname(base)
+    sys.exit("cannot find the art package from " + HERE)
+
+
+sys.path.insert(0, _art_path())
+import bodyplans  # noqa: E402
+import creature  # noqa: E402
+from boxmodel import write_texture  # noqa: E402
+
+
+# The bee's body plan (docs/POLISH.md P10): six legs, two pairs of wings that
+# beat off the bee's own age, a banded abdomen; emitted as BeeModel with every
+# species' sheet from the same rows in that species' colour.
+BEE_PLAN = dict(seed=32, thorax_w=4, thorax_h=4, leg_len=3.0, leg_w=0.6, abdomen_rings=4, hover=5.0)
+MODEL_JAVA = os.path.join(OUT, "src/main/java/com/elysium/agronomy/client/BeeModel.java")
+
+
+def bee_plan():
+    return bodyplans.BUILDERS["insect"](BEE_PLAN)
+
+
+def write_bee_model():
+    plan = bee_plan()
+    skin = creature.skin_for(plan.rows, "#d8b048")
+    java, sheet = creature.model_java("com.elysium.agronomy.client", "BeeModel", plan, skin, "tools/gen_bees.py",
+                                      doc="Every species wears it; the renderer picks the sheet by species.")
+    os.makedirs(os.path.dirname(MODEL_JAVA), exist_ok=True)
+    with open(MODEL_JAVA, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(java)
+    return sheet
+
+
+def write_bee_skin(bee, path):
+    """One species' sheet: the plan's rows in the species' colour, its band the accent."""
+    body = body_colour(bee)
+    plan = bee_plan()
+    base = "#%02x%02x%02x" % body
+    skin = creature.skin_for(plan.rows, base)
+    import pathlib
+    sheet = creature.model_java("com.elysium.agronomy.client", "BeeModel", plan, skin, "tools/gen_bees.py")[1]
+    write_texture(pathlib.Path(path), plan.rows, base, "#%02x%02x%02x" % darker(body, 70), sheet=sheet, skin=skin)
+
+
 def save(image, *parts):
     path = os.path.join(*parts)
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -532,11 +581,12 @@ def save(image, *parts):
 
 
 def draw_all():
+    write_bee_model()
     for bee in BEES:
         save(comb_sprite(bee), ASSETS, "textures/item", bee["id"] + "_comb.png")
         save(comb_block_sprite(bee), ASSETS, "textures/block",
              bee["id"] + "_comb_block.png")
-        save(bee_sprite(bee), ASSETS, "textures/entity/bee", bee["id"] + ".png")
+        write_bee_skin(bee, os.path.join(ASSETS, "textures/entity/bee", bee["id"] + ".png"))
     for home in HOMES:
         for face in ("top", "side", "front"):
             save(nest_sprite(home, face), ASSETS, "textures/block",

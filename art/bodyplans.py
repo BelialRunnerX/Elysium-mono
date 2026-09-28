@@ -367,7 +367,8 @@ def winged(p):
     gait = dict(kind="winged", rate=p.get("rate", 1.4), stride=p.get("stride", 0.8),
                 bob=p.get("bob", 0.5), roll=0.03, tail=0.0,
                 legs=(("leg_left", 0.0), ("leg_right", math.pi)),
-                wings=(("wing_left", 1.0), ("wing_right", -1.0)), head_pitch=p.get("head_pitch", 0.1))
+                wings=(("wing_left", 1.0), ("wing_right", -1.0)), head_pitch=p.get("head_pitch", 0.1),
+                flight=p.get("flight", False))
     return Plan("winged", rows, gait, ["head", "body", "wing_left", "wing_right", "leg_left", "leg_right"])
 
 
@@ -411,4 +412,97 @@ def fish(p):
     return Plan("fish", rows, gait, ["head", "body", "tail"])
 
 
-BUILDERS = {"quadruped": quadruped, "hulk": hulk, "stilt": stilt, "winged": winged, "fish": fish}
+def insect(p):
+    """
+    A bee, or anything with six legs and two pairs of wings that hovers.
+
+    Head with antennae and mandibles, a rounded thorax, a banded abdomen of
+    rings hanging back, six thin legs in three pairs tucked under the thorax,
+    and two pairs of thin wing plates that beat off the creature's own age
+    whether or not it is moving, which is what a hovering insect does.
+    """
+    rows = []
+    seed = p["seed"]
+    tw, th = p["thorax_w"], p["thorax_h"]
+    body_y = GROUND - p.get("hover", 6.0) - th * 0.5
+    rows.append(("body", -tw * 0.25, -th * 0.25, -tw * 0.25, tw * 0.5, th * 0.5, tw * 0.5, 0, body_y, 0))
+    rows += org.ovoid("thorax", "body", 4, th * 0.9, tw * 0.5, (0, -th * 0.45, 0), 1.0, 0.45)
+    rows.append(_axis("spine", "body", (0, th * 0.05, tw * 0.30), (BACK - 0.35, 0, 0)))
+    rows += org.ovoid("abdomen", "spine", p.get("abdomen_rings", 5), tw * 1.4, tw * 0.55, (0, 0, 0), th / tw * 0.8, 0.45)
+    rows += org.plates("band", "spine", 3, (tw * 0.9, tw * 0.16, th * 0.9), (0, tw * 0.25, 0),
+                       spacing=tw * 0.36, lean=0.0, shrink=0.92)
+    rows.append(("head", -tw * 0.2, -th * 0.2, -tw * 0.2, tw * 0.4, th * 0.4, tw * 0.4, 0, body_y - th * 0.05, -tw * 0.45))
+    rows += org.ovoid("cranium", "head", 3, th * 0.7, tw * 0.42, (0, -th * 0.4, -tw * 0.05), 1.0, 0.5)
+    rows += org.plates("visor", "head", 2, (tw * 0.6, th * 0.14, tw * 0.16), (0, -th * 0.30, -tw * 0.40),
+                       spacing=th * 0.12, lean=-0.1, shrink=0.85)
+    for side, sign in (("left", 1), ("right", -1)):
+        rows += org.chain("antenna_%s" % side, "head", 3, (tw * 0.08, th * 0.30, tw * 0.08), (-0.25, 0, sign * 0.08),
+                          (sign * tw * 0.18, -th * 0.6, -tw * 0.2), taper=0.85, lead=(-2.3, 0, sign * 0.4))
+        rows += org.chain("mandible_%s" % side, "head", 2, (tw * 0.12, th * 0.22, tw * 0.12), (0.2, 0, -sign * 0.15),
+                          (sign * tw * 0.16, th * 0.05, -tw * 0.36), taper=0.8, lead=(FORWARD + 0.4, 0, sign * 0.3))
+        for pair, z in (("fore", -tw * 0.30), ("mid", 0.0), ("hind", tw * 0.30)):
+            leg = "leg_%s_%s" % (pair, side)
+            lw = p["leg_w"]
+            rows.append(_root(leg, (lw, lw, lw), (sign * tw * 0.40, body_y + th * 0.20, z)))
+            rows += org.chain("%s_a" % leg, leg, 2, (lw, p["leg_len"] * 0.5, lw), (0, 0, 0), (0, 0, 0),
+                              taper=0.9, lead=(0.1 * (1 if pair == "hind" else -1), 0, -sign * 1.2))
+            rows += org.chain("%s_b" % leg, "%s_a_1" % leg, 2, (lw * 0.8, p["leg_len"] * 0.5, lw * 0.8), (0, 0, 0),
+                              (0, p["leg_len"] * 0.5, 0), taper=0.88, lead=(0, 0, sign * 1.9))
+        for pair, z, size in (("fore", -tw * 0.05, 1.0), ("hind", tw * 0.25, 0.75)):
+            wing = "wing_%s_%s" % (pair, side)
+            rows.append(_root(wing, (tw * 0.12, tw * 0.12, tw * 0.12), (sign * tw * 0.30, body_y - th * 0.30, z)))
+            rows += org.plates("%s_vane" % wing, wing, 3, (tw * 0.9 * size, tw * 0.1, tw * 0.5 * size),
+                               (sign * tw * 0.45 * size, 0, 0), spacing=tw * 0.05, lean=0.0, shrink=0.85)
+            rows[-3] = rows[-3][:10] + (org._tail(wing, (0, sign * 0.3, 0)),)
+    rows = org.asymmetry(rows, seed, p.get("wobble", 0.02))
+    gait = dict(kind="insect", rate=p.get("rate", 1.2), stride=0.0, bob=0.0, roll=0.02, tail=0.0,
+                beat=(("wing_fore_left", 1.0), ("wing_fore_right", -1.0), ("wing_hind_left", 1.0), ("wing_hind_right", -1.0)),
+                hover=p.get("hover_bob", 0.6), head_pitch=0.0)
+    return Plan("insect", rows, gait, ["head", "body", "wing_fore_left", "wing_fore_right", "wing_hind_left", "wing_hind_right"])
+
+
+def floater(p):
+    """
+    A shade, a drone-thing, anything that hangs in the air without legs.
+
+    A hooded core of rings with a lit visor, a mantle of plates falling from
+    the shoulders, two long arms of rings ending in claws, and a trail of
+    tendrils where legs would be, thinning to nothing. It hovers: the whole
+    body rises and falls off its age, the tendrils and arms drift.
+    """
+    rows = []
+    seed = p["seed"]
+    cw, ch = p["core_w"], p["core_h"]
+    top_y = GROUND - p.get("hover", 10.0) - ch
+    rows.append(("body", -cw * 0.25, 0, -cw * 0.25, cw * 0.5, ch * 0.3, cw * 0.5, 0, top_y, 0))
+    rows += org.ovoid("core", "body", 5, ch * 0.7, cw * 0.55, (0, 0, 0), 0.9, 0.40)
+    rows += org.plates("mantle", "body", p.get("plates", 5), (cw * 0.9, ch * 0.12, cw * 0.30),
+                       (0, ch * 0.05, cw * 0.28), spacing=ch * 0.13, lean=0.22, shrink=0.90)
+    rows += org.plates("hood", "body", 3, (cw * 0.8, ch * 0.10, cw * 0.36), (0, -ch * 0.04, -cw * 0.05),
+                       spacing=ch * 0.02, lean=-0.25, shrink=0.92)
+    rows.append(("head", -cw * 0.2, -ch * 0.2, -cw * 0.2, cw * 0.4, ch * 0.4, cw * 0.4, 0, top_y - ch * 0.05, -cw * 0.10))
+    rows += org.ovoid("cranium", "head", 4, ch * 0.5, cw * 0.36, (0, -ch * 0.5, 0), 1.1, 0.45)
+    rows += org.plates("visor", "head", 2, (cw * 0.6, ch * 0.12, cw * 0.16), (0, -ch * 0.32, -cw * 0.36),
+                       spacing=ch * 0.10, lean=-0.1, shrink=0.85)
+    for side, sign in (("left", 1), ("right", -1)):
+        aw = p["arm_w"]
+        rows.append(_root("arm_%s" % side, (aw, aw, aw), (sign * cw * 0.45, top_y + ch * 0.10, 0)))
+        rows += org.chain("upper_%s" % side, "arm_%s" % side, 3, (aw * 0.8, p["arm_len"] * 0.16, aw * 0.8),
+                          (0.06, 0, 0), (0, aw * 0.3, 0), taper=0.92, lead=(-0.5, 0, sign * 0.35))
+        rows += org.chain("fore_%s" % side, "upper_%s_2" % side, 4, (aw * 0.6, p["arm_len"] * 0.15, aw * 0.6),
+                          (0.08, 0, 0), (0, p["arm_len"] * 0.16, 0), taper=0.93, lead=(0.6, 0, -sign * 0.2))
+        rows += org.digits("claw_%s" % side, "fore_%s_3" % side, 3, 4, (aw * 0.2, p["claw_len"], aw * 0.2), aw * 0.32,
+                           (0, p["arm_len"] * 0.14, 0), curl=0.30, sign=sign, fan=0.10)
+    for i in range(p.get("tendrils", 5)):
+        spread = (i - (p.get("tendrils", 5) - 1) / 2.0)
+        rows += org.chain("tendril_%d" % i, "body", 5, (cw * 0.18, ch * 0.22, cw * 0.18), (0.10, 0, 0.04 * spread),
+                          (spread * cw * 0.18, ch * 0.66, spread * cw * 0.05), taper=0.84, lead=(0.15 * spread, 0, -0.12 * spread))
+    rows = org.asymmetry(rows, seed, p.get("wobble", 0.04))
+    gait = dict(kind="floater", rate=p.get("rate", 0.9), stride=0.0, bob=0.0, roll=0.03, tail=0.0,
+                arms=(("arm_left", 1.0), ("arm_right", -1.0)), hover=p.get("hover_bob", 1.2), head_pitch=0.1,
+                drift=tuple("tendril_%d_0" % i for i in range(p.get("tendrils", 5))))
+    return Plan("floater", rows, gait, ["head", "body", "arm_left", "arm_right"])
+
+
+BUILDERS = {"quadruped": quadruped, "hulk": hulk, "stilt": stilt, "winged": winged, "fish": fish, "insect": insect,
+            "floater": floater}

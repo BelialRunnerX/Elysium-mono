@@ -88,6 +88,13 @@ a heredoc tagged `PYZ` rather than `PYX` went straight through the neutering.
 Both are closed. If you add a new kind of mutation to a script, check
 `dryrun.py` knows about it.
 
+A miss that is not a stale anchor: `edit()` replaces the **first** occurrence
+only, and a rule that looks for a phrase anywhere in a file is not broken by
+taking one of four copies of it out. `negtest_bees.sh`'s lockstep case edited
+one wing of four and reported MISSED for a rule that worked. When the phrase
+a rule wants recurs, break every copy (an inline python `replace` with no
+count) and say so in the case's comment.
+
 ## What is covered, honestly
 
 28 of the 29 modules have at least one script. `elysium-dungeons` has none.

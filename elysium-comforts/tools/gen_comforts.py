@@ -597,6 +597,61 @@ FEATHERS = {
 }
 
 
+def _art_path():
+    """The shared art package at the repository root, wherever this script sits."""
+    base = HERE
+    for _ in range(6):
+        if os.path.isfile(os.path.join(base, "art", "bodyplans.py")):
+            return os.path.join(base, "art")
+        base = os.path.dirname(base)
+    sys.exit("cannot find the art package from " + HERE)
+
+
+sys.path.insert(0, _art_path())
+import bodyplans  # noqa: E402
+import creature  # noqa: E402
+from boxmodel import write_texture  # noqa: E402
+
+# The bird's body plan (docs/POLISH.md P10): a small winged thing that flies,
+# from art/bodyplans.py, emitted as PigeonModel with its sheet from the same rows.
+PIGEON_PLAN = dict(seed=31, body_len=7, body_h=5, body_w=4.5, leg_len=3.5, leg_w=0.9, skull_w=3, skull_h=3,
+                   feathers=3, tail_plates=3, flight=True, tilt=-0.35, rate=1.6, stride=1.0)
+# Under OUT, like every generated file: a validator regenerating into a temp
+# directory must not write into the tree it is checking.
+MODEL_JAVA = os.path.join(OUT, "src/main/java/com/elysium/comforts/client/PigeonModel.java")
+
+
+def pigeon_plan():
+    return bodyplans.BUILDERS["winged"](PIGEON_PLAN)
+
+
+def write_pigeon_model():
+    """PigeonModel.java from the plan; returns the sheet size the rows packed to."""
+    plan = pigeon_plan()
+    skin = creature.skin_for(plan.rows, "#9a9aa0")
+    java, sheet = creature.model_java("com.elysium.comforts.client", "PigeonModel", plan, skin,
+                                      "tools/gen_comforts.py",
+                                      doc="Both birds wear it; the renderer picks the sheet by bird and colouring.")
+    os.makedirs(os.path.dirname(MODEL_JAVA), exist_ok=True)
+    with open(MODEL_JAVA, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(java)
+    return sheet
+
+
+def write_bird_skin(name, variant, path):
+    """One bird's colouring, on the plan's own sheet."""
+    shades = FEATHERS[name]
+    base = shades[variant % len(shades)]
+    dark = tuple(max(0, one - 40) for one in base)
+    accent = (214, 96, 40) if name == "charred_pigeon" else dark
+    plan = pigeon_plan()
+    base_hex = "#%02x%02x%02x" % base
+    skin = creature.skin_for(plan.rows, base_hex)
+    import pathlib
+    sheet = creature.model_java("com.elysium.comforts.client", "PigeonModel", plan, skin, "tools/gen_comforts.py")[1]
+    write_texture(pathlib.Path(path), plan.rows, base_hex, "#%02x%02x%02x" % accent, sheet=sheet, skin=skin)
+
+
 def bird_skin(name, variant):
     """The bird itself, on the model's own 32x16 sheet."""
     shades = FEATHERS[name]
@@ -750,11 +805,12 @@ def draw_all():
         drawn += 1
     skins = os.path.join(ASSETS, "textures/entity")
     os.makedirs(skins, exist_ok=True)
+    write_pigeon_model()
     wanted = set()
     for one in BIRD_ROWS:
         for variant in range(one[1]):
             name = "%s_%d.png" % (one[0], variant)
-            bird_skin(one[0], variant).save(os.path.join(skins, name))
+            write_bird_skin(one[0], variant, os.path.join(skins, name))
             wanted.add(name)
             drawn += 1
     # And take away the ones the rules no longer ask for. A generator that only

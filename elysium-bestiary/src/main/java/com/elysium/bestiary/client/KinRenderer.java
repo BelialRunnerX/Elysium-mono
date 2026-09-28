@@ -39,15 +39,14 @@ public class KinRenderer extends MobRenderer<KinEntity, KinModel> {
     public static final float YOUNG = 0.5F;
 
     public KinRenderer(EntityRendererProvider.Context context, String form) {
-        super(context, new KinModel(context.bakeLayer(KinModel.LAYERS.get(form))),
+        super(context, new KinModel(context.bakeLayer(KinModel.LAYERS.get(form)), form),
                 0.4F);
     }
 
     @Override
     protected void scale(KinEntity one, PoseStack pose, float partialTick) {
         KindredRules.Kin row = one.creature();
-        CreatureModel.Bounds shape = CreatureModel.bounds(
-                KinModel.shape(KindredRules.shapeOf(row)));
+        CreatureModel.Bounds shape = KinModel.bounds(KindredRules.shapeOf(row));
         float[] size = KinEntities.sizeOf(row);
         float small = one.young() ? YOUNG : 1.0F;
         float across = size[0] * PIXELS / Math.max(shape.wide(), shape.deep()) * small;

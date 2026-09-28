@@ -1040,8 +1040,12 @@ FAUNA_PLANS = {
     "swimmer": ("fish", dict(seed=24, body_len=16, body_h=7, body_w=5, dorsal=4)),
 }
 ALL_PLANS = {**BEAST_PLANS, **FAUNA_PLANS}
+# The shade: a floater, translucent, reaching when it hunts. Its own class rather
+# than a registry entry, because only the summon wears it and the renderer draws
+# it translucent.
+SHADE_PLAN = dict(seed=41, core_w=8, core_h=12, arm_w=2.4, arm_len=18, claw_len=2.4, tendrils=5, hover=8.0, hunt=True)
 SHAPE_PACKAGE = "com.elysium.bestiary.client.shape"
-SHAPE_DIR = os.path.join(MOD, "src/main/java/com/elysium/bestiary/client/shape")
+SHAPE_DIR = os.path.join(OUT, "src/main/java/com/elysium/bestiary/client/shape")
 
 
 def shape_class(family):
@@ -1169,6 +1173,33 @@ def write_animal_skin(animal, path):
     write_texture(pathlib.Path(path), plan.rows, base, FAUNA_EYE_HEX[animal["kind"]], sheet=sheet, skin=skin)
 
 
+def shade_plan():
+    plan = bodyplans.BUILDERS["floater"](SHADE_PLAN)
+    plan.gait["hunt"] = True
+    return plan
+
+
+def write_shade():
+    """ShadeModel.java and its sheet: a wash of the wight's colours with nothing solid in it."""
+    plan = shade_plan()
+    base = RAMP_HEX["wight"]
+    skin = creature.skin_for(plan.rows, base)
+    java, sheet = creature.model_java("com.elysium.bestiary.client", "ShadeModel", plan, skin, "tools/gen_bestiary.py",
+                                      doc="The summon; the renderer draws it translucent and it reaches when it hunts.")
+    write_text(os.path.join(OUT, "src/main/java/com/elysium/bestiary/client/ShadeModel.java"), java)
+    import pathlib
+    path = pathlib.Path(ASSETS) / "textures/entity" / "shade.png"
+    write_texture(path, plan.rows, base, EYE_HEX["wight"], sheet=sheet, skin=skin)
+    image = Image.open(path).convert("RGBA")
+    pixels = image.load()
+    for y in range(image.height):
+        for x in range(image.width):
+            r, g, b, a = pixels[x, y]
+            if a:
+                pixels[x, y] = (r, g, b, int(a * 0.62))
+    image.save(path)
+
+
 def write_beast_skin(beast, path):
     """One beast's sheet, from its family's rows in its tier's shade."""
     plan = beast_plan(beast["family"])
@@ -1178,6 +1209,38 @@ def write_beast_skin(beast, path):
     sheet = creature.model_java(SHAPE_PACKAGE, shape_class(beast["family"]), plan, skin,
                                 "tools/gen_bestiary.py")[1]
     write_texture(pathlib.Path(path), plan.rows, base, EYE_HEX[beast["family"]], sheet=sheet, skin=skin)
+
+
+def _rules_shapes(filename, key_pattern):
+    """A rules class's SHAPES map, key -> family or kind, read off the Java."""
+    source = read(os.path.join(MOD, "src/main/java/com/elysium/bestiary/rules", filename))
+    block = re.search(r"SHAPES = Map\.(?:of|ofEntries)\((.*?)\);", source, re.S)
+    if not block:
+        sys.exit("%s has no SHAPES map to read" % filename)
+    found = {}
+    for key, owner, name in re.findall(key_pattern + r",\s*(BeastRules|FaunaRules)\.(\w+)", block.group(1)):
+        found[key] = name.lower()
+    return found
+
+
+KIN_FORMS = _rules_shapes("KindredRules.java", r'Map\.entry\("(\w+)"')
+COURT_FORMS = _rules_shapes("CourtRules.java", r'"(\w+)"')
+RING_FORMS = {int(k): v for k, v in _rules_shapes("DenizenRules.java", r"\b(\d+)").items()}
+WARD_FORMS = _rules_shapes("WardRules.java", r"\b([A-Z]+)")
+
+
+def _hex(rgb):
+    return "#%02x%02x%02x" % tuple(rgb[:3])
+
+
+def write_form_skin(path, form, base, accent):
+    """One creature's sheet: its form's rows, its roster's base and mark colours."""
+    plan = beast_plan(form if form in ALL_PLANS else "prowler")
+    skin = creature.skin_for(plan.rows, base)
+    import pathlib
+    sheet = creature.model_java(SHAPE_PACKAGE, shape_class(form if form in ALL_PLANS else "prowler"),
+                                plan, skin, "tools/gen_bestiary.py")[1]
+    write_texture(pathlib.Path(path), plan.rows, base, accent, sheet=sheet, skin=skin)
 
 
 def skin(beast):
@@ -1612,7 +1675,8 @@ def main():
     # skin renders as a black-and-magenta cube and is only ever found by the
     # player who meets that one.
     for myth in MYTHS:
-        myth_skin(myth).save(os.path.join(entity_textures, myth["id"] + ".png"))
+        write_form_skin(os.path.join(entity_textures, myth["id"] + ".png"), myth["form"],
+                        _hex(BANE_SHADES[myth["bane"]][0]), _hex(BANE_SHADES[myth["bane"]][1]))
 
         write(os.path.join(ASSETS, "models/item", myth["id"] + "_spawn_egg.json"),
               {"parent": "minecraft:item/template_spawn_egg"})
@@ -1651,7 +1715,8 @@ def main():
 
     # The twenty-eight that live in the Vale.
     for one in DENIZENS:
-        vale_skin(one).save(os.path.join(entity_textures, one["id"] + ".png"))
+        write_form_skin(os.path.join(entity_textures, one["id"] + ".png"), RING_FORMS.get(one["ring"], "prowler"),
+                        _hex(RING_SHADES[one["ring"]][0]), "#f0ecd6")
 
         write(os.path.join(ASSETS, "models/item", one["id"] + "_spawn_egg.json"),
               {"parent": "minecraft:item/template_spawn_egg"})
@@ -1699,7 +1764,8 @@ def main():
 
     # The thirteen that exist to be fought with particular gear.
     for one in WARDED:
-        ward_skin(one).save(os.path.join(entity_textures, one["id"] + ".png"))
+        write_form_skin(os.path.join(entity_textures, one["id"] + ".png"), WARD_FORMS.get(one["ward"], "prowler"),
+                        _hex(WARD_SHADES[one["ward"]][0]), "#f0eac4")
 
         write(os.path.join(ASSETS, "models/item", one["id"] + "_spawn_egg.json"),
               {"parent": "minecraft:item/template_spawn_egg"})
@@ -1741,7 +1807,9 @@ def main():
 
     # The fifty-eight in eight courts.
     for one in COURT_MEMBERS:
-        court_skin(one).save(os.path.join(entity_textures, one["id"] + ".png"))
+        _at = sorted(ROLE_WORDS).index(one["role"])
+        write_form_skin(os.path.join(entity_textures, one["id"] + ".png"), COURT_FORMS.get(one["court"], "prowler"),
+                        _hex(COURT_SHADES[one["court"]][0]), _hex((70 + _at * 26, 210 - _at * 18, 120 + _at * 14)))
 
         write(os.path.join(ASSETS, "models/item", one["id"] + "_spawn_egg.json"),
               {"parent": "minecraft:item/template_spawn_egg"})
@@ -1850,7 +1918,9 @@ def main():
 
     # The twenty-seven in thirteen kindreds.
     for one in KINDRED:
-        kin_skin(one).save(os.path.join(entity_textures, one["id"] + ".png"))
+        _at = sorted(TRAIT_WORDS).index(one["trait"])
+        write_form_skin(os.path.join(entity_textures, one["id"] + ".png"), KIN_FORMS.get(one["kin"], "prowler"),
+                        _hex(KIN_SHADES[one["kin"]][0]), _hex((240 - _at * 14, 90 + _at * 12, 60 + _at * 16)))
 
         write(os.path.join(ASSETS, "models/item", one["id"] + "_spawn_egg.json"),
               {"parent": "minecraft:item/template_spawn_egg"})
@@ -1894,8 +1964,8 @@ def main():
 
     # The eleven companions.
     for one in COMPANIONS:
-        companion_skin(one).save(
-            os.path.join(entity_textures, one["id"] + ".png"))
+        write_form_skin(os.path.join(entity_textures, one["id"] + ".png"), "forager",
+                        _hex(GIFT_SHADES[one["gift"]][0]), "#d6a848" if one["tamed"] else _hex(GIFT_SHADES[one["gift"]][1]))
 
         write(os.path.join(ASSETS, "models/item", one["id"] + "_spawn_egg.json"),
               {"parent": "minecraft:item/template_spawn_egg"})
@@ -1929,8 +1999,11 @@ def main():
         lang["bestiary.%s.rivals.%s" % (NS, one["id"])] = one["rivals"]
 
     for summon_id in SUMMON_IDS:
-        summon_skin(summon_id).save(
-            os.path.join(entity_textures, summon_id + ".png"))
+        if summon_id == "shade":
+            write_shade()
+        else:
+            summon_skin(summon_id).save(
+                os.path.join(entity_textures, summon_id + ".png"))
         lang["entity.%s.%s" % (NS, summon_id)] = titled(summon_id)
 
     for animal in ANIMALS:

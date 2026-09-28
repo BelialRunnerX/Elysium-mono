@@ -38,15 +38,14 @@ public class CourtRenderer extends MobRenderer<CourtEntity, CourtModel> {
     public static final float TURNED = 1.15F;
 
     public CourtRenderer(EntityRendererProvider.Context context, String form) {
-        super(context, new CourtModel(context.bakeLayer(CourtModel.LAYERS.get(form))),
+        super(context, new CourtModel(context.bakeLayer(CourtModel.LAYERS.get(form)), form),
                 0.4F);
     }
 
     @Override
     protected void scale(CourtEntity one, PoseStack pose, float partialTick) {
         CourtRules.Member row = one.member();
-        CreatureModel.Bounds shape = CreatureModel.bounds(
-                CourtModel.shape(CourtRules.shapeOf(row)));
+        CreatureModel.Bounds shape = CourtModel.bounds(CourtRules.shapeOf(row));
         float[] size = CourtEntities.sizeOf(row);
         float small = one.turned() ? TURNED : 1.0F;
         float across = size[0] * PIXELS / Math.max(shape.wide(), shape.deep()) * small;

@@ -35,7 +35,7 @@ public final class BestiaryClient {
             event.registerLayerDefinition(FaunaModel.LAYERS.get(kind),
                     () -> FaunaModel.createLayer(kind));
         }
-        event.registerLayerDefinition(ShadeRenderer.LAYER, ShadeModel::createLayer);
+        event.registerLayerDefinition(ShadeRenderer.LAYER, ShadeModel::createBodyLayer);
         event.registerLayerDefinition(CompanionModel.LAYER,
                 CompanionModel::createLayer);
         // One layer per shape a myth can wear, walked from the rules. A myth

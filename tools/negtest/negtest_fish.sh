@@ -89,8 +89,8 @@ expect "a hitbox that stops following the fish's own length" "number somebody ch
 edit $M/src/main/java/com/elysium/agronomy/client/FishRenderer.java 'float wanted = fish.rules().length() / MODEL_CENTIMETRES;' 'float wanted = 1.0F;'
 expect "a drawn size that stops following the length" "two different sizes"
 
-edit $M/src/main/java/com/elysium/agronomy/client/FishModel.java 'texOffs(0, 8)' 'texOffs(0, 14)'
-expect "a model whose offsets no longer match the texture" "generator draws into"
+edit $M/src/main/java/com/elysium/agronomy/client/FishModel.java 'public static final int SHEET = 64;' 'public static final int SHEET = 128;'
+expect "a model packed to a sheet its textures are not" "the model bakes against"
 
 edit $M/src/main/java/com/elysium/agronomy/registry/FishItems.java \
   'if (made.size() != FishRules.FISH.size()) {

@@ -399,6 +399,53 @@ def lighter_colour(colour, by=34):
     return tuple(min(255, part + by) for part in colour)
 
 
+def _art_path():
+    """The shared art package at the repository root, wherever this script sits."""
+    base = HERE
+    for _ in range(6):
+        if os.path.isfile(os.path.join(base, "art", "bodyplans.py")):
+            return os.path.join(base, "art")
+        base = os.path.dirname(base)
+    sys.exit("cannot find the art package from " + HERE)
+
+
+sys.path.insert(0, _art_path())
+import bodyplans  # noqa: E402
+import creature  # noqa: E402
+from boxmodel import write_texture  # noqa: E402
+
+
+# The fish's body plan (docs/POLISH.md P10): rings along a spine, fins, a tail
+# that wags; emitted as FishModel with every species' sheet from the same rows.
+FISH_PLAN = dict(seed=15, body_len=16, body_h=7, body_w=5, dorsal=4)
+MODEL_JAVA = os.path.join(OUT, "src/main/java/com/elysium/agronomy/client/FishModel.java")
+
+
+def fish_plan():
+    return bodyplans.BUILDERS["fish"](FISH_PLAN)
+
+
+def write_fish_model():
+    plan = fish_plan()
+    skin = creature.skin_for(plan.rows, "#3e6e7c")
+    java, sheet = creature.model_java("com.elysium.agronomy.client", "FishModel", plan, skin, "tools/gen_fish.py",
+                                      doc="Every species wears it, scaled to its length; the renderer picks the sheet.")
+    os.makedirs(os.path.dirname(MODEL_JAVA), exist_ok=True)
+    with open(MODEL_JAVA, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(java)
+    return sheet
+
+
+def write_fish_skin(one, path):
+    """One species' sheet: the plan's rows in the species' water colour, its belly the accent."""
+    plan = fish_plan()
+    base = "#%02x%02x%02x" % skin(one)
+    made = creature.skin_for(plan.rows, base)
+    import pathlib
+    sheet = creature.model_java("com.elysium.agronomy.client", "FishModel", plan, made, "tools/gen_fish.py")[1]
+    write_texture(pathlib.Path(path), plan.rows, base, "#%02x%02x%02x" % belly(one), sheet=sheet, skin=made)
+
+
 def save(image, *parts):
     path = os.path.join(*parts)
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -406,8 +453,9 @@ def save(image, *parts):
 
 
 def draw_all():
+    write_fish_model()
     for one in FISH:
-        save(entity_sprite(one), ASSETS, "textures/entity/fish", one["id"] + ".png")
+        write_fish_skin(one, os.path.join(ASSETS, "textures/entity/fish", one["id"] + ".png"))
         save(item_sprite(one), ASSETS, "textures/item", one["id"] + ".png")
         save(bucket_sprite(one), ASSETS, "textures/item", one["id"] + "_bucket.png")
     for rung, name in enumerate(ROD_NAMES):

@@ -34,7 +34,7 @@ public final class ComfortsClient {
 
     @SubscribeEvent
     public static void onLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(PigeonRenderer.LAYER, PigeonModel::createLayer);
+        event.registerLayerDefinition(PigeonRenderer.LAYER, PigeonModel::createBodyLayer);
     }
 
     /**

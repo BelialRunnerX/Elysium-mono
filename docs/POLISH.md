@@ -153,6 +153,16 @@ boot with no registry errors and no missing Elysium models.
       before shipping. The twelve animals followed the same night: the
       grazers and foragers as two quadruped builds, the fowl as a winged
       plan (76 boxes) and the swimmers as a fish (30, simpler where the
-      animal is simple). Next: the kin, court, denizens, wards, myths, shades
-      and companions (which still borrow the six-box tables), then space, the
-      pigeons and the bees.
+      animal is simple). The kin, court, denizens, wards, myths and
+      companions then took the plans by form (each rules class already named
+      a beast family or animal kind per row), with their rosters' colours as
+      the skins' base and their marks as the accent. The pigeons (a small
+      winged plan that beats its wings off the ground, 74 boxes), the 96 bee
+      species (an insect: six legs, two pairs of wings beating off each bee's
+      own age, 75) and the 105 fish (30) followed, each species' sheet in its
+      own colour from the same rows. The shade is a floater (86 boxes,
+      translucent, reaching when it hunts). Left: the six-box tables and
+      CreatureModel to come out, and a second pass on proportions and colour
+      per creature once they have been seen in the world. The space mobs stay
+      as they are: they are Stellaris's own detailed models, ported, not ours
+      to replace.

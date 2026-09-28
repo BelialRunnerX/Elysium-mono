@@ -39,7 +39,7 @@ public class CompanionRenderer extends MobRenderer<CompanionEntity, CompanionMod
 
     @Override
     protected void scale(CompanionEntity companion, PoseStack pose, float partialTick) {
-        CreatureModel.Bounds shape = CreatureModel.bounds(CompanionModel.shape());
+        CreatureModel.Bounds shape = CompanionModel.bounds();
         float across = WIDE * PIXELS / Math.max(shape.wide(), shape.deep());
         float up = TALL * PIXELS / shape.tall();
         pose.scale(across, up, across);

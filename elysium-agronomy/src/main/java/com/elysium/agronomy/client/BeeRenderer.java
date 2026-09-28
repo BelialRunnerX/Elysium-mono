@@ -2,6 +2,7 @@ package com.elysium.agronomy.client;
 
 import com.elysium.agronomy.ElysiumAgronomy;
 import com.elysium.agronomy.entity.BeeEntity;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -17,12 +18,16 @@ import java.util.Map;
  * and a bee whose texture is missing shows the game's own missing-texture
  * rather than crashing.
  */
-public class BeeRenderer extends MobRenderer<BeeEntity, BeeModel> {
+public class BeeRenderer extends MobRenderer<BeeEntity, BeeModel<BeeEntity>> {
 
     private static final Map<String, ResourceLocation> SKINS = new HashMap<>();
 
+    /** The one layer every species bakes; the model itself is generated and keeps no constants but its size. */
+    public static final ModelLayerLocation LAYER = new ModelLayerLocation(
+            ResourceLocation.fromNamespaceAndPath(ElysiumAgronomy.MODID, "bee"), "main");
+
     public BeeRenderer(EntityRendererProvider.Context context) {
-        super(context, new BeeModel(context.bakeLayer(BeeModel.LAYER)), 0.3F);
+        super(context, new BeeModel<>(context.bakeLayer(LAYER)), 0.3F);
     }
 
     @Override

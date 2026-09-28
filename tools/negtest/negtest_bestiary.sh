@@ -145,6 +145,12 @@ expect "a beast that stopped walking its shape's walk" "no longer delegates to i
 edit $M/src/main/java/com/elysium/bestiary/client/shape/Shapes.java '            case "fowl" -> { return FowlShape.createBodyLayer(); }' '            case "hen" -> { return FowlShape.createBodyLayer(); }'
 expect "an animal kind the registry stopped listing" "does not list the fowl"
 
+edit $M/src/main/java/com/elysium/bestiary/client/CourtModel.java '        this.inner.setupAnim(creature, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);' '        // stood still'
+expect "a court that stopped walking its form's walk" "CourtModel no longer delegates"
+
+edit $M/src/main/java/com/elysium/bestiary/client/ShadeModel.java 'boolean hunting = entity != null && entity.getTarget() != null;' 'boolean hunting = false;'
+expect "a shade that stopped reaching for what it hunts" "no longer reaches when it hunts"
+
 echo "what it leaves"
 edit $G '    return [staple, essence, rare]' '    return [staple + 2, essence, rare]'
 expect_regen "a loot table that hands out more than the bestiary is balanced on" "is not the reward a player gets"
