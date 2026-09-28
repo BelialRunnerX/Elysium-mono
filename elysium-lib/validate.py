@@ -4266,12 +4266,6 @@ if "event.register(Runs::tint, block);" not in read("run/RunColors.java") \
     fail("the run tints are not registered for every declared run, so dye would show nowhere")
 print("runs               : the join rule, the plate, the dye and the tints, executed and shared")
 
-if problems:
-    print(f"{len(problems)} PROBLEM(S):")
-    for problem in problems:
-        print("  - " + problem)
-    sys.exit(1)
-
 # The boxes. Every chest menu type the library declares opens under the kit's
 # screen, and there is one per row count the game's generic menus have.
 _chests = squashed(read("menu/ElysiumChests.java"))
@@ -4286,4 +4280,10 @@ if ("for (DeferredHolder<MenuType<?>, MenuType<ChestMenu>> type : ElysiumChests.
     fail("the kit's box screen is not registered for every chest menu type the library "
          "declares, so a box of some row count opens with no screen at all")
 print("the boxes          : a chest menu type per row count, one to six, each under the kit's screen")
+if problems:
+    print(f"{len(problems)} PROBLEM(S):")
+    for problem in problems:
+        print("  - " + problem)
+    sys.exit(1)
+
 print("all library checks passed")

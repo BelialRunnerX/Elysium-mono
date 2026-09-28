@@ -34,6 +34,7 @@ by the person who added it.
 """
 import json
 import os
+import re
 import pathlib
 import sys
 
@@ -112,6 +113,47 @@ def main():
             f"move the file into one module, or teach tools/mergejar.py how to "
             f"merge it.")
 
+    # ---- the mod list: an emblem and credits on every block (POLISH.md P2) ----
+    # A mod list of twenty-nine blank squares and twenty-nine display names is a
+    # pack that looks unfinished before a world is loaded. Every manifest names
+    # the one generated emblem and credits from its properties; the emblem is in
+    # the library jar, 256 square, and drawn only in the interface palette so a
+    # palette change redraws it rather than leaving it a different violet.
+    emblem = HERE / "elysium-lib/src/main/resources/elysium_logo.png"
+    if not emblem.is_file():
+        problems.append("the pack has no emblem: tools/gen_emblem.py writes elysium_logo.png "
+                        "into the library's resources, and every mod list square is blank without it")
+    else:
+        try:
+            import sys as _sys
+            _sys.path.insert(0, str(HERE / "elysium-lib" / "ui"))
+            import palette as _palette
+            from PIL import Image as _Image
+            with _Image.open(emblem) as _img:
+                _px = _img.convert("RGBA")
+                if _px.size != (256, 256):
+                    problems.append(f"the emblem is {_px.size[0]}x{_px.size[1]}, not the 256 square the mod list expects")
+                _allowed = {(v >> 16 & 255, v >> 8 & 255, v & 255) for v in _palette.PALETTE.values()}
+                _off = {(r, g, b) for (r, g, b, a) in _px.getdata() if a}
+                _off -= _allowed
+                if _off:
+                    problems.append(f"the emblem uses {len(_off)} colour(s) outside the interface palette, "
+                                    f"so a palette change would leave it a different violet from the screens")
+        except ImportError:
+            pass
+    for module in sorted(os.listdir(HERE)):
+        manifest = HERE / module / "src/main/resources/META-INF/neoforge.mods.toml"
+        if not module.startswith("elysium-") or not manifest.is_file():
+            continue
+        text = manifest.read_text(encoding="utf-8")
+        if 'logoFile="elysium_logo.png"' not in text or "logoBlur=false" not in text:
+            problems.append(f"{module}: its manifest names no emblem, so its square in the mod list is blank")
+        if 'credits="${mod_credits}"' not in text:
+            problems.append(f"{module}: its manifest carries no credits")
+        props = (HERE / module / "gradle.properties").read_text(encoding="utf-8")
+        if not re.search(r"^mod_credits=\S.+$", props, re.M):
+            problems.append(f"{module}: gradle.properties defines no mod_credits, which the manifest expands")
+
     if problems:
         print(f"{len(problems)} PROBLEM(S):")
         for problem in problems:
@@ -122,7 +164,7 @@ def main():
         print(f"  unioned by the merge: {rel}")
         print(f"    {' + '.join(who)} -> {count} values")
     print(f"mergeable          : {len(owners)} resource paths across "
-          f"{len(MODULES)} modules, {len(unioned)} unioned, 0 unmergeable")
+          f"{len(MODULES)} modules, {len(unioned)} unioned, 0 unmergeable; an emblem and credits on every manifest")
     return 0
 
 

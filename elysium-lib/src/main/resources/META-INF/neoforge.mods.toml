@@ -13,6 +13,11 @@ modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 authors="${mod_authors}"
+credits="${mod_credits}"
+# One emblem for the whole pack, generated from the interface palette by
+# tools/gen_emblem.py into the library jar; pixel art, so it is not blurred.
+logoFile="elysium_logo.png"
+logoBlur=false
 description='''
 ${mod_description}
 '''

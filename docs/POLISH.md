@@ -18,10 +18,13 @@ boot with no registry errors and no missing Elysium models.
       mods, plus their folders (Mekanism, ProjectE, xaero, patchouli, ...).
       Move what no kept mod reads into `config/_superseded`; same on the
       server. Reset `server.properties` (motd, difficulty), clear test ops.
-- [ ] **P2 Mod metadata.** The merged jar's `neoforge.mods.toml` has 28
-      display names and no description, logo or credits. Add a one-paragraph
-      description per module (from the manifest's sentence), a generated pack
-      emblem as `logoFile`, and credits for the Stellaris derivation.
+- [x] **P2 Mod metadata.** (27 Sep, night) Every module's manifest already
+      carried its description; it now carries `credits` (from `mod_credits`
+      in its properties; Elysium Space names the Stellaris derivation) and the
+      one generated pack emblem (`tools/gen_emblem.py` →
+      `elysium_logo.png` in the library jar, drawn only in the interface
+      palette). `check_merge.py` requires all three and the emblem's size
+      and colours; `negtest_merge.sh` takes each away.
 - [~] **P3 First join.** (27 Sep, evening: `stage_firstjoin_client.ps1` on a
       fresh world) The new player gets the codex, the almanac, bread and
       torches, and the "Declare yourself" screen opens over the world; ESC
