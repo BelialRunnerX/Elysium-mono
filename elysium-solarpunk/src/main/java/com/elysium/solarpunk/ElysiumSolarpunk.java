@@ -4,6 +4,14 @@ import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import org.slf4j.Logger;
+import com.elysium.lib.recipe.ElysiumRecipeKinds;
+import com.elysium.solarpunk.recipe.SolarpunkProcessRecipe;
+import com.elysium.solarpunk.recipe.SolarpunkRecipes;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import java.util.List;
 
 /**
  * Elysium Solarpunk — a building set for the other future.
@@ -60,6 +68,16 @@ public class ElysiumSolarpunk {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public ElysiumSolarpunk(IEventBus modEventBus) {
+        // The recipe kinds, for a recipe browser to show (POLISH.md P6): nothing here names JEI.
+        ElysiumRecipeKinds.register(ResourceLocation.fromNamespaceAndPath(MODID, "pressing"),
+                () -> SolarpunkRecipes.PRESSING.type().get(), SolarpunkContent.MYCELIUM_PRESS, ElysiumSolarpunk::processInputs,
+                ElysiumRecipeKinds.NOTHING_MORE);
+        ElysiumRecipeKinds.register(ResourceLocation.fromNamespaceAndPath(MODID, "weaving"),
+                () -> SolarpunkRecipes.WEAVING.type().get(), SolarpunkContent.FIBRE_LOOM, ElysiumSolarpunk::processInputs,
+                ElysiumRecipeKinds.NOTHING_MORE);
+        ElysiumRecipeKinds.register(ResourceLocation.fromNamespaceAndPath(MODID, "farming"),
+                () -> SolarpunkRecipes.FARMING.type().get(), SolarpunkContent.AQUAPONICS_TANK, ElysiumSolarpunk::processInputs,
+                ElysiumRecipeKinds.NOTHING_MORE);
         // Loads SolarpunkContent, which is what runs its registrations, and
         // attaches the three registers to the bus. Nothing is resolved here:
         // every get() in that class is inside a lambda that runs after the
@@ -69,5 +87,21 @@ public class ElysiumSolarpunk {
         com.elysium.lib.run.Runs.declare(SolarpunkContent.POWER_CONDUIT, 0xC8A24A);
 
         LOGGER.info("Elysium Solarpunk ready: {} blocks", SolarpunkContent.blockCount());
+    }
+
+    /** A process recipe's one input, shown with the count the machine takes of it. */
+    private static List<Ingredient> processInputs(Recipe<?> recipe) {
+        if (!(recipe instanceof SolarpunkProcessRecipe process)) {
+            return List.of();
+        }
+        if (process.inputCount() <= 1) {
+            return List.of(process.input());
+        }
+        ItemStack[] stacks = process.input().getItems();
+        ItemStack[] sized = new ItemStack[stacks.length];
+        for (int i = 0; i < stacks.length; i++) {
+            sized[i] = stacks[i].copyWithCount(process.inputCount());
+        }
+        return List.of(Ingredient.of(sized));
     }
 }

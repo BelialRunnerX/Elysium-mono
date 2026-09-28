@@ -4,6 +4,12 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.elysium.lib.recipe.ElysiumRecipeKinds;
+import com.elysium.atomics.recipe.AtomicRecipe;
+import com.elysium.atomics.registry.AtomicBlocks;
+import com.elysium.atomics.registry.AtomicRecipes;
+import net.minecraft.resources.ResourceLocation;
+import java.util.List;
 
 /**
  * Elysium Atomics: the third age.
@@ -47,6 +53,17 @@ public class ElysiumAtomics {
     public static final Logger LOGGER = LoggerFactory.getLogger("ElysiumAtomics");
 
     public ElysiumAtomics(IEventBus modEventBus) {
+        // The recipe kinds, for a recipe browser to show (POLISH.md P6): nothing here names JEI.
+        for (AtomicRecipe.Kind kind : AtomicRecipe.Kind.values()) {
+            ElysiumRecipeKinds.register(ResourceLocation.fromNamespaceAndPath(MODID, kind.id()),
+                    () -> AtomicRecipes.type(kind), switch (kind) {
+                        case ENRICHING -> AtomicBlocks.ENRICHER;
+                        case REACTING -> AtomicBlocks.REACTION_CHAMBER;
+                        case CENTRIFUGING -> AtomicBlocks.CENTRIFUGE;
+                    },
+                    recipe -> recipe instanceof AtomicRecipe made ? List.of(made.input()) : List.of(),
+                    ElysiumRecipeKinds.NOTHING_MORE);
+        }
         com.elysium.atomics.registry.AtomicBlocks.BLOCKS.register(modEventBus);
         // The coolant channel is a run; its plates are ice-blue until a dye says otherwise.
         com.elysium.lib.run.Runs.declare(com.elysium.atomics.registry.AtomicBlocks.COOLANT_CHANNEL, 0x7FD6E8);

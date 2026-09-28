@@ -140,9 +140,15 @@ print(f"library sources    : {sum(1 for _ in sources())} files, no content refer
 # 2. The manifest depends on nothing but the platform
 # ---------------------------------------------------------------------------
 manifest = open(os.path.join(RES, "META-INF/neoforge.mods.toml"), encoding="utf-8").read()
-declared = re.findall(r'modId="([\w$\{\}]+)"', manifest)
+declared = re.findall(r'modId="([\w$\{\}]+)"(?:\s*\n\s*type="(\w+)")?', manifest)
 allowed = {"${mod_id}", "neoforge", "minecraft"}
-for mod in declared:
+for mod, kind in declared:
+    # One exception, and it is optional by rule: JEI, which compat/jei is
+    # written against and which loads that class itself (POLISH.md P6). An
+    # optional dependency changes load order and nothing else; the recipe
+    # browser section below holds it to "optional".
+    if mod == "jei" and kind == "optional":
+        continue
     if mod not in allowed:
         fail(f"manifest declares a dependency on \"{mod}\" - the library "
              f"depends on the platform and nothing else")
@@ -3779,6 +3785,12 @@ else:
         "ELYSIUM_ANNOTATIONS", "/opt/gradle-8.14.3/lib/annotations-24.0.1.jar")
     if os.path.isfile(annotations):
         classpath += os.pathsep + annotations
+    # The compile-only jars compile.sh names: compat/jei is written against
+    # JEI's API and type-checked here like everything else, and at runtime only
+    # JEI's own scan loads it (docs/POLISH.md P6).
+    import glob as _glob
+    for _jar in sorted(_glob.glob(os.path.join(os.environ.get("ELYSIUM_COMPAT_LIBS", "/tmp/mods"), "jei-*.jar"))):
+        classpath += os.pathsep + _jar
 
     with tempfile.TemporaryDirectory() as scratch:
         library = os.path.join(scratch, "lib")
@@ -4351,6 +4363,60 @@ else:
         print(f"sound              : {len(_voice_ids)} voices x {len(_calls)}, {len(_hum_ids)} hums, "
               f"{len(_click_ids)} clicks: {_checked} Vorbis clips on disk, each mono at 22050 Hz, listed, "
               f"subtitled and rebuilt identical")
+
+# ---------------------------------------------------------------------------
+# The recipe browser (docs/POLISH.md P6)
+# ---------------------------------------------------------------------------
+#
+# Dylan, 28 Sep 2026: "support JEI though but leave it as a non dependency".
+# So: compat/jei/ElysiumJeiPlugin is the one class in the pack that names
+# JEI; JEI loads it itself through the annotation scan; nothing else imports
+# it or anything of JEI's; the manifest declares JEI optional; and the kinds
+# it shows come from recipe/ElysiumRecipeKinds, which the machine modules fill
+# without knowing a browser exists. Each of those is a line that, crossed,
+# makes JEI a hard dependency or the browser an empty one.
+_plugin_path = os.path.join(SRC, "compat/jei/ElysiumJeiPlugin.java")
+_plugin = COMMENT.sub(" ", read("compat/jei/ElysiumJeiPlugin.java")) if os.path.isfile(_plugin_path) else ""
+_kinds = COMMENT.sub(" ", read("recipe/ElysiumRecipeKinds.java")) \
+    if os.path.isfile(os.path.join(SRC, "recipe/ElysiumRecipeKinds.java")) else ""
+if not _plugin:
+    fail("there is no compat/jei/ElysiumJeiPlugin.java, so a player with JEI sees none of the "
+         "pack's machine recipes")
+else:
+    if "@JeiPlugin" not in _plugin or "implements IModPlugin" not in _plugin:
+        fail("the JEI plugin is not a JEI plugin: without @JeiPlugin and IModPlugin, JEI never loads it")
+    # The calls, not the methods that hold them: a method left with an empty
+    # body still has its name.
+    for needed, why in (("addRecipeCategories(", "a category per kind"), ("registration.addRecipes(", "the recipes of each kind"),
+                        ("addRecipeCatalysts(jeiType(kind), kind.catalyst().get())", "the machine that runs each kind"),
+                        ("ElysiumRecipeKinds.all()", "the kinds the modules handed over")):
+        if needed not in _plugin:
+            fail(f"the JEI plugin no longer registers {why}, so the browser shows less than the pack has")
+if not _kinds or "public static synchronized void register(" not in _kinds:
+    fail("recipe/ElysiumRecipeKinds no longer takes kinds, so no module can hand its recipes to a browser")
+_manifest_text = open(os.path.join(RES, "META-INF/neoforge.mods.toml"), encoding="utf-8").read()
+_jei_dep = re.search(r'modId="jei"\s*\n\s*type="(\w+)"', _manifest_text)
+if not _jei_dep:
+    fail("the manifest does not mention JEI, so the game will not order this mod after it and the plugin may load before its API")
+elif _jei_dep.group(1) != "optional":
+    fail(f"the manifest declares JEI as a {_jei_dep.group(1)} dependency; it is to be optional, or the pack "
+         f"will not start without a jar it does not ship")
+_names_jei = []
+for _root, _dirs, _files in os.walk(SRC):
+    for _f in _files:
+        if not _f.endswith(".java"):
+            continue
+        _rel = os.path.relpath(os.path.join(_root, _f), SRC).replace(os.sep, "/")
+        if _rel.startswith("compat/jei/"):
+            continue
+        if re.search(r"^import mezz\.jei\.", COMMENT.sub(" ", read(_rel)), re.M) or "compat.jei." in COMMENT.sub(" ", read(_rel)):
+            _names_jei.append(_rel)
+if _names_jei:
+    fail(f"{len(_names_jei)} class(es) outside compat/jei name JEI ({_names_jei[:3]}), which is a crash at "
+         f"class load for a player without it")
+if not _names_jei and _plugin and _kinds and _jei_dep and _jei_dep.group(1) == "optional":
+    print("the recipe browser : one plugin JEI loads itself, nothing else naming JEI, the dependency "
+          "optional, and the kinds read off the table the modules fill")
 
 # ---------------------------------------------------------------------------
 # Registrations that ride on another class's DeferredRegister

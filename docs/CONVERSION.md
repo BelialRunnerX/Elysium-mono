@@ -1363,6 +1363,34 @@ agronomy's chunk (raw materials rank before gems in the ore-drop search) and
 nothing turned a chunk into the foundry's gem. Two generated furnace recipes
 per gem close it, with a foundry rule and a negtest.
 
+### 16.7 The recipe browser, and the last cut lines (28 September, afternoon)
+
+**JEI as a non-dependency (P6).** Dylan: "support JEI though but leave it
+as a non dependency". The arrangement: `recipe/ElysiumRecipeKinds` in the
+library is a table that knows nothing of any browser; each machine module
+hands its recipe kinds to it at construction (the type, the machine that
+runs it, how to read a recipe's inputs, any recovered byproduct); and
+`compat/jei/ElysiumJeiPlugin` is the one class in the pack that names JEI,
+loaded only by JEI's own annotation scan, drawing a category per kind
+titled with the machine's name. The manifest declares JEI optional; the
+build, the library validator and `check_construct.py` type-check against a
+JEI jar in the compile-only folder; the validators hold the plugin, the
+optional dependency, "nothing outside compat/jei names JEI" and every
+module's kinds; `negtest_jei.sh` breaks each. Verified with JEI 19.44
+beside the seven jars: the Alloy Smelter's uses open its category with
+its five pages. Two things found on the way: JEI's `@JeiPlugin` has no
+retention and compiles as a class-retained annotation, which FML's scanner
+indexes all the same; and JEI's search box does not take focus from a
+synthetic click, so the stage goes in through the hotbar. The seven-jar
+ground state is unchanged; the JEI jar goes back to `_superseded` after
+the stage.
+
+**The last cut lines (P14).** Three status lines that were truncated to
+one line now wrap through `ElysiumUI.wrapped`: the reforging table's
+essence hint over the two lines its target and cost use, the infusion
+basin's reason inside a taller button, the scriptorium's offer and empty
+line inside a taller button.
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and

@@ -656,7 +656,7 @@ for path in sorted(JAVA.rglob("*.java")):
         # for its hum (POLISH.md P5, 28 Sep). Anything else of ours is foreign.
         if target.startswith("com.elysium.") and not target.startswith(
                 "com.elysium.solarpunk.") and not target.startswith(
-                ("com.elysium.lib.run.", "com.elysium.lib.sound.")):
+                ("com.elysium.lib.run.", "com.elysium.lib.sound.", "com.elysium.lib.recipe.")):
             foreign.append((path.name, target))
 
 for filename, target in foreign:
@@ -1956,6 +1956,30 @@ for dirpath, _, filenames in os.walk(RES):
 
 print(f"json files parsed  : {count}")
 print()
+
+# ---------------------------------------------------------------------------
+# The recipe browser (docs/POLISH.md P6)
+# ---------------------------------------------------------------------------
+#
+# The module hands each recipe kind it registers to the library's
+# ElysiumRecipeKinds at construction, with the machine that runs it. The
+# library's JEI plugin reads that table when JEI is installed; a kind left out
+# is a machine whose recipes a player cannot look up (28 Sep 2026).
+_main_path = str(JAVA / "ElysiumSolarpunk.java")
+_main_src = read_java("ElysiumSolarpunk.java") if os.path.isfile(_main_path) else ""
+if not _main_src:
+    fail("ElysiumSolarpunk.java is missing, so nothing hands this module's recipe kinds to the library")
+else:
+    if '"pressing"' not in _main_src or "ElysiumRecipeKinds.register(" not in _main_src:
+        fail("the pressing recipes are never handed to ElysiumRecipeKinds, so a recipe browser never shows them")
+    if '"weaving"' not in _main_src or "ElysiumRecipeKinds.register(" not in _main_src:
+        fail("the weaving recipes are never handed to ElysiumRecipeKinds, so a recipe browser never shows them")
+    if '"farming"' not in _main_src or "ElysiumRecipeKinds.register(" not in _main_src:
+        fail("the farming recipes are never handed to ElysiumRecipeKinds, so a recipe browser never shows them")
+    if "import mezz.jei" in _main_src:
+        fail("ElysiumSolarpunk.java imports JEI outright, which makes JEI a hard dependency of this module")
+if _main_src and "ElysiumRecipeKinds.register(" in _main_src:
+    print("the recipe browser : 3 kind(s) handed to the library's table for JEI to show, and JEI named nowhere here")
 
 if problems:
     print(f"{len(problems)} PROBLEM(S):")

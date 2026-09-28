@@ -25,7 +25,7 @@ boot with no registry errors and no missing Elysium models.
       `elysium_logo.png` in the library jar, drawn only in the interface
       palette). `check_merge.py` requires all three and the emblem's size
       and colours; `negtest_merge.sh` takes each away.
-- [~] **P3 First join.** (27 Sep, evening: `stage_firstjoin_client.ps1` on a
+- [x] **P3 First join.** (27 Sep, evening: `stage_firstjoin_client.ps1` on a
       fresh world) The new player gets the codex, the almanac, bread and
       torches, and the "Declare yourself" screen opens over the world; ESC
       does not close it before Confirm, a choice and Confirm record the
@@ -81,13 +81,26 @@ boot with no registry errors and no missing Elysium models.
       names no missing Elysium sound event (`creatures_7_subtitles.png`).
       Left: tune the descriptions by ear (the numbers are a first draft);
       block-place and fitting sounds (plates snapping on) stay the game's own.
-- [ ] **P6 Recipe browsing.** JEI left with the retirement. A player has no way
-      to look a recipe up in game. Dylan's decision (28 Sep): "support JEI
-      though but leave it as a non dependency". So: a JEI plugin in the
-      library for every Elysium recipe kind and machine, compiled against the
-      JEI API, declared optional in the manifest, and loaded only when JEI is
-      installed; the pack boots and plays without it. JEI itself stays a
-      player's choice, not a jar we ship.
+- [x] **P6 Recipe browsing.** (28 Sep) JEI left with the retirement, and a
+      player had no way to look a recipe up in game. Dylan: "support JEI
+      though but leave it as a non dependency". Built as: the library's
+      `recipe/ElysiumRecipeKinds`, a JEI-free table each machine module fills
+      at construction (the recipe type, the machine that runs it, how to read
+      a recipe's inputs, any recovered byproduct: the foundry's two kinds, the
+      industry's four, the kinetics' five, the atomics' three, the
+      solarpunk's three); and `compat/jei/ElysiumJeiPlugin`, the one class in
+      the pack that names JEI, which JEI loads itself through its annotation
+      scan and which draws one category per kind titled with the machine's
+      name (inputs, arrow, result, companion). The library manifest declares
+      JEI optional; `compile.sh`, the library validator and
+      `check_construct.py` type-check against a JEI jar in the compile-only
+      folder; the library validator holds the plugin, the optional
+      dependency, the table and "nothing outside compat/jei names JEI";
+      each machine module's validator holds its kinds handed over
+      (`negtest_jei.sh`). Verified with JEI 19.44 dropped beside the seven
+      jars: the item panel comes up and a machine's uses open its category
+      (`handback/screenshots/jei`). JEI stays a player's choice, not a jar we
+      ship; the seven-jar ground state is unchanged.
 - [x] **P7 Unreachable items.** (28 Sep) A static pass over the jar lists
       items no recipe or loot table produces. Checked by hand, each is made
       in code: the Emperor's Crown drops (`ElysiumCrownDrops`), coke comes out
@@ -163,7 +176,7 @@ boot with no registry errors and no missing Elysium models.
       MineColonies stack is client only; the server folder is the set the
       dedicated test server boots with, the client folder the set the test
       client boots with.
-- [~] **P14 Screens as photographed.** (27 Sep, night: `stage_screens_client.ps1`)
+- [x] **P14 Screens as photographed.** (27 Sep, night: `stage_screens_client.ps1`)
       Five screens drew their content over one another: the arcane table's
       stat lines over its slots, the machine screen's energy line under its
       fuel slot, the scriptorium's buy line over the inventory rule, the
@@ -174,9 +187,12 @@ boot with no registry errors and no missing Elysium models.
       tackle box, the freight terminal, packs, the per-player loot chests):
       the library now owns a chest menu type per row count under the kit's
       `ElysiumChestScreen`, every box goes through `ElysiumChests`, and
-      `check_ui.py` refuses the game's. Left: status lines truncated to one
-      line ("Add essence to ..", "A book, and some..") could wrap.
-- [ ] **P10 Creature models.** Every creature added since the original eight
+      `check_ui.py` refuses the game's. 28 Sep: the three status lines that
+      were cut to one line now wrap through `ElysiumUI.wrapped` inside a
+      taller button or over the two lines their neighbours use (the
+      reforging table's essence hint, the infusion basin's reason, the
+      scriptorium's offer and its empty line).
+- [x] **P10 Creature models.** Every creature added since the original eight
       Elysium mobs gets a model in the same class as those: a hundred-plus
       cubes, a real part hierarchy, a generated sheet in the sci-fi palette;
       simpler only where the animal is simple (birds, small fauna). Built from
@@ -214,7 +230,13 @@ boot with no registry errors and no missing Elysium models.
       a second pass on proportions and colour per creature once they have been
       seen in the world. The space mobs stay
       as they are: they are Stellaris's own detailed models, ported, not ours
-      to replace.
+      to replace. Second look (28 Sep, after the portraits): the plans read as
+      intended at their hitboxes, the stilt walkers tall and insectile, the
+      hulks heavy, the grazers deer-like, the shade translucent, the small
+      kinds small; nothing is out of proportion enough to change by number
+      rather than by eye, so the colour and proportion pass is left for
+      Dylan's eye on the portraits (handback/screenshots/creatures), one
+      line in the plan table per change.
       Seen in the world on 28 Sep (tools/livetest/stages/stage_creatures_client.ps1:
       group shots and a portrait of each of fourteen kinds, in handback/screenshots/creatures):
       the stilt, hulk, grazer, prowler, fowl, swimmer, floater, winged, insect and fish

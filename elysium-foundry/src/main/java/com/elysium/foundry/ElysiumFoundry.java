@@ -4,6 +4,15 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.elysium.lib.recipe.ElysiumRecipeKinds;
+import com.elysium.foundry.recipe.AlloyRecipe;
+import com.elysium.foundry.recipe.RefineRecipe;
+import com.elysium.foundry.registry.FoundryBlocks;
+import com.elysium.foundry.registry.FoundryRecipes;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import java.util.List;
 
 /**
  * Elysium Foundry: the fourth age.
@@ -39,6 +48,17 @@ public class ElysiumFoundry {
     public static final Logger LOGGER = LoggerFactory.getLogger("ElysiumFoundry");
 
     public ElysiumFoundry(IEventBus modEventBus) {
+        // The recipe kinds, for a recipe browser to show (POLISH.md P6): nothing here names JEI.
+        ElysiumRecipeKinds.register(ResourceLocation.fromNamespaceAndPath(MODID, "alloying"),
+                FoundryRecipes.ALLOYING::get, FoundryBlocks.ALLOY_SMELTER,
+                recipe -> recipe instanceof AlloyRecipe alloy
+                        ? List.of(counted(alloy.first(), alloy.firstCount()), counted(alloy.second(), alloy.secondCount()))
+                        : List.of(),
+                ElysiumRecipeKinds.NOTHING_MORE);
+        ElysiumRecipeKinds.register(ResourceLocation.fromNamespaceAndPath(MODID, "refining"),
+                FoundryRecipes.REFINING::get, FoundryBlocks.REFINERY,
+                recipe -> recipe instanceof RefineRecipe refine ? List.of(refine.input()) : List.of(),
+                recipe -> recipe instanceof RefineRecipe refine ? List.of(refine.recovered()) : List.of());
         com.elysium.foundry.registry.FoundryBlocks.BLOCKS.register(modEventBus);
         com.elysium.foundry.registry.FoundryItems.ITEMS.register(modEventBus);
         com.elysium.foundry.registry.FoundryItems.TABS.register(modEventBus);
@@ -46,5 +66,18 @@ public class ElysiumFoundry {
         com.elysium.foundry.registry.FoundryRecipes.TYPES.register(modEventBus);
         com.elysium.foundry.registry.FoundryRecipes.SERIALIZERS.register(modEventBus);
         LOGGER.info("Elysium Foundry ready");
+    }
+
+    /** An ingredient shown with the count the smelter takes of it. */
+    private static Ingredient counted(Ingredient ingredient, int count) {
+        if (count <= 1) {
+            return ingredient;
+        }
+        ItemStack[] stacks = ingredient.getItems();
+        ItemStack[] sized = new ItemStack[stacks.length];
+        for (int i = 0; i < stacks.length; i++) {
+            sized[i] = stacks[i].copyWithCount(count);
+        }
+        return Ingredient.of(sized);
     }
 }

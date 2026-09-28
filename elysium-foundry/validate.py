@@ -593,6 +593,28 @@ if f'MODID = "{NS}"' not in main_class:
 
 print("what it declares   : the game, the library, and the three ages it is built on")
 
+# ---------------------------------------------------------------------------
+# The recipe browser (docs/POLISH.md P6)
+# ---------------------------------------------------------------------------
+#
+# The module hands each recipe kind it registers to the library's
+# ElysiumRecipeKinds at construction, with the machine that runs it. The
+# library's JEI plugin reads that table when JEI is installed; a kind left out
+# is a machine whose recipes a player cannot look up (28 Sep 2026).
+_main_path = os.path.join(SRC, "ElysiumFoundry.java")
+_main_src = strip_comments(read(SRC, "ElysiumFoundry.java"), keep_strings=True) if os.path.isfile(_main_path) else ""
+if not _main_src:
+    fail("ElysiumFoundry.java is missing, so nothing hands this module's recipe kinds to the library")
+else:
+    if '"alloying"' not in _main_src or "ElysiumRecipeKinds.register(" not in _main_src:
+        fail("the alloying recipes are never handed to ElysiumRecipeKinds, so a recipe browser never shows them")
+    if '"refining"' not in _main_src or "ElysiumRecipeKinds.register(" not in _main_src:
+        fail("the refining recipes are never handed to ElysiumRecipeKinds, so a recipe browser never shows them")
+    if "import mezz.jei" in _main_src:
+        fail("ElysiumFoundry.java imports JEI outright, which makes JEI a hard dependency of this module")
+if _main_src and "ElysiumRecipeKinds.register(" in _main_src:
+    print("the recipe browser : 2 kind(s) handed to the library's table for JEI to show, and JEI named nowhere here")
+
 if problems:
     print(f"{len(problems)} PROBLEM(S):")
     for problem in problems:

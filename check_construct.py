@@ -117,7 +117,7 @@ if os.path.isfile(ANNOTATIONS):
 
 import glob as _glob
 COMPAT = os.environ.get("ELYSIUM_COMPAT_LIBS", "/tmp/mods")
-for pattern in ("silent-gear-*.jar", "silent-lib-*.jar", "Apotheosis-*.jar",
+for pattern in ("jei-*.jar", "silent-gear-*.jar", "silent-lib-*.jar", "Apotheosis-*.jar",
                 "Placebo-*.jar", "minecolonies-*.jar", "structurize-*.jar",
                 "blockui-*.jar"):
     found = sorted(_glob.glob(os.path.join(COMPAT, pattern)))

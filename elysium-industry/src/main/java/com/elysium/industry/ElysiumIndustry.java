@@ -4,6 +4,12 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.elysium.lib.recipe.ElysiumRecipeKinds;
+import com.elysium.industry.recipe.IndustryRecipe;
+import com.elysium.industry.registry.IndustryBlocks;
+import com.elysium.industry.registry.IndustryRecipes;
+import net.minecraft.resources.ResourceLocation;
+import java.util.List;
 
 /**
  * Elysium Industry: the second age.
@@ -39,6 +45,18 @@ public class ElysiumIndustry {
     public static final Logger LOGGER = LoggerFactory.getLogger("ElysiumIndustry");
 
     public ElysiumIndustry(IEventBus modEventBus) {
+        // The recipe kinds, for a recipe browser to show (POLISH.md P6): nothing here names JEI.
+        for (IndustryRecipe.Kind kind : IndustryRecipe.Kind.values()) {
+            ElysiumRecipeKinds.register(ResourceLocation.fromNamespaceAndPath(MODID, kind.id()),
+                    () -> IndustryRecipes.type(kind), switch (kind) {
+                        case CRUSHING -> IndustryBlocks.CRUSHER;
+                        case ROLLING -> IndustryBlocks.ROLLING_MILL;
+                        case SMELTING -> IndustryBlocks.ARC_FURNACE;
+                        case SEPARATING -> IndustryBlocks.SEPARATOR;
+                    },
+                    recipe -> recipe instanceof IndustryRecipe made ? List.of(made.input()) : List.of(),
+                    ElysiumRecipeKinds.NOTHING_MORE);
+        }
         com.elysium.industry.registry.IndustryBlocks.BLOCKS.register(modEventBus);
         // The wires are runs; each one's plates are its own metal until a dye says otherwise.
         com.elysium.lib.run.Runs.declare(com.elysium.industry.registry.IndustryBlocks.COPPER_WIRE, 0xB87333);

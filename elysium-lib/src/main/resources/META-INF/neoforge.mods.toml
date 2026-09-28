@@ -26,6 +26,16 @@ ${mod_description}
 # optional integrations either: an integration is a thing a content mod does,
 # and a library that reached for Apotheosis on its own would be making that
 # decision for every mod built on it.
+# JEI is optional: compat/jei holds the one class that names it, JEI loads that
+# class itself through its annotation scan, and nothing else imports it. Dylan,
+# 28 Sep 2026: "support JEI though but leave it as a non dependency" (POLISH.md P6).
+[[dependencies.${mod_id}]]
+    modId="jei"
+    type="optional"
+    versionRange="[19.0.0,)"
+    ordering="NONE"
+    side="BOTH"
+
 [[dependencies.${mod_id}]]
     modId="neoforge"
     type="required"

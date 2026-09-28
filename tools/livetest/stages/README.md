@@ -33,6 +33,9 @@ after every install. Screenshots land beside the script, or in
   spawns counted around the player.
 * `stage_creatures_client.ps1` - the creatures on their body plans, summoned in
   two rows and photographed standing and moving (POLISH.md P10).
+* `stage_jei_client.ps1` - with a JEI jar dropped beside the seven, the item
+  panel and a machine's own recipe category from the library's plugin
+  (POLISH.md P6). Take the jar out again afterwards.
 
 Pitfalls the creature stage taught (28 Sep):
 
