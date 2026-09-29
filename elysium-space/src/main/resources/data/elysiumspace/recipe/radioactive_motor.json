@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "HHH",
+    "EGG",
+    "HHH"
+  ],
+  "key": {
+    "H": {
+      "tag": "c:ingots/heavy_metal"
+    },
+    "E": {
+      "tag": "c:storage_blocks/lunite"
+    },
+    "G": {
+      "item": "elysiumspace:rime_shard"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:radioactive_motor"
+  }
+}

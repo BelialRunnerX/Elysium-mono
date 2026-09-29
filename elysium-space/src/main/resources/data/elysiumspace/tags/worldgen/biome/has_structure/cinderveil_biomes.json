@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "elysiumspace:cinderveil_desert"
+    "elysiumspace:cinderveil_desert",
+    "elysiumspace:cinderveil_infernal_barrens"
   ]
 }

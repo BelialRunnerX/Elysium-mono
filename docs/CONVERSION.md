@@ -1568,6 +1568,51 @@ its negtest, the ship check's six required files and the regen step; the
 core validator now refuses any of it coming back. Held by `negtest_web.sh`
 (eight breaks through the library validator) and the harness.
 
+### 16.10 Space, finished out (28 September, evening)
+
+The finish list's "Space S4" turned out to be done already — the rocket, the
+pad, the destination screen, the landing and the stations were all in the
+module — and the row was PARTIAL for the pieces the spec had deferred to S6.
+Those, and S6b/S6c's remainders, measured against Stellaris's inventory:
+
+* **The radioactive chain.** `SpaceRoute` had priced five fuels since S4 and
+  the rocket burned two. Now neptunium ore lies under Cinderveil and
+  plutonium under Frostfall (Stellaris's Venus and Mars radioactives, with
+  raw, ingot, nugget and blocks from the generator's metal table), heavy
+  metal is alloyed from one of each with the ore unification's uranium (the
+  atomics module's ingot, by its common tag, so the space module names no
+  other module's item), and three motors — Uranium, Plutonium, Radioactive —
+  are fitted like the Hydrogen Motor to an empty rocket. Each burns its own
+  metal: a nugget is a canister's worth, an ingot nine. `RocketEntity.motorOf`
+  and `fuelIn` are one rule for every motor now, and the validator holds
+  every fuel SpaceRoute prices to a motor item that fits it, a fuelIn case that
+  takes it, and words for it; `negtest_rocket.sh` breaks all three.
+* **The Mercury structures.** Stellaris's Mercury has no world of ours, so its
+  eight structures (castles, factory, lava mines, mining ship, quarry, temple,
+  volcano) were never ported. `port_structures.py` now sends them to
+  Cinderveil beside Venus's, with Mercury's stone family read as Cinderveil's
+  (Stellaris spells two of its slabs "marcury"), and the hot world's second
+  biome added to the structures' biome tag. 33 of Stellaris's 33 structure
+  sets are ours.
+* **The Oil Finder.** Used on a block, it says what the chunk holds — by the
+  pumpjack's own deposit rule from the seed, or the chunk's count once a
+  pumpjack has drawn on it, so the two never disagree.
+
+The stage found one more thing: the Launch key was G, and G is Curios'
+inventory key, so pressing Launch in a rocket also threw the trinket screen
+over the countdown. Launch is H now, and `check_keys.py` (the 25th
+cross-cutting check) resolves every KeyMapping's default in every module
+and holds the set to itself and to Curios', JEI's and vanilla's defaults;
+`negtest_keys.sh` breaks it three ways.
+
+Ruled out, and written into the spec so the row stays closed: rocket models
+and skins (cosmetic tiers — the tank and the motor are the tiers here), the
+upgrade station (the rocket station was already ruled out in S8), the
+tablet, suit modules, batteries and fluid cells. The live suite's `ores:`
+scenario loots the two new ores; `stage_rocket_client.ps1` fits the Uranium
+Motor, fuels with uranium ingots, launches to the destination screen, lands,
+and reads a chunk with the finder.
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and

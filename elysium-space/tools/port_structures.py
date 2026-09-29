@@ -25,7 +25,10 @@ OUT = os.path.join(HERE, "src/main/resources/data/elysiumspace")
 NS = "elysiumspace"
 
 PREFIX = [("small_moon_", "pale_moon_small_"), ("moon_", "pale_moon_"), ("mars_", "frostfall_"),
-          ("venus_", "cinderveil_"), ("earth_", "overworld_")]
+          ("venus_", "cinderveil_"), ("earth_", "overworld_"),
+          # Stellaris's Mercury has no world of ours; its eight structures go to
+          # Cinderveil, the hot world, beside Venus's (28 Sep 2026).
+          ("mercury_", "cinderveil_"), ("marcury_", "cinderveil_")]
 
 BLOCKS = {
     # world stone
@@ -56,6 +59,17 @@ BLOCKS = {
     "heavy_metal_slab": "steel_plating_slab", "vertical_heavy_metal_plate_slab": "steel_plating",
     "desh_plating_block": "lunite_plating", "desh_plating_stairs": "lunite_plating_stairs",
     "venus_smooth_sandstone_brick": "smooth_cinder_sandstone", "desh_plating_slab": "lunite_plating_slab", "desh_pillar": "lunite_pillar",
+    # Mercury's stone family reads as Cinderveil's (Stellaris spells two of its slabs "marcury").
+    "mercury_stone": "cinder_stone", "mercury_cobblestone": "cinder_cobblestone", "mercury_stone_bricks": "cinder_stone_bricks",
+    "polished_mercury_stone": "polished_cinder_stone", "chiseled_mercury_stone": "chiseled_cinder_stone_bricks",
+    "cracked_mercury_stone_bricks": "cinder_stone_bricks", "mercury_stone_pillar": "cinder_stone_pillar",
+    "mercury_stone_brick_slab": "cinder_stone_brick_slab", "mercury_stone_brick_stairs": "cinder_stone_brick_stairs",
+    "marcury_stone_slab": "cinder_stone_slab", "marcury_polished_stone_slab": "polished_cinder_stone_slab",
+    "mercury_polished_stone_stairs": "polished_cinder_stone_stairs", "vertical_mercury_slab": "cinder_stone_bricks",
+    "mercury_iron_ore": "cinder_gold_ore", "pumpjack": "pumpjack",
+    # Mercury's templates also carry the Moon's ores and desh (Stellaris reused them).
+    "desh_block": "lunite_block", "raw_steel_block": "raw_steel_block", "moon_iron_ore": "pale_iron_ore",
+    "moon_steel_ore": "pale_steel_ore", "moon_ice_shard_ore": "pale_rime_shard_ore",
     "vertical_desh_plating_slab": "lunite_plating", "raw_desh_block": "raw_lunite_block",
     # ores and machines
     "moon_desh_ore": "lunite_ore", "mars_ostrum_ore": "frostite_ore", "venus_gold_ore": "cinder_gold_ore",
@@ -63,7 +77,8 @@ BLOCKS = {
     "rocket_launch_pad": "launch_pad",
 }
 VANILLA = {"globe": "minecraft:air", "moon_globe": "minecraft:air", "earth_globe": "minecraft:air", "mars_globe": "minecraft:air",
-           "venus_globe": "minecraft:air", "flag": "minecraft:air", "rocket_station": "minecraft:crafting_table"}
+           "venus_globe": "minecraft:air", "mercury_globe": "minecraft:air", "flag": "minecraft:air",
+           "rocket_station": "minecraft:crafting_table"}
 ITEMS = {
     "space_suit_helmet": f"{NS}:space_suit_helmet", "space_suit_leggings": f"{NS}:space_suit_leggings",
     "space_suit_boots": f"{NS}:space_suit_boots", "jet_suit_chestplate": f"{NS}:jet_suit",
@@ -83,7 +98,7 @@ KINDS = ["worldgen/structure", "worldgen/structure_set", "worldgen/template_pool
 unmapped = set()
 
 
-SEGMENTS = {"moon": "pale_moon", "mars": "frostfall", "venus": "cinderveil", "earth": "overworld"}
+SEGMENTS = {"moon": "pale_moon", "mars": "frostfall", "venus": "cinderveil", "earth": "overworld", "mercury": "cinderveil"}
 
 
 def rename_path(p):
@@ -123,6 +138,13 @@ def map_id(value, kind):
 
 def port_json(obj, todo):
     if isinstance(obj, dict):
+        if obj.get("processor_type") == "stellaris:structure_void_processor":
+            # Stellaris's own processor drops structure voids. Vanilla's block_ignore
+            # does the same, and it is what the data has to say: the root load test
+            # boots the datapack with no mod registries, so a mod processor type
+            # in a processor list is a registry error there (found 28 Sep 2026
+            # when the Mercury port wrote the mod form back).
+            return {"processor_type": "minecraft:block_ignore", "blocks": [{"Name": "minecraft:structure_void"}]}
         if isinstance(obj.get("elements"), list):    # pool entries whose template Stellaris never shipped
             def exists(e):
                 loc = e.get("element", {}).get("location", "")
@@ -193,7 +215,7 @@ def port_template(name, loots, todo):
 
 
 def main():
-    keep = ("moon", "mars", "venus", "earth", "meteor", "small_moon")
+    keep = ("moon", "mars", "venus", "earth", "meteor", "small_moon", "mercury")
     todo = [(k, f[:-5]) for k in ("worldgen/structure", "worldgen/structure_set")
             for f in os.listdir(os.path.join(SRC, k)) if f.startswith(keep)]
     # Space stations are placed by a blueprint, not by worldgen: their templates are ported on their own.
@@ -222,7 +244,7 @@ def main():
     tags = {
         "pale_moon_biomes": [f"{NS}:pale_moon_desert", f"{NS}:pale_moon_caves"],
         "frostfall_biomes": [f"{NS}:frostfall_desert", f"{NS}:frostfall_ice_spikes", f"{NS}:frostfall_rocky_plains"],
-        "has_structure/cinderveil_biomes": [f"{NS}:cinderveil_desert"],
+        "has_structure/cinderveil_biomes": [f"{NS}:cinderveil_desert", f"{NS}:cinderveil_infernal_barrens"],
         "has_structure/overworld_biomes": json.load(open(os.path.join(SRC, "tags/worldgen/biome/has_structure/earth_biomes.json")))["values"],
         "has_structure/meteor_biomes": json.load(open(os.path.join(SRC, "tags/worldgen/biome/has_structure/earth_biomes.json")))["values"]
         + [f"#{NS}:pale_moon_biomes"],

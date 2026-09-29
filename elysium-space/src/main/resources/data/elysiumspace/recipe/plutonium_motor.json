@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PPP",
+    "EGG",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "c:ingots/plutonium"
+    },
+    "E": {
+      "tag": "c:storage_blocks/lunite"
+    },
+    "G": {
+      "item": "elysiumspace:rime_shard"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:plutonium_motor"
+  }
+}

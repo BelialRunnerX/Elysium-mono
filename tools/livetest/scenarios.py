@@ -668,7 +668,10 @@ def ores_unified_drops(t):
     # furnace recipes take it on to the gem, and its validator holds that.
     for dx, ore, tag in ((2, "elysiumores:pale_uranium_ore", "#c:raw_materials/uranium"),
                          (5, "elysiumores:cinder_bort_ore", "#c:raw_materials/bort"),
-                         (8, "elysiumores:stone_certus_quartz_ore", "#c:raw_materials/certus_quartz")):
+                         (8, "elysiumores:stone_certus_quartz_ore", "#c:raw_materials/certus_quartz"),
+                         # the space module's radioactive pair (SPEC_SPACE S6c, 28 Sep)
+                         (11, "elysiumspace:neptunium_ore", "#c:raw_materials/neptunium"),
+                         (14, "elysiumspace:plutonium_ore", "#c:raw_materials/plutonium")):
         t.setblock(dx, 0, 2, ore)
         t.chest(dx, 0, 4)
         t.cmd(f"loot insert {t.at(dx, 0, 4)} mine {t.at(dx, 0, 2)} minecraft:diamond_pickaxe")

@@ -108,6 +108,15 @@ def main():
         failures.append("quick move")
     print()
 
+    # Keys: the game fires every mapping on a key, so two on one default is a
+    # fight, and a mod key on Curios', JEI's or vanilla's is a fight too.
+    print("=" * 70)
+    print("keys — no two mappings on one default, none on a key another mod binds")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_keys.py"], cwd=HERE).returncode != 0:
+        failures.append("keys")
+    print()
+
     # The conversion programme's own bookkeeping. It is checked here because
     # the programme runs for longer than anybody's memory of it: a mod that
     # nobody decided about is a mod nobody converts, and that failure is

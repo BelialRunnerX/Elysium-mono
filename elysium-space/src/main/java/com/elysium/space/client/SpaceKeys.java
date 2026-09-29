@@ -19,8 +19,13 @@ public final class SpaceKeys {
     private SpaceKeys() {
     }
 
-    /** GLFW_KEY_G. Written as its value: LWJGL is not on the module's compile classpath. */
-    static final int KEY_G = 71;
+    /**
+     * GLFW_KEY_H. Written as its value: LWJGL is not on the module's compile
+     * classpath. It was G until 28 Sep 2026, and G is Curios' inventory key:
+     * a pilot pressing Launch opened the trinket screen over the countdown.
+     * check_keys.py holds every default in the pack away from the others'.
+     */
+    static final int KEY_H = 72;
 
     /** GLFW_KEY_J. */
     static final int KEY_J = 74;
@@ -31,7 +36,7 @@ public final class SpaceKeys {
     private static boolean wasThrusting;
 
     public static final KeyMapping LAUNCH = new KeyMapping("key.elysiumspace.launch",
-            InputConstants.Type.KEYSYM, KEY_G, "key.categories.elysiumspace");
+            InputConstants.Type.KEYSYM, KEY_H, "key.categories.elysiumspace");
 
     @EventBusSubscriber(modid = ElysiumSpace.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static final class Registration {

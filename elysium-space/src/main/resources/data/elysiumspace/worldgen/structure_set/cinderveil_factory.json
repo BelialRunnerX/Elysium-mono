@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "elysiumspace:cinderveil_factory",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 1591924087,
+    "spacing": 50,
+    "separation": 30
+  }
+}

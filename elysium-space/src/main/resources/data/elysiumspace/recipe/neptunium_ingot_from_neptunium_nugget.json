@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumspace:neptunium_nugget"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:neptunium_ingot"
+  }
+}

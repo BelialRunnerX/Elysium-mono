@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "UUU",
+    "EGG",
+    "UUU"
+  ],
+  "key": {
+    "U": {
+      "tag": "c:ingots/uranium"
+    },
+    "E": {
+      "tag": "c:storage_blocks/lunite"
+    },
+    "G": {
+      "item": "elysiumspace:rime_shard"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:uranium_motor"
+  }
+}

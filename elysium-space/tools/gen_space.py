@@ -353,6 +353,15 @@ METALS = {  # name: (art metal, art glow, needs tool tier)
     "cryonite": ("voidsteel", "voidglass", "diamond"),
     "cindrium": ("voidsteel", "plasma", "diamond"),
     "steel": ("stone", "inert", "stone"),
+    # The radioactive pair (Stellaris's Venus neptunium and Mars plutonium), 28 Sep 2026:
+    # with the ore unification's uranium they make heavy metal, and each is a rocket fuel.
+    "neptunium": ("voidsteel", "neural", "diamond"),
+    "plutonium": ("aetherium", "plasma", "diamond"),
+}
+# Alloys: an ingot with no ore and no raw form. Heavy metal is one of each of
+# the three radioactive metals; the Radioactive Motor burns it.
+ALLOYS = {  # name: (art metal, art glow, needs tool tier)
+    "heavy_metal": ("obsidian", "voidglass", "diamond"),
 }
 # ore: (host texture, drop item, count range, vanilla?, glow, Stellaris vein size, count, min y, max y, world)
 ORES = {
@@ -369,6 +378,8 @@ ORES = {
     "cinder_coal_ore": ("cinder_stone", "minecraft:coal", (1, 1), "inert", 17, 20, -64, 192, "cinderveil"),
     "cinder_gold_ore": ("cinder_stone", "minecraft:raw_gold", (1, 1), "kinetic", 10, 4, -64, 32, "cinderveil"),
     "cinder_diamond_ore": ("cinder_stone", "minecraft:diamond", (1, 1), "aetherium", 9, 7, -64, 80, "cinderveil"),
+    "neptunium_ore": ("cinder_stone", f"{NS}:raw_neptunium", (1, 1), "neural", 6, 2, -64, 0, "cinderveil"),
+    "plutonium_ore": ("frost_stone", f"{NS}:raw_plutonium", (1, 1), "plasma", 6, 2, -64, 0, "frostfall"),
     "steel_ore": (None, f"{NS}:raw_steel", (1, 1), "inert", 9, 6, -24, 56, "overworld"),
     "deepslate_steel_ore": (None, f"{NS}:raw_steel", (1, 1), "inert", 7, 7, -64, 25, "overworld"),
 }
@@ -376,6 +387,7 @@ ORE_TIER = {"lunite_ore": "iron", "pale_steel_ore": "stone", "pale_iron_ore": "s
             "frostite_ore": "diamond", "cryonite_ore": "diamond", "frost_iron_ore": "stone",
             "frost_diamond_ore": "iron", "frost_rime_shard_ore": "iron", "cindrium_ore": "diamond",
             "cinder_coal_ore": "stone", "cinder_gold_ore": "iron", "cinder_diamond_ore": "iron",
+            "neptunium_ore": "diamond", "plutonium_ore": "diamond",
             "steel_ore": "stone", "deepslate_steel_ore": "stone"}
 WORLD_BIOMES = {
     "pale_moon": [f"{NS}:pale_moon_desert", f"{NS}:pale_moon_caves"],
@@ -389,6 +401,13 @@ def metal_art():
     sys.path.insert(0, os.path.join(os.path.dirname(HERE), "art"))
     import sprites as art_sprites
     import style as art_style
+    for m, (metal, glow, _) in ALLOYS.items():
+        art_sprites.ingot(metal, glow).save(os.path.join(ITEM_TEX, f"{m}_ingot.png"))
+        art_sprites.storage_block(metal, glow).save(os.path.join(TEX, f"{m}_block.png"))
+        canvas = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+        canvas.paste(Image.open(os.path.join(ITEM_TEX, f"{m}_ingot.png")).convert("RGBA")
+                     .resize((8, 8), Image.NEAREST), (4, 6))
+        canvas.save(os.path.join(ITEM_TEX, f"{m}_nugget.png"))
     for m, (metal, glow, _) in METALS.items():
         art_sprites.ingot(metal, glow).save(os.path.join(ITEM_TEX, f"{m}_ingot.png"))
         art_sprites.storage_block(metal, glow).save(os.path.join(TEX, f"{m}_block.png"))
@@ -470,6 +489,28 @@ def materials():
         tag("c", "item", f"storage_blocks/{m}", [f"{NS}:{m}_block"])
         tag("c", "block", f"storage_blocks/{m}", [f"{NS}:{m}_block"])
         tag("c", "item", f"storage_blocks/raw_{m}", [f"{NS}:raw_{m}_block"])
+    for m in ALLOYS:
+        cube(f"{m}_block")
+        write(os.path.join(lt, f"{m}_block.json"), self_drop(f"{m}_block"))
+        for it in (f"{m}_ingot", f"{m}_nugget"):
+            write(os.path.join(IM, it + ".json"), {"parent": "minecraft:item/generated",
+                  "textures": {"layer0": f"{NS}:item/{it}"}})
+        for small, big, n in ((f"{m}_nugget", f"{m}_ingot", 9), (f"{m}_ingot", f"{m}_block", 9)):
+            write(os.path.join(rd, f"{big}_from_{small}.json"), {"type": "minecraft:crafting_shaped",
+                  "category": "misc", "pattern": ["###", "###", "###"], "key": {"#": {"item": f"{NS}:{small}"}},
+                  "result": {"count": 1, "id": f"{NS}:{big}"}})
+            write(os.path.join(rd, f"{small}_from_{big}.json"), {"type": "minecraft:crafting_shapeless",
+                  "category": "misc", "ingredients": [{"item": f"{NS}:{big}"}],
+                  "result": {"count": n, "id": f"{NS}:{small}"}})
+        tag("c", "item", f"ingots/{m}", [f"{NS}:{m}_ingot"])
+        tag("c", "item", f"nuggets/{m}", [f"{NS}:{m}_nugget"])
+        tag("c", "item", f"storage_blocks/{m}", [f"{NS}:{m}_block"])
+        tag("c", "block", f"storage_blocks/{m}", [f"{NS}:{m}_block"])
+    # Heavy metal: one of each radioactive metal. Uranium is the ore unification's
+    # (the atomics module's ingot, by its common tag).
+    write(os.path.join(rd, "heavy_metal_ingot.json"), {"type": "minecraft:crafting_shapeless", "category": "misc",
+          "ingredients": [{"tag": "c:ingots/uranium"}, {"item": f"{NS}:neptunium_ingot"}, {"item": f"{NS}:plutonium_ingot"}],
+          "result": {"count": 1, "id": f"{NS}:heavy_metal_ingot"}})
     write(os.path.join(IM, "rime_shard.json"), {"parent": "minecraft:item/generated",
           "textures": {"layer0": f"{NS}:item/rime_shard"}})
     tag("c", "item", "gems/rime", [f"{NS}:rime_shard"])
@@ -483,11 +524,12 @@ def materials():
     tag("c", "block", "ores", [f"{NS}:{n}" for n in ORES])
     tag("c", "item", "ores", [f"{NS}:{n}" for n in ORES])
     tag("minecraft", "block", "mineable/pickaxe", [f"{NS}:{n}" for n in ORES]
-        + [f"{NS}:{m}_block" for m in METALS] + [f"{NS}:raw_{m}_block" for m in METALS])
+        + [f"{NS}:{m}_block" for m in METALS] + [f"{NS}:raw_{m}_block" for m in METALS] + [f"{NS}:{m}_block" for m in ALLOYS])
     for tier in ("stone", "iron", "diamond"):
         blocks = [f"{NS}:{n}" for n, tr in ORE_TIER.items() if tr == tier] + [
             f"{NS}:{m}_block" for m, (_a, _b, tr) in METALS.items() if tr == tier] + [
-            f"{NS}:raw_{m}_block" for m, (_a, _b, tr) in METALS.items() if tr == tier]
+            f"{NS}:raw_{m}_block" for m, (_a, _b, tr) in METALS.items() if tr == tier] + [
+            f"{NS}:{m}_block" for m, (_a, _b, tr) in ALLOYS.items() if tr == tier]
         if blocks:
             tag("minecraft", "block", f"needs_{tier}_tool", blocks)
     # Worldgen: Stellaris's vein sizes and counts, in each world's stone.
@@ -516,9 +558,13 @@ def materials():
     for name in ORES:
         LANG[f"block.{NS}.{name}"] = " ".join(w.capitalize() for w in name.split("_"))
     for m in METALS:
-        c = m.capitalize()
+        c = m.replace("_", " ").title()
         LANG.update({f"block.{NS}.{m}_block": f"Block of {c}", f"block.{NS}.raw_{m}_block": f"Block of Raw {c}",
                      f"item.{NS}.raw_{m}": f"Raw {c}", f"item.{NS}.{m}_ingot": f"{c} Ingot",
+                     f"item.{NS}.{m}_nugget": f"{c} Nugget"})
+    for m in ALLOYS:
+        c = m.replace("_", " ").title()
+        LANG.update({f"block.{NS}.{m}_block": f"Block of {c}", f"item.{NS}.{m}_ingot": f"{c} Ingot",
                      f"item.{NS}.{m}_nugget": f"{c} Nugget"})
     LANG[f"item.{NS}.rime_shard"] = "Rime Shard"
 
@@ -714,6 +760,30 @@ def part_art():
         for x in range(6, 10):
             motor[(x, y)] = (0xB8, 0xA8, 0xFF, 255)
     sprite("hydrogen_motor", motor)
+    # The heavier motors: the same engine, a different core. Uranium green,
+    # plutonium a hot orange, heavy metal the dark glass of all three.
+    for name, core in (("uranium_motor", (0x7F, 0xBF, 0x5A, 255)), ("plutonium_motor", (0xFF, 0x8A, 0x3C, 255)),
+                       ("radioactive_motor", (0x5C, 0x4F, 0x6A, 255))):
+        heavy = dict(engine)
+        for y in range(4, 8):
+            for x in range(6, 10):
+                heavy[(x, y)] = core
+        for x in (6, 9):
+            heavy[(x, 5)] = (0xF0, 0xF0, 0xF0, 255)
+        sprite(name, heavy)
+    # The oil finder: a steel rod with a dial and a drop of black at its foot.
+    finder = {}
+    for y in range(2, 14):
+        finder[(7, y)] = STEEL
+        finder[(8, y)] = STEEL
+    for y in range(2, 6):
+        for x in range(5, 11):
+            finder[(x, y)] = (0xE8, 0xE4, 0xFF, 255) if (x, y) not in ((5, 2), (10, 2), (5, 5), (10, 5)) else STEEL
+    finder[(7, 4)] = (0xC8, 0x20, 0x20, 255)
+    finder[(8, 3)] = (0xC8, 0x20, 0x20, 255)
+    for x in range(6, 10):
+        finder[(x, 14)] = (0x14, 0x12, 0x18, 255)
+    sprite("oil_finder", finder)
     can = {}
     for y in range(3, 15):
         for x in range(4, 12):
@@ -890,6 +960,7 @@ def models():
     for item in ("rocket", "fuel_canister", "oxygen_canister", "oil_bucket", "fuel_bucket", "diesel_bucket",
                  "large_fuel_tank",
                  "rocket_nose_cone", "rocket_fin", "rocket_engine", "hydrogen_motor", "hydrogen_canister", "jet_suit",
+                 "uranium_motor", "plutonium_motor", "radioactive_motor", "oil_finder",
                  "space_suit_helmet",
                  "space_suit_chestplate", "space_suit_leggings", "space_suit_boots"):
         write(os.path.join(IM, item + ".json"), {"parent": "minecraft:item/generated",
@@ -980,7 +1051,20 @@ def recipes():
             ("rocket_engine", ["RXR", "# #", "# #"], {"#": Ig, "R": Ib, "X": Rs}),
             ("hydrogen_motor", ["DDD", "EGG", "DDD"], {"D": {"item": "minecraft:diamond"},
                                                        "E": {"tag": "c:storage_blocks/lunite"},
-                                                       "G": {"item": f"{NS}:rime_shard"}})):
+                                                       "G": {"item": f"{NS}:rime_shard"}}),
+            # The heavier motors: the hydrogen motor's shape round the metal each burns.
+            ("uranium_motor", ["UUU", "EGG", "UUU"], {"U": {"tag": "c:ingots/uranium"},
+                                                      "E": {"tag": "c:storage_blocks/lunite"},
+                                                      "G": {"item": f"{NS}:rime_shard"}}),
+            ("plutonium_motor", ["PPP", "EGG", "PPP"], {"P": {"tag": "c:ingots/plutonium"},
+                                                        "E": {"tag": "c:storage_blocks/lunite"},
+                                                        "G": {"item": f"{NS}:rime_shard"}}),
+            ("radioactive_motor", ["HHH", "EGG", "HHH"], {"H": {"tag": "c:ingots/heavy_metal"},
+                                                          "E": {"tag": "c:storage_blocks/lunite"},
+                                                          "G": {"item": f"{NS}:rime_shard"}}),
+            # The oil finder: a steel rod, a redstone dial, a stick to hold it by.
+            ("oil_finder", ["R", "I", "S"], {"R": {"item": "minecraft:redstone"}, "I": {"tag": "c:ingots/steel"},
+                                             "S": {"item": "minecraft:stick"}})):
         write(os.path.join(rd, name + ".json"), {"type": "minecraft:crafting_shaped", "category": "misc",
               "pattern": pattern, "key": key, "result": {"count": 1, "id": f"{NS}:{name}"}})
     # The rocket: nose over a hull of iron blocks, four fins and the engine
@@ -1339,6 +1423,16 @@ LANG = {
     "elysiumspace.rocket.motor": "Motor fitted: burns %s",
     "elysiumspace.rocket.empty_first": "Empty the tank before changing the motor",
     "elysiumspace.fuel.hydrogen": "hydrogen",
+    "elysiumspace.fuel.uranium": "uranium",
+    "elysiumspace.fuel.plutonium": "plutonium",
+    "elysiumspace.fuel.radioactive": "heavy metal",
+    "item.elysiumspace.uranium_motor": "Uranium Motor",
+    "item.elysiumspace.plutonium_motor": "Plutonium Motor",
+    "item.elysiumspace.radioactive_motor": "Radioactive Motor",
+    "item.elysiumspace.oil_finder": "Oil Finder",
+    "elysiumspace.oil_finder.found": "This chunk holds about %s mB of oil",
+    "elysiumspace.oil_finder.dry": "This chunk is dry",
+    "elysiumspace.oil_finder.tapped": "This chunk has %s mB of oil left in it",
     "block.elysiumspace.cable": "Cable",
     "block.elysiumspace.pipe": "Pipe",
     "elysiumspace.machine.cable": "Carrying %s / %s FE",

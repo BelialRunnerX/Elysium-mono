@@ -10,7 +10,8 @@
     "elysiumspace:cryonite_ore",
     "elysiumspace:frost_iron_ore",
     "elysiumspace:frost_diamond_ore",
-    "elysiumspace:frost_rime_shard_ore"
+    "elysiumspace:frost_rime_shard_ore",
+    "elysiumspace:plutonium_ore"
   ],
   "step": "underground_ores"
 }

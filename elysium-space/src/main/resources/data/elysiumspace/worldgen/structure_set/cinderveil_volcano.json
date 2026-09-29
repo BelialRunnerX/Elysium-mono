@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "elysiumspace:cinderveil_volcano",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 324957075,
+    "spacing": 50,
+    "separation": 20
+  }
+}

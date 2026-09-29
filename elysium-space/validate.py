@@ -388,12 +388,35 @@ for fn in ("travelTo", "tryLaunch", "reachedSpace"):
     m = re.search(r"(?:public|private) void " + fn + r"\(.*?\n    \}", rocket, re.S)
     if m and "SpaceRoute.Fuel.FUEL" in m.group(0):
         fail(f"RocketEntity.{fn} assumes plain fuel; a hydrogen-motor rocket would be costed wrong")
+# One fuel per motor: fuelIn switches on the motor, and every fuel SpaceRoute
+# prices has a motor item that fits it (plain fuel is the engine itself) and a
+# case that takes its own fuel and nothing else's.
 fi = re.search(r"private int fuelIn\(ItemStack held\) \{(.*?)\n    \}", rocket, re.S)
-if not fi or "motor() == SpaceRoute.Fuel.HYDROGEN && held.is(SpaceItems.HYDROGEN_CANISTER.get())" not in fi.group(1):
-    fail("RocketEntity.fuelIn does not tie hydrogen canisters to the hydrogen motor; fuel and hydrogen would mix")
-hm = re.search(r"held\.is\(SpaceItems\.HYDROGEN_MOTOR\.get\(\)\)\) \{(.*?)return InteractionResult\.sidedSuccess", rocket, re.S)
+_route_src = open(os.path.join(SRC, "world/SpaceRoute.java"), encoding="utf-8").read()
+_enum_body = _route_src[_route_src.find("enum Fuel {"):]
+_enum_body = _enum_body[:_enum_body.find(";")]
+_fuels = re.findall(r"([A-Z]+)\([\d.]+D\)", _enum_body)
+if len(_fuels) < 2:
+    fail("SpaceRoute.Fuel reads as fewer than two fuels, so the motor rules below check nothing")
+if not fi or "switch (motor())" not in fi.group(1):
+    fail("RocketEntity.fuelIn no longer switches on the motor; two fuels would share one tank")
+else:
+    for _fuel in _fuels:
+        if f"case {_fuel} ->" not in fi.group(1):
+            fail(f"RocketEntity.fuelIn has no case for the {_fuel} motor, so a rocket with it can never be fuelled")
+_motor_of = re.search(r"public static SpaceRoute\.Fuel motorOf\(ItemStack held\) \{(.*?)\n    \}", rocket, re.S)
+if not _motor_of:
+    fail("RocketEntity.motorOf is gone; no upgrade fits any motor")
+else:
+    for _fuel in _fuels:
+        if _fuel != "FUEL" and f"return SpaceRoute.Fuel.{_fuel};" not in _motor_of.group(1):
+            fail(f"no upgrade item fits the {_fuel} motor (RocketEntity.motorOf), so SpaceRoute prices a fuel nothing burns")
+hm = re.search(r"SpaceRoute\.Fuel fitted = motorOf\(held\);\s*if \(fitted != null\) \{(.*?)return InteractionResult\.sidedSuccess", rocket, re.S)
 if not hm or not re.search(r"if \(phase\(\) != Phase\.IDLE[^{]*\|\| fuel\(\) > 0\) \{", hm.group(1)):
-    fail("fitting the Hydrogen Motor does not require an empty tank; the fuel in it would become hydrogen")
+    fail("fitting a motor does not require an empty tank; the fuel in it would become the new motor's")
+for _fuel in _fuels:
+    if f'"elysiumspace.fuel.{_fuel.lower()}"' not in open(os.path.join(WORK, "src/main/resources/assets/elysiumspace/lang/en_us.json"), encoding="utf-8").read() and _fuel != "FUEL":
+        fail(f"elysiumspace.fuel.{_fuel.lower()} is not in the language file, so fitting that motor prints a raw key")
 launch = re.search(r"public void tryLaunch\(ServerPlayer asker\) \{(.*?)\n    \}", rocket, re.S)
 if not launch or "getFirstPassenger() != asker" not in launch.group(1) or "phase() != Phase.IDLE" not in launch.group(1):
     fail("RocketEntity.tryLaunch does not check that the asker is its pilot and it is idle; "

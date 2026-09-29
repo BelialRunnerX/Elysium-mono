@@ -48,4 +48,10 @@ try "message key missing" "which the lang file does not have" "$R
 d=json.load(open('$LANG')); del d['elysiumspace.rocket.no_fuel']; json.dump(d,open('$LANG','w'))"
 try "entity texture missing" "entity rocket has no texture" "
 import os; os.remove('$ET')"
+try "a motor no upgrade fits" "no upgrade item fits the PLUTONIUM motor" "$R
+rep('$RK', 'return SpaceRoute.Fuel.PLUTONIUM;', 'return SpaceRoute.Fuel.URANIUM;')"
+try "a fuel no case takes" "has no case for the RADIOACTIVE motor" "$R
+rep('$RK', 'case RADIOACTIVE -> {', 'default -> {')"
+try "a motor fitted over a full tank" "does not require an empty tank" "$R
+rep('$RK', 'if (phase() != Phase.IDLE || motor() == fitted || fuel() > 0) {', 'if (phase() != Phase.IDLE || motor() == fitted) {')"
 echo "caught $pass, missed $miss"

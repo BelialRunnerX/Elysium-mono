@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "c:ingots/uranium"
+    },
+    {
+      "item": "elysiumspace:neptunium_ingot"
+    },
+    {
+      "item": "elysiumspace:plutonium_ingot"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "elysiumspace:heavy_metal_ingot"
+  }
+}

@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * A tier-one rocket (Stellaris's RocketEntity, rebuilt).
  *
- * <p>Fuel it with canisters, sit in it, and press the Launch key (G by
+ * <p>Fuel it with canisters, sit in it, and press the Launch key (H by
  * default). The server decides and flies it; the pilot's client only asks. It counts down for ten seconds (Stellaris's 200 ticks),
  * climbs, and above the world asks its pilot where to go, offering only what
  * the fuel reaches ({@link SpaceRoute}). It then arrives high over the same
@@ -113,17 +113,78 @@ public class RocketEntity extends Entity {
         entityData.set(MOTOR, fuel.ordinal());
     }
 
-    /** How much of what this stack puts in the tank, for this rocket's motor; 0 if it does not fit the motor. */
+    /** A nugget of a radioactive metal is worth a canister; an ingot, nine. */
+    public static final int NUGGET_MB = CANISTER_MB;
+    public static final int INGOT_MB = 9 * CANISTER_MB;
+
+    /** The motor each upgrade item fits, and what it burns from then on. */
+    public static SpaceRoute.Fuel motorOf(ItemStack held) {
+        if (held.is(SpaceItems.HYDROGEN_MOTOR.get())) {
+            return SpaceRoute.Fuel.HYDROGEN;
+        }
+        if (held.is(SpaceItems.URANIUM_MOTOR.get())) {
+            return SpaceRoute.Fuel.URANIUM;
+        }
+        if (held.is(SpaceItems.PLUTONIUM_MOTOR.get())) {
+            return SpaceRoute.Fuel.PLUTONIUM;
+        }
+        if (held.is(SpaceItems.RADIOACTIVE_MOTOR.get())) {
+            return SpaceRoute.Fuel.RADIOACTIVE;
+        }
+        return null;
+    }
+
+    private static boolean isTagged(ItemStack held, String tag) {
+        return held.is(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM,
+                net.minecraft.resources.ResourceLocation.parse(tag)));
+    }
+
+    /**
+     * How much of what this stack puts in the tank, for this rocket's motor;
+     * 0 if it does not fit the motor. One fuel per motor: plain fuel takes
+     * canisters and buckets, hydrogen its canisters, and each radioactive
+     * motor the nuggets and ingots of its own metal (uranium by its common
+     * tag, since the ingot is the atomics module's).
+     */
     private int fuelIn(ItemStack held) {
-        if (motor() == SpaceRoute.Fuel.FUEL) {
-            if (held.is(SpaceItems.FUEL_CANISTER.get())) {
-                return CANISTER_MB;
+        switch (motor()) {
+            case FUEL -> {
+                if (held.is(SpaceItems.FUEL_CANISTER.get())) {
+                    return CANISTER_MB;
+                }
+                if (held.is(com.elysium.space.registry.SpaceFluids.FUEL.bucket.get())) {
+                    return 1000;
+                }
             }
-            if (held.is(com.elysium.space.registry.SpaceFluids.FUEL.bucket.get())) {
-                return 1000;
+            case HYDROGEN -> {
+                if (held.is(SpaceItems.HYDROGEN_CANISTER.get())) {
+                    return CANISTER_MB;
+                }
             }
-        } else if (motor() == SpaceRoute.Fuel.HYDROGEN && held.is(SpaceItems.HYDROGEN_CANISTER.get())) {
-            return CANISTER_MB;
+            case URANIUM -> {
+                if (isTagged(held, "c:nuggets/uranium")) {
+                    return NUGGET_MB;
+                }
+                if (isTagged(held, "c:ingots/uranium")) {
+                    return INGOT_MB;
+                }
+            }
+            case PLUTONIUM -> {
+                if (held.is(SpaceItems.PLUTONIUM_NUGGET.get())) {
+                    return NUGGET_MB;
+                }
+                if (held.is(SpaceItems.PLUTONIUM_INGOT.get())) {
+                    return INGOT_MB;
+                }
+            }
+            case RADIOACTIVE -> {
+                if (held.is(SpaceItems.HEAVY_METAL_NUGGET.get())) {
+                    return NUGGET_MB;
+                }
+                if (held.is(SpaceItems.HEAVY_METAL_INGOT.get())) {
+                    return INGOT_MB;
+                }
+            }
         }
         return 0;
     }
@@ -319,19 +380,20 @@ public class RocketEntity extends Entity {
             }
             return InteractionResult.sidedSuccess(level().isClientSide);
         }
-        if (held.is(SpaceItems.HYDROGEN_MOTOR.get())) {
-            // A motor change needs an empty tank: fuel and hydrogen do not share one.
-            if (phase() != Phase.IDLE || motor() == SpaceRoute.Fuel.HYDROGEN || fuel() > 0) {
+        SpaceRoute.Fuel fitted = motorOf(held);
+        if (fitted != null) {
+            // A motor change needs an empty tank: two fuels do not share one.
+            if (phase() != Phase.IDLE || motor() == fitted || fuel() > 0) {
                 if (!level().isClientSide && fuel() > 0) {
                     player.displayClientMessage(Component.translatable("elysiumspace.rocket.empty_first"), true);
                 }
                 return InteractionResult.FAIL;
             }
             if (!level().isClientSide) {
-                setMotor(SpaceRoute.Fuel.HYDROGEN);
+                setMotor(fitted);
                 held.consume(1, player);
                 player.displayClientMessage(Component.translatable("elysiumspace.rocket.motor",
-                        Component.translatable("elysiumspace.fuel.hydrogen")), true);
+                        Component.translatable("elysiumspace.fuel." + fitted.name().toLowerCase(java.util.Locale.ROOT))), true);
             }
             return InteractionResult.sidedSuccess(level().isClientSide);
         }

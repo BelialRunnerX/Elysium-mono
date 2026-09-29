@@ -187,6 +187,13 @@ public final class SpaceBlocks {
     public static final DeferredBlock<Block> CINDER_DIAMOND_ORE = ore("cinder_diamond_ore", () -> CINDER_STONE.get(), 3, 7);
     public static final DeferredBlock<Block> STEEL_ORE = ore("steel_ore", () -> Blocks.STONE, 0, 0);
     public static final DeferredBlock<Block> DEEPSLATE_STEEL_ORE = ore("deepslate_steel_ore", () -> Blocks.DEEPSLATE, 0, 0);
+    public static final DeferredBlock<Block> NEPTUNIUM_ORE = ore("neptunium_ore", () -> CINDER_STONE.get(), 0, 0);
+    public static final DeferredBlock<Block> PLUTONIUM_ORE = ore("plutonium_ore", () -> FROST_STONE.get(), 0, 0);
+    public static final DeferredBlock<Block> NEPTUNIUM_BLOCK = metal("neptunium_block");
+    public static final DeferredBlock<Block> RAW_NEPTUNIUM_BLOCK = metal("raw_neptunium_block");
+    public static final DeferredBlock<Block> PLUTONIUM_BLOCK = metal("plutonium_block");
+    public static final DeferredBlock<Block> RAW_PLUTONIUM_BLOCK = metal("raw_plutonium_block");
+    public static final DeferredBlock<Block> HEAVY_METAL_BLOCK = metal("heavy_metal_block");
     public static final DeferredBlock<Block> LUNITE_BLOCK = metal("lunite_block");
     public static final DeferredBlock<Block> RAW_LUNITE_BLOCK = metal("raw_lunite_block");
     public static final DeferredBlock<Block> FROSTITE_BLOCK = metal("frostite_block");

@@ -89,6 +89,28 @@ public final class SpaceItems {
     public static final DeferredItem<Item> STEEL_INGOT = register(ITEMS.registerSimpleItem("steel_ingot", new Item.Properties()));
     public static final DeferredItem<Item> STEEL_NUGGET = register(ITEMS.registerSimpleItem("steel_nugget", new Item.Properties()));
     public static final DeferredItem<Item> RIME_SHARD = register(ITEMS.registerSimpleItem("rime_shard", new Item.Properties()));
+    // The radioactive metals (28 Sep 2026): neptunium on Cinderveil, plutonium on Frostfall, and
+    // heavy metal alloyed from those two and the ore unification's uranium.
+    public static final DeferredItem<Item> RAW_NEPTUNIUM = register(ITEMS.registerSimpleItem("raw_neptunium", new Item.Properties()));
+    public static final DeferredItem<Item> NEPTUNIUM_INGOT = register(ITEMS.registerSimpleItem("neptunium_ingot", new Item.Properties()));
+    public static final DeferredItem<Item> NEPTUNIUM_NUGGET = register(ITEMS.registerSimpleItem("neptunium_nugget", new Item.Properties()));
+    public static final DeferredItem<Item> RAW_PLUTONIUM = register(ITEMS.registerSimpleItem("raw_plutonium", new Item.Properties()));
+    public static final DeferredItem<Item> PLUTONIUM_INGOT = register(ITEMS.registerSimpleItem("plutonium_ingot", new Item.Properties()));
+    public static final DeferredItem<Item> PLUTONIUM_NUGGET = register(ITEMS.registerSimpleItem("plutonium_nugget", new Item.Properties()));
+    public static final DeferredItem<Item> HEAVY_METAL_INGOT = register(ITEMS.registerSimpleItem("heavy_metal_ingot", new Item.Properties()));
+    public static final DeferredItem<Item> HEAVY_METAL_NUGGET = register(ITEMS.registerSimpleItem("heavy_metal_nugget", new Item.Properties()));
+
+    /** The heavier motors: each burns its metal's nuggets and ingots, at SpaceRoute's rate for that fuel. */
+    public static final DeferredItem<Item> URANIUM_MOTOR = register(ITEMS.registerSimpleItem("uranium_motor",
+            new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> PLUTONIUM_MOTOR = register(ITEMS.registerSimpleItem("plutonium_motor",
+            new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> RADIOACTIVE_MOTOR = register(ITEMS.registerSimpleItem("radioactive_motor",
+            new Item.Properties().stacksTo(1)));
+
+    /** Used on a block, it says what the chunk's oil deposit holds (Stellaris's Oil Finder). */
+    public static final DeferredItem<Item> OIL_FINDER = register(ITEMS.registerItem("oil_finder",
+            com.elysium.space.item.OilFinderItem::new, new Item.Properties().stacksTo(1)));
 
     /** Doubles a rocket's tank to 6000 mB, which is what reaches the Emerald Bastion. */
     public static final DeferredItem<Item> LARGE_FUEL_TANK = register(ITEMS.registerSimpleItem("large_fuel_tank",
