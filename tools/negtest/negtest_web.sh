@@ -39,6 +39,9 @@ expect "ring one drawn too tight to read" "which is one frame over another"
 edit $RULES '    public static final int POINTS_PER_LEVEL = 3;' '    public static final int POINTS_PER_LEVEL = 9;'
 expect "points a level that buy the whole web by mid-game" "fifty levels buy"
 
+edit $RULES '        s.add(new Subject("cages", RING_FRONTIER, List.of("retribution", "fortitude", "strength"), "Cagewarden", null));' '        s.add(new Subject("cages", RING_FRONTIER, List.of("retribution", "fortitude", "strength"), "Cagewarden", "sanctioned"));'
+expect "a frontier cluster hung with a keystone nothing reads" "the frontier cluster"
+
 echo "the state's promises"
 edit $STATE '        if (ElysiumTree.rootedWithin(after, starts(player)).size() != after.size()) {' '        if (false) {'
 expect "a refund that no longer keeps every held node hanging off a start" "a given-back node no longer has to leave the rest hanging off a start"

@@ -71,7 +71,7 @@ public final class ElysiumWebTab {
         this.sheet = sheet;
         if (zoom == 0.0F) {
             // First frame: the whole web in the body, the hub in the middle.
-            zoom = Math.max(MIN_ZOOM, Math.min(w, h) / (2.0F * (float) ElysiumTree.R_START + 40.0F));
+            zoom = Math.max(MIN_ZOOM, Math.min(w, h) / (2.0F * (float) ElysiumTree.R_EDGE + 40.0F));
             panX = 0;
             panY = 0;
         }

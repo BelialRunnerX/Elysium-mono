@@ -223,4 +223,10 @@ why it is worth doing; never a restatement of the title).
   blocks; now 250 over its ten real rows). `/elysium colony ruin <pos>` (operator) raises one,
   because a force-loaded chunk with no player gets no random ticks.
   **Next:** expand the Ledger Web (priority 2); decide the content gaps with Dylan.
+* **29 Sep, ~01:15 — step 3, the Ledger Web wider.** A third ring, the frontier: sixteen clusters
+  outside the starts, 723 nodes (was 419), 42 notables; each reached by a road out from the rim's
+  nearest road. CONVERSION §16.14, SKILLTREE.md, SPEC_SKILLTREE.md. negtest_web 10/0; in the game
+  the marksman's road led out to the rift. No frontier keystones (they need doctrine readers):
+  a choice for Dylan. The test stage's spawn is camped by hostile mobs at night (the tester died
+  four times): stages now set noon and resistance before any survival step.
 

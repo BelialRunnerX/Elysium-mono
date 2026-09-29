@@ -26,7 +26,10 @@ import java.util.Set;
  * the fourteen system and element clusters, larger, with roads between
  * neighbours and a road in to the nearest ring-one cluster. Keystones hang
  * off their cluster on a short road outward. The rim: fifteen starts, one per
- * origin and calling, each on a road in to the cluster its rules name.
+ * origin and calling, each on a road in to the cluster its rules name. The
+ * frontier: sixteen larger clusters outside the rim, one for each part of the
+ * pack the first two rings do not name, each reached by a road out from the
+ * nearest road on the rim.
  *
  * <p>A cluster is entered through its small nodes: a road meets the small
  * nearest to it, and the notable is linked to every third small, so the heart
@@ -63,6 +66,12 @@ public final class ElysiumTree {
     public static final double R_KEYSTONE = 332;
     public static final double R_START_ROAD = 330;
     public static final double R_START = 362;
+    /** The frontier: a road out from the rim, then the third ring of clusters. */
+    public static final double R_OUT = 404;
+    public static final double R_RING3 = 478;
+    public static final double R_CLUSTER3 = 44;
+    /** The outermost node's distance from the hub, which the screen fits to. */
+    public static final double R_EDGE = R_RING3 + R_CLUSTER3;
 
     /** One node of the web. */
     public record Node(String id, String kind, String cluster, double x, double y, List<Reward> rewards,
@@ -299,6 +308,44 @@ public final class ElysiumTree {
                     R_START * Math.cos(angle), R_START * Math.sin(angle));
             node.rewards.add(Reward.stat(start.stat(), ElysiumTreeRules.START));
             link(nodes, road.id, node.id);
+        }
+        // The frontier: the third ring, outside the starts. Each cluster has a
+        // road out to it from the nearest road on the rim (a start's road or a
+        // keystone's), never from a start itself: a start is only its owner's,
+        // and the frontier is everyone's.
+        List<Subject> ring3 = ElysiumTreeRules.onRing(ElysiumTreeRules.RING_FRONTIER);
+        List<MutableNode> rim = new ArrayList<>();
+        for (MutableNode node : nodes.values()) {
+            if (node.id.startsWith("road_start_") || node.id.startsWith("road_key_")) {
+                rim.add(node);
+            }
+        }
+        for (int k = 0; k < ring3.size(); k++) {
+            double angle = 2 * Math.PI * k / ring3.size();
+            cluster(nodes, ring3.get(k), angle, R_RING3, R_CLUSTER3, ElysiumTreeRules.SMALLS_FRONTIER);
+        }
+        for (int k = 0; k < ring3.size(); k++) {
+            Subject a = ring3.get(k);
+            Subject b = ring3.get((k + 1) % ring3.size());
+            double angle = 2 * Math.PI * (k + 0.5) / ring3.size();
+            MutableNode road = put(nodes, "road_r3_" + k, KIND_ROAD, "road", R_RING3 * Math.cos(angle), R_RING3 * Math.sin(angle));
+            road.rewards.add(Reward.stat(a.stats().get(1), ElysiumTreeRules.ROAD));
+            link(nodes, road.id, nearestSmall(nodes, a.id(), road));
+            link(nodes, road.id, nearestSmall(nodes, b.id(), road));
+            double outAngle = 2 * Math.PI * k / ring3.size();
+            MutableNode out = put(nodes, "road_out_" + k, KIND_ROAD, "road", R_OUT * Math.cos(outAngle), R_OUT * Math.sin(outAngle));
+            out.rewards.add(Reward.stat(a.stats().get(2 % a.stats().size()), ElysiumTreeRules.ROAD));
+            link(nodes, out.id, nearestSmall(nodes, a.id(), out));
+            MutableNode nearest = null;
+            double best = Double.MAX_VALUE;
+            for (MutableNode candidate : rim) {
+                double d = (candidate.x - out.x) * (candidate.x - out.x) + (candidate.y - out.y) * (candidate.y - out.y);
+                if (d < best) {
+                    best = d;
+                    nearest = candidate;
+                }
+            }
+            link(nodes, out.id, nearest.id);
         }
         return nodes;
     }

@@ -105,10 +105,19 @@ public final class ElysiumTreeRules {
 
     public static final int RING_STATS = 1;
     public static final int RING_SYSTEMS = 2;
+    /**
+     * The third ring, outside the starts: a cluster for each part of the pack
+     * the first web had no name for (Dylan, 28 September 2026: "expand the
+     * skill tree"). A career reads outward from its start into the work it
+     * does — a Medicae into the garden and the homestead, an Artificer into the
+     * forge and the tomes.
+     */
+    public static final int RING_FRONTIER = 3;
 
-    /** Small nodes in a stat cluster and in a system cluster. */
+    /** Small nodes in a stat cluster, a system cluster and a frontier cluster. */
     public static final int SMALLS_STAT = 8;
     public static final int SMALLS_SYSTEM = 14;
+    public static final int SMALLS_FRONTIER = 16;
 
     public static final List<Subject> SUBJECTS;
 
@@ -140,6 +149,24 @@ public final class ElysiumTreeRules {
         s.add(new Subject("bench", RING_SYSTEMS, List.of("intellect", "accuracy", "luck"), "Master Artificer", "freehold"));
         s.add(new Subject("neural", RING_SYSTEMS, List.of("intellect", "presence", "accuracy"), "Neural Lattice", "surfacer"));
         s.add(new Subject("kinetic", RING_SYSTEMS, List.of("agility", "strength", "accuracy"), "Kinetic Mass", null));
+        // Ring 3: the frontier, in order round the web, each beside the
+        // ring-two cluster nearest its angle.
+        s.add(new Subject("dig", RING_FRONTIER, List.of("luck", "intellect", "reflexes"), "Patient Hand", null));
+        s.add(new Subject("hunt", RING_FRONTIER, List.of("accuracy", "agility", "retribution"), "Beastmaster", null));
+        s.add(new Subject("grove", RING_FRONTIER, List.of("strength", "vitality", "resilience"), "Heartwood", null));
+        s.add(new Subject("commons", RING_FRONTIER, List.of("intellect", "resilience", "luck"), "Sunwright", null));
+        s.add(new Subject("town", RING_FRONTIER, List.of("presence", "luck", "vitality"), "Founder", null));
+        s.add(new Subject("foundry", RING_FRONTIER, List.of("fortitude", "strength", "intellect"), "Alloyed", null));
+        s.add(new Subject("reactor", RING_FRONTIER, List.of("resilience", "willpower", "strength"), "Critical Mass", null));
+        s.add(new Subject("rift", RING_FRONTIER, List.of("reflexes", "willpower", "retribution"), "Riftdelver", null));
+        s.add(new Subject("garden", RING_FRONTIER, List.of("vitality", "luck", "willpower"), "Green Thumb", null));
+        s.add(new Subject("homestead", RING_FRONTIER, List.of("fortitude", "vitality", "presence"), "Hearthkeeper", null));
+        s.add(new Subject("warehouse", RING_FRONTIER, List.of("intellect", "luck", "fortitude"), "Ledgerkeeper", null));
+        s.add(new Subject("geodes", RING_FRONTIER, List.of("luck", "resilience", "intellect"), "Geodesist", null));
+        s.add(new Subject("charms", RING_FRONTIER, List.of("luck", "presence", "willpower"), "Trinketwise", null));
+        s.add(new Subject("forge", RING_FRONTIER, List.of("strength", "accuracy", "fortitude"), "Master Smith", null));
+        s.add(new Subject("tomes", RING_FRONTIER, List.of("intellect", "willpower", "presence"), "Illuminated", null));
+        s.add(new Subject("cages", RING_FRONTIER, List.of("retribution", "fortitude", "strength"), "Cagewarden", null));
         SUBJECTS = Collections.unmodifiableList(s);
     }
 
@@ -342,6 +369,16 @@ public final class ElysiumTreeRules {
         }
         if (startKinds.getOrDefault("calling", 0) != 9) {
             faults.add("there are " + startKinds.getOrDefault("calling", 0) + " calling starts; the pack has nine callings");
+        }
+        if (onRing(RING_FRONTIER).size() < 12) {
+            faults.add("the frontier ring has " + onRing(RING_FRONTIER).size() + " cluster(s); the pack has more "
+                    + "work than that the first two rings do not name");
+        }
+        for (Subject subject : onRing(RING_FRONTIER)) {
+            if (subject.keystone() != null) {
+                faults.add("the frontier cluster \"" + subject.id() + "\" hangs a keystone; a keystone sets a doctrine "
+                        + "something must read, and the frontier's are not written yet");
+            }
         }
         if (POINTS_PER_LEVEL < 1) {
             faults.add("a level buys no point, so the web is a picture");

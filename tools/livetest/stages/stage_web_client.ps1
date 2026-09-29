@@ -12,9 +12,10 @@ function LogLines { Get-Content $log -ErrorAction SilentlyContinue }
 function Chat($n, $pattern) { (LogLines)[$n..((LogLines).Count - 1)] | Select-String 'CHAT\]' | Select-String $pattern | ForEach-Object { $s = $_.Line; $s.Substring([Math]::Min(95, $s.Length)) } }
 function Say($s) { Write-Host "$(Get-Date -Format HH:mm:ss) $s" }
 function Ask($cmd, $pattern) { $n = (LogLines).Count; MC-Cmd $cmd; Start-Sleep -Milliseconds 700; $got = (Chat $n $pattern) -join ' | '; Write-Host ("  " + $cmd + " -> " + $got.Substring(0, [Math]::Min(220, $got.Length))) }
-# The fit zoom is 0.60 px per web unit about the hub at (800, 540); the stage zooms in five
-# steps about the hub before it clicks, which is 1.207 px per web unit.
-function Web([double]$wx, [double]$wy) { return @([int](800 + $wx * 1.207), [int](540 + $wy * 1.207)) }
+# The fit zoom frames the whole web to its outer edge (ElysiumTree.R_EDGE, the frontier ring
+# since 29 Sep 2026): 0.60 * 764 / 1084 = 0.423 px per web unit about the hub at (800, 540);
+# the stage zooms in five steps about the hub before it hovers, which is 0.851 px per unit.
+function Web([double]$wx, [double]$wy) { return @([int](800 + $wx * 0.851), [int](540 + $wy * 0.851)) }
 
 MC-Place 0 0 1600 900
 MC-Focus | Out-Null
@@ -67,7 +68,14 @@ MC-Shot "$Out\web_5_hub.png" 0.5
 MC-Key 'ESC'; Start-Sleep -Seconds 1
 Ask '/elysium tree held' 'dimensional_1'
 Ask '/elysium tree points' 'Ledger Web'
+Say "== the frontier: out from the marksman's road to the rift cluster"
+Ask '/elysium tree allocate road_out_7' 'Taken'
+Ask '/elysium tree allocate rift_9' 'Taken'
+Ask '/elysium tree allocate rift_notable' 'touch|Taken'
 Say "== survival: an erasure to pay with"
+# By day and warded: the stage has hostile mobs about, and killed the tester here once.
+MC-Cmd '/time set noon'
+MC-Cmd '/effect give @s minecraft:resistance 120 4 true'
 MC-Cmd '/gamemode survival'
 Ask '/elysium tree refund dimensional_1' 'costs a Ledger Erasure'
 MC-Cmd '/give @s elysium:ledger_erasure 2'

@@ -24,6 +24,19 @@ or the sheet key) and take the **Web** tab.
   before, it does now.
 * **Starts**, the squares on the rim: one per origin and one per calling. You
   hold your two for free from the day you declare. They cannot be given back.
+* **The frontier**, the third ring outside the starts (29 September 2026):
+  sixteen large clusters, one for each part of the pack the first two rings do
+  not name — the Dig, the Hunt, the Grove, the Commons, the Town, the Foundry,
+  the Reactor, the Rift, the Garden, the Homestead, the Warehouse, the Geodes,
+  the Charms, the Forge, the Tomes and the Cages. Each sits beside the system it
+  grows out of (the Forge by the Bench, the Reactor by Plasma, the Town by the
+  Empire) and is reached by a road out from the nearest road on the rim, so a
+  career reads outward from its start: a Marksman's road leads straight out to
+  the Rift. Its notables are Patient Hand, Beastmaster, Heartwood, Sunwright,
+  Founder, Alloyed, Critical Mass, Riftdelver, Green Thumb, Hearthkeeper,
+  Ledgerkeeper, Geodesist, Trinketwise, Master Smith, Illuminated and
+  Cagewarden. The frontier has no keystones yet: a keystone sets a doctrine
+  something in the pack must read, and none is written for these.
 * **Passages** (roads) between all of the above: a point each, and one of the
   stat on the way.
 
@@ -35,7 +48,7 @@ Deep by walking different halves of the web.
 
 Three passive points per character level from level two (Dylan, 28 September
 2026: "3 per level"), separate from the ten stat points a level already gives.
-The web is 419 nodes; a level-fifty character holds about a third of it. Take a node by clicking it when it is lit — lit means it touches
+The web is 723 nodes; a level-fifty character holds about a fifth of it. Take a node by clicking it when it is lit — lit means it touches
 something you hold and you have a point free. Hover any node to read what it
 gives.
 

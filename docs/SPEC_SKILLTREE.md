@@ -5,7 +5,9 @@ expansive path of exile style."
 
 ## Where it stands
 
-**Built, 28 September 2026** (CONVERSION.md §16.9): the Ledger Web is in the
+**Expanded, 29 September 2026** (CONVERSION.md §16.14): a third ring, the
+frontier, of sixteen clusters outside the starts — 723 nodes where there were
+419 — with the points three a level. **Built, 28 September 2026** (CONVERSION.md §16.9): the Ledger Web is in the
 library — `tree/ElysiumTreeRules` (the table), `ElysiumTree` (the layout, 419
 nodes), `ElysiumTreeState` (what a player holds; allocate and refund with
 their reasons; the doctrine tags), `ElysiumTreeNames`, and the Web tab of the
@@ -49,8 +51,8 @@ design as it was written before the build, kept because the build follows it.
 
 | | now | target |
 |---|---|---|
-| nodes | 45 | 400 and more |
-| notables | 0 | 60 and more (one per cluster) |
+| nodes | 45 → 419 → 723 (29 Sep) | 400 and more |
+| notables | 0 → 26 → 42 | 60 and more (one per cluster) |
 | keystones | 6 (tags) | 12 (the six doctrines and six new ones) |
 | starts | 1 | 15 (six origins, nine callings) |
 | connections | ~60 | derived from the layout |

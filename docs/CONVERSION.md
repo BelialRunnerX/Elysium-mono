@@ -1724,6 +1724,26 @@ standing handler's 4, 14 and 6. `negtest_xp.sh` breaks it eight ways.
 holds the web to at least twice what fifty levels buy (150 points; the web
 is 419 nodes), which is the argument for the web growing next.
 
+### 16.14 The Ledger Web, wider: the frontier ring (29 September, early)
+
+Dylan: *"then expand the skill tree as discussed previously"*. With three
+points a level (16.13) a level-fifty character held a third of the 419-node
+web; the web needed room to choose in. A third ring, the frontier, sits
+outside the starts: sixteen clusters of sixteen small nodes and a notable,
+one for each part of the pack the first two rings did not name (the dig, the
+hunt, the grove, the commons, the town, the foundry, the reactor, the rift,
+the garden, the homestead, the warehouse, the geodes, the charms, the forge,
+the tomes, the cages), each placed beside the ring-two system nearest its
+angle, joined to its neighbours by roads and reached by a road out from the
+nearest road on the rim, never from a start, since a start is only its
+owner's. 723 nodes, 42 notables. `ElysiumTreeRules.RING_FRONTIER` and
+`SMALLS_FRONTIER`; `ElysiumTree.R_RING3`, `R_OUT`, and `R_EDGE`, which the Web
+tab now fits to. The harness requires a frontier of a dozen clusters and more
+and the web at least twice what fifty levels buy; the rules refuse a frontier
+keystone (a keystone sets a doctrine something must read, and none is
+written for these), which `negtest_web.sh` breaks (10/0). In the game the
+marksman's road led out to the rift and a rift node was taken.
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and
