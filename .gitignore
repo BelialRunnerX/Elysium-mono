@@ -56,4 +56,4 @@ __pycache__/
 /logs/
 
 ### harness runs (log4j writes logs/ beside the validator that ran a game class)
-logs/
+elysium-*/logs/
