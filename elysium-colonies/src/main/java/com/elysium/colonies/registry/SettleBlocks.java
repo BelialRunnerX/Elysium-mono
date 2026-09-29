@@ -1,6 +1,7 @@
 package com.elysium.colonies.registry;
 
 import com.elysium.colonies.ElysiumColonies;
+import com.elysium.colonies.settle.RuinSeedBlock;
 import com.elysium.colonies.settle.SettlementSeedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -29,4 +30,12 @@ public final class SettleBlocks {
                     .strength(0.5F)
                     .noOcclusion()
                     .sound(SoundType.WOOD)));
+
+    /** The ruin marker: the abandoned half of natural colonies (RuinRules). */
+    public static final DeferredBlock<Block> RUIN_SEED = BLOCKS.register(
+            "ruin_seed", () -> new RuinSeedBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.STONE)
+                    .strength(0.5F)
+                    .noOcclusion()
+                    .sound(SoundType.STONE)));
 }

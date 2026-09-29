@@ -1613,6 +1613,33 @@ scenario loots the two new ores; `stage_rocket_client.ps1` fits the Uranium
 Motor, fuels with uranium ingots, launches to the destination screen, lands,
 and reads a chunk with the finder.
 
+### 16.11 Abandoned ruins (28 September, night)
+
+The living half of natural colonies had been built on 26 September; the
+roadmap's "abandoned" half had not. Now `RuinRules` (pure, harness-checked)
+says where and how far fallen: a marker on its own structure grid — further
+apart than towns, its own salt, never on a town's site — in the biomes towns
+settle; a decay curve read from the bottom (a floor five per cent worn, walls
+fifteen where they begin, a roof seventy-eight per cent gone and never all
+of it), wood rotting a quarter faster than stone, stone bricks and
+cobblestone weathering mossy or cracked at a fixed share, and a list of
+words in a block's id that mean it did not survive: glass, doors, lights,
+cloth. Every roll is a function of the world seed and the block's place, so a
+ruin is the same ruin on every load.
+
+`settle/Ruins` raises it: dry, level ground found the way a town finds it; a
+kind rolled from the rules' list (residence, tavern, warehouse, builder); the
+blueprint read through one new seam call, `Colonies.blueprintOf`, which
+returns the blocks a level-one blueprint holds and writes nothing; the host's
+own blocks skipped, so no hut stands in a ruin to become a colony; the rest
+placed or dropped by the rules; one chest from the rules' loot table. The
+validator holds the structure files to the rules, refuses any founding or
+colony memory in the ruin, and holds every rule call the ruin depends on;
+`ColonyHarness` runs the decay over four hundred rolls per row;
+`negtest_colonies3.sh` breaks it four ways; the live suite's `colonies:` ruin
+scenario sets a marker on a stone plot, hurries the random tick, and counts
+what stands and that the list of settlements did not change.
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and

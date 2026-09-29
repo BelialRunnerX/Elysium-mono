@@ -631,6 +631,34 @@ def world_places(t):
 # the mechanics, one at a time (docs/MECHANICS.md)
 import scenarios_mechanics  # noqa: E402,F401
 
+@scenario("colonies: a ruin marker raises a decayed building with a chest and founds no town (ROADMAP §3)")
+def colony_ruin(t):
+    # The abandoned half of natural colonies: a marker ticks once and leaves what
+    # a building became. On a stone plot far from spawn, the marker set by hand
+    # and the random tick hurried, the plot afterwards holds weathered stone
+    # (mossy or cracked), a chest, and no new settlement.
+    before = t.cmd("elysium colony natural")
+    t.setblock(11, 0, 11, "elysiumcolonies:ruin_seed")
+    t.cmd("gamerule randomTickSpeed 4096")
+    t.cmd("tick sprint 200")
+    t.cmd("gamerule randomTickSpeed 3")
+    x0, y0, z0 = t.ox - 1, t.oy - 3, t.oz - 1
+    x1, y1, z1 = t.ox + t.PLOT - 2, t.oy + 12, t.oz + t.PLOT - 2
+    marker = t.cmd(f"execute if block {t.at(11, 0, 11)} elysiumcolonies:ruin_seed")
+    t.expect("passed" not in marker, "the ruin marker is still standing after two hundred hurried ticks")
+    weathered = 0
+    for block in ("minecraft:mossy_cobblestone", "minecraft:mossy_stone_bricks", "minecraft:cracked_stone_bricks",
+                  "minecraft:cobblestone", "minecraft:oak_planks", "minecraft:stone_bricks", "minecraft:oak_log"):
+        out = t.cmd(f"fill {x0} {y0} {z0} {x1} {y1} {z1} minecraft:air replace {block}")
+        digits = "".join(ch for ch in out if ch.isdigit())
+        weathered += int(digits) if digits and "filled" in out else 0
+    t.expect(weathered >= 20, f"the ruin left {weathered} block(s) of its building on the plot; a residence is more than that")
+    chest = t.cmd(f"fill {x0} {y0} {z0} {x1} {y1} {z1} minecraft:air replace minecraft:chest")
+    t.expect("filled" in chest and "0 block" not in chest, f"the ruin left no chest: {chest[:80]}")
+    after = t.cmd("elysium colony natural")
+    t.expect(before == after, "raising a ruin changed the list of settlements that founded themselves")
+
+
 @scenario("gear: every module's gear is on the vanilla list it enchants by (POLISH.md P12)")
 def gear_kind_tags(t):
     # The vanilla kind tags of the pack's gear are written by the library as a

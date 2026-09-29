@@ -1,0 +1,18 @@
+{
+  "structures": [
+    {
+      "structure": "elysiumcolonies:ruin",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 56,
+    "separation": 24,
+    "salt": 61209733,
+    "exclusion_zone": {
+      "other_set": "elysiumcolonies:settlements",
+      "chunk_count": 8
+    }
+  }
+}

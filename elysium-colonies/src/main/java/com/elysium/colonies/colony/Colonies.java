@@ -1121,6 +1121,55 @@ public final class Colonies {
      * The one place ownership changes hands, and only ever from a steward to
      * a person. A player's town is never taken from them by this module.
      */
+    /** One block of a blueprint, relative to its anchor. */
+    public record Placed(BlockPos at, net.minecraft.world.level.block.state.BlockState state) {
+    }
+
+    /**
+     * Every block a building's level-one blueprint holds in this pack, relative
+     * to the blueprint's anchor, air and structure voids left out. For the
+     * ruins ({@code settle/Ruins}), which place the blocks themselves and found
+     * nothing: this is the one seam call that reads a blueprint without a
+     * colony, a work order or the placer, and it writes nothing.
+     */
+    public static List<Placed> blueprintOf(ServerLevel level, String pack, String kind) {
+        try {
+            ResourceLocation kindId = ResourceLocation.parse(kind);
+            if (!IBuildingRegistry.getInstance().containsKey(kindId)) {
+                return List.of();
+            }
+            BuildingEntry entry = IBuildingRegistry.getInstance().get(kindId);
+            String path = entry == null ? null : blueprintFor(pack, entry);
+            if (path == null) {
+                return List.of();
+            }
+            Blueprint blueprint = StructurePacks.getBlueprint(pack, path, level.registryAccess());
+            if (blueprint == null) {
+                return List.of();
+            }
+            BlockPos anchor = blueprint.getPrimaryBlockOffset();
+            List<Placed> out = new java.util.ArrayList<>();
+            for (int y = 0; y < blueprint.getSizeY(); y++) {
+                for (int z = 0; z < blueprint.getSizeZ(); z++) {
+                    for (int x = 0; x < blueprint.getSizeX(); x++) {
+                        net.minecraft.world.level.block.state.BlockState state =
+                                blueprint.getBlockState(new BlockPos(x, y, z));
+                        if (state == null || state.isAir()
+                                || state.is(net.minecraft.world.level.block.Blocks.STRUCTURE_VOID)) {
+                            continue;
+                        }
+                        out.add(new Placed(new BlockPos(x - anchor.getX(), y - anchor.getY(), z - anchor.getZ()), state));
+                    }
+                }
+            }
+            return out;
+        } catch (Throwable unavailable) {
+            ElysiumColonies.LOGGER.warn("no blueprint of {} in {} could be read: {}", kind, pack,
+                    unavailable.toString());
+            return List.of();
+        }
+    }
+
     public static boolean handOver(ServerLevel level, int colonyId, Player player) {
         IColony colony = colonyIn(level, colonyId);
         if (colony == null) {

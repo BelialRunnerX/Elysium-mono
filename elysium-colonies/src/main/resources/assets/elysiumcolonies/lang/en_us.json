@@ -5,6 +5,7 @@
   "block.elysiumcolonies.elevator_deck": "Elevator Deck",
   "block.elysiumcolonies.elevator_pylon": "Elevator Pylon",
   "block.elysiumcolonies.elevator_tether": "Elevator Tether",
+  "block.elysiumcolonies.ruin_seed": "Ruin Marker",
   "block.elysiumcolonies.settlement_seed": "Survey Stake",
   "elysium.colony.already": "You already hold a stake in %s.",
   "elysium.colony.cannot_leave": "%s is yours. Hand it to somebody before you go \u2014 leaving as owner abandons it.",

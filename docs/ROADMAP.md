@@ -110,8 +110,18 @@ director completes an order whole after `buildDays(level)` days (it reads the
 blueprint and queues the build tool's own placement operation, because the host's
 future-taking placement call never queues anything) and lays out the next building
 every two days. `/elysium colony natural` lists them, `/elysium
-colony claim` hands one to the player standing in it. Not built: abandoned ruins,
-corridors, Elysium jobs as buildings.
+colony claim` hands one to the player standing in it.
+
+**Built, 28 September 2026 (item 1, the abandoned half):** a second structure set
+(`RuinRules`: one site per 56 chunks, never within 24, its own salt, never on a
+town's site) places a ruin marker in the same biomes; the marker's first random
+tick raises one building of the world's style pack — a residence, tavern,
+warehouse or builder's hut, level one — as the world left it: floors kept, walls
+thinning as they rise, roofs mostly gone, wood rotted, stone bricks mossy or
+cracked, nothing of glass or cloth or light, none of the host's own blocks, and
+one chest from `elysiumcolonies:chests/ruin`. It reads the blueprint through one
+seam call (`Colonies.blueprintOf`) and writes no colony data at all, which the
+validator holds. Not built: corridors (item 6), Elysium jobs as buildings (item 3).
 
 Open decisions: raider behaviour against NPC colonies; whether a claimed town
 should cost anything.

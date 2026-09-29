@@ -147,7 +147,7 @@ Exporter, storage bus, monitor, detector, interface and ender link are unverifie
 ## Live tests on the dedicated server (27 September 2026)
 
 The client stages check by eye; the server answers questions.
-`tools/livetest/livetest.py` (CONVERSION.md §17) runs fifty-six scenarios (the
+`tools/livetest/livetest.py` (CONVERSION.md §17) runs fifty-seven scenarios (the
 twenty-one core ones, the mechanics pass, the catalogue, the registries and the
 world sweep) over
 RCON against `E:\testingbuilds\ElysiumServer` (RCON 127.0.0.1:25575, the

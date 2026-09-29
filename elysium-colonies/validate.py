@@ -1010,6 +1010,76 @@ if "Settlements.found(level, pos)" not in _seed_src:
 if "BlockEntity" in _seed_src:
     fail("the stake is a block entity, ticking every tick in every loaded chunk for a thing "
          "that acts once")
+
+# The abandoned half (docs/ROADMAP.md §3, item 1): a ruin marker on RuinRules'
+# own grid raises one building of the world's style pack as the world left it,
+# through one seam call that reads a blueprint and writes nothing, and founds
+# no colony. Every number the structure set uses is RuinRules', and the harness
+# proves the rule; what is held here is that the files agree with it, that the
+# ruin never becomes a town, and that its chest has a table to fill from.
+_ruin_rules = strip_comments(read(PURE, "RuinRules.java")) if os.path.isfile(os.path.join(PURE, "RuinRules.java")) else ""
+_ruin_words = strip_comments(read(PURE, "RuinRules.java"), keep_strings=True) if _ruin_rules else ""
+_ruins_src = os.path.join(SRC, "settle/Ruins.java")
+_ruin_block = os.path.join(SRC, "settle/RuinSeedBlock.java")
+if not _ruin_rules or not os.path.isfile(_ruins_src) or not os.path.isfile(_ruin_block):
+    fail("the ruins are gone (RuinRules, settle/Ruins or settle/RuinSeedBlock): natural colonies have "
+         "only their living half")
+else:
+    def _ruin_int(name):
+        m = re.search(r"public static final int " + name + r" = ([0-9_]+);", _ruin_rules)
+        return int(m.group(1).replace("_", "")) if m else None
+    _r_spacing, _r_separation, _r_salt = _ruin_int("SPACING"), _ruin_int("SEPARATION"), _ruin_int("SALT")
+    _r_set = _json_at(DATA, "worldgen/structure_set/ruins.json")
+    _r_structure = _json_at(DATA, "worldgen/structure/ruin.json")
+    _r_pool = _json_at(DATA, "worldgen/template_pool/ruin/seed.json")
+    if not _r_set or not _r_structure or not _r_pool:
+        fail("the ruin's structure, structure set or template pool is not shipped, so no marker is ever placed")
+    else:
+        _rp = _r_set.get("placement", {})
+        if (_rp.get("spacing"), _rp.get("separation"), _rp.get("salt")) != (_r_spacing, _r_separation, _r_salt):
+            fail(f"the ruins structure set places sites at spacing {_rp.get('spacing')}, separation "
+                 f"{_rp.get('separation')}, salt {_rp.get('salt')}; RuinRules says {_r_spacing}, {_r_separation}, "
+                 f"{_r_salt}, and the harness proved the rule, not the file")
+        if _rp.get("exclusion_zone", {}).get("other_set") != f"{NS}:settlements":
+            fail("a ruin may be placed on a town's site")
+        if _r_structure.get("start_pool") != f"{NS}:ruin/seed" or _r_structure.get("biomes") != f"#{NS}:settles_in":
+            fail("the ruin structure is not the one-piece jigsaw on the settles_in tag")
+        _r_elements = [e.get("element", {}).get("location") for e in _r_pool.get("elements", [])]
+        if _r_elements != [f"{NS}:ruin_seed"]:
+            fail(f"the ruin pool places {_r_elements} rather than the one marker template")
+    if not os.path.isfile(os.path.join(DATA, "structure/ruin_seed.nbt")):
+        fail("the marker template ruin_seed.nbt is not shipped")
+    _ruin_block_src = strip_comments(read(_ruin_block))
+    if "randomTicks()" not in _ruin_block_src or "Ruins.raise(level, pos)" not in _ruin_block_src:
+        fail("the ruin marker does not tick at random into Ruins.raise, so it never raises anything")
+    if "BlockEntity" in _ruin_block_src:
+        fail("the ruin marker is a block entity, ticking every tick for a thing that acts once")
+    _ruins_text = strip_comments(read(_ruins_src), keep_strings=True)
+    for _forbidden, _why in (("Colonies.settle(", "founds a colony"), ("Colonies.found(", "founds a building for a colony"),
+                             ("Colonies.finish(", "completes a work order"), ("ColonyMemory", "writes colony memory")):
+        if _forbidden in _ruins_text:
+            fail(f"a ruin {_why} ({_forbidden!r} in settle/Ruins.java); a ruin is what a town is not")
+    for _needed, _why in (("Colonies.blueprintOf(", "reads its blueprint anywhere but through the seam"),
+                          ("RuinRules.keep(", "places every block, so it is a building, not a ruin"),
+                          ("RuinRules.weathered(", "leaves its stone unweathered"),
+                          ("RuinRules.flimsy(", "keeps glass and cloth a ruin would have lost"),
+                          ('equals("minecolonies")', "keeps the host's own blocks, a hut in a ruin"),
+                          ("setBlockEntityLootTable(", "leaves a chest with nothing in it")):
+        if _needed not in _ruins_text:
+            fail(f"settle/Ruins.java {_why} ({_needed!r} is gone)")
+    _loot_id = re.search(r'LOOT = "([^"]+)"', _ruin_words)
+    if not _loot_id:
+        fail("RuinRules names no loot table")
+    else:
+        _ns, _path = _loot_id.group(1).split(":", 1)
+        if not os.path.isfile(os.path.join(RES, "data", _ns, "loot_table", _path + ".json")):
+            fail(f"the ruin's loot table {_loot_id.group(1)} is not shipped, so its chest is empty")
+    if f"block.{NS}.ruin_seed" not in _lang_now:
+        fail("the ruin marker has no name in the language file")
+    if not problems or not any("ruin" in p for p in problems):
+        print(f"the ruins          : a marker on its own grid ({_r_spacing}/{_r_separation}), never on a town, raising "
+              f"one building decayed by the rules through one seam read, founding nothing, one chest from "
+              f"{_loot_id.group(1) if _loot_id else '?'}")
 _blocks_src = strip_comments(read(SRC, "registry/SettleBlocks.java"), keep_strings=True)
 if 'BLOCKS.register(\n            "settlement_seed"' not in _blocks_src \
         and 'BLOCKS.register("settlement_seed"' not in _blocks_src:

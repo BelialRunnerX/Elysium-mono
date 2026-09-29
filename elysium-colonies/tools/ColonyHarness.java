@@ -77,6 +77,32 @@ public final class ColonyHarness {
         check(SettleRules.SPACING > SettleRules.SEPARATION && SettleRules.SEPARATION > 0,
                 "a structure set with separation at or above spacing places nothing");
         check(SettleRules.FROM_SPAWN > 0, "towns may found themselves on the world spawn");
+        // --- the ruins: their own grid, and a decay that reads from the bottom ---
+        for (String fault : com.elysium.colonies.rules.RuinRules.faults()) {
+            check(false, "ruins: " + fault);
+        }
+        check(com.elysium.colonies.rules.RuinRules.removedShare(0, 10) < com.elysium.colonies.rules.RuinRules.removedShare(9, 10),
+                "a ruin's floor is no more intact than its roof");
+        check(!com.elysium.colonies.rules.RuinRules.flimsy("minecraft:stone_bricks")
+                && com.elysium.colonies.rules.RuinRules.flimsy("minecraft:glass_pane")
+                && com.elysium.colonies.rules.RuinRules.wooden("minecraft:oak_planks")
+                && !com.elysium.colonies.rules.RuinRules.wooden("minecraft:stone_brick_stairs"),
+                "the ruin reads stone as flimsy, or glass as sturdy, or stone stairs as wood");
+        check(com.elysium.colonies.rules.RuinRules.weathered(3L, 0, 0, 0, "minecraft:oak_planks").equals("minecraft:oak_planks"),
+                "wood weathers into stone");
+        int keptFloor = 0;
+        int keptTop = 0;
+        for (int i = 0; i < 400; i++) {
+            if (com.elysium.colonies.rules.RuinRules.keep(11L, i, 0, i * 7, 10, false)) {
+                keptFloor++;
+            }
+            if (com.elysium.colonies.rules.RuinRules.keep(11L, i, 9, i * 7, 10, false)) {
+                keptTop++;
+            }
+        }
+        check(keptFloor > 340 && keptTop < 160 && keptTop > 20,
+                "over four hundred rolls the floor kept " + keptFloor + " and the roof " + keptTop
+                        + "; a ruin keeps its floor and loses most of its roof, not all");
         check(SettleRules.farEnoughFromSpawn(SettleRules.FROM_SPAWN, 0)
                 && !SettleRules.farEnoughFromSpawn(SettleRules.FROM_SPAWN - 1, 0)
                 && SettleRules.farEnoughFromSpawn(0, -SettleRules.FROM_SPAWN),

@@ -159,6 +159,24 @@ edit $S/rules/SiteRules.java 'if (at < side) {
         }'
 expect "a ring search that visits a square twice" "twice"
 
+echo "the ruins"
+edit $S/rules/RuinRules.java 'public static final int SPACING = 56;' 'public static final int SPACING = 48;'
+expect "a ruins grid the structure set does not agree with" "RuinRules says"
+
+edit $S/settle/Ruins.java '        ElysiumColonies.LOGGER.info("a ruin of a {} stands at {} in {}: {} of {} blocks left, {} rows",' '        Colonies.settle(level, ground, "ruin", pack, java.util.UUID.randomUUID(), "nobody");
+        ElysiumColonies.LOGGER.info("a ruin of a {} stands at {} in {}: {} of {} blocks left, {} rows",'
+expect "a ruin that founds a colony" "a ruin founds a colony"
+
+rm -f $D/loot_table/chests/ruin.json
+expect "a ruin chest with no table" "loot table elysiumcolonies:chests/ruin is not shipped"
+
+edit $S/settle/Ruins.java '            if (!RuinRules.keep(seed, at.getX(), at.getY(), at.getZ(), height, RuinRules.wooden(name))) {
+                continue;
+            }' '            if (false) {
+                continue;
+            }'
+expect "a ruin that places every block" "places every block, so it is a building"
+
 echo
 echo "restoring and re-checking"
 restore

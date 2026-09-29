@@ -47,12 +47,12 @@ def write(path, body):
     open(path, "w", encoding="utf-8", newline="\n").write(json.dumps(body, indent=2) + "\n")
 
 
-def rule(name):
-    source = open(os.path.join(MOD, "src/main/java/com/elysium/colonies/rules/SettleRules.java"),
+def rule(name, rules="SettleRules"):
+    source = open(os.path.join(MOD, f"src/main/java/com/elysium/colonies/rules/{rules}.java"),
                   encoding="utf-8").read()
     match = re.search(r"public static final int " + name + r" = ([0-9_]+);", source)
     if not match:
-        sys.exit(f"SettleRules has no {name}")
+        sys.exit(f"{rules} has no {name}")
     return int(match.group(1).replace("_", ""))
 
 
@@ -156,6 +156,63 @@ def worldgen():
             "projection": "rigid",
         }}],
     })
+    # The ruins: their own grid, further apart, never on a town's site or a
+    # village's, in the same biomes towns settle; the marker in a one-block jigsaw.
+    r_spacing, r_separation, r_salt = rule("SPACING", "RuinRules"), rule("SEPARATION", "RuinRules"), rule("SALT", "RuinRules")
+    write(os.path.join(DATA, "worldgen/structure/ruin.json"), {
+        "type": "minecraft:jigsaw",
+        "biomes": f"#{NS}:settles_in",
+        "step": "surface_structures",
+        "spawn_overrides": {},
+        "terrain_adaptation": "none",
+        "start_pool": f"{NS}:ruin/seed",
+        "size": 1,
+        "start_height": {"absolute": 0},
+        "project_start_to_heightmap": "WORLD_SURFACE_WG",
+        "max_distance_from_center": 16,
+        "use_expansion_hack": False,
+    })
+    write(os.path.join(DATA, "worldgen/structure_set/ruins.json"), {
+        "structures": [{"structure": f"{NS}:ruin", "weight": 1}],
+        "placement": {
+            "type": "minecraft:random_spread",
+            "spacing": r_spacing,
+            "separation": r_separation,
+            "salt": r_salt,
+            "exclusion_zone": {"other_set": f"{NS}:settlements", "chunk_count": 8},
+        },
+    })
+    write(os.path.join(DATA, "worldgen/template_pool/ruin/seed.json"), {
+        "name": f"{NS}:ruin/seed",
+        "fallback": "minecraft:empty",
+        "elements": [{"weight": 1, "element": {
+            "element_type": "minecraft:single_pool_element",
+            "location": f"{NS}:ruin_seed",
+            "processors": "minecraft:empty",
+            "projection": "rigid",
+        }}],
+    })
+    # What was left in the ruin: the ordinary stuff of a household, worn.
+    write(os.path.join(DATA, "loot_table/chests/ruin.json"), {
+        "type": "minecraft:chest",
+        "pools": [
+            {"rolls": {"type": "minecraft:uniform", "min": 2, "max": 4},
+             "entries": [
+                 {"type": "minecraft:item", "name": "minecraft:bread", "weight": 6,
+                  "functions": [{"function": "minecraft:set_count", "count": {"type": "minecraft:uniform", "min": 1, "max": 3}}]},
+                 {"type": "minecraft:item", "name": "minecraft:iron_nugget", "weight": 5,
+                  "functions": [{"function": "minecraft:set_count", "count": {"type": "minecraft:uniform", "min": 2, "max": 7}}]},
+                 {"type": "minecraft:item", "name": "minecraft:cobblestone", "weight": 5,
+                  "functions": [{"function": "minecraft:set_count", "count": {"type": "minecraft:uniform", "min": 3, "max": 12}}]},
+                 {"type": "minecraft:item", "name": "minecraft:string", "weight": 4,
+                  "functions": [{"function": "minecraft:set_count", "count": {"type": "minecraft:uniform", "min": 1, "max": 4}}]},
+                 {"type": "minecraft:item", "name": "minecraft:book", "weight": 3},
+                 {"type": "minecraft:item", "name": "minecraft:emerald", "weight": 2},
+                 {"type": "minecraft:item", "name": "minecraft:iron_ingot", "weight": 2},
+                 {"type": "minecraft:item", "name": "elysium:gem_dust", "weight": 1},
+             ]},
+        ],
+    })
     return worlds, biomes, spacing, separation
 
 
@@ -163,9 +220,9 @@ def compound(pairs):
     return nbt.Tag(nbt.COMPOUND, dict(pairs))
 
 
-def stake_template():
-    """A one-block structure: the survey stake, on the surface."""
-    palette = [compound([("Name", nbt.Tag(nbt.STRING, f"{NS}:settlement_seed"))])]
+def stake_template(block="settlement_seed"):
+    """A one-block structure: the survey stake (or the ruin marker), on the surface."""
+    palette = [compound([("Name", nbt.Tag(nbt.STRING, f"{NS}:{block}"))])]
     blocks = [compound([("pos", nbt.Tag(nbt.LIST, [nbt.Tag(nbt.INT, 0)] * 3, nbt.INT)),
                         ("state", nbt.Tag(nbt.INT, 0))])]
     root = compound([
@@ -175,7 +232,7 @@ def stake_template():
         ("entities", nbt.Tag(nbt.LIST, [], nbt.END)),
         ("DataVersion", nbt.Tag(nbt.INT, DATA_VERSION)),
     ])
-    path = os.path.join(DATA, "structure/settlement_seed.nbt")
+    path = os.path.join(DATA, f"structure/{block}.nbt")
     os.makedirs(os.path.dirname(path), exist_ok=True)
     nbt.save(path, "", root)
 
@@ -200,9 +257,36 @@ def stake_sprite():
     return image
 
 
+def marker_sprite():
+    """A leaning grey post with a torn brown pennant: a stake nobody has tended."""
+    image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    stone, dark, moss = (118, 118, 112, 255), (76, 76, 72, 255), (78, 104, 62, 255)
+    for y in range(3, 16):
+        x = 7 + (y - 3) // 6
+        draw.point((x, y), fill=stone if y % 3 else moss)
+        draw.point((x + 1, y), fill=dark)
+    for y in range(13, 16):
+        draw.point((8, y), fill=moss)
+    brown, worn = (108, 76, 42, 255), (84, 58, 30, 255)
+    for dx in range(1, 5):
+        for dy in range(0, 3 - dx // 2):
+            if (dx + dy) % 3:
+                draw.point((8 + dx, 4 + dy), fill=brown if (dx + dy) % 2 else worn)
+    return image
+
+
 def assets():
     os.makedirs(os.path.join(ASSETS, "textures/block"), exist_ok=True)
     stake_sprite().save(os.path.join(ASSETS, "textures/block/settlement_seed.png"))
+    marker_sprite().save(os.path.join(ASSETS, "textures/block/ruin_seed.png"))
+    write(os.path.join(ASSETS, "blockstates/ruin_seed.json"),
+          {"variants": {"": {"model": f"{NS}:block/ruin_seed"}}})
+    write(os.path.join(ASSETS, "models/block/ruin_seed.json"), {
+        "parent": "minecraft:block/cross",
+        "render_type": "minecraft:cutout",
+        "textures": {"cross": f"{NS}:block/ruin_seed"},
+    })
     write(os.path.join(ASSETS, "blockstates/settlement_seed.json"),
           {"variants": {"": {"model": f"{NS}:block/settlement_seed"}}})
     # Two crossed planes, like a sapling: the model reads transparent pixels,
@@ -216,6 +300,7 @@ def assets():
 
 WORDS = {
     f"block.{NS}.settlement_seed": "Survey Stake",
+    f"block.{NS}.ruin_seed": "Ruin Marker",
     "elysium.colony.claimed": "%s is yours now; its steward steps aside.",
     "elysium.colony.claim.none": "You are not standing in a settlement that founded itself.",
     "elysium.colony.natural.header": "%s settlement(s) founded themselves in this world:",
@@ -236,6 +321,7 @@ def lang():
 def main():
     worlds, biomes, spacing, separation = worldgen()
     stake_template()
+    stake_template("ruin_seed")
     assets()
     lang()
     print(f"settlements: {len(worlds)} world(s) settle, {len(biomes)} biome(s) or biome tag(s), "
