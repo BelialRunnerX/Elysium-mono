@@ -166,11 +166,13 @@ edit $S/registry/AlmanacAttachments.java '                                    .d
                     .copyOnDeath()
                     .build());
 
-    /** How many of this the player has killed. */' \
+    /**
+     * How many times each counted task has happened' \
         '                                    .decode((RegistryFriendlyByteBuf) buffer)))
                     .build());
 
-    /** How many of this the player has killed. */'
+    /**
+     * How many times each counted task has happened'
 expect "a kill tally lost on death while the other list survives" "the kill tally is lost when the player dies"
 
 edit $S/registry/AlmanacAttachments.java '        List<String> now = new ArrayList<>(was);
@@ -252,13 +254,79 @@ edit $R '            new Chapter("the_wilds", List.of("first_light")));' \
         '            new Chapter("the_wilds", List.of("the_wilds")));'
 expect "a chapter that waits on itself" "waits on itself"
 
-edit $S/event/AlmanacProgress.java '                        || AlmanacAttachments.slain(player, task.what())
-                        < task.count()) {' '                        || false) {'
-expect "a kill quest that finishes on the first thing anybody kills" "finishes on the first thing"
 
 edit $S/registry/AlmanacAttachments.java '                player.setData(SLAIN.get(), List.copyOf(now));
                 return;' '                return;'
 expect "a tally counted up and never stored" "counted and never stored"
+
+echo "the rewards, the kinds, and what the book points at now"
+edit $S/event/AlmanacProgress.java 'case SLAY -> AlmanacAttachments.slain(player, task.what()) >= task.count();' 'case SLAY -> AlmanacAttachments.slain(player, task.what()) >= 1;'
+expect "a kill quest that finishes on the first kill" "finishes on the first thing anybody kills"
+
+edit $S/event/AlmanacProgress.java 'case PLACE, BREAK, CRAFT, USE, EAT, SMELT ->
+                        AlmanacAttachments.count(player, task) >= task.count();' 'case PLACE, BREAK, CRAFT, USE, EAT, SMELT -> true;'
+expect "counted kinds that never read their tally" "never read their tally"
+
+edit $S/event/AlmanacProgress.java '                if (matches) {
+                    AlmanacAttachments.bump(player, task, by);
+                }' ''
+expect "events that are noticed and never counted" "every counted step waits for ever"
+
+edit $S/event/AlmanacProgress.java 'BlockEvent.BreakEvent event' 'BlockEvent.FarmlandTrampleEvent event'
+expect "breaking a block never noticed" "every BREAK step is impossible"
+
+edit $S/event/AlmanacProgress.java '                case LEVEL -> ElysiumCharacter.getLevel(player) >= task.count();
+' ''
+expect "a kind of task nothing answers" "never answered in AlmanacProgress"
+
+edit $S/client/StepScreen.java '            case WEB -> Component.translatable("elysiumalmanac.task.web", count);
+' ''
+expect "a kind of task with no label" "has no label on the step screen"
+
+edit $S/event/AlmanacRewards.java '        if (!AlmanacAttachments.has(player, questId)) {
+            return WHY_NOT_DONE;
+        }
+' ''
+expect "a reward paid for a step not finished" "pays for steps not finished"
+
+edit $S/event/AlmanacRewards.java '        if (!AlmanacAttachments.claim(player, questId)) {
+            return WHY_ALREADY;
+        }' '        if (AlmanacAttachments.claimed(player, questId)) {
+            return WHY_ALREADY;
+        }'
+expect "a reward never marked taken" "paid every time it is asked for"
+
+edit $S/network/AlmanacNetwork.java '        registrar.playToServer(AlmanacClaim.TYPE, AlmanacClaim.STREAM_CODEC,
+                AlmanacNetwork::onClaim);' ''
+expect "a claim nobody is listening for" "nobody is listening for"
+
+edit $S/command/AlmanacCommand.java 'Commands.literal("finish").requires(source -> source.hasPermission(2))' 'Commands.literal("finish")'
+expect "anybody finishing their own book from the console" "anybody can finish"
+
+edit $S/registry/AlmanacAttachments.java '            ATTACHMENTS.register("tally", () -> AttachmentType
+                    .<List<String>>builder(() -> List.of())
+                    .serialize(Codec.STRING.listOf())' '            ATTACHMENTS.register("tally", () -> AttachmentType
+                    .<List<String>>builder(() -> List.of())'
+expect "an event tally that empties every restart" "the event tally is not written to disk"
+
+edit $R 'Task.visit("elysiumspace:pale_moon")' 'Task.visit("elysiumspace:luna")'
+expect "a step in a world nothing in the tree has" "has a world of that name"
+
+edit $R 'Task.have(AGR + "hive", 1)' 'Task.have("#elysiumagronomy:hives", 1)'
+expect "a tag no module ships" "no module ships a tag"
+
+edit $R 'LEVEL_XP_BASE = 100;' 'LEVEL_XP_BASE = 90;'
+expect "a level curve the game does not use" "does not use"
+
+edit $R 'Map.entry("welcome", Reward.of(XP_BASE, new Give("minecraft:torch", 16))),' 'Map.entry("welcom", Reward.of(XP_BASE, new Give("minecraft:torch", 16))),'
+expect "a reward declared for a step that is not one" "nobody is ever paid for"
+
+edit $R 'public static final int XP_BASE = 20;' 'public static final int XP_BASE = 0;'
+expect "a step that pays nothing by the rule" "harness failed"
+
+edit $G '    "elysiumalmanac.reward.claim": "Click to take it.",
+' ''
+expect_regen "a reward row with no words" "shows a key"
 
 echo
 echo "restoring and re-checking"

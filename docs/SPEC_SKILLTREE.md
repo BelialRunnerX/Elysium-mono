@@ -36,9 +36,10 @@ design as it was written before the build, kept because the build follows it.
   allocated for them and it says what they are. Paths from different starts
   cross in the middle, so a Druun Medicae and an Imperial Enforcer can both
   reach the Deep by walking different halves of the web.
-* **Points from levels.** One passive point per character level
-  (`ElysiumCharacter.LEVEL`), separate from the ten stat points a level already
-  gives; the web is the second thing a level buys. Respec by refund: one point
+* **Points from levels.** Three passive points per character level
+  (`ElysiumCharacter.LEVEL`; one until 28 September 2026, when Dylan asked for
+  three), separate from the ten stat points a level already gives; the web is
+  the second thing a level buys. Respec by refund: one point
   back per use of a Ledger Erasure, an item the Empire sells and drops, so a
   build can be walked back but not for free.
 * **Travel nodes.** Plain connections that give a small share of a stat, so
@@ -62,7 +63,7 @@ Rules first, pure, harness-checked, the way everything in the pack is built:
   centre angle and radius on the web, size), the node kinds and their
   rewards (small: one stat or attribute and a value; notable: two or three;
   keystone: a doctrine or a new rule), the starts (origin or calling -> a
-  cluster and a node), the point rule (one per level, cap by level), and
+  cluster and a node), the point rule (three per level, cap by level), and
   `faults()`.
 * `ElysiumTree`: the generated web as data — every node with its position,
   its rewards and its neighbours — built from the rules by a deterministic

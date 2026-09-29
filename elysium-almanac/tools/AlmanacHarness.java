@@ -57,6 +57,8 @@ public final class AlmanacHarness {
         theGraph();
         theChapters();
         playedThrough();
+        theKinds();
+        theRewards();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -64,8 +66,104 @@ public final class AlmanacHarness {
         }
         System.out.println(checks + " checks: no quest waits on itself, none is one a "
                 + "player could never arrive at, every chapter follows one a player has "
-                + "already started, and playing the whole book in the order it offers "
-                + "finishes it");
+                + "already started, playing the whole book in the order it offers "
+                + "finishes it, and every step pays — the whole book is worth level "
+                + AlmanacRules.levelAfter(AlmanacRules.totalXp()));
+    }
+
+    // ==================================================================
+
+    /** The kinds: what is counted is exactly what an event answers. */
+    private static void theKinds() {
+        for (AlmanacRules.Kind kind : AlmanacRules.Kind.values()) {
+            boolean byEvent = switch (kind) {
+                case PLACE, SLAY, BREAK, CRAFT, USE, EAT, SMELT -> true;
+                case HAVE, VISIT, READ, LEVEL, WEB -> false;
+            };
+            check(kind.counted() == byEvent,
+                    kind + (byEvent ? " is answered by an event and is not counted, so a "
+                            + "player who did it before the quest opened must do it again"
+                            : " is answered by looking at the player and is counted, so it "
+                            + "waits for an event that never comes"));
+        }
+        boolean refused = false;
+        try {
+            AlmanacRules.Task.visit("#minecraft:overworld");
+        } catch (IllegalArgumentException expected) {
+            refused = true;
+        }
+        check(refused, "a tag can stand in for a world, and nobody stands in a tag");
+        refused = false;
+        try {
+            AlmanacRules.Task.level(0);
+        } catch (IllegalArgumentException expected) {
+            refused = true;
+        }
+        check(refused, "a task may ask for level nought, which every character has");
+        check(AlmanacRules.Task.have("#c:ingots", 1).tag(),
+                "a subject written as a tag is not read as one");
+        check(AlmanacRules.Task.have("#c:ingots", 1).subject().equals("c:ingots"),
+                "a tag's subject keeps the mark, so no registry will find it");
+        check(!AlmanacRules.Task.have("minecraft:stone", 1).tag(),
+                "a plain id is read as a tag");
+    }
+
+    /**
+     * The rewards: every step pays, the declared ones are for real steps, and
+     * the whole book is worth a stretch of levels rather than a level or a
+     * lifetime.
+     */
+    private static void theRewards() {
+        for (AlmanacRules.Quest quest : AlmanacRules.QUESTS) {
+            AlmanacRules.Reward reward = AlmanacRules.rewardOf(quest.id());
+            check(reward.xp() >= 1 && reward.xp() <= AlmanacRules.XP_MOST,
+                    quest.id() + " pays " + reward.xp() + " experience, which is nothing "
+                            + "or more than the most a step may pay");
+            for (AlmanacRules.Give give : reward.gives()) {
+                check(give.item().contains(":") && give.count() >= 1,
+                        quest.id() + " hands over " + give.count() + " of " + give.item()
+                                + ", which is not a thing or not an amount");
+            }
+        }
+        for (String id : AlmanacRules.REWARDS.keySet()) {
+            check(AlmanacRules.quest(id) != null,
+                    "a reward is declared for " + id + ", which is not a quest, so it is "
+                            + "a page nobody is ever paid for");
+        }
+        check(AlmanacRules.rewardOf("welcome").xp() < AlmanacRules.rewardOf("starsteel").xp(),
+                "the first page pays as much as the top of the material chain, so depth "
+                        + "is worth nothing");
+        int rule = AlmanacRules.rewardOf("no_such_quest").xp();
+        check(rule == AlmanacRules.XP_BASE,
+                "a quest with nothing behind it pays " + rule + " by the rule, not the base");
+
+        check(AlmanacRules.levelAfter(0) == 1, "a character with no experience is not level one");
+        check(AlmanacRules.levelAfter(AlmanacRules.xpToNext(1)) == 2,
+                "exactly the experience to the next level does not reach it");
+        check(AlmanacRules.xpToNext(2) > AlmanacRules.xpToNext(1),
+                "a level costs no more than the one before it");
+        int whole = AlmanacRules.levelAfter(AlmanacRules.totalXp());
+        check(whole >= 20,
+                "doing the whole book is worth level " + whole + ", which is less than a "
+                        + "first evening's hunting; the rewards are decoration");
+        check(whole <= 80,
+                "doing the whole book is worth level " + whole + ", which is the whole "
+                        + "game; nothing else a player does would matter");
+
+        boolean refused = false;
+        try {
+            new AlmanacRules.Reward(0, List.of());
+        } catch (IllegalArgumentException expected) {
+            refused = true;
+        }
+        check(refused, "a reward of nothing can be declared");
+        refused = false;
+        try {
+            new AlmanacRules.Give("stone", 1);
+        } catch (IllegalArgumentException expected) {
+            refused = true;
+        }
+        check(refused, "a reward that is not a namespaced id can be declared");
     }
 
     // ==================================================================

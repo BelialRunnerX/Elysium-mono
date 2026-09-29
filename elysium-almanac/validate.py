@@ -31,10 +31,12 @@ import os
 import sys as _sys
 _sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
 import samefile  # noqa: E402
+import importlib.util
 import re
 import subprocess
 import sys
 import tempfile
+import zipfile
 
 WORK = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(WORK)
@@ -459,7 +461,7 @@ print(f"the graph          : {len(by_id)} quest(s) over {len(chapter_after)} cha
 # because the module is not allowed to know the other modules exist. This file
 # is, so it does it here.
 
-TASK = re.compile(r'Task\.(have|place|visit|slay)\((?:(\w+) \+ )?"([^"]+)"')
+TASK = re.compile(r'Task\.(have|place|visit|slay|craft|mine|use|eat|smelt)\((?:(\w+) \+ )?"([^"]+)"')
 names = {}
 for prefix, token, value in TASK.findall(worded):
     names.setdefault(prefix, []).append((token, value))
@@ -479,27 +481,89 @@ for entry in sorted(os.listdir(ROOT)):
             except ValueError:
                 fail(f"{entry}'s language file is not valid JSON")
 
+# The generator, imported for its tables rather than parsed: the families are
+# lists of ids and the worlds a table of names, and both are checked here
+# against the tree.
+gen = None
+if os.path.isfile(GENERATOR):
+    try:
+        spec = importlib.util.spec_from_file_location("gen_almanac", GENERATOR)
+        gen = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(gen)
+    except Exception as trouble:  # noqa: BLE001 — a generator that will not import is reported below
+        gen = None
+        fail(f"the generator cannot be imported, so its families cannot be checked: {trouble}")
+FAMILIES = dict(getattr(gen, "FAMILIES", {}) or {})
+EXCUSED = list(getattr(gen, "EXCUSED", []) or [])
+
+MC_JAR = os.environ.get("MC_JAR", "")
+vanilla = set()
+if MC_JAR and os.path.isfile(MC_JAR):
+    with zipfile.ZipFile(MC_JAR) as jar:
+        vanilla = set(jar.namelist())
+
 #: What sort of language key each kind of task's id has to have. A quest
 #: pointing at a mob nothing spawns is exactly as invisible as one pointing at
 #: an item nothing makes, and the first version of this only checked the
 #: items — so twelve tasks naming nine beasts went unchecked entirely.
-SORTS = {"have": ("item", "block"), "place": ("item", "block"),
-         "slay": ("entity",)}
+SORTS = {"have": ("item", "block"), "place": ("block", "item"), "slay": ("entity",),
+         "craft": ("item", "block"), "eat": ("item",), "smelt": ("item", "block"),
+         "mine": ("block", "item"), "use": ("block", "item")}
 
-asked, unknown = 0, []
-for kind in ("have", "place", "slay"):
-    for token, value in names.get(kind, []):
+#: Which registry a tag stands in for, per kind of task.
+TAG_FOLDER = {"have": "item", "craft": "item", "eat": "item", "smelt": "item",
+              "place": "block", "mine": "block", "use": "block", "slay": "entity_type"}
+
+
+def shipped_data(namespace, relative):
+    """Whether any module, or the base game, ships data/<namespace>/<relative>."""
+    for entry in os.listdir(ROOT):
+        if os.path.isfile(os.path.join(ROOT, entry, "src/main/resources/data", namespace,
+                                       relative)):
+            return True
+    return namespace == "minecraft" and f"data/minecraft/{relative}" in vanilla
+
+
+def catalogued(full, sorts):
+    """Whether some module's language file names this id as one of these sorts."""
+    namespace, path = full.split(":", 1)
+    if namespace == "minecraft":
+        return any(f"assets/minecraft/models/{sort}/{path}.json" in vanilla
+                   for sort in sorts if sort in ("item", "block")) \
+            or (("entity" in sorts) and f"assets/minecraft/textures/entity/{path}.png" in vanilla)
+    if namespace not in catalogue:
+        return False
+    return any(f"{sort}.{namespace}.{path}" in catalogue[namespace] for sort in sorts)
+
+
+asked, tagged, worlds, unknown = 0, 0, 0, []
+for kind, entries in names.items():
+    for token, value in entries:
         full = prefixes.get(token, "") + value if token else value
-        if ":" not in full:
+        bare = full[1:] if full.startswith("#") else full
+        if ":" not in bare:
             fail(f"a task asks for {full!r}, which is not a namespaced id and therefore "
                  f"names nothing")
             continue
+        namespace, path = bare.split(":", 1)
+        if kind == "visit":
+            worlds += 1
+            if not shipped_data(namespace, f"dimension/{path}.json"):
+                unknown.append(full + " (no module in this tree has a world of that name)")
+            continue
+        if full.startswith("#"):
+            tagged += 1
+            folder = TAG_FOLDER[kind]
+            if namespace == NS:
+                if path not in FAMILIES:
+                    unknown.append(full + " (the book has no such family)")
+            elif not shipped_data(namespace, f"tags/{folder}/{path}.json"):
+                unknown.append(full + f" (no module ships a tag of that name for {folder}s)")
+            continue
         asked += 1
-        namespace, path = full.split(":", 1)
-        if namespace not in catalogue:
+        if namespace != "minecraft" and namespace not in catalogue:
             unknown.append(full + " (no such module in the tree)")
-        elif not any(f"{sort}.{namespace}.{path}" in catalogue[namespace]
-                     for sort in SORTS[kind]):
+        elif not catalogued(full, SORTS[kind]):
             unknown.append(full + (" (nothing in the tree spawns it)"
                                    if kind == "slay" else ""))
 if unknown:
@@ -507,14 +571,50 @@ if unknown:
          f"player cannot tell apart from a thing they have not found yet: "
          + ", ".join(sorted(unknown)[:8]) + (" ..." if len(unknown) > 8 else ""))
 
-# The two halves of a kill quest, neither of which any other check looks at.
+# The families: every id in one is something in the tree, and every family is
+# asked for by something, or it is a tag nobody reads.
+family_trouble = []
+family_members = 0
+asked_families = set(value.split(":", 1)[1] for _, entries in names.items()
+                     for token, value in entries
+                     if value.startswith("#" + NS + ":"))
+for family, members in sorted(FAMILIES.items()):
+    if not re.fullmatch(r"[a-z_]+", family):
+        family_trouble.append(f"{family!r} is not spelled like a tag path")
+    if not members:
+        family_trouble.append(f"{family} has nothing in it")
+    for one in members:
+        family_members += 1
+        if ":" not in one or not catalogued(one, ("item", "block", "entity")):
+            family_trouble.append(f"{family} lists {one}, which nothing in the tree makes")
+    if family not in asked_families:
+        family_trouble.append(f"{family} is a family no task asks for")
+if family_trouble:
+    fail(f"{len(family_trouble)} family problem(s): " + "; ".join(family_trouble[:6])
+         + (" ..." if len(family_trouble) > 6 else ""))
+for pattern, why in EXCUSED:
+    try:
+        re.compile(pattern)
+    except re.error:
+        fail(f"the excusal {pattern!r} is not a pattern")
+    if len(why) < 12:
+        fail(f"the excusal {pattern!r} gives no reason worth the name")
+
+# The two halves of a counted quest, neither of which any other check looks at.
 progress = squashed(strip_comments(read(SRC, "event/AlmanacProgress.java")))
-if "|| AlmanacAttachments.slain(player, task.what()) < task.count()) {" not in progress:
+if "case SLAY -> AlmanacAttachments.slain(player, task.what()) >= task.count();" not in progress:
     fail("a quest asking for three of something finishes on the first thing anybody "
          "kills, because nothing compares the tally against what the quest asked for")
 if "AlmanacAttachments.slew(player, named);" not in progress:
     fail("nothing counts what a player kills, so a quest asking for three of something "
          "they have already killed two of needs three more and never says why")
+if "case PLACE, BREAK, CRAFT, USE, EAT, SMELT -> AlmanacAttachments.count(player, task) " \
+        ">= task.count();" not in progress:
+    fail("the counted kinds never read their tally against what the quest asked for, so "
+         "a step asking for forty of something finishes on the first")
+if "AlmanacAttachments.bump(player, task, by);" not in progress:
+    fail("nothing counts what a player places, breaks, crafts, uses, eats or smelts, so "
+         "every counted step waits for ever")
 
 tally = squashed(strip_comments(read(SRC, "registry/AlmanacAttachments.java")))
 if "now.set(at + 1, Integer.toString(slain(player, what) + 1)); " \
@@ -522,13 +622,94 @@ if "now.set(at + 1, Integer.toString(slain(player, what) + 1)); " \
     fail("a kill is counted and never stored, so the tally is whatever it was when the "
          "player logged in — an attachment changed in place is an attachment nothing "
          "syncs, which is the same mistake the finished list already documents")
+if "now.set(at + 1, Integer.toString(countOf(was, key) + by)); " \
+        "player.setData(TALLY.get(), List.copyOf(now));" not in tally:
+    fail("a counted event is counted and never stored, so the tally is whatever it was "
+         "when the player logged in")
 if ".copyOnDeath()" not in tally:
     fail("the tally is lost on death, and losing your notes on the way to the Nether "
          "is not a difficulty setting")
 
-print(f"what it asks for   : {asked} item(s), block(s) and beast(s) named across "
-      f"{len(set(prefixes.values()))} module(s), every one of them made or spawned by "
-      f"something in this tree")
+print(f"what it asks for   : {asked} item(s), block(s) and beast(s), {tagged} tag(s) "
+      f"({len(FAMILIES)} of the book's own families, {family_members} member(s)) and "
+      f"{worlds} world(s) named across {len(set(prefixes.values()))} module(s), every one "
+      f"of them made, shipped or spawned by something in this tree")
+
+# ---------------------------------------------------------------------------
+# 4b. The rewards, and the kinds
+# ---------------------------------------------------------------------------
+#
+# Every step pays, by rule or by declaration, and the paying is done once, on
+# the server, for a step that is done. And every kind the rules declare is a
+# kind something answers — a task of a kind nothing answers is a step no player
+# can ever finish, which is the module's founding failure in a new coat.
+
+levelling = strip_comments(read(ROOT, "elysium-lib/src/main/java/com/elysium/lib/character",
+                                "ElysiumLevelling.java"), True)
+for ours, theirs in (("LEVEL_XP_BASE", "XP_BASE"), ("LEVEL_XP_PER_LEVEL", "XP_PER_LEVEL")):
+    mine = re.search(rf"{ours}\s*=\s*(\d+);", worded)
+    lib = re.search(rf"\b{theirs}\s*=\s*(\d+);", levelling)
+    if not mine or not lib:
+        fail(f"the level curve constant {ours} or the library's {theirs} cannot be read")
+    elif mine.group(1) != lib.group(1):
+        fail(f"the book's {ours} is {mine.group(1)} and the library's own curve says "
+             f"{lib.group(1)}, so the harness adds the book up against a curve the game "
+             f"does not use")
+
+rewards_src = squashed(strip_comments(read(SRC, "event/AlmanacRewards.java")))
+if "if (!AlmanacAttachments.has(player, questId)) { return WHY_NOT_DONE; }" not in rewards_src:
+    fail("a reward pays for steps not finished; the book becomes a shop with nothing on the "
+         "shelves but free things")
+marked = rewards_src.find("if (!AlmanacAttachments.claim(player, questId)) { return WHY_ALREADY; }")
+paid = rewards_src.find("ElysiumCharacter.addXp(player, reward.xp());")
+if marked < 0:
+    fail("a reward is never marked taken, so it is paid every time it is asked for")
+if paid < 0:
+    fail("a reward pays no experience through the library's one door, so the trinkets "
+         "that scale experience do not see it")
+if 0 <= paid < marked:
+    fail("a reward is paid before it is marked taken, so two clicks in one tick pay twice")
+
+network = squashed(strip_comments(read(SRC, "network/AlmanacNetwork.java")))
+if "registrar.playToServer(AlmanacClaim.TYPE, AlmanacClaim.STREAM_CODEC, AlmanacNetwork::onClaim);" \
+        not in network:
+    fail("the claim is never registered as a payload, so the book's one button sends a "
+         "message nobody is listening for")
+if "bus = EventBusSubscriber.Bus.MOD" not in network:
+    fail("the payload handlers are registered on the wrong bus, so they are never registered")
+step_src = squashed(strip_comments(read(SRC, "client/StepScreen.java")))
+if "PacketDistributor.sendToServer(new AlmanacNetwork.AlmanacClaim(quest.id()));" not in step_src:
+    fail("the reward row sends nothing, so a reward can be looked at and never taken")
+
+command = squashed(strip_comments(read(SRC, "command/AlmanacCommand.java"), True))
+if 'Commands.literal("almanac")' not in command:
+    fail("there is no /almanac command, so the tests have no way past a step")
+for guarded in ("finish", "reset"):
+    if f'Commands.literal("{guarded}").requires(source -> source.hasPermission(2))' not in command:
+        fail(f"anybody can {guarded} their own almanac from the console, which is a book "
+             f"anybody can finish without opening")
+
+kinds = re.findall(r"^\s+([A-Z]+)[,;]", body_of(plain, "public enum Kind"), re.M)
+if len(kinds) < 10:
+    fail(f"only {len(kinds)} kinds could be read out of the rules")
+for kind in kinds:
+    if not re.search(rf"case [A-Z, ]*\b{kind}\b[A-Z, ]* ->", progress):
+        fail(f"a task of kind {kind} is never answered in AlmanacProgress, so every step "
+             f"asking for one waits for ever")
+    if not re.search(rf"case [A-Z, ]*\b{kind}\b[A-Z, ]* ->", step_src):
+        fail(f"a task of kind {kind} has no label on the step screen")
+for event, why in (
+        ("BlockEvent.BreakEvent", "breaking a block is never noticed, so every BREAK step "
+                                  "is impossible"),
+        ("PlayerInteractEvent.RightClickBlock", "using a block is never noticed"),
+        ("PlayerEvent.ItemCraftedEvent", "crafting is never noticed"),
+        ("PlayerEvent.ItemSmeltedEvent", "smelting is never noticed"),
+        ("LivingEntityUseItemEvent.Finish", "eating is never noticed")):
+    if event not in progress:
+        fail(f"there is no handler for {event}, so {why}")
+
+print(f"the rewards        : every step pays through the library's door, once, for a step "
+      f"that is done; {len(kinds)} kinds of task, every one answered and labelled")
 
 # ---------------------------------------------------------------------------
 # 5. The words, and that they are generated
@@ -637,8 +818,19 @@ thin = sorted(key for key, value in lang.items()
 if thin:
     fail(f"{len(thin)} chapter subtitle(s) say almost nothing ({thin[:4]})")
 
+for kind in kinds:
+    if f"{NS}.task.{kind.lower()}" not in lang:
+        fail(f"there is no line for a task of kind {kind}, so the step screen shows a key")
+for key in (f"{NS}.reward", f"{NS}.reward.claim", f"{NS}.reward.claimed", f"{NS}.claimed"):
+    if key not in lang:
+        fail(f"there is no line {key}, so the reward row shows a key")
+for _, value in names.get("visit", []):
+    if f"{NS}.world.{value.replace(':', '.')}" not in lang and ":" in value:
+        fail(f"the world {value} has no name in the book, so a VISIT step shows its id")
+
 print(f"the words          : {len(lang)} key(s), a title and a reason for every quest "
-      f"and every chapter, all of them generated")
+      f"and every chapter, a line for every kind of task and every world, all of them "
+      f"generated")
 
 # ---------------------------------------------------------------------------
 # 6. The book in the world
@@ -675,6 +867,8 @@ attach_plain = squashed(strip_comments(attach, True))
 ATTACHMENTS = {
     "DONE": "the finished list",
     "SLAIN": "the kill tally",
+    "TALLY": "the event tally",
+    "CLAIMED": "the paid list",
 }
 for field, called in sorted(ATTACHMENTS.items()):
     where = attach_plain.find(f"AttachmentType<List<String>>> {field} =")

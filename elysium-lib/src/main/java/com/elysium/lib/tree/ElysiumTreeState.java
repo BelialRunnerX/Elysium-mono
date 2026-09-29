@@ -32,7 +32,7 @@ import java.util.function.Supplier;
  * character who chose before the web existed has them the moment they open
  * it, and a respec that empties the list leaves the starts where they were.
  *
- * <p>Points: {@link ElysiumTreeRules#POINTS_PER_LEVEL} per level from
+ * <p>Points: {@link ElysiumTreeRules#POINTS_PER_LEVEL} (three) per level from
  * {@link ElysiumTreeRules#FIRST_POINT_LEVEL}, less the nodes stored. An
  * allocation has to touch a held node and have a point to pay with; a keystone
  * also has to have its opposite unheld. A refund has to leave the held set

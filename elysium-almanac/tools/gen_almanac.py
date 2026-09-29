@@ -23,6 +23,7 @@ OUT = os.environ.get("ELYSIUM_ALMANAC_OUT", MOD)
 ASSETS = os.path.join(OUT, "src/main/resources/assets", NS)
 DATA = os.path.join(OUT, "src/main/resources/data", NS)
 RULES = os.path.join(MOD, "src/main/java/com/elysium/almanac/rules/AlmanacRules.java")
+CATALOGUE = os.path.join(os.path.dirname(MOD), "docs/features.json")
 
 try:
     from PIL import Image, ImageDraw
@@ -346,18 +347,119 @@ LINES = {
     "elysiumalmanac.quest.done": "Done.",
     "elysiumalmanac.quest.now": "You can do this now.",
     "elysiumalmanac.quest.after": "After: %s",
+    "elysiumalmanac.quest.reward_waiting": "Done — the reward is yours to take.",
     "elysiumalmanac.task.have": "Have %s x %s",
     "elysiumalmanac.task.place": "Place a %s",
     "elysiumalmanac.task.visit": "Stand in %s",
+    "elysiumalmanac.task.slay": "Slay %s x %s",
+    "elysiumalmanac.task.craft": "Craft %s x %s",
+    "elysiumalmanac.task.break": "Break %s x %s",
+    "elysiumalmanac.task.use": "Use a %s",
+    "elysiumalmanac.task.eat": "Eat %s x %s",
+    "elysiumalmanac.task.smelt": "Smelt %s x %s",
+    "elysiumalmanac.task.level": "Reach character level %s",
+    "elysiumalmanac.task.web": "Hold %s nodes on the Ledger Web",
+    "elysiumalmanac.task.any": "any %s",
+    "elysiumalmanac.task.so_far": "%s of %s so far.",
     "elysiumalmanac.task.read": "Read this.",
     "elysiumalmanac.task.missing": "%s — nothing installed makes this.",
+    "elysiumalmanac.reward": "Reward: %s XP",
+    "elysiumalmanac.reward.claim": "Click to take it.",
+    "elysiumalmanac.reward.claimed": "Taken.",
+    "elysiumalmanac.reward.later": "Finish the step first.",
+    "elysiumalmanac.claimed": "Almanac: %s paid %s XP.",
+    "elysiumalmanac.claim.unknown": "No such step in the book.",
+    "elysiumalmanac.claim.not_done": "That step is not finished.",
+    "elysiumalmanac.claim.already": "That reward was already taken.",
+    "elysiumalmanac.command.nobody": "Only a player has an almanac.",
+    "elysiumalmanac.command.status": "Almanac: %s of %s steps done, %s paid, %s open now.",
+    "elysiumalmanac.command.done_already": "That step was already done.",
+    "elysiumalmanac.command.reset": "Almanac: every step forgotten.",
     "elysiumalmanac.back": "Back",
-    "elysiumalmanac.finished": "Almanac: %s",
+    "elysiumalmanac.finished": "Almanac: %s — the reward is in the book",
 }
+
+# The worlds a VISIT task can name, as the book calls them. Every dimension in
+# the catalogue gets a line, so a task naming one is never shown as a raw id;
+# a world not named here is called by its path.
+WORLDS = {
+    "elysiumspace:pale_moon": "the Pale Moon",
+    "elysiumspace:cinderveil": "Cinderveil",
+    "elysiumspace:frostfall": "Frostfall",
+    "elysiumspace:emerald_bastion": "the Emerald Bastion",
+    "elysiumspace:high_orbit": "High Orbit",
+    "elysiumdungeons:dungeon": "a rift dungeon",
+    "elysiumwilds:vale": "the Vale",
+    "minecraft:overworld": "the Overworld",
+    "minecraft:the_nether": "the Nether",
+    "minecraft:the_end": "the End",
+}
+
+# ---------------------------------------------------------------------------
+# Families: the tags the book asks for "any of"
+# ---------------------------------------------------------------------------
+#
+# A quest that asks for a chair should be finished by any of the pack's
+# chairs, and the pack has a great many. So the book ships its own tags,
+# generated from these explicit lists, one file per family under
+# data/elysiumalmanac/tags/{item,block,entity_type}/<family>.json, every entry
+# marked not required so a module somebody removed never breaks the load. The
+# validator holds every id here against the catalogue, and holds the coverage
+# of the whole catalogue against these families and the tasks together.
+
+FAMILIES = {
+}
+
+# Things in the catalogue the book deliberately does not introduce, each with
+# the reason. A pattern and a reason, so the coverage rule can say what was
+# excused and why rather than silently counting it as done.
+EXCUSED = [
+]
+
+
+def catalogue():
+    """The pack's catalogue of what every module adds, by kind."""
+    if not os.path.isfile(CATALOGUE):
+        return {}
+    return json.load(open(CATALOGUE, encoding="utf-8"))
+
+
+def kinds_of(ids):
+    """Which registry each catalogued id belongs to: block, item or creature."""
+    found = {}
+    for entry in catalogue().values():
+        for kind, key in (("Blocks", "block"), ("Items", "item"), ("Creatures", "creature")):
+            for row in entry.get("kinds", {}).get(kind, []):
+                full = qualified(entry, row[0])
+                if full in ids and full not in found:
+                    found[full] = key
+    return found
+
+
+def qualified(entry, path):
+    """A catalogue row's id with its module's namespace; the catalogue writes paths."""
+    return path if ":" in path else f"{entry['modid']}:{path}"
+
+
+def worlds():
+    """Every dimension the catalogue knows, plus the base game's three."""
+    known = set(WORLDS)
+    for entry in catalogue().values():
+        for row in entry.get("kinds", {}).get("Dimensions", []):
+            known.add(qualified(entry, row[0]))
+    return sorted(known)
+
+
+def world_name(world):
+    if world in WORLDS:
+        return WORLDS[world]
+    return world.split(":", 1)[1].replace("_", " ").title()
 
 
 def language(quests, chapters):
     entries = dict(LINES)
+    for world in worlds():
+        entries[f"{NS}.world.{world.replace(':', '.')}"] = world_name(world)
     for chapter in chapters:
         title, why = CHAPTERS[chapter]
         entries[f"{NS}.chapter.{chapter}"] = title
@@ -396,6 +498,35 @@ def book():
     return image
 
 
+def tags():
+    """One tag file per family and registry, every entry optional."""
+    made = 0
+    every = set()
+    for ids in FAMILIES.values():
+        every.update(ids)
+    registry = kinds_of(every)
+    for family, ids in sorted(FAMILIES.items()):
+        by = {"item": [], "block": [], "entity_type": []}
+        for one in ids:
+            kind = registry.get(one)
+            if kind == "block":
+                by["block"].append(one)
+                by["item"].append(one)
+            elif kind == "creature":
+                by["entity_type"].append(one)
+            else:
+                by["item"].append(one)
+        for folder, members in by.items():
+            if not members:
+                continue
+            write(os.path.join(DATA, "tags", folder, family + ".json"), {
+                "replace": False,
+                "values": [{"id": one, "required": False} for one in members],
+            })
+            made += 1
+    return made
+
+
 def files(quests, chapters):
     os.makedirs(os.path.join(ASSETS, "textures/item"), exist_ok=True)
     book().save(os.path.join(ASSETS, "textures/item/almanac.png"))
@@ -407,7 +538,7 @@ def files(quests, chapters):
         "ingredients": [{"item": "minecraft:book"}, {"item": "minecraft:feather"}],
         "result": {"id": f"{NS}:almanac", "count": 1},
     })
-    return 3
+    return 3 + tags()
 
 
 if __name__ == "__main__":
@@ -420,5 +551,5 @@ if __name__ == "__main__":
         sys.exit(1)
     made = files(quests, chapters)
     keys = language(quests, chapters)
-    print(f"almanac: {len(chapters)} chapter(s), {len(quests)} quest(s), {made} file(s), "
-          f"{keys} language key(s)")
+    print(f"almanac: {len(chapters)} chapter(s), {len(quests)} quest(s), {len(FAMILIES)} "
+          f"famil(ies), {made} file(s), {keys} language key(s)")

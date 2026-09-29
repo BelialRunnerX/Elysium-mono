@@ -180,3 +180,19 @@ why it is worth doing; never a restatement of the title).
   one at a time. Write long patch scripts with the Write tool, not heredocs.
 * Core generators run in order gen_data → art/build.py → gen_material_gear.py, then
   `git checkout` starting_kit.json.
+
+## 6. Progress notes
+
+* **28 Sep, late evening — step 1, the questbook's machinery, built and green.** elysium-almanac
+  now has twelve task kinds (HAVE, PLACE, VISIT, SLAY, READ, CRAFT, BREAK, USE, EAT, SMELT, LEVEL,
+  WEB), `#tag` subjects with generated family tags, a TALLY attachment counting events from the
+  first one, rewards by rule (20 + 10 a step of depth + 10 an extra task, capped 320) or by
+  declaration (`AlmanacRules.REWARDS`), claimed from the step screen's last row over the
+  `AlmanacClaim` payload into `ElysiumCharacter.addXp`, a `/almanac status|claim|finish|reset`
+  command, and a StepScreen that names blocks, entities and worlds. Validator: tags and worlds
+  resolved against the tree, rewards paid once and only for done steps, every kind answered
+  and labelled, the level curve held against the library's. Harness: kinds and rewards (the
+  71-quest book is worth level 32). Found and fixed on the way: the `luna` quest visited
+  `elysiumspace:luna`, a dimension that does not exist (the moon is `pale_moon`); the validator
+  now refuses a VISIT to a world nothing ships. Compile green. Content drafting by seven
+  subagents is in flight (drafts + brief + checker in the session scratchpad `drafts/`).

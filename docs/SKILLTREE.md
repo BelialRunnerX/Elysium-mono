@@ -33,9 +33,9 @@ Deep by walking different halves of the web.
 
 ## Points
 
-One passive point per character level from level two, separate from the ten
-stat points a level already gives. The web is 419 nodes; you will not hold it
-all. Take a node by clicking it when it is lit — lit means it touches
+Three passive points per character level from level two (Dylan, 28 September
+2026: "3 per level"), separate from the ten stat points a level already gives.
+The web is 419 nodes; a level-fifty character holds about a third of it. Take a node by clicking it when it is lit — lit means it touches
 something you hold and you have a point free. Hover any node to read what it
 gives.
 

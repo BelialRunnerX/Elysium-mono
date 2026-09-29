@@ -49,6 +49,11 @@ public final class TreeHarness {
         }
         List<ElysiumTree.Node> all = ElysiumTree.all();
         check(all.size() >= 400, "the web is " + all.size() + " node(s); four hundred and more is the size asked for");
+        // Fifty levels' points, twice over: a web a mid-game character could hold
+        // whole is a picture with nothing left to choose.
+        int fiftyLevels = 50 * ElysiumTreeRules.POINTS_PER_LEVEL;
+        check(all.size() >= 2 * fiftyLevels, "fifty levels buy " + fiftyLevels + " nodes and the web is "
+                + all.size() + "; the web must be at least twice what fifty levels buy, or a build is the whole web");
 
         // Positions: none shared, none too close to draw.
         for (int i = 0; i < all.size(); i++) {

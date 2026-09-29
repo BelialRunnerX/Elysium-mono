@@ -43,8 +43,18 @@ public final class ElysiumTreeRules {
     // The point rule
     // ------------------------------------------------------------------
 
-    /** Passive points per character level. */
-    public static final int POINTS_PER_LEVEL = 1;
+    /**
+     * Passive points per character level.
+     *
+     * <p>Three, not one (Dylan, 28 September 2026: "tie skill points to the
+     * character elysium level, 3 per level"). One point a level made a level a
+     * small event on a web of four hundred nodes; three makes every level a
+     * step across a cluster, and means a level-fifty character holds around a
+     * third of the web rather than a tenth — which is the argument for the web
+     * growing, and the harness holds the web to at least twice what fifty
+     * levels buy.
+     */
+    public static final int POINTS_PER_LEVEL = 3;
 
     /** The first level that grants a point: level 1 has its start allocated for free and nothing else. */
     public static final int FIRST_POINT_LEVEL = 2;

@@ -70,22 +70,73 @@ public final class AlmanacRules {
         SLAY,
 
         /** Nothing: a page of instructions with a button on it. */
-        READ
+        READ,
+
+        /** Make one of these at a bench: the recipe, not the having. */
+        CRAFT,
+
+        /** Break this many of these: mining and digging are the same verb here. */
+        BREAK,
+
+        /** Right-click one: open the machine, pull the lever, look at the readout. */
+        USE,
+
+        /** Eat this many of these. */
+        EAT,
+
+        /** Take this many of these out of a furnace. */
+        SMELT,
+
+        /** Reach this character level. */
+        LEVEL,
+
+        /** Hold this many nodes on the Ledger Web. */
+        WEB;
+
+        /**
+         * Whether the kind is answered by a running count of events rather than
+         * by looking at the player. A counted task is credited from the first
+         * time it happens, whether or not the quest was open, so a player who
+         * has already broken forty stone is not asked for forty more.
+         */
+        public boolean counted() {
+            return this == PLACE || this == SLAY || this == BREAK || this == CRAFT
+                    || this == USE || this == EAT || this == SMELT;
+        }
     }
 
     /**
      * One thing a quest asks for.
      *
      * @param kind  what sort of asking it is
-     * @param what  an item id, a block id or a dimension id; empty for READ
-     * @param count how many, for the kinds that count
+     * @param what  an item id, a block id, an entity id or a dimension id, or
+     *              a tag as {@code #namespace:path} where a tag can stand in
+     *              (anything but VISIT, LEVEL and WEB); empty for READ, LEVEL
+     *              and WEB, whose subject is the player
+     * @param count how many, for the kinds that count; the level or the node
+     *              count for LEVEL and WEB
      */
     public record Task(Kind kind, String what, int count) {
 
+        /** Whether the subject is a tag rather than one id. */
+        public boolean tag() {
+            return what.startsWith("#");
+        }
+
+        /** The id or tag id without the tag mark. */
+        public String subject() {
+            return tag() ? what.substring(1) : what;
+        }
+
         public Task {
-            if (kind != Kind.READ && what.isBlank()) {
+            boolean aboutThePlayer = kind == Kind.READ || kind == Kind.LEVEL || kind == Kind.WEB;
+            if (!aboutThePlayer && what.isBlank()) {
                 throw new IllegalArgumentException("a task that asks for nothing in "
                         + "particular cannot be completed by anything in particular");
+            }
+            if (what.startsWith("#") && (kind == Kind.VISIT || aboutThePlayer)) {
+                throw new IllegalArgumentException("a tag cannot stand in for a world or "
+                        + "for the player");
             }
             if (count < 1) {
                 throw new IllegalArgumentException("a task that wants none of something "
@@ -113,6 +164,172 @@ public final class AlmanacRules {
         public static Task read() {
             return new Task(Kind.READ, "", 1);
         }
+
+        public static Task craft(String item, int count) {
+            return new Task(Kind.CRAFT, item, count);
+        }
+
+        /** Break this many of a block; "mine" because "break" is a word Java keeps. */
+        public static Task mine(String block, int count) {
+            return new Task(Kind.BREAK, block, count);
+        }
+
+        public static Task use(String block) {
+            return new Task(Kind.USE, block, 1);
+        }
+
+        public static Task eat(String item, int count) {
+            return new Task(Kind.EAT, item, count);
+        }
+
+        public static Task smelt(String item, int count) {
+            return new Task(Kind.SMELT, item, count);
+        }
+
+        public static Task level(int level) {
+            return new Task(Kind.LEVEL, "", level);
+        }
+
+        public static Task web(int nodes) {
+            return new Task(Kind.WEB, "", nodes);
+        }
+    }
+
+    // ==================================================================
+    // Rewards
+    // ==================================================================
+
+    /** Something handed over: an item id and how many. */
+    public record Give(String item, int count) {
+
+        public Give {
+            if (!item.contains(":")) {
+                throw new IllegalArgumentException("a reward that is not a namespaced id "
+                        + "is a reward nothing can hand over");
+            }
+            if (count < 1) {
+                throw new IllegalArgumentException("a reward of none of something");
+            }
+        }
+    }
+
+    /**
+     * What finishing a quest pays: character experience, and perhaps things.
+     *
+     * <h2>Why experience</h2>
+     *
+     * The character level is the one currency every other system already
+     * reads — the stat points, the Ledger Web's points — so a book that pays
+     * in it is a book that moves the character on rather than a book that
+     * fills a chest. The items are the flourish: a stack of the thing the next
+     * step needs, so a reward is also a direction.
+     *
+     * <p>Claimed in the book, not dropped on the floor, so a player who finished
+     * a step by accident in a cave is not showered with iron there.
+     */
+    public record Reward(int xp, List<Give> gives) {
+
+        public Reward {
+            if (xp < 1) {
+                throw new IllegalArgumentException("a quest that pays nothing is a "
+                        + "checklist entry, and the reason the book has rewards at all "
+                        + "is to not be one");
+            }
+            gives = List.copyOf(gives);
+        }
+
+        public static Reward of(int xp, Give... gives) {
+            return new Reward(xp, List.of(gives));
+        }
+
+        /** Whether it hands anything over besides the experience. */
+        public boolean things() {
+            return !gives.isEmpty();
+        }
+    }
+
+    /** Experience for a step with nothing behind it. */
+    public static final int XP_BASE = 20;
+
+    /** More for every step of chain behind a quest: the deeper, the dearer. */
+    public static final int XP_PER_DEPTH = 10;
+
+    /** More for every task beyond the first a quest asks for at once. */
+    public static final int XP_PER_TASK = 10;
+
+    /** The most a step may pay, however deep and however many-headed. */
+    public static final int XP_MOST = 320;
+
+    /**
+     * The level curve, copied from the library so the harness can add the book
+     * up without a game. The validator holds these against the library's own
+     * numbers; if they drift, the build says so.
+     */
+    public static final int LEVEL_XP_BASE = 100;
+    public static final int LEVEL_XP_PER_LEVEL = 10;
+
+    /** Experience from one level to the next, the library's rule. */
+    public static int xpToNext(int level) {
+        return LEVEL_XP_BASE + LEVEL_XP_PER_LEVEL * Math.max(0, level);
+    }
+
+    /** The level a character starting at one reaches on this much experience. */
+    public static int levelAfter(long xp) {
+        int level = 1;
+        long left = xp;
+        while (left >= xpToNext(level) && level < 1000) {
+            left -= xpToNext(level);
+            level++;
+        }
+        return level;
+    }
+
+    /**
+     * The rewards declared by hand: the ones that hand something over. Every
+     * other quest pays by the rule below, so a new quest is never a quest that
+     * pays nothing because nobody remembered to say.
+     */
+    public static final Map<String, Reward> REWARDS = Map.ofEntries(
+            Map.entry("welcome", Reward.of(XP_BASE, new Give("minecraft:torch", 16))),
+            Map.entry("crank", Reward.of(40, new Give("minecraft:oak_log", 8))),
+            Map.entry("millstone", Reward.of(80, new Give("minecraft:cobblestone", 32))),
+            Map.entry("water_wheel", Reward.of(80, new Give("minecraft:water_bucket", 1))),
+            Map.entry("alternator", Reward.of(120, new Give("minecraft:copper_ingot", 16))),
+            Map.entry("steel", Reward.of(160, new Give("minecraft:coal", 32))),
+            Map.entry("controller", Reward.of(120, new Give("minecraft:hopper", 4))),
+            Map.entry("reactor", Reward.of(240, new Give("minecraft:water_bucket", 4))),
+            Map.entry("starsteel", Reward.of(XP_MOST, new Give("minecraft:diamond", 4))),
+            Map.entry("luna", Reward.of(XP_MOST, new Give("minecraft:golden_apple", 2))),
+            Map.entry("the_hollow_lord", Reward.of(XP_MOST, new Give("minecraft:diamond", 3))),
+            Map.entry("the_grave", Reward.of(40, new Give("minecraft:bread", 8))),
+            Map.entry("the_compass", Reward.of(60, new Give("minecraft:map", 1))));
+
+    /**
+     * What finishing a quest pays: the declared reward, or the rule.
+     *
+     * <p>The rule pays for depth and for breadth. A step ten deep is a step a
+     * player built ten things to reach; a step asking for three beasts at once
+     * is three hunts. Capped, because the deepest chain in the book is not
+     * worth a level on its own.
+     */
+    public static Reward rewardOf(String id) {
+        Reward declared = REWARDS.get(id);
+        if (declared != null) {
+            return declared;
+        }
+        Quest quest = BY_ID.get(id);
+        int tasks = quest == null ? 1 : quest.tasks().size();
+        int xp = XP_BASE + XP_PER_DEPTH * depthOf(id) + XP_PER_TASK * (tasks - 1);
+        return Reward.of(Math.min(XP_MOST, xp));
+    }
+
+    /** Everything the whole book pays, for a player who does all of it. */
+    public static long totalXp() {
+        long total = 0;
+        for (Quest quest : QUESTS) {
+            total += rewardOf(quest.id()).xp();
+        }
+        return total;
     }
 
     /**
@@ -327,7 +544,7 @@ public final class AlmanacRules {
             // --- The Frontier: somewhere else entirely ---------------------
             quest("look_up", "frontier", List.of("cell"), Task.read()),
             quest("luna", "frontier", List.of("look_up"),
-                    Task.visit("elysiumspace:luna")),
+                    Task.visit("elysiumspace:pale_moon")),
 
             // --- The Dark: something to hit things with, and the things ----
             quest("first_blade", "the_dark", List.of("welcome"),

@@ -1,6 +1,7 @@
 package com.elysium.almanac.registry;
 
 import com.elysium.almanac.ElysiumAlmanac;
+import com.elysium.almanac.rules.AlmanacRules;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -83,6 +84,109 @@ public final class AlmanacAttachments {
                                     .decode((RegistryFriendlyByteBuf) buffer)))
                     .copyOnDeath()
                     .build());
+
+    /**
+     * How many times each counted task has happened: "kind what" then count.
+     *
+     * <p>One list for every kind that is answered by an event — placing,
+     * breaking, crafting, using, eating, smelting — keyed by the task's own
+     * kind and subject, so a task naming a tag is counted under the tag and a
+     * task naming one block under the block. Same shape as the kill tally and
+     * for the same reasons.
+     */
+    public static final Supplier<AttachmentType<List<String>>> TALLY =
+            ATTACHMENTS.register("tally", () -> AttachmentType
+                    .<List<String>>builder(() -> List.of())
+                    .serialize(Codec.STRING.listOf())
+                    .sync(StreamCodec.of(
+                            (buffer, value) -> ByteBufCodecs.STRING_UTF8
+                                    .apply(ByteBufCodecs.list())
+                                    .encode((RegistryFriendlyByteBuf) buffer, value),
+                            buffer -> ByteBufCodecs.STRING_UTF8
+                                    .apply(ByteBufCodecs.list())
+                                    .decode((RegistryFriendlyByteBuf) buffer)))
+                    .copyOnDeath()
+                    .build());
+
+    /** Every quest whose reward this player has taken. */
+    public static final Supplier<AttachmentType<List<String>>> CLAIMED =
+            ATTACHMENTS.register("claimed", () -> AttachmentType
+                    .<List<String>>builder(() -> List.of())
+                    .serialize(Codec.STRING.listOf())
+                    .sync(StreamCodec.of(
+                            (buffer, value) -> ByteBufCodecs.STRING_UTF8
+                                    .apply(ByteBufCodecs.list())
+                                    .encode((RegistryFriendlyByteBuf) buffer, value),
+                            buffer -> ByteBufCodecs.STRING_UTF8
+                                    .apply(ByteBufCodecs.list())
+                                    .decode((RegistryFriendlyByteBuf) buffer)))
+                    .copyOnDeath()
+                    .build());
+
+    /** The tally key of a counted task: its kind and its subject. */
+    public static String key(AlmanacRules.Task task) {
+        return task.kind().name().toLowerCase(java.util.Locale.ROOT) + " " + task.what();
+    }
+
+    /** How many times a counted task has happened for this player. */
+    public static int count(Player player, AlmanacRules.Task task) {
+        return countOf(player.getData(TALLY.get()), key(task));
+    }
+
+    private static int countOf(List<String> tally, String key) {
+        for (int at = 0; at + 1 < tally.size(); at += 2) {
+            if (tally.get(at).equals(key)) {
+                try {
+                    return Integer.parseInt(tally.get(at + 1));
+                } catch (NumberFormatException broken) {
+                    return 0;
+                }
+            }
+        }
+        return 0;
+    }
+
+    /** Count a counted task this many more. Replaced, not mutated, like the rest. */
+    public static void bump(Player player, AlmanacRules.Task task, int by) {
+        String key = key(task);
+        List<String> was = player.getData(TALLY.get());
+        List<String> now = new ArrayList<>(was);
+        for (int at = 0; at + 1 < now.size(); at += 2) {
+            if (now.get(at).equals(key)) {
+                now.set(at + 1, Integer.toString(countOf(was, key) + by));
+                player.setData(TALLY.get(), List.copyOf(now));
+                return;
+            }
+        }
+        now.add(key);
+        now.add(Integer.toString(by));
+        player.setData(TALLY.get(), List.copyOf(now));
+    }
+
+    /** Whether the reward for a quest has been taken. */
+    public static boolean claimed(Player player, String quest) {
+        return player.getData(CLAIMED.get()).contains(quest);
+    }
+
+    /** Mark a reward taken. True when it was not already. */
+    public static boolean claim(Player player, String quest) {
+        List<String> was = player.getData(CLAIMED.get());
+        if (was.contains(quest)) {
+            return false;
+        }
+        List<String> now = new ArrayList<>(was);
+        now.add(quest);
+        player.setData(CLAIMED.get(), List.copyOf(now));
+        return true;
+    }
+
+    /** Everything back to the first evening, for a command: the book is handed out again too. */
+    public static void reset(Player player) {
+        player.setData(DONE.get(), List.of());
+        player.setData(SLAIN.get(), List.of());
+        player.setData(TALLY.get(), List.of());
+        player.setData(CLAIMED.get(), List.of());
+    }
 
     /** How many of this the player has killed. */
     public static int slain(Player player, String what) {
