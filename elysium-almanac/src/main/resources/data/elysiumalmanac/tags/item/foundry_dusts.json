@@ -1,0 +1,97 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumfoundry:tin_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:zinc_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:nickel_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:silver_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:lead_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:aluminum_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:osmium_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:platinum_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:lithium_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:crimson_iron_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:azure_silver_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:bronze_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:brass_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:cast_iron_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:electrum_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:invar_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:constantan_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:stainless_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:signal_alloy_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:hardened_bronze_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:void_steel_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:starsteel_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:coal_dust",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumlogistics:timber_drawer",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:brass_drawer",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:steel_drawer",
+      "required": false
+    }
+  ]
+}

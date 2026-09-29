@@ -1,0 +1,117 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumtrinkets:ashen_mantle",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:auditors_seal",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:carrion_drone",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:carrion_signet",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:cartographers_nail",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:cracked_reliquary",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:deadmans_ledger",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:debtors_knot",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:duellists_cuff",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:empty_reliquary",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:gravebound_coil",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:hollow_chime",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:iron_discipline",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:lattice_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:long_memory",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:longsight",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:mote",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:nine_tenths_charm",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:pale_tourniquet",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:prospectors_lens",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:purge_drone",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:quiet_hours",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:ratchet_gauntlet",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:reforgers_loupe",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:splintbone_fetish",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:tithe_bracelet",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:unsworn_bell",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:widows_thimble",
+      "required": false
+    }
+  ]
+}

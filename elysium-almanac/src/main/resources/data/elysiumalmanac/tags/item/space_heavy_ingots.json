@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:neptunium_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:plutonium_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:heavy_metal_ingot",
+      "required": false
+    }
+  ]
+}

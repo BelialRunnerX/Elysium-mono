@@ -1,0 +1,125 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarcana:iron_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:copper_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:gold_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:tin_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:zinc_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:nickel_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:silver_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lead_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:aluminum_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:osmium_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:platinum_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lithium_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:crimson_iron_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:azure_silver_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uranium_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:bort_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:certus_quartz_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:fluorite_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:rime_shard_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uraninite_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:coal_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:redstone_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lapis_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:quartz_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:amethyst_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:diamond_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:emerald_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:ancient_debris_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:glowstone_tinted_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:obsidian_tinted_glass",
+      "required": false
+    }
+  ]
+}

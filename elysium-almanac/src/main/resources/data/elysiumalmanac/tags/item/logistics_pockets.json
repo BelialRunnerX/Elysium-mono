@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumlogistics:small_pocket",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:large_pocket",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:deep_pocket",
+      "required": false
+    }
+  ]
+}

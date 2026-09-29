@@ -1,0 +1,153 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:netherrack_aluminum_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_amber_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_azure_silver_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_bort_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_certus_quartz_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_cindrium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_coal_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_cobalt_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_copper_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_cryonite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_diamond_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_emerald_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_fluorite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_frostite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_gold_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_iron_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_jade_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_lapis_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_lead_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_lithium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_lunite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_nickel_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_null_amethyst_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_osmium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_pearlium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_platinum_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_pyratite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_redstone_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_rime_shard_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_ruby_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_sapphire_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_silver_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_steel_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_tin_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_uraninite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_uranium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_zinc_ore",
+      "required": false
+    }
+  ]
+}

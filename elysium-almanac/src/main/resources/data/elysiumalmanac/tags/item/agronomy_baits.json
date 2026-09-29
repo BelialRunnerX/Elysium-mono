@@ -1,0 +1,49 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:river_bait",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lake_bait",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:marsh_bait",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:reef_bait",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ocean_bait",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:deep_bait",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:abyss_bait",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:arctic_bait",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cave_bait",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nether_bait",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:end_bait",
+      "required": false
+    }
+  ]
+}

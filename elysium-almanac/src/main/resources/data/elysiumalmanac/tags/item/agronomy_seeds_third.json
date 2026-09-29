@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:gold_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:osmium_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:amethyst_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:fluorite_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:certus_quartz_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:obsidian_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:crimson_iron_seed",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:barley_seeds",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cabbage_seeds",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:chili_seeds",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:garlic_seeds",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ginger_seeds",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:onion_seeds",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:rice_seeds",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tomato_seeds",
+      "required": false
+    }
+  ]
+}

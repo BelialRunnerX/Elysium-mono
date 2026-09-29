@@ -1061,9 +1061,11 @@ else:
             fail(f"a ruin {_why} ({_forbidden!r} in settle/Ruins.java); a ruin is what a town is not")
     for _needed, _why in (("Colonies.blueprintOf(", "reads its blueprint anywhere but through the seam"),
                           ("RuinRules.keep(", "places every block, so it is a building, not a ruin"),
+                          ("RuinRules.keep(seed, at.getX(), row, at.getZ(), height,",
+                           "decays by the height in the world rather than the row in the building, so every block reads as roof"),
                           ("RuinRules.weathered(", "leaves its stone unweathered"),
                           ("RuinRules.flimsy(", "keeps glass and cloth a ruin would have lost"),
-                          ('equals("minecolonies")', "keeps the host's own blocks, a hut in a ruin"),
+                          ("RuinRules.hostBlock(", "keeps the host's own blocks, a hut in a ruin, or its blueprint placeholders"),
                           ("setBlockEntityLootTable(", "leaves a chest with nothing in it")):
         if _needed not in _ruins_text:
             fail(f"settle/Ruins.java {_why} ({_needed!r} is gone)")

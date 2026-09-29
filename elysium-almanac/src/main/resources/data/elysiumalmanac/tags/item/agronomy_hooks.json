@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:iron_hook",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:barbed_hook",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:double_hook",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gilded_hook",
+      "required": false
+    }
+  ]
+}

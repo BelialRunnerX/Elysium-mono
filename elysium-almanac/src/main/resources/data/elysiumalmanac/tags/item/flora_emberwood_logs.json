@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumflora:emberwood_log",
+      "required": false
+    },
+    {
+      "id": "elysiumflora:emberwood_wood",
+      "required": false
+    },
+    {
+      "id": "elysiumflora:stripped_emberwood_log",
+      "required": false
+    },
+    {
+      "id": "elysiumflora:stripped_emberwood_wood",
+      "required": false
+    }
+  ]
+}

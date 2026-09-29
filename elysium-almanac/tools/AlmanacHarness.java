@@ -186,7 +186,9 @@ public final class AlmanacHarness {
                             + "does not have — so it is in no chapter and is never shown");
             check(!quest.tasks().isEmpty(), quest.id() + " asks for nothing");
             for (AlmanacRules.Task task : quest.tasks()) {
-                if (task.kind() != AlmanacRules.Kind.READ) {
+                boolean aboutThePlayer = task.kind() == AlmanacRules.Kind.READ
+                        || task.kind() == AlmanacRules.Kind.LEVEL || task.kind() == AlmanacRules.Kind.WEB;
+                if (!aboutThePlayer) {
                     check(task.what().contains(":"),
                             quest.id() + " asks for " + task.what() + ", which is not a "
                                     + "namespaced id and can therefore never be matched");

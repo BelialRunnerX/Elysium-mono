@@ -1,0 +1,45 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumtrinkets:auditors_seal",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:deadmans_ledger",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:debtors_knot",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:favored_sigil",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:long_memory",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:nine_tenths_charm",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:potion_charm",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:prospect_charm",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:shrouded_sigil",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:splintbone_fetish",
+      "required": false
+    }
+  ]
+}

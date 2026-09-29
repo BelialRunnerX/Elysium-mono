@@ -1,0 +1,85 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:copper_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:copper_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:copper_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:copper_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:iron_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:iron_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:iron_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:iron_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:gold_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:gold_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:gold_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:gold_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:diamond_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:diamond_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:diamond_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:diamond_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:netherite_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:netherite_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:netherite_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:netherite_spear",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:fenstag",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:dunecharger",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:ferrox",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:cragmole",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:quillmite",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:brackhide",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:cragwing",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:mirewing",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:ashwing",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:glassfin",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:chromefin",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:shaleshell",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:breeding_upgrade",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:capacity_upgrade",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:collection_upgrade",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:flowering_upgrade",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:sampling_upgrade",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:simulation_upgrade",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:speed_upgrade",
+      "required": false
+    }
+  ]
+}

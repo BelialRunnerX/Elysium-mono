@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:absorption_hopper",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:experience_tap",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:experience_press",
+      "required": false
+    }
+  ]
+}

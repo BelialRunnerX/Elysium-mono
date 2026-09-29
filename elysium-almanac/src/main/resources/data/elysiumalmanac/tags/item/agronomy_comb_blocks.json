@@ -1,0 +1,389 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:aluminum_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:amber_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:amethyst_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:aurora_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:azure_silver_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bathysteel_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bio_culture_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:biolith_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blaze_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blight_crystal_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bone_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bort_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:brass_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bronze_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:canopy_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cast_iron_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cavern_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:certus_quartz_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:clay_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:coal_dust_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cobalt_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:constantan_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:copper_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:crimson_iron_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:diamond_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:dune_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:electrum_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ember_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ember_slag_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:emerald_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ender_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:experience_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:fluorite_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:forest_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:glacier_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:glassy_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:glowing_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gold_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gunpowder_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:hardened_bronze_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:hemalite_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:hollow_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ink_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:invar_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:iron_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:jade_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lapis_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lead_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lithium_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:marsh_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:meadow_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mountainside_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mycelial_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:netherite_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nickel_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nightgold_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:null_amethyst_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:null_shard_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nullsteel_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:obsidian_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:osmium_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pearlium_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:platinum_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pressure_shell_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:prismarine_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pyratite_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:quartz_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:redstone_dust_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:relic_shard_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:relicsteel_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:rime_shard_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ruby_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:sapphire_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:sculk_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:signal_alloy_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:silver_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:skylark_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:slagsteel_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:slimy_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:sootfall_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:stainless_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:starsteel_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:steel_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:stone_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:string_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:sugar_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tide_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tin_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:uraninite_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:uranium_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:void_steel_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:voidtouched_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:water_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:wax_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:wither_bound_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:zinc_comb_block",
+      "required": false
+    }
+  ]
+}

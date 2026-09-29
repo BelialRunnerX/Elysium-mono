@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:cracked_mud_bricks",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cracked_mud_brick_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cracked_mud_brick_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:infested_mud_bricks",
+      "required": false
+    }
+  ]
+}

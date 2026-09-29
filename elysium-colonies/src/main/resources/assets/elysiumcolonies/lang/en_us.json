@@ -38,6 +38,8 @@
   "elysium.colony.port.short": "The tether is %s blocks; a spaceport needs %s.",
   "elysium.colony.port.sold": "Shipped %s x %s for %s. The treasury holds %s.",
   "elysium.colony.raised": "%s has raised one of its own buildings to level %s.",
+  "elysium.colony.ruin.declined": "No ruin here; the server log says why.",
+  "elysium.colony.ruin.raised": "A ruin stands at %s.",
   "elysium.colony.siting.owner": "Siting: yours to decide (%s, %s days since you were last here).",
   "elysium.colony.siting.owner.never": "Siting: yours to decide (%s, you have not stood here yet).",
   "elysium.colony.siting.town": "Siting: the town decides (%s, %s days unattended).",

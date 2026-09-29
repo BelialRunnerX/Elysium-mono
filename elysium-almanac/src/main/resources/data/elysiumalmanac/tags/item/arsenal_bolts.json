@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:iron_bolt",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:piercing_bolt",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:shattering_bolt",
+      "required": false
+    }
+  ]
+}

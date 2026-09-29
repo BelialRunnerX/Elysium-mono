@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumkinetics:timber_shaft",
+      "required": false
+    },
+    {
+      "id": "elysiumkinetics:brass_shaft",
+      "required": false
+    }
+  ]
+}

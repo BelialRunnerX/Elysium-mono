@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:raw_lunite",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:raw_cindrium",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:raw_cryonite",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:raw_frostite",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:raw_steel",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:raw_neptunium",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:raw_plutonium",
+      "required": false
+    }
+  ]
+}

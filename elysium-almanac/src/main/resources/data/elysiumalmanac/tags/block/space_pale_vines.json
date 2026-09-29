@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:pale_vines",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_vines_plant",
+      "required": false
+    }
+  ]
+}

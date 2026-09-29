@@ -1,0 +1,941 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:aluminum_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:aluminum_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:aluminum_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:aluminum_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:aluminum_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:aluminum_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:aluminum_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:aluminum_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:aluminum_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:aluminum_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:aluminum_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:aluminum_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:aluminum_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:brass_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:brass_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:brass_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:brass_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:brass_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:brass_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:brass_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:brass_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:brass_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:brass_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:brass_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:brass_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:brass_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:bronze_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:bronze_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:bronze_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:bronze_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:bronze_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:bronze_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:bronze_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:bronze_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:bronze_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:bronze_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:bronze_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:bronze_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:bronze_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:cobalt_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:cobalt_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:cobalt_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:cobalt_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:cobalt_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:cobalt_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:cobalt_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:cobalt_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:cobalt_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:cobalt_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:cobalt_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:cobalt_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:cobalt_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:constantan_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:constantan_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:constantan_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:constantan_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:constantan_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:constantan_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:constantan_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:constantan_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:constantan_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:constantan_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:constantan_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:constantan_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:constantan_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:electrum_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:electrum_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:electrum_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:electrum_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:electrum_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:electrum_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:electrum_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:electrum_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:electrum_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:electrum_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:electrum_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:electrum_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:electrum_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:invar_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:invar_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:invar_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:invar_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:invar_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:invar_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:invar_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:invar_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:invar_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:invar_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:invar_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:invar_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:invar_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:lead_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:lead_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:lead_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:lead_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:lead_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:lead_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:lead_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:lead_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:lead_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:lead_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:lead_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:lead_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:lead_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:nickel_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:nickel_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:nickel_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:nickel_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:nickel_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:nickel_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:nickel_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:nickel_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:nickel_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:nickel_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:nickel_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:nickel_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:nickel_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:osmium_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:osmium_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:osmium_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:osmium_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:osmium_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:osmium_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:osmium_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:osmium_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:osmium_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:osmium_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:osmium_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:osmium_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:osmium_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:platinum_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:platinum_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:platinum_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:platinum_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:platinum_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:platinum_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:platinum_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:platinum_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:platinum_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:platinum_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:platinum_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:platinum_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:platinum_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:silver_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:silver_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:silver_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:silver_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:silver_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:silver_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:silver_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:silver_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:silver_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:silver_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:silver_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:silver_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:silver_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:steel_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:steel_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:steel_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:steel_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:steel_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:steel_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:steel_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:steel_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:steel_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:steel_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:steel_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:steel_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:steel_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:tin_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:tin_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:tin_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:tin_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:tin_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:tin_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:tin_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:tin_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:tin_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:tin_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:tin_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:tin_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:tin_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:titanium_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:titanium_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:titanium_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:titanium_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:titanium_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:titanium_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:titanium_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:titanium_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:titanium_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:titanium_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:titanium_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:titanium_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:titanium_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:tungsten_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:tungsten_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:tungsten_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:tungsten_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:tungsten_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:tungsten_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:tungsten_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:tungsten_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:tungsten_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:tungsten_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:tungsten_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:tungsten_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:tungsten_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:uranium_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:uranium_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:uranium_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:uranium_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:uranium_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:uranium_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:uranium_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:uranium_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:uranium_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:uranium_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:uranium_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:uranium_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:uranium_boots",
+      "required": false
+    },
+    {
+      "id": "elysium:zinc_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:zinc_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:zinc_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:zinc_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:zinc_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:zinc_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:zinc_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:zinc_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:zinc_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:zinc_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:zinc_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:zinc_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:zinc_boots",
+      "required": false
+    }
+  ]
+}

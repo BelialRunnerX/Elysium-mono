@@ -1,0 +1,89 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumsolarpunk:alabaster_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:alabaster_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:alabaster_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:polished_alabaster",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:polished_alabaster_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:polished_alabaster_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:polished_alabaster_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:polished_white_limestone",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:polished_white_limestone_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:polished_white_limestone_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:polished_white_limestone_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:polished_white_marble",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:polished_white_marble_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:polished_white_marble_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:polished_white_marble_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_limestone_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_limestone_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_limestone_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_marble_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_marble_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_marble_wall",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:deepslate_amber_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_azure_silver_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_certus_quartz_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_cindrium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_cobalt_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_crimson_iron_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_cryonite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_frostite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_jade_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_lunite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_null_amethyst_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_pearlium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_pyratite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_quartz_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_rime_shard_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_ruby_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_sapphire_ore",
+      "required": false
+    }
+  ]
+}

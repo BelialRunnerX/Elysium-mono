@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumindustry:crusher",
+      "required": false
+    },
+    {
+      "id": "elysiumindustry:rolling_mill",
+      "required": false
+    },
+    {
+      "id": "elysiumindustry:arc_furnace",
+      "required": false
+    },
+    {
+      "id": "elysiumindustry:separator",
+      "required": false
+    }
+  ]
+}

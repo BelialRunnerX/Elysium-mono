@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:sword",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:katana",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:machete",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:mace",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:dagger",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:knife",
+      "required": false
+    }
+  ]
+}

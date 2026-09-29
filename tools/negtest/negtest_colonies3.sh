@@ -170,12 +170,18 @@ expect "a ruin that founds a colony" "a ruin founds a colony"
 rm -f $D/loot_table/chests/ruin.json
 expect "a ruin chest with no table" "loot table elysiumcolonies:chests/ruin is not shipped"
 
-edit $S/settle/Ruins.java '            if (!RuinRules.keep(seed, at.getX(), at.getY(), at.getZ(), height, RuinRules.wooden(name))) {
+edit $S/settle/Ruins.java '            if (!RuinRules.keep(seed, at.getX(), row, at.getZ(), height, RuinRules.wooden(name))) {
                 continue;
             }' '            if (false) {
                 continue;
             }'
 expect "a ruin that places every block" "places every block, so it is a building"
+
+edit $S/settle/Ruins.java 'RuinRules.keep(seed, at.getX(), row, at.getZ(), height,' 'RuinRules.keep(seed, at.getX(), at.getY(), at.getZ(), height,'
+expect "a ruin decayed by its height in the world" "every block reads as roof"
+
+edit $S/rules/RuinRules.java 'List.of("minecolonies", "structurize");' 'List.of("minecolonies");'
+expect "a ruin that places the blueprint's placeholders" "not both skipped"
 
 echo
 echo "restoring and re-checking"

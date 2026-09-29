@@ -1,0 +1,37 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:glasseye",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:siphon",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:blastjaw",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:plateframe",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:swarmhand",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:pilferhand",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:skimwing",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:bloomlet",
+      "required": false
+    }
+  ]
+}

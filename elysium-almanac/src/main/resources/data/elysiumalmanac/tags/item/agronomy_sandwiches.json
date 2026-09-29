@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:ham_sandwich",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bacon_sandwich",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cheese_sandwich",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cabbage_rolls",
+      "required": false
+    }
+  ]
+}

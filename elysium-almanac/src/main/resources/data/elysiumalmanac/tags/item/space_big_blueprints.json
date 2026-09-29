@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:medium_station_blueprint",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:big_station_blueprint",
+      "required": false
+    }
+  ]
+}

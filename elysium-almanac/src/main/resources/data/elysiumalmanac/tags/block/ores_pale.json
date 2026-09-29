@@ -1,0 +1,149 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:pale_aluminum_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_amber_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_azure_silver_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_bort_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_certus_quartz_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_cindrium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_coal_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_cobalt_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_copper_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_crimson_iron_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_cryonite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_diamond_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_emerald_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_fluorite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_frostite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_gold_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_jade_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_lapis_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_lead_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_lithium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_lunite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_nickel_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_null_amethyst_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_osmium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_pearlium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_platinum_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_pyratite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_quartz_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_redstone_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_ruby_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_sapphire_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_silver_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_tin_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_uraninite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_uranium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_zinc_ore",
+      "required": false
+    }
+  ]
+}

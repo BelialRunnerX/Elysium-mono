@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:thermal_ration",
+      "required": false
+    },
+    {
+      "id": "elysium:cryogenic_ration",
+      "required": false
+    },
+    {
+      "id": "elysium:corrosive_ration",
+      "required": false
+    },
+    {
+      "id": "elysium:radiological_ration",
+      "required": false
+    },
+    {
+      "id": "elysium:pressure_ration",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,401 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_post",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_beam",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_post",
+      "required": false
+    }
+  ]
+}

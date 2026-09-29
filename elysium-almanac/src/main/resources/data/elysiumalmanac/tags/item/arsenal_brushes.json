@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:iron_brush",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_brush",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_brush",
+      "required": false
+    }
+  ]
+}

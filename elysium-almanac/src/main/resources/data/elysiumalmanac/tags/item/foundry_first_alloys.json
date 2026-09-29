@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumfoundry:bronze_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:brass_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:cast_iron_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:electrum_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:invar_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:constantan_ingot",
+      "required": false
+    }
+  ]
+}

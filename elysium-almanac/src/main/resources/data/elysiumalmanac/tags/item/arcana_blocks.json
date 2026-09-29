@@ -1,0 +1,125 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarcana:iron_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:copper_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:gold_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:tin_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:zinc_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:nickel_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:silver_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lead_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:aluminum_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:osmium_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:platinum_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lithium_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:crimson_iron_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:azure_silver_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uranium_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:bort_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:certus_quartz_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:fluorite_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:rime_shard_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uraninite_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:coal_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:redstone_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lapis_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:quartz_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:amethyst_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:diamond_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:emerald_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:ancient_debris_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:glowstone_block",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:obsidian_block",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,245 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:lunite_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_longsword",
+      "required": false
+    }
+  ]
+}

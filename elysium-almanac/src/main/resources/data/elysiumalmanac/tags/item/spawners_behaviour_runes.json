@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspawners:rune_of_indifference",
+      "required": false
+    },
+    {
+      "id": "elysiumspawners:rune_of_darkness",
+      "required": false
+    },
+    {
+      "id": "elysiumspawners:rune_of_tethering",
+      "required": false
+    },
+    {
+      "id": "elysiumspawners:rune_of_stillness",
+      "required": false
+    },
+    {
+      "id": "elysiumspawners:rune_of_silence",
+      "required": false
+    },
+    {
+      "id": "elysiumspawners:rune_of_obedience",
+      "required": false
+    }
+  ]
+}

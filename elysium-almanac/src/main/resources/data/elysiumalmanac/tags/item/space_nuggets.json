@@ -1,0 +1,37 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:lunite_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cindrium_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cryonite_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frostite_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:steel_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:neptunium_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:plutonium_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:heavy_metal_nugget",
+      "required": false
+    }
+  ]
+}

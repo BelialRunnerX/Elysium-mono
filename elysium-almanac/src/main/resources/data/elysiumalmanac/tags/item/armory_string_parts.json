@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:cord",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:fletching",
+      "required": false
+    }
+  ]
+}

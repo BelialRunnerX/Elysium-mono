@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:nullsteel_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_longsword",
+      "required": false
+    }
+  ]
+}

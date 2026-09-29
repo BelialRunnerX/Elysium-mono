@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:raw_cobalt",
+      "required": false
+    },
+    {
+      "id": "elysiumores:raw_pearlium",
+      "required": false
+    }
+  ]
+}

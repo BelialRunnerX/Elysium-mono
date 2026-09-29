@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:cork_bobber",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:glow_bobber",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lead_bobber",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lantern_bobber",
+      "required": false
+    }
+  ]
+}

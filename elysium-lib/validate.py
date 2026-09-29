@@ -3767,6 +3767,7 @@ HARNESSES = [
     ("SoundHarness.java", "SoundHarness", "sound table"),
     ("KindTagsHarness.java", "KindTagsHarness", "kind tags"),
     ("TreeHarness.java", "TreeHarness", "ledger web"),
+    ("XpHarness.java", "com.elysium.lib.character.XpHarness", "experience"),
 ]
 
 # What each harness printed, by label, for the sections below that hold a
@@ -4644,6 +4645,75 @@ if not _web_faults and _web_nodes:
     print(f"the ledger web     : {_web_nodes.group(1)} nodes from the rules, every cluster, keystone, stat and "
           f"refusal with words, the doctrines paired the same way on both sides, the stat sheet counting it, "
           f"the two clicks carried and the state keeping its promises")
+
+# ---------------------------------------------------------------------------
+# Experience from every action (Dylan, 28 Sep 2026: "make sure that all game
+# actions (mining digging, combat etc give skill point xp)")
+# ---------------------------------------------------------------------------
+#
+# The numbers are character/ElysiumXpRules and XpHarness executes them. What is
+# held here is the wiring the harness cannot see: that every source the rules
+# declare is paid by some event, that every payment goes through one door
+# which consults the cap and turns away creative players, that the door is the
+# only place the handler calls addXp, that the kills and ore the standing
+# handler paid before are still paid, and that a player's ledger is dropped
+# when they leave.
+_xp_faults = []
+_xp_rules = COMMENT.sub(" ", read("character/ElysiumXpRules.java")) \
+    if os.path.isfile(os.path.join(SRC, "character/ElysiumXpRules.java")) else ""
+_xp_handler = COMMENT.sub(" ", read("event/ElysiumXpHandler.java")) \
+    if os.path.isfile(os.path.join(SRC, "event/ElysiumXpHandler.java")) else ""
+if not _xp_rules:
+    _xp_faults.append("character/ElysiumXpRules.java is missing, so no action but a kill pays experience")
+if not _xp_handler:
+    _xp_faults.append("event/ElysiumXpHandler.java is missing, so the rules pay nothing")
+if _xp_rules and _xp_handler:
+    for _forbidden in ("net.minecraft", "net.neoforged", "com.mojang"):
+        if _forbidden in _xp_rules:
+            _xp_faults.append(f"ElysiumXpRules reaches for {_forbidden}; the rules are the JDK alone so the "
+                              f"harness can hold them")
+    _enum = _xp_rules[_xp_rules.find("public enum Source"):]
+    _enum = _enum[:_enum.find("}")]
+    _sources = re.findall(r"^\s+([A-Z]+)[,\s]*$", _enum, re.M)
+    if len(_sources) < 12:
+        _xp_faults.append(f"only {len(_sources)} source(s) of experience could be read out of the rules")
+    for _source in _sources:
+        if _source in ("MINE", "DIG", "HARVEST"):
+            _paid = "ElysiumXpRules.forBreak(" in _xp_handler
+        else:
+            _paid = f"Source.{_source}" in _xp_handler
+        if not _paid:
+            _xp_faults.append(f"{_source} is a source the rules declare and is never paid, so that action "
+                              f"earns nothing")
+    if _xp_handler.count("ElysiumCharacter.addXp(") != 1:
+        _xp_faults.append(f"the handler calls addXp {_xp_handler.count('ElysiumCharacter.addXp(')} time(s); "
+                          f"one door, or a payment walks past the cap")
+    _door = _xp_handler[_xp_handler.find("public static int pay("):]
+    _door = _door[:_door.find("\n    }\n")]
+    for _needed, _what in (("ElysiumXpRules.allow(", "the cap is never consulted, so a machine placing and "
+                                                     "breaking dirt is a level a minute"),
+                           ("player.isCreative()", "a creative player breaking a mountain is paid for it"),
+                           ("ElysiumXpRules.WINDOW_TICKS", "the window never turns, so the cap is for life"),
+                           ("ElysiumCharacter.addXp(", "the door pays nothing")):
+        if _needed not in _door:
+            _xp_faults.append(f"the handler's door: {_what} ({_needed!r} is gone)")
+    if "LEDGERS.remove(" not in _xp_handler:
+        _xp_faults.append("a player's ledger is kept after they leave, so a server that runs for a month "
+                          "keeps every visitor's")
+    if "@EventBusSubscriber(modid = ElysiumLib.MODID)" not in _xp_handler:
+        _xp_faults.append("the experience handler is not a bus subscriber, so nothing it listens for reaches it")
+_standing = COMMENT.sub(" ", read("event/ElysiumStandingHandler.java"))
+if "ElysiumCharacter.addXp(player, named ? 14 : 4);" not in _standing:
+    _xp_faults.append("a kill no longer pays experience")
+if "ElysiumCharacter.addXp(player, 6);" not in _standing:
+    _xp_faults.append("an ore no longer pays experience")
+for _fault in _xp_faults:
+    fail(_fault)
+_xp_summary = HARNESS_TEXT.get("experience", "")
+if not _xp_faults:
+    print("experience         : " + (_xp_summary.strip().splitlines()[-1] if _xp_summary.strip()
+                                     else "the rules and the handler agree")
+          + "; every source paid through one capped door, kills and ore as before")
 
 # ---------------------------------------------------------------------------
 # Registrations that ride on another class's DeferredRegister

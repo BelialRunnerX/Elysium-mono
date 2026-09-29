@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:bacon_and_eggs",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:steak_and_potatoes",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:fried_rice",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:grilled_fish",
+      "required": false
+    }
+  ]
+}

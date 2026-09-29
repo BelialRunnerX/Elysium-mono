@@ -1,0 +1,41 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:cobalt_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pearlium_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumores:nightgold_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumores:slagsteel_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumores:biolith_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumores:bathysteel_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumores:hemalite_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumores:nullsteel_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumores:relicsteel_nugget",
+      "required": false
+    }
+  ]
+}

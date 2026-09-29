@@ -1,0 +1,37 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:barley",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cabbage",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:chili",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:garlic",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ginger",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:onion",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:rice",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tomato",
+      "required": false
+    }
+  ]
+}

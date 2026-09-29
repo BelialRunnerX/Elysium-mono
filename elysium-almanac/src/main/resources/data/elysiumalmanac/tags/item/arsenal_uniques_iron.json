@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:whisperfang",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:wardens_edge",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:grovecleaver",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:riverreach",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stoneshaper",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:needlepoint",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:pebblethrower",
+      "required": false
+    }
+  ]
+}

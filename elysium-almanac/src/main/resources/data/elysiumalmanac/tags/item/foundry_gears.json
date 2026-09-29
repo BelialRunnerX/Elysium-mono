@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumfoundry:steel_gear",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:invar_gear",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:stainless_gear",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:starsteel_gear",
+      "required": false
+    }
+  ]
+}

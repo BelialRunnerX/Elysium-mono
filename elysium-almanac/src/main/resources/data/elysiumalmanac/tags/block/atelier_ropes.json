@@ -1,0 +1,49 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_rope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_rope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_rope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_rope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_rope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_rope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_rope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_rope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_rope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_rope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_rope",
+      "required": false
+    }
+  ]
+}

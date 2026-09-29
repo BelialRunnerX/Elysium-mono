@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_scythe",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_scythe",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_scythe",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_scythe",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_scythe",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_scythe",
+      "required": false
+    }
+  ]
+}

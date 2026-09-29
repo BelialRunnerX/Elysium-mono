@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:forgeprime",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:hoarprime",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:staticprime",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:broodprime",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:amethyst_block_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_trapdoor",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,389 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumcomforts:black_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:black_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:black_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:black_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:black_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:black_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:blue_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:blue_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:blue_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:blue_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:blue_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:blue_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:brown_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:brown_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:brown_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:brown_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:brown_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:brown_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:cyan_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:cyan_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:cyan_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:cyan_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:cyan_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:cyan_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:gray_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:gray_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:gray_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:gray_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:gray_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:gray_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:green_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:green_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:green_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:green_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:green_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:green_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_blue_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_blue_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_blue_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_blue_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_blue_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_blue_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_gray_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_gray_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_gray_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_gray_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_gray_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_gray_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:lime_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:lime_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:lime_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:lime_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:lime_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:lime_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:magenta_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:magenta_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:magenta_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:magenta_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:magenta_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:magenta_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:orange_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:orange_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:orange_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:orange_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:orange_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:orange_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:pink_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:pink_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:pink_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:pink_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:pink_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:pink_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:purple_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:purple_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:purple_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:purple_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:purple_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:purple_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:red_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:red_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:red_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:red_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:red_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:red_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:white_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:white_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:white_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:white_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:white_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:white_oak_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:yellow_amethyst_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:yellow_bamboo_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:yellow_copper_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:yellow_glass_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:yellow_iron_chimes",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:yellow_oak_chimes",
+      "required": false
+    }
+  ]
+}

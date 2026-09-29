@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:gold_generator",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:diamond_generator",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:emerald_generator",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:netherite_scrap_generator",
+      "required": false
+    }
+  ]
+}

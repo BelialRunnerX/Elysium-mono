@@ -1,0 +1,49 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:acacia_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bamboo_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:birch_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cherry_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:crimson_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:dark_oak_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:jungle_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mangrove_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:oak_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:spruce_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:warped_cabinet",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,533 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_steep_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_steep_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_steep_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_steep_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_steep_roof_slope",
+      "required": false
+    }
+  ]
+}

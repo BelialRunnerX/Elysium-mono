@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_sabre",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_sabre",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,401 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_shutter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_screen",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_shutter",
+      "required": false
+    }
+  ]
+}

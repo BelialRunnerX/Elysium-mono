@@ -1,0 +1,113 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:ferricbarb",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:dunebarb",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:rimebarb",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:cinderbarb",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:ferrichulk",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:deephulk",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:cinderhulk",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:ferricrunt",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:dartrunt",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:cinderunt",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:feralfang",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:moonfang",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:maskfang",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:cindercharger",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:bonecharger",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:rotcharger",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:ferricecho",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:cinderecho",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:ferricframe",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:rimeframe",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:nullwing",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:haulwing",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:falsecrate",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:talonhulk",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:deepbore",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:spinecaster",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:chromecaller",
+      "required": false
+    }
+  ]
+}

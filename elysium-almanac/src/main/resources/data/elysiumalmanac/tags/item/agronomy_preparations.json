@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:minced_beef",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:minced_pork",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:minced_mutton",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:minced_chicken",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:fish_fillet",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cabbage_leaf",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tomato_paste",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:dough",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cream",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:butter",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:stock",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pasta",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pie_crust",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cheese_wheel",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bacon",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ham",
+      "required": false
+    }
+  ]
+}

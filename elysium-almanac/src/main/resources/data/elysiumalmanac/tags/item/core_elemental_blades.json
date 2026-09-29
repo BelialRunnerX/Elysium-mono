@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:voidcut_blade",
+      "required": false
+    },
+    {
+      "id": "elysium:plasma_brand",
+      "required": false
+    },
+    {
+      "id": "elysium:neural_lash",
+      "required": false
+    },
+    {
+      "id": "elysium:rift_edge",
+      "required": false
+    },
+    {
+      "id": "elysium:kinetic_maul",
+      "required": false
+    }
+  ]
+}

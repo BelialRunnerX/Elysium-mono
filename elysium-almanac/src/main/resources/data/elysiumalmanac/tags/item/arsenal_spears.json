@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_spear",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_spear",
+      "required": false
+    }
+  ]
+}

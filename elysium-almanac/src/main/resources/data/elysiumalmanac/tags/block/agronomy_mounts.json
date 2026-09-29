@@ -1,0 +1,425 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:abyss_angler_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:amberjack_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:angel_tang_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:arctic_char_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:asp_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:atlantic_cod_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:banner_fish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:barbel_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:basalt_lurker_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bitterling_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:black_swallower_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blazefin_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bleak_minnow_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blind_cavefish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blobfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blue_marlin_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bog_loach_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bone_eater_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bonito_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:boxfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bream_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:brook_trout_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:burbot_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:capelin_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:catfish_wels_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:chimaera_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:chorus_perch_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:chub_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cinder_eel_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:clown_goby_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:coral_grouper_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:crucian_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:deepslate_char_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:dragonfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:dripstone_minnow_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:emberfin_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ender_lamprey_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:frilled_shark_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:glass_squid_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:goblin_shark_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:grayling_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:greenland_halibut_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:grenadier_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:grotto_sculpin_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gudgeon_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gulper_eel_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:haddock_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:halibut_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:harlequin_sweetlips_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:hatchetfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:icefish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:john_dory_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lake_char_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lanternfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lionfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lumpsucker_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mackerel_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:magma_carp_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mahi_mahi_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:marbled_eel_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:marsh_carp_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mirror_carp_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:moray_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mud_sleeper_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nase_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:navaga_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:northern_pike_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:oarfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:orange_roughy_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pale_drifter_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pale_salamander_fish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:parrot_wrasse_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pelican_eel_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pike_perch_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pipefish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:polar_cod_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pollock_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:razorfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:reed_perch_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:reef_snapper_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:river_dace_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:river_eel_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:rudd_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:sea_bass_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:silver_roach_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:singularity_eel_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:slickhead_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:soulfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:spookfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:stone_loach_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:surgeonfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:swamp_gar_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:swordfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tench_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:triggerfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tripod_fish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:turbot_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:vendace_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:viperfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:void_ray_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:weatherfish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:whitefish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:wolffish_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:yellowfin_tuna_mount",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:zander_mount",
+      "required": false
+    }
+  ]
+}

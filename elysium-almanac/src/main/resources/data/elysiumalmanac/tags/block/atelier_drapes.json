@@ -1,0 +1,177 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_curtain",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_curtain",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_curtain",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_curtain",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_curtain",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_curtain",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_curtain",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_curtain",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_curtain",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_curtain",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_curtain",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_drape",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_canopy",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_drape",
+      "required": false
+    }
+  ]
+}

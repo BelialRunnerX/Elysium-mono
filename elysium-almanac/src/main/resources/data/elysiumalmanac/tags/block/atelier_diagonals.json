@@ -1,0 +1,401 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_diagonal_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_diagonal_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_diagonal_pane",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_diagonal_wall",
+      "required": false
+    }
+  ]
+}

@@ -634,27 +634,29 @@ import scenarios_mechanics  # noqa: E402,F401
 @scenario("colonies: a ruin marker raises a decayed building with a chest and founds no town (ROADMAP §3)")
 def colony_ruin(t):
     # The abandoned half of natural colonies: a marker ticks once and leaves what
-    # a building became. On a stone plot far from spawn, the marker set by hand
-    # and the random tick hurried, the plot afterwards holds weathered stone
-    # (mossy or cracked), a chest, and no new settlement.
+    # a building became. A force-loaded chunk with no player near gets no random
+    # ticks, so the marker's tick is the operator command that runs the same
+    # Ruins.raise; on a stone plot far from spawn the plot afterwards holds the
+    # building's stone and wood, a chest, and no new settlement.
+    # The building's full height (a level-one tavern of the default style is twenty
+    # rows), cleared first so a rerun raises onto nothing.
+    x0, z0 = t.ox - 1, t.oz - 1
+    x1, z1 = t.ox + t.PLOT - 2, t.oz + t.PLOT - 2
+    y0, y1 = t.oy + 1, t.oy + 24
+    t.cmd(f"fill {x0} {y0} {z0} {x1} {y1} {z1} minecraft:air")
     before = t.cmd("elysium colony natural")
-    t.setblock(11, 0, 11, "elysiumcolonies:ruin_seed")
-    t.cmd("gamerule randomTickSpeed 4096")
-    t.cmd("tick sprint 200")
-    t.cmd("gamerule randomTickSpeed 3")
-    x0, y0, z0 = t.ox - 1, t.oy - 3, t.oz - 1
-    x1, y1, z1 = t.ox + t.PLOT - 2, t.oy + 12, t.oz + t.PLOT - 2
-    marker = t.cmd(f"execute if block {t.at(11, 0, 11)} elysiumcolonies:ruin_seed")
-    t.expect("passed" not in marker, "the ruin marker is still standing after two hundred hurried ticks")
-    weathered = 0
-    for block in ("minecraft:mossy_cobblestone", "minecraft:mossy_stone_bricks", "minecraft:cracked_stone_bricks",
-                  "minecraft:cobblestone", "minecraft:oak_planks", "minecraft:stone_bricks", "minecraft:oak_log"):
-        out = t.cmd(f"fill {x0} {y0} {z0} {x1} {y1} {z1} minecraft:air replace {block}")
-        digits = "".join(ch for ch in out if ch.isdigit())
-        weathered += int(digits) if digits and "filled" in out else 0
-    t.expect(weathered >= 20, f"the ruin left {weathered} block(s) of its building on the plot; a residence is more than that")
-    chest = t.cmd(f"fill {x0} {y0} {z0} {x1} {y1} {z1} minecraft:air replace minecraft:chest")
-    t.expect("filled" in chest and "0 block" not in chest, f"the ruin left no chest: {chest[:80]}")
+    raised = t.cmd(f"elysium colony ruin {t.at(11, 0, 11)}")
+    t.expect("ruin stands" in raised, f"the ruin was not raised: {raised[:120]}")
+    chest = t.cmd(f"fill {x0} {y0 - 4} {z0} {x1} {y1} {z1} minecraft:air replace minecraft:chest")
+    t.expect("filled" in chest, f"the ruin left no chest: {chest[:80]}")
+    # Everything above the floor, counted by the tool that mines it, whatever the
+    # style pack built with.
+    standing = 0
+    for tool in ("axe", "pickaxe", "shovel", "hoe"):
+        out = t.cmd(f"fill {x0} {y0} {z0} {x1} {y1} {z1} minecraft:air replace #minecraft:mineable/{tool}")
+        digits = "".join(ch for ch in out.split("filled")[-1] if ch.isdigit()) if "filled" in out else ""
+        standing += int(digits) if digits else 0
+    t.expect(standing >= 40, f"the ruin left {standing} block(s) of its building standing; a building is more than that")
     after = t.cmd("elysium colony natural")
     t.expect(before == after, "raising a ruin changed the list of settlements that founded themselves")
 

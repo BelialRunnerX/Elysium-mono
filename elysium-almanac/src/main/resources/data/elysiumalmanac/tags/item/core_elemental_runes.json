@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:voidward_rune",
+      "required": false
+    },
+    {
+      "id": "elysium:plasmaforge_rune",
+      "required": false
+    },
+    {
+      "id": "elysium:neuralspike_rune",
+      "required": false
+    },
+    {
+      "id": "elysium:dimensionalshift_rune",
+      "required": false
+    },
+    {
+      "id": "elysium:kineticsurge_rune",
+      "required": false
+    }
+  ]
+}

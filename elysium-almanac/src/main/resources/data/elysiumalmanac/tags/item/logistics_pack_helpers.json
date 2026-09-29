@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumlogistics:gathering_lens",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:ration_tin",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:restocker",
+      "required": false
+    }
+  ]
+}

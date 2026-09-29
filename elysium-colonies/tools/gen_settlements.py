@@ -302,6 +302,8 @@ WORDS = {
     f"block.{NS}.settlement_seed": "Survey Stake",
     f"block.{NS}.ruin_seed": "Ruin Marker",
     "elysium.colony.claimed": "%s is yours now; its steward steps aside.",
+    "elysium.colony.ruin.raised": "A ruin stands at %s.",
+    "elysium.colony.ruin.declined": "No ruin here; the server log says why.",
     "elysium.colony.claim.none": "You are not standing in a settlement that founded itself.",
     "elysium.colony.natural.header": "%s settlement(s) founded themselves in this world:",
     "elysium.colony.natural.entry": "  %s at %s, %s (%s blocks away, %s citizens, %s order(s) in hand, day %s)",

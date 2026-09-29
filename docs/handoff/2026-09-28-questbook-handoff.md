@@ -196,3 +196,31 @@ why it is worth doing; never a restatement of the title).
   `elysiumspace:luna`, a dimension that does not exist (the moon is `pale_moon`); the validator
   now refuses a VISIT to a world nothing ships. Compile green. Content drafting by seven
   subagents is in flight (drafts + brief + checker in the session scratchpad `drafts/`).
+* **28 Sep, night — step 2, the content and XP for every action.** Seven drafting groups
+  (drafts, brief `QUEST_DRAFT_SPEC.md`, checker `draft_check.py` and `merge_drafts.py` in the
+  session scratchpad `drafts/`) wrote 448 steps; merged, the book is 519 steps over 26 chapters,
+  265 family tags, every catalogued block, item and creature introduced (7,085) or excused with
+  a reason (727), worth level 63 (declared experience halved at the merge). The catalogue
+  (`docs/features.json`) was regenerated: it lacked 21 ids from the 28 September space work.
+  Experience from every action: `ElysiumXpRules` + `ElysiumXpHandler` + `XpHarness` +
+  `negtest_xp.sh`, fourteen sources, capped per minute. Web points are 3 a level (committed
+  0bbc2e6b). Written up in CONVERSION §16.12 and §16.13.
+  **Content gaps the drafting found, for Dylan** (the book names them; a player cannot yet
+  finish those steps): no survival source for arcana shards (the_geodes cannot start); arsenal
+  dig sites, fossils, totems and rotten wood are never placed in a world; the Vale has no
+  entrance (its visit quest was dropped); pigeons never spawn; `neural_leggings`,
+  `dimensional_boots` and the armory `template` have no recipe or drop.
+* **29 Sep, just after midnight — verified and committed.** Root validate green (29 module
+  validators and the cross-checks); negtests almanac 73/0, web 9/0, experience 8/0, colonies3
+  24 caught (its 9 misses are the old stale anchors). In the game on E: (screenshots in
+  `E:	estingbuilds\Elysium\handback\screenshotslmanac` and `\web`): a step finishes on
+  holding its item, the book's three pages draw, a reward is taken from the step's row (40 XP
+  and 8 oak logs, then "Taken."), `/almanac` answers every refusal, mining in survival raised
+  the experience 28 in five seconds, and level 41 holds 120 web points. The live ruin scenario
+  found two ruin bugs, now fixed: the blueprint's placeholder fill (`structurize:` substitution
+  blocks, over a thousand under a tavern) was placed as building, and the decay roll was given
+  the world height instead of the row, so every block read as roof (a tavern kept 100 of 1,729
+  blocks; now 250 over its ten real rows). `/elysium colony ruin <pos>` (operator) raises one,
+  because a force-loaded chunk with no player gets no random ticks.
+  **Next:** expand the Ledger Web (priority 2); decide the content gaps with Dylan.
+

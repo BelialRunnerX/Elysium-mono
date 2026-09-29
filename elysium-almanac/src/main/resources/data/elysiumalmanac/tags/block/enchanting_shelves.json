@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumenchanting:hellshelf",
+      "required": false
+    },
+    {
+      "id": "elysiumenchanting:deepshelf",
+      "required": false
+    },
+    {
+      "id": "elysiumenchanting:sightshelf",
+      "required": false
+    },
+    {
+      "id": "elysiumenchanting:endshelf",
+      "required": false
+    },
+    {
+      "id": "elysiumenchanting:keepers_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumenchanting:archive_column",
+      "required": false
+    }
+  ]
+}

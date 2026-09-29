@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:elysium_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:plasma_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:neural_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:dimensional_boots",
+      "required": false
+    }
+  ]
+}

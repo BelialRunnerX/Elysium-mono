@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:torrent_totem",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:soul_totem",
+      "required": false
+    }
+  ]
+}

@@ -17,6 +17,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import com.elysium.lib.stress.ElysiumStressBand;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -83,6 +85,10 @@ public final class ColonyCommand {
                         .executes(context -> claim(context.getSource())))
                 .then(Commands.literal("natural")
                         .executes(context -> natural(context.getSource())))
+                .then(Commands.literal("ruin").requires(source -> source.hasPermission(2))
+                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                .executes(context -> ruin(context.getSource(),
+                                        BlockPosArgument.getLoadedBlockPos(context, "pos")))))
                 .then(steward));
     }
 
@@ -109,6 +115,26 @@ public final class ColonyCommand {
         }
         source.sendSuccess(() -> Component.translatable("elysium.colony.claimed", town.name())
                 .withStyle(ChatFormatting.GOLD), true);
+        return 1;
+    }
+
+    /**
+     * Raises a ruin at a place, as the marker's first random tick would.
+     *
+     * <p>For an operator and for the live tests: a force-loaded chunk with no
+     * player near gets no random ticks, so the marker the world places can only
+     * be watched acting in a client stage. The command runs the same
+     * {@link com.elysium.colonies.settle.Ruins#raise} with every one of its
+     * refusals, and says which one it met.
+     */
+    private static int ruin(CommandSourceStack source, BlockPos at) {
+        boolean raised = com.elysium.colonies.settle.Ruins.raise(source.getLevel(), at);
+        if (!raised) {
+            source.sendFailure(Component.translatable("elysium.colony.ruin.declined"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable("elysium.colony.ruin.raised",
+                at.toShortString()).withStyle(ChatFormatting.GRAY), true);
         return 1;
     }
 

@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:emgrove_planks",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:stripped_emgrove_log",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:stripped_emgrove_wood",
+      "required": false
+    }
+  ]
+}

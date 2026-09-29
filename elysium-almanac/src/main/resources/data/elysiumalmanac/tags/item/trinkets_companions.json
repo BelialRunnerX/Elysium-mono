@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumtrinkets:carrion_drone",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:lattice_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:mote",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:purge_drone",
+      "required": false
+    }
+  ]
+}

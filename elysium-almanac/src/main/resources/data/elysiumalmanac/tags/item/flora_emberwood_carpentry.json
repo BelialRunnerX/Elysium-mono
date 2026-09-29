@@ -1,0 +1,37 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumflora:emberwood_button",
+      "required": false
+    },
+    {
+      "id": "elysiumflora:emberwood_door",
+      "required": false
+    },
+    {
+      "id": "elysiumflora:emberwood_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumflora:emberwood_fence_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumflora:emberwood_pressure_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumflora:emberwood_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumflora:emberwood_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumflora:emberwood_trapdoor",
+      "required": false
+    }
+  ]
+}

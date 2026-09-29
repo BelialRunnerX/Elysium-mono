@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_sling",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_sling",
+      "required": false
+    }
+  ]
+}

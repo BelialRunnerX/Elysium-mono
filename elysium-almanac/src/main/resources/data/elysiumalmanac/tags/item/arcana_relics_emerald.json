@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarcana:gravewake_censer",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:sanctuary_bell",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:stormcallers_rod",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:wardens_regalia",
+      "required": false
+    }
+  ]
+}

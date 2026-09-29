@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:flint_knife",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:iron_knife",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:golden_knife",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:diamond_knife",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:netherite_knife",
+      "required": false
+    }
+  ]
+}

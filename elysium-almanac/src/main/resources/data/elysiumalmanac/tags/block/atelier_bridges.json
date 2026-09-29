@@ -1,0 +1,401 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_bridge_support",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_bridge_deck",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_bridge_rail",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_bridge_support",
+      "required": false
+    }
+  ]
+}

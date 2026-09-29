@@ -1,0 +1,125 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:awakened_coal_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_copper_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_tin_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_zinc_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_iron_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_lead_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_redstone_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_nickel_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_silver_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_aluminum_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_lithium_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_lapis_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_quartz_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_glowstone_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_gold_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_osmium_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_amethyst_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_fluorite_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_certus_quartz_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_obsidian_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_crimson_iron_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_platinum_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_uranium_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_uraninite_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_bort_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_rime_shard_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_azure_silver_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_diamond_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_emerald_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:awakened_netherite_seed",
+      "required": false
+    }
+  ]
+}

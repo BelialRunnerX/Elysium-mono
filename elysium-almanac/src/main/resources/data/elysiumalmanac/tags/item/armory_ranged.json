@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:bow",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:slingshot",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:trident",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:fishing_rod",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:arrow",
+      "required": false
+    }
+  ]
+}

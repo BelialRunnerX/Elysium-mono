@@ -105,7 +105,9 @@ public class StepScreen extends ElysiumChooser {
             case LEVEL -> Component.translatable("elysiumalmanac.task.level", count);
             case WEB -> Component.translatable("elysiumalmanac.task.web", count);
             case HAVE -> Component.translatable("elysiumalmanac.task.have", count, subject(task));
-            case PLACE -> Component.translatable("elysiumalmanac.task.place", subject(task));
+            case PLACE -> task.count() > 1
+                    ? Component.translatable("elysiumalmanac.task.place_many", count, subject(task))
+                    : Component.translatable("elysiumalmanac.task.place", subject(task));
             case VISIT -> Component.translatable("elysiumalmanac.task.visit", subject(task));
             case SLAY -> Component.translatable("elysiumalmanac.task.slay", count, subject(task));
             case CRAFT -> Component.translatable("elysiumalmanac.task.craft", count, subject(task));

@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:ocelot_fossil",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:wolf_fossil",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:chicken_fossil",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:guardian_fossil",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:creeper_fossil",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:sheep_fossil",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:villager_fossil",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumtrinkets:cracked_reliquary",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:empty_reliquary",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:hollow_chime",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:unsworn_bell",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:voidglass_pendant",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:wardens_gorget",
+      "required": false
+    }
+  ]
+}

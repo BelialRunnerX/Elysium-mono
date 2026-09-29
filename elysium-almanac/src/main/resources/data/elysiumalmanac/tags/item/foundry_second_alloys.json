@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumfoundry:stainless_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:signal_alloy_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:hardened_bronze_ingot",
+      "required": false
+    }
+  ]
+}

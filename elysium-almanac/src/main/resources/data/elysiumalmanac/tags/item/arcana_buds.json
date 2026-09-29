@@ -1,0 +1,365 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarcana:iron_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:iron_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:iron_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:copper_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:copper_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:copper_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:gold_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:gold_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:gold_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:tin_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:tin_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:tin_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:zinc_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:zinc_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:zinc_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:nickel_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:nickel_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:nickel_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:silver_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:silver_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:silver_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lead_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lead_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lead_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:aluminum_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:aluminum_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:aluminum_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:osmium_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:osmium_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:osmium_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:platinum_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:platinum_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:platinum_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lithium_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lithium_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lithium_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:crimson_iron_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:crimson_iron_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:crimson_iron_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:azure_silver_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:azure_silver_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:azure_silver_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uranium_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uranium_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uranium_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:bort_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:bort_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:bort_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:certus_quartz_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:certus_quartz_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:certus_quartz_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:fluorite_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:fluorite_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:fluorite_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:rime_shard_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:rime_shard_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:rime_shard_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uraninite_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uraninite_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uraninite_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:coal_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:coal_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:coal_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:redstone_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:redstone_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:redstone_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lapis_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lapis_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lapis_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:quartz_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:quartz_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:quartz_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:amethyst_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:amethyst_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:amethyst_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:diamond_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:diamond_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:diamond_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:emerald_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:emerald_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:emerald_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:ancient_debris_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:ancient_debris_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:ancient_debris_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:glowstone_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:glowstone_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:glowstone_large_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:obsidian_small_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:obsidian_medium_bud",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:obsidian_large_bud",
+      "required": false
+    }
+  ]
+}

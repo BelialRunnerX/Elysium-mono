@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:amber",
+      "required": false
+    },
+    {
+      "id": "elysiumores:jade",
+      "required": false
+    },
+    {
+      "id": "elysiumores:ruby",
+      "required": false
+    },
+    {
+      "id": "elysiumores:sapphire",
+      "required": false
+    },
+    {
+      "id": "elysiumores:null_amethyst",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pyratite",
+      "required": false
+    }
+  ]
+}

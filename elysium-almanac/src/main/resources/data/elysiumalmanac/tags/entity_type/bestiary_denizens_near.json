@@ -1,0 +1,41 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:verdlet",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:verdmote",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:pinekin",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:pinecrawler",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:chalkin",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:chalkcrawler",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:bloomkin",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:bloomcrawler",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:goldkin",
+      "required": false
+    }
+  ]
+}

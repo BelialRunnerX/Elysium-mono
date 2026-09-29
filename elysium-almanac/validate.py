@@ -636,6 +636,63 @@ print(f"what it asks for   : {asked} item(s), block(s) and beast(s), {tagged} ta
       f"of them made, shipped or spawned by something in this tree")
 
 # ---------------------------------------------------------------------------
+# 4a. The whole pack is in the book
+# ---------------------------------------------------------------------------
+#
+# Dylan, 28 September 2026: "a questbook that introduces the player to all the
+# blocks and mechanics". This is the check that makes "all" a number. Every
+# block, item and creature the catalogue (docs/features.json, written by
+# tools/catalogue.py) lists for every module the book describes is introduced
+# — named by a task, or a member of a family a task names — or excused by a
+# pattern in the generator with a reason. Nothing is silently skipped.
+
+NOT_DESCRIBED = {"elysiumalmanac", "elysiumlib", "elysiumascendancy"}
+catalogue_path = os.path.join(ROOT, "docs/features.json")
+introduced = set()
+for kind, entries in names.items():
+    if kind == "visit":
+        continue
+    for token, value in entries:
+        full = prefixes.get(token, "") + value if token else value
+        if full.startswith("#" + NS + ":"):
+            introduced.update(FAMILIES.get(full.split(":", 1)[1], []))
+        elif not full.startswith("#"):
+            introduced.add(full)
+excusals = []
+for pattern, why in EXCUSED:
+    try:
+        excusals.append((re.compile(pattern), why))
+    except re.error:
+        pass
+covered, excused_count, uncovered = 0, 0, []
+if not os.path.isfile(catalogue_path):
+    fail("there is no docs/features.json, so nothing here can say what the book leaves out")
+else:
+    for entry in json.load(open(catalogue_path, encoding="utf-8")).values():
+        modid = entry.get("modid", "")
+        if modid in NOT_DESCRIBED:
+            continue
+        for kind in ("Blocks", "Items", "Creatures"):
+            for row in entry.get("kinds", {}).get(kind, []):
+                full = row[0] if ":" in row[0] else f"{modid}:{row[0]}"
+                if full in introduced:
+                    covered += 1
+                elif any(pattern.search(full) for pattern, _ in excusals):
+                    excused_count += 1
+                else:
+                    uncovered.append(full)
+if uncovered:
+    fail(f"{len(uncovered)} catalogued thing(s) are introduced by no step and excused by "
+         f"nothing: " + ", ".join(sorted(uncovered)[:10])
+         + (" ..." if len(uncovered) > 10 else "") + " — a player meets them with no page "
+         f"in the book")
+if covered and covered < 1000:
+    fail(f"the book introduces {covered} catalogued things, which is not the whole pack")
+
+print(f"the whole pack     : {covered} block(s), item(s) and creature(s) introduced, "
+      f"{excused_count} excused with a reason, {len(uncovered)} left out")
+
+# ---------------------------------------------------------------------------
 # 4b. The rewards, and the kinds
 # ---------------------------------------------------------------------------
 #

@@ -1,0 +1,533 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_shallow_roof_slope",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_shallow_roof_inner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_shallow_roof_outer",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_shallow_roof_ridge",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_shallow_roof_slope",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarcana:aegis_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:blinkstep_boots",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:hunters_mark_ring",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lifeline_pendant",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:phoenix_down",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:shockwave_gauntlet",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:veiled_mask",
+      "required": false
+    }
+  ]
+}

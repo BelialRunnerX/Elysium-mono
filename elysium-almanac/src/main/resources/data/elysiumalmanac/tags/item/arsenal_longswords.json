@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_longsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_longsword",
+      "required": false
+    }
+  ]
+}

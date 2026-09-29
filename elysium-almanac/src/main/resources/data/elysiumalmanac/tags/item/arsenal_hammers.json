@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_hammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_hammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_hammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_hammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_hammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_hammer",
+      "required": false
+    }
+  ]
+}

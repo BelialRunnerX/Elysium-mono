@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:coal_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:copper_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tin_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:zinc_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:iron_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lead_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:redstone_seed",
+      "required": false
+    }
+  ]
+}

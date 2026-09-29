@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:stabilizer_rune",
+      "required": false
+    },
+    {
+      "id": "elysium:reflex_rune",
+      "required": false
+    },
+    {
+      "id": "elysium:barrier_rune",
+      "required": false
+    },
+    {
+      "id": "elysium:plasma_core_rune",
+      "required": false
+    }
+  ]
+}

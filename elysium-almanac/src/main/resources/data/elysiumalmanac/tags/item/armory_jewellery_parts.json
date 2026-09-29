@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:ring_shank",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:bracelet_band",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:necklace_chain",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:setting",
+      "required": false
+    }
+  ]
+}

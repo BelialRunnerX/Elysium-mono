@@ -1,0 +1,81 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:glacehulk",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:ashulk",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:ashmaw",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:marshulk",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:marshmaw",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:amberhulk",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:ambermaw",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:reedhulk",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:reedmaw",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:emberhulk",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:embermaw",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:rimeprime",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:rimewarden",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:frostprime",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:frostwarden",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:cinderprime",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:cinderwarden",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:sulphprime",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:sulphwarden",
+      "required": false
+    }
+  ]
+}

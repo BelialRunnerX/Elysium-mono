@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumcomforts:black_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:blue_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:brown_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:cyan_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:gray_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:green_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_blue_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_gray_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:lime_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:magenta_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:orange_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:pink_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:purple_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:red_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:white_sleeping_bag",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:yellow_sleeping_bag",
+      "required": false
+    }
+  ]
+}

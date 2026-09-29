@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumlogistics:knapsack",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:haversack",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:rucksack",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:expedition_pack",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:slagsteel_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumores:biolith_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumores:bathysteel_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumores:hemalite_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumores:nullsteel_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumores:relicsteel_ingot",
+      "required": false
+    }
+  ]
+}

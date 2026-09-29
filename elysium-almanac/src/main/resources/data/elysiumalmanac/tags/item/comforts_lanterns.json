@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumcomforts:gold_lantern",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:lead_lantern",
+      "required": false
+    }
+  ]
+}

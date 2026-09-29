@@ -1,0 +1,269 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_trough",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_trough",
+      "required": false
+    }
+  ]
+}

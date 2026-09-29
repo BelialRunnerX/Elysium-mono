@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:cinderling",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cinderling_brute",
+      "required": false
+    }
+  ]
+}

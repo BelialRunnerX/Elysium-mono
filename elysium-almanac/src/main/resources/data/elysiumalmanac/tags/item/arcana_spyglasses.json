@@ -1,0 +1,125 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarcana:iron_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:copper_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:gold_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:tin_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:zinc_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:nickel_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:silver_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lead_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:aluminum_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:osmium_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:platinum_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lithium_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:crimson_iron_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:azure_silver_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uranium_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:bort_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:certus_quartz_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:fluorite_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:rime_shard_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uraninite_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:coal_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:redstone_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lapis_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:quartz_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:amethyst_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:diamond_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:emerald_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:ancient_debris_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:glowstone_spyglass",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:obsidian_spyglass",
+      "required": false
+    }
+  ]
+}

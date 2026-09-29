@@ -1,0 +1,49 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumcomforts:acacia_pigeonhole",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:bamboo_pigeonhole",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:birch_pigeonhole",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:cherry_pigeonhole",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:crimson_pigeonhole",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:dark_oak_pigeonhole",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:jungle_pigeonhole",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:mangrove_pigeonhole",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:oak_pigeonhole",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:spruce_pigeonhole",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:warped_pigeonhole",
+      "required": false
+    }
+  ]
+}

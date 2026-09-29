@@ -1,0 +1,533 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_wardrobe",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_desk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_drawers",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_nightstand",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_wardrobe",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:cobalt_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pearlium_ingot",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:uranium_motor",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:plutonium_motor",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:radioactive_motor",
+      "required": false
+    }
+  ]
+}

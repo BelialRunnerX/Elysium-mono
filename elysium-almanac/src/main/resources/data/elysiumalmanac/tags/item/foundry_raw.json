@@ -1,0 +1,49 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumfoundry:raw_tin",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:raw_zinc",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:raw_nickel",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:raw_silver",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:raw_lead",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:raw_aluminum",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:raw_osmium",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:raw_platinum",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:raw_lithium",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:raw_crimson_iron",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:raw_azure_silver",
+      "required": false
+    }
+  ]
+}

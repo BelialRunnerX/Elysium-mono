@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:amethyst_block_stair",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_stair",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_stair",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_stair",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_stair",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_stair",
+      "required": false
+    }
+  ]
+}

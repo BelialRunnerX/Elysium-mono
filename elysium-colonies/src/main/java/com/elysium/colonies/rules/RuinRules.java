@@ -49,6 +49,20 @@ public final class RuinRules {
     public static final List<String> KINDS = List.of(
             "minecolonies:residence", "minecolonies:tavern", "minecolonies:warehouse", "minecolonies:builder");
 
+    /**
+     * The namespaces whose blocks a ruin never places: the host's own (huts,
+     * racks, anything that carries a colony's data) and its blueprint library's,
+     * whose "substitution" blocks are placeholders meaning "whatever ground is
+     * here" — over a thousand of them under a level-one tavern, and a ruin that
+     * placed them would leave the placeholders standing in the world.
+     */
+    public static final List<String> HOST_NAMESPACES = List.of("minecolonies", "structurize");
+
+    /** Whether a block of this namespace is the host's rather than the building's. */
+    public static boolean hostBlock(String namespace) {
+        return HOST_NAMESPACES.contains(namespace);
+    }
+
     /** The chest's loot table. */
     public static final String LOOT = "elysiumcolonies:chests/ruin";
 
@@ -173,6 +187,9 @@ public final class RuinRules {
         }
         if (FROM_SPAWN <= 0) {
             faults.add("a ruin may be placed on the world spawn");
+        }
+        if (!hostBlock("minecolonies") || !hostBlock("structurize") || hostBlock("minecraft")) {
+            faults.add("the host's blocks and its blueprint placeholders are not both skipped, or the game's own are");
         }
         if (KINDS.isEmpty()) {
             faults.add("no kind of building may be a ruin, so a marker raises nothing");

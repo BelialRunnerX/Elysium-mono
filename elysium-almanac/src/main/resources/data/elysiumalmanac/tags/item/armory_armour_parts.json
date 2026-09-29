@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:helmet_plates",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:chestplate_plates",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:legging_plates",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:boot_plates",
+      "required": false
+    }
+  ]
+}

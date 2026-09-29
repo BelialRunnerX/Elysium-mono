@@ -1,0 +1,37 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:barley_crop",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cabbage_crop",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:chili_crop",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:garlic_crop",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ginger_crop",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:onion_crop",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:rice_crop",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tomato_crop",
+      "required": false
+    }
+  ]
+}

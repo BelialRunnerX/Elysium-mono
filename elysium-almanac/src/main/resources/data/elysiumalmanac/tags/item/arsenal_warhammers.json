@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_warhammer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_warhammer",
+      "required": false
+    }
+  ]
+}

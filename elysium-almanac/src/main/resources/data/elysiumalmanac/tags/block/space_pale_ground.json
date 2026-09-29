@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:pale_regolith",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_stone",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_cobblestone",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_deepslate",
+      "required": false
+    }
+  ]
+}

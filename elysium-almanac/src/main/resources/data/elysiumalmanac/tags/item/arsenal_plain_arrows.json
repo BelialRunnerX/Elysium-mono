@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:flint_arrow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_arrow",
+      "required": false
+    }
+  ]
+}

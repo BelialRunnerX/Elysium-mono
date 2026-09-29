@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:suspicious_dirt",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:suspicious_red_sand",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:fossiliferous_dirt",
+      "required": false
+    }
+  ]
+}

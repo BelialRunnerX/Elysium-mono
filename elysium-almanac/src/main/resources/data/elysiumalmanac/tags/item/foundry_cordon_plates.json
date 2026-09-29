@@ -1,0 +1,41 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumfoundry:cobalt_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:pearlium_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:nightgold_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:relicsteel_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:slagsteel_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:biolith_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:bathysteel_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:hemalite_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:nullsteel_plate",
+      "required": false
+    }
+  ]
+}

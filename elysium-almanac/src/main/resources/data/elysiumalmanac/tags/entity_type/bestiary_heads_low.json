@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:rotprime",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:packprime",
+      "required": false
+    }
+  ]
+}

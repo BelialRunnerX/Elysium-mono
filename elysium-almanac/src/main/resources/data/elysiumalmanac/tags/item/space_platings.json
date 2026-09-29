@@ -1,0 +1,53 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:iron_plating",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:iron_plating_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:iron_plating_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:iron_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:steel_plating",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:steel_plating_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:steel_plating_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:steel_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:lunite_plating",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:lunite_plating_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:lunite_plating_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:lunite_pillar",
+      "required": false
+    }
+  ]
+}

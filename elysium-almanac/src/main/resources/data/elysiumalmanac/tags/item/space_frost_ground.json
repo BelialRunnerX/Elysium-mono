@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:frost_stone",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frost_cobblestone",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frost_regolith",
+      "required": false
+    }
+  ]
+}

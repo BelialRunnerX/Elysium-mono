@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:barbed_arrow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:ember_arrow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:rime_arrow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:sundering_arrow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hollow_arrow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:thunder_arrow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:void_arrow",
+      "required": false
+    }
+  ]
+}

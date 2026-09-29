@@ -1640,6 +1640,90 @@ colony memory in the ruin, and holds every rule call the ruin depends on;
 scenario sets a marker on a stone plot, hurries the random tick, and counts
 what stands and that the list of settlements did not change.
 
+### 16.12 The questbook: the whole pack in the almanac (28 September, night)
+
+Dylan: *"a questbook that introduces the player to all the blocks and
+mechanics and gives rewards for doing it"*. The almanac was already the
+book: a proved graph of 71 steps over 11 chapters, noticed rather than
+claimed, paying nothing. It is now the whole pack.
+
+**The machinery** (`elysium-almanac`). Twelve kinds of task: have, place,
+visit, slay and read as before, and craft, break (mining and digging are one
+verb), use (right-click a block), eat, smelt, reach a character level, and
+hold nodes on the Ledger Web. A task may name a tag, including the book's own
+*family* tags, which the generator writes from explicit id lists with every
+entry optional, so a missing module never breaks the load. Every counted
+kind is tallied from the first time it happens, whether or not the quest was
+open. Every step pays: by rule (20, plus 10 for each step behind it and each
+extra task, at most 320) or by a declared reward with items. Rewards are
+taken from the step screen's last row over one payload, marked taken before
+anything is handed over, and paid through `ElysiumCharacter.addXp`, the
+library's one door for experience. `/almanac status|claim`, and
+`finish|reset` for operators.
+
+**The content.** 519 steps over 26 chapters: the eleven that were there,
+expanded, and fifteen new ones (the_ledger, the_seams, the_grove,
+the_commons, the_forge, the_geodes, the_tomes, the_dig, the_charms,
+the_bands, the_cages, the_empire, the_court, the_town, the_rift). Drafted in
+seven groups against a brief and a checker (catalogue ids, chapter order,
+cycles, words 60 to 220 characters, coverage per module), merged by one
+script into one method per chapter, because a class's static initialiser
+holds at most 64 KB of bytecode. 265 families. The whole book is worth
+level 63; the drafts' declared experience was halved at the merge because
+experience now also comes from every ordinary action (16.13).
+
+**The coverage rule.** The validator holds `docs/features.json` against the
+book: every block, item and creature of every module the book describes is
+introduced by a task, directly or through a family, or excused by a pattern
+with a reason (spawn eggs, bow sprites, compass needle frames, fluids no task
+can see, things the world places and removes). Today: 7,085 introduced, 727
+excused, none left out. The catalogue was regenerated for this; it predated
+the 28 September space work by 21 ids.
+
+**What the drafting found** (reported to Dylan, not fixed here):
+* Nothing in survival yields an arcana shard, so budding geodes and the whole
+  of the_geodes cannot be started.
+* Arsenal's dig sites, fossils, totems and rotten wood are never placed in
+  any world; the dig chapter's archaeology waits on a source.
+* The Vale has no entrance but a command; its visit quest was dropped.
+* Pigeons have no natural spawn; the two regalia pieces
+  `neural_leggings` and `dimensional_boots` and the armory `template` have
+  no recipe or drop.
+* The moon quest visited `elysiumspace:luna`, which does not exist
+  (`pale_moon`); a VISIT to a world nothing ships is now refused.
+
+**The ruins, live** (a correction to 16.11). The live scenario raised a tavern
+and found two faults the tree could not: the blueprint's placeholder fill
+(`structurize:` substitution blocks, over a thousand under a level-one tavern)
+was placed as building, and the decay roll was given the world height rather
+than the row in the building, so every block read as roof and a tavern kept
+100 of 1,729 blocks. Now the host's placeholders are skipped with its huts
+(`RuinRules.HOST_NAMESPACES`), rows are measured over what a ruin keeps, the
+row is passed, and the validator holds both; a tavern keeps 250 blocks over
+its ten real rows. `/elysium colony ruin <pos>` (operator) raises one where a
+force-loaded chunk would never tick the marker.
+
+### 16.13 Experience from every action, and the web at three points a level (28 September, night)
+
+Dylan: *"make sure that all game actions (mining digging, combat etc give
+skill point xp)"* and *"tie skill points to the character elysium level, 3
+per level"*.
+
+`character/ElysiumXpRules` (pure, `XpHarness`) names fourteen sources: mine
+(a block at stone's hardness or more), dig (softer), build, craft, smelt,
+strike (a point per four damage dealt to anything not a player), harvest (a
+ripe crop), fish, tame, breed, explore (a biome new this session), trade,
+enchant and eat. Each pays a little and each is capped per minute, so
+ordinary play never meets a cap and a machine meets it at once; everything
+at once is under six first levels a minute. `event/ElysiumXpHandler` pays
+through one door that consults the cap, turns away creative and spectator
+players, and is the handler's only call to `addXp`. Kills and ore keep the
+standing handler's 4, 14 and 6. `negtest_xp.sh` breaks it eight ways.
+
+`ElysiumTreeRules.POINTS_PER_LEVEL` went from one to three. The harness now
+holds the web to at least twice what fifty levels buy (150 points; the web
+is 419 nodes), which is the argument for the web growing next.
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and

@@ -1,0 +1,665 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_terrace_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_bulk_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_compact_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_loft_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_skyline_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_terrace_stairs",
+      "required": false
+    }
+  ]
+}

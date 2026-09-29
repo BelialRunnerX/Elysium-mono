@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumfoundry:void_steel_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:starsteel_ingot",
+      "required": false
+    }
+  ]
+}

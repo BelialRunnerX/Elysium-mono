@@ -1,0 +1,57 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:vegetable_soup",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:beef_stew",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:chicken_broth",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:fish_chowder",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pasta_with_tomato",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:rice_bowl",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:noodle_soup",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mushroom_stew",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pumpkin_soup",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bone_broth",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:chili_bowl",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:curry",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:barley_porridge",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,389 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:aluminum_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:amber_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:amethyst_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:aurora_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:azure_silver_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bathysteel_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bio_culture_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:biolith_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blaze_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blight_crystal_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bone_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bort_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:brass_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bronze_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:canopy_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cast_iron_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cavern_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:certus_quartz_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:clay_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:coal_dust_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cobalt_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:constantan_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:copper_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:crimson_iron_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:diamond_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:dune_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:electrum_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ember_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ember_slag_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:emerald_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ender_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:experience_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:fluorite_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:forest_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:glacier_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:glassy_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:glowing_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gold_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gunpowder_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:hardened_bronze_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:hemalite_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:hollow_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ink_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:invar_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:iron_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:jade_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lapis_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lead_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lithium_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:marsh_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:meadow_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mountainside_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mycelial_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:netherite_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nickel_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nightgold_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:null_amethyst_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:null_shard_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nullsteel_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:obsidian_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:osmium_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pearlium_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:platinum_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pressure_shell_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:prismarine_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pyratite_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:quartz_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:redstone_dust_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:relic_shard_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:relicsteel_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:rime_shard_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ruby_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:sapphire_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:sculk_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:signal_alloy_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:silver_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:skylark_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:slagsteel_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:slimy_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:sootfall_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:stainless_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:starsteel_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:steel_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:stone_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:string_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:sugar_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tide_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tin_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:uraninite_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:uranium_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:void_steel_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:voidtouched_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:water_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:wax_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:wither_bound_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:zinc_bee",
+      "required": false
+    }
+  ]
+}

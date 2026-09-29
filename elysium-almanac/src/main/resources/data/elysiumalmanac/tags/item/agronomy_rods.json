@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:reed_rod",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:oak_rod",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:iron_rod",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:steel_rod",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:starsteel_rod",
+      "required": false
+    }
+  ]
+}

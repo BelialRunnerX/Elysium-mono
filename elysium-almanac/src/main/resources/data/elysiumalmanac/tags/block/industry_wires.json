@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumindustry:copper_wire",
+      "required": false
+    },
+    {
+      "id": "elysiumindustry:gold_wire",
+      "required": false
+    },
+    {
+      "id": "elysiumindustry:steel_wire",
+      "required": false
+    }
+  ]
+}

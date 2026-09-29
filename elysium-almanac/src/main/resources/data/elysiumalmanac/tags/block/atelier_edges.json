@@ -1,0 +1,533 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_quoin",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_banister",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_catwalk",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_girder",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_quoin",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:spallet",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:shearjaw",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:prowlframe",
+      "required": false
+    }
+  ]
+}

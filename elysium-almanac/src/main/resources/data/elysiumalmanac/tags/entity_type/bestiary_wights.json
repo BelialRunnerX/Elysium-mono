@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:carrier",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:sidetone",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:nullprime",
+      "required": false
+    }
+  ]
+}

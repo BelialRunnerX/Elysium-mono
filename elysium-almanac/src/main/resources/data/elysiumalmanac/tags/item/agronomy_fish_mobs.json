@@ -1,0 +1,425 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:abyss_angler",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:amberjack",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:angel_tang",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:arctic_char",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:asp",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:atlantic_cod",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:banner_fish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:barbel",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:basalt_lurker",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bitterling",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:black_swallower",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blazefin",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bleak_minnow",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blind_cavefish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blobfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blue_marlin",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bog_loach",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bone_eater",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bonito",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:boxfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bream",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:brook_trout",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:burbot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:capelin",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:catfish_wels",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:chimaera",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:chorus_perch",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:chub",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cinder_eel",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:clown_goby",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:coral_grouper",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:crucian",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:deepslate_char",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:dragonfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:dripstone_minnow",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:emberfin",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ender_lamprey",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:frilled_shark",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:glass_squid",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:goblin_shark",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:grayling",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:greenland_halibut",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:grenadier",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:grotto_sculpin",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gudgeon",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gulper_eel",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:haddock",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:halibut",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:harlequin_sweetlips",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:hatchetfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:icefish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:john_dory",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lake_char",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lanternfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lionfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lumpsucker",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mackerel",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:magma_carp",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mahi_mahi",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:marbled_eel",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:marsh_carp",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mirror_carp",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:moray",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mud_sleeper",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nase",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:navaga",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:northern_pike",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:oarfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:orange_roughy",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pale_drifter",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pale_salamander_fish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:parrot_wrasse",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pelican_eel",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pike_perch",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pipefish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:polar_cod",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pollock",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:razorfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:reed_perch",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:reef_snapper",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:river_dace",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:river_eel",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:rudd",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:sea_bass",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:silver_roach",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:singularity_eel",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:slickhead",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:soulfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:spookfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:stone_loach",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:surgeonfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:swamp_gar",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:swordfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tench",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:triggerfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tripod_fish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:turbot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:vendace",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:viperfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:void_ray",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:weatherfish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:whitefish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:wolffish",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:yellowfin_tuna",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:zander",
+      "required": false
+    }
+  ]
+}

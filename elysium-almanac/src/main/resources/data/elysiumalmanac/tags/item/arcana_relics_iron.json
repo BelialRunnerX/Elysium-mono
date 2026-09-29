@@ -1,0 +1,37 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarcana:diving_bell",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:golden_tooth",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:gravekeepers_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:hunters_belt",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:leafy_mantle",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:scholars_lens",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:sure_hands",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:wanderers_charm",
+      "required": false
+    }
+  ]
+}

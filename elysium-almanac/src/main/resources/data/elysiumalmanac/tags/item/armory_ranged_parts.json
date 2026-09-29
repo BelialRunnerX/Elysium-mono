@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:bow_limbs",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:crossbow_limbs",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:slingshot_limbs",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:trident_prongs",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:fishing_reel_and_hook",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:arrow_heads",
+      "required": false
+    }
+  ]
+}

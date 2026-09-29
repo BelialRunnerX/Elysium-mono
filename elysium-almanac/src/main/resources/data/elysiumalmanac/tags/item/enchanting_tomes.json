@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumenchanting:concentration_tome",
+      "required": false
+    },
+    {
+      "id": "elysiumenchanting:patience_tome",
+      "required": false
+    },
+    {
+      "id": "elysiumenchanting:scrapping_tome",
+      "required": false
+    },
+    {
+      "id": "elysiumenchanting:transcription_tome",
+      "required": false
+    }
+  ]
+}

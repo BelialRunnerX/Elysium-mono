@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:silent_convergence_template",
+      "required": false
+    },
+    {
+      "id": "elysium:affix_convergence_template",
+      "required": false
+    }
+  ]
+}

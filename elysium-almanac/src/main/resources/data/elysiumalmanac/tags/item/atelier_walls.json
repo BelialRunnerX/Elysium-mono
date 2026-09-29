@@ -1,0 +1,89 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_wall",
+      "required": false
+    }
+  ]
+}

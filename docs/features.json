@@ -6978,7 +6978,11 @@
    ],
    [
     "what it asks for",
-    "… item(s), block(s) and beast(s) named across"
+    "… item(s), block(s) and beast(s), … tag(s)"
+   ],
+   [
+    "the rewards",
+    "every step pays through the library's door, once, for a step"
    ],
    [
     "the words",
@@ -11608,6 +11612,10 @@
    [
     "the weapons",
     "none of them beaten on every axis by another, each the best"
+   ],
+   [
+    "grade attributes",
+    "…"
    ],
    [
     "reforging",
@@ -28526,8 +28534,8 @@
     "the rules are the JDK alone, and the reward is derived in"
    ],
    [
-    "the sheet",
-    "… corners on a …-pixel sheet, none"
+    "the shapes",
+    "… body plan(s) of"
    ],
    [
     "what it drops",
@@ -28551,7 +28559,7 @@
    ],
    [
     "the words",
-    "every sprite, model, loot table and spawn"
+    "every sprite, model, shape class, loot table and"
    ],
    [
     "in the world",
@@ -28820,6 +28828,10 @@
      "Elevator Tether"
     ],
     [
+     "ruin_seed",
+     "Ruin Marker"
+    ],
+    [
      "settlement_seed",
      "Survey Stake"
     ]
@@ -28827,11 +28839,19 @@
    "Items": [],
    "Structures": [
     [
+     "ruin",
+     ""
+    ],
+    [
      "settlement",
      ""
     ]
    ],
    "Structure templates": [
+    [
+     "ruin_seed",
+     ""
+    ],
     [
      "settlement_seed",
      ""
@@ -28866,6 +28886,10 @@
    [
     "the market",
     "…"
+   ],
+   [
+    "the ruins",
+    "a marker on its own grid (…/…), never on a town, raising"
    ],
    [
     "settlement plan",
@@ -29726,6 +29750,10 @@
    [
     "lighting a room",
     "… fitting(s) in …"
+   ],
+   [
+    "the birds",
+    "one winged plan of … boxes that flies, every colouring on its sheet"
    ]
   ],
   "item_models": [
@@ -30737,6 +30765,10 @@
      "Lead Sword"
     ],
     [
+     "ledger_erasure",
+     "Ledger Erasure"
+    ],
+    [
      "netherite_axe",
      "Netherite Axe"
     ],
@@ -31636,8 +31668,8 @@
     "every tag a recipe names resolves —"
    ],
    [
-    "skill tree",
-    "… skills, …"
+    "ledger web",
+    "the Pufferfish datapack and its generator retired, no words for it left"
    ],
    [
     "humanoid skins",
@@ -31854,6 +31886,7 @@
    "lead_shovel",
    "lead_spear",
    "lead_sword",
+   "ledger_erasure",
    "netherite_axe",
    "netherite_boots",
    "netherite_broadaxe",
@@ -32057,7 +32090,7 @@
    "zinc_spear",
    "zinc_sword"
   ],
-  "recipes": 384
+  "recipes": 385
  },
  "elysium-dungeons": {
   "modid": "elysiumdungeons",
@@ -33324,7 +33357,7 @@
    "zinc_nugget",
    "zinc_plate"
   ],
-  "recipes": 224
+  "recipes": 232
  },
  "elysium-industry": {
   "modid": "elysiumindustry",
@@ -34006,6 +34039,10 @@
     "…"
    ],
    [
+    "the undeclared",
+    "a player under the declaration screen takes no damage"
+   ],
+   [
     "lang keys",
     "…"
    ],
@@ -34178,8 +34215,32 @@
     "the Null field as a sixth hazard with a gauge and a ward"
    ],
    [
+    "sound",
+    "… voices x …, … hums"
+   ],
+   [
+    "kind tags",
+    "vanilla's lists not checked, no vanilla-assets.jar (set MC_JAR)"
+   ],
+   [
+    "kind tags",
+    "the c: lists not checked, no NeoForge jar on the classpath"
+   ],
+   [
+    "kind tags",
+    "… kind(s) from the harness, every vanilla tag a list vanilla has"
+   ],
+   [
+    "the ledger web",
+    "… nodes from the rules, every cluster, keystone, stat and"
+   ],
+   [
     "runs",
     "the join rule, the plate, the dye and the tints, executed and shared"
+   ],
+   [
+    "the boxes",
+    "a chest menu type per row count, one to six, each under the kit's screen"
    ]
   ],
   "item_models": [],
@@ -40510,6 +40571,10 @@
      "Fuel Refinery"
     ],
     [
+     "heavy_metal_block",
+     "Block of Heavy Metal"
+    ],
+    [
      "iron_pillar",
      "Iron Pillar"
     ],
@@ -40556,6 +40621,14 @@
     [
      "muddy_emgrove_roots",
      "Muddy Emgrove Roots"
+    ],
+    [
+     "neptunium_block",
+     "Block of Neptunium"
+    ],
+    [
+     "neptunium_ore",
+     "Neptunium Ore"
     ],
     [
      "oil",
@@ -40630,6 +40703,14 @@
      "Pipe"
     ],
     [
+     "plutonium_block",
+     "Block of Plutonium"
+    ],
+    [
+     "plutonium_ore",
+     "Plutonium Ore"
+    ],
+    [
      "polished_cinder_stone",
      "Polished Cinder Stone"
     ],
@@ -40684,6 +40765,14 @@
     [
      "raw_lunite_block",
      "Block of Raw Lunite"
+    ],
+    [
+     "raw_neptunium_block",
+     "Block of Raw Neptunium"
+    ],
+    [
+     "raw_plutonium_block",
+     "Block of Raw Plutonium"
     ],
     [
      "raw_steel_block",
@@ -40808,6 +40897,14 @@
      "Fuel Canister"
     ],
     [
+     "heavy_metal_ingot",
+     "Heavy Metal Ingot"
+    ],
+    [
+     "heavy_metal_nugget",
+     "Heavy Metal Nugget"
+    ],
+    [
      "hollow_moonfolk_spawn_egg",
      "Hollow Moonfolk Spawn Egg"
     ],
@@ -40844,12 +40941,40 @@
      "Moonfolk Spawn Egg"
     ],
     [
+     "neptunium_ingot",
+     "Neptunium Ingot"
+    ],
+    [
+     "neptunium_nugget",
+     "Neptunium Nugget"
+    ],
+    [
      "oil_bucket",
      "Oil Bucket"
     ],
     [
+     "oil_finder",
+     "Oil Finder"
+    ],
+    [
      "oxygen_canister",
      "Oxygen Canister"
+    ],
+    [
+     "plutonium_ingot",
+     "Plutonium Ingot"
+    ],
+    [
+     "plutonium_motor",
+     "Plutonium Motor"
+    ],
+    [
+     "plutonium_nugget",
+     "Plutonium Nugget"
+    ],
+    [
+     "radioactive_motor",
+     "Radioactive Motor"
     ],
     [
      "raw_cindrium",
@@ -40866,6 +40991,14 @@
     [
      "raw_lunite",
      "Raw Lunite"
+    ],
+    [
+     "raw_neptunium",
+     "Raw Neptunium"
+    ],
+    [
+     "raw_plutonium",
+     "Raw Plutonium"
     ],
     [
      "raw_steel",
@@ -40918,6 +41051,10 @@
     [
      "steel_nugget",
      "Steel Nugget"
+    ],
+    [
+     "uranium_motor",
+     "Uranium Motor"
     ],
     [
      "void_crawler_spawn_egg",
@@ -41010,6 +41147,10 @@
    ],
    "Structures": [
     [
+     "cinderveil_big_castle",
+     ""
+    ],
+    [
      "cinderveil_catacombs",
      ""
     ],
@@ -41018,7 +41159,19 @@
      ""
     ],
     [
+     "cinderveil_factory",
+     ""
+    ],
+    [
+     "cinderveil_lava_mines",
+     ""
+    ],
+    [
      "cinderveil_lava_outpost",
+     ""
+    ],
+    [
+     "cinderveil_mining_ship",
      ""
     ],
     [
@@ -41034,11 +41187,27 @@
      ""
     ],
     [
+     "cinderveil_quarry",
+     ""
+    ],
+    [
      "cinderveil_ruins",
      ""
     ],
     [
+     "cinderveil_small_castle",
+     ""
+    ],
+    [
+     "cinderveil_temple",
+     ""
+    ],
+    [
      "cinderveil_tower",
+     ""
+    ],
+    [
+     "cinderveil_volcano",
      ""
     ],
     [
@@ -41162,10 +41331,6 @@
      ""
     ],
     [
-     "emerald_bastion_lake",
-     ""
-    ],
-    [
      "emerald_bastion_ore_coal",
      ""
     ],
@@ -41226,6 +41391,10 @@
      ""
     ],
     [
+     "neptunium_ore",
+     ""
+    ],
+    [
      "oil_lake",
      ""
     ],
@@ -41251,6 +41420,10 @@
     ],
     [
      "pale_steel_ore",
+     ""
+    ],
+    [
+     "plutonium_ore",
      ""
     ],
     [
@@ -41316,6 +41489,10 @@
    ],
    "Structure templates": [
     [
+     "cinderveil_big_castle",
+     ""
+    ],
+    [
      "cinderveil_catacombs_chestroom",
      ""
     ],
@@ -41340,7 +41517,19 @@
      ""
     ],
     [
+     "cinderveil_factory",
+     ""
+    ],
+    [
+     "cinderveil_lava_mines",
+     ""
+    ],
+    [
      "cinderveil_lava_outpost",
+     ""
+    ],
+    [
+     "cinderveil_mining_ship",
      ""
     ],
     [
@@ -41356,11 +41545,27 @@
      ""
     ],
     [
+     "cinderveil_quarry",
+     ""
+    ],
+    [
      "cinderveil_ruins",
      ""
     ],
     [
+     "cinderveil_small_castle",
+     ""
+    ],
+    [
+     "cinderveil_temple",
+     ""
+    ],
+    [
      "cinderveil_tower",
+     ""
+    ],
+    [
+     "cinderveil_volcano",
      ""
     ],
     [
@@ -41721,6 +41926,9 @@
    "fuel_bucket",
    "fuel_canister",
    "fuel_refinery",
+   "heavy_metal_block",
+   "heavy_metal_ingot",
+   "heavy_metal_nugget",
    "hollow_moonfolk_spawn_egg",
    "hydrogen_canister",
    "hydrogen_motor",
@@ -41742,7 +41950,12 @@
    "medium_station_blueprint",
    "moonfolk_spawn_egg",
    "muddy_emgrove_roots",
+   "neptunium_block",
+   "neptunium_ingot",
+   "neptunium_nugget",
+   "neptunium_ore",
    "oil_bucket",
+   "oil_finder",
    "oxygen_canister",
    "oxygen_distributor",
    "pale_cobblestone",
@@ -41760,6 +41973,11 @@
    "pale_stone_stairs",
    "pale_vines",
    "pipe",
+   "plutonium_block",
+   "plutonium_ingot",
+   "plutonium_motor",
+   "plutonium_nugget",
+   "plutonium_ore",
    "polished_cinder_stone",
    "polished_cinder_stone_slab",
    "polished_cinder_stone_stairs",
@@ -41770,6 +41988,7 @@
    "polished_pale_stone_slab",
    "polished_pale_stone_stairs",
    "pumpjack",
+   "radioactive_motor",
    "raw_cindrium",
    "raw_cindrium_block",
    "raw_cryonite",
@@ -41778,6 +41997,10 @@
    "raw_frostite_block",
    "raw_lunite",
    "raw_lunite_block",
+   "raw_neptunium",
+   "raw_neptunium_block",
+   "raw_plutonium",
+   "raw_plutonium_block",
    "raw_steel",
    "raw_steel_block",
    "rime_shard",
@@ -41804,12 +42027,13 @@
    "steel_plating_stairs",
    "stripped_emgrove_log",
    "stripped_emgrove_wood",
+   "uranium_motor",
    "void_crawler_spawn_egg",
    "water_separator",
    "waygate_anchor",
    "waygate_frame"
   ],
-  "recipes": 148
+  "recipes": 173
  },
  "elysium-spawners": {
   "modid": "elysiumspawners",
@@ -43762,6 +43986,10 @@
    [
     "the overworld",
     "… biome(s) of ours in"
+   ],
+   [
+    "the reference",
+    "the stages' reference world carries the preset's"
    ],
    [
     "the seam",

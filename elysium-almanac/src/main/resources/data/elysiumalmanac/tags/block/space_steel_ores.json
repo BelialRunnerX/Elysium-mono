@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:steel_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:deepslate_steel_ore",
+      "required": false
+    }
+  ]
+}

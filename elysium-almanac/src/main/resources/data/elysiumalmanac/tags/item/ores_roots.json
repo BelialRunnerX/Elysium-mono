@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:ember_slag",
+      "required": false
+    },
+    {
+      "id": "elysiumores:bio_culture",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pressure_shell",
+      "required": false
+    },
+    {
+      "id": "elysiumores:blight_crystal",
+      "required": false
+    },
+    {
+      "id": "elysiumores:null_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumores:relic_shard",
+      "required": false
+    }
+  ]
+}

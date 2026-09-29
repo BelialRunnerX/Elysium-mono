@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumsolarpunk:pale_plaster",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:pale_plaster_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:pale_plaster_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:pale_plaster_wall",
+      "required": false
+    }
+  ]
+}

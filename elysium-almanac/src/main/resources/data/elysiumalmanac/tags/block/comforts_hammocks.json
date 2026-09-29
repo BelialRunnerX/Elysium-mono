@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumcomforts:black_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:blue_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:brown_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:cyan_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:gray_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:green_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_blue_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_gray_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:lime_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:magenta_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:orange_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:pink_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:purple_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:red_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:white_hammock",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:yellow_hammock",
+      "required": false
+    }
+  ]
+}

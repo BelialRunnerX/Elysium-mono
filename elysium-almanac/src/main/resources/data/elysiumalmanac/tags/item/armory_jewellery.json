@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:ring",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:bracelet",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:necklace",
+      "required": false
+    }
+  ]
+}

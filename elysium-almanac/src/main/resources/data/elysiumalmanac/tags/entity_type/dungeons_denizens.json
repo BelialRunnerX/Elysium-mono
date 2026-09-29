@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiummobs:drone",
+      "required": false
+    },
+    {
+      "id": "elysiummobs:adept",
+      "required": false
+    },
+    {
+      "id": "elysiummobs:harrier",
+      "required": false
+    },
+    {
+      "id": "elysiummobs:lictor",
+      "required": false
+    },
+    {
+      "id": "elysiummobs:bulwark",
+      "required": false
+    }
+  ]
+}

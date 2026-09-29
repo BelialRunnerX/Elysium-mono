@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:copper_generator",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:iron_generator",
+      "required": false
+    }
+  ]
+}

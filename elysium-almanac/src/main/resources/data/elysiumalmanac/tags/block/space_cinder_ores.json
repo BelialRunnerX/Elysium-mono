@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:cindrium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cinder_coal_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cinder_gold_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cinder_diamond_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:neptunium_ore",
+      "required": false
+    }
+  ]
+}

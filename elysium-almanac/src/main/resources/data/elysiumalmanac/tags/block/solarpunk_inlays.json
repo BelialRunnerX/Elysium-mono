@@ -1,0 +1,101 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumsolarpunk:alabaster_brass_edged",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:alabaster_brass_filigree",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:alabaster_copper_edged",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:alabaster_copper_filigree",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:alabaster_gold_edged",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:alabaster_gold_filigree",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:alabaster_iron_edged",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:alabaster_iron_filigree",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_limestone_brass_edged",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_limestone_brass_filigree",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_limestone_copper_edged",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_limestone_copper_filigree",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_limestone_gold_edged",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_limestone_gold_filigree",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_limestone_iron_edged",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_limestone_iron_filigree",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_marble_brass_edged",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_marble_brass_filigree",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_marble_copper_edged",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_marble_copper_filigree",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_marble_gold_edged",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_marble_gold_filigree",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_marble_iron_edged",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_marble_iron_filigree",
+      "required": false
+    }
+  ]
+}

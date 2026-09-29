@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumtrinkets:cartographers_nail",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:executioners_grip",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:miners_rig",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:pale_tourniquet",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:ratchet_gauntlet",
+      "required": false
+    }
+  ]
+}

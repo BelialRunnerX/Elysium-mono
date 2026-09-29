@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:brutal_spawner",
+      "required": false
+    },
+    {
+      "id": "elysium:swarm_spawner",
+      "required": false
+    }
+  ]
+}

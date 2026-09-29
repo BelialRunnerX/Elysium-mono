@@ -1,0 +1,401 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_stove",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_counter",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_sink",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_stove",
+      "required": false
+    }
+  ]
+}

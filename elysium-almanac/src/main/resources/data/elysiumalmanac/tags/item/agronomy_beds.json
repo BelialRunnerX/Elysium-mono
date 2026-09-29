@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:clay_bed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gravel_bed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ashen_bed",
+      "required": false
+    }
+  ]
+}

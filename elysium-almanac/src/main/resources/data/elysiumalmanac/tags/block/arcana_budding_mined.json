@@ -1,0 +1,85 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarcana:budding_iron",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_copper",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_gold",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_tin",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_zinc",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_nickel",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_silver",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_lead",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_aluminum",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_osmium",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_platinum",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_lithium",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_crimson_iron",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_azure_silver",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_uranium",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_bort",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_certus_quartz",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_fluorite",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_rime_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_uraninite",
+      "required": false
+    }
+  ]
+}

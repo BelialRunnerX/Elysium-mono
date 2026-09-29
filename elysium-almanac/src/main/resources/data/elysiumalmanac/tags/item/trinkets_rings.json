@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumtrinkets:aetherium_band",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:bloodlet_ring",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:carrion_signet",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:duellists_cuff",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:neutronium_band",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:tithe_bracelet",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:widows_thimble",
+      "required": false
+    }
+  ]
+}

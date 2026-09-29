@@ -1,0 +1,57 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:aetherium_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:aetherium_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:aetherium_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:aetherium_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:aetherium_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:aetherium_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:aetherium_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:aetherium_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:aetherium_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:aetherium_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:aetherium_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:aetherium_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:aetherium_boots",
+      "required": false
+    }
+  ]
+}

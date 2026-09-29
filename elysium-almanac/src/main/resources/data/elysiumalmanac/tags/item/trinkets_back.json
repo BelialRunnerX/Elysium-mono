@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumtrinkets:ashen_mantle",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:quiet_hours",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:thornplate",
+      "required": false
+    }
+  ]
+}

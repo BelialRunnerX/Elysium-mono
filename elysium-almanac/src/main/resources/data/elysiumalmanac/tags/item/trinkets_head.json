@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumtrinkets:artificers_loupe",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:longsight",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:neural_filament",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:prospectors_lens",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:reforgers_loupe",
+      "required": false
+    }
+  ]
+}

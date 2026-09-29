@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumfoundry:bort",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:certus_quartz",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:fluorite",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:rime_shard",
+      "required": false
+    }
+  ]
+}

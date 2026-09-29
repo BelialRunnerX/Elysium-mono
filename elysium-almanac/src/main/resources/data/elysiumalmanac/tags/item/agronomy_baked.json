@@ -1,0 +1,37 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:apple_pie",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:sweet_berry_pie",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:chocolate_pie",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:shepherds_pie",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bread_loaf",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:honey_cookie",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:roast_chicken",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:stuffed_pumpkin",
+      "required": false
+    }
+  ]
+}

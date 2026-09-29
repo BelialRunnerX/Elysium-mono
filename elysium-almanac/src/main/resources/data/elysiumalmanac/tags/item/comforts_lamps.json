@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumcomforts:blackstone_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:deepslate_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:end_stone_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:stone_lamp",
+      "required": false
+    }
+  ]
+}

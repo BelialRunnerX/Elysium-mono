@@ -1,0 +1,41 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:duelists_grace",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:emberline",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:sunderer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:frostpike",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:faultline",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bloodletter",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:swiftstring",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hailstorm",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hornbow_of_the_wild",
+      "required": false
+    }
+  ]
+}

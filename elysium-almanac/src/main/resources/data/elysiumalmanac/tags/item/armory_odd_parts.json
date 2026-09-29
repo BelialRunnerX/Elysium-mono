@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:shield_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:elytra_wings",
+      "required": false
+    }
+  ]
+}

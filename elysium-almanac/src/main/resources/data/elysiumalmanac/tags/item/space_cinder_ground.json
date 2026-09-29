@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:cinder_stone",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cinder_cobblestone",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cinder_sand",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cinder_sandstone",
+      "required": false
+    }
+  ]
+}

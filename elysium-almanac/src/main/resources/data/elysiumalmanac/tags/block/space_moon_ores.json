@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:lunite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_iron_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_steel_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_rime_shard_ore",
+      "required": false
+    }
+  ]
+}

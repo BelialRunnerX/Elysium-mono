@@ -1,0 +1,65 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:lunite_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cindrium_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cryonite_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frostite_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:steel_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:raw_lunite_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:raw_cindrium_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:raw_cryonite_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:raw_frostite_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:raw_steel_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:neptunium_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:plutonium_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:heavy_metal_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:raw_neptunium_block",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:raw_plutonium_block",
+      "required": false
+    }
+  ]
+}

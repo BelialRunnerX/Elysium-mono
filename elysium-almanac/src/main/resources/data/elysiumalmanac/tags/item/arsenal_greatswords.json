@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_greatsword",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_greatsword",
+      "required": false
+    }
+  ]
+}

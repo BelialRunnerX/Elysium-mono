@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:identified_penetrating_strike",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:identified_soaring_winds",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:identified_tunneling",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:nickel_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:silver_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:aluminum_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lithium_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lapis_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:quartz_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:glowstone_seed",
+      "required": false
+    }
+  ]
+}

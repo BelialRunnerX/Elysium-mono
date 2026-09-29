@@ -1,0 +1,49 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarcana:bulwark_brooch",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:cleaving_band",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:emberbrand_belt",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:frostbitten_ring",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:gleaners_glove",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:reapers_tally",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:riposte_ring",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:stonehide_ring",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:stormcoil",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:sunder_seal",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:wardstone",
+      "required": false
+    }
+  ]
+}

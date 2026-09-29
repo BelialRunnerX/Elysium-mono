@@ -1,0 +1,41 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:rotten_log",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:rotten_planks",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:rotten_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:rotten_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:rotten_fence",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:rotten_fence_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:rotten_door",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:rotten_trapdoor",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:rotten_pressure_plate",
+      "required": false
+    }
+  ]
+}

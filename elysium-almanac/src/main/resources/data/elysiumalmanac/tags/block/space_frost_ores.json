@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:frostite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cryonite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frost_iron_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frost_diamond_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frost_rime_shard_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:plutonium_ore",
+      "required": false
+    }
+  ]
+}

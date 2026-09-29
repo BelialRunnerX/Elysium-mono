@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_longbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_longbow",
+      "required": false
+    }
+  ]
+}

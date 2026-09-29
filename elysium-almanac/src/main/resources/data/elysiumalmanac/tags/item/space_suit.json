@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:space_suit_helmet",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:space_suit_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:space_suit_leggings",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:space_suit_boots",
+      "required": false
+    }
+  ]
+}

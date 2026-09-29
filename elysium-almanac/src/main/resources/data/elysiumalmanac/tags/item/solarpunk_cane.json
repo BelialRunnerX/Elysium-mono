@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumsolarpunk:cane_lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:living_wall",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:terrace_planter",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:woven_cane_block",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:woven_cane_block_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:woven_cane_block_stairs",
+      "required": false
+    }
+  ]
+}

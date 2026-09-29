@@ -1,0 +1,57 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:scurf",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:slinger",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:canker",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:residue",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:cinderling",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:sludge",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:pyrelet",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:charge",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:masker",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:cinderdam",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:hullguard",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:rimeguard",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:detonant",
+      "required": false
+    }
+  ]
+}

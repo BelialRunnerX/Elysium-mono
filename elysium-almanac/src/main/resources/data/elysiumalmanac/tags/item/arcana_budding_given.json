@@ -1,0 +1,45 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarcana:budding_coal",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_redstone",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_lapis",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_quartz",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_amethyst",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_diamond",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_emerald",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_ancient_debris",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_glowstone",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:budding_obsidian",
+      "required": false
+    }
+  ]
+}

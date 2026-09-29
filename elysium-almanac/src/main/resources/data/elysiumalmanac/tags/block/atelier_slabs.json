@@ -1,0 +1,161 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_vertical_slab",
+      "required": false
+    }
+  ]
+}

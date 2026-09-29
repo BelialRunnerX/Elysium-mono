@@ -1,3 +1,8 @@
+param(
+    [int]$RowY0 = 318,
+    [int]$RowStep = 78,
+    [int]$RowX = 800
+)
 . "$PSScriptRoot\mc.ps1"
 # The questbook by hand (docs/handoff/2026-09-28-questbook-handoff.md): the book reset by
 # command, a step finished by having the thing, the finish announced on the action bar, the
@@ -8,11 +13,6 @@
 # Geometry (1600x900, GUI scale 3): the chooser's panel is centred; the row positions below
 # were read off the first run's shots (almanac_1_contents.png) and hold while the chapter
 # count and the first chapter's quest count do.
-param(
-    [int]$RowY0 = 318,        # the centre of the first row of a chooser, in pixels
-    [int]$RowStep = 78,       # from one row's centre to the next
-    [int]$RowX = 800          # the panel's centre
-)
 $Out = if ($env:ELYSIUM_SHOTS) { $env:ELYSIUM_SHOTS } else { $PSScriptRoot }
 $log = 'E:\testingbuilds\Elysium\logs\latest.log'
 function LogLines { Get-Content $log -ErrorAction SilentlyContinue }
@@ -51,18 +51,34 @@ $r = Row 0; MC-Click $r[0] $r[1]; Start-Sleep -Seconds 1                   # Fir
 MC-Shot "$Out\almanac_2_chapter.png" 0.5
 $r = Row 1; MC-Click $r[0] $r[1]; Start-Sleep -Seconds 1                   # the second row: the crank, done
 MC-Shot "$Out\almanac_3_step.png" 0.5
-# The step's last row is the reward. A crank has one task, so the reward is row 1.
-$r = Row 1; MC-Click $r[0] $r[1]; Start-Sleep -Seconds 2
+# The step's last row is the reward. The step page is shorter than the contents, so its
+# panel sits lower: a one-task step's reward row is at y 524 (read off almanac_3_step.png).
+MC-Click 800 524; Start-Sleep -Seconds 2
 MC-Shot "$Out\almanac_4_claimed.png" 0.5
 MC-Key 'ESC'; Start-Sleep -Seconds 1
 Ask '/almanac status' 'paid'
 Ask '/data get entity @s neoforge:attachments."elysiumlib:level"' 'has the following|level'
 Ask '/data get entity @s neoforge:attachments."elysiumlib:xp"' 'has the following|xp'
 
-Say "== a counted step: break stone"
-MC-Cmd '/gamemode survival'
-MC-Cmd '/give @s minecraft:diamond_pickaxe'; MC-Key '2'
-MC-Cmd '/fill 899 89 -262 901 89 -260 minecraft:stone'
-Ask '/almanac status' 'open now'
+Say "== experience from an ordinary action: mining a column of stone in survival"
+# Stand on a six-block column of stone looking straight down and hold the attack button:
+# each block broken drops the player onto the next. Mining pays 3 a block (ElysiumXpRules),
+# so the xp attachment rises by the blocks broken times three, less nothing (no cap met).
+# By day and warded: the stage stands in the open, and a level-46 scavenger killed the
+# tester here once at night.
+MC-Cmd '/time set noon'
+MC-Cmd '/effect give @s minecraft:resistance 120 4 true'
+MC-Cmd '/fill 900 83 -259 900 89 -259 minecraft:stone'
+MC-Cmd '/execute in minecraft:overworld run tp @s 900.5 90 -258.5 180 90'; Start-Sleep -Seconds 2
+# The pickaxe into the first slot and that slot selected: /give lands in the first free slot,
+# which was the fourth, and stone by hand outlasts the hold.
+MC-Cmd '/item replace entity @s hotbar.0 with minecraft:diamond_pickaxe'; MC-Key '1'; Start-Sleep -Milliseconds 400
+MC-Cmd '/gamemode survival'; Start-Sleep -Milliseconds 600
+Ask '/data get entity @s neoforge:attachments."elysiumlib:xp"' 'has the following|xp'
+[Win32MC]::Mouse(0x0002, 0, 0, 0); Start-Sleep -Seconds 5; [Win32MC]::Mouse(0x0004, 0, 0, 0)
+Start-Sleep -Milliseconds 800
+MC-Shot "$Out\almanac_5_mined.png" 0.5
+Ask '/data get entity @s neoforge:attachments."elysiumlib:xp"' 'has the following|xp'
+Ask '/data get entity @s Pos' 'has the following'
 MC-Cmd '/gamemode creative'
 Write-Host "almanac stage done"

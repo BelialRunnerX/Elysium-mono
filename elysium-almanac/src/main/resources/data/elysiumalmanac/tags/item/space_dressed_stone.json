@@ -1,0 +1,137 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:pale_stone_bricks",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_stone_brick_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_stone_brick_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:chiseled_pale_stone_bricks",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_stone_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_stone_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:pale_stone_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:polished_pale_stone",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:polished_pale_stone_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:polished_pale_stone_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frost_stone_bricks",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frost_stone_brick_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frost_stone_brick_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:chiseled_frost_stone_bricks",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frost_stone_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frost_stone_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:frost_stone_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:polished_frost_stone",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:polished_frost_stone_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:polished_frost_stone_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cinder_stone_bricks",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cinder_stone_brick_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cinder_stone_brick_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:chiseled_cinder_stone_bricks",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cinder_stone_pillar",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cinder_stone_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cinder_stone_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:polished_cinder_stone",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:polished_cinder_stone_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:polished_cinder_stone_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:smooth_cinder_sandstone",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:smooth_cinder_sandstone_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:smooth_cinder_sandstone_stairs",
+      "required": false
+    }
+  ]
+}

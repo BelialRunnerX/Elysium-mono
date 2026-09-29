@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:emgrove_log",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:emgrove_wood",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:emgrove_leaves",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:emgrove_roots",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:muddy_emgrove_roots",
+      "required": false
+    }
+  ]
+}

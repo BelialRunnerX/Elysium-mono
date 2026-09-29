@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:drayhulk",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:pileframe",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:siegehulk",
+      "required": false
+    }
+  ]
+}

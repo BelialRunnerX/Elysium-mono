@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatomics:raw_uranium",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:raw_uraninite",
+      "required": false
+    }
+  ]
+}

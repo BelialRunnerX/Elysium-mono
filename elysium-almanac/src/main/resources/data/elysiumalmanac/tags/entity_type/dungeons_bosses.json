@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiummobs:choir",
+      "required": false
+    },
+    {
+      "id": "elysiummobs:praetor",
+      "required": false
+    }
+  ]
+}

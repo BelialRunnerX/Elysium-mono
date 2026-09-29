@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:frostite_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:cryonite_ingot",
+      "required": false
+    }
+  ]
+}

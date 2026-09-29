@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_excavator",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_excavator",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_excavator",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_excavator",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_excavator",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_excavator",
+      "required": false
+    }
+  ]
+}

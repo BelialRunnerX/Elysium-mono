@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_paxel",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_paxel",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_paxel",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_paxel",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_paxel",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_paxel",
+      "required": false
+    }
+  ]
+}

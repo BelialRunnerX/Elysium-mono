@@ -16,19 +16,19 @@ Regenerate it after any change; do not edit by hand. How each kind is validated:
 * Attributes: 41
 * Biome definitions: 166
 * Biomes: 166
-* Blocks: 4997
+* Blocks: 5005
 * Creative tabs: 3
 * Creatures: 396
 * Damage types: 9
 * Dimensions: 7
 * Effects: 20
 * Enchantments: 24
-* Items: 2399
+* Items: 2412
 * Loot modifiers: 28
 * Recipe kinds: 12
-* Structure templates: 71
-* Structures: 36
-* World features: 273
+* Structure templates: 80
+* Structures: 45
+* World features: 274
 
 
 ## Elysium Agronomy — elysium-agronomy (`elysiumagronomy`)
@@ -1498,7 +1498,7 @@ Elysium Agronomy: things that grow. Pots that farm without a field, seeds that g
 
 Elysium Almanac: the book that tells you what to do next. Every chapter of the pack, every step in order, and a graph proved to have no step that can never be reached and none that is its own prerequisite. Requires Elysium Library.
 
-0 blocks, 1 items; 1 recipes; 7 validated mechanics.
+0 blocks, 1 items; 1 recipes; 8 validated mechanics.
 
 ### Blocks (0)
 
@@ -1511,12 +1511,13 @@ Elysium Almanac: the book that tells you what to do next. Every chapter of the p
 |---|---|
 | `almanac` | Almanac |
 
-### Mechanics the validator executes (7)
+### Mechanics the validator executes (8)
 
 * **independence**: … source file(s), and not one of the six
 * **the graph played**: 
 * **the graph**: … quest(s) over … chapter(s)
-* **what it asks for**: … item(s), block(s) and beast(s) named across
+* **what it asks for**: … item(s), block(s) and beast(s), … tag(s)
+* **the rewards**: every step pays through the library's door, once, for a step
 * **the words**: … key(s), a title and a reason for every quest
 * **the book**: craftable out of the base game, handed out once, kept
 * **what it declares**: the game and the library, and not one thing it describes
@@ -1984,7 +1985,7 @@ Elysium Armory: gear assembled from parts, each part from a material, the whole 
 
 Elysium Arsenal: the tools that take a wall at a time, and the proof that not one of them is simply better than what it replaces. Requires Elysium Library.
 
-41 blocks, 573 items, 1 damage types; 261 recipes; 9 validated mechanics.
+41 blocks, 573 items, 1 damage types; 261 recipes; 10 validated mechanics.
 
 ### Blocks (41)
 
@@ -2616,7 +2617,7 @@ Elysium Arsenal: the tools that take a wall at a time, and the proof that not on
 |---|---|
 | `piercing` |  |
 
-### Mechanics the validator executes (9)
+### Mechanics the validator executes (10)
 
 * **independence**: … source file(s), nothing it replaces
 * **the band**: every tool slower than its specialist on one block and
@@ -2624,6 +2625,7 @@ Elysium Arsenal: the tools that take a wall at a time, and the proof that not on
 * **the catalogue**: … tool(s), every one drawn
 * **generated**: every sprite, model, recipe and name written by the
 * **the weapons**: none of them beaten on every axis by another, each the best
+* **grade attributes**: …
 * **reforging**: … grade(s) across … kinds
 * **the digging**: … brush(es), … site(s)
 * **what it declares**: the game and the library, and not one thing beyond them
@@ -6099,13 +6101,13 @@ Elysium Bestiary: things that hunt you, and the proof that fighting a harder one
 * **independence**: … source file(s), nothing it replaces
 * **the arithmetic**: 
 * **purity**: the rules are the JDK alone, and the reward is derived in
-* **the sheet**: … corners on a …-pixel sheet, none
+* **the shapes**: … body plan(s) of
 * **what it drops**: the game's jar is not here, so the drops
 * **what it drops**: … distinct drop(s), every
 * **what it leaves**: … loot table(s) read back, and every one
 * **what you meet**: the game's jar is not here, so the biome
 * **what you meet**: … beast(s) across
-* **the words**: every sprite, model, loot table and spawn
+* **the words**: every sprite, model, shape class, loot table and
 * **in the world**: every beast, attribute, spawn rule, renderer and egg
 * **where they are**: … haunt(s)
 * **the summons**: … shape(s) of ability that cannot
@@ -6125,9 +6127,9 @@ Elysium Bestiary: things that hunt you, and the proof that fighting a harder one
 
 Elysium Colonies: a MineColonies add-on that makes the two progressions agree — your colony is how far you have come, your raiders know who they are raiding, and the Empire notices a settlement. Requires Elysium Library and MineColonies.
 
-7 blocks, 0 items, 1 structures, 1 structure templates; 6 recipes; 14 validated mechanics.
+8 blocks, 0 items, 2 structures, 2 structure templates; 6 recipes; 15 validated mechanics.
 
-### Blocks (7)
+### Blocks (8)
 
 | id | name |
 |---|---|
@@ -6137,6 +6139,7 @@ Elysium Colonies: a MineColonies add-on that makes the two progressions agree �
 | `elevator_deck` | Elevator Deck |
 | `elevator_pylon` | Elevator Pylon |
 | `elevator_tether` | Elevator Tether |
+| `ruin_seed` | Ruin Marker |
 | `settlement_seed` | Survey Stake |
 
 ### Items (0)
@@ -6144,19 +6147,21 @@ Elysium Colonies: a MineColonies add-on that makes the two progressions agree �
 | id | name |
 |---|---|
 
-### Structures (1)
+### Structures (2)
 
 | id | name |
 |---|---|
+| `ruin` |  |
 | `settlement` |  |
 
-### Structure templates (1)
+### Structure templates (2)
 
 | id | name |
 |---|---|
+| `ruin_seed` |  |
 | `settlement_seed` |  |
 
-### Mechanics the validator executes (14)
+### Mechanics the validator executes (15)
 
 * **one seam**: exactly one file knows MineColonies, and it hands out a
 * **three writes**: an order, a repair, a delivery - all through the seam, and
@@ -6165,6 +6170,7 @@ Elysium Colonies: a MineColonies add-on that makes the two progressions agree �
 * **the reckoning**: once a day, on the server, through the rules, and it shows
 * **the styles**: … style(s)
 * **the market**: …
+* **the ruins**: a marker on its own grid (…/…), never on a town, raising
 * **settlement plan**: …
 * **settlements**: towns found themselves on … world(s)
 * **whose map it is**: placement follows attendance, everything else carries on
@@ -6177,7 +6183,7 @@ Elysium Colonies: a MineColonies add-on that makes the two progressions agree �
 
 Elysium Comforts: the small mercies. A grave that holds everything you were carrying, and the proof that it holds all of it. Requires Elysium Library.
 
-179 blocks, 14 items, 2 creatures; 188 recipes; 7 validated mechanics.
+179 blocks, 14 items, 2 creatures; 188 recipes; 8 validated mechanics.
 
 ### Blocks (179)
 
@@ -6389,7 +6395,7 @@ Elysium Comforts: the small mercies. A grave that holds everything you were carr
 | `charred_pigeon` | Charred Pigeon |
 | `pigeon` | Pigeon |
 
-### Mechanics the validator executes (7)
+### Mechanics the validator executes (8)
 
 * **independence**: … source file(s), nothing it replaces
 * **the counting**: a grave sized to what it is handed, up to …, and
@@ -6398,12 +6404,13 @@ Elysium Comforts: the small mercies. A grave that holds everything you were carr
 * **the wind in them**: … chime(s) over …
 * **the post**: … pigeonhole(s), … kind(s)
 * **lighting a room**: … fitting(s) in …
+* **the birds**: one winged plan of … boxes that flies, every colouring on its sheet
 
 ## Elysium — elysium-core (`elysium`)
 
 Elysium: a character and gear progression mod. Twelve stats, six races and nine classes chosen on first join; tiered elemental armour, weapons and area tools; socketable runes with material alignment; reforging and ascension that scale without a ceiling; and two opposed faction standings that drive spawning and loot. Optional hooks for Apotheosis, Silent Gear and Legendary Tooltips.
 
-15 blocks, 381 items, 2 creatures, 6 world features; 384 recipes; 26 validated mechanics.
+15 blocks, 382 items, 2 creatures, 6 world features; 385 recipes; 26 validated mechanics.
 
 ### Blocks (15)
 
@@ -6425,7 +6432,7 @@ Elysium: a character and gear progression mod. Twelve stats, six races and nine 
 | `swarm_spawner` | Swarm Spawner |
 | `voidglass_ore` | Voidglass Ore |
 
-### Items (381)
+### Items (382)
 
 | id | name |
 |---|---|
@@ -6615,6 +6622,7 @@ Elysium: a character and gear progression mod. Twelve stats, six races and nine 
 | `lead_shovel` | Lead Shovel |
 | `lead_spear` | Lead Spear |
 | `lead_sword` | Lead Sword |
+| `ledger_erasure` | Ledger Erasure |
 | `netherite_axe` | Netherite Axe |
 | `netherite_boots` | Netherite Boots |
 | `netherite_broadaxe` | Netherite Broadaxe |
@@ -6851,7 +6859,7 @@ Elysium: a character and gear progression mod. Twelve stats, six races and nine 
 * **field rations**: … edible, one per hazard
 * **recipe codecs**: unit codecs share one value that answers equals
 * **recipe tags**: every tag a recipe names resolves —
-* **skill tree**: … skills, …
+* **ledger web**: the Pufferfish datapack and its generator retired, no words for it left
 * **humanoid skins**: … at 64x64, each named by the
 * **gems and sigils**: … items and … benches; dust only from
 * **underground**: … things waiting, each rare, each on a floor, and
@@ -7064,7 +7072,7 @@ Elysium Flora: two fibre crops and a tree that grows where nothing should, so st
 
 Elysium Foundry: the fourth age. The full material chain, in one graph with no cycles in it and no step that makes matter out of nothing. Alloys, forms, and machines gated on what they are made of. Requires Elysium Library, Elysium Kinetics, Elysium Industry and Elysium Atomics.
 
-6 blocks, 131 items; 224 recipes; 6 validated mechanics.
+6 blocks, 131 items; 232 recipes; 6 validated mechanics.
 
 ### Blocks (6)
 
@@ -7344,7 +7352,7 @@ Elysium Kinetics: the first age of machinery. Salvaged pre-collapse gear restart
 
 The engine behind Elysium, with no content of its own. Registries for stats, elements, races, classes and runes; the character sheet, levelling and point spending; the gear, socket and reforge framework; faction standing with pluggable dispatch and rewards; and the event handlers that make all of it happen during play. Installed alone it is inert but not broken. Add-ons register into it from their own constructors.
 
-0 blocks, 0 items, 3 enchantments, 20 effects, 41 attributes, 1 loot modifiers, 7 damage types; 0 recipes; 47 validated mechanics.
+0 blocks, 0 items, 3 enchantments, 20 effects, 41 attributes, 1 loot modifiers, 7 damage types; 0 recipes; 54 validated mechanics.
 
 ### Blocks (0)
 
@@ -7453,11 +7461,12 @@ The engine behind Elysium, with no content of its own. Registries for stats, ele
 | `null` |  |
 | `null_collapse` |  |
 
-### Mechanics the validator executes (47)
+### Mechanics the validator executes (54)
 
 * **library sources**: … files, no content references
 * **element ring**: … elements, each beats 2 and is beaten by 2
 * **stats registered**: …
+* **the undeclared**: a player under the declaration screen takes no damage
 * **lang keys**: …
 * **stat tooltips**: … stats, each with a name and a
 * **standing causes**: … declared, all translated, all filed
@@ -7501,7 +7510,13 @@ The engine behind Elysium, with no content of its own. Registries for stats, ele
 * **accessory seam**: two questions, no accessory mod named, and the effect
 * **weather**: a hazard source read off the day, announced when it
 * **valoria effects**: the Null field as a sixth hazard with a gauge and a ward
+* **sound**: … voices x …, … hums
+* **kind tags**: vanilla's lists not checked, no vanilla-assets.jar (set MC_JAR)
+* **kind tags**: the c: lists not checked, no NeoForge jar on the classpath
+* **kind tags**: … kind(s) from the harness, every vanilla tag a list vanilla has
+* **the ledger web**: … nodes from the rules, every cluster, keystone, stat and
 * **runs**: the join rule, the plate, the dye and the tints, executed and shared
+* **the boxes**: a chest menu type per row count, one to six, each under the kit's screen
 
 ## Elysium Logistics — elysium-logistics (`elysiumlogistics`)
 
@@ -8903,9 +8918,9 @@ Elysium Solarpunk: a building set for the other future - white marble, limestone
 
 Elysium Space: other worlds, the air you cannot breathe on them, and the rooms that let you. Ported from Stellaris (Exodus Studio, CC BY-NC-SA 4.0) and rebuilt on Elysium Library. Requires Elysium Library.
 
-109 blocks, 43 items, 9 creatures, 11 biomes, 26 structures, 5 dimensions, 31 world features, 1 damage types, 11 biome definitions, 67 structure templates; 148 recipes; 18 validated mechanics.
+116 blocks, 55 items, 9 creatures, 11 biomes, 34 structures, 5 dimensions, 32 world features, 1 damage types, 11 biome definitions, 75 structure templates; 173 recipes; 18 validated mechanics.
 
-### Blocks (109)
+### Blocks (116)
 
 | id | name |
 |---|---|
@@ -8958,6 +8973,7 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `frostite_ore` | Frostite Ore |
 | `fuel` | Rocket Fuel |
 | `fuel_refinery` | Fuel Refinery |
+| `heavy_metal_block` | Block of Heavy Metal |
 | `iron_pillar` | Iron Pillar |
 | `iron_plating` | Iron Plating |
 | `iron_plating_slab` | Iron Plating Slab |
@@ -8970,6 +8986,8 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `lunite_plating_slab` | Lunite Plating Slab |
 | `lunite_plating_stairs` | Lunite Plating Stairs |
 | `muddy_emgrove_roots` | Muddy Emgrove Roots |
+| `neptunium_block` | Block of Neptunium |
+| `neptunium_ore` | Neptunium Ore |
 | `oil` | Oil |
 | `oxygen_distributor` | Oxygen Distributor |
 | `pale_cobblestone` | Pale Cobblestone |
@@ -8988,6 +9006,8 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `pale_vines` | Pale Vines |
 | `pale_vines_plant` | Pale Vines |
 | `pipe` | Pipe |
+| `plutonium_block` | Block of Plutonium |
+| `plutonium_ore` | Plutonium Ore |
 | `polished_cinder_stone` | Polished Cinder Stone |
 | `polished_cinder_stone_slab` | Polished Cinder Stone Slab |
 | `polished_cinder_stone_stairs` | Polished Cinder Stone Stairs |
@@ -9002,6 +9022,8 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `raw_cryonite_block` | Block of Raw Cryonite |
 | `raw_frostite_block` | Block of Raw Frostite |
 | `raw_lunite_block` | Block of Raw Lunite |
+| `raw_neptunium_block` | Block of Raw Neptunium |
+| `raw_plutonium_block` | Block of Raw Plutonium |
 | `raw_steel_block` | Block of Raw Steel |
 | `smooth_cinder_sandstone` | Smooth Cinder Sandstone |
 | `smooth_cinder_sandstone_slab` | Smooth Cinder Sandstone Slab |
@@ -9019,7 +9041,7 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `waygate_anchor` | Waygate Anchor |
 | `waygate_frame` | Waygate Frame |
 
-### Items (43)
+### Items (55)
 
 | id | name |
 |---|---|
@@ -9037,6 +9059,8 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `frostite_nugget` | Frostite Nugget |
 | `fuel_bucket` | Rocket Fuel Bucket |
 | `fuel_canister` | Fuel Canister |
+| `heavy_metal_ingot` | Heavy Metal Ingot |
+| `heavy_metal_nugget` | Heavy Metal Nugget |
 | `hollow_moonfolk_spawn_egg` | Hollow Moonfolk Spawn Egg |
 | `hydrogen_canister` | Hydrogen Canister |
 | `hydrogen_motor` | Hydrogen Motor |
@@ -9046,12 +9070,21 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `lunite_nugget` | Lunite Nugget |
 | `medium_station_blueprint` | Medium Station Blueprint |
 | `moonfolk_spawn_egg` | Moonfolk Spawn Egg |
+| `neptunium_ingot` | Neptunium Ingot |
+| `neptunium_nugget` | Neptunium Nugget |
 | `oil_bucket` | Oil Bucket |
+| `oil_finder` | Oil Finder |
 | `oxygen_canister` | Oxygen Canister |
+| `plutonium_ingot` | Plutonium Ingot |
+| `plutonium_motor` | Plutonium Motor |
+| `plutonium_nugget` | Plutonium Nugget |
+| `radioactive_motor` | Radioactive Motor |
 | `raw_cindrium` | Raw Cindrium |
 | `raw_cryonite` | Raw Cryonite |
 | `raw_frostite` | Raw Frostite |
 | `raw_lunite` | Raw Lunite |
+| `raw_neptunium` | Raw Neptunium |
+| `raw_plutonium` | Raw Plutonium |
 | `raw_steel` | Raw Steel |
 | `rime_shard` | Rime Shard |
 | `rocket` | Rocket |
@@ -9065,6 +9098,7 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `space_suit_leggings` | Space Suit Leggings |
 | `steel_ingot` | Steel Ingot |
 | `steel_nugget` | Steel Nugget |
+| `uranium_motor` | Uranium Motor |
 | `void_crawler_spawn_egg` | Void Crawler Spawn Egg |
 
 ### Creatures (9)
@@ -9097,18 +9131,26 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `pale_moon_caves` | Pale Moon Hollows |
 | `pale_moon_desert` | Pale Moon Flats |
 
-### Structures (26)
+### Structures (34)
 
 | id | name |
 |---|---|
+| `cinderveil_big_castle` |  |
 | `cinderveil_catacombs` |  |
 | `cinderveil_crash_site` |  |
+| `cinderveil_factory` |  |
+| `cinderveil_lava_mines` |  |
 | `cinderveil_lava_outpost` |  |
+| `cinderveil_mining_ship` |  |
 | `cinderveil_outpost` |  |
 | `cinderveil_outpost_dungeon` |  |
 | `cinderveil_plaza` |  |
+| `cinderveil_quarry` |  |
 | `cinderveil_ruins` |  |
+| `cinderveil_small_castle` |  |
+| `cinderveil_temple` |  |
 | `cinderveil_tower` |  |
+| `cinderveil_volcano` |  |
 | `frostfall_main_temple` |  |
 | `frostfall_maze` |  |
 | `frostfall_ruins` |  |
@@ -9138,7 +9180,7 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `high_orbit` |  |
 | `pale_moon` |  |
 
-### World features (31)
+### World features (32)
 
 | id | name |
 |---|---|
@@ -9148,7 +9190,6 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `cindrium_ore` |  |
 | `cryonite_ore` |  |
 | `deepslate_steel_ore` |  |
-| `emerald_bastion_lake` |  |
 | `emerald_bastion_ore_coal` |  |
 | `emerald_bastion_ore_copper` |  |
 | `emerald_bastion_ore_diamond` |  |
@@ -9164,6 +9205,7 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `frost_rime_shard_ore` |  |
 | `frostite_ore` |  |
 | `lunite_ore` |  |
+| `neptunium_ore` |  |
 | `oil_lake` |  |
 | `pale_iron_ore` |  |
 | `pale_moon_caves_key` |  |
@@ -9171,6 +9213,7 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `pale_moon_vine_key` |  |
 | `pale_rime_shard_ore` |  |
 | `pale_steel_ore` |  |
+| `plutonium_ore` |  |
 | `steel_ore` |  |
 | `tall_emgrove` |  |
 
@@ -9196,22 +9239,30 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `pale_moon_caves` |  |
 | `pale_moon_desert` |  |
 
-### Structure templates (67)
+### Structure templates (75)
 
 | id | name |
 |---|---|
+| `cinderveil_big_castle` |  |
 | `cinderveil_catacombs_chestroom` |  |
 | `cinderveil_catacombs_corner` |  |
 | `cinderveil_catacombs_entry` |  |
 | `cinderveil_catacombs_hallway` |  |
 | `cinderveil_catacombs_tcorner` |  |
 | `cinderveil_crash_site` |  |
+| `cinderveil_factory` |  |
+| `cinderveil_lava_mines` |  |
 | `cinderveil_lava_outpost` |  |
+| `cinderveil_mining_ship` |  |
 | `cinderveil_outpost` |  |
 | `cinderveil_outpost_dungeon` |  |
 | `cinderveil_plaza` |  |
+| `cinderveil_quarry` |  |
 | `cinderveil_ruins` |  |
+| `cinderveil_small_castle` |  |
+| `cinderveil_temple` |  |
 | `cinderveil_tower` |  |
+| `cinderveil_volcano` |  |
 | `frostfall_main_temple` |  |
 | `frostfall_maze_corner` |  |
 | `frostfall_maze_cross` |  |
@@ -9476,7 +9527,7 @@ Elysium Trinkets: forty accessories worn in Curios slots. Twenty-four unique one
 
 Elysium Wilds: things that hunt you, and the proof that fighting a harder one is always worth more than fighting an easier one. Requires Elysium Library.
 
-0 blocks, 17 items, 155 biomes, 8 structures, 1 dimensions, 6 world features, 155 biome definitions; 1 recipes; 11 validated mechanics.
+0 blocks, 17 items, 155 biomes, 8 structures, 1 dimensions, 6 world features, 155 biome definitions; 1 recipes; 12 validated mechanics.
 
 ### Blocks (0)
 
@@ -9855,7 +9906,7 @@ Elysium Wilds: things that hunt you, and the proof that fighting a harder one is
 | `vale_sulphur_springs` |  |
 | `vale_verdant_vale` |  |
 
-### Mechanics the validator executes (11)
+### Mechanics the validator executes (12)
 
 * **independence**: … source file(s), nothing it replaces
 * **the arithmetic**: 
@@ -9867,4 +9918,5 @@ Elysium Wilds: things that hunt you, and the proof that fighting a harder one is
 * **the words**: … needle frame(s), a model, a recipe
 * **the structures**: … kind(s) of building, every one
 * **the overworld**: … biome(s) of ours in
+* **the reference**: the stages' reference world carries the preset's
 * **the seam**: the rules pointed at every dimension file in the

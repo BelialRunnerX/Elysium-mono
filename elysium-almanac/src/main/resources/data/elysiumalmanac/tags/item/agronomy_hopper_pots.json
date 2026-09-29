@@ -1,0 +1,249 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:amethyst_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:andesite_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:basalt_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:black_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:black_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:black_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blackstone_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blue_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blue_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blue_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:brown_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:brown_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:brown_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:calcite_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cyan_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cyan_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cyan_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:deepslate_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:diorite_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:dripstone_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:granite_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gray_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gray_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gray_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:green_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:green_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:green_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:light_blue_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:light_blue_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:light_blue_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:light_gray_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:light_gray_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:light_gray_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lime_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lime_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lime_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:magenta_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:magenta_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:magenta_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:obsidian_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:orange_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:orange_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:orange_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pink_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pink_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pink_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:purple_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:purple_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:purple_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:quartz_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:red_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:red_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:red_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:stone_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tuff_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:white_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:white_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:white_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:yellow_concrete_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:yellow_glazed_terracotta_hopper_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:yellow_terracotta_hopper_botany_pot",
+      "required": false
+    }
+  ]
+}

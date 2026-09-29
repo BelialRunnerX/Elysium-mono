@@ -1,0 +1,93 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:amethyst_block_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_gate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_gate",
+      "required": false
+    }
+  ]
+}

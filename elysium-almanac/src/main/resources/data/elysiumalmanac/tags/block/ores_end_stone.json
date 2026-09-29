@@ -1,0 +1,157 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:end_stone_aluminum_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_amber_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_azure_silver_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_bort_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_certus_quartz_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_cindrium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_coal_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_cobalt_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_copper_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_crimson_iron_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_cryonite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_diamond_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_emerald_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_fluorite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_frostite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_gold_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_iron_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_jade_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_lapis_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_lead_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_lithium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_lunite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_nickel_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_null_amethyst_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_osmium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_pearlium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_pyratite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_quartz_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_redstone_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_rime_shard_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_ruby_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_sapphire_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_silver_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_steel_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_tin_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_uraninite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_uranium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_zinc_ore",
+      "required": false
+    }
+  ]
+}

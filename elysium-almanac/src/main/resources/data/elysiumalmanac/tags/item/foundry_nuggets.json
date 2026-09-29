@@ -1,0 +1,93 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumfoundry:tin_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:zinc_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:nickel_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:silver_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:lead_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:aluminum_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:osmium_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:platinum_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:lithium_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:crimson_iron_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:azure_silver_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:bronze_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:brass_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:cast_iron_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:electrum_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:invar_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:constantan_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:stainless_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:signal_alloy_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:hardened_bronze_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:void_steel_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:starsteel_nugget",
+      "required": false
+    }
+  ]
+}

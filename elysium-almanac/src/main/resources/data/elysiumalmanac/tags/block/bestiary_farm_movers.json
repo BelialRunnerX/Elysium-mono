@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:mob_fan",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:mob_conveyor",
+      "required": false
+    }
+  ]
+}

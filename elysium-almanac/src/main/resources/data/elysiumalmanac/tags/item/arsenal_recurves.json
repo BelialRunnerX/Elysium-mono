@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_recurve",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_recurve",
+      "required": false
+    }
+  ]
+}

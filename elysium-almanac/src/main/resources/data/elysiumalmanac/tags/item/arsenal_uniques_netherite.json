@@ -1,0 +1,37 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:stormfang",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:kingsmourn",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:worldsplitter",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:skypiercer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:mountainfall",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:soulpiercer",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:sunspine",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:gravebolt",
+      "required": false
+    }
+  ]
+}

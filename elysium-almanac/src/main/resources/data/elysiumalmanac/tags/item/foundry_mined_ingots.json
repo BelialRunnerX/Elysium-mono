@@ -1,0 +1,49 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumfoundry:tin_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:zinc_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:nickel_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:silver_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:lead_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:aluminum_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:osmium_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:platinum_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:lithium_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:crimson_iron_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:azure_silver_ingot",
+      "required": false
+    }
+  ]
+}

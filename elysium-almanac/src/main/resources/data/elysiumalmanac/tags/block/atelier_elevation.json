@@ -1,0 +1,401 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_sill",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_awning",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_cornice",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_sill",
+      "required": false
+    }
+  ]
+}

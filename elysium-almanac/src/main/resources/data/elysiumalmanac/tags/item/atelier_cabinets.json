@@ -1,0 +1,269 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_crate",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_cabinet",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_crate",
+      "required": false
+    }
+  ]
+}

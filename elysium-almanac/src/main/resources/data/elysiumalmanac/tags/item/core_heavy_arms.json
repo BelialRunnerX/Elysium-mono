@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:singularity_lance",
+      "required": false
+    },
+    {
+      "id": "elysium:neural_cascade_rifle",
+      "required": false
+    }
+  ]
+}

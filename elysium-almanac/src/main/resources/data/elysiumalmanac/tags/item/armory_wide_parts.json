@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:mattock_head",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:paxel_head",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:hammer_head",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:excavator_head",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:saw_blade",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:prospector_hammer_head",
+      "required": false
+    }
+  ]
+}

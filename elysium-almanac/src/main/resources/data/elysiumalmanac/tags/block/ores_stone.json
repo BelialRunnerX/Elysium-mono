@@ -1,0 +1,53 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:stone_amber_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:stone_certus_quartz_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:stone_cobalt_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:stone_jade_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:stone_null_amethyst_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:stone_pearlium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:stone_platinum_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:stone_pyratite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:stone_quartz_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:stone_rime_shard_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:stone_ruby_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:stone_sapphire_ore",
+      "required": false
+    }
+  ]
+}

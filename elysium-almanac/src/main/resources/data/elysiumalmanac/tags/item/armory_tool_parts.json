@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:pickaxe_head",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:shovel_head",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:axe_head",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:hoe_head",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:shear_blades",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:sickle_blade",
+      "required": false
+    }
+  ]
+}

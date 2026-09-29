@@ -1,0 +1,269 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_shelf",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_rack",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_shelf",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:binding",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:grip",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:tip",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:coating",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:lining",
+      "required": false
+    }
+  ]
+}

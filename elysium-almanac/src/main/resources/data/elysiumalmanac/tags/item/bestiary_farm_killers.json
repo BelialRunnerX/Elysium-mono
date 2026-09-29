@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:grinder_saw",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:grinder_spikes",
+      "required": false
+    }
+  ]
+}

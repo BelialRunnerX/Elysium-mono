@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumtrinkets:dimensional_anchor",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:gravebound_coil",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:iron_discipline",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:kinetic_spur",
+      "required": false
+    },
+    {
+      "id": "elysiumtrinkets:plasma_cord",
+      "required": false
+    }
+  ]
+}

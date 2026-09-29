@@ -62,11 +62,21 @@ public final class Ruins {
         if (blocks.isEmpty()) {
             return declined(level, marker, "no blueprint for " + kind + " in " + pack);
         }
+        // The rows are measured over what a ruin can keep: the blueprint's
+        // foundation is placeholder fill, and counted as the floor it would put
+        // the real floor half way up the decay curve.
         int lowest = Integer.MAX_VALUE;
         int highest = Integer.MIN_VALUE;
         for (Colonies.Placed placed : blocks) {
+            ResourceLocation what = BuiltInRegistries.BLOCK.getKey(placed.state().getBlock());
+            if (RuinRules.hostBlock(what.getNamespace()) || RuinRules.flimsy(what.toString())) {
+                continue;
+            }
             lowest = Math.min(lowest, placed.at().getY());
             highest = Math.max(highest, placed.at().getY());
+        }
+        if (lowest > highest) {
+            return declined(level, marker, "the " + kind + " blueprint holds nothing a ruin keeps");
         }
         int height = highest - lowest + 1;
         int kept = 0;
@@ -75,13 +85,18 @@ public final class Ruins {
             ResourceLocation id = BuiltInRegistries.BLOCK.getKey(state.getBlock());
             String name = id.toString();
             // The host's own blocks — huts, racks, its decorations that carry a
-            // colony's data — are what a ruin has none of.
-            if (id.getNamespace().equals("minecolonies") || RuinRules.flimsy(name)) {
+            // colony's data — are what a ruin has none of; nor its blueprint
+            // library's placeholders.
+            if (RuinRules.hostBlock(id.getNamespace()) || RuinRules.flimsy(name)) {
                 continue;
             }
             BlockPos at = ground.offset(placed.at());
+            // The row in the building, not the height in the world: the decay
+            // curve is read from the building's floor. (Given the world height,
+            // every block at y 200 of a 20-row building read as roof, and a
+            // tavern kept a hundred blocks of seventeen hundred.)
             int row = placed.at().getY() - lowest;
-            if (!RuinRules.keep(seed, at.getX(), at.getY(), at.getZ(), height, RuinRules.wooden(name))) {
+            if (!RuinRules.keep(seed, at.getX(), row, at.getZ(), height, RuinRules.wooden(name))) {
                 continue;
             }
             String after = RuinRules.weathered(seed, at.getX(), at.getY(), at.getZ(), name);
@@ -93,9 +108,6 @@ public final class Ruins {
             }
             if (level.setBlock(at, state, Block.UPDATE_CLIENTS | Block.UPDATE_SUPPRESS_DROPS)) {
                 kept++;
-            }
-            if (row == 0 && kept == 1) {
-                // nothing: the chest goes where the floor is, below
             }
         }
         // The chest: on the floor, at the anchor's own column, in whatever

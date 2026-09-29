@@ -1,0 +1,49 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:lumen",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:tether",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:holdfast",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:tapper",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:seeder",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:borer",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:stasher",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:chiller",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:doubler",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:snapper",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:igniter",
+      "required": false
+    }
+  ]
+}

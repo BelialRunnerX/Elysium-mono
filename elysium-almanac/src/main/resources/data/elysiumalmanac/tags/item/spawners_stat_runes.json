@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspawners:rune_of_haste",
+      "required": false
+    },
+    {
+      "id": "elysiumspawners:rune_of_swarming",
+      "required": false
+    },
+    {
+      "id": "elysiumspawners:rune_of_crowding",
+      "required": false
+    },
+    {
+      "id": "elysiumspawners:rune_of_vigilance",
+      "required": false
+    },
+    {
+      "id": "elysiumspawners:rune_of_scattering",
+      "required": false
+    }
+  ]
+}

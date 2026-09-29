@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumsolarpunk:rammed_earth",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:rammed_earth_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:rammed_earth_stairs",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:rammed_earth_wall",
+      "required": false
+    }
+  ]
+}

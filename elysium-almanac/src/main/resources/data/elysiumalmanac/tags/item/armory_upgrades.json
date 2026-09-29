@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:magnetic_upgrade",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:red_card_upgrade",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:road_maker_upgrade",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:spoon_upgrade",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:wide_plate_upgrade",
+      "required": false
+    }
+  ]
+}

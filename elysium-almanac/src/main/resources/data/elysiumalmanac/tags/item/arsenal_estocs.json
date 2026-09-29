@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_estoc",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_estoc",
+      "required": false
+    }
+  ]
+}

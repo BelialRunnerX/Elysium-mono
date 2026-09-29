@@ -1,0 +1,81 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:amber_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:bathysteel_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:biolith_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:chitin_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:cobalt_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:hemalite_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:jade_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:lattice_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:mireweave_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:nightgold_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:null_amethyst_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:nullsteel_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pearlium_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:phasium_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pyratite_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:relicsteel_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:ruby_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:sapphire_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:slagsteel_block",
+      "required": false
+    }
+  ]
+}

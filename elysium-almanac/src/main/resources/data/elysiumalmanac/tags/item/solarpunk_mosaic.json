@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumsolarpunk:mosaic_tile",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:mosaic_tile_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:mosaic_tile_stairs",
+      "required": false
+    }
+  ]
+}

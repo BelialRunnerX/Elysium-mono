@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:raw_cobalt_block",
+      "required": false
+    },
+    {
+      "id": "elysiumores:raw_pearlium_block",
+      "required": false
+    }
+  ]
+}

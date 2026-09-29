@@ -1,0 +1,241 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumlogistics:nonuple_compressed_amethyst_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_andesite",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_bamboo_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_basalt",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_blackstone",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_blue_ice",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_bone_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_bricks",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_calcite",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_clay",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_coal_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_cobbled_deepslate",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_cobblestone",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_copper_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_deepslate",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_diamond_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_diorite",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_dirt",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_dried_kelp_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_dripstone_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_emerald_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_end_stone",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_glass",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_glowstone",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_gold_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_granite",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_gravel",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_hay_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_honeycomb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_ice",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_iron_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_lapis_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_magma_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_moss_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_mud",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_mud_bricks",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_nether_bricks",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_netherite_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_netherrack",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_oak_planks",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_obsidian",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_packed_ice",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_prismarine",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_purpur_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_quartz_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_red_sand",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_red_sandstone",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_redstone_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_sand",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_sandstone",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_sea_lantern",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_slime_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_smooth_basalt",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_snow_block",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_soul_sand",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_soul_soil",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_stone",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_terracotta",
+      "required": false
+    },
+    {
+      "id": "elysiumlogistics:nonuple_compressed_tuff",
+      "required": false
+    }
+  ]
+}

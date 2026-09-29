@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumfoundry:steel_rod",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:invar_rod",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:stainless_rod",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:starsteel_rod",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_crossbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_crossbow",
+      "required": false
+    }
+  ]
+}

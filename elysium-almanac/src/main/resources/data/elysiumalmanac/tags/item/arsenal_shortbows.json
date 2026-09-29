@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_shortbow",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_shortbow",
+      "required": false
+    }
+  ]
+}

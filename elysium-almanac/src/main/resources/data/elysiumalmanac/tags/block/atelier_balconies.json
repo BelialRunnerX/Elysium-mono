@@ -1,0 +1,401 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_railing",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_balcony",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_platform",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_railing",
+      "required": false
+    }
+  ]
+}

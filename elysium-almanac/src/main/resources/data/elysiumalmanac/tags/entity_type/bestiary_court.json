@@ -1,0 +1,205 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:forgecaller",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:forgelet",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:forgelet_mite",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:forgelet_spall",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:forgeguard",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:forgeguard_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:forgeguard_bulk",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:forgemortar",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:graftcaller",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:graftcaller_horn",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:graftlet",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:graftlet_mite",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:graftlet_spall",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:graftguard",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:graftguard_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:graftguard_bulk",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:graftguard_rivet",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:graftmortar",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:graftmender",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:graftcharger",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:hoarlet",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:rotcaller",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:rotlet",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:rotguard",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:rotguard_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:rotmortar",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:staticaller",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:staticlet",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:staticlet_mite",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:staticlet_spall",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:staticmortar",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:staticmender",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:packlet",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:broodcaller",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:broodlet",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:broodlet_mite",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:broodlet_spall",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:broodlet_sprue",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:broodlet_dross",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:broodguard",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:broodguard_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:broodmortar",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:breachcaller",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:breachlet",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:breachlet_mite",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:breachguard",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:breachguard_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:breachmender",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:breachmortar",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:breachcharger",
+      "required": false
+    }
+  ]
+}

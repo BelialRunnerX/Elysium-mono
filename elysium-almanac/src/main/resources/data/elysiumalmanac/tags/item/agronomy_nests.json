@@ -1,0 +1,77 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:deepslate_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:desert_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:end_highlands_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:end_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:forest_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:frozen_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:highlands_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:jungle_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mountain_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:mushroom_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nether_fortress_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nether_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ocean_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:plains_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:river_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:swamp_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:underground_nest",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:volcanic_nest",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:helmet",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:chestplate",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:leggings",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:boots",
+      "required": false
+    }
+  ]
+}

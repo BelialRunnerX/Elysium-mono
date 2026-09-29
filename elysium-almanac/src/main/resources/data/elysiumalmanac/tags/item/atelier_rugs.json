@@ -1,0 +1,309 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_cushion",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_cushion",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_cushion",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_cushion",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_cushion",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_cushion",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_cushion",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_cushion",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_cushion",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_cushion",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_cushion",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_rug",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_runner",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_pillow",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_runner",
+      "required": false
+    }
+  ]
+}

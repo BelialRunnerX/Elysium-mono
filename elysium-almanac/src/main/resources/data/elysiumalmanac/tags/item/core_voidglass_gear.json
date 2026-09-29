@@ -1,0 +1,57 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:voidglass_axe",
+      "required": false
+    },
+    {
+      "id": "elysium:voidglass_hoe",
+      "required": false
+    },
+    {
+      "id": "elysium:voidglass_pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:voidglass_shovel",
+      "required": false
+    },
+    {
+      "id": "elysium:voidglass_sword",
+      "required": false
+    },
+    {
+      "id": "elysium:voidglass_broadaxe",
+      "required": false
+    },
+    {
+      "id": "elysium:voidglass_hammer",
+      "required": false
+    },
+    {
+      "id": "elysium:voidglass_scythe",
+      "required": false
+    },
+    {
+      "id": "elysium:voidglass_spear",
+      "required": false
+    },
+    {
+      "id": "elysium:voidglass_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:voidglass_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:voidglass_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:voidglass_boots",
+      "required": false
+    }
+  ]
+}

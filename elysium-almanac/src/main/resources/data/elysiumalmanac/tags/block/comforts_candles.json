@@ -1,0 +1,89 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumcomforts:black_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:blue_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:brown_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:candelabra",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:cupric_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:cyan_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:ender_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:gray_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:green_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_blue_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:light_gray_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:lime_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:magenta_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:orange_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:pink_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:purple_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:red_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:soul_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:white_candle_holder",
+      "required": false
+    },
+    {
+      "id": "elysiumcomforts:yellow_candle_holder",
+      "required": false
+    }
+  ]
+}

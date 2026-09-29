@@ -1,0 +1,69 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarsenal:wooden_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:stone_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:iron_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:golden_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:diamond_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:netherite_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:lunite_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:cobalt_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:relicsteel_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:phasium_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:biolith_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:bathysteel_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:slagsteel_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:jade_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:hemalite_repeater",
+      "required": false
+    },
+    {
+      "id": "elysiumarsenal:nullsteel_repeater",
+      "required": false
+    }
+  ]
+}

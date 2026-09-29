@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:neutronium_helmet",
+      "required": false
+    },
+    {
+      "id": "elysium:neutronium_chestplate",
+      "required": false
+    },
+    {
+      "id": "elysium:neutronium_leggings",
+      "required": false
+    },
+    {
+      "id": "elysium:neutronium_boots",
+      "required": false
+    }
+  ]
+}

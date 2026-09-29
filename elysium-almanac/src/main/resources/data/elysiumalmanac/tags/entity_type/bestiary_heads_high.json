@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumbestiary:graftprime",
+      "required": false
+    },
+    {
+      "id": "elysiumbestiary:breachprime",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumsolarpunk:verdigris_copper",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:verdigris_copper_slab",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:verdigris_copper_stairs",
+      "required": false
+    }
+  ]
+}

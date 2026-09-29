@@ -1,0 +1,841 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:black_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blue_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:brown_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cyan_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:gray_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:green_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_blue_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:light_gray_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:lime_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:magenta_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:orange_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:pink_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purple_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:white_warped_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_acacia_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_bamboo_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_birch_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_cherry_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_crimson_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_dark_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_jungle_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_mangrove_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_oak_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_spruce_bench",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:yellow_warped_bench",
+      "required": false
+    }
+  ]
+}

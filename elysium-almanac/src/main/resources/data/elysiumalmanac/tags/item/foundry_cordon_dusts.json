@@ -1,0 +1,41 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumfoundry:cobalt_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:pearlium_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:nightgold_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:relicsteel_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:slagsteel_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:biolith_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:bathysteel_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:hemalite_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:nullsteel_dust",
+      "required": false
+    }
+  ]
+}

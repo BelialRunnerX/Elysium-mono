@@ -1,0 +1,249 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:amethyst_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:andesite_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:basalt_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:black_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:black_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:black_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blackstone_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blue_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blue_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blue_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:brown_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:brown_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:brown_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:calcite_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cyan_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cyan_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cyan_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:deepslate_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:diorite_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:dripstone_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:granite_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gray_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gray_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gray_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:green_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:green_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:green_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:light_blue_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:light_blue_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:light_blue_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:light_gray_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:light_gray_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:light_gray_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lime_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lime_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lime_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:magenta_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:magenta_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:magenta_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:obsidian_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:orange_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:orange_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:orange_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pink_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pink_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pink_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:purple_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:purple_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:purple_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:quartz_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:red_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:red_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:red_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:stone_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tuff_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:white_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:white_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:white_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:yellow_concrete_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:yellow_glazed_terracotta_waxed_botany_pot",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:yellow_terracotta_waxed_botany_pot",
+      "required": false
+    }
+  ]
+}

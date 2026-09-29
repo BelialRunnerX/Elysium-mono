@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumsolarpunk:alabaster",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_limestone",
+      "required": false
+    },
+    {
+      "id": "elysiumsolarpunk:white_marble",
+      "required": false
+    }
+  ]
+}

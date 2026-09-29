@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:sword_blade",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:katana_blade",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:machete_blade",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:spear_tip",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:mace_core",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:dagger_blade",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:knife_blade",
+      "required": false
+    }
+  ]
+}

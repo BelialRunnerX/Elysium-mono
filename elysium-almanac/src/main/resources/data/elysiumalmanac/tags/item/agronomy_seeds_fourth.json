@@ -1,0 +1,37 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:platinum_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:uranium_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:uraninite_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bort_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:rime_shard_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:azure_silver_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:diamond_seed",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:emerald_seed",
+      "required": false
+    }
+  ]
+}

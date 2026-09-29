@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumspace:moonfolk",
+      "required": false
+    },
+    {
+      "id": "elysiumspace:hollow_moonfolk",
+      "required": false
+    }
+  ]
+}

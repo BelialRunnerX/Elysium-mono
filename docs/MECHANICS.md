@@ -22,7 +22,7 @@ Every runtime mechanic of every module we add, read off the Java, the data and e
 | Bee entity (no fall damage, `Worked` rises); lava fish | `summon elysiumagronomy:iron_bee` at y+20; magma_carp in lava; 200 ticks | Health 10; `Species` | none → live (agronomy_creatures) |
 | Data reload | `reload` | log | tree |
 
-## elysium-almanac — 6 mechanics (all need the bot online): book on first join, READ/HAVE every 20 ticks, PLACE, SLAY tally, VISIT (`execute in elysiumspace:luna run tp`), the book screen. All tree; client stage candidates.
+## elysium-almanac — 10 mechanics (all need a player): book on first join; HAVE/READ/VISIT/LEVEL/WEB swept every 20 ticks; PLACE/BREAK/CRAFT/USE/EAT/SMELT tallied from the first event (`tally` attachment); SLAY tally; tags and the book's family tags; rewards claimed from the step screen (`claimed` attachment, `AlmanacClaim` payload, XP through `ElysiumCharacter.addXp`); `/almanac status|claim|finish|reset`; VISIT (`execute in elysiumspace:pale_moon run tp`); the three book screens. All tree (harness plays the 519-step book; validator holds the catalogue against it); client stage `stage_almanac_client.ps1`.
 
 ## elysium-arcana — 10 mechanics
 
@@ -250,7 +250,10 @@ Line solve, furnace engine, millstone/press/saw/mixer/refinery, hoppers (live). 
 
 Controller walk/demand, bus runs, importer, drawer store, packs take hoppers (live). Device limit >64, unpowered network, bus dye, importer filter, exporter with filter, storage bus, interface → hopper, detector threshold, ender link (`channel` only joins on load/right-click), drawer fullness/comparator, drawer void/lock (only `/data` sets them: no item or UI calls `voiding()`/`locked()`), assembly core + assembler queue, terminal, pack parts (ember_plate cooks, press_screw 9→1, void_seal, sieve_mesh), worn packs, compression crafting (tree). Drawer right-click, break spill (none).
 
-## elysium-lib — 47 mechanics
+## elysium-lib — 48 mechanics
+
+Experience from every action (`character/ElysiumXpRules`, `event/ElysiumXpHandler`): mine, dig, build, craft, smelt, strike, harvest, fish, tame, breed, explore, trade, enchant, eat, each capped per minute; creative pays nothing. Tree (`XpHarness`, validator section, `negtest_xp.sh`); client stage: break stone in survival and read `elysiumlib:xp`.
+
 
 Runs (live). Affix loot modifier (tier from players within 32; console negative control), `elysiumlib:roll_affixes` item function, affix attribute modifiers, on-hit extra damage, damage negation, brewing mixes (30; brewing stand `data merge` awkward + shulker_shell + blaze_powder → `elysiumlib:resistance` in 420 ticks), attribute ceilings lifted (`attribute ... base set 5000`), tier hardening on spawn (`elysiumlib:tier_hardened` attachment), destructible cover (`#elysiumlib:fragile_cover`, >6 damage 25%) (tree → live candidates). Effects with behaviour: bleeding damage over time, detonation (fire → burst), salve heals, sundering makes incoming bigger, grievous/exhaustion/renewal scale healing, stunned cancels blows, tipsy/foresight/overload attribute modifiers (applied only → live (lib_effects)). Bleeding enchantment post_attack (placed only → live). Everything player-attribute-driven (crit, lifesteal, standing, dispatch, squads, hazards, null field, wounds, social, works, research, maker's mark, character, runes, weather, join) is client-only. Natural-spawn distance ≥32 (none, client).
 

@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysium:sigil_of_socketing",
+      "required": false
+    },
+    {
+      "id": "elysium:sigil_of_enhancement",
+      "required": false
+    },
+    {
+      "id": "elysium:sigil_of_withdrawal",
+      "required": false
+    },
+    {
+      "id": "elysium:sigil_of_rebirth",
+      "required": false
+    }
+  ]
+}

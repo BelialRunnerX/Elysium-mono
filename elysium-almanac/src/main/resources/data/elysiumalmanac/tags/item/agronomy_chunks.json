@@ -1,0 +1,245 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumagronomy:aluminum_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:amber_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:amethyst_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:azure_silver_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bathysteel_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bio_culture_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:biolith_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:blight_crystal_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bort_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:brass_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:bronze_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cast_iron_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:certus_quartz_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:coal_dust_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:cobalt_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:constantan_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:copper_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:crimson_iron_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:diamond_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:electrum_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ember_slag_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:emerald_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:fluorite_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:gold_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:hardened_bronze_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:hemalite_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:invar_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:iron_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:jade_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lapis_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lead_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:lithium_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nickel_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nightgold_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:null_amethyst_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:null_shard_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:nullsteel_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:osmium_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pearlium_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:platinum_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pressure_shell_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:pyratite_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:quartz_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:redstone_dust_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:relic_shard_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:relicsteel_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:rime_shard_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:ruby_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:sapphire_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:signal_alloy_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:silver_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:slagsteel_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:stainless_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:starsteel_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:steel_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tin_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:uraninite_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:uranium_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:void_steel_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:zinc_chunk",
+      "required": false
+    }
+  ]
+}

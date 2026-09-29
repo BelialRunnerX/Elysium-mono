@@ -82,8 +82,8 @@ expect "chapters that follow each other in a circle" "chapters loop at"
 edit $R 'new Chapter("garden", List.of("reconstruction")),' 'new Chapter("garden", List.of()),'
 expect "a book with two opening pages" "first chapter(s)"
 
-edit $R 'new Chapter("the_wilds", List.of("first_light")));' 'new Chapter("the_wilds", List.of("first_light")),
-            new Chapter("epilogue", List.of("the_wilds")));'
+edit $R 'new Chapter("the_rift", List.of("the_dark")));' 'new Chapter("the_rift", List.of("the_dark")),
+            new Chapter("epilogue", List.of("the_rift")));'
 expect "a heading with nothing under it" "have no quests in them"
 
 edit $R 'quest("saw", "first_light", List.of("millstone"),' 'quest("saw", "firstlight", List.of("millstone"),'
@@ -250,8 +250,8 @@ edit $R '            new Chapter("reconstruction", List.of("first_light")),' \
         '            new Chapter("reconstruction", List.of("the_wilds")),'
 expect "a chapter listed before the one it follows" "which it follows; the book is read in the order it is written"
 
-edit $R '            new Chapter("the_wilds", List.of("first_light")));' \
-        '            new Chapter("the_wilds", List.of("the_wilds")));'
+edit $R '            new Chapter("the_rift", List.of("the_dark")));' \
+        '            new Chapter("the_rift", List.of("the_rift")));'
 expect "a chapter that waits on itself" "waits on itself"
 
 
@@ -327,6 +327,14 @@ expect "a step that pays nothing by the rule" "harness failed"
 edit $G '    "elysiumalmanac.reward.claim": "Click to take it.",
 ' ''
 expect_regen "a reward row with no words" "shows a key"
+
+echo "the whole pack in the book"
+edit $G '        "elysiumagronomy:barley_crate",
+' ''
+expect "a block the book no longer introduces" "introduced by no step and excused by nothing"
+
+edit $G '    (r"^elysiumbestiary:.*_spawn_egg$",' '    (r"^elysiumbestiary:nothing_at_all$",'
+expect "an excusal that no longer excuses" "introduced by no step and excused by nothing"
 
 echo
 echo "restoring and re-checking"

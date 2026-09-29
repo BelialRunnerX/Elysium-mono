@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumores:phasium",
+      "required": false
+    },
+    {
+      "id": "elysiumores:lattice",
+      "required": false
+    },
+    {
+      "id": "elysiumores:chitin",
+      "required": false
+    }
+  ]
+}

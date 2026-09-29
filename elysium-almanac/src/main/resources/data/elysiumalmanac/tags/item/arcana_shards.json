@@ -1,0 +1,125 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarcana:iron_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:copper_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:gold_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:tin_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:zinc_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:nickel_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:silver_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lead_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:aluminum_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:osmium_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:platinum_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lithium_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:crimson_iron_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:azure_silver_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uranium_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:bort_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:certus_quartz_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:fluorite_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:rime_shard_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:uraninite_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:coal_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:redstone_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:lapis_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:quartz_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:amethyst_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:diamond_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:emerald_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:ancient_debris_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:glowstone_shard",
+      "required": false
+    },
+    {
+      "id": "elysiumarcana:obsidian_shard",
+      "required": false
+    }
+  ]
+}

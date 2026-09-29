@@ -1,0 +1,533 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumatelier:acacia_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:acacia_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:amethyst_block_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:andesite_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bamboo_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:basalt_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:birch_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:blackstone_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:bricks_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:calcite_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:cherry_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:crimson_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_oak_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dark_prismarine_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:deepslate_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:diorite_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:dripstone_block_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:end_stone_bricks_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:granite_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:jungle_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mangrove_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:mud_bricks_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:nether_bricks_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:oak_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:prismarine_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:purpur_block_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:quartz_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:red_sandstone_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:sandstone_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:smooth_basalt_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:spruce_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:stone_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:tuff_sconce",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_chandelier",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_lamp",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_post_light",
+      "required": false
+    },
+    {
+      "id": "elysiumatelier:warped_sconce",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumarmory:pickaxe",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:shovel",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:axe",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:hoe",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:shears",
+      "required": false
+    },
+    {
+      "id": "elysiumarmory:sickle",
+      "required": false
+    }
+  ]
+}
