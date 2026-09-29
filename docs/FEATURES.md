@@ -16,28 +16,28 @@ Regenerate it after any change; do not edit by hand. How each kind is validated:
 * Attributes: 41
 * Biome definitions: 166
 * Biomes: 166
-* Blocks: 5005
+* Blocks: 5052
 * Creative tabs: 3
-* Creatures: 396
+* Creatures: 398
 * Damage types: 9
 * Dimensions: 7
 * Effects: 20
 * Enchantments: 24
-* Items: 2412
-* Loot modifiers: 28
+* Items: 2428
+* Loot modifiers: 33
 * Recipe kinds: 12
 * Structure templates: 80
 * Structures: 45
-* World features: 274
+* World features: 364
 
 
 ## Elysium Agronomy — elysium-agronomy (`elysiumagronomy`)
 
 Elysium Agronomy: things that grow. Pots that farm without a field, seeds that grow metal slowly enough to be worth mining anyway, bees, and a diet that makes a cook out of a player. Requires Elysium Library and Elysium Industry.
 
-463 blocks, 740 items, 201 creatures, 12 world features; 630 recipes; 18 validated mechanics.
+465 blocks, 746 items, 203 creatures, 26 world features; 650 recipes; 18 validated mechanics.
 
-### Blocks (463)
+### Blocks (465)
 
 | id | name |
 |---|---|
@@ -457,6 +457,7 @@ Elysium Agronomy: things that grow. Pots that farm without a field, seeds that g
 | `tench_mount` | Tench Mount |
 | `tide_comb_block` | Block of Tide Comb |
 | `tin_comb_block` | Block of Tin Comb |
+| `titanium_comb_block` | Block of Titanium Comb |
 | `tomato_crate` | Tomato Crate |
 | `tomato_crop` | Tomato |
 | `triggerfish_mount` | Triggerfish Mount |
@@ -464,6 +465,7 @@ Elysium Agronomy: things that grow. Pots that farm without a field, seeds that g
 | `tuff_botany_pot` | Tuff Botany Pot |
 | `tuff_hopper_botany_pot` | Tuff Hopper Botany Pot |
 | `tuff_waxed_botany_pot` | Waxed Tuff Botany Pot |
+| `tungsten_comb_block` | Block of Tungsten Comb |
 | `turbot_mount` | Turbot Mount |
 | `underground_nest` | Underground Nest |
 | `uraninite_comb_block` | Block of Uraninite Comb |
@@ -505,7 +507,7 @@ Elysium Agronomy: things that grow. Pots that farm without a field, seeds that g
 | `zander_mount` | Zander Mount |
 | `zinc_comb_block` | Block of Zinc Comb |
 
-### Items (740)
+### Items (746)
 
 | id | name |
 |---|---|
@@ -1188,6 +1190,9 @@ Elysium Agronomy: things that grow. Pots that farm without a field, seeds that g
 | `tin_chunk` | Tin Chunk |
 | `tin_comb` | Tin Comb |
 | `tin_seed` | Tin Seed |
+| `titanium_bee_spawn_egg` | Titanium Bee Spawn Egg |
+| `titanium_chunk` | Titanium Chunk |
+| `titanium_comb` | Titanium Comb |
 | `tomato` | Tomato |
 | `tomato_paste` | Tomato Paste |
 | `tomato_seeds` | Tomato Seeds |
@@ -1197,6 +1202,9 @@ Elysium Agronomy: things that grow. Pots that farm without a field, seeds that g
 | `tripod_fish` | Tripod Fish |
 | `tripod_fish_bucket` | Bucket of Tripod Fish |
 | `tripod_fish_spawn_egg` | Tripod Fish Spawn Egg |
+| `tungsten_bee_spawn_egg` | Tungsten Bee Spawn Egg |
+| `tungsten_chunk` | Tungsten Chunk |
+| `tungsten_comb` | Tungsten Comb |
 | `turbot` | Turbot |
 | `turbot_bucket` | Bucket of Turbot |
 | `turbot_spawn_egg` | Turbot Spawn Egg |
@@ -1250,7 +1258,7 @@ Elysium Agronomy: things that grow. Pots that farm without a field, seeds that g
 | `zinc_comb` | Zinc Comb |
 | `zinc_seed` | Zinc Seed |
 
-### Creatures (201)
+### Creatures (203)
 
 | id | name |
 |---|---|
@@ -1436,8 +1444,10 @@ Elysium Agronomy: things that grow. Pots that farm without a field, seeds that g
 | `tench` | Tench |
 | `tide_bee` | Tide Bee |
 | `tin_bee` | Tin Bee |
+| `titanium_bee` | Titanium Bee |
 | `triggerfish` | Triggerfish |
 | `tripod_fish` | Tripod Fish |
+| `tungsten_bee` | Tungsten Bee |
 | `turbot` | Turbot |
 | `uraninite_bee` | Uraninite Bee |
 | `uranium_bee` | Uranium Bee |
@@ -1456,14 +1466,28 @@ Elysium Agronomy: things that grow. Pots that farm without a field, seeds that g
 | `zander` | Zander |
 | `zinc_bee` | Zinc Bee |
 
-### World features (12)
+### World features (26)
 
 | id | name |
 |---|---|
+| `deepslate_nest` |  |
+| `desert_nest` |  |
+| `end_highlands_nest` |  |
+| `end_nest` |  |
 | `forest_nest` |  |
+| `frozen_nest` |  |
+| `highlands_nest` |  |
+| `jungle_nest` |  |
 | `mountain_nest` |  |
+| `mushroom_nest` |  |
+| `nether_fortress_nest` |  |
+| `nether_nest` |  |
+| `ocean_nest` |  |
 | `plains_nest` |  |
 | `river_nest` |  |
+| `swamp_nest` |  |
+| `underground_nest` |  |
+| `volcanic_nest` |  |
 | `wild_barley` |  |
 | `wild_cabbage` |  |
 | `wild_chili` |  |
@@ -1498,7 +1522,7 @@ Elysium Agronomy: things that grow. Pots that farm without a field, seeds that g
 
 Elysium Almanac: the book that tells you what to do next. Every chapter of the pack, every step in order, and a graph proved to have no step that can never be reached and none that is its own prerequisite. Requires Elysium Library.
 
-0 blocks, 1 items; 1 recipes; 8 validated mechanics.
+0 blocks, 1 items; 1 recipes; 9 validated mechanics.
 
 ### Blocks (0)
 
@@ -1511,12 +1535,13 @@ Elysium Almanac: the book that tells you what to do next. Every chapter of the p
 |---|---|
 | `almanac` | Almanac |
 
-### Mechanics the validator executes (8)
+### Mechanics the validator executes (9)
 
 * **independence**: … source file(s), and not one of the six
 * **the graph played**: 
 * **the graph**: … quest(s) over … chapter(s)
 * **what it asks for**: … item(s), block(s) and beast(s), … tag(s)
+* **the whole pack**: … block(s), item(s) and creature(s) introduced
 * **the rewards**: every step pays through the library's door, once, for a step
 * **the words**: … key(s), a title and a reason for every quest
 * **the book**: craftable out of the base game, handed out once, kept
@@ -1526,7 +1551,7 @@ Elysium Almanac: the book that tells you what to do next. Every chapter of the p
 
 Elysium Arcana: turning things into other things, and the proof that it never makes something out of nothing. Requires Elysium Library.
 
-211 blocks, 90 items; 181 recipes; 8 validated mechanics.
+211 blocks, 90 items, 30 world features; 151 recipes; 10 validated mechanics.
 
 ### Blocks (211)
 
@@ -1839,7 +1864,42 @@ Elysium Arcana: turning things into other things, and the proof that it never ma
 | `zinc_shard` | Zinc Shard |
 | `zinc_spyglass` | Zinc Spyglass |
 
-### Mechanics the validator executes (8)
+### World features (30)
+
+| id | name |
+|---|---|
+| `aluminum_geode` |  |
+| `amethyst_geode` |  |
+| `ancient_debris_geode` |  |
+| `azure_silver_geode` |  |
+| `bort_geode` |  |
+| `certus_quartz_geode` |  |
+| `coal_geode` |  |
+| `copper_geode` |  |
+| `crimson_iron_geode` |  |
+| `diamond_geode` |  |
+| `emerald_geode` |  |
+| `fluorite_geode` |  |
+| `glowstone_geode` |  |
+| `gold_geode` |  |
+| `iron_geode` |  |
+| `lapis_geode` |  |
+| `lead_geode` |  |
+| `lithium_geode` |  |
+| `nickel_geode` |  |
+| `obsidian_geode` |  |
+| `osmium_geode` |  |
+| `platinum_geode` |  |
+| `quartz_geode` |  |
+| `redstone_geode` |  |
+| `rime_shard_geode` |  |
+| `silver_geode` |  |
+| `tin_geode` |  |
+| `uraninite_geode` |  |
+| `uranium_geode` |  |
+| `zinc_geode` |  |
+
+### Mechanics the validator executes (10)
 
 * **independence**: … source file(s), nothing it replaces
 * **the arithmetic**: 
@@ -1847,14 +1907,16 @@ Elysium Arcana: turning things into other things, and the proof that it never ma
 * **who decides**: the catalogue, the price, the balance and what a worn item
 * **what it declares**: the game and the library, and not one thing it prices
 * **geodes**: … material(s) —
+* **what mines them**: …
 * **the seeding**: … material(s), every one of them
+* **the first shard**: … geode(s), … in the overworld and
 * **relics**: … across
 
 ## Elysium Armory — elysium-armory (`elysiumarmory`)
 
 Elysium Armory: gear assembled from parts, each part from a material, the whole computed from what went into it. Elysium's own take on modular gear, with no dependency on any other gear mod. Requires Elysium Library.
 
-8 blocks, 89 items; 22 recipes; 15 validated mechanics.
+8 blocks, 89 items, 4 loot modifiers; 22 recipes; 16 validated mechanics.
 
 ### Blocks (8)
 
@@ -1963,7 +2025,16 @@ Elysium Armory: gear assembled from parts, each part from a material, the whole 
 | `trident_prongs` | Trident Prongs |
 | `wide_plate_upgrade` | Wide Plate Upgrade |
 
-### Mechanics the validator executes (15)
+### Loot modifiers (4)
+
+| id | name |
+|---|---|
+| `template_from_simple_dungeon` |  |
+| `template_from_village_armorer` |  |
+| `template_from_village_toolsmith` |  |
+| `template_from_village_weaponsmith` |  |
+
+### Mechanics the validator executes (16)
 
 * **independence**: … source file(s), no reference to
 * **property engine**: 
@@ -1980,12 +2051,13 @@ Elysium Armory: gear assembled from parts, each part from a material, the whole 
 * **sample gear**: one built piece per gear type, through the same builder
 * **jewellery**: … kind(s) declared wearable through
 * **the plan book**: learns plans, answers for one at a time, and a template
+* **survival**: any affixed piece salvages and a reforge pays back no more than it cost
 
 ## Elysium Arsenal — elysium-arsenal (`elysiumarsenal`)
 
 Elysium Arsenal: the tools that take a wall at a time, and the proof that not one of them is simply better than what it replaces. Requires Elysium Library.
 
-41 blocks, 573 items, 1 damage types; 261 recipes; 10 validated mechanics.
+41 blocks, 572 items, 3 world features, 1 damage types; 281 recipes; 12 validated mechanics.
 
 ### Blocks (41)
 
@@ -2033,7 +2105,7 @@ Elysium Arsenal: the tools that take a wall at a time, and the proof that not on
 | `wolf_fossil_body` | Wolf Fossil Body |
 | `wolf_fossil_head` | Wolf Fossil Skull |
 
-### Items (573)
+### Items (572)
 
 | id | name |
 |---|---|
@@ -2353,7 +2425,6 @@ Elysium Arsenal: the tools that take a wall at a time, and the proof that not on
 | `lunite_spear` | Lunite Spear |
 | `lunite_warhammer` | Lunite Warhammer |
 | `mountainfall` | Mountainfall |
-| `music_disc_relic` | Music Disc |
 | `needlepoint` | Needlepoint |
 | `netherite_brush` | Netherite Brush |
 | `netherite_crossbow` | Netherite Crossbow |
@@ -2611,13 +2682,21 @@ Elysium Arsenal: the tools that take a wall at a time, and the proof that not on
 | `wooden_warhammer` | Wooden Warhammer |
 | `worldsplitter` | Worldsplitter |
 
+### World features (3)
+
+| id | name |
+|---|---|
+| `fossiliferous_dirt` |  |
+| `suspicious_dirt` |  |
+| `suspicious_red_sand` |  |
+
 ### Damage types (1)
 
 | id | name |
 |---|---|
 | `piercing` |  |
 
-### Mechanics the validator executes (10)
+### Mechanics the validator executes (12)
 
 * **independence**: … source file(s), nothing it replaces
 * **the band**: every tool slower than its specialist on one block and
@@ -2628,6 +2707,8 @@ Elysium Arsenal: the tools that take a wall at a time, and the proof that not on
 * **grade attributes**: …
 * **reforging**: … grade(s) across … kinds
 * **the digging**: … brush(es), … site(s)
+* **the two sets**: … shape(s), each
+* **in survival**: … site(s) laid by a feature in their
 * **what it declares**: the game and the library, and not one thing beyond them
 
 ## Elysium Ascendancy — elysium-ascendancy (`elysiumascendancy`)
@@ -6183,7 +6264,7 @@ Elysium Colonies: a MineColonies add-on that makes the two progressions agree �
 
 Elysium Comforts: the small mercies. A grave that holds everything you were carrying, and the proof that it holds all of it. Requires Elysium Library.
 
-179 blocks, 14 items, 2 creatures; 188 recipes; 8 validated mechanics.
+179 blocks, 14 items, 2 creatures, 1 loot modifiers; 188 recipes; 8 validated mechanics.
 
 ### Blocks (179)
 
@@ -6395,6 +6476,12 @@ Elysium Comforts: the small mercies. A grave that holds everything you were carr
 | `charred_pigeon` | Charred Pigeon |
 | `pigeon` | Pigeon |
 
+### Loot modifiers (1)
+
+| id | name |
+|---|---|
+| `lost_mail_from_cartographer` |  |
+
 ### Mechanics the validator executes (8)
 
 * **independence**: … source file(s), nothing it replaces
@@ -6410,7 +6497,7 @@ Elysium Comforts: the small mercies. A grave that holds everything you were carr
 
 Elysium: a character and gear progression mod. Twelve stats, six races and nine classes chosen on first join; tiered elemental armour, weapons and area tools; socketable runes with material alignment; reforging and ascension that scale without a ceiling; and two opposed faction standings that drive spawning and loot. Optional hooks for Apotheosis, Silent Gear and Legendary Tooltips.
 
-15 blocks, 382 items, 2 creatures, 6 world features; 385 recipes; 26 validated mechanics.
+15 blocks, 382 items, 2 creatures, 6 world features; 385 recipes; 27 validated mechanics.
 
 ### Blocks (15)
 
@@ -6837,7 +6924,7 @@ Elysium: a character and gear progression mod. Twelve stats, six races and nine 
 | `swarm_spawner` |  |
 | `voidglass_ore` |  |
 
-### Mechanics the validator executes (26)
+### Mechanics the validator executes (27)
 
 * **items registered**: …
 * **config lifecycle**: … config(s), all STARTUP
@@ -6863,8 +6950,9 @@ Elysium: a character and gear progression mod. Twelve stats, six races and nine 
 * **humanoid skins**: … at 64x64, each named by the
 * **gems and sigils**: … items and … benches; dust only from
 * **underground**: … things waiting, each rare, each on a floor, and
-* **starting kit**: one gift table, given once, remembered through death
+* **starting kit**: one gift table, given once, remembered through death, and
 * **the tier command**: the tier, where it came from, and what it is worth
+* **harvest audit**: /elysium audit harvest asks the running game about every block of every module
 
 ## Elysium Dungeons — elysium-dungeons (`elysiumdungeons`)
 
@@ -7004,7 +7092,7 @@ Elysium Enchanting: an enchanting table whose power you build around it, a previ
 
 Elysium Flora: two fibre crops and a tree that grows where nothing should, so string and charcoal are things you farm rather than things you find. Requires Elysium Library.
 
-21 blocks, 5 items, 1 creative tabs, 3 world features; 18 recipes; 9 validated mechanics.
+21 blocks, 5 items, 1 creative tabs, 3 world features; 18 recipes; 11 validated mechanics.
 
 ### Blocks (21)
 
@@ -7056,12 +7144,14 @@ Elysium Flora: two fibre crops and a tree that grows where nothing should, so st
 | `wild_downbloom` |  |
 | `wild_loomflax` |  |
 
-### Mechanics the validator executes (9)
+### Mechanics the validator executes (11)
 
 * **independence**: the library and vanilla, and nothing else
 * **the arithmetic**: 
 * **the plants**: 2 crops, … stages each, wild forms that give seeds
 * **the wood**: … block(s), each modelled, tagged, named and
+* **drawn and tooled**: skipped, no game jar to compare the wood with (set MC_JAR)
+* **drawn and tooled**: … emberwood shape(s) drawn, modelled
 * **where they grow**: … feature(s) across
 * **generated**: … file(s) rebuilt from the two generators
 * **atlas textures**: … block and item texture(s), each square or
@@ -7072,7 +7162,7 @@ Elysium Flora: two fibre crops and a tree that grows where nothing should, so st
 
 Elysium Foundry: the fourth age. The full material chain, in one graph with no cycles in it and no step that makes matter out of nothing. Alloys, forms, and machines gated on what they are made of. Requires Elysium Library, Elysium Kinetics, Elysium Industry and Elysium Atomics.
 
-6 blocks, 131 items; 232 recipes; 6 validated mechanics.
+6 blocks, 141 items; 248 recipes; 6 validated mechanics.
 
 ### Blocks (6)
 
@@ -7085,7 +7175,7 @@ Elysium Foundry: the fourth age. The full material chain, in one graph with no c
 | `tier_3_casing` | Stainless Casing |
 | `tier_4_casing` | Starsteel Casing |
 
-### Items (131)
+### Items (141)
 
 | id | name |
 |---|---|
@@ -7179,6 +7269,8 @@ Elysium Foundry: the fourth age. The full material chain, in one graph with no c
 | `raw_platinum` | Raw Platinum |
 | `raw_silver` | Raw Silver |
 | `raw_tin` | Raw Tin |
+| `raw_titanium` | Raw Titanium |
+| `raw_tungsten` | Raw Tungsten |
 | `raw_uraninite` | Raw Uraninite |
 | `raw_zinc` | Raw Zinc |
 | `relicsteel_dust` | Relicsteel Dust |
@@ -7212,6 +7304,14 @@ Elysium Foundry: the fourth age. The full material chain, in one graph with no c
 | `tin_ingot` | Tin Ingot |
 | `tin_nugget` | Tin Nugget |
 | `tin_plate` | Tin Plate |
+| `titanium_dust` | Titanium Dust |
+| `titanium_ingot` | Titanium Ingot |
+| `titanium_nugget` | Titanium Nugget |
+| `titanium_plate` | Titanium Plate |
+| `tungsten_dust` | Tungsten Dust |
+| `tungsten_ingot` | Tungsten Ingot |
+| `tungsten_nugget` | Tungsten Nugget |
+| `tungsten_plate` | Tungsten Plate |
 | `void_steel_dust` | Void Steel Dust |
 | `void_steel_ingot` | Void Steel Ingot |
 | `void_steel_nugget` | Void Steel Nugget |
@@ -7234,7 +7334,7 @@ Elysium Foundry: the fourth age. The full material chain, in one graph with no c
 
 Elysium Industry: the second age. The Reconstruction, in steel and high voltage. Wires that burn if you overload them, a grid that shares out what there is rather than stopping, and machines that will take a shaft if you have no other way to turn them. Requires Elysium Library and Elysium Kinetics.
 
-16 blocks, 6 items, 4 recipe kinds; 87 recipes; 7 validated mechanics.
+16 blocks, 6 items, 4 recipe kinds; 87 recipes; 8 validated mechanics.
 
 ### Blocks (16)
 
@@ -7277,13 +7377,14 @@ Elysium Industry: the second age. The Reconstruction, in steel and high voltage.
 | `separating` | 4 recipes |
 | `smelting` | 7 recipes |
 
-### Mechanics the validator executes (7)
+### Mechanics the validator executes (8)
 
 * **independence**: … source file(s), no mod it replaces
 * **the arithmetic**: 
 * **the model**: a grid that shares, a wire that burns on what flows, and
 * **the ladder**: turbine -> diesel, crusher -> arc furnace; a wire that
 * **the books**: a grid hands out what it made and borrowed, less
+* **fed and emptied**: an empty hand takes what a formed one made, a thing with
 * **what it declares**: the game, the library, the age below, and a spec the ages
 * **runs**: the wires draw arms and plates, take a dye, and keep it
 
@@ -7352,7 +7453,7 @@ Elysium Kinetics: the first age of machinery. Salvaged pre-collapse gear restart
 
 The engine behind Elysium, with no content of its own. Registries for stats, elements, races, classes and runes; the character sheet, levelling and point spending; the gear, socket and reforge framework; faction standing with pluggable dispatch and rewards; and the event handlers that make all of it happen during play. Installed alone it is inert but not broken. Add-ons register into it from their own constructors.
 
-0 blocks, 0 items, 3 enchantments, 20 effects, 41 attributes, 1 loot modifiers, 7 damage types; 0 recipes; 54 validated mechanics.
+0 blocks, 0 items, 3 enchantments, 20 effects, 41 attributes, 1 loot modifiers, 7 damage types; 0 recipes; 55 validated mechanics.
 
 ### Blocks (0)
 
@@ -7461,7 +7562,7 @@ The engine behind Elysium, with no content of its own. Registries for stats, ele
 | `null` |  |
 | `null_collapse` |  |
 
-### Mechanics the validator executes (54)
+### Mechanics the validator executes (55)
 
 * **library sources**: … files, no content references
 * **element ring**: … elements, each beats 2 and is beaten by 2
@@ -7515,6 +7616,7 @@ The engine behind Elysium, with no content of its own. Registries for stats, ele
 * **kind tags**: the c: lists not checked, no NeoForge jar on the classpath
 * **kind tags**: … kind(s) from the harness, every vanilla tag a list vanilla has
 * **the ledger web**: … nodes from the rules, every cluster, keystone, stat and
+* **experience**: 
 * **runs**: the join rule, the plate, the dye and the tints, executed and shared
 * **the boxes**: a chest menu type per row count, one to six, each under the kit's screen
 
@@ -7522,7 +7624,7 @@ The engine behind Elysium, with no content of its own. Registries for stats, ele
 
 Elysium Logistics: storage that scales. Drawers that hold one thing and a great deal of it, a network that indexes them and costs power to run, and a digital core that stores what a warehouse could not. Requires Elysium Library, Elysium Kinetics and Elysium Industry.
 
-549 blocks, 15 items; 1111 recipes; 12 validated mechanics.
+549 blocks, 16 items; 1112 recipes; 12 validated mechanics.
 
 ### Blocks (549)
 
@@ -8078,11 +8180,12 @@ Elysium Logistics: storage that scales. Drawers that hold one thing and a great 
 | `triple_compressed_tuff` | Triple Compressed Tuff |
 | `vault` | Vault |
 
-### Items (15)
+### Items (16)
 
 | id | name |
 |---|---|
 | `deep_pocket` | Deep Pocket |
+| `drawer_key` | Drawer Key |
 | `ember_plate` | Ember Plate |
 | `expedition_pack` | Expedition Pack |
 | `gathering_lens` | Gathering Lens |
@@ -8175,7 +8278,7 @@ Elysium Mobs: six families of custom creature - three Unsworn, three Imperial - 
 
 Elysium Court: five named figures of the Black and Emerald Empire, met rather than fought. Each wanders, stays a while and leaves, and each accepts a tribute and answers with something from their own office - and what they will give you depends on what the Code thinks of you. Requires Elysium Library.
 
-6 blocks, 6 items, 1 creatures; 6 recipes; 11 validated mechanics.
+6 blocks, 6 items, 1 creatures; 6 recipes; 13 validated mechanics.
 
 ### Blocks (6)
 
@@ -8205,7 +8308,7 @@ Elysium Court: five named figures of the Black and Emerald Empire, met rather th
 |---|---|
 | `envoy` | Imperial Envoy |
 
-### Mechanics the validator executes (11)
+### Mechanics the validator executes (13)
 
 * **envoys declared**: … (…)
 * **standing coverage**: both meters have envoys
@@ -8218,14 +8321,16 @@ Elysium Court: five named figures of the Black and Emerald Empire, met rather th
 * **amnesty**: sold by Suspicion offices, floors at the claim
 * **generated lang**: … keys
 * **wandering trader**: … common and
+* **writs of audience**: every office sells its own, one a visit, off its top
+* **who arrives**: 
 
 ## Elysium Ores — elysium-ores (`elysiumores`)
 
 Elysium Ores: one canonical item per material across every mod that makes it, tags completed so every variant answers to the same recipes, and an ore for every material in every stone the worlds are made of. Requires Elysium Library.
 
-233 blocks, 37 items, 1 creative tabs, 212 world features, 21 loot modifiers; 73 recipes; 11 validated mechanics.
+276 blocks, 37 items, 1 creative tabs, 255 world features, 21 loot modifiers; 93 recipes; 13 validated mechanics.
 
-### Blocks (233)
+### Blocks (276)
 
 | id | name |
 |---|---|
@@ -8266,27 +8371,44 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `cinder_silver_ore` | Cinder Silver Ore |
 | `cinder_steel_ore` | Cinder Steel Ore |
 | `cinder_tin_ore` | Cinder Tin Ore |
+| `cinder_titanium_ore` | Cinder Titanium Ore |
+| `cinder_tungsten_ore` | Cinder Tungsten Ore |
 | `cinder_uraninite_ore` | Cinder Uraninite Ore |
 | `cinder_uranium_ore` | Cinder Uranium Ore |
 | `cinder_zinc_ore` | Cinder Zinc Ore |
 | `cobalt_block` | Block of Cobalt |
+| `deepslate_aluminum_ore` | Deepslate Aluminum Ore |
 | `deepslate_amber_ore` | Deepslate Amber Ore |
 | `deepslate_azure_silver_ore` | Deepslate Azure Silver Ore |
+| `deepslate_bort_ore` | Deepslate Bort Ore |
 | `deepslate_certus_quartz_ore` | Deepslate Certus Quartz Ore |
 | `deepslate_cindrium_ore` | Deepslate Cindrium Ore |
 | `deepslate_cobalt_ore` | Deepslate Cobalt Ore |
 | `deepslate_crimson_iron_ore` | Deepslate Crimson Iron Ore |
 | `deepslate_cryonite_ore` | Deepslate Cryonite Ore |
+| `deepslate_fluorite_ore` | Deepslate Fluorite Ore |
 | `deepslate_frostite_ore` | Deepslate Frostite Ore |
 | `deepslate_jade_ore` | Deepslate Jade Ore |
+| `deepslate_lead_ore` | Deepslate Lead Ore |
+| `deepslate_lithium_ore` | Deepslate Lithium Ore |
 | `deepslate_lunite_ore` | Deepslate Lunite Ore |
+| `deepslate_nickel_ore` | Deepslate Nickel Ore |
 | `deepslate_null_amethyst_ore` | Deepslate Null Amethyst Ore |
+| `deepslate_osmium_ore` | Deepslate Osmium Ore |
 | `deepslate_pearlium_ore` | Deepslate Pearlium Ore |
+| `deepslate_platinum_ore` | Deepslate Platinum Ore |
 | `deepslate_pyratite_ore` | Deepslate Pyratite Ore |
 | `deepslate_quartz_ore` | Deepslate Quartz Ore |
 | `deepslate_rime_shard_ore` | Deepslate Rime Shard Ore |
 | `deepslate_ruby_ore` | Deepslate Ruby Ore |
 | `deepslate_sapphire_ore` | Deepslate Sapphire Ore |
+| `deepslate_silver_ore` | Deepslate Silver Ore |
+| `deepslate_tin_ore` | Deepslate Tin Ore |
+| `deepslate_titanium_ore` | Deepslate Titanium Ore |
+| `deepslate_tungsten_ore` | Deepslate Tungsten Ore |
+| `deepslate_uraninite_ore` | Deepslate Uraninite Ore |
+| `deepslate_uranium_ore` | Deepslate Uranium Ore |
+| `deepslate_zinc_ore` | Deepslate Zinc Ore |
 | `end_stone_aluminum_ore` | End Stone Aluminum Ore |
 | `end_stone_amber_ore` | End Stone Amber Ore |
 | `end_stone_azure_silver_ore` | End Stone Azure Silver Ore |
@@ -8313,6 +8435,7 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `end_stone_null_amethyst_ore` | End Stone Null Amethyst Ore |
 | `end_stone_osmium_ore` | End Stone Osmium Ore |
 | `end_stone_pearlium_ore` | End Stone Pearlium Ore |
+| `end_stone_platinum_ore` | End Stone Platinum Ore |
 | `end_stone_pyratite_ore` | End Stone Pyratite Ore |
 | `end_stone_quartz_ore` | End Stone Quartz Ore |
 | `end_stone_redstone_ore` | End Stone Redstone Ore |
@@ -8322,6 +8445,8 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `end_stone_silver_ore` | End Stone Silver Ore |
 | `end_stone_steel_ore` | End Stone Steel Ore |
 | `end_stone_tin_ore` | End Stone Tin Ore |
+| `end_stone_titanium_ore` | End Stone Titanium Ore |
+| `end_stone_tungsten_ore` | End Stone Tungsten Ore |
 | `end_stone_uraninite_ore` | End Stone Uraninite Ore |
 | `end_stone_uranium_ore` | End Stone Uranium Ore |
 | `end_stone_zinc_ore` | End Stone Zinc Ore |
@@ -8358,6 +8483,8 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `frost_silver_ore` | Frost Silver Ore |
 | `frost_steel_ore` | Frost Steel Ore |
 | `frost_tin_ore` | Frost Tin Ore |
+| `frost_titanium_ore` | Frost Titanium Ore |
+| `frost_tungsten_ore` | Frost Tungsten Ore |
 | `frost_uraninite_ore` | Frost Uraninite Ore |
 | `frost_uranium_ore` | Frost Uranium Ore |
 | `frost_zinc_ore` | Frost Zinc Ore |
@@ -8374,6 +8501,7 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `netherrack_coal_ore` | Netherrack Coal Ore |
 | `netherrack_cobalt_ore` | Netherrack Cobalt Ore |
 | `netherrack_copper_ore` | Netherrack Copper Ore |
+| `netherrack_crimson_iron_ore` | Netherrack Crimson Iron Ore |
 | `netherrack_cryonite_ore` | Netherrack Cryonite Ore |
 | `netherrack_diamond_ore` | Netherrack Diamond Ore |
 | `netherrack_emerald_ore` | Netherrack Emerald Ore |
@@ -8399,6 +8527,8 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `netherrack_silver_ore` | Netherrack Silver Ore |
 | `netherrack_steel_ore` | Netherrack Steel Ore |
 | `netherrack_tin_ore` | Netherrack Tin Ore |
+| `netherrack_titanium_ore` | Netherrack Titanium Ore |
+| `netherrack_tungsten_ore` | Netherrack Tungsten Ore |
 | `netherrack_uraninite_ore` | Netherrack Uraninite Ore |
 | `netherrack_uranium_ore` | Netherrack Uranium Ore |
 | `netherrack_zinc_ore` | Netherrack Zinc Ore |
@@ -8438,6 +8568,8 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `pale_sapphire_ore` | Pale Sapphire Ore |
 | `pale_silver_ore` | Pale Silver Ore |
 | `pale_tin_ore` | Pale Tin Ore |
+| `pale_titanium_ore` | Pale Titanium Ore |
+| `pale_tungsten_ore` | Pale Tungsten Ore |
 | `pale_uraninite_ore` | Pale Uraninite Ore |
 | `pale_uranium_ore` | Pale Uranium Ore |
 | `pale_zinc_ore` | Pale Zinc Ore |
@@ -8450,11 +8582,20 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `ruby_block` | Block of Ruby |
 | `sapphire_block` | Block of Sapphire |
 | `slagsteel_block` | Block of Slagsteel |
+| `stone_aluminum_ore` | Stone Aluminum Ore |
 | `stone_amber_ore` | Stone Amber Ore |
+| `stone_azure_silver_ore` | Stone Azure Silver Ore |
+| `stone_bort_ore` | Stone Bort Ore |
 | `stone_certus_quartz_ore` | Stone Certus Quartz Ore |
 | `stone_cobalt_ore` | Stone Cobalt Ore |
+| `stone_crimson_iron_ore` | Stone Crimson Iron Ore |
+| `stone_fluorite_ore` | Stone Fluorite Ore |
 | `stone_jade_ore` | Stone Jade Ore |
+| `stone_lead_ore` | Stone Lead Ore |
+| `stone_lithium_ore` | Stone Lithium Ore |
+| `stone_nickel_ore` | Stone Nickel Ore |
 | `stone_null_amethyst_ore` | Stone Null Amethyst Ore |
+| `stone_osmium_ore` | Stone Osmium Ore |
 | `stone_pearlium_ore` | Stone Pearlium Ore |
 | `stone_platinum_ore` | Stone Platinum Ore |
 | `stone_pyratite_ore` | Stone Pyratite Ore |
@@ -8462,6 +8603,13 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `stone_rime_shard_ore` | Stone Rime Shard Ore |
 | `stone_ruby_ore` | Stone Ruby Ore |
 | `stone_sapphire_ore` | Stone Sapphire Ore |
+| `stone_silver_ore` | Stone Silver Ore |
+| `stone_tin_ore` | Stone Tin Ore |
+| `stone_titanium_ore` | Stone Titanium Ore |
+| `stone_tungsten_ore` | Stone Tungsten Ore |
+| `stone_uraninite_ore` | Stone Uraninite Ore |
+| `stone_uranium_ore` | Stone Uranium Ore |
+| `stone_zinc_ore` | Stone Zinc Ore |
 
 ### Items (37)
 
@@ -8511,7 +8659,7 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 |---|---|
 | `ores` | Elysium Ores |
 
-### World features (212)
+### World features (255)
 
 | id | name |
 |---|---|
@@ -8548,26 +8696,43 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `cinder_silver_ore` |  |
 | `cinder_steel_ore` |  |
 | `cinder_tin_ore` |  |
+| `cinder_titanium_ore` |  |
+| `cinder_tungsten_ore` |  |
 | `cinder_uraninite_ore` |  |
 | `cinder_uranium_ore` |  |
 | `cinder_zinc_ore` |  |
+| `deepslate_aluminum_ore` |  |
 | `deepslate_amber_ore` |  |
 | `deepslate_azure_silver_ore` |  |
+| `deepslate_bort_ore` |  |
 | `deepslate_certus_quartz_ore` |  |
 | `deepslate_cindrium_ore` |  |
 | `deepslate_cobalt_ore` |  |
 | `deepslate_crimson_iron_ore` |  |
 | `deepslate_cryonite_ore` |  |
+| `deepslate_fluorite_ore` |  |
 | `deepslate_frostite_ore` |  |
 | `deepslate_jade_ore` |  |
+| `deepslate_lead_ore` |  |
+| `deepslate_lithium_ore` |  |
 | `deepslate_lunite_ore` |  |
+| `deepslate_nickel_ore` |  |
 | `deepslate_null_amethyst_ore` |  |
+| `deepslate_osmium_ore` |  |
 | `deepslate_pearlium_ore` |  |
+| `deepslate_platinum_ore` |  |
 | `deepslate_pyratite_ore` |  |
 | `deepslate_quartz_ore` |  |
 | `deepslate_rime_shard_ore` |  |
 | `deepslate_ruby_ore` |  |
 | `deepslate_sapphire_ore` |  |
+| `deepslate_silver_ore` |  |
+| `deepslate_tin_ore` |  |
+| `deepslate_titanium_ore` |  |
+| `deepslate_tungsten_ore` |  |
+| `deepslate_uraninite_ore` |  |
+| `deepslate_uranium_ore` |  |
+| `deepslate_zinc_ore` |  |
 | `end_stone_aluminum_ore` |  |
 | `end_stone_amber_ore` |  |
 | `end_stone_azure_silver_ore` |  |
@@ -8594,6 +8759,7 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `end_stone_null_amethyst_ore` |  |
 | `end_stone_osmium_ore` |  |
 | `end_stone_pearlium_ore` |  |
+| `end_stone_platinum_ore` |  |
 | `end_stone_pyratite_ore` |  |
 | `end_stone_quartz_ore` |  |
 | `end_stone_redstone_ore` |  |
@@ -8603,6 +8769,8 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `end_stone_silver_ore` |  |
 | `end_stone_steel_ore` |  |
 | `end_stone_tin_ore` |  |
+| `end_stone_titanium_ore` |  |
+| `end_stone_tungsten_ore` |  |
 | `end_stone_uraninite_ore` |  |
 | `end_stone_uranium_ore` |  |
 | `end_stone_zinc_ore` |  |
@@ -8639,6 +8807,8 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `frost_silver_ore` |  |
 | `frost_steel_ore` |  |
 | `frost_tin_ore` |  |
+| `frost_titanium_ore` |  |
+| `frost_tungsten_ore` |  |
 | `frost_uraninite_ore` |  |
 | `frost_uranium_ore` |  |
 | `frost_zinc_ore` |  |
@@ -8651,6 +8821,7 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `netherrack_coal_ore` |  |
 | `netherrack_cobalt_ore` |  |
 | `netherrack_copper_ore` |  |
+| `netherrack_crimson_iron_ore` |  |
 | `netherrack_cryonite_ore` |  |
 | `netherrack_diamond_ore` |  |
 | `netherrack_emerald_ore` |  |
@@ -8676,6 +8847,8 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `netherrack_silver_ore` |  |
 | `netherrack_steel_ore` |  |
 | `netherrack_tin_ore` |  |
+| `netherrack_titanium_ore` |  |
+| `netherrack_tungsten_ore` |  |
 | `netherrack_uraninite_ore` |  |
 | `netherrack_uranium_ore` |  |
 | `netherrack_zinc_ore` |  |
@@ -8712,14 +8885,25 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `pale_sapphire_ore` |  |
 | `pale_silver_ore` |  |
 | `pale_tin_ore` |  |
+| `pale_titanium_ore` |  |
+| `pale_tungsten_ore` |  |
 | `pale_uraninite_ore` |  |
 | `pale_uranium_ore` |  |
 | `pale_zinc_ore` |  |
+| `stone_aluminum_ore` |  |
 | `stone_amber_ore` |  |
+| `stone_azure_silver_ore` |  |
+| `stone_bort_ore` |  |
 | `stone_certus_quartz_ore` |  |
 | `stone_cobalt_ore` |  |
+| `stone_crimson_iron_ore` |  |
+| `stone_fluorite_ore` |  |
 | `stone_jade_ore` |  |
+| `stone_lead_ore` |  |
+| `stone_lithium_ore` |  |
+| `stone_nickel_ore` |  |
 | `stone_null_amethyst_ore` |  |
+| `stone_osmium_ore` |  |
 | `stone_pearlium_ore` |  |
 | `stone_platinum_ore` |  |
 | `stone_pyratite_ore` |  |
@@ -8727,6 +8911,13 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `stone_rime_shard_ore` |  |
 | `stone_ruby_ore` |  |
 | `stone_sapphire_ore` |  |
+| `stone_silver_ore` |  |
+| `stone_tin_ore` |  |
+| `stone_titanium_ore` |  |
+| `stone_tungsten_ore` |  |
+| `stone_uraninite_ore` |  |
+| `stone_uranium_ore` |  |
+| `stone_zinc_ore` |  |
 
 ### Loot modifiers (21)
 
@@ -8754,7 +8945,7 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `relic_shard_from_trail_ruins_rare` |  |
 | `unifying` |  |
 
-### Mechanics the validator executes (11)
+### Mechanics the validator executes (13)
 
 * **independence**: no mod named in Java, no required host, vanilla-only fallbacks
 * **the guard**: an item in two families is never converted, in all three places
@@ -8763,8 +8954,10 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 * **the matrix**: … ore(s), … material(s)
 * **the worlds**: … placed feature(s) across
 * **family tags**: … file(s), every foreign entry optional, none replacing
+* **the stones**: … retired mod(s) in the ledger, and every stone one of them
 * **the drop**: silk touch, fortune, the world tier, and the pack's own item
 * **the cordon**: … sets on … materials
+* **the gem chunks**: … gem(s) with an ore here, each smelted and blasted from
 * **the roots**: … roots left by … vanilla tables, each a listed
 * **language**: … key(s), every literal one reachable
 
@@ -8918,7 +9111,7 @@ Elysium Solarpunk: a building set for the other future - white marble, limestone
 
 Elysium Space: other worlds, the air you cannot breathe on them, and the rooms that let you. Ported from Stellaris (Exodus Studio, CC BY-NC-SA 4.0) and rebuilt on Elysium Library. Requires Elysium Library.
 
-116 blocks, 55 items, 9 creatures, 11 biomes, 34 structures, 5 dimensions, 32 world features, 1 damage types, 11 biome definitions, 75 structure templates; 173 recipes; 18 validated mechanics.
+116 blocks, 55 items, 9 creatures, 11 biomes, 34 structures, 5 dimensions, 32 world features, 1 damage types, 11 biome definitions, 75 structure templates; 173 recipes; 20 validated mechanics.
 
 ### Blocks (116)
 
@@ -9319,13 +9512,15 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `space_station_small` |  |
 | `waygate` |  |
 
-### Mechanics the validator executes (18)
+### Mechanics the validator executes (20)
 
 * **independence**: … source file(s), no Stellaris or its libraries
 * **credit**: Stellaris, Exodus Studio, CC BY-NC-SA 4.0, shipped in the jar
 * **world table**: 
 * **references**: … …: ids resolve; no stellaris: id left; … structure templates clean
 * **completeness**: … blocks drawn, named and dropping
+* **mineable**: … block(s) in a mineable tag; … liquid(s) and
+* **stone**: … worlds' stone keeps itself to Silk Touch, gives its
 * **runs**: the cable and the pipe draw arms and plates, take a dye, and keep it
 * **rocket**: server re-checks pilot, phase and route before moving anyone; client code isolated
 * **bastion terrain**: plains from the overworld's erosion above
@@ -9527,12 +9722,14 @@ Elysium Trinkets: forty accessories worn in Curios slots. Twenty-four unique one
 
 Elysium Wilds: things that hunt you, and the proof that fighting a harder one is always worth more than fighting an easier one. Requires Elysium Library.
 
-0 blocks, 17 items, 155 biomes, 8 structures, 1 dimensions, 6 world features, 155 biome definitions; 1 recipes; 12 validated mechanics.
+2 blocks, 17 items, 155 biomes, 8 structures, 1 dimensions, 6 world features, 155 biome definitions; 2 recipes; 14 validated mechanics.
 
-### Blocks (0)
+### Blocks (2)
 
 | id | name |
 |---|---|
+| `vale_frame` | Vale Frame |
+| `vale_portal` | Vale Gate |
 
 ### Items (17)
 
@@ -9906,17 +10103,19 @@ Elysium Wilds: things that hunt you, and the proof that fighting a harder one is
 | `vale_sulphur_springs` |  |
 | `vale_verdant_vale` |  |
 
-### Mechanics the validator executes (12)
+### Mechanics the validator executes (14)
 
 * **independence**: … source file(s), nothing it replaces
 * **the arithmetic**: 
 * **the buildings**: 
 * **the overworld**: 
+* **the way in**: 
 * **the metric**: the game's own nearest-box rule — six axes in the game's
 * **the theorem**: a claim inside an earlier claim reported without sampling
 * **the compass**: one search of the stated size for anything, a cooldown
 * **the words**: … needle frame(s), a model, a recipe
 * **the structures**: … kind(s) of building, every one
+* **the way in**: a ring of Vale Frames found by the rules' flood on both axes
 * **the overworld**: … biome(s) of ours in
 * **the reference**: the stages' reference world carries the preset's
 * **the seam**: the rules pointed at every dimension file in the

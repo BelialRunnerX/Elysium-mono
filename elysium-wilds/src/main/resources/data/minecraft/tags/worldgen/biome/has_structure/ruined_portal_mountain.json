@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:cinder_crag",
+    "elysiumwilds:ember_crag",
+    "elysiumwilds:palm_crag",
+    "elysiumwilds:steam_crag",
+    "elysiumwilds:sun_crag",
+    "elysiumwilds:sun_flat",
+    "elysiumwilds:sun_hill",
+    "elysiumwilds:sun_scarp",
+    "elysiumwilds:sun_wold"
+  ]
+}

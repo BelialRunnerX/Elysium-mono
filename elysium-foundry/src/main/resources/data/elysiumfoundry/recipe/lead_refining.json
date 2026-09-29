@@ -1,7 +1,7 @@
 {
   "type": "elysiumfoundry:refining",
   "input": {
-    "item": "elysiumfoundry:raw_lead"
+    "tag": "c:raw_materials/lead"
   },
   "result": {
     "id": "elysiumfoundry:lead_ingot",

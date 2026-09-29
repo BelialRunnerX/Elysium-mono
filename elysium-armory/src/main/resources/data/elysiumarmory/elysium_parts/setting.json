@@ -5,7 +5,7 @@
   "crafting": {
     "materials": 1,
     "extra": [
-      "minecraft:bort"
+      "elysiumfoundry:bort"
     ]
   }
 }

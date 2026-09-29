@@ -240,6 +240,14 @@
     {
       "id": "elysiumagronomy:zinc_chunk",
       "required": false
+    },
+    {
+      "id": "elysiumagronomy:titanium_chunk",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tungsten_chunk",
+      "required": false
     }
   ]
 }

@@ -1,7 +1,48 @@
 {
-  "variants": {
-    "": {
-      "model": "elysiumarsenal:block/rotten_fence"
+  "multipart": [
+    {
+      "apply": {
+        "model": "elysiumarsenal:block/rotten_fence_post"
+      }
+    },
+    {
+      "when": {
+        "north": "true"
+      },
+      "apply": {
+        "model": "elysiumarsenal:block/rotten_fence_side",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "true"
+      },
+      "apply": {
+        "model": "elysiumarsenal:block/rotten_fence_side",
+        "uvlock": true,
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "south": "true"
+      },
+      "apply": {
+        "model": "elysiumarsenal:block/rotten_fence_side",
+        "uvlock": true,
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "west": "true"
+      },
+      "apply": {
+        "model": "elysiumarsenal:block/rotten_fence_side",
+        "uvlock": true,
+        "y": 270
+      }
     }
-  }
+  ]
 }

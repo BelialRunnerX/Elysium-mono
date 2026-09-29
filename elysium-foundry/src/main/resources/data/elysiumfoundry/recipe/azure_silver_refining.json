@@ -1,7 +1,7 @@
 {
   "type": "elysiumfoundry:refining",
   "input": {
-    "item": "elysiumfoundry:raw_azure_silver"
+    "tag": "c:raw_materials/azure_silver"
   },
   "result": {
     "id": "elysiumfoundry:azure_silver_ingot",

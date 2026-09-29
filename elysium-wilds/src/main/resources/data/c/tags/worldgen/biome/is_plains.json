@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:acacia_flat",
+    "elysiumwilds:acacia_hill",
+    "elysiumwilds:acacia_scarp",
+    "elysiumwilds:acacia_wold",
+    "elysiumwilds:heath_flat",
+    "elysiumwilds:heath_hill",
+    "elysiumwilds:heath_scarp",
+    "elysiumwilds:heath_wold"
+  ]
+}

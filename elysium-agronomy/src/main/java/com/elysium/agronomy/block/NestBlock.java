@@ -28,8 +28,9 @@ import net.minecraft.world.phys.BlockHitResult;
  * generated in its biome and holds {@link KeepingRules#NEST_BEES} of that
  * bee; an empty jar used on it takes one, and the nest grows one back every
  * {@link KeepingRules#NEST_REFILL_TICKS}, which the harness holds under the
- * rate a hive works at. A nest for a home only bred bees live in is a
- * decoration, and says so.
+ * rate a hive works at. A nest for a home only bred bees live in is
+ * generated empty ({@link KeepingRules#nestBees}), so the block can be found
+ * and taken home; it is a decoration, and says so.
  */
 public class NestBlock extends Block {
 

@@ -144,6 +144,14 @@
     {
       "id": "elysiumores:pale_zinc_ore",
       "required": false
+    },
+    {
+      "id": "elysiumores:pale_titanium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:pale_tungsten_ore",
+      "required": false
     }
   ]
 }

@@ -379,6 +379,20 @@ if len(MACHINES) != 9:
     print("FarmRules reads as %d machine(s) rather than nine" % len(MACHINES))
     sys.exit(2)
 
+# What mines them, read out of HarvestRules: the one tool every machine is for,
+# and the machines broken by hand instead. The mineable tags are written from
+# these, one write a tag, because a machine in no tool's tag drops nothing
+# (every one copies the game's iron block, which asks for the right tool).
+HARVEST_SOURCE = re.sub(r"//[^\n]*", " ", re.sub(r"/\*.*?\*/", " ", read(os.path.join(
+    MOD, "src/main/java/com/elysium/bestiary/rules/HarvestRules.java")), flags=re.S))
+_machine_tool = re.search(r'String MACHINE_TOOL = "([a-z]+)";', HARVEST_SOURCE)
+_by_hand = re.search(r"List<String> BY_HAND = List\.of\(([^;]*?)\);", HARVEST_SOURCE, re.S)
+if not _machine_tool or not _by_hand:
+    print("HarvestRules does not say what mines a machine")
+    sys.exit(2)
+HARVEST_MACHINE_TOOL = _machine_tool.group(1)
+HARVEST_BY_HAND = re.findall(r'"([a-z_]+)"', _by_hand.group(1))
+
 #: One sentence per machine, because a farm block whose tooltip is its own name
 #: is a block a player places once and never works out the point of.
 MACHINE_WORDS = {
@@ -1693,6 +1707,17 @@ def main():
 
     for kind in sorted({one["kind"] for one in MACHINES}):
         lang["bestiary.%s.kind.%s" % (NS, kind.lower())] = titled(kind.lower())
+
+    # The game's mineable tags, from HarvestRules: every machine under the one
+    # tool, less the ones broken by hand. One write a tag file, from the whole
+    # list at once; a generator that wrote a tag in pieces kept only the last.
+    mined_by = {}
+    for one in MACHINES:
+        if one["id"] not in HARVEST_BY_HAND:
+            mined_by.setdefault(HARVEST_MACHINE_TOOL, []).append("%s:%s" % (NS, one["id"]))
+    for tool, values in mined_by.items():
+        write(os.path.join(OUT, "src/main/resources/data/minecraft/tags/block/mineable",
+                           tool + ".json"), {"replace": False, "values": values})
 
     # The twenty-seven in thirteen kindreds.
     for one in KINDRED:

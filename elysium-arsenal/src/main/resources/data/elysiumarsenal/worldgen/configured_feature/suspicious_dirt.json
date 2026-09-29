@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:disk",
+  "config": {
+    "state_provider": {
+      "fallback": {
+        "type": "minecraft:simple_state_provider",
+        "state": {
+          "Name": "elysiumarsenal:suspicious_dirt"
+        }
+      },
+      "rules": []
+    },
+    "target": {
+      "type": "minecraft:matching_blocks",
+      "blocks": [
+        "minecraft:grass_block",
+        "minecraft:dirt",
+        "minecraft:coarse_dirt",
+        "minecraft:podzol"
+      ]
+    },
+    "radius": {
+      "type": "minecraft:uniform",
+      "min_inclusive": 1,
+      "max_inclusive": 2
+    },
+    "half_height": 0
+  }
+}

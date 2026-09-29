@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumarsenal:ocelot_fossil_head"
+    },
+    {
+      "item": "elysiumarsenal:ocelot_fossil_body"
+    }
+  ],
+  "result": {
+    "id": "elysiumarsenal:ocelot_fossil",
+    "count": 1
+  }
+}

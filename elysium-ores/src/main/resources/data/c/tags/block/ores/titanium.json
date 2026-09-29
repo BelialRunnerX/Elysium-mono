@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_titanium_ore",
+    "elysiumores:deepslate_titanium_ore",
+    "elysiumores:end_stone_titanium_ore",
+    "elysiumores:frost_titanium_ore",
+    "elysiumores:netherrack_titanium_ore",
+    "elysiumores:pale_titanium_ore",
+    "elysiumores:stone_titanium_ore"
+  ]
+}

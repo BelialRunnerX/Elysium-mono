@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "tag": "c:raw_materials/sapphire"
+  },
+  "result": {
+    "id": "elysiumores:sapphire"
+  },
+  "experience": 0.3,
+  "cookingtime": 100
+}

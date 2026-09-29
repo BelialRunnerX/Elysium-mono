@@ -1744,6 +1744,193 @@ keystone (a keystone sets a doctrine something must read, and none is
 written for these), which `negtest_web.sh` breaks (10/0). In the game the
 marksman's road led out to the rift and a rift node was taken.
 
+### 16.15 Everything in survival (29 September, small hours)
+
+Dylan: *"All content should be available and accessible via survival."* The
+questbook's drafting had found four things a survival player could never
+have, each fine on its own and unreachable as a whole. Rather than fix the
+four, the whole pack was walked.
+
+**The checker.** `check_obtainable.py`, run by the root validate, walks the
+pack forward from a new world until nothing new is reached: recipes (a
+machine recipe only once its machine can be had; the agronomy's cutting,
+cooking, larder, pot and altar data read as recipes), loot tables (a reached
+block's, a reached creature's, chests in reached structures, loot modifiers
+only where a `global_loot_modifiers.json` lists them), worldgen features and
+structure templates in reached dimensions, biome and biome-modifier spawns,
+ore drops exactly as `UnifyRules` decides them (its `PRIORITY` and
+`DROP_ORDER` read from the Java), world presets (the overworld is the biomes
+the wilds' preset lists, not the game's tags), noise terrain, and *declared
+sources*: what only code hands out, each pinned to the file and the words
+that do it (`tools/obtainable_sources.py`, 809 declarations in
+`tools/obtainable/`, one file per group of modules), so a source the code
+stops providing is a check that fails. `/elysium audit harvest` asks the
+running game whether every block that needs a tool has a tool tagged to mine
+it, because whether a block needs a tool is Java and whether it is tagged is
+data; a live scenario runs it. The checker also refuses an overworld with no
+biome in `minecraft:is_overworld`, since that tag is the stronghold's, and
+the stronghold is the way to the End.
+
+**What the walk found, and what was built** (seven groups walked, ten fixed,
+each through rules, harness, generator, validator and negtest):
+
+* *comforts*: pigeons never spawned; now a flock of two to four in the
+  plains, weight 8, and a harness rule that every bird has a way in. The
+  post priced a loss it never rolled; a parcel is now lost fifteen times in
+  a thousand where it lands, what arrives is lost mail with a quarter of
+  each stack, and a village cartographer's chest keeps one one time in five.
+  The trader's crate says to crouch.
+* *foundry and ores*: every foundry recipe took the foundry's own raw item,
+  and a mined ore dropped the agronomy's chunk (neither namespace was in the
+  ores' priority and agronomy wins the alphabet), so eleven metals, the
+  refinery and three casings could not be had. Raw inputs are the family's
+  `#c:raw_materials` tag now; the foundry and atomics stand after the ores in
+  `PRIORITY`; the drop order is raw, gem, the game's own item, dust, ingot
+  (a coal ore drops coal, not coal dust); twenty recipes smelt a gem family's
+  chunk into its gem; the overworld gains ores for tin, zinc, nickel, silver,
+  lead, aluminium, lithium, osmium, uranium and uraninite (the generator had
+  believed the retired mods still supplied them; the licensing ledger says
+  which jars ship); titanium and tungsten are metals at last, so the twenty-six
+  core gear pieces made of them can be made. 212 placed ores became 255.
+* *core and the court*: the five writs of audience were creative-only; each
+  envoy now sells its own, one a visit, at its office's top price
+  (`CourtRules`), and the harness proves that for every one of the 10,201
+  Favor-and-Suspicion standings somebody will come (there was a dead zone).
+  A new player got two codices; the kit now carries bread and torches and
+  the library hands out the one codex.
+* *industry*: the coke oven and blast furnace gave up their output only when
+  broken, took any item into their input and jammed on it, and coke was used
+  by nothing. An empty hand takes what was made; only a job's item goes in;
+  the blast furnace has a coke slot and burns `COKE_PER_BLAST` a job; coke is
+  a furnace fuel at `COKE_BURN` through a NeoForge data map.
+* *logistics*: a drawer's void and lock could be set by nothing but `/data`.
+  A void seal fits a drawer (crouch and an empty hand takes it back; it
+  drops with the contents); a drawer key (a tripwire hook and two gold
+  nuggets) locks a drawer to what it holds and is never spent; the status
+  line says "Locked." and "Voids overflow."
+* *arsenal*: the dig's sites were never placed and brushing never yielded a
+  fossil, a totem or rotten wood. Suspicious dirt patches one chunk in ten
+  in forests, taigas, plains and meadows; suspicious red sand one in six in
+  the badlands; fossiliferous dirt three veins a chunk through the whole
+  overworld's dirt; the pools now hold every fossil half, the four totems,
+  the rotten log and the cracked and infested mud bricks, all above the
+  one-in-two-hundred floor; twenty recipes make whole fossils, the rotten
+  set and the mud-brick set; the songless duplicate disc is retired for the
+  game's own. Found on the way: every shape of the rotten and mud-brick sets
+  was drawn as a full cube (now the game's own blockstates and models, held
+  against `oak_*` and `mud_brick_*` in the jar), a door dropped from both
+  halves, and no arsenal block was on any tool list.
+* *flora*: the emberwood stairs turned twenty-three of forty variants the
+  wrong way; the validator crashed on any harness failure for want of one
+  function.
+* *arcana*: the first shard came from a cycle with no way in. Thirty geodes
+  grow wild, fifteen in the overworld below y 30 (emerald under mountains)
+  and fifteen in the Nether, each beside its ore, one in eight times its
+  budding price chunks (coal 1 in 64, platinum 1 in 256), shaped like the
+  game's amethyst geode. The sixty storage and budding blocks needed a
+  pickaxe and none was tagged; now they are, and the block-to-shards recipe
+  is gone, since a geode's wall is four hundred blocks and would have been
+  fifteen hundred free shards: like amethyst, a block is one-way.
+* *armory*: affix essence came only from salvaging affixed modular gear,
+  which never had affixes; the salvager takes any affixed piece, and a
+  reforged piece pays back at most its reroll (a `reforged` component), or
+  essence would print. The template is found in village smiths' chests (one
+  in four) and dungeon chests (one in ten) and settles into a plan when
+  carried. Conversion matched gear by suffix from a map whose order changed
+  per launch ("pickaxe" ends in "axe"); the longest suffix wins now, and
+  shears convert. Part extras are charged, and `minecraft:bort` is the
+  foundry's.
+* *agronomy*: the five rods, the fillet knife, the measuring line and the
+  four bee tools had no recipe; the essence ladder could not be entered
+  (every first seed cost faint essence, which only a pot growing a seed
+  made); fourteen nests had no worldgen; the End's fish never lived in the
+  world. All six closed (the group's agent was cut off before its report;
+  its validator passes).
+* *space*: the three stones dropped nothing but themselves, so frost
+  cobblestone had no source; a stone breaks the way the game's does now.
+  Found on the way: the space generator wrote its pickaxe tag three times
+  over, each write replacing the last, and forty-seven stones, ores, metal
+  blocks and machines dropped nothing to any tool; the freight terminal was
+  on no tool list; the module now holds every block to a tool list or a
+  checked exemption.
+* *wilds*: the Vale had no way in but a command. A ring of Vale Frames (four
+  a craft of mossy stone bricks, moss and an ender pearl), the Nether
+  portal's shape from two-by-three to twenty-one square, found by flooding
+  its opening, lit by the surveyor's compass, lands a player in the Verdant
+  Vale beside a ring built to come home by. And every biome of ours carried
+  no tag at all: the preset puts only ours in the overworld, so nothing keyed
+  to a tag reached it — no village, no mineshaft, no ore, spawn, crop or
+  geode this pack adds by tag. Each now carries every tag the game's biome it
+  models is a direct member of, read from the game's and NeoForge's own
+  files (140 biomes in 68 tags), and the validator holds it both ways.
+* *almanac*: the book follows: the essence rungs in agronomy's order, the
+  dig's first step counts the brush's use rather than a break, steps for the
+  writs, the drawer key, the found template and the Vale gate, the words for
+  salvage, fittings, jewellery and geodes, and families for the sixty-three
+  new things. 523 steps; 7,153 introduced, 724 excused, none left out.
+
+Two negtest traps on this machine, now in the tooling notes: Git Bash strips
+a slash from an argument that starts with `//`, so a case that commented a
+line out tested nothing; and `tools/dryrun.py` does not know every script's
+`edit()` shape and can apply the edits for real.
+
+### 16.16 Every block on a tool list (29 September, midday)
+
+The build of 16.15 went on the E: server and the new live scenario asked it:
+*676 of the 3026 blocks that need a tool have no tool tagged to mine them, so
+they drop nothing.* The chat names a dozen, so the audit now writes its whole
+answer to `logs/harvest-audit.txt` under the server's directory (core holds
+that; `negtest_harvest_audit.sh`, 7 cases), and a data-only count of the
+tree (every blockstate against every `mineable/*` tag in the pack) put the
+rest in their modules. Three agents then took the modules, each to the same
+brief (`HarvestRules` in the module's `rules/`, the generator writing each
+tag file once from the rules, the validator holding every blockstate to
+exactly one tool list or to a `BY_HAND` with a reason the registering Java
+bears out — an exempt block must not ask for the right tool nor copy a game
+block that does, and a copy of a game block the validator's own table does
+not know is a failure, not a pass — and the negtest breaking each of those):
+
+* *atelier* — 2,990 blocks: 1,606 on the pickaxe's list (the 22 stone
+  materials in every shape), 1,384 on the axe's (11 woods and the 592 cloth
+  pieces, which copy oak planks and white wool and ask for nothing). The
+  fault was the 693 arch pieces (33 materials × 21): `pieces()` builds them
+  on `like(material)`, `ofFullCopy(Blocks.STONE)` for stone, and
+  `arch_files()` never wrote a tag, so 462 stone pieces dropped nothing and
+  231 wooden ones broke at a fist's pace. Six scattered tag writes became one
+  `harvest_files()`. Found on the way: the validator's blockstate and cut
+  comparisons against the game's jar had never run on this machine — the
+  path was the container's `/tmp/mc/mapped-at.jar` — and pass now that the
+  jar is taken from `MC_JAR` or a known place. 51 → 55 caught, 0 missed.
+* *agronomy* — 465 blocks: 204 pickaxe (all 183 botany pots, fired on stone
+  or terracotta; the growing pot; the accelerator, centrifuge and rock
+  generators; the two steel apiaries; the three altar blocks; the cooking
+  pot, skillet and stone oven — every one asked for the tool and dropped
+  nothing), 150 axe (hives, mounts, cabinets, crates, nests, the mushroom
+  colony), 5 shovel (the soils), 106 by hand (98 comb blocks, as the game's
+  honeycomb block is in no tag, and 8 crops that break at a touch).
+  `HarvestRules` names 11 materials and 31 kinds; the apiary ladder reads
+  `STEEL_FROM_SLOTS` from it rather than a literal. 46 caught, 0 missed.
+* *bestiary* — 9 blocks, all copying the iron block, none tagged: the real
+  fault there. *colonies* — 8: six elevator parts asking for the tool
+  through `PortBlocks.metal()`, the stone ruin seed, the wooden settlement
+  seed. *armory* — 8 machines, none asking, tagged for speed. *npcs* — the
+  hand-written pickaxe tag had five benches and missed `gear_bench`; the
+  generator writes it from the professions table now. *solarpunk* — 85: 78
+  pickaxe, 6 axe, `bloom_glass` by hand; the seventeen `"tool"` keys in the
+  table gave way to the material word (new `negtest_solarpunk.sh`, 13 cases).
+  *ores* — 276: 255 ores and 20 metal blocks by pickaxe, `mireweave_block`
+  by hand as the wool it is (the name-skip in the validator became a kind).
+  Negtests: armory 43, bestiary 67, colonies 28, court 32, ores 61 — 0 missed.
+
+The build went back on the E: server at 13:31 and the audit answered: *0
+untagged, 0 unbreakable* — every one of the 3,026 blocks that asks for a tool
+has one tagged to mine it. The `harvest:` scenario passes.
+
+Two more Windows traps closed in the tooling: sixteen negtests guarded
+themselves with `flock`, which Git Bash lacks, and refused to run at all
+("another negtest_space is running"); they lock with `flock` where it exists
+and a directory where it does not. And the atelier jar path above.
+
 ## 17. Live tests: the pack running, asked questions
 
 Dylan, 27 September 2026: *validation should include testing pipes and

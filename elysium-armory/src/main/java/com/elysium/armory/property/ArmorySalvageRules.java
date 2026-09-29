@@ -33,6 +33,11 @@ package com.elysium.armory.property;
  * the whole economy of P6 in one line: bad affixes on a good piece become the
  * means to reroll them.
  *
+ * <p>Any affixed piece will do, modular or not ({@link #salvageable}): loot
+ * carries affixes from world tier 1 up, and taking a found piece apart is where
+ * the first essence comes from. A piece of the base game's gear has no parts
+ * to give back, so it yields its essence and nothing else.
+ *
  * <p>Pure: the JDK and nothing else.
  */
 public final class ArmorySalvageRules {
@@ -65,14 +70,51 @@ public final class ArmorySalvageRules {
     }
 
     /**
-     * How much essence an affixed piece yields: one per level of each affix.
+     * Whether a piece is worth putting on the salvager: modular gear with
+     * parts to give back, or any piece carrying an affix.
+     *
+     * <p>The second half is where essence starts. A modular piece has affixes
+     * only once it has been reforged, and a reforge is paid in essence, so
+     * while the salvager took modular gear alone nobody could ever hold an
+     * essence (found 29 September 2026). Loot rolls affixes onto the gear it
+     * drops from world tier 1 up, and that is the way in.
+     *
+     * @param modular          modular gear with at least one part
+     * @param totalAffixLevels every level of every affix on the piece
+     */
+    public static boolean salvageable(boolean modular, int totalAffixLevels) {
+        return modular || totalAffixLevels > 0;
+    }
+
+    /**
+     * How much essence a piece with found affixes yields: one per level of
+     * each affix.
      *
      * The levels, not the count, so a piece carrying one strong affix is worth
      * as much as one carrying three weak ones — which is what keeps a player
      * from throwing away a good roll to farm the count.
      */
     public static int essence(int totalAffixLevels) {
-        return Math.max(0, totalAffixLevels);
+        return essence(totalAffixLevels, 0);
+    }
+
+    /**
+     * How much essence a piece yields: one per level of each affix, and never
+     * more than a reforge was paid for them.
+     *
+     * The cap is what keeps the loop from printing essence. A reroll to rarity
+     * N costs N and lands N affixes at one to four levels each, two on average
+     * over the library's 94 affixes, so a reforged piece paid back at one a
+     * level would return about twice its price: a wooden sword rerolled and
+     * taken apart, again and again, would make essence out of nothing. Affixes
+     * found on loot were never paid for, and yield their levels.
+     *
+     * @param totalAffixLevels every level of every affix on the piece
+     * @param paid             what a reforge cost for those affixes; 0 when they were found
+     */
+    public static int essence(int totalAffixLevels, int paid) {
+        int levels = Math.max(0, totalAffixLevels);
+        return paid > 0 ? Math.min(levels, paid) : levels;
     }
 
     /**

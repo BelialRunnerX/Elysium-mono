@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#c:is_plateau",
+  "features": "elysiumagronomy:highlands_nest",
+  "step": "vegetal_decoration"
+}

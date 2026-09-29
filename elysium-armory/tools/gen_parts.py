@@ -21,6 +21,28 @@ from gen_materials import rows, traits, modifier, put            # noqa: E402  t
 OUT = os.path.join(HERE, "src/main/resources/data/elysiumarmory/elysium_parts")
 NS = "elysiumarmory"
 
+#: The extra ingredients P1 names, under the ids this pack has. The compound
+#: part recipe charges them, one each (ArmoryPlanRules.extras). Silent Gear's
+#: bort is a gem of its own and the base game has none, so a setting takes the
+#: foundry's, the one the pack ships (it is all of c:gems/bort). By id, not by
+#: that tag: extras are a list, and a tag inside a list is what check_datapack
+#: refuses. This wrote "minecraft:" in front of every name once, and
+#: "minecraft:bort" named nothing (found 29 September 2026).
+EXTRAS = {
+    "glass_bottle": "minecraft:glass_bottle",
+    "heavy_core": "minecraft:heavy_core",
+    "bort": "elysiumfoundry:bort",
+}
+
+
+def extra_id(name):
+    """One P1 extra ingredient as the id or #tag the recipe asks for."""
+    name = name.strip()
+    if name not in EXTRAS:
+        raise SystemExit(f"P1 names an extra ingredient '{name}' that EXTRAS has no id for; "
+                         f"say which item or tag it is")
+    return EXTRAS[name]
+
 
 def offsets(text):
     """'attack_damage +2 & xbase -0.5; attack_speed +2.8' -> the part's own modifiers."""
@@ -59,7 +81,7 @@ def main(out=OUT):
         if made:
             crafting["count"] = int(made.group(1))
         if extra.strip():
-            crafting["extra"] = ["minecraft:" + e.strip() for e in extra.split(",") if e.strip()]
+            crafting["extra"] = [extra_id(e) for e in extra.split(",") if e.strip()]
         if crafting:
             part["crafting"] = crafting
         properties = offsets(props)

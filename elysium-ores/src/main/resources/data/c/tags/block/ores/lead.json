@@ -26,9 +26,11 @@
       "required": false
     },
     "elysiumores:cinder_lead_ore",
+    "elysiumores:deepslate_lead_ore",
     "elysiumores:end_stone_lead_ore",
     "elysiumores:frost_lead_ore",
     "elysiumores:netherrack_lead_ore",
-    "elysiumores:pale_lead_ore"
+    "elysiumores:pale_lead_ore",
+    "elysiumores:stone_lead_ore"
   ]
 }

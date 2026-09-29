@@ -1,6 +1,7 @@
 #!/bin/bash
 cd /tmp/Elysium-mono || exit 1
-exec 9>/tmp/negtest_s6b.lock; flock -n 9 || { echo busy; exit 2; }
+negtest_lock() { if command -v flock >/dev/null 2>&1; then flock -n "$1"; else mkdir "$2" 2>/dev/null && trap "rmdir '$2' 2>/dev/null" EXIT; fi; }  # Git Bash on Windows has no flock
+exec 9>/tmp/negtest_s6b.lock; negtest_lock 9 /tmp/negtest_s6b.lockdir || { echo busy; exit 2; }
 J=elysium-space/src/main/java/com/elysium/space
 RK=$J/entity/RocketEntity.java; CO=$J/machine/ConduitBlockEntity.java; CAP=$J/registry/SpaceBlockEntities.java; RT=$J/world/SpaceRoute.java
 FILES="$RK $CO $CAP $RT"

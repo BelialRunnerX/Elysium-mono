@@ -1,0 +1,22 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#elysiumarcana:geodes_nether",
+  "features": [
+    "elysiumarcana:quartz_geode",
+    "elysiumarcana:tin_geode",
+    "elysiumarcana:zinc_geode",
+    "elysiumarcana:nickel_geode",
+    "elysiumarcana:lead_geode",
+    "elysiumarcana:aluminum_geode",
+    "elysiumarcana:silver_geode",
+    "elysiumarcana:lithium_geode",
+    "elysiumarcana:fluorite_geode",
+    "elysiumarcana:osmium_geode",
+    "elysiumarcana:uranium_geode",
+    "elysiumarcana:uraninite_geode",
+    "elysiumarcana:bort_geode",
+    "elysiumarcana:glowstone_geode",
+    "elysiumarcana:ancient_debris_geode"
+  ],
+  "step": "local_modifications"
+}

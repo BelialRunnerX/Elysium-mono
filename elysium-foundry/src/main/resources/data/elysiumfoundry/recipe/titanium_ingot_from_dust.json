@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:titanium_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:titanium_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

@@ -9,6 +9,9 @@ G=$M/tools/gen_atelier.py
 J=$M/src/main/java/com/elysium/atelier/rules/JoinRules.java
 B=$M/src/main/java/com/elysium/atelier/registry/AtelierBlocks.java
 H=$M/tools/JoinHarness.java
+HR=$M/src/main/java/com/elysium/atelier/rules/HarvestRules.java
+HH=$M/tools/HarvestHarness.java
+V=$M/validate.py
 RES=$M/src/main/resources
 SNAP=/tmp/atelier_snap.tar
 pass=0; fail=0
@@ -73,7 +76,7 @@ expect "blocks with no items" "only a command can place it"
 rm $RES/assets/elysiumatelier/models/block/oak_chair.json
 expect "a block with no model" "things a block needs are missing"
 
-edit $G '    write(os.path.join(tags, "mineable/axe.json"), {"replace": False, "values": wooden})' '    write(os.path.join(tags, "mineable/axe.json"), {"replace": False, "values": []})'
+edit $G '            write(where, {"replace": False, "values": sorted(lists[tool])})' '            write(where, {"replace": False, "values": []})'
 expect_regen "blocks in no mineable tag" "take a fist and drop nothing"
 
 echo "the geometry, which is two descriptions of one block"
@@ -201,6 +204,99 @@ b["parent"] = "minecraft:block/fence_side"
 p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
 PYX
 expect "a fence post built on the side piece" "the piece is the wrong shape"
+
+echo "what mines it, which is the fault the game named on 29 September 2026"
+python3 - <<'PYX'
+import json, pathlib
+# The fault in its natural habitat: one stone block in no tool's list.
+p = pathlib.Path("/tmp/Elysium-mono/elysium-atelier/src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["values"] = [v for v in b["values"] if v != "elysiumatelier:stone_shallow_roof_slope"]
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYX
+expect "a stone roof slope in no tool's list, which drops nothing" "ask for the right tool and are in no tool's tag"
+
+python3 - <<'PYX'
+import json, pathlib
+# A wooden one drops, but at a fist's pace whatever is held.
+p = pathlib.Path("/tmp/Elysium-mono/elysium-atelier/src/main/resources/data/minecraft/tags/block/mineable/axe.json")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["values"] = [v for v in b["values"] if v != "elysiumatelier:oak_awning"]
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYX
+expect "a wooden awning in no tool's list, which takes a fist" "every tool breaks them at a fist's pace"
+
+python3 - <<'PYX'
+import json, pathlib
+p = pathlib.Path("/tmp/Elysium-mono/elysium-atelier/src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["values"] = [v for v in b["values"] if v != "elysiumatelier:stone_awning"]
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+p = pathlib.Path("/tmp/Elysium-mono/elysium-atelier/src/main/resources/data/minecraft/tags/block/mineable/axe.json")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["values"] = sorted(set(b["values"]) | {"elysiumatelier:stone_awning"})
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYX
+expect "a stone awning on the axe's list" "are on the wrong tool's list"
+
+python3 - <<'PYX'
+import json, pathlib
+p = pathlib.Path("/tmp/Elysium-mono/elysium-atelier/src/main/resources/data/minecraft/tags/block/mineable/axe.json")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["values"] = sorted(set(b["values"]) | {"elysiumatelier:stone_awning"})
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYX
+expect "a block on two tools' lists" "are on two tools' lists"
+
+python3 - <<'PYX'
+import json, pathlib
+p = pathlib.Path("/tmp/Elysium-mono/elysium-atelier/src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["values"] = sorted(set(b["values"]) | {"elysiumatelier:stone_spaceship"})
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYX
+expect "a list naming a block nobody registers, which makes the game refuse the whole list" "is not a block this module registers"
+
+python3 - <<'PYX'
+import json, pathlib
+p = pathlib.Path("/tmp/Elysium-mono/elysium-atelier/src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["replace"] = True
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYX
+expect "a list that replaces the game's own" "replaces the game's own list"
+
+edit $G '            harvested("pieces", id, piece[0], soft)' '            pass'
+expect_regen "the architectural pieces written and reported to nobody, which is how it happened" "ask for the right tool and are in no tool's tag"
+
+edit $HR '    public static final List<String> BY_HAND = List.of();' '    public static final List<String> BY_HAND = List.of("rug");'
+expect "a kind broken by hand with no reason given" "breaks rug by hand and this gives no reason"
+
+edit $HR '    public static final List<String> BY_HAND = List.of();' '    public static final List<String> BY_HAND = List.of("rug");'
+edit $V 'MINE_EXEMPT = {}' 'MINE_EXEMPT = {"rug": "a rug is a doormat"}'
+expect_regen "a stone rug excused from every list, which asks for the right tool all the same" "is exempt from the mineable tags (a rug is a doormat), but"
+
+edit $HR '    public static final List<String> BY_HAND = List.of();' '    public static final List<String> BY_HAND = List.of("rug");'
+edit $V 'MINE_EXEMPT = {}' 'MINE_EXEMPT = {"rug": "a rug is a doormat"}'
+expect "a kind excused from the lists and on one all the same" "exempt from the mineable tags and in one all the same"
+
+edit $V 'MINE_EXEMPT = {}' 'MINE_EXEMPT = {"rug": "a rug is a doormat"}'
+expect "a reason for a kind the rules no longer break by hand" "HarvestRules no longer does"
+
+edit $B '                : BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)' '                : BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)'
+expect "a registry copying a game block nobody looked up" "nothing here knows whether that asks for the right tool"
+
+edit $B '                BlockBehaviour.Properties properties = like(material);
+                if (piece.burns()) {' '                BlockBehaviour.Properties properties = BlockBehaviour.Properties.of();
+                if (piece.burns()) {'
+expect "the pieces built on something other than like(material)" "are no longer built on like(material)"
+
+edit $HR '        return material.soft() ? AXE : PICKAXE;' '        return PICKAXE;'
+expect "wood handed to the pickaxe" "and the rules hand it to the pickaxe"
+
+edit $HH '            System.out.println("HARVEST " + one.id() + " " + one.roster() + " "
+                    + one.kind() + " " + one.material() + " " + one.tool());' '            if (false) { System.out.println(""); }'
+expect "a harness that stops printing what mines each block" "compared against nothing"
 
 echo
 echo "restoring and re-checking"

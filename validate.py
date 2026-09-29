@@ -117,6 +117,20 @@ def main():
         failures.append("keys")
     print()
 
+    # Dylan, 29 Sep 2026: "All content should be available and accessible via
+    # survival." Each gap looked fine on its own - a recipe here, a loot table
+    # there - and was unreachable as a whole: the first arcana shard came from
+    # a cycle with no way in, the dig sites were never placed, the Vale had no
+    # door. So the pack is walked forward from a new world until nothing new is
+    # reached, and anything the catalogue lists that the walk never reaches is
+    # content a survival player cannot have.
+    print("=" * 70)
+    print("obtainable — everything the pack adds can be had in survival")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_obtainable.py"], cwd=HERE).returncode != 0:
+        failures.append("obtainable")
+    print()
+
     # The conversion programme's own bookkeeping. It is checked here because
     # the programme runs for longer than anybody's memory of it: a mod that
     # nobody decided about is a mod nobody converts, and that failure is

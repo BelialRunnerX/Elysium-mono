@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumarsenal:creeper_fossil_head"
+    },
+    {
+      "item": "elysiumarsenal:creeper_fossil_body"
+    }
+  ],
+  "result": {
+    "id": "elysiumarsenal:creeper_fossil",
+    "count": 1
+  }
+}

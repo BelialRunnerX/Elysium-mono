@@ -152,6 +152,18 @@
     {
       "id": "elysiumores:end_stone_zinc_ore",
       "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_platinum_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_titanium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:end_stone_tungsten_ore",
+      "required": false
     }
   ]
 }

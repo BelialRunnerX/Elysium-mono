@@ -95,6 +95,13 @@ def body_of(src, signature):
     return src[open_at + 1:]
 
 
+def squashed(text):
+    """Every run of whitespace as one space, comments gone first, so a rule can
+    name a whole statement without guessing how it was wrapped, and cannot be
+    passed by a // in front of the line it names."""
+    return " ".join(strip_comments(text, keep_strings=True).split())
+
+
 def harness_trouble(output):
     """The lines of a harness run that say what went wrong.
 
@@ -288,6 +295,22 @@ if not re.search(r'List\.of\(\s*"minecraft"', read(PURE, "UnifyRules.java")):
     fail("minecraft is not first in the priority list, so a pack could settle on an "
          "iron ingot that is not the iron ingot")
 
+# The foundry and atomics outrank every other mod, and the agronomy, which is
+# not listed (29 Sep 2026). Unlisted, the foundry lost the tie for every mined
+# metal's c:raw_materials family to the agronomy's chunk on the alphabet: the
+# ores of twelve metals and of uranium dropped a chunk, and the foundry's raw
+# metals and atomics' raw uranium could never be had (check_obtainable.py).
+_listed = re.search(r"List<String> PRIORITY = List\.of\((.*?)\);",
+                    strip_comments(read(PURE, "UnifyRules.java"), keep_strings=True), re.S)
+_ranked = re.findall(r'"([a-z0-9_]+)"', _listed.group(1)) if _listed else []
+for _metal in ("elysiumfoundry", "elysiumatomics"):
+    if _metal not in _ranked:
+        fail(f"{_metal} is not in UnifyRules.PRIORITY, so the agronomy's chunk wins its metals' "
+             f"families on the alphabet: the ore drops the chunk and the raw metal is a thing nobody holds")
+    elif any(ns != "minecraft" and not ns.startswith("elysium") for ns in _ranked[:_ranked.index(_metal)]):
+        fail(f"{_metal} is ranked below another mod in UnifyRules.PRIORITY, so a pack that has that mod "
+             f"drops its metal from this module's ores")
+
 # ---------------------------------------------------------------------------
 # 5. The matrix
 # ---------------------------------------------------------------------------
@@ -446,24 +469,89 @@ for family in families:
              f"{family} ores")
 
 # ---------------------------------------------------------------------------
+# No stone is left to a mod the pack no longer ships (29 Sep 2026)
+# ---------------------------------------------------------------------------
+#
+# The generator leaves a stone alone where tools/pack_scan.json says a mod
+# filled it, and the scan is the pack this was written against: most of its
+# mods are retired, each with a row in docs/LICENSING.md. Asked of the whole
+# scan, the Overworld had no tin, zinc, nickel, silver, lead, aluminium,
+# lithium, osmium, uranium or uraninite, and bronze, the foundry's first alloy,
+# waited on a trip to the Nether. So every stone a retired mod once filled with
+# a material this module has ores for is filled here.
+
+_retired = set()
+for _line in read(os.path.dirname(WORK), "docs", "LICENSING.md").splitlines():
+    _row = re.match(r"^\| [^|]* \| `[^`]+\.jar` \| ([^|]*) \|", _line)
+    if _row:
+        _retired.update(part.strip() for part in _row.group(1).split(",") if part.strip())
+if not _retired:
+    fail("docs/LICENSING.md names no retired mod, so nothing here can tell a stone a retired mod "
+         "once filled from one a shipped mod still fills")
+# How a scanned block's name says its stone; anything else is plain stone.
+_STONE_OF = (("deepslate_", "deepslate"), ("nether_", "netherrack"), ("netherrack", "netherrack"),
+             ("blackstone_", "netherrack"), ("end_", "end_stone"), ("endstone_", "end_stone"),
+             ("cinder_", "cinder"), ("frost_", "frost"), ("pale_", "pale"))
+# The game fills its own eight in stone and deepslate, and quartz in netherrack.
+_GAME_FILLS = {(f, h) for f in ("coal", "copper", "iron", "gold", "redstone", "lapis", "emerald",
+                                "diamond") for h in ("stone", "deepslate")} | {("quartz", "netherrack")}
+_ours = {(family, host) for _, family, host, _, _ in rows}
+_left = []
+for _family, _blocks in sorted((load(WORK, "tools/pack_scan.json") or {}).get("ores", {}).items()):
+    if _family not in families:
+        continue
+    for _block in _blocks:
+        _mod, _path = _block.split(":", 1)
+        if _mod not in _retired:
+            continue
+        _host = next((h for prefix, h in _STONE_OF if _path.startswith(prefix)),
+                     "deepslate" if "deepslate" in _path else "stone")
+        if (_family, _host) not in _ours and (_family, _host) not in _GAME_FILLS:
+            _left.append(f"{_family} in {_host} ({_block})")
+if _left:
+    fail(f"{len(_left)} stone(s) are left to a mod the pack no longer ships (docs/LICENSING.md), so "
+         f"that material is in that stone nowhere at all: " + ", ".join(_left[:6]))
+print(f"the stones         : {len(_retired)} retired mod(s) in the ledger, and every stone one of them "
+      f"once filled is filled here")
+
+# ---------------------------------------------------------------------------
 # The drop, and what decides it
 # ---------------------------------------------------------------------------
 
 drops = strip_comments(read(SRC, "ore/OreDrops.java"), keep_strings=True)
-order = re.search(r'KINDS\s*=\s*\n?\s*List\.of\(([^)]*)\)', drops)
+drop_rules = strip_comments(read(PURE, "UnifyRules.java"), keep_strings=True)
+order = re.search(r'DROP_ORDER\s*=\s*List\.of\(([^)]*)\)', drop_rules)
 if not order:
-    fail("OreDrops has no search order, so what an ore drops depends on which tag "
+    fail("UnifyRules has no drop order, so what an ore drops depends on which tag "
          "happened to be looked at first")
 else:
     kinds = [k.strip().strip('"') for k in order.group(1).split(",")]
     if kinds[0] != "raw_materials":
-        fail("OreDrops looks for a processed form before a raw one, so breaking an "
+        fail("the drop order looks for a processed form before a raw one, so breaking an "
              "ore would hand a player a finished ingot")
     if "ingots" in kinds and kinds.index("ingots") != len(kinds) - 1:
-        fail("OreDrops prefers an ingot to a gem or a dust")
-if "UnifyRules.canonical(" not in drops:
-    fail("OreDrops chooses what to drop by some rule other than the one everything "
+        fail("the drop order prefers an ingot to a gem or a dust")
+    # The game's own item before any dust or ingot (29 Sep 2026): last, it lost
+    # to c:dusts/coal, and the Nether's and the End's coal ores dropped the
+    # foundry's coal dust.
+    if "vanilla" not in kinds or any(kind in kinds and kinds.index(kind) < kinds.index("vanilla")
+                                     for kind in ("dusts", "ingots")):
+        fail("the drop order looks at a dust or an ingot before the game's own item, so the "
+             "Nether's coal ore drops the foundry's coal dust rather than coal")
+if "canonical(found)" not in squashed(body_of(drop_rules, "public static String drop(")):
+    fail("the drop takes a member of the family by some rule other than the one everything "
          "else was unified onto, so the ore would produce a seventh lead")
+_search = squashed(body_of(drops, "private static Item search("))
+if "UnifyRules.drop(members, fallback == null ? null : vanilla);" not in _search \
+        or "for (String kind : UnifyRules.DROP_ORDER) {" not in _search:
+    fail("OreDrops decides the drop by something other than UnifyRules' drop order, so the harness "
+         "executes one rule and the game plays another")
+_of = squashed(body_of(drops, "public static Item of("))
+if 'String key = family + "|" + (vanilla == null ? "" : vanilla);' not in _of \
+        or "Item found = RESOLVED.computeIfAbsent(key, ignored -> search(family, vanilla));" not in _of:
+    fail("OreDrops remembers one answer per family, so the placement gate, which asks without the "
+         "game's own item, answers for the ore, which asks with it: the Nether's coal ore drops "
+         "whatever worldgen asked first, which is coal dust")
 
 block_src = strip_comments(read(SRC, "ore/ElysiumOreBlock.java"))
 get_drops = body_of(block_src, "public List<ItemStack> getDrops")
@@ -617,8 +705,6 @@ for name in shipped_blocks:
             fail(f"{name} has no {what}, so it is a block nobody can see or keep")
     if f"block.{NS}.{name}" not in lang:
         fail(f"{name} has no name")
-    if not name.startswith("mireweave") and f"{NS}:{name}" not in mineable:
-        fail(f"{name} is not mineable with a pickaxe, and it needs the right tool to drop")
 for drop in roster_drops:
     eaten = False
     for name in os.listdir(recipes) if os.path.isdir(recipes) else []:
@@ -662,6 +748,210 @@ else:
                 fail(f"the shipped material sprites are not what tools/gen_material_art.py draws: {drift[:5]}")
 print(f"the cordon         : {len(sets)} sets on {len([f for f, k in roster if k != 'EXTERNAL'])} materials, "
       f"{len(shipped_items)} items and {len(shipped_blocks)} blocks, each modelled, drawn, named, tagged and made")
+
+# ---------------------------------------------------------------------------
+# 6b. What mines them (rules/HarvestRules; the harvest audit of 29 Sep 2026)
+# ---------------------------------------------------------------------------
+#
+# A block breaks at the speed of the tool the game lists it under, and one
+# that asks for the right tool drops nothing unless some tool is listed as
+# right. Every ore and every block of metal, gem, alloy or shard asks for a
+# pickaxe; the cloth block is wool, asks for nothing, and was skipped by name
+# in the generator, so it was in no tool's list at all. The rules decide by
+# kind now. So: every registered block is in exactly one of this module's
+# mineable tags, or is of a kind the rules break by hand with its reason here;
+# an exemption is read where the block is registered (the one branch of
+# MaterialBlocks.propertiesFor that builds a cloth block), not taken on trust;
+# the tags are what the rules say; and a tag names only blocks this module
+# registers, because one unknown id makes the game refuse the whole tag.
+_harvest_src = strip_comments(read(PURE, "HarvestRules.java"), keep_strings=True)
+if not _harvest_src:
+    fail("rules/HarvestRules.java is missing, so nothing says what mines a block and the "
+         "tags are written from nothing")
+
+
+def _harvest_list(name):
+    found = re.search(r"List<String> " + name + r" = List\.of\(([^;]*?)\);", _harvest_src, re.S)
+    return re.findall(r'"([A-Za-z_]+)"', found.group(1)) if found else []
+
+
+HARVEST_TOOLS = ("pickaxe", "axe", "shovel", "hoe")
+_ore_tool = re.search(r'String ORE_TOOL = "([a-z]+)";', _harvest_src)
+_ore_tool = _ore_tool.group(1) if _ore_tool else ""
+if _ore_tool not in HARVEST_TOOLS:
+    fail(f"HarvestRules.ORE_TOOL is {_ore_tool!r}, which is no tool the game keeps a list "
+         f"for, so every ore is written into a tag nothing reads")
+_pickaxe_kinds = _harvest_list("PICKAXE_KINDS")
+_by_hand_kinds = _harvest_list("BY_HAND_KINDS")
+MINEABLE = {}
+for _tool in HARVEST_TOOLS:
+    _tag = os.path.join(RES, "data/minecraft/tags/block/mineable", _tool + ".json")
+    if not os.path.isfile(_tag):
+        continue
+    _doc = json.load(open(_tag, encoding="utf-8"))
+    if _doc.get("replace"):
+        fail(f"mineable/{_tool} sets replace: true, which throws away every other mod's "
+             f"entries in the game's own tag")
+    for _one in _doc.get("values", []):
+        _named = _one.get("id") if isinstance(_one, dict) else _one
+        if not isinstance(_named, str):
+            continue
+        MINEABLE.setdefault(_named, set()).add(_tool)
+        if _named.startswith(f"{NS}:") and not os.path.isfile(os.path.join(
+                ASSETS, "blockstates", _named.split(":", 1)[1] + ".json")):
+            fail(f"mineable/{_tool} names {_named}, which is not a block this module "
+                 f"registers, so the game refuses the whole tag and every block in it "
+                 f"is back to dropping nothing")
+
+#: The kinds of material whose blocks no tool is for, and why.
+#: HarvestRules.BY_HAND_KINDS says which; a kind it names with no reason here
+#: is refused, and so is a reason for a kind it no longer names.
+MINE_EXEMPT = {
+    "CLOTH": "a cloth block is wool: it breaks at 0.8 by hand and asks for no tool, and "
+             "the game's own wool is in no tool's tag",
+}
+
+#: What the game's blocks this module copies ask of a tool, read out of the
+#: game's own jar. Nothing here copies one; a block that starts to is looked
+#: up here or refused.
+ASKS_FOR_A_TOOL = {}
+
+
+def asks_for_a_tool(made, what):
+    """Whether a block built like this asks for the right tool, and how."""
+    if not made:
+        fail(f"nothing here finds how {what} is built, so nothing shows whether it "
+             f"asks for the right tool")
+        return None, ""
+    if ".requiresCorrectToolForDrops()" in made:
+        return True, "it says so where it is registered"
+    for copied in re.findall(r"\bBlocks\.([A-Z_]+)", made):
+        if copied not in ASKS_FOR_A_TOOL:
+            fail(f"{what} copies Blocks.{copied}, and nothing here knows whether that "
+                 f"asks for the right tool: look it up in the game's jar and add it")
+            return None, ""
+        if ASKS_FOR_A_TOOL[copied]:
+            return True, f"it copies Blocks.{copied}, which does"
+    return False, ""
+
+
+for _kind in _by_hand_kinds:
+    if _kind not in MINE_EXEMPT:
+        fail(f"HarvestRules breaks every {_kind} block by hand and this gives no reason, so "
+             f"they are left out of every tool's tag on nobody's say-so")
+for _kind in MINE_EXEMPT:
+    if _kind not in _by_hand_kinds:
+        fail(f"a reason is given for breaking {_kind} blocks by hand and HarvestRules no "
+             f"longer does, so the exemption covers blocks the rules put in a tool's tag")
+for _kind in _pickaxe_kinds:
+    if _kind in _by_hand_kinds:
+        fail(f"HarvestRules both mines {_kind} blocks with a pickaxe and breaks them by hand")
+# How each kind of block is built: the cloth branch of propertiesFor, and the
+# branch every other kind falls through to.
+_material_blocks = squashed(strip_comments(read(SRC, "registry/MaterialBlocks.java"),
+                                           keep_strings=True))
+_properties = body_of(_material_blocks, "private static BlockBehaviour.Properties propertiesFor(")
+_kind_made = {}
+for _kind in _by_hand_kinds + _pickaxe_kinds:
+    _branch = _properties.find(f"Kind.{_kind})")
+    if _branch >= 0:
+        _kind_made[_kind] = _properties[_branch:_properties.find(";", _branch)]
+    else:
+        _last = _properties.rfind("return ")
+        _kind_made[_kind] = _properties[_last:_properties.find(";", _last)] if _last >= 0 else ""
+_kind_asks = {kind: asks_for_a_tool(made, f"a {kind.lower()} block") for kind, made in _kind_made.items()}
+# And an ore, built once for the whole catalogue from the stone it sits in.
+_ore_blocks = squashed(strip_comments(read(SRC, "registry/OreBlocks.java"), keep_strings=True))
+_ore_asks, _ore_how = asks_for_a_tool(
+    body_of(_ore_blocks, "private static BlockBehaviour.Properties propertiesFor("), "an ore")
+_kind_of_block = {}
+for _family, _kind in roster:
+    if _kind == "EXTERNAL":
+        continue
+    _kind_of_block[f"{_family}_block"] = _kind
+    if _kind == "METAL":
+        _kind_of_block[f"raw_{_family}_block"] = _kind
+_ore_names = [name for name, _family, _host, _band, _vanilla in rows]
+_registered = _ore_names + list(_kind_of_block)
+for _name in sorted(os.path.splitext(f)[0] for f in os.listdir(os.path.join(ASSETS, "blockstates"))
+                    if f.endswith(".json")):
+    if _name not in _registered:
+        fail(f"{_name} has a blockstate and is neither an ore of the catalogue nor a block of "
+             f"the roster, so nothing here can say what mines it")
+_tool_blocks = []
+_asking_untagged = []
+_untagged = []
+_by_hand_blocks = []
+for _name in _registered:
+    _tags = MINEABLE.get(f"{NS}:{_name}", set())
+    _kind = _kind_of_block.get(_name)
+    if _kind is None:
+        _asks, _how, _wanted = _ore_asks, _ore_how, [_ore_tool]
+    else:
+        _asks, _how = _kind_asks.get(_kind, (None, ""))
+        _wanted = [] if _kind in MINE_EXEMPT else (["pickaxe"] if _kind in _pickaxe_kinds else None)
+        if _wanted is None:
+            fail(f"{_name} is a {_kind.lower()} block, a kind HarvestRules does not say what mines")
+            continue
+    if _asks:
+        _tool_blocks.append(_name)
+    if len(_tags) > 1:
+        fail(f"{_name} is in {len(_tags)} mineable tags ({', '.join(sorted(_tags))}), so two "
+             f"tools are right and the rules can only have named one")
+    if _kind in MINE_EXEMPT:
+        _by_hand_blocks.append(_name)
+        if _asks:
+            fail(f"{_name} is exempt from the mineable tags ({MINE_EXEMPT[_kind]}), but it "
+                 f"asks for the right tool: {_how}. With no tag no tool is right, so it "
+                 f"would drop nothing")
+        if _tags:
+            fail(f"{_name} is exempt from the mineable tags and in one all the same; take "
+                 f"its kind off MINE_EXEMPT or the block out of the tag")
+        continue
+    if not _tags:
+        (_asking_untagged if _asks else _untagged).append(_name)
+    if sorted(_tags) != _wanted:
+        fail(f"the rules put {_name} under {' and '.join(_wanted) or 'no tool'} and the tags "
+             f"under {' and '.join(sorted(_tags)) or 'none'}; the tags are written from the "
+             f"rules by tools/gen_ores.py, so one of them was edited by hand")
+if _asking_untagged:
+    fail(f"{len(_asking_untagged)} block(s) ask for the right tool and are in no tool's tag, "
+         f"so no tool is ever right and they drop nothing however they are mined: "
+         + ", ".join(_asking_untagged[:6]))
+if _untagged:
+    fail(f"{len(_untagged)} block(s) are in no mineable tag and not exempt, so every tool "
+         f"breaks them at a fist's pace: " + ", ".join(_untagged[:6]))
+print(f"what mines them    : {len(_registered)} block(s), {len(_tool_blocks)} asking for the "
+      f"right tool, every one in exactly one tool's tag or of a kind broken by hand with a "
+      f"reason: {len(_registered) - len(_by_hand_blocks)} by {_ore_tool}, "
+      f"{len(_by_hand_blocks)} by hand")
+
+# A gem's raw chunk goes on to the gem (29 Sep 2026). The drop order finds a
+# raw form before a gem, and the agronomy tags a chunk into
+# c:raw_materials/<gem> for every gem here, so a ruby ore drops a ruby chunk.
+# With no furnace step from the chunk to the gem, the six Cordon gems, their
+# blocks and the pyratite plate were things nothing in the pack made, and this
+# module's diamond, emerald, lapis and quartz ores gave a chunk good for nothing
+# (check_obtainable.py). The game's gems are named here, not read from the
+# generator, so a gem the generator forgets is caught rather than agreed with.
+GAME_GEMS = {"minecraft:diamond", "minecraft:emerald", "minecraft:lapis_lazuli", "minecraft:quartz"}
+gem_results = {family: f"{NS}:{family}" for family, kind in roster if kind == "GEM"}
+for _, family, _, _, vanilla in rows:
+    if vanilla.strip('"') in GAME_GEMS:
+        gem_results[family] = vanilla.strip('"')
+for family, gem in sorted(gem_results.items()):
+    for suffix, cook in (("", "smelting"), ("_blasting", "blasting")):
+        body = load(recipes, f"{family}_from_raw{suffix}.json")
+        if body is None:
+            fail(f"{family} cannot be smelted from its raw chunk ({family}_from_raw{suffix}.json is missing), "
+                 f"so the chunk its ore drops is a dead end and {gem} is a thing the ore never gives")
+        elif body.get("type") != f"minecraft:{cook}" \
+                or body.get("ingredient", {}).get("tag") != f"c:raw_materials/{family}" \
+                or body.get("result", {}).get("id") != gem:
+            fail(f"{family}_from_raw{suffix}.json is not a {cook} of #c:raw_materials/{family} into {gem}, "
+                 f"so a chunk from the ground still does not become the gem")
+print(f"the gem chunks     : {len(gem_results)} gem(s) with an ore here, each smelted and blasted from "
+      f"its raw chunk")
 
 # ---------------------------------------------------------------------------
 # 7. The roots' sources (rules/CordonSources.java; docs/SPEC_FOUNDRY.md §4)

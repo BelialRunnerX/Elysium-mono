@@ -70,13 +70,13 @@ Founding is MineColonies' own flow (supply camp, town hall `minecolonies:blockhu
 
 Kinetics (Age I): hand crank winds; water wheel turns in flow; windmill bearing counts sails along its axis, more sails more force; shafts, cogwheels, gearbox transmit; millstone, press, saw, mixer process inputs (prod with an empty hand for a line readout; take output); furnace, oil and distillate engines burn fuel from the refinery; dynamo makes FE; anchor and wide anchor load chunks and draw torque; sail renders (the blockstate fix).
 
-Industry (Age II): coke oven 3x3x3 forms, the wrong-block message names the block, coal to coke; blast furnace 3x3x4, iron + coke to steel; grid: steam turbine, diesel engine, alternator, three wires, transformer, crusher, rolling mill, arc furnace, separator, motor; prod for readout; loss visible in the books.
+Industry (Age II): coke oven 3x3x3 forms, the wrong-block message names the block, coal to coke; blast furnace 3x3x4, iron + coke (third slot, one a blast, "Waiting for Coke" until it has it) to steel; an empty hand on a formed controller takes what it made; a brick used on the controller goes on the wall; coke burns 3,200 ticks in a furnace (29 Sep); grid: steam turbine, diesel engine, alternator, three wires, transformer, crusher, rolling mill, arc furnace, separator, motor; prod for readout; loss visible in the books.
 
 Atomics (Age III): reactor hall 3 to 7 per side with fuel rods; port reports size or fault; heat against cooling as designed; single reactor core + coolant channel throttles with an empty hand and melts down under-cooled; cells, solar panel (cutout fix), servo, enricher, reaction chamber, centrifuge, uranium chain.
 
 Foundry: alloy smelter on tier casings makes alloys; refinery returns the companion metal; Cordon alloys craft (survival source is a known gap).
 
-Logistics: drawers store; bus + controller network; assembly core + assembler + terminal: hold an item up, chat answers steps and runs or why not; compressed blocks: nine to one to nine through all nine tiers; glass, ice and slime compressions render with transparency (this build's fix).
+Logistics: drawers store (a void seal used on one fits it; crouch with an empty hand takes it back; a drawer key locks and unlocks; the status line says so, 29 Sep); bus + controller network; assembly core + assembler + terminal: hold an item up, chat answers steps and runs or why not; compressed blocks: nine to one to nine through all nine tiers; glass, ice and slime compressions render with transparency (this build's fix).
 
 Solarpunk: solar condenser, wind capstan (height matters), ceramic kiln, harvesters on conduit and governor; machine numbers match the validator's.
 
@@ -142,12 +142,12 @@ Open observation (26 Sep, once): after the fourth relaunch of the E client in th
 
 Negative tests: `tools/negtest/negtest_colonies3.sh` reports 18 caught and 9 missed on 26 Sep. The nine are exchange, trading and build-order cases whose edit anchors point at code rewritten on 24 Sep, so the mutation never lands and the case counts as missed; the rules themselves were not weakened. Re-anchoring them is a follow-up. `negtest_colonies6.sh` catches all 26 of its cases.
 
-Exporter, storage bus, monitor, detector, interface and ender link are unverified (the importer works on a fuelled grid, 26 Sep); satchel, rucksack, crate, vault inert; kitchen stations: pot and colony verified 26 Sep, skillet and board being verified; a reed rod with a barbed hook catches (26 Sep); bobbers, worm farm and tackle box unverified; fish and bee natural spawns unverified; geodes have no worldgen or recipe; Cordon alloy drops and shards have no survival source; nothing awards trinkets and companions; roadmap items in each module's spec (contraptions, IE wiring, Mekanism chemistry, frontier crops, MysticalAgriculture gear, Quark decoration, and so on).
+Exporter, storage bus, monitor, detector, interface and ender link are unverified (the importer works on a fuelled grid, 26 Sep); satchel, rucksack, crate, vault inert; kitchen stations: pot and colony verified 26 Sep, skillet and board being verified; a reed rod with a barbed hook catches (26 Sep); bobbers, worm farm and tackle box unverified; fish and bee natural spawns unverified; geodes grow wild, thirty kinds, fifteen below the overworld and fifteen in the Nether (29 Sep); the Vale gate (a ring of Vale Frames lit by the surveyor's compass, 29 Sep) has a client stage (stage_vale_client.ps1) not yet run to the end; Cordon alloy drops and shards have no survival source; nothing awards trinkets and companions; roadmap items in each module's spec (contraptions, IE wiring, Mekanism chemistry, frontier crops, MysticalAgriculture gear, Quark decoration, and so on).
 
 ## Live tests on the dedicated server (27 September 2026)
 
 The client stages check by eye; the server answers questions.
-`tools/livetest/livetest.py` (CONVERSION.md §17) runs fifty-seven scenarios (the
+`tools/livetest/livetest.py` (CONVERSION.md §17) runs fifty-eight scenarios (the
 twenty-one core ones, the mechanics pass, the catalogue, the registries and the
 world sweep) over
 RCON against `E:\testingbuilds\ElysiumServer` (RCON 127.0.0.1:25575, the

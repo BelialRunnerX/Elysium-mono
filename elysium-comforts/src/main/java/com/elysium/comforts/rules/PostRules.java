@@ -317,6 +317,23 @@ public final class PostRules {
     /** What lost mail is worth, against the parcel it came from. */
     public static final double LOST_MAIL_WORTH = 0.25D;
 
+    /**
+     * Whether a parcel is lost, given a roll out of a thousand.
+     *
+     * <p>Rolled once, where the parcel lands: a full box sends it round again
+     * without rolling, so no parcel is ever at risk twice. The loss was priced
+     * here from the start and rolled nowhere, so lost mail was an item nothing
+     * ever made (found 29 September 2026, when the questbook asked for one).
+     */
+    public static boolean lostOn(int rollOutOfAThousand) {
+        return rollOutOfAThousand >= 0 && rollOutOfAThousand < LOSS_IN_A_THOUSAND;
+    }
+
+    /** How many of a stack of this many survive a loss: always fewer, never more. */
+    public static int salvaged(int count) {
+        return Math.max(0, (int) Math.floor(count * LOST_MAIL_WORTH));
+    }
+
     // ==================================================================
     // The pigeonholes
     // ==================================================================
@@ -411,6 +428,30 @@ public final class PostRules {
         return among(BIRDS, id);
     }
 
+    /**
+     * Where a bird comes from in the first place: the biomes it spawns in, how
+     * often against the other animals there, and the flock it comes in.
+     *
+     * <h2>Why a way in is a rule</h2>
+     *
+     * Each bird turns into the other and back, so each was reachable only from
+     * the other and neither from the world: the post had carriers nobody could
+     * ever meet (found 29 September 2026). A flock of two to four means a
+     * breeding pair is usually found together.
+     *
+     * @param bird   the bird
+     * @param biomes a biome or a biome tag, as a biome modifier names it
+     * @param weight against the other animals of those biomes (a cow is 8)
+     * @param least  the smallest flock
+     * @param most   the largest flock
+     */
+    public record Wild(String bird, String biomes, int weight, int least, int most) {
+    }
+
+    /** The birds the world spawns. */
+    public static final List<Wild> WILD = List.of(
+            new Wild("pigeon", "#c:is_plains", 8, 2, 4));
+
     /** The bird of this name in this list, or null. */
     private static Bird among(List<Bird> birds, String id) {
         for (Bird one : birds) {
@@ -497,6 +538,7 @@ public final class PostRules {
         bad.addAll(faultsInNowhere(BIRDS));
         bad.addAll(faultsInUnknown(BIRDS));
         bad.addAll(faultsInLoop(BIRDS));
+        bad.addAll(faultsInWayIn(BIRDS, WILD));
         bad.addAll(faultsInSymbolNames(symbols()));
         bad.addAll(faultsInAlphabet(symbols()));
         bad.addAll(faultsInDigits(symbols()));
@@ -1034,6 +1076,48 @@ public final class PostRules {
     }
 
     /** Whether a bird carried somewhere else can ever come back. */
+    /**
+     * Whether every bird can be met: it spawns, or it is what a bird that can be
+     * met becomes. Walked to a fixed point, because a bird met only through a
+     * bird met only through the first is the loop the post shipped with.
+     */
+    public static List<String> faultsInWayIn(List<Bird> birds, List<Wild> wild) {
+        List<String> bad = new ArrayList<>();
+        Set<String> met = new LinkedHashSet<>();
+        for (Wild one : wild) {
+            if (among(birds, one.bird()) == null) {
+                bad.add("the world spawns " + one.bird() + ", which is not a bird this module has");
+                continue;
+            }
+            if (one.weight() <= 0 || one.least() < 1 || one.most() < one.least()) {
+                bad.add(one.bird() + " spawns at weight " + one.weight() + " in flocks of " + one.least()
+                        + " to " + one.most() + ", which is never");
+                continue;
+            }
+            if (one.biomes() == null || !one.biomes().contains(":")) {
+                bad.add(one.bird() + " spawns in \"" + one.biomes() + "\", which names no biome");
+                continue;
+            }
+            met.add(one.bird());
+        }
+        boolean moved = true;
+        while (moved) {
+            moved = false;
+            for (Bird one : birds) {
+                if (met.contains(one.id()) && one.becomes() != null && met.add(one.becomes())) {
+                    moved = true;
+                }
+            }
+        }
+        for (Bird one : birds) {
+            if (!met.contains(one.id())) {
+                bad.add(one.id() + " has no way in: nothing spawns it and it is not what any bird "
+                        + "that can be met becomes, so a player never meets one");
+            }
+        }
+        return bad;
+    }
+
     public static List<String> faultsInLoop(List<Bird> birds) {
         List<String> bad = new ArrayList<>();
         for (Bird one : birds) {

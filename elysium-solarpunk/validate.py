@@ -594,22 +594,185 @@ def tag_values(rel):
     return {v for v in data.get("values", [])}
 
 
-mineable = set()
-for tool in ("pickaxe", "axe"):
-    mineable |= tag_values(f"data/minecraft/tags/block/mineable/{tool}.json")
+# ---------------------------------------------------------------------------
+# What mines them (rules/HarvestRules; the harvest audit of 29 Sep 2026)
+# ---------------------------------------------------------------------------
+#
+# A block breaks at the speed of the tool the game lists it under, and one
+# that asks for the right tool drops nothing unless some tool is listed as
+# right. The audit found 676 blocks across the pack in no tool's list. Which
+# tool is for which block was a key in the generator's table; it is decided by
+# rules/HarvestRules.java now, from what the block is made of, and the
+# generator reads it. So: the rules are the JDK alone; every registered block
+# is in exactly one of this module's mineable tags, or named BY_HAND in the
+# rules with its reason here; an exemption is read where the block is
+# registered, not taken on trust; the tags are what the rules say; and a tag
+# names only blocks this module registers, because one unknown id makes the
+# game refuse the whole tag.
+import subprocess
+import tempfile
 
-# Bloom Glass is the deliberate exception: glass is hand-breakable in vanilla
-# and a lamp you need a pickaxe for is a lamp you place once.
-TOOLLESS = {"bloom_glass"}
-for block_id in block_ids:
-    listed = f"{NS}:{block_id}" in mineable
-    if block_id in TOOLLESS:
-        if listed:
-            fail(f"{block_id} is in a mineable tag but is meant to be breakable "
-                 f"by hand")
-    elif not listed:
-        fail(f"{block_id} is in no mineable tag, so it takes the default speed "
-             f"and drops nothing to the right tool")
+HARVEST_TOOLS = ("pickaxe", "axe", "shovel", "hoe")
+_harvest_path = JAVA / "rules/HarvestRules.java"
+_harvest_src = read_java("rules/HarvestRules.java")
+_harvest_src = re.sub(r"//[^\n]*", " ", re.sub(r"/\*.*?\*/", " ", _harvest_src, flags=re.S))
+if not _harvest_src:
+    fail("rules/HarvestRules.java is missing, so nothing says what mines a block and "
+         "the tags are written from nothing")
+for _imp in re.findall(r"\bimport\s+(?:static\s+)?([\w.]+)\s*;", _harvest_src):
+    if not _imp.startswith("java."):
+        fail(f"rules/HarvestRules.java imports {_imp}; the rules are the JDK and nothing "
+             f"else, so a harness can run them without a game")
+if _harvest_src:
+    with tempfile.TemporaryDirectory() as _tmp:
+        _javac = subprocess.run(["javac", "-nowarn", "-d", _tmp, str(_harvest_path)],
+                                capture_output=True, text=True)
+        if _javac.returncode != 0:
+            fail("rules/HarvestRules.java does not compile on the JDK alone:\n      "
+                 + _javac.stderr.strip()[:600])
+_machine_tool = re.search(r'String MACHINE_TOOL = "([a-z]+)";', _harvest_src)
+_machine_tool = _machine_tool.group(1) if _machine_tool else ""
+if _machine_tool not in HARVEST_TOOLS:
+    fail(f"HarvestRules.MACHINE_TOOL is {_machine_tool!r}, which is no tool the game "
+         f"keeps a list for, so the machines are written into a tag nothing reads")
+_of_material = re.search(r"Map<String, String> TOOL_OF_MATERIAL = Map\.ofEntries\((.*?)\);",
+                         _harvest_src, re.S)
+_of_material = dict(re.findall(r'Map\.entry\("([a-z]+)", "([a-z]+)"\)',
+                               _of_material.group(1))) if _of_material else {}
+for _material, _tool in sorted(_of_material.items()):
+    if _tool not in HARVEST_TOOLS:
+        fail(f"HarvestRules mines {_material} with a {_tool}, which is no tool the game "
+             f"keeps a list for")
+_by_hand_found = re.search(r"List<String> BY_HAND = List\.of\(([^;]*?)\);", _harvest_src, re.S)
+_by_hand = re.findall(r'"([a-z_]+)"', _by_hand_found.group(1)) if _by_hand_found else []
+
+MINEABLE = {}
+for _tool in HARVEST_TOOLS:
+    _rel = f"data/minecraft/tags/block/mineable/{_tool}.json"
+    if not exists(_rel):
+        continue
+    _doc = load(_rel)
+    if _doc.get("replace"):
+        fail(f"mineable/{_tool} sets replace: true, which throws away every other mod's "
+             f"entries in the game's own tag")
+    for _one in _doc.get("values", []):
+        _named = _one.get("id") if isinstance(_one, dict) else _one
+        if not isinstance(_named, str):
+            continue
+        MINEABLE.setdefault(_named, set()).add(_tool)
+        if _named.startswith(f"{NS}:") and _named.split(":", 1)[1] not in block_ids:
+            fail(f"mineable/{_tool} names {_named}, which is not a block this module "
+                 f"registers, so the game refuses the whole tag and every block in it "
+                 f"is back to dropping nothing")
+mineable = set(MINEABLE)
+
+#: The blocks no tool is for, and why. HarvestRules.BY_HAND says which; a block
+#: it names with no reason here is refused, and so is a reason for a block it
+#: no longer names.
+MINE_EXEMPT = {
+    "bloom_glass": "glass breaks at a touch and asks for no tool, the game's own glass is "
+                   "in no tool's tag, and a lamp you need a pickaxe for is a lamp you "
+                   "place once",
+}
+
+#: What the game's blocks this module copies ask of a tool, read out of the
+#: game's own jar. Nothing here copies one; a block that starts to is looked
+#: up here or refused.
+ASKS_FOR_A_TOOL = {}
+
+
+def asks_for_a_tool(made, what):
+    """Whether a block built like this asks for the right tool, and how."""
+    if not made:
+        fail(f"nothing here finds how {what} is built, so nothing shows whether it "
+             f"asks for the right tool")
+        return None, ""
+    if ".requiresCorrectToolForDrops()" in made:
+        return True, "it says so where it is registered"
+    for copied in re.findall(r"\bBlocks\.([A-Z_]+)", made):
+        if copied not in ASKS_FOR_A_TOOL:
+            fail(f"{what} copies Blocks.{copied}, and nothing here knows whether that "
+                 f"asks for the right tool: look it up in the game's jar and add it")
+            return None, ""
+        if ASKS_FOR_A_TOOL[copied]:
+            return True, f"it copies Blocks.{copied}, which does"
+    return False, ""
+
+
+_blockstate_dir = RES / f"assets/{NS}/blockstates"
+for _name in sorted(p.stem for p in _blockstate_dir.glob("*.json")) if _blockstate_dir.is_dir() else []:
+    if _name not in block_ids:
+        fail(f"{_name} has a blockstate and no registration in SolarpunkContent.java, so "
+             f"nothing here can say what mines it")
+for _name in _by_hand:
+    if _name not in MINE_EXEMPT:
+        fail(f"HarvestRules breaks {_name} by hand and this gives no reason, so it is left "
+             f"out of every tool's tag on nobody's say-so")
+    if _name not in block_ids:
+        fail(f"HarvestRules breaks {_name} by hand and no such block is registered")
+for _name in MINE_EXEMPT:
+    if _name not in _by_hand:
+        fail(f"a reason is given for breaking {_name} by hand and HarvestRules no longer "
+             f"does, so the exemption covers a block the rules put in a tool's tag")
+# What the generator would write from the rules, block by block; the shipped
+# tag has to be that, in that order, or it was typed.
+_rule_lists = {}
+if gen_solarpunk is not None:
+    try:
+        _rule_lists = gen_solarpunk.mineable_lists()
+    except SystemExit as stop:
+        fail(f"tools/gen_solarpunk.py cannot say what mines every block: {stop}")
+_rule_tools = {}
+for _tool, _values in _rule_lists.items():
+    for _named in _values:
+        _rule_tools.setdefault(_named.split(":", 1)[1], []).append(_tool)
+_flat_content = re.sub(r"\s+", " ", re.sub(r"//[^\n]*", " ",
+                                           re.sub(r"/\*.*?\*/", " ", CONTENT, flags=re.S)))
+_tool_blocks = []
+_asking_untagged = []
+_untagged = []
+for _name in block_ids:
+    _start = _flat_content.find(f'BLOCKS.register("{_name}"')
+    _made = _flat_content[_start:_flat_content.find(";", _start)] if _start >= 0 else ""
+    _asks, _how = asks_for_a_tool(_made, f"the {_name}")
+    _tags = MINEABLE.get(f"{NS}:{_name}", set())
+    if _asks:
+        _tool_blocks.append(_name)
+    if len(_tags) > 1:
+        fail(f"{_name} is in {len(_tags)} mineable tags ({', '.join(sorted(_tags))}), so "
+             f"two tools are right and the rules can only have named one")
+    if _name in MINE_EXEMPT:
+        if _asks:
+            fail(f"{_name} is exempt from the mineable tags ({MINE_EXEMPT[_name]}), but it "
+                 f"asks for the right tool: {_how}. With no tag no tool is right, so it "
+                 f"would drop nothing")
+        if _tags:
+            fail(f"{_name} is exempt from the mineable tags and in one all the same; take "
+                 f"it off MINE_EXEMPT or out of the tag")
+        continue
+    if not _tags:
+        (_asking_untagged if _asks else _untagged).append(_name)
+    if _rule_lists and sorted(_rule_tools.get(_name, [])) != sorted(_tags):
+        fail(f"the rules put {_name} under {' and '.join(_rule_tools.get(_name, [])) or 'no tool'} "
+             f"and the tags under {' and '.join(sorted(_tags)) or 'none'}; the tags are "
+             f"written from the rules by tools/gen_solarpunk.py, so one of them was "
+             f"edited by hand")
+if _asking_untagged:
+    fail(f"{len(_asking_untagged)} block(s) ask for the right tool and are in no tool's "
+         f"tag, so no tool is ever right and they drop nothing however they are mined: "
+         + ", ".join(_asking_untagged[:6]))
+if _untagged:
+    fail(f"{len(_untagged)} block(s) are in no mineable tag and not exempt, so every tool "
+         f"breaks them at a fist's pace: " + ", ".join(_untagged[:6]))
+for _tool, _values in _rule_lists.items():
+    _rel = f"data/minecraft/tags/block/mineable/{_tool}.json"
+    if (load(_rel).get("values", []) if exists(_rel) else []) != _values:
+        fail(f"mineable/{_tool} is not what tools/gen_solarpunk.py writes from HarvestRules, "
+             f"in the rules' order; re-run the generator or move the change into the rules")
+print(f"what mines them    : {len(block_ids)} block(s), {len(_tool_blocks)} asking for the "
+      f"right tool, every one in exactly one tool's tag or broken by hand with a reason: "
+      + ", ".join(f"{len(values)} by {tool}" for tool, values in _rule_lists.items())
+      + f", {len(MINE_EXEMPT)} by hand")
 
 wall_tag = tag_values("data/minecraft/tags/block/walls.json")
 for block_id in walls:
@@ -628,7 +791,7 @@ for label, ids, rel in (("stairs", stairs, "stairs"), ("slabs", slabs, "slabs"))
              f"registered as that shape")
 
 print(f"tags               : {len(mineable)} mineable, {len(wall_tag)} walls, "
-      f"{len(TOOLLESS)} deliberate exception(s)")
+      f"{len(MINE_EXEMPT)} broken by hand with a reason")
 
 
 # ---------------------------------------------------------------------------

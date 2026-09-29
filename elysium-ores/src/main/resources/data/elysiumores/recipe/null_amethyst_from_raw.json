@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "tag": "c:raw_materials/null_amethyst"
+  },
+  "result": {
+    "id": "elysiumores:null_amethyst"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

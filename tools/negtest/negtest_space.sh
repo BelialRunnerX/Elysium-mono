@@ -1,16 +1,21 @@
 #!/bin/bash
 cd /tmp/Elysium-mono || exit 1
 exec 9>/tmp/negtest_space.lock
-flock -n 9 || { echo "another negtest_space is running; refusing"; exit 2; }
+negtest_lock() { if command -v flock >/dev/null 2>&1; then flock -n "$1"; else mkdir "$2" 2>/dev/null && trap "rmdir '$2' 2>/dev/null" EXIT; fi; }  # Git Bash on Windows has no flock
+if command -v flock >/dev/null 2>&1; then negtest_lock 9 /tmp/negtest_space.lockdir || { echo "another negtest_space is running; refusing"; exit 2; }
+else mkdir /tmp/negtest_space.lockdir 2>/dev/null || { echo "another negtest_space is running; refusing (rmdir /tmp/negtest_space.lockdir if not)"; exit 2; }; trap 'rmdir /tmp/negtest_space.lockdir 2>/dev/null' EXIT; fi
 S=elysium-space; J=$S/src/main/java/com/elysium/space; R=$S/src/main/resources; D=$R/data/elysiumspace
 W=$J/world/SpaceWorld.java; MAIN=$J/ElysiumSpace.java; TOML=$R/META-INF/neoforge.mods.toml
 CRED=$S/CREDITS.md; SHIP=$R/CREDITS-elysiumspace.md
 BIOME=$D/worldgen/biome/pale_moon_desert.json; BPL=$D/worldgen/biome/emerald_bastion_plains.json
 NS=$D/worldgen/noise_settings/emerald_bastion.json; CONT=$D/worldgen/density_function/emerald_bastion/continents.json
 EM=$D/worldgen/placed_feature/emerald_bastion_ore_emerald.json; LOOT=$D/loot_table/blocks/pale_stone.json
+FLOOT=$D/loot_table/blocks/frost_stone.json; SMELT=$D/recipe/cinder_stone_from_cinder_cobblestone.json
+PICK=$R/data/minecraft/tags/block/mineable/pickaxe.json; SB=$J/registry/SpaceBlocks.java
+AXE=$R/data/minecraft/tags/block/mineable/axe.json; SF=$J/registry/SpaceFluids.java
 ROOTS=$R/assets/elysiumspace/models/block/emgrove_roots.json; LANG=$R/assets/elysiumspace/lang/en_us.json
 HF=elysium-lib/src/main/java/com/elysium/lib/hazard/ElysiumHazardField.java
-FILES="$W $MAIN $TOML $CRED $SHIP $BIOME $BPL $NS $CONT $EM $LOOT $ROOTS $LANG $HF"
+FILES="$W $MAIN $TOML $CRED $SHIP $BIOME $BPL $NS $CONT $EM $LOOT $ROOTS $LANG $HF $FLOOT $SMELT $PICK $SB $AXE $SF"
 pass=0; miss=0
 snap()    { rm -rf /tmp/_ns; mkdir -p /tmp/_ns; i=0; for f in $FILES; do cp "$f" "/tmp/_ns/$i"; i=$((i+1)); done; }
 restore() { i=0; for f in $FILES; do cp "/tmp/_ns/$i" "$f"; i=$((i+1)); done; }
@@ -55,6 +60,42 @@ rep('$BPL', 'elysiumspace:emgrove_grove', 'elysiumspace:emgrove_grovee')"
 try "loot table missing" space "has no loot table" "
 import os; os.rename('$LOOT', '$LOOT.gone')
 " ; mv $LOOT.gone $LOOT 2>/dev/null
+# A world's stone breaks as vanilla stone does (29 Sep): its cobblestone to a
+# pickaxe, the stone to Silk Touch, a furnace back, and the pickaxe tag naming
+# the stones and the ores. The first case is the table the stones had before.
+try "stone drops itself again" space "frost_stone gives elysiumspace:frost_stone to a pickaxe without Silk Touch" "$R
+json.dump({'type': 'minecraft:block', 'pools': [{'rolls': 1, 'bonus_rolls': 0, 'entries': [{'type': 'minecraft:item', 'name': 'elysiumspace:frost_stone'}], 'conditions': [{'condition': 'minecraft:survives_explosion'}]}]}, open('$FLOOT', 'w'), indent=2)"
+try "silk touch gives cobblestone" space "pale_stone gives elysiumspace:pale_cobblestone to Silk Touch" "$R
+jedit('$LOOT', lambda d: d['pools'][0]['entries'][0]['children'].reverse())"
+try "cobblestone does not smelt back" space "no furnace recipe turns cinder_cobblestone back into cinder_stone" "
+import os; os.remove('$SMELT')"
+try "stone not pickaxe-mineable" space "frost_stone is in no mineable tag" "$R
+jedit('$PICK', lambda d: d['values'].remove('elysiumspace:frost_stone'))"
+try "ore not pickaxe-mineable" space "ore lunite_ore is in no mineable tag" "$R
+jedit('$PICK', lambda d: d['values'].remove('elysiumspace:lunite_ore'))"
+try "cobblestone without its stone" space "frost_cobblestone is registered but frost_stone is not" "$R
+rep('$SB', 'BLOCKS.register(\"frost_stone\",', 'BLOCKS.register(\"frost_rock\",')"
+# Every copy: each of the three cobblestones is registered once, and all three go.
+try "no stone has a cobblestone" space "no world's stone has a cobblestone" "$R
+s = open('$SB', encoding='utf-8').read(); open('$SB', 'w', encoding='utf-8').write(s.replace('_cobblestone\", Blocks.', '_cobbles\", Blocks.'))"
+# Every block is in a mineable tag or exempt for a reason its registration
+# bears out (29 Sep). The terminal and an ore leave the tag; then each way an
+# exemption can be wrong: it needs a tool, it copies a block that does, it is
+# in a tag after all, it names no block, and a liquid nobody can read.
+try "terminal not mineable" space "freight_terminal is in no mineable tag, so it takes a fist" "$R
+jedit('$PICK', lambda d: d['values'].remove('elysiumspace:freight_terminal'))"
+try "ore in no mineable tag" space "cinder_gold_ore is in no mineable tag, so it takes a fist" "$R
+jedit('$PICK', lambda d: d['values'].remove('elysiumspace:cinder_gold_ore'))"
+try "exempt vine needs a tool" space "pale_vines is exempt from the mineable tags (it breaks at a touch, as cave vines do), but it asks for the right tool" "$R
+rep('$SB', 'copy(Blocks.CAVE_VINES).lightLevel', 'copy(Blocks.CAVE_VINES).requiresCorrectToolForDrops().lightLevel')"
+try "exempt propagule copies stone" space "emgrove_propagule is exempt from the mineable tags (it breaks at a touch, as a mangrove propagule does), but it copies Blocks.STONE" "$R
+rep('$SB', 'copy(Blocks.MANGROVE_PROPAGULE)', 'copy(Blocks.STONE)')"
+try "exempt vine in a tag" space "pale_vines is exempt from the mineable tags but is in axe" "$R
+jedit('$AXE', lambda d: d['values'].append('elysiumspace:pale_vines'))"
+try "exempt block not registered" space "emgrove_propagule is exempt from the mineable tags but is not registered" "$R
+rep('$SB', 'BLOCKS.register(\"emgrove_propagule\",', 'BLOCKS.register(\"emgrove_sprout\",')"
+try "liquid registration unread" space "oil is exempt from the mineable tags, but nothing here finds where it is registered" "$R
+rep('$SF', 'BLOCKS.register(name,', 'BLOCKS.register(\"\" + name,')"
 try "red emgrove" space "still points at" "$R
 rep('$ROOTS', 'elysiumspace:block/emgrove_roots_side', 'block/mangrove_roots_side')"
 try "block lang missing" space "has no lang entry" "$R

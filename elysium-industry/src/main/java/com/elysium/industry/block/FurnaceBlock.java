@@ -7,8 +7,12 @@ import com.elysium.industry.rules.ShapeRules;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -31,6 +35,8 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import com.elysium.lib.sound.ElysiumVoices;
 
+import java.util.function.Predicate;
+
 /**
  * The block a player prods to find out why their multiblock has not formed.
  *
@@ -46,6 +52,14 @@ import com.elysium.lib.sound.ElysiumVoices;
  * <p>{@link ShapeRules} does the arithmetic, and it is swept in the harness
  * against every one-block mutation of every orientation of every shape, which
  * is the only way to be sure the sentence it gives back is the right one.
+ *
+ * <h2>What goes in, and what comes out</h2>
+ *
+ * No hopper feeds one, so a player's hands do it all. A thing the machine has
+ * a job for goes in one a click, and coke goes on the blast furnace's fire the
+ * same way. A thing it has no job for is not its business: a brick placed
+ * against the controller while building goes on the wall. An empty hand on a
+ * formed controller takes what it made; with nothing to take, it says why.
  */
 public class FurnaceBlock extends BaseEntityBlock {
 
@@ -102,8 +116,20 @@ public class FurnaceBlock extends BaseEntityBlock {
                 || !(level.getBlockEntity(pos) instanceof FurnaceBlockEntity furnace)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
-        if (!level.isClientSide && furnace.offer(held)) {
-            return ItemInteractionResult.SUCCESS;
+        // Nothing here takes it, so the hand does what it would anywhere
+        // else: a brick goes on the wall. Skipped rather than passed, because
+        // passing would hand the click to the empty-hand path, which takes the
+        // output and places nothing.
+        if (FurnaceRules.slotFor(shape().id(), idOf(held), inTag(held))
+                == FurnaceRules.REFUSED) {
+            return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        }
+        if (!level.isClientSide) {
+            if (furnace.offer(held)) {
+                return ItemInteractionResult.SUCCESS;
+            }
+            // Something it has a job for, and no room for it yet.
+            player.displayClientMessage(furnace.saying(level, pos, state), false);
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
@@ -113,7 +139,15 @@ public class FurnaceBlock extends BaseEntityBlock {
                                                Player player, BlockHitResult hit) {
         if (!level.isClientSide
                 && level.getBlockEntity(pos) instanceof FurnaceBlockEntity furnace) {
-            player.displayClientMessage(furnace.saying(level, pos, state), false);
+            // What it made comes out to an empty hand once the bricks are the
+            // machine. With nothing to take, or with the bricks wrong, it says
+            // why, which is the sentence this block exists to give.
+            ItemStack made = state.getValue(FORMED) ? furnace.take() : ItemStack.EMPTY;
+            if (!made.isEmpty()) {
+                player.getInventory().placeItemBackInInventory(made);
+            } else {
+                player.displayClientMessage(furnace.saying(level, pos, state), false);
+            }
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
@@ -123,10 +157,19 @@ public class FurnaceBlock extends BaseEntityBlock {
                             BlockState replacement, boolean moving) {
         if (!state.is(replacement.getBlock())
                 && level.getBlockEntity(pos) instanceof FurnaceBlockEntity furnace) {
-            Containers.dropContents(level, pos, new SimpleContainer(
-                    furnace.items().getStackInSlot(0), furnace.items().getStackInSlot(1)));
+            Containers.dropContents(level, pos, furnace.spill());
         }
         super.onRemove(state, level, pos, replacement, moving);
+    }
+
+    /** A thing's id, spelled as the rules spell it. */
+    static String idOf(ItemStack stack) {
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+    }
+
+    /** Whether a thing is in a tag, named as the rules name it: no '#'. */
+    static Predicate<String> inTag(ItemStack stack) {
+        return tag -> stack.is(TagKey.create(Registries.ITEM, ResourceLocation.parse(tag)));
     }
 
     @Nullable
@@ -144,10 +187,25 @@ public class FurnaceBlock extends BaseEntityBlock {
                         world, pos, here, (FurnaceBlockEntity) entity);
     }
 
-    /** Two slots, a shape to stand in, and a sentence when it is not standing. */
+    /** Three slots, a shape to stand in, and a sentence when it is not standing. */
     public static class FurnaceBlockEntity extends BlockEntity {
 
-        private final ItemStackHandler items = new ItemStackHandler(2);
+        private final ItemStackHandler items = new ItemStackHandler(FurnaceRules.SLOTS) {
+            /**
+             * Never fewer than three. A controller saved before the fuel slot
+             * existed says it has two, and loading that as written would make
+             * the first look at its fuel throw.
+             */
+            @Override
+            public void setSize(int size) {
+                super.setSize(Math.max(size, FurnaceRules.SLOTS));
+            }
+
+            @Override
+            protected void onContentsChanged(int slot) {
+                setChanged();
+            }
+        };
         private int done;
 
         /** What the last look at the world found wrong, or null when formed. */
@@ -264,14 +322,60 @@ public class FurnaceBlock extends BaseEntityBlock {
             return null;
         }
 
-        /** Put something in, if there is a job for it. */
+        /**
+         * Put one in, if there is a job for it: one a click, as every machine
+         * in this module takes things. The rules say which slot, or that it
+         * has no business here.
+         */
         public boolean offer(ItemStack held) {
-            if (!items.getStackInSlot(0).isEmpty()) {
+            int slot = held.isEmpty() ? FurnaceRules.REFUSED
+                    : FurnaceRules.slotFor(shape().id(), idOf(held), inTag(held));
+            if (slot == FurnaceRules.REFUSED) {
                 return false;
             }
-            items.setStackInSlot(0, held.split(1));
-            setChanged();
+            if (!items.insertItem(slot, held.copyWithCount(1), false).isEmpty()) {
+                return false;
+            }
+            held.shrink(1);
             return true;
+        }
+
+        /**
+         * What it has made, all of it, for a player's empty hand.
+         *
+         * <p>With nothing made, anything in the input that no job here takes
+         * comes out instead: a brick or a lump of coke put in before offer
+         * asked, or a log a datapack has since taken out of the tag. Left, it
+         * would sit there until the controller was broken.
+         */
+        public ItemStack take() {
+            ItemStack made = items.getStackInSlot(FurnaceRules.OUTPUT);
+            if (!made.isEmpty()) {
+                return items.extractItem(FurnaceRules.OUTPUT, made.getCount(), false);
+            }
+            ItemStack stuck = items.getStackInSlot(FurnaceRules.INPUT);
+            if (!stuck.isEmpty() && FurnaceRules.slotFor(shape().id(), idOf(stuck),
+                    inTag(stuck)) != FurnaceRules.INPUT) {
+                return items.extractItem(FurnaceRules.INPUT, stuck.getCount(), false);
+            }
+            return ItemStack.EMPTY;
+        }
+
+        /** Everything in it, for when the controller is broken: the coke too. */
+        public SimpleContainer spill() {
+            ItemStack[] every = new ItemStack[items.getSlots()];
+            for (int slot = 0; slot < every.length; slot++) {
+                every[slot] = items.getStackInSlot(slot);
+            }
+            return new SimpleContainer(every);
+        }
+
+        /** How much of what this machine burns is on its fire. */
+        private int fuelHeld() {
+            FurnaceRules.Fuel burns = FurnaceRules.fuelOf(shape().id());
+            ItemStack fuel = items.getStackInSlot(FurnaceRules.FUEL);
+            return burns == null || fuel.isEmpty() || !burns.item().equals(idOf(fuel))
+                    ? 0 : fuel.getCount();
         }
 
         /** One line: what it is doing, or what is wrong with it. */
@@ -281,8 +385,17 @@ public class FurnaceBlock extends BaseEntityBlock {
                         Component.translatable("block." + shape().id()
                                 .replace(":", ".")), wrong);
             }
-            if (items.getStackInSlot(0).isEmpty()) {
+            FurnaceRules.Firing firing = firingFor(level,
+                    items.getStackInSlot(FurnaceRules.INPUT));
+            if (firing == null) {
                 return Component.translatable("elysiumindustry.furnace.empty");
+            }
+            FurnaceRules.Fuel fuel = FurnaceRules.fuelOf(firing.shape());
+            if (fuel != null && !FurnaceRules.mayFire(firing, fuelHeld())) {
+                return Component.translatable("elysiumindustry.furnace.unfuelled",
+                        Component.translatable("item." + fuel.item().replace(":", ".")),
+                        String.valueOf(FurnaceRules.burnedBy(firing)),
+                        String.valueOf(fuelHeld()));
             }
             return Component.translatable("elysiumindustry.furnace.working",
                     String.valueOf(done));
@@ -308,13 +421,14 @@ public class FurnaceBlock extends BaseEntityBlock {
         /**
          * One tick of the job in front of it.
          *
-         * <p>No fuel and no wire: what a brick machine spends is time. The
-         * blast furnace spends coke as well, and it spends it at the end
-         * rather than at the start, so a player who breaks one halfway
-         * through has lost the wait and not the coke.
+         * <p>No wire: what a brick machine spends is time. The blast furnace
+         * spends coke as well. A job does not start without enough of it on
+         * the fire, and the coke is spent at the end rather than at the
+         * start, so a player who breaks one halfway through has lost the wait
+         * and not the coke.
          */
         private void work(Level level) {
-            ItemStack input = items.getStackInSlot(0);
+            ItemStack input = items.getStackInSlot(FurnaceRules.INPUT);
             FurnaceRules.Firing firing = firingFor(level, input);
             if (firing == null) {
                 if (done != 0) {
@@ -323,12 +437,14 @@ public class FurnaceBlock extends BaseEntityBlock {
                 }
                 return;
             }
-            ItemStack out = items.getStackInSlot(1);
-            ItemStack result = new ItemStack(net.minecraft.core.registries.BuiltInRegistries
-                    .ITEM.get(net.minecraft.resources.ResourceLocation
-                            .parse(firing.output())), firing.makes());
+            ItemStack out = items.getStackInSlot(FurnaceRules.OUTPUT);
+            ItemStack result = new ItemStack(BuiltInRegistries.ITEM.get(
+                    ResourceLocation.parse(firing.output())), firing.makes());
             if (!out.isEmpty() && (!ItemStack.isSameItem(out, result)
                     || out.getCount() + firing.makes() > out.getMaxStackSize())) {
+                return;
+            }
+            if (!FurnaceRules.mayFire(firing, fuelHeld())) {
                 return;
             }
             done++;
@@ -338,12 +454,15 @@ public class FurnaceBlock extends BaseEntityBlock {
             }
             done = 0;
             input.shrink(firing.count());
-            items.setStackInSlot(0, input);
+            items.setStackInSlot(FurnaceRules.INPUT, input);
+            ItemStack fuel = items.getStackInSlot(FurnaceRules.FUEL);
+            fuel.shrink(FurnaceRules.burnedBy(firing));
+            items.setStackInSlot(FurnaceRules.FUEL, fuel);
             if (out.isEmpty()) {
-                items.setStackInSlot(1, result);
+                items.setStackInSlot(FurnaceRules.OUTPUT, result);
             } else {
                 out.grow(firing.makes());
-                items.setStackInSlot(1, out);
+                items.setStackInSlot(FurnaceRules.OUTPUT, out);
             }
         }
 
@@ -352,27 +471,9 @@ public class FurnaceBlock extends BaseEntityBlock {
             if (input.isEmpty()) {
                 return null;
             }
-            String id = net.minecraft.core.registries.BuiltInRegistries.ITEM
-                    .getKey(input.getItem()).toString();
-            for (FurnaceRules.Firing one : FurnaceRules.FIRINGS) {
-                if (!one.shape().equals(shape().id())) {
-                    continue;
-                }
-                if (input.getCount() < one.count()) {
-                    continue;
-                }
-                if (one.input().startsWith("#")) {
-                    if (input.is(net.minecraft.tags.TagKey.create(
-                            net.minecraft.core.registries.Registries.ITEM,
-                            net.minecraft.resources.ResourceLocation.parse(
-                                    one.input().substring(1))))) {
-                        return one;
-                    }
-                } else if (one.input().equals(id)) {
-                    return one;
-                }
-            }
-            return null;
+            FurnaceRules.Firing one = FurnaceRules.jobFor(shape().id(), idOf(input),
+                    inTag(input));
+            return one != null && input.getCount() >= one.count() ? one : null;
         }
 
         @Override

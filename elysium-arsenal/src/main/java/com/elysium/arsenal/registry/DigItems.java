@@ -49,8 +49,9 @@ public final class DigItems {
             ArtifactRules.UNIDENTIFIED, () -> new ArtifactItem(
                     new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON)));
 
-    public static final DeferredItem<Item> DISC = ITEMS.register("music_disc_relic",
-            () -> new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
+    // There was a disc here, retired on 29 September 2026: a plain item with
+    // no song, which no jukebox would play and which nothing handed out. The
+    // dirt pool hands out the game's own relic disc instead.
 
     private static Map<String, DeferredItem<Item>> registerBrushes() {
         Map<String, DeferredItem<Item>> made = new LinkedHashMap<>();
@@ -128,7 +129,6 @@ public final class DigItems {
         everything.put(ArtifactRules.UNIDENTIFIED, UNIDENTIFIED);
         everything.putAll(IDENTIFIED);
         everything.putAll(TOTEMS);
-        everything.put("music_disc_relic", DISC);
         everything.putAll(BLOCK_ITEMS);
         return Map.copyOf(everything);
     }

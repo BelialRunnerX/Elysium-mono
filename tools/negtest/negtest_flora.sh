@@ -157,6 +157,23 @@ d=json.load(open(p)); d.pop('block.elysiumflora.emberwood_planks')
 json.dump(d,open(p,'w'),indent=2)"
 expect "a block with no name" "reads a raw key"
 
+echo "the wood, drawn and tooled the game's way"
+edit $M/tools/gen_flora.py '                if half == "bottom" and shape.endswith("_left"):
+                    turn = (y + 270) % 360
+                if half == "top" and shape.endswith("_right"):
+                    turn = (y + 90) % 360' '                if shape.endswith("_left"):
+                    turn = (y + 270) % 360'
+(cd $M && python3 tools/gen_flora.py >/dev/null 2>&1)
+expect "stairs turned the way they were until 29 September" "states are not the game's own"
+
+edit $M/tools/gen_flora.py '"parent": "minecraft:block/slab_top",' '"parent": "minecraft:block/slab",'
+(cd $M && python3 tools/gen_flora.py >/dev/null 2>&1)
+expect "an upper slab built on the lower slab's model" "is not built like the game's"
+
+edit $M/tools/gen_flora.py 'block_tag("mineable/pickaxe", [f"{NS}:emberwood_charcoal_block"])' 'block_tag("mineable/pickaxe", [])'
+(cd $M && python3 tools/gen_flora.py >/dev/null 2>&1)
+expect "a charcoal block no pickaxe gets anything from" "tool lists of the block each copies"
+
 echo
 echo "restoring and re-checking"
 restore

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "tag": "c:raw_materials/ruby"
+  },
+  "result": {
+    "id": "elysiumores:ruby"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

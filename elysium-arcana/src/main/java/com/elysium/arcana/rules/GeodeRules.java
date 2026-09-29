@@ -34,7 +34,13 @@ public final class GeodeRules {
     private GeodeRules() {
     }
 
-    /** The solid block of the material, for storage. */
+    /**
+     * The solid block of the material, for storage.
+     *
+     * <p>One way, as the game's amethyst block is: four shards make one and
+     * nothing makes four back. A found geode's wall is some 380 of these, and
+     * a way back would make every geode 1,500 shards on the spot.
+     */
     public static final String BLOCK = "block";
 
     /** The block buds grow out of. */
@@ -66,6 +72,24 @@ public final class GeodeRules {
 
     /** The two items a material comes in. */
     public static final List<String> ITEMS = List.of("shard", "spyglass");
+
+    /**
+     * The kinds a pickaxe is for: all six the game's own amethyst comes in.
+     *
+     * <p>The block and the budding block are built on the game's amethyst
+     * block, which asks for the right tool. For as long as nothing put them
+     * in a tool's tag no tool was right, so each took seven seconds to break
+     * and dropped nothing, whatever its loot table said. The crystals ask for
+     * no tool and are here for the speed, as the game's own are.
+     */
+    public static final List<String> PICKAXE =
+            List.of(BLOCK, BUDDING, SMALL, MEDIUM, LARGE, CLUSTER);
+
+    /**
+     * And the kind no tool is for. Glass breaks at a touch and asks for no
+     * tool, and the game's own tinted glass is in no tool's tag.
+     */
+    public static final List<String> BY_HAND = List.of(GLASS);
 
     /**
      * Materials the foundry says come out of the ground.
@@ -227,6 +251,38 @@ public final class GeodeRules {
         if (!last.next().isEmpty()) {
             bad.add("the last step of the chain grows into " + last.next()
                     + ", so the chain has no end");
+        }
+        return List.copyOf(bad);
+    }
+
+    /**
+     * Every kind nothing says how to mine, or says two things about.
+     *
+     * <p>A kind in neither list is mined at a fist's pace by every tool, and
+     * if it asks for the right tool it drops nothing at all. A kind in both
+     * is in the pickaxe's tag and on the list of things no tool is for.
+     */
+    public static List<String> untooled(List<String> kinds, List<String> pickaxe,
+                                        List<String> byHand) {
+        List<String> bad = new ArrayList<>();
+        for (String kind : kinds) {
+            boolean mined = pickaxe.contains(kind);
+            boolean touched = byHand.contains(kind);
+            if (!mined && !touched) {
+                bad.add(kind + " is in no tool's tag and not broken by hand either, "
+                        + "so nothing says what mines it");
+            }
+            if (mined && touched) {
+                bad.add(kind + " is both mined by a pickaxe and broken by hand, so "
+                        + "the tag says one thing and the exemption another");
+            }
+        }
+        List<String> decided = new ArrayList<>(pickaxe);
+        decided.addAll(byHand);
+        for (String kind : decided) {
+            if (!kinds.contains(kind)) {
+                bad.add(kind + " is given a tool and is not a kind of geode block");
+            }
         }
         return List.copyOf(bad);
     }

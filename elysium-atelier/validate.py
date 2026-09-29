@@ -201,6 +201,8 @@ CLOTH_HARNESS = os.path.join(WORK, "tools/ClothHarness.java")
 CLOTH_MAIN = "com.elysium.atelier.rules.ClothHarness"
 DIAG_HARNESS = os.path.join(WORK, "tools/DiagonalHarness.java")
 DIAG_MAIN = "com.elysium.atelier.rules.DiagonalHarness"
+HARVEST_HARNESS = os.path.join(WORK, "tools/HarvestHarness.java")
+HARVEST_MAIN = "com.elysium.atelier.rules.HarvestHarness"
 
 join_out = ""
 arch_out = ""
@@ -208,8 +210,9 @@ course_out = ""
 trim_out = ""
 cloth_out = ""
 diag_out = ""
+harvest_out = ""
 for where in (HARNESS, JOIN_HARNESS, ARCH_HARNESS, COURSE_HARNESS, TRIM_HARNESS,
-              CLOTH_HARNESS, DIAG_HARNESS):
+              CLOTH_HARNESS, DIAG_HARNESS, HARVEST_HARNESS):
     if not os.path.isfile(where):
         fail(f"{os.path.basename(where)} is gone, so what it proved is now checked by "
              f"reading, which nobody has ever done")
@@ -217,14 +220,14 @@ for where in (HARNESS, JOIN_HARNESS, ARCH_HARNESS, COURSE_HARNESS, TRIM_HARNESS,
 if os.path.isfile(HARNESS) and os.path.isfile(JOIN_HARNESS) \
         and os.path.isfile(ARCH_HARNESS) and os.path.isfile(COURSE_HARNESS) \
         and os.path.isfile(TRIM_HARNESS) and os.path.isfile(CLOTH_HARNESS) \
-        and os.path.isfile(DIAG_HARNESS):
+        and os.path.isfile(DIAG_HARNESS) and os.path.isfile(HARVEST_HARNESS):
     with tempfile.TemporaryDirectory() as tmp:
         staged = os.path.join(tmp, "src")
         os.makedirs(staged)
         sources = [os.path.join(PURE, n) for n in os.listdir(PURE) if n.endswith(".java")]
         for source in sources + [HARNESS, JOIN_HARNESS, ARCH_HARNESS,
                                  COURSE_HARNESS, TRIM_HARNESS, CLOTH_HARNESS,
-                                 DIAG_HARNESS]:
+                                 DIAG_HARNESS, HARVEST_HARNESS]:
             open(os.path.join(staged, os.path.basename(source)), "w",
                  encoding="utf-8").write(read(source))
         compiled = subprocess.run(
@@ -241,7 +244,8 @@ if os.path.isfile(HARNESS) and os.path.isfile(JOIN_HARNESS) \
                                 (COURSE_MAIN, "the courses        "),
                                 (TRIM_MAIN, "the fittings       "),
                                 (CLOTH_MAIN, "the colours        "),
-                                (DIAG_MAIN, "the diagonals      ")):
+                                (DIAG_MAIN, "the diagonals      "),
+                                (HARVEST_MAIN, "what mines it      ")):
                 try:
                     ran = subprocess.run(
                         ["java", "-cp", os.path.join(tmp, "out"), main],
@@ -266,6 +270,8 @@ if os.path.isfile(HARNESS) and os.path.isfile(JOIN_HARNESS) \
                     cloth_out = ran.stdout
                 if main == DIAG_MAIN:
                     diag_out = ran.stdout
+                if main == HARVEST_MAIN:
+                    harvest_out = ran.stdout
                 said = [line for line in ran.stdout.strip().splitlines()
                         if not line.startswith("TAG ")
                         and not line.startswith("OPENING ")
@@ -277,7 +283,8 @@ if os.path.isfile(HARNESS) and os.path.isfile(JOIN_HARNESS) \
                         and not line.startswith("PAD ")
                         and not line.startswith("CLOTH ")
                         and not line.startswith("DIAG ")
-                        and not line.startswith("DTAG ")]
+                        and not line.startswith("DTAG ")
+                        and not line.startswith("HARVEST ")]
                 print(label + ": " + said[-1])
 
 rules = read(PURE, "AtelierRules.java")
@@ -625,7 +632,12 @@ for tag, blocks in sorted(wanted.items()):
 # out wrong for two of these five: the trapdoor turned its top half the wrong
 # way, and the pane put its four blank sides on the wrong sides, which is a
 # pane with holes in it.
-VANILLA_JAR = "/tmp/mc/mapped-at.jar"
+# The jar is wherever this machine keeps it: MC_JAR, or the first of the known
+# places (the container's mapped jar, the Windows assets jar); until 29 Sep 2026
+# only the container's path was tried and on Windows these comparisons never ran.
+VANILLA_JAR = next((_j for _j in [os.environ.get("MC_JAR", ""), "/tmp/mc/mapped-at.jar",
+                                  "/tmp/mc/libs/vanilla-assets.jar", "C:/tmp/mc/libs/vanilla-assets.jar"]
+                    if _j and os.path.isfile(_j)), "/tmp/mc/mapped-at.jar")
 SAME_AS = {"door": "oak_door", "trapdoor": "oak_trapdoor", "gate": "oak_fence_gate",
            "fence": "oak_fence", "pane": "glass_pane"}
 if not os.path.isfile(VANILLA_JAR):
@@ -1631,6 +1643,245 @@ print(f"the diagonals      : {len(diag_kinds)} kind(s) over {len(declared)} "
       f"material(s) = {len(diag_ids)} block(s), every one an unbroken run of "
       f"overlapping boxes from one corner of its block to the other and through "
       f"the middle where an ordinary fence keeps its post")
+
+# ---------------------------------------------------------------------------
+# What mines it (29 Sep 2026): every block on one tool's list, or excused
+# ---------------------------------------------------------------------------
+#
+# A stone block asks for the right tool before it drops anything, and "the
+# right tool" is whichever tool's tag names the block. On 29 September 2026
+# the running game's harvest audit found 693 blocks of this module in no tag:
+# the architectural pieces, in every material. Six families wrote their own
+# lists and the seventh wrote none, so a survival player broke a stone roof,
+# saw it vanish and held nothing.
+#
+# So this is held both ways, for every block the module registers (every
+# blockstate it ships): each is in exactly one tool's list, the one
+# HarvestRules names, or is a kind HarvestRules breaks by hand with a reason
+# written here; a kind broken by hand must not ask for the right tool where
+# it is registered, nor copy a game block that does, read out of the registry
+# rather than taken on trust; and a list may name only blocks this module
+# registers, because one unknown id makes the game refuse the whole tag.
+
+MINEABLE = {}
+mineable_files = 0
+for tool in ("pickaxe", "axe", "shovel", "hoe"):
+    tag_path = os.path.join(RES, "data/minecraft/tags/block/mineable", tool + ".json")
+    if not os.path.isfile(tag_path):
+        continue
+    mineable_files += 1
+    listed = json.load(open(tag_path, encoding="utf-8"))
+    if listed.get("replace", False):
+        fail(f"mineable/{tool} replaces the game's own list rather than adding to it, "
+             f"so every block the game mines with a {tool} would drop nothing")
+    for one in listed.get("values", []):
+        named = one.get("id") if isinstance(one, dict) else one
+        if not isinstance(named, str):
+            continue
+        MINEABLE.setdefault(named, set()).add(tool)
+        if not named.startswith(NS + ":") or not os.path.isfile(os.path.join(
+                RES, "assets", NS, "blockstates", named.split(":", 1)[1] + ".json")):
+            fail(f"mineable/{tool} names {named}, which is not a block this module "
+                 f"registers, so the game refuses the whole tag and every block in "
+                 f"it is back to dropping nothing")
+
+#: The kinds no tool is for, and why. HarvestRules.BY_HAND says which; a kind
+#: it names with no reason here is refused, and so is a reason for a kind it
+#: no longer names. Nothing at present: everything here is wood, stone or
+#: wool, and the game's own are on a tool's list whatever the shape.
+MINE_EXEMPT = {}
+
+#: What the game's blocks this module copies ask of a tool, read out of the
+#: game's own jar: stone wants the right one, planks and wool want none. A
+#: block copying something not here is a failure, not a pass.
+ASKS_FOR_A_TOOL = {"STONE": True, "OAK_PLANKS": False, "WHITE_WOOL": False}
+
+
+def asks_for_a_tool(made, what):
+    """Whether a block built like this asks for the right tool, and how."""
+    if not made:
+        fail(f"nothing here finds how {what} is built, so nothing shows whether it "
+             f"asks for the right tool")
+        return None, ""
+    if ".requiresCorrectToolForDrops()" in made:
+        return True, "it says so where it is registered"
+    for copied in re.findall(r"\bBlocks\.([A-Z_]+)", made):
+        if copied not in ASKS_FOR_A_TOOL:
+            fail(f"{what} copies Blocks.{copied}, and nothing here knows whether that "
+                 f"asks for the right tool: look it up in the game's jar and add it")
+            return None, ""
+        if ASKS_FOR_A_TOOL[copied]:
+            return True, f"it copies Blocks.{copied}, which does"
+    return False, ""
+
+
+harvest_rules = strip_comments(read(PURE, "HarvestRules.java"), True)
+if not harvest_rules:
+    fail("there is no HarvestRules.java, so nothing says what mines two thousand nine "
+         "hundred blocks and nothing can be held to it")
+_harvest_names = dict(re.findall(r'public static final String ([A-Z_]+) = "([a-z_]+)";',
+                                 harvest_rules))
+_by_hand_listed = re.search(r"List<String> BY_HAND =\s*List\.of\(([^;]*?)\);",
+                            harvest_rules)
+if harvest_rules and not _by_hand_listed:
+    fail("HarvestRules no longer has a BY_HAND list, so nothing says which kinds are "
+         "left off every tool's list on purpose")
+by_hand = ([_harvest_names.get(token, token.strip('"'))
+            for token in re.findall(r'[A-Z_]{2,}|"[a-z_]+"', _by_hand_listed.group(1))]
+           if _by_hand_listed else [])
+for kind in by_hand:
+    if kind not in MINE_EXEMPT:
+        fail(f"HarvestRules breaks {kind} by hand and this gives no reason, so it is "
+             f"left out of every tool's list on nobody's say-so")
+for kind in MINE_EXEMPT:
+    if kind not in by_hand:
+        fail(f"a reason is given for breaking {kind} by hand and HarvestRules no longer "
+             f"does, so the exemption covers blocks the rules put in a tool's list")
+
+# What each roster's blocks are built on, read out of the registry. Every
+# roster but the cloth takes its properties from like(material), which copies
+# the game's planks for wood and the game's stone for stone; the cloth copies
+# the game's wool, and an upholstered seat the planks.
+registry_src = squashed(strip_comments(read(SRC, "registry/AtelierBlocks.java"), True))
+for copied in sorted(set(re.findall(r"\bBlocks\.([A-Z_]+)", registry_src))):
+    if copied not in ASKS_FOR_A_TOOL:
+        fail(f"AtelierBlocks copies Blocks.{copied}, and nothing here knows whether that "
+             f"asks for the right tool: look it up in the game's jar and add it to "
+             f"ASKS_FOR_A_TOOL")
+like_body = body_of(registry_src,
+                    "private static BlockBehaviour.Properties like(AtelierRules.Material material)")
+_branches = re.search(r"return material\.soft\(\) \? (.*?) : (.*?); \}", like_body)
+if not _branches:
+    fail("like() no longer chooses by material.soft(), so this validator cannot tell "
+         "a block of wood from a block of stone where they are registered")
+soft_asks = asks_for_a_tool(_branches.group(1) if _branches else "",
+                            "a wooden block (the soft branch of like())")
+hard_asks = asks_for_a_tool(_branches.group(2) if _branches else "",
+                            "a stone block (the hard branch of like())")
+ROSTER_METHODS = {
+    "shapes": "private static Map<String, DeferredBlock<Block>> register()",
+    "openings": "private static Map<String, DeferredBlock<Block>> openings()",
+    "pieces": "private static Map<String, DeferredBlock<Block>> pieces()",
+    "courses": "private static Map<String, DeferredBlock<Block>> courses()",
+    "fittings": "private static Map<String, DeferredBlock<Block>> fittings()",
+    "cloth": "private static Map<String, DeferredBlock<Block>> cloth()",
+    "diagonals": "private static Map<String, DeferredBlock<Block>> diagonals()",
+}
+roster_bodies = {}
+for roster, signature in ROSTER_METHODS.items():
+    body = body_of(registry_src, signature)
+    if not body:
+        fail(f"the registry no longer has {signature.rsplit(' ', 1)[-1]}, so this "
+             f"validator cannot read what the {roster} are built on")
+    roster_bodies[roster] = body
+BUILT_ON_LIKE = {
+    "shapes": "BlockBehaviour.Properties properties = like(material);",
+    "openings": "BlockBehaviour.Properties properties = like(opening.material()).noOcclusion();",
+    "pieces": "BlockBehaviour.Properties properties = like(material);",
+    "courses": "BlockBehaviour.Properties settled = like(course.material());",
+    "fittings": "BlockBehaviour.Properties settled = like(fitting.material());",
+    "diagonals": "BlockBehaviour.Properties settled = like(run.material());",
+}
+for roster, statement in BUILT_ON_LIKE.items():
+    if statement not in roster_bodies.get(roster, ""):
+        fail(f"the {roster} are no longer built on like(material), so what they ask "
+             f"of a tool is decided somewhere this validator does not read")
+_wool = re.search(r"BlockBehaviour\.Properties soft = (.*?);", roster_bodies.get("cloth", ""))
+_seat = re.search(r"new ShapedBlock\((.*?), shape\)", roster_bodies.get("cloth", ""))
+cloth_asks = asks_for_a_tool(_wool.group(1) if _wool else "", "a piece of cloth alone")
+seat_asks = asks_for_a_tool(_seat.group(1) if _seat else "", "an upholstered seat")
+
+
+def asks_of(roster, material):
+    """Whether a block of this roster and material asks for the right tool."""
+    body = roster_bodies.get(roster, "")
+    if ".requiresCorrectToolForDrops()" in body:
+        return True, f"the {roster} say so where they are registered"
+    for copied in re.findall(r"\bBlocks\.([A-Z_]+)", body):
+        if ASKS_FOR_A_TOOL.get(copied):
+            return True, f"the {roster} copy Blocks.{copied}, which does"
+    if roster == "cloth":
+        return seat_asks if material in course_materials else cloth_asks
+    return soft_asks if course_materials.get(material, ("", False))[1] else hard_asks
+
+
+# What the rules say mines each block, read out of the harness rather than
+# derived a third time here, against the lists that shipped.
+harvest = {}
+for line in harvest_out.splitlines():
+    parts = line.split()
+    if len(parts) == 6 and parts[0] == "HARVEST":
+        harvest[parts[1]] = (parts[2], parts[3], parts[4], parts[5])
+if harvest_out and not harvest:
+    fail("the harvest harness printed no blocks, so the tool lists are compared "
+         "against nothing and the check passes by having no opinion")
+
+blockstates = sorted(name[:-5] for name in os.listdir(
+    os.path.join(RES, "assets", NS, "blockstates")) if name.endswith(".json"))
+unlisted = [id for id in blockstates if id not in harvest]
+phantom = [id for id in harvest if id not in set(blockstates)]
+if harvest and unlisted:
+    fail(f"{len(unlisted)} block(s) ship a blockstate and HarvestRules names no tool "
+         f"for them, so nothing says what mines them: " + ", ".join(unlisted[:6]))
+if phantom:
+    fail(f"HarvestRules names {len(phantom)} block(s) nothing registers: "
+         + ", ".join(phantom[:6]))
+
+asking_untagged = []
+untagged = []
+twice = []
+wrong_list = []
+exempt_asking = {}
+exempt_tagged = []
+tool_blocks = 0
+for id, (roster, kind, material, tool) in sorted(harvest.items()):
+    full = f"{NS}:{id}"
+    asks, how = asks_of(roster, material)
+    lists = MINEABLE.get(full, set())
+    if asks:
+        tool_blocks += 1
+    if tool == "hand":
+        if asks:
+            count, _how = exempt_asking.get(kind, (0, how))
+            exempt_asking[kind] = (count + 1, how)
+        if lists:
+            exempt_tagged.append(id)
+        continue
+    if not lists:
+        (asking_untagged if asks else untagged).append(full)
+    elif len(lists) > 1:
+        twice.append(f"{id} ({', '.join(sorted(lists))})")
+    elif tool not in lists:
+        wrong_list.append(f"{id} is on the {next(iter(lists))}'s list and the rules "
+                          f"put it on the {tool}'s")
+if asking_untagged:
+    fail(f"{len(asking_untagged)} block(s) ask for the right tool and are in no tool's "
+         f"tag, so no tool is ever right and they drop nothing however they are "
+         f"mined: " + ", ".join(asking_untagged[:6]))
+if untagged:
+    fail(f"{len(untagged)} block(s) are in no mineable tag and not exempt, so every "
+         f"tool breaks them at a fist's pace: " + ", ".join(untagged[:6]))
+if twice:
+    fail(f"{len(twice)} block(s) are on two tools' lists, so the rules say one thing "
+         f"and the files another: " + ", ".join(twice[:4]))
+if wrong_list:
+    fail(f"{len(wrong_list)} block(s) are on the wrong tool's list: "
+         + "; ".join(wrong_list[:4]))
+for kind, (count, how) in sorted(exempt_asking.items()):
+    fail(f"{kind} is exempt from the mineable tags "
+         f"({MINE_EXEMPT.get(kind, 'no reason given')}), but {count} block(s) of it "
+         f"ask for the right tool: {how}. With no tag no tool is right, so they "
+         f"would drop nothing")
+if exempt_tagged:
+    fail(f"{len(exempt_tagged)} block(s) are exempt from the mineable tags and in one "
+         f"all the same; take the kind off BY_HAND or out of the tag: "
+         + ", ".join(exempt_tagged[:4]))
+
+print(f"what mines it      : {len(harvest)} block(s) on {mineable_files} tool list(s), "
+      f"{tool_blocks} of them asking for the right tool and every one of those in "
+      f"its tool's tag; wood by axe and stone by pickaxe as the game's own, and "
+      f"{sum(1 for _r, _k, _m, t in harvest.values() if t == 'hand')} broken by hand "
+      f"with a reason")
 
 print("what it declares   : the game and the library, and not one thing beyond them")
 

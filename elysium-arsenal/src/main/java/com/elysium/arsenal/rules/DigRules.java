@@ -145,35 +145,70 @@ public final class DigRules {
         }
     }
 
+    /** What this module's own finds are called, in a pool. */
+    private static final String OURS = "elysiumarsenal:";
+
+    /**
+     * How likely each half of each fossil is, against the rest of the fossil
+     * pool.
+     *
+     * <p>Two, for fourteen halves: twenty-eight of the pool's 133, so about
+     * one fossiliferous site in five gives up a half and one in 67 gives up a
+     * particular one. Rarer than a shard, and far above
+     * {@link #RAREST_WORTH_HAVING}, so a player after a pair can dig for it.
+     */
+    public static final int HALF_A_FOSSIL = 2;
+
     /** What each pool holds. */
     public static final Map<String, List<Find>> POOLS = pools();
 
     private static Map<String, List<Find>> pools() {
         Map<String, List<Find>> made = new LinkedHashMap<>();
+        // The temperate dirt every player starts on: the rotten log a rotten
+        // set is built from, and the growth totem, found where farms are.
         made.put("dirt", List.of(
                 new Find("minecraft:bone", 30),
                 new Find("minecraft:flint", 24),
                 new Find("minecraft:clay_ball", 18),
                 new Find("elysiumarsenal:artifact_shard", 12),
+                new Find("elysiumarsenal:rotten_log", 10),
                 new Find("minecraft:emerald", 8),
                 new Find("minecraft:music_disc_relic", 4),
+                new Find("elysiumarsenal:growth_totem", 2),
                 new Find("elysiumarsenal:legend_sigil", 1)));
+        // The badlands: both mud bricks, and the torrent totem, the one find
+        // a player has to travel for.
         made.put("red_sand", List.of(
                 new Find("minecraft:bone", 28),
                 new Find("minecraft:gunpowder", 22),
                 new Find("minecraft:gold_nugget", 18),
                 new Find("elysiumarsenal:artifact_shard", 14),
+                new Find("elysiumarsenal:cracked_mud_bricks", 10),
                 new Find("minecraft:gold_ingot", 9),
                 new Find("minecraft:diamond", 5),
+                new Find("elysiumarsenal:infested_mud_bricks", 3),
+                new Find("elysiumarsenal:torrent_totem", 3),
                 new Find("elysiumarsenal:legend_sigil", 1)));
-        made.put("fossil", List.of(
+        // The seam under every overworld biome: the fossils, and the soul and
+        // radiance totems.
+        List<Find> fossil = new ArrayList<>(List.of(
                 new Find("minecraft:bone", 34),
                 new Find("minecraft:bone_meal", 20),
                 new Find("elysiumarsenal:chiseled_bone_block", 16),
                 new Find("elysiumarsenal:artifact_shard", 16),
                 new Find("minecraft:amethyst_shard", 8),
                 new Find("minecraft:echo_shard", 5),
+                new Find("elysiumarsenal:soul_totem", 3),
+                new Find("elysiumarsenal:radiance_totem", 2),
                 new Find("elysiumarsenal:legend_sigil", 1)));
+        // Every half of every fossil, walked from the roster rather than
+        // listed: an eighth creature there is two more finds here, and a half
+        // no pool holds is a fossil nobody can make whole.
+        for (FossilRules.Fossil one : FossilRules.FOSSILS) {
+            fossil.add(new Find(OURS + one.id(FossilRules.SKULL), HALF_A_FOSSIL));
+            fossil.add(new Find(OURS + one.id(FossilRules.BODY), HALF_A_FOSSIL));
+        }
+        made.put("fossil", List.copyOf(fossil));
         return Map.copyOf(made);
     }
 
@@ -225,6 +260,172 @@ public final class DigRules {
         }
         return finds.get(finds.size() - 1);
     }
+
+    // ==================================================================
+    // Where the sites are
+    // ==================================================================
+
+    /**
+     * The widest patch the game will load.
+     *
+     * <p>A disk's radius goes through a codec that stops at eight, and a file
+     * past that is not a wide patch: it is a world that will not load, found
+     * at the moment somebody presses Create World.
+     */
+    public static final int WIDEST_PATCH = 8;
+
+    /** The largest vein the game will load, for the same reason: its codec stops at 64. */
+    public static final int LARGEST_SEAM = 64;
+
+    /** The overworld's floor. */
+    public static final int WORLD_FLOOR = -64;
+
+    /** The first height above the overworld's ceiling. */
+    public static final int WORLD_CEILING = 320;
+
+    /**
+     * A patch of sites on the surface: the game's own disk, one block deep,
+     * laid over the ground the site looks like.
+     *
+     * @param site     the site it lays down
+     * @param oneIn    one chunk in this many gets a patch
+     * @param least    the smallest radius a patch has
+     * @param most     the largest
+     * @param replaces the only blocks it may take the place of
+     * @param biomes   where it lies: each a biome's id or a #tag of them
+     */
+    public record Patch(String site, int oneIn, int least, int most,
+                        List<String> replaces, List<String> biomes) {
+
+        public Patch {
+            Objects.requireNonNull(site, "a patch of nothing");
+            if (oneIn < 1) {
+                throw new IllegalArgumentException(site + " lies in one chunk in "
+                        + oneIn + ", which is no chunk at all");
+            }
+            if (least < 1 || most < least) {
+                throw new IllegalArgumentException(site + "'s patches run from " + least
+                        + " to " + most + " out, which is no size at all");
+            }
+            if (most > WIDEST_PATCH) {
+                throw new IllegalArgumentException(site + "'s patches reach " + most
+                        + " out, and the game refuses a disk past " + WIDEST_PATCH
+                        + ": the world would not load");
+            }
+            replaces = List.copyOf(Objects.requireNonNull(replaces,
+                    site + " may take the place of nothing"));
+            biomes = List.copyOf(Objects.requireNonNull(biomes, site + " lies nowhere"));
+            if (replaces.isEmpty()) {
+                throw new IllegalArgumentException(site + " may take the place of "
+                        + "nothing, so no patch of it is ever laid");
+            }
+            if (biomes.isEmpty()) {
+                throw new IllegalArgumentException(site + " lies in no biome");
+            }
+        }
+
+        /** How many sites one patch lays on flat ground, on average over its radii. */
+        public double sitesInAPatch() {
+            double total = 0.0D;
+            for (int radius = least; radius <= most; radius++) {
+                total += columnsWithin(radius);
+            }
+            return total / (most - least + 1);
+        }
+
+        /** How many sites a chunk holds on flat ground, on average. */
+        public double sitesAChunk() {
+            return sitesInAPatch() / oneIn;
+        }
+    }
+
+    /**
+     * How many columns a disk of that radius lays: the game's own test, the
+     * two distances across squared and added, no more than the radius
+     * squared. One out is five columns and two out is thirteen.
+     */
+    public static int columnsWithin(int radius) {
+        int columns = 0;
+        for (int across = -radius; across <= radius; across++) {
+            for (int along = -radius; along <= radius; along++) {
+                if (across * across + along * along <= radius * radius) {
+                    columns++;
+                }
+            }
+        }
+        return columns;
+    }
+
+    /**
+     * Sites buried the way the game buries its fossils: small veins that take
+     * the place of the ground they are told they may, and of nothing else.
+     *
+     * @param site    the site it buries
+     * @param tries   how many veins a chunk tries for
+     * @param size    how big a vein is, in the game's own measure
+     * @param lowest  the lowest a vein may lie
+     * @param highest the highest
+     * @param within  the block tag a vein may take the place of
+     * @param biomes  where it lies: each a biome's id or a #tag of them
+     */
+    public record Seam(String site, int tries, int size, int lowest, int highest,
+                       String within, List<String> biomes) {
+
+        public Seam {
+            Objects.requireNonNull(site, "a seam of nothing");
+            Objects.requireNonNull(within, site + " may take the place of nothing");
+            if (tries < 1) {
+                throw new IllegalArgumentException(site + " is tried for " + tries
+                        + " times a chunk, which is never");
+            }
+            if (size < 1 || size > LARGEST_SEAM) {
+                throw new IllegalArgumentException(site + "'s veins are " + size
+                        + " big, and the game loads a vein of 1 to " + LARGEST_SEAM);
+            }
+            if (lowest >= highest) {
+                throw new IllegalArgumentException(site + " lies between " + lowest
+                        + " and " + highest + ", which is no height at all");
+            }
+            if (lowest < WORLD_FLOOR || highest >= WORLD_CEILING) {
+                throw new IllegalArgumentException(site + " lies from " + lowest + " to "
+                        + highest + ", and the overworld runs from " + WORLD_FLOOR
+                        + " to " + (WORLD_CEILING - 1));
+            }
+            biomes = List.copyOf(Objects.requireNonNull(biomes, site + " lies nowhere"));
+            if (biomes.isEmpty()) {
+                throw new IllegalArgumentException(site + " lies in no biome");
+            }
+        }
+    }
+
+    /**
+     * The two patches on the surface.
+     *
+     * <p>Suspicious dirt lies in the temperate lands where every player
+     * starts: one chunk in ten gets a patch of five to thirteen sites, nine
+     * on flat ground on average. Red sand lies in the badlands only, one
+     * chunk in six, so a player who travels for it finds it.
+     */
+    public static final List<Patch> PATCHES = List.of(
+            new Patch("suspicious_dirt", 10, 1, 2,
+                    List.of("minecraft:grass_block", "minecraft:dirt",
+                            "minecraft:coarse_dirt", "minecraft:podzol"),
+                    List.of("#minecraft:is_forest", "#minecraft:is_taiga",
+                            "minecraft:plains", "minecraft:sunflower_plains",
+                            "minecraft:meadow")),
+            new Patch("suspicious_red_sand", 6, 1, 2,
+                    List.of("minecraft:red_sand"),
+                    List.of("#minecraft:is_badlands")));
+
+    /**
+     * The one seam: fossiliferous dirt, three small veins a chunk through the
+     * band the game scatters its own underground dirt through (0 to 160),
+     * under every biome of the overworld. A vein takes only dirt, so it lies
+     * in the dirt under the grass and in the pockets of dirt in the stone.
+     */
+    public static final List<Seam> SEAMS = List.of(
+            new Seam("fossiliferous_dirt", 3, 6, 0, 160, "minecraft:dirt",
+                    List.of("#minecraft:is_overworld")));
 
     // ==================================================================
     // Whether any of it hangs together
@@ -318,6 +519,100 @@ public final class DigRules {
                             + Math.round(1.0D / chance) + ", which at half a minute a "
                             + "site is not rare, it is absent");
                 }
+            }
+        }
+        return List.copyOf(bad);
+    }
+
+    /**
+     * The dig's own finds that are neither fossils nor totems: the log a
+     * rotten set is built from, and the two mud bricks the badlands bury.
+     */
+    public static final List<String> TURNED_UP = List.of(
+            "rotten_log", "cracked_mud_bricks", "infested_mud_bricks");
+
+    /**
+     * Everything the dig promises that no pool holds: every half of every
+     * fossil, every totem, and the finds above.
+     *
+     * <p>Brushing is the only thing in the game that hands most of these out
+     * (cracked mud bricks can be smelted as well). One missing from every
+     * pool is a block a survival player can never have, which is where all
+     * of them stood until 29 September 2026: the pools held the game's own
+     * things, shards, chiselled bone and the sigil, and nothing else.
+     */
+    public static List<String> neverDugUp() {
+        return neverDugUp(POOLS);
+    }
+
+    /** The same, over any pools: the harness hands it empty ones to be caught. */
+    public static List<String> neverDugUp(Map<String, List<Find>> pools) {
+        Set<String> held = new TreeSet<>();
+        for (List<Find> finds : pools.values()) {
+            for (Find one : finds) {
+                held.add(one.item());
+            }
+        }
+        List<String> promised = new ArrayList<>();
+        for (FossilRules.Fossil one : FossilRules.FOSSILS) {
+            promised.add(one.id(FossilRules.SKULL));
+            promised.add(one.id(FossilRules.BODY));
+        }
+        for (TotemRules.Totem one : TotemRules.TOTEMS) {
+            promised.add(one.name());
+        }
+        promised.addAll(TURNED_UP);
+        List<String> bad = new ArrayList<>();
+        for (String name : promised) {
+            if (!held.contains(OURS + name)) {
+                bad.add(name + " is in no pool, so nothing in a survival world hands "
+                        + "it out");
+            }
+        }
+        return List.copyOf(bad);
+    }
+
+    /**
+     * Every site nothing lays in a world, and every placement of something
+     * that is not a site.
+     *
+     * <p>The first is the bug this was written for. Until 29 September 2026
+     * the three sites were registered, drawn, named and brushable, and no
+     * world ever held one: nothing laid a site down, so the whole dig could
+     * be had from a command and nowhere else.
+     */
+    public static List<String> unplaced() {
+        return unplaced(SITES, PATCHES, SEAMS);
+    }
+
+    /** The same, over any rosters: the harness hands it ones built to be caught. */
+    public static List<String> unplaced(List<Site> sites, List<Patch> patches,
+                                        List<Seam> seams) {
+        Map<String, Integer> laid = new LinkedHashMap<>();
+        for (Patch one : patches) {
+            laid.merge(one.site(), 1, Integer::sum);
+        }
+        for (Seam one : seams) {
+            laid.merge(one.site(), 1, Integer::sum);
+        }
+        Set<String> known = new TreeSet<>();
+        List<String> bad = new ArrayList<>();
+        for (Site site : sites) {
+            known.add(site.block());
+            if (!laid.containsKey(site.block())) {
+                bad.add(site.block() + " is in no world: nothing lays it down, so it "
+                        + "and everything only its pool holds come from a command and "
+                        + "from nowhere else");
+            }
+        }
+        for (Map.Entry<String, Integer> row : laid.entrySet()) {
+            if (!known.contains(row.getKey())) {
+                bad.add(row.getKey() + " is laid in the world and is not a site, so it "
+                        + "is a block no brush can open");
+            }
+            if (row.getValue() > 1) {
+                bad.add(row.getKey() + " is laid " + row.getValue() + " ways, and a "
+                        + "site's feature is named after it, so one overwrites the other");
             }
         }
         return List.copyOf(bad);

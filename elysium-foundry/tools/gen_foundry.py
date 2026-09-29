@@ -71,6 +71,10 @@ MATERIALS = {
     "fluorite": (0, {}, (150, 220, 190)),
     "rime_shard": (0, {}, (178, 226, 244)),
     "uraninite": (0, {}, (96, 126, 70)),
+    # What the core's titanium and tungsten gear is made of. Colours are
+    # elysium-ores' ore specks: titanium lavender, tungsten gunmetal.
+    "titanium": (0, {}, (180, 156, 216)),
+    "tungsten": (0, {}, (68, 72, 84)),
     "bronze": (1, {"copper": 3 * UNIT, "tin": UNIT}, (196, 132, 68)),
     "brass": (1, {"copper": 3 * UNIT, "zinc": UNIT}, (214, 178, 84)),
     "steel": (1, {"iron": UNIT, "coal_dust": UNIT}, (124, 128, 134)),
@@ -221,6 +225,14 @@ def refer(material, form):
     global MADE
     if MADE is None:
         MADE = set(ours())
+    if form == "raw":
+        # A raw input is the family's tag, never one item, even where we make
+        # one: what an ore drops is whichever member of c:raw_materials/<metal>
+        # the ores module settles on, and in this pack that was the agronomy's
+        # chunk for every mined metal, so a foundry that asked for its own raw
+        # item refused the ore it was handed and eleven metals, the refinery
+        # and three casings could not be had (check_obtainable.py, 29 Sep 2026).
+        return {"tag": f"c:raw_materials/{material}"}
     if (material, form) in MADE:
         return {"item": f"{NS}:{named(material, form)}"}
     if material in DROPS:
@@ -516,11 +528,12 @@ def recipes():
                           "input": {"item": "minecraft:coal"},
                           "result": {"id": mine, "count": 1}, "ticks": 80}
         elif material == "uraninite":
-            # An ore of uranium by another name, so it smelts into Age III's.
+            # An ore of uranium by another name, so it smelts into Age III's;
+            # by its family's tag, like every raw form (see refer).
             made[f"{name}_smelting"] = cooked(
-                "smelting", {"item": mine}, "elysiumatomics:uranium_ingot", 200, 0.7)
+                "smelting", refer(material, "raw"), "elysiumatomics:uranium_ingot", 200, 0.7)
             made[f"{name}_blasting"] = cooked(
-                "blasting", {"item": mine}, "elysiumatomics:uranium_ingot", 100, 0.7)
+                "blasting", refer(material, "raw"), "elysiumatomics:uranium_ingot", 100, 0.7)
         elif material in ONE_FORM and ONE_FORM[material] == "gem":
             # A gem: the ground gives it whole when nothing else supplies the
             # family's raw form. When something does (the agronomy's chunks sit

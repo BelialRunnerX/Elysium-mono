@@ -36,10 +36,13 @@ public class DrawerStore implements IItemHandler {
     private final int[] counts;
     private final Runnable changed;
 
-    /** Whether this drawer has been told to throw away what will not fit. */
+    /** Whether a void seal is fitted, so it throws away what will not fit. */
     private boolean voiding;
 
-    /** Whether it keeps its kinds when emptied, so a hopper cannot re-type it. */
+    /**
+     * Whether a key has locked it: it keeps its kinds when emptied, so a
+     * hopper cannot re-type it.
+     */
     private boolean locked;
 
     public DrawerStore(LogisticRules.Drawer drawer, Runnable changed) {
@@ -69,7 +72,27 @@ public class DrawerStore implements IItemHandler {
 
     public void locked(boolean now) {
         locked = now;
+        // Unlocked, a slot that has run dry forgets its kind, as it would
+        // have the moment it ran dry had it never been locked. Without this an
+        // unlocked drawer stays locked to whatever it last held, and says it
+        // is empty while it refuses everything else.
+        for (int slot = 0; slot < kinds.length; slot++) {
+            if (!LogisticRules.keepsKind(locked, counts[slot])) {
+                kinds[slot] = ItemStack.EMPTY;
+            }
+        }
         changed.run();
+    }
+
+    /** How many of its slots have a kind, held or kept by the lock. */
+    public int kindsKept() {
+        int kept = 0;
+        for (ItemStack kind : kinds) {
+            if (!kind.isEmpty()) {
+                kept++;
+            }
+        }
+        return kept;
     }
 
     /** What kind of thing is in that slot, with no count attached. */
@@ -165,7 +188,7 @@ public class DrawerStore implements IItemHandler {
             return out;
         }
         counts[slot] -= given;
-        if (counts[slot] <= 0 && !locked) {
+        if (!LogisticRules.keepsKind(locked, counts[slot])) {
             kinds[slot] = ItemStack.EMPTY;
         }
         changed.run();

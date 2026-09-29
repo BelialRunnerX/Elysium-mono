@@ -15,8 +15,15 @@
     "elysiumores:cinder_steel_ore",
     "elysiumores:cinder_tin_ore",
     "elysiumores:cinder_zinc_ore",
+    "elysiumores:deepslate_aluminum_ore",
+    "elysiumores:deepslate_lead_ore",
+    "elysiumores:deepslate_lithium_ore",
+    "elysiumores:deepslate_nickel_ore",
     "elysiumores:deepslate_pearlium_ore",
     "elysiumores:deepslate_quartz_ore",
+    "elysiumores:deepslate_silver_ore",
+    "elysiumores:deepslate_tin_ore",
+    "elysiumores:deepslate_zinc_ore",
     "elysiumores:end_stone_aluminum_ore",
     "elysiumores:end_stone_coal_ore",
     "elysiumores:end_stone_copper_ore",
@@ -75,7 +82,14 @@
     "elysiumores:pale_zinc_ore",
     "elysiumores:pearlium_block",
     "elysiumores:raw_pearlium_block",
+    "elysiumores:stone_aluminum_ore",
+    "elysiumores:stone_lead_ore",
+    "elysiumores:stone_lithium_ore",
+    "elysiumores:stone_nickel_ore",
     "elysiumores:stone_pearlium_ore",
-    "elysiumores:stone_quartz_ore"
+    "elysiumores:stone_quartz_ore",
+    "elysiumores:stone_silver_ore",
+    "elysiumores:stone_tin_ore",
+    "elysiumores:stone_zinc_ore"
   ]
 }

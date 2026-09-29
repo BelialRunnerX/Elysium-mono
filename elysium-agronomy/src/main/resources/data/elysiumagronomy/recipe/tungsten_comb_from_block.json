@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumagronomy:tungsten_comb_block"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:tungsten_comb",
+    "count": 9
+  }
+}

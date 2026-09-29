@@ -269,9 +269,12 @@ public final class PropertyHarness {
                 && ArmoryTraitRules.capped(9, 0) == 9, "a trait level is not capped where its effects are read");
         salvage();
         science();
+        conversion();
+        plans();
         check(ArmoryTraitRules.roman(4).equals("IV") && ArmoryTraitRules.roman(9).equals("IX")
                 && ArmoryTraitRules.roman(14).equals("XIV") && ArmoryTraitRules.roman(0).isEmpty(),
                 "the levels a player reads are not roman numerals");
+        harvest();
 
         if (failures > 0) {
             System.out.println(failures + " of " + checked + " checks failed");
@@ -280,7 +283,10 @@ public final class PropertyHarness {
         System.out.println(checked + " checks: iron+diamond averages to "
                 + Math.round(ironDiamond) + ", operations in order, floors kept, no ceilings, "
                 + ArmoryProperty.ALL.size() + " properties; 44 gear types, most specific key wins, armour splits back to its set; "
-                + ArmoryTier.list().size() + " harvest rungs and the vanilla mapping; trait conditions and levels");
+                + ArmoryTier.list().size() + " harvest rungs and the vanilla mapping; trait conditions and levels; "
+                + "any affixed piece salvages and a reroll never pays back more than it cost; "
+                + ArmoryConversionRules.SHAPES.size() + " shapes convert alike on every start; "
+                + ArmoryPlanRules.TEMPLATES.size() + " chests hold a found plan; extras are charged");
     }
 
     /** Salvage and reroll (SPEC_CLONE P6.2, P6.3, P6.11). */
@@ -311,6 +317,31 @@ public final class PropertyHarness {
         check(ArmorySalvageRules.essence(0) == 0, "a piece with no affixes yielded essence");
         check(ArmorySalvageRules.essence(7) == 7, "essence is not one per level of affix");
         check(ArmorySalvageRules.essence(-3) == 0, "a negative level yielded negative essence");
+
+        // Where essence starts: any affixed piece goes on the bench, not only
+        // modular gear, which has affixes only after a reforge paid in essence.
+        check(ArmorySalvageRules.salvageable(true, 0), "modular gear with no affixes could not be salvaged");
+        check(ArmorySalvageRules.salvageable(false, 3),
+                "an affixed piece of the base game's gear could not be salvaged, so essence has no way in: "
+                        + "loot is where affixes come from, and modular gear has none until a reforge "
+                        + "that is paid in essence");
+        check(!ArmorySalvageRules.salvageable(false, 0),
+                "a plain piece with nothing to give back could be put on the salvager");
+        check(ArmorySalvageRules.essence(7, 0) == 7, "found affixes did not pay one essence a level");
+        check(ArmorySalvageRules.essence(3, 5) == 3, "a reforged piece paid back more than its levels");
+        // The loop walked: whatever a reroll lands (one to four levels an
+        // affix), taking the piece apart returns no more than the reroll cost.
+        String printing = null;
+        for (int rarity = 1; rarity <= 12 && printing == null; rarity++) {
+            int paid = ArmorySalvageRules.rerollCost(rarity);
+            for (int levels = 0; levels <= 4 * rarity && printing == null; levels++) {
+                int back = ArmorySalvageRules.essence(levels, paid);
+                if (back > paid || back < 0) {
+                    printing = "a piece reforged for " + paid + " with " + levels + " levels salvaged for " + back;
+                }
+            }
+        }
+        check(printing == null, printing + ", more than it cost, so a reroll and a salvage print essence");
         check(ArmorySalvageRules.rerollCost(0) == 1,
                 "a reroll to nothing was free, so a player could roll forever");
         check(ArmorySalvageRules.rerollCost(5) == 5, "a reroll's price is not its rarity");
@@ -415,5 +446,148 @@ public final class PropertyHarness {
                         > ArmoryMaterialScience.factor(5, false),
                 "charging the best-graded part was worth nothing");
         check(ArmoryMaterialScience.CHARGE_TICKS > 0, "a charge takes no time at all");
+    }
+
+    /**
+     * The base game's gear, made modular (SG-42). The names that went wrong:
+     * a pickaxe is not an axe, a crossbow is not a bow, and shears are iron.
+     */
+    private static void conversion() {
+        String[][] cases = {
+                {"iron_pickaxe", "pickaxe", "iron"}, {"iron_axe", "axe", "iron"},
+                {"golden_pickaxe", "pickaxe", "gold"}, {"wooden_axe", "axe", "wood"},
+                {"crossbow", "crossbow", "wood"}, {"bow", "bow", "wood"},
+                {"shears", "shears", "iron"}, {"fishing_rod", "fishing_rod", "wood"},
+                {"chainmail_helmet", "helmet", "iron"}, {"netherite_hoe", "hoe", "netherite"},
+                {"stone_shovel", "shovel", "stone"}, {"diamond_sword", "sword", "diamond"},
+                {"leather_boots", "boots", "leather"}, {"trident", "trident", "prismarine"},
+                {"shield", "shield", "wood"}, {"elytra", "elytra", "phantom_membrane"}};
+        for (String[] one : cases) {
+            ArmoryConversionRules.Conversion got = ArmoryConversionRules.of(one[0]);
+            check(got != null && got.gearType().equals(one[1]) && got.material().equals(one[2]),
+                    "minecraft:" + one[0] + " converts to " + got + ", not a " + one[1] + " of " + one[2]);
+            // The same answer whatever order the shapes are listed in. The old
+            // table's order changed every launch, and so did what a pickaxe became.
+            for (int seed = 0; seed < 8; seed++) {
+                List<ArmoryConversionRules.Shape> shuffled = new ArrayList<>(ArmoryConversionRules.SHAPES);
+                java.util.Collections.shuffle(shuffled, new java.util.Random(seed));
+                check(java.util.Objects.equals(ArmoryConversionRules.of(one[0], shuffled), got),
+                        "minecraft:" + one[0] + " converts to something else when the shapes are listed "
+                                + "in another order, so what it becomes changes from one launch to the next");
+            }
+        }
+        for (String none : new String[] {"turtle_helmet", "stick", "carrot_on_a_stick", "axe_head", "pickaxe", ""}) {
+            check(ArmoryConversionRules.of(none) == null,
+                    "minecraft:" + none + " converts to " + ArmoryConversionRules.of(none) + ", and should not");
+        }
+        // A shape is a whole word: the end of "ironxsword" is not an iron sword.
+        check(ArmoryConversionRules.of("ironxsword") == null,
+                "a shape was read in the middle of a word: ironxsword converts to "
+                        + ArmoryConversionRules.of("ironxsword"));
+        // Two shapes that both end a name as whole words: the longer one is the shape.
+        List<ArmoryConversionRules.Shape> nested = List.of(
+                new ArmoryConversionRules.Shape("rod", "rod", "wood"),
+                new ArmoryConversionRules.Shape("fishing_rod", "fishing_rod", "wood"));
+        for (List<ArmoryConversionRules.Shape> order : List.of(nested, List.of(nested.get(1), nested.get(0)))) {
+            ArmoryConversionRules.Conversion rod = ArmoryConversionRules.of("fishing_rod", order);
+            check(rod != null && rod.gearType().equals("fishing_rod"),
+                    "fishing_rod reads as " + rod + " when a shorter shape also ends it; the longest has to win");
+        }
+        java.util.Set<String> words = new java.util.HashSet<>();
+        for (ArmoryConversionRules.Shape shape : ArmoryConversionRules.SHAPES) {
+            check(words.add(shape.word()), shape.word() + " is listed twice among the shapes");
+            check(ArmoryGearType.named(shape.gearType()) != null,
+                    "a " + shape.word() + " converts to " + shape.gearType() + ", which is not a gear type");
+        }
+    }
+
+    /** Plans: what can be drawn, a found template, and a part's extras. */
+    private static void plans() {
+        check(ArmoryPlanRules.plannable(false, 2), "a part made of materials cannot be planned");
+        check(!ArmoryPlanRules.plannable(true, 1), "an upgrade can be planned, and it has a recipe of its own");
+        check(!ArmoryPlanRules.plannable(false, 0), "a part of no materials can be planned: a plan that makes nothing");
+
+        // A found template can be any plan the table offers, and nothing else.
+        check(ArmoryPlanRules.drawn(0, 0.5D) == -1, "a template drew a plan out of none");
+        boolean[] seen = new boolean[43];
+        for (int roll = 0; roll < 4300; roll++) {
+            int index = ArmoryPlanRules.drawn(43, roll / 4300.0D);
+            check(index >= 0 && index < 43, "a template drew plan " + index + " of 43");
+            if (index >= 0 && index < 43) {
+                seen[index] = true;
+            }
+        }
+        for (int index = 0; index < 43; index++) {
+            check(seen[index], "plan " + index + " of 43 is never found on a template");
+        }
+        check(ArmoryPlanRules.drawn(43, 1.0D) == 42 && ArmoryPlanRules.drawn(43, -1.0D) == 0,
+                "a roll outside [0, 1) drew outside the plans");
+
+        // Where a template is found: the three village smiths one chest in
+        // four, a dungeon one in ten.
+        java.util.Map<String, Double> chances = new java.util.HashMap<>();
+        for (ArmoryPlanRules.Found found : ArmoryPlanRules.TEMPLATES) {
+            check(found.table().startsWith("minecraft:chests/"), found.table() + " is not one of the base game's chests");
+            check(chances.put(found.table(), found.chance()) == null, found.table() + " is listed twice");
+            check(found.chance() > 0.0D && found.chance() < 1.0D,
+                    found.table() + " holds a template at " + found.chance() + ", which is never or always");
+        }
+        for (String smith : new String[] {"village_weaponsmith", "village_toolsmith", "village_armorer"}) {
+            check(chances.getOrDefault("minecraft:chests/village/" + smith, 0.0D) == 0.25D,
+                    "a " + smith + "'s chest holds a template at " + chances.get("minecraft:chests/village/" + smith)
+                            + ", not one in four");
+        }
+        check(chances.getOrDefault("minecraft:chests/simple_dungeon", 0.0D) == 0.10D,
+                "a dungeon chest holds a template at " + chances.get("minecraft:chests/simple_dungeon")
+                        + ", not one in ten");
+
+        // Extras: one thing each, never the same thing twice; the rest is materials.
+        List<String> bench = List.of("minecraft:gold_ingot", "minecraft:glass_bottle");
+        boolean[] coating = ArmoryPlanRules.extras(List.of("minecraft:glass_bottle"), bench.size(),
+                (index, extra) -> bench.get(index).equals(extra));
+        check(coating != null && !coating[0] && coating[1],
+                "a coating's glass bottle was not taken as its extra, or the gold was");
+        check(ArmoryPlanRules.extras(List.of("minecraft:heavy_core"), 3,
+                        (index, extra) -> false) == null,
+                "a mace core was made without its heavy core");
+        check(ArmoryPlanRules.extras(List.of("minecraft:heavy_core", "minecraft:heavy_core"), 1,
+                        (index, extra) -> true) == null,
+                "one thing on the bench paid for two extras");
+        boolean[] plain = ArmoryPlanRules.extras(List.of(), 2, (index, extra) -> true);
+        check(plain != null && !plain[0] && !plain[1],
+                "a part with no extras took something off the bench as one");
+        // A #tag answers through whatever the recipe says answers to it.
+        boolean[] tagged = ArmoryPlanRules.extras(List.of("#c:gems/bort"), 2,
+                (index, extra) -> index == 1 && extra.equals("#c:gems/bort"));
+        check(tagged != null && !tagged[0] && tagged[1], "an extra asked for by its tag was not taken");
+    }
+
+    /**
+     * What mines a bench: the lists as shipped answer once for every bench,
+     * and the rule that reads them reports the three ways a list can be wrong.
+     */
+    private static void harvest() {
+        List<String> benches = new ArrayList<>(ArmoryHarvestRules.PICKAXE);
+        benches.addAll(ArmoryHarvestRules.AXE);
+        benches.addAll(ArmoryHarvestRules.SHOVEL);
+        benches.addAll(ArmoryHarvestRules.HOE);
+        benches.addAll(ArmoryHarvestRules.BY_HAND);
+        check(ArmoryHarvestRules.untooled(benches, ArmoryHarvestRules.minedBy(),
+                ArmoryHarvestRules.BY_HAND).isEmpty(), "a bench as shipped is given no tool, "
+                + "or two: " + ArmoryHarvestRules.untooled(benches, ArmoryHarvestRules.minedBy(),
+                ArmoryHarvestRules.BY_HAND));
+        check(benches.size() == 8, "the harvest rules answer for " + benches.size()
+                + " benches and the module has eight");
+        // The controls: a block no tool is decided for, one decided twice, and
+        // a name that is no block of ours each have to be reported.
+        List<String> unlisted = new ArrayList<>(benches);
+        unlisted.add("whetstone");
+        check(!ArmoryHarvestRules.untooled(unlisted, ArmoryHarvestRules.minedBy(),
+                ArmoryHarvestRules.BY_HAND).isEmpty(), "a block no tool is decided for is not reported");
+        check(!ArmoryHarvestRules.untooled(benches, ArmoryHarvestRules.minedBy(),
+                List.of("stone_anvil")).isEmpty(), "a block mined by a pickaxe and broken by hand is not reported");
+        check(!ArmoryHarvestRules.untooled(benches, java.util.Map.of("pickaxe", ArmoryHarvestRules.PICKAXE,
+                "axe", List.of("whetstone")), ArmoryHarvestRules.BY_HAND).isEmpty(),
+                "a tool given to a block nobody registers is not reported");
     }
 }

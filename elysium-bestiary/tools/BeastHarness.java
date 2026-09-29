@@ -75,6 +75,7 @@ public final class BeastHarness {
         theCourts();
         theWarded();
         theVale();
+        theHarvest();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -2303,5 +2304,37 @@ public final class BeastHarness {
                 + below + " too soft and " + above + " too hard among them, and "
                 + "not one of this module's own in a ring its own crossing does "
                 + "not put it in");
+    }
+
+    /**
+     * What mines a machine: the rules as shipped answer once for each of the
+     * nine, and the rule that reads them reports the three ways a list can be
+     * wrong. A machine in no tool's tag drops nothing, because every one is
+     * built on the game's iron block.
+     */
+    private static void theHarvest() {
+        List<String> ids = new ArrayList<>();
+        for (FarmRules.Machine one : FarmRules.MACHINES) {
+            ids.add(one.id());
+        }
+        Map<String, List<String>> minedBy = HarvestRules.minedBy(FarmRules.MACHINES);
+        List<String> shipped = HarvestRules.untooled(ids, minedBy, HarvestRules.BY_HAND);
+        check(shipped.isEmpty(), "a machine as shipped is given no tool, or two: " + shipped);
+        check(HarvestRules.TOOLS.contains(HarvestRules.MACHINE_TOOL), "the machines are mined "
+                + "by " + HarvestRules.MACHINE_TOOL + ", which is no tool the game keeps a list for");
+        // The controls: a block no tool is decided for, one decided twice, and
+        // a name that is no block of ours each have to be reported.
+        List<String> unlisted = new ArrayList<>(ids);
+        unlisted.add("mob_press");
+        check(!HarvestRules.untooled(unlisted, minedBy, HarvestRules.BY_HAND).isEmpty(),
+                "a block no tool is decided for is not reported");
+        check(!HarvestRules.untooled(ids, minedBy, List.of(ids.get(0))).isEmpty(),
+                "a block mined by a tool and broken by hand is not reported");
+        check(!HarvestRules.untooled(ids, Map.of("axe", List.of("mob_press")),
+                HarvestRules.BY_HAND).isEmpty(),
+                "a tool given to a block nobody registers is not reported");
+        System.out.println("  the harvest: " + ids.size() + " machines, every one mined by a "
+                + HarvestRules.MACHINE_TOOL + " and " + HarvestRules.BY_HAND.size()
+                + " broken by hand");
     }
 }

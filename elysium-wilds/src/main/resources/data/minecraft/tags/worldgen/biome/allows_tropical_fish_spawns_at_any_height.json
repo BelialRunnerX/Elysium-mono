@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:dripwell",
+    "elysiumwilds:geyserwell",
+    "elysiumwilds:icewell",
+    "elysiumwilds:springvault",
+    "elysiumwilds:steamwell"
+  ]
+}

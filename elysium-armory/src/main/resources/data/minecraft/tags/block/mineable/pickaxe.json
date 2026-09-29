@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumarmory:gear_smithing_table",
+    "elysiumarmory:salvager",
+    "elysiumarmory:reforging_table",
+    "elysiumarmory:metal_press",
+    "elysiumarmory:stone_anvil",
+    "elysiumarmory:alloy_forge",
+    "elysiumarmory:material_grader",
+    "elysiumarmory:starlight_charger"
+  ]
+}

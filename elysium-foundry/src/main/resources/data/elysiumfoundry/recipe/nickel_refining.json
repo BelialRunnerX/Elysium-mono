@@ -1,7 +1,7 @@
 {
   "type": "elysiumfoundry:refining",
   "input": {
-    "item": "elysiumfoundry:raw_nickel"
+    "tag": "c:raw_materials/nickel"
   },
   "result": {
     "id": "elysiumfoundry:nickel_ingot",

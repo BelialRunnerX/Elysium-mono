@@ -37,6 +37,7 @@ public class ElysiumWilds {
 
     public ElysiumWilds(IEventBus modEventBus) {
         com.elysium.wilds.registry.WildComponents.TYPES.register(modEventBus);
+        com.elysium.wilds.registry.WildBlocks.BLOCKS.register(modEventBus);
         com.elysium.wilds.registry.WildItems.ITEMS.register(modEventBus);
         com.elysium.wilds.registry.WildItems.TABS.register(modEventBus);
         com.elysium.wilds.registry.WildStructures.TYPES.register(modEventBus);

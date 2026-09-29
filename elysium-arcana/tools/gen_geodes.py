@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """
-Two hundred and ten geode blocks and sixty items, from a thirty-row table.
+Two hundred and ten geode blocks and sixty items, from a thirty-row table, and
+the thirty geodes in the world that the first shard of each material comes
+from.
 
     python3 tools/gen_geodes.py
 
 The materials are read out of GeodeRules.java, the bud sizes out of
-GeodeBlocks.java. Nothing here has its own list, so a thirty-first material is
-a line in the rules and a colour, and a material dropped disappears from the
-textures, the models, the loot and the language file at once.
+GeodeBlocks.java, and where each geode is and how rare out of
+GeodeWorldRules.java and BuddingRules.java. Nothing here has its own list, so
+a thirty-first material is a line in the rules and a colour, and a material
+dropped disappears from the textures, the models, the loot, the language file
+and the world at once.
 """
 import json
 import os
@@ -331,21 +335,17 @@ def loot_and_recipes():
         })
         count += 1
 
-        # Four shards make the block, the block makes four shards back, and
-        # the glass is the block plus what the game makes tinted glass with.
+        # Four shards make the block, and nothing makes four back: like the
+        # game's amethyst block, a storage block is one way. A found geode's
+        # wall is some 380 of them, and a way back would make every geode
+        # 1,500 shards on the spot. The glass is shards round what the game
+        # makes tinted glass with.
         write(os.path.join(DATA, "recipe", block_id(material, "block") + ".json"), {
             "type": "minecraft:crafting_shaped",
             "category": "building",
             "pattern": ["SS", "SS"],
             "key": {"S": {"item": f"{NS}:{material}_shard"}},
             "result": {"id": f"{NS}:{block_id(material, 'block')}", "count": 1},
-        })
-        write(os.path.join(DATA, "recipe",
-                           f"{material}_shard_from_block.json"), {
-            "type": "minecraft:crafting_shapeless",
-            "category": "misc",
-            "ingredients": [{"item": f"{NS}:{block_id(material, 'block')}"}],
-            "result": {"id": f"{NS}:{material}_shard", "count": 4},
         })
         write(os.path.join(DATA, "recipe",
                            block_id(material, "tinted_glass") + ".json"), {
@@ -365,7 +365,7 @@ def loot_and_recipes():
                     "C": {"item": "minecraft:copper_ingot"}},
             "result": {"id": f"{NS}:{material}_spyglass", "count": 1},
         })
-        count += 4
+        count += 3
 
         # And the one this module never had: a way of getting a budding block
         # other than finding one. Without it, thirty-two recipes in somebody
@@ -442,6 +442,164 @@ def drops(name):
     }
 
 
+# ---------------------------------------------------------------------------
+# Where the first shard comes from: a geode in the world
+# ---------------------------------------------------------------------------
+#
+# A shard comes from a cluster, a cluster from a budding block, and a budding
+# block from shards, so without these the first shard of anything came from
+# nowhere. Where each geode is, under which biomes and in which band, is read
+# out of GeodeWorldRules. How rare is its seeding price out of BuddingRules
+# times the chunks per shard there, so the two tables cannot drift.
+
+WORLD_SOURCE = " ".join(re.sub(
+    r"/\*.*?\*/|//[^\n]*", " ",
+    read(os.path.join(MOD, "src/main/java/com/elysium/arcana/rules/GeodeWorldRules.java")),
+    flags=re.S).split())
+
+
+def _world_constant(kind, name, pattern):
+    found = re.search(r"public static final " + kind + " " + name + r" = ("
+                      + pattern + r");", WORLD_SOURCE)
+    return found.group(1) if found else None
+
+
+PER_SHARD = int(_world_constant("int", "CHUNKS_PER_SHARD", r"\d+") or 0)
+GIVEN_SHARE = float(_world_constant("double", "GIVEN_BUDDING", r"[\d.]+") or 0)
+MINED_SHARE = float(_world_constant("double", "MINED_BUDDING", r"[\d.]+") or 0)
+STEP = (_world_constant("String", "STEP", r'"\w+"') or '""').strip('"')
+
+GROUNDS = {
+    const: {"name": name, "world": world, "biomes": re.findall(r'"([^"]+)"', listed),
+            "middle": middle, "outer": outer}
+    for const, name, world, listed, middle, outer in re.findall(
+        r'Ground (\w+) = new Ground\("(\w+)", "([\w:]+)", List\.of\(([^)]*)\), '
+        r'"([\w:]+)", "([\w:]+)"\);', WORLD_SOURCE)}
+BANDS = {const: (int(low), int(high)) for const, low, high in re.findall(
+    r"Band (\w+) = new Band\((-?\d+), (-?\d+)\);", WORLD_SOURCE)}
+_written = re.search(r"List<Ground> GROUNDS = List\.of\(([^;]*)\);", WORLD_SOURCE)
+WRITTEN = re.findall(r"\w+", _written.group(1)) if _written else []
+FINDS = re.findall(r'new Find\("(\w+)", (\w+), (\w+)\)', WORLD_SOURCE)
+
+if not (PER_SHARD and GIVEN_SHARE and MINED_SHARE and STEP and GROUNDS and BANDS
+        and WRITTEN and FINDS):
+    print("GeodeWorldRules no longer has the shape this reads")
+    sys.exit(2)
+_undeclared = ([f"{material} under {ground} in {band}" for material, ground, band in FINDS
+                if ground not in GROUNDS or band not in BANDS]
+               + [const for const in WRITTEN if const not in GROUNDS])
+if _undeclared:
+    print("GeodeWorldRules names what it does not declare:", ", ".join(_undeclared))
+    sys.exit(2)
+
+#: The game's own amethyst geode, number for number: the size and shape a
+#: player already knows. Only the blocks, and how much of the wall buds, are
+#: this module's.
+GEODE_LAYERS = {"filling": 1.7, "inner_layer": 2.2, "middle_layer": 3.2,
+                "outer_layer": 4.2}
+GEODE_CRACK = {"generate_crack_chance": 0.95, "base_crack_size": 2.0,
+               "crack_point_offset": 2}
+
+
+def uniform(least, most):
+    return {"type": "minecraft:uniform", "min_inclusive": least, "max_inclusive": most}
+
+
+def provider(block):
+    return {"type": "minecraft:simple_state_provider", "state": {"Name": block}}
+
+
+def geode(material, ground):
+    """The configured feature: the game's own geode, in this material's blocks.
+
+    The wall is the material's block, budding here and there with its own
+    budding block, and the crystals are its own four steps. The rock round it
+    is the ground's. Nothing of any other material is in it, so finding a
+    geode of one thing never hands out another.
+    """
+    return {
+        "type": "minecraft:geode",
+        "config": {
+            "blocks": {
+                "filling_provider": provider("minecraft:air"),
+                "inner_layer_provider": provider(f"{NS}:{block_id(material, 'block')}"),
+                "alternate_inner_layer_provider":
+                    provider(f"{NS}:{block_id(material, 'budding')}"),
+                "middle_layer_provider": provider(ground["middle"]),
+                "outer_layer_provider": provider(ground["outer"]),
+                # Written facing up and dry: the feature turns each one to the
+                # face it grows out of and waterlogs it under water, as it does
+                # the game's own.
+                "inner_placements": [
+                    {"Name": f"{NS}:{block_id(material, step)}",
+                     "Properties": {"facing": "up", "waterlogged": "false"}}
+                    for step in CHAIN],
+                "cannot_replace": "#minecraft:features_cannot_replace",
+                "invalid_blocks": "#minecraft:geode_invalid_blocks",
+            },
+            "layers": GEODE_LAYERS,
+            "crack": GEODE_CRACK,
+            "use_potential_placements_chance": 0.35,
+            "use_alternate_layer0_chance":
+                MINED_SHARE if material in MINED else GIVEN_SHARE,
+            "placements_require_layer0_alternate": True,
+            "outer_wall_distance": uniform(4, 6),
+            "distribution_points": uniform(3, 4),
+            "point_offset": uniform(1, 2),
+            "min_gen_offset": -16,
+            "max_gen_offset": 16,
+            "noise_multiplier": 0.05,
+            "invalid_blocks_threshold": 1,
+        },
+    }
+
+
+def placement(material, band):
+    """The placed feature: one chunk in so many, anywhere across it, in its band."""
+    priced = BY_MATERIAL.get(material)
+    lowest, highest = band
+    return {
+        "feature": f"{NS}:{material}_geode",
+        "placement": [
+            {"type": "minecraft:rarity_filter",
+             "chance": PER_SHARD * priced["shards"] if priced else 0},
+            {"type": "minecraft:in_square"},
+            {"type": "minecraft:height_range",
+             "height": {"type": "minecraft:uniform",
+                        "min_inclusive": {"absolute": lowest},
+                        "max_inclusive": {"absolute": highest}}},
+            {"type": "minecraft:biome"},
+        ],
+    }
+
+
+def worldgen():
+    count = 0
+    for material, ground, band in FINDS:
+        write(os.path.join(DATA, "worldgen/configured_feature", f"{material}_geode.json"),
+              geode(material, GROUNDS[ground]))
+        write(os.path.join(DATA, "worldgen/placed_feature", f"{material}_geode.json"),
+              placement(material, BANDS[band]))
+        count += 2
+    for const in WRITTEN:
+        ground = GROUNDS[const]
+        name = "geodes_" + ground["name"]
+        # The biomes go into a tag of this module's own: a biome modifier takes
+        # one tag or a list of ids, never a list with a tag in it, and the game
+        # refuses the whole world over that.
+        write(os.path.join(DATA, "tags/worldgen/biome", name + ".json"),
+              {"replace": False, "values": ground["biomes"]})
+        write(os.path.join(DATA, "neoforge/biome_modifier", name + ".json"), {
+            "type": "neoforge:add_features",
+            "biomes": f"#{NS}:{name}",
+            "features": [f"{NS}:{material}_geode"
+                         for material, under, _band in FINDS if under == const],
+            "step": STEP,
+        })
+        count += 2
+    return count
+
+
 def a_name(text):
     return " ".join(word.capitalize() for word in text.split("_"))
 
@@ -479,10 +637,12 @@ def main():
     sprites = draw_all()
     modelled = models_and_states()
     data = loot_and_recipes()
+    found = worldgen()
     keys = lang()
     print(f"geodes: {len(MATERIALS)} material(s), {len(MATERIALS) * len(KINDS)} block(s), "
           f"{len(MATERIALS) * len(ITEMS)} item(s), {sprites} sprite(s), "
-          f"{modelled} modelled, {data} data file(s), {keys} name(s)")
+          f"{modelled} modelled, {data} data file(s), {len(FINDS)} geode(s) in the "
+          f"world in {found} worldgen file(s), {keys} name(s)")
 
 
 if __name__ == "__main__":

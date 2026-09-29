@@ -60,6 +60,7 @@ public final class LogisticHarness {
         theDrawers();
         theCompression();
         theConservation();
+        theSealAndTheKey();
         theNetwork();
         thePlanner();
         theOrder();
@@ -70,7 +71,8 @@ public final class LogisticHarness {
             System.exit(1);
         }
         System.out.println(checks + " checks: nothing is created or destroyed except by "
-                + "a voiding upgrade, a compressed pool reads the same however it is "
+                + "a voiding upgrade, a drawer's seal comes back as the one that went in, "
+                + "a compressed pool reads the same however it is "
                 + "asked for, a network is a constant load that slows rather than "
                 + "stopping, no recipe set can make a plan that does not terminate, and "
                 + "no plan ever asks an assembler for something that has not been "
@@ -205,6 +207,94 @@ public final class LogisticHarness {
         check(LogisticRules.voids(true),
                 "a voiding upgrade does not void, so the one exception is not available "
                         + "either");
+    }
+
+    // ==================================================================
+
+    /**
+     * What a player fits to a drawer: one void seal, handed back whole, and a
+     * key that locks it to what it holds.
+     *
+     * <p>The seal is walked rather than spot-checked. A player fits seals and
+     * takes them out, and breaks drawers with seals in them, in whatever
+     * order a random walk picks, and at every step the seals in the hand and
+     * the seal in the drawer add up to what the hand started with.
+     */
+    private static void theSealAndTheKey() {
+        PackRules.Part seal = PackRules.part(LogisticRules.DRAWER_SEAL);
+        check(seal != null && PackRules.VOID.equals(seal.kind()),
+                "a drawer is sealed with " + LogisticRules.DRAWER_SEAL + ", which is not "
+                        + "the pack's void part, so a player who has learned what a seal "
+                        + "does to a bag has learned nothing about a drawer");
+        check(PackRules.part(LogisticRules.DRAWER_KEY) == null
+                        && PackRules.body(LogisticRules.DRAWER_KEY) == null,
+                "the drawer key shares its id with a pack or a part, and two items with "
+                        + "one id is one of them not existing");
+
+        check(LogisticRules.takesSeal(false),
+                "a drawer with no seal refuses one, so voiding is still a flag only a "
+                        + "command can set");
+        check(!LogisticRules.takesSeal(true),
+                "a sealed drawer takes another seal, which does nothing and costs the "
+                        + "player the seal");
+        check(LogisticRules.sealsIn(true) == 1,
+                "a sealed drawer gives back " + LogisticRules.sealsIn(true) + " seal(s) "
+                        + "for the one it took");
+        check(LogisticRules.sealsIn(false) == 0,
+                "a drawer with no seal gives one back, which is a seal out of nothing");
+        for (boolean sealed : new boolean[] {false, true}) {
+            check(LogisticRules.voids(sealed) == (LogisticRules.sealsIn(sealed) > 0),
+                    "a drawer " + (sealed ? "with" : "without") + " a seal "
+                            + (sealed ? "does not void" : "voids") + ", so what destroys "
+                            + "things is not the part a player fitted");
+        }
+
+        // Fitting takes one off the hand if the drawer will have it; taking it
+        // out and breaking the drawer both give back whatever is in it.
+        Random random = new Random(20260929L);
+        int start = 3;
+        int hand = start;
+        boolean voiding = false;
+        int wrong = 0;
+        for (int step = 0; step < 50_000; step++) {
+            if (random.nextBoolean()) {
+                if (hand > 0 && LogisticRules.takesSeal(voiding)) {
+                    voiding = true;
+                    hand -= 1;
+                }
+            } else {
+                hand += LogisticRules.sealsIn(voiding);
+                voiding = false;
+            }
+            if (hand + LogisticRules.sealsIn(voiding) != start) {
+                wrong++;
+            }
+        }
+        check(wrong == 0, wrong + " step(s) of fitting, taking out and breaking did not "
+                + "add up to the seals the hand started with, so a seal was made or "
+                + "destroyed along the way");
+
+        check(LogisticRules.keepsKind(true, 0),
+                "a locked drawer forgets what it held when it runs dry, so the lock does "
+                        + "nothing a hopper would notice");
+        check(!LogisticRules.keepsKind(false, 0),
+                "an unlocked drawer that has run dry keeps its kind, so it is locked "
+                        + "whether or not anybody turned the key");
+        for (int count : new int[] {1, LogisticRules.STACK, LogisticRules.STEEL_DRAWER.room()}) {
+            check(LogisticRules.keepsKind(false, count) && LogisticRules.keepsKind(true, count),
+                    "a drawer holding " + count + " of something forgets what it is, so "
+                            + "two kinds of thing end up counted as one");
+        }
+        check(!LogisticRules.mayLock(0),
+                "the rules let a key lock a drawer holding nothing, which then refuses "
+                        + "everything and looks broken");
+        for (LogisticRules.Drawer drawer : List.of(LogisticRules.TIMBER_DRAWER,
+                LogisticRules.BRASS_DRAWER, LogisticRules.STEEL_DRAWER)) {
+            for (int kinds = 1; kinds <= drawer.kinds(); kinds++) {
+                check(LogisticRules.mayLock(kinds), "a key will not lock a drawer holding "
+                        + kinds + " kind(s), so nothing can keep it sorted");
+            }
+        }
     }
 
     // ==================================================================

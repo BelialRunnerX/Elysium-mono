@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumarsenal:sheep_fossil_head"
+    },
+    {
+      "item": "elysiumarsenal:sheep_fossil_body"
+    }
+  ],
+  "result": {
+    "id": "elysiumarsenal:sheep_fossil",
+    "count": 1
+  }
+}

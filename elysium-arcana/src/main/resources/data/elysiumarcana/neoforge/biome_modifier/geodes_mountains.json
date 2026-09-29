@@ -1,0 +1,8 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#elysiumarcana:geodes_mountains",
+  "features": [
+    "elysiumarcana:emerald_geode"
+  ],
+  "step": "local_modifications"
+}

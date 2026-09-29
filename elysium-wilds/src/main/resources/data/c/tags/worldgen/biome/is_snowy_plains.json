@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:hoar_flat",
+    "elysiumwilds:hoar_hill",
+    "elysiumwilds:hoar_scarp",
+    "elysiumwilds:hoar_wold"
+  ]
+}

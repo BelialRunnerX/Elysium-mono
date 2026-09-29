@@ -10,9 +10,11 @@
       "required": false
     },
     "elysiumores:cinder_osmium_ore",
+    "elysiumores:deepslate_osmium_ore",
     "elysiumores:end_stone_osmium_ore",
     "elysiumores:frost_osmium_ore",
     "elysiumores:netherrack_osmium_ore",
-    "elysiumores:pale_osmium_ore"
+    "elysiumores:pale_osmium_ore",
+    "elysiumores:stone_osmium_ore"
   ]
 }

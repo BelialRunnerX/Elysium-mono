@@ -661,6 +661,15 @@ def colony_ruin(t):
     t.expect(before == after, "raising a ruin changed the list of settlements that founded themselves")
 
 
+@scenario("harvest: every block that needs a tool has a tool tagged to mine it, and none a player places is unbreakable")
+def harvest_audit(t):
+    # Whether a block needs a tool is Java and whether it is tagged is data, so
+    # only the running game knows both: the space module's pickaxe tag was
+    # written three times over and forty-seven blocks dropped nothing (29 Sep).
+    answer = t.cmd("elysium audit harvest")
+    t.expect("every one of" in answer, f"the harvest audit found blocks a survival player cannot keep: {answer[:400]}")
+
+
 @scenario("gear: every module's gear is on the vanilla list it enchants by (POLISH.md P12)")
 def gear_kind_tags(t):
     # The vanilla kind tags of the pack's gear are written by the library as a

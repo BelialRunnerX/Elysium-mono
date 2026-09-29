@@ -299,6 +299,19 @@ public final class FishRules {
         return BY_ID.get(id);
     }
 
+    /**
+     * What a measuring line reads off a fish: its length, to the nearest
+     * centimetre.
+     *
+     * <p>The species' length and not a size of this one. The game builds a
+     * fish's body and its hitbox from this same number, and a caught fish is
+     * an item with no size of its own, so a size per fish would be a number
+     * nothing else in the game agrees with.
+     */
+    public static int centimetres(Fish one) {
+        return Math.max(1, Math.round(one.length()));
+    }
+
     /** Every fish in one family. */
     public static List<Fish> ofFamily(Family family) {
         List<Fish> found = new ArrayList<>();

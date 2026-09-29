@@ -1,6 +1,7 @@
 #!/bin/bash
 cd /tmp/Elysium-mono || exit 1
-exec 9>/tmp/negtest_shares.lock; flock -n 9 || exit 2
+negtest_lock() { if command -v flock >/dev/null 2>&1; then flock -n "$1"; else mkdir "$2" 2>/dev/null && trap "rmdir '$2' 2>/dev/null" EXIT; fi; }  # Git Bash on Windows has no flock
+exec 9>/tmp/negtest_shares.lock; negtest_lock 9 /tmp/negtest_shares.lockdir || exit 2
 L=elysium-lib/src/main/java/com/elysium/lib
 ST=$L/stats/ElysiumStats.java; SH=$L/stats/ElysiumShares.java; RS=$L/hazard/ElysiumResistance.java
 SO=$L/item/ElysiumSockets.java; CB=$L/event/ElysiumCombatHandler.java; DO=$L/doctrine/ElysiumDoctrines.java

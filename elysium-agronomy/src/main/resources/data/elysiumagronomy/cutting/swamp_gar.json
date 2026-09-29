@@ -1,0 +1,10 @@
+{
+  "input": "elysiumagronomy:swamp_gar",
+  "tool": "fillet_knife",
+  "yields": [
+    {
+      "item": "elysiumagronomy:fish_fillet",
+      "count": 3
+    }
+  ]
+}

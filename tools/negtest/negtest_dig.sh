@@ -19,6 +19,7 @@ BE=$M/src/main/java/com/elysium/arsenal/registry/DigBlockEntities.java
 MC=$M/src/main/java/com/elysium/arsenal/ElysiumArsenal.java
 G=$M/tools/gen_arsenal.py
 V=$M/validate.py
+R=$M/src/main/resources
 SNAP=/tmp/dig_snap
 OUT=/tmp/dig_out
 pass=0; fail=0
@@ -113,7 +114,7 @@ expect "a sort of fossil with only one fossil in it" "can never run on that sort
 
 echo "the artefacts"
 edit $A 'new Artifact("tunneling", "blocks_taken", 1.0F, 1, "tool"));' 'new Artifact("tunneling", "armour_ignored", 0.06F, 1, "melee"));'
-expect "an artefact that is a worse version of another" "worse version"
+expect "an artefact that is a worse version of another" "artefacts that are worse versions of another"
 
 edit $A '    public static final int SHARDS_PER_ARTIFACT = 9;' '    public static final int SHARDS_PER_ARTIFACT = 1;'
 expect "a shard that is already an artefact" "no collecting to do"
@@ -214,6 +215,118 @@ edit $G '            variants[f"dusted={stage}"] = {"model": f"{NS}:block/{id}"}
                 variants[f"dusted={stage}"] = {"model": f"{NS}:block/{id}"}'
 regen
 wexpect "a dig whose last stage has no model" "stages drawn"
+
+echo "the dig in a survival world: what the rules promise"
+edit $D '            fossil.add(new Find(OURS + one.id(FossilRules.BODY), HALF_A_FOSSIL));
+' ''
+expect "a fossil whose body no site gives up" "can never be made whole"
+
+edit $D '                new Find("elysiumarsenal:torrent_totem", 3),
+' ''
+expect "a totem no pool holds" "a totem no pool holds"
+
+edit $D '                new Find("elysiumarsenal:rotten_log", 10),
+' ''
+expect "a rotten log no pool holds" "promised by the dig and in no pool"
+
+edit $D '                            "minecraft:meadow")),
+            new Patch("suspicious_red_sand", 6, 1, 2,
+                    List.of("minecraft:red_sand"),
+                    List.of("#minecraft:is_badlands")));' '                            "minecraft:meadow")));'
+expect "a site nothing lays in any world" "sites no world holds"
+
+edit $D '            if (most > WIDEST_PATCH) {' '            if (false) {'
+expect "a patch wider than the game loads, let through" "impossible placements were refused"
+
+edit $D '            if (!laid.containsKey(site.block())) {' '            if (false) {'
+expect "a check for sites in no world that can never report one" "with no patches at all"
+
+edit $D '            if (!held.contains(OURS + name)) {' '            if (false) {'
+expect "a check for promised finds that can never report one" "an empty set of pools"
+
+echo "the dig in a survival world: what ships"
+rm -f $R/data/elysiumarsenal/neoforge/biome_modifier/fossiliferous_dirt.json
+wexpect "a site added to no biome" "is added to no biome"
+
+edit $G 'DIG_STEP = "underground_ores"' 'DIG_STEP = "underground_ore"'
+regen
+wexpect "a site laid at a step the game does not have" "not one of the game's eleven"
+
+edit $G '          {"replace": False, "values": biomes})' '          {"replace": False, "values": []})'
+regen
+wexpect "a site laid in a biome tag that names nothing" "which names no biome"
+
+edit $G '                {"type": "minecraft:random_offset", "xz_spread": 0, "y_spread": -1},
+                {"type": "minecraft:biome"}]})' '                {"type": "minecraft:random_offset", "xz_spread": 0, "y_spread": -1}]})'
+regen
+wexpect "a patch placed with no biome filter" "no biome filter"
+
+edit $G '                                 "state": {"Name": f"{NS}:{site}"}},
+                    "rules": []},' '                                 "state": {"Name": "minecraft:coarse_dirt"}},
+                    "rules": []},'
+regen
+wexpect "a feature that lays something other than its site" "has no feature that lays it down"
+
+edit $D '        for (FossilRules.Fossil one : FossilRules.FOSSILS) {
+            fossil.add(' '        for (FossilRules.Fossil one : FossilRules.FOSSILS.subList(0, 1)) {
+            fossil.add('
+wexpect "a fossil pool that walks one creature of seven" "walked from the fossil roster"
+
+edit $D '                new Find("elysiumarsenal:growth_totem", 2),
+' ''
+wexpect "a totem left out of every pool" "held by no pool in DigRules"
+
+edit $D 'new Find("elysiumarsenal:artifact_shard", 12),' 'new Find("elysiumarsenal:artifact_shards", 12),'
+wexpect "a pool entry naming nothing the game has" "nothing the game has"
+
+edit $G '                            {"item": f"{NS}:{creature}_fossil_body"}],' '                            {"item": f"{NS}:{creature}_fossil_head"}],'
+regen
+wexpect "a whole fossil made from two skulls" "cannot be made from its skull"
+
+edit $G '        key = {"#": {"item": f"{NS}:rotten_planks"}}' '        key = {"#": {"item": "minecraft:oak_planks"}}'
+regen
+wexpect "a rotten set made of oak" "not made from what a dig turns up"
+
+edit $G '        "ingredient": {"item": "minecraft:mud_bricks"},' '        "ingredient": {"item": "minecraft:bricks"},'
+regen
+wexpect "cracked mud bricks smelted from something else" "not smelted from the game's own mud bricks"
+
+edit $DI '    // There was a disc here, retired on 29 September 2026: a plain item with' '    public static final DeferredItem<Item> DISC = ITEMS.register("music_disc_relic",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+    // There was a disc here, retired on 29 September 2026: a plain item with'
+wexpect "the songless disc registered again" "and it is back"
+
+edit $D '                new Find("minecraft:music_disc_relic", 4),
+' ''
+wexpect "a dirt pool without the game's own relic disc" "no longer holds the game's own relic disc"
+
+cp $R/assets/elysiumarsenal/models/item/iron_brush.json $R/assets/elysiumarsenal/models/item/stray_brush.json
+wexpect "a shipped file the generator does not write" "the generator no longer writes"
+
+echo "the two sets, shaped"
+edit $G '        state = {"variants": {"type=bottom": {"model": f"{NS}:block/{id}"},
+                              "type=top": {"model": f"{NS}:block/{id}_top"},
+                              "type=double": {"model": cut}}}' '        state = {"variants": {"": {"model": f"{NS}:block/{id}"}}}'
+regen
+wexpect "a slab drawn as one cube for every state, as all of them were" "is one model for every state"
+
+edit $G '                if half == "top" and shape.endswith("_right"):
+                    turn = (y + 90) % 360
+' ''
+regen
+wexpect "stairs whose upside-down corners turn like the right-way-up ones" "states are not the game's own"
+
+edit $DB '                case "_slab" -> new SlabBlock(rotten());' '                case "_slab" -> new Block(rotten());'
+wexpect "a slab drawn as a slab and registered as a plain block" "and drawn as a SlabBlock"
+
+edit $G '        loot = door_drops(id)' '        loot = drops(id)'
+regen
+wexpect "a door that drops from both its halves" "every door broken is two doors"
+
+edit $G '    pickaxe = [f"{creature}_fossil{part}" for creature, _, _, _, _ in boned
+               for part in ("_head", "_body", "")]' '    pickaxe = []'
+regen
+wexpect "fossils no pickaxe gets anything from" "on no tool's list"
 
 echo
 echo "restoring and re-checking"

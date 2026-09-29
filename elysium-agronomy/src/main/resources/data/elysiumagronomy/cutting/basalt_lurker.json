@@ -1,0 +1,10 @@
+{
+  "input": "elysiumagronomy:basalt_lurker",
+  "tool": "fillet_knife",
+  "yields": [
+    {
+      "item": "elysiumagronomy:fish_fillet",
+      "count": 2
+    }
+  ]
+}

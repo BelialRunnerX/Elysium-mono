@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "tag": "c:raw_materials/pyratite"
+  },
+  "result": {
+    "id": "elysiumores:pyratite"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

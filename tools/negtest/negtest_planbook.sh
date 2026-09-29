@@ -34,7 +34,7 @@ BOOK=$S/recipe/ArmoryPlanBookRecipe.java
 DATA=$S/item/ArmoryPlanBook.java
 
 echo "a book stands in for one plan"
-edit $PART 'part = onlyKnown(book, materials);' '// part = onlyKnown(book, materials);'
+edit $PART 'part = onlyKnown(book, bench);' ' // part = onlyKnown(book, bench);'
 expect "the call to onlyKnown left as a comment" "resolved against the materials"
 
 edit $PART 'return null;               // two plans fit' 'break;                     // two plans fit'

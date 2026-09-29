@@ -23,6 +23,15 @@ import java.util.TreeSet;
  * #unobtainable} walks that route rather than the graph, and the harness
  * runs it on every build.
  *
+ * <h2>A nest for every home</h2>
+ *
+ * Every home has a nest block, and every nest is generated in its home's
+ * biome, on the ground {@link #groundOf} names: the land, a cave floor, the
+ * nether's floor or the sea bed. A home a wild bee lives in gets its nest
+ * full ({@link #NEST_BEES}); a home only bred bees live in gets it empty,
+ * so the block can be found and taken home, and the tree still has no
+ * shortcut.
+ *
  * <h2>Why a bee stings</h2>
  *
  * A hive you can rob for nothing is a chest. Taking a comb off a bee or a bee
@@ -109,7 +118,7 @@ public final class KeepingRules {
         return null;
     }
 
-    /** Every home a wild bee lives in, once each, sorted. A nest is generated in each. */
+    /** Every home a wild bee lives in, once each, sorted. Its nest is generated full. */
     public static List<String> nested() {
         Set<String> seen = new TreeSet<>();
         for (BeeRules.Bee bee : BeeRules.ofKind(BeeRules.WILD)) {
@@ -130,11 +139,170 @@ public final class KeepingRules {
     /** How many bees a nest holds when it is full. */
     public static final int NEST_BEES = 3;
 
+    /**
+     * How many bees the nest a home is generated with holds: a full nest
+     * where a wild bee lives, and an empty one where every bee is bred.
+     *
+     * <p>Empty, not missing. A nest nothing generates is a block no survival
+     * player can have; a nest generated full of a bred bee is a breeding tree
+     * with a shortcut. An empty one is neither.
+     */
+    public static int nestBees(String home) {
+        return wildAt(home) == null ? 0 : NEST_BEES;
+    }
+
     /** How long a nest takes to grow one bee back. */
     public static final int NEST_REFILL_TICKS = 6_000;
 
     /** One nest in this many chunks of its biome. */
     public static final int NEST_CHUNKS = 24;
+
+    // ==================================================================
+    // What ground a nest is built on
+    // ==================================================================
+
+    /** On the land under the open sky: the top block, by the game's own surface map. */
+    public static final String SURFACE = "surface";
+
+    /** On the floor of a cave: found by walking down through air from a point in {@link #CAVE_LOWEST} to {@link #CAVE_HIGHEST}. */
+    public static final String CAVE_FLOOR = "cave_floor";
+
+    /**
+     * On the nether's floor: found the same way from a point in {@link
+     * #NETHER_LOWEST} to {@link #NETHER_HIGHEST}. The nether's surface map is
+     * its bedrock roof, so a nest built on the "surface" there sits on the
+     * ceiling of the world.
+     */
+    public static final String NETHER_FLOOR = "nether_floor";
+
+    /** On the sea bed, under the water, by the game's ocean-floor map. */
+    public static final String SEA_BED = "sea_bed";
+
+    /** Every ground there is. */
+    public static final List<String> GROUNDS = List.of(SURFACE, CAVE_FLOOR, NETHER_FLOOR, SEA_BED);
+
+    private static final Map<String, String> GROUND = new LinkedHashMap<>();
+
+    private static void ground(String home, String where) {
+        if (!GROUNDS.contains(where)) {
+            throw new IllegalArgumentException(home + " is built on " + where
+                    + ", which is no ground");
+        }
+        if (GROUND.put(home, where) != null) {
+            throw new IllegalArgumentException(home + " is given two grounds");
+        }
+    }
+
+    static {
+        ground("plains", SURFACE);
+        ground("forest", SURFACE);
+        ground("mountain", SURFACE);
+        ground("river", SURFACE);
+        ground("swamp", SURFACE);
+        ground("desert", SURFACE);
+        ground("nether", NETHER_FLOOR);
+        ground("frozen", SURFACE);
+        ground("jungle", SURFACE);
+        ground("underground", CAVE_FLOOR);
+        ground("ocean", SEA_BED);
+        ground("mushroom", SURFACE);
+        ground("volcanic", NETHER_FLOOR);
+        ground("highlands", SURFACE);
+        ground("deepslate", CAVE_FLOOR);
+        ground("nether_fortress", NETHER_FLOOR);
+        ground("end", SURFACE);
+        ground("end_highlands", SURFACE);
+    }
+
+    /** The ground a home's nest is built on, or empty if nobody has said. */
+    public static String groundOf(String home) {
+        String found = GROUND.get(home);
+        return found == null ? "" : found;
+    }
+
+    /** The overworld's bedrock floor. */
+    public static final int OVERWORLD_FLOOR = -64;
+
+    /** The nether's lava sea, which a nest must not be built under. */
+    public static final int NETHER_LAVA_SEA = 31;
+
+    /** The nether's bedrock roof. */
+    public static final int NETHER_ROOF = 128;
+
+    /**
+     * The lowest point a cave nest is looked for from: ten above the bedrock
+     * floor, so a nest is never built into it.
+     */
+    public static final int CAVE_LOWEST = -54;
+
+    /**
+     * The highest: y 0, where the deepslate starts. Under it the deep dark
+     * lies, and the lush and dripstone caves are at their widest.
+     */
+    public static final int CAVE_HIGHEST = 0;
+
+    /** The lowest point a nether nest is looked for from: one above the lava sea. */
+    public static final int NETHER_LOWEST = 32;
+
+    /** The highest: well under the roof, in the caverns a player walks. */
+    public static final int NETHER_HIGHEST = 100;
+
+    /** How far down through air a nest below the surface looks for a floor. The game allows 32. */
+    public static final int FLOOR_SCAN = 24;
+
+    /**
+     * How many points a nest below the surface is looked for from, in the
+     * one chunk in {@link #NEST_CHUNKS} chosen for it.
+     *
+     * <p>Underground, a point picked at random is mostly rock, and a look
+     * for a floor that starts in rock finds nothing. Four tries is what keeps
+     * one nest in twenty-four chunks roughly true below the surface as well
+     * as on it.
+     */
+    public static final int NEST_TRIES_BELOW = 4;
+
+    /** Everything wrong with where nests are built. Must be empty. */
+    public static List<String> faultsInGrounds() {
+        List<String> bad = new ArrayList<>(faultsInBands(CAVE_LOWEST, CAVE_HIGHEST,
+                NETHER_LOWEST, NETHER_HIGHEST, FLOOR_SCAN, NEST_TRIES_BELOW));
+        for (String home : BeeRules.homes()) {
+            if (groundOf(home).isEmpty()) {
+                bad.add(home + " has a nest block and no ground to build it on, so no "
+                        + "world ever makes one and no survival player can have it");
+            }
+        }
+        for (String home : GROUND.keySet()) {
+            if (!BeeRules.homes().contains(home)) {
+                bad.add(home + " is given a ground and no bee lives there");
+            }
+        }
+        return List.copyOf(bad);
+    }
+
+    /** The bands and the looking handed in, so a control can be built to be caught. */
+    public static List<String> faultsInBands(int caveLowest, int caveHighest, int netherLowest,
+                                             int netherHighest, int scan, int tries) {
+        List<String> bad = new ArrayList<>();
+        if (caveLowest <= OVERWORLD_FLOOR || caveLowest >= caveHighest) {
+            bad.add("a cave nest is looked for from " + caveLowest + " to " + caveHighest
+                    + ", which is no band above the bedrock floor at " + OVERWORLD_FLOOR);
+        }
+        if (netherLowest <= NETHER_LAVA_SEA || netherHighest >= NETHER_ROOF
+                || netherLowest >= netherHighest) {
+            bad.add("a nether nest is looked for from " + netherLowest + " to "
+                    + netherHighest + ", which is not between the lava sea at "
+                    + NETHER_LAVA_SEA + " and the roof at " + NETHER_ROOF);
+        }
+        if (scan < 1 || scan > 32) {
+            bad.add("a nest looks " + scan + " block(s) down for a floor, and the game "
+                    + "looks 1 to 32");
+        }
+        if (tries < 1) {
+            bad.add("a nest below the surface is looked for from " + tries
+                    + " point(s), so none is ever built");
+        }
+        return bad;
+    }
 
     /**
      * The most bees an hour one nest may give back.
@@ -329,6 +497,7 @@ public final class KeepingRules {
         if (nested().isEmpty()) {
             bad.add("no home has a wild bee, so no nest is ever generated");
         }
+        bad.addAll(faultsInGrounds());
         return List.copyOf(bad);
     }
 }

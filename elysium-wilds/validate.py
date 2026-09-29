@@ -46,6 +46,8 @@ ROSTER = os.path.join(WORK, "tools/OverworldRoster.java")
 ROSTER_MAIN = "com.elysium.wilds.rules.OverworldRoster"
 VALE_ROSTER = os.path.join(WORK, "tools/ValeRoster.java")
 VALE_ROSTER_MAIN = "com.elysium.wilds.rules.ValeRoster"
+PORTAL_HARNESS = os.path.join(WORK, "tools/PortalHarness.java")
+PORTAL_MAIN = "com.elysium.wilds.rules.PortalHarness"
 DATA_IN = os.path.join(WORK, "tools/data")
 VANILLA_LIST = os.path.join(DATA_IN, "overworld-vanilla.tsv")
 VANILLA_FEATURES = os.path.join(DATA_IN, "biome-features.tsv")
@@ -199,6 +201,9 @@ if not os.path.isfile(GRAMMAR_HARNESS):
 if not os.path.isfile(VALE_HARNESS):
     fail("there is no Vale harness, so whether fifteen biomes partition the "
          "climate plane or merely nearly do is an opinion")
+if not os.path.isfile(PORTAL_HARNESS):
+    fail("there is no way-in harness, so whether a ring of Vale Frames lights from "
+         "every frame of it, and refuses one with a hole in it, is an opinion")
 if not os.path.isfile(HARNESS):
     fail("there is no harness, so whether a claim inside another claim can generate "
          "is an opinion")
@@ -208,7 +213,8 @@ else:
         os.makedirs(staged)
         sources = [os.path.join(PURE, n) for n in os.listdir(PURE) if n.endswith(".java")]
         for source in sources + [HARNESS, VALE_HARNESS, GRAMMAR_HARNESS,
-                                 OVERWORLD_HARNESS, ROSTER, VALE_ROSTER]:
+                                 OVERWORLD_HARNESS, ROSTER, VALE_ROSTER,
+                                 PORTAL_HARNESS]:
             open(os.path.join(staged, os.path.basename(source)), "w",
                  encoding="utf-8").write(read(source))
         compiled = subprocess.run(
@@ -285,6 +291,28 @@ else:
             else:
                 print("the overworld      : "
                       + ran_over.stdout.strip().splitlines()[-1])
+
+            # The way into the Vale: every ring from one cell to twenty-three,
+            # whole and broken, on a plane of open sky. A flood that does not
+            # stop on open sky is a server thread that does not stop either,
+            # so running out of time is the failure, not an inconvenience.
+            try:
+                ran_portal = subprocess.run(
+                    ["java", "-cp", os.path.join(tmp, "out"), PORTAL_MAIN],
+                    capture_output=True, text=True, timeout=HARNESS_SECONDS)
+            except subprocess.TimeoutExpired:
+                ran_portal = None
+                fail(f"the way-in harness did not finish within {HARNESS_SECONDS} "
+                     f"seconds, so a flood for a ring can run for ever, and in the "
+                     f"game it runs on the server thread")
+            if ran_portal is None:
+                pass
+            elif ran_portal.returncode != 0:
+                fail("the way-in harness failed:\n"
+                     + harness_trouble(ran_portal.stdout))
+            else:
+                print("the way in         : "
+                      + ran_portal.stdout.strip().splitlines()[-1])
 
             # And the roster itself, printed, so the files written in Python
             # can be checked against the arithmetic written in Java. Two
@@ -530,6 +558,19 @@ if os.path.isfile(GENERATOR):
                             drifted.append(os.path.relpath(fresh, there) + " (missing)")
                         elif not samefile.same(fresh, shipped):
                             drifted.append(os.path.relpath(fresh, there))
+            # And the tool list the Vale Frame is on, which is the game's
+            # namespace rather than ours and so outside the two folders above.
+            tags_there = os.path.join(tmp, "src/main/resources/data/minecraft/tags")
+            tags_here = os.path.join(RES, "data/minecraft/tags")
+            for base, _, names in os.walk(tags_there):
+                for name in names:
+                    fresh = os.path.join(base, name)
+                    shipped = os.path.join(tags_here, os.path.relpath(fresh, tags_there))
+                    if not os.path.isfile(shipped):
+                        drifted.append("minecraft tags/" + os.path.relpath(fresh, tags_there)
+                                       + " (missing)")
+                    elif not samefile.same(fresh, shipped):
+                        drifted.append("minecraft tags/" + os.path.relpath(fresh, tags_there))
             for name in drifted[:12]:
                 fail(f"{name} is not what the generator produces, so it was edited by "
                      f"hand and the next person to run regen.sh will lose the edit")
@@ -572,8 +613,8 @@ if "check_worldgen.py" not in root_validate:
     fail("check_worldgen.py is not run by the root validator, so nothing measures the "
          "repository's worlds unless somebody remembers to")
 
-for where, field in (("WildComponents", "TYPES"), ("WildItems", "ITEMS"),
-                     ("WildItems", "TABS")):
+for where, field in (("WildComponents", "TYPES"), ("WildBlocks", "BLOCKS"),
+                     ("WildItems", "ITEMS"), ("WildItems", "TABS")):
     wanted = f"com.elysium.wilds.registry.{where}.{field}.register(modEventBus);"
     if wanted not in squashed(strip_comments(read(SRC, "ElysiumWilds.java"))):
         fail(f"{where}.{field} is declared and never put on the bus, so everything in "
@@ -849,6 +890,278 @@ if vale_drift:
          f"ValeRules works out, and ValeHarness proves its properties about the "
          f"rules rather than the files, first three:\n    "
          + "\n    ".join(vale_drift[:3]))
+
+# ---------------------------------------------------------------------------
+# The way in
+# ---------------------------------------------------------------------------
+#
+# The Vale had no survival way in: an operator's command and nothing else, so
+# its twenty-eight creatures and two almanac quests were content nobody could
+# have (the obtainability survey, 29 September 2026). A ring of Vale Frames lit
+# with the compass is the way in. PortalRules is the shape and PortalHarness
+# proves it; what is left for here is that the game's side does what the rules
+# say, and that the data is there to build it from.
+
+portal_rules = strip_comments(read(PURE, "PortalRules.java"), True)
+compass_src = strip_comments(read(SRC, "item/BiomeCompassItem.java"), True)
+gate_src = strip_comments(read(SRC, "block/ValePortal.java"), True)
+frame_src = strip_comments(read(SRC, "block/ValeFrameBlock.java"), True)
+sheet_src = strip_comments(read(SRC, "block/ValePortalBlock.java"), True)
+travel_src = strip_comments(read(SRC, "level/ValeTravel.java"), True)
+links_src = strip_comments(read(SRC, "level/ValeLinks.java"), True)
+blocks_src = squashed(read(SRC, "registry/WildBlocks.java"))
+items_src = strip_comments(read(SRC, "registry/WildItems.java"))
+
+# The compass: lights a ring, passes on anything else, and is not used up.
+lighting = squashed(body_of(compass_src, "public InteractionResult useOn(UseOnContext context)"))
+for statement, why in (
+        ("if (!level.getBlockState(pos).is(WildBlocks.VALE_FRAME.get())) { return InteractionResult.PASS; }",
+         "the compass no longer passes on a block that is not a Vale Frame, so used on the "
+         "ground it neither opens its search nor lights anything"),
+        ("ValePortal.Frame frame = ValePortal.findFrame(level, pos);",
+         "the compass does not find the ring it is used on, so what lights is not the shape "
+         "the harness proved"),
+        ("ValePortal.light(level, frame);",
+         "the compass finds a ring and never lights it, so the Vale has no way in but a "
+         "command again"),
+        ('player.displayClientMessage(Component.translatable("elysiumwilds.gate.no_frame", '
+         'PortalRules.LEAST_ACROSS, PortalRules.LEAST_UP) .withStyle(ChatFormatting.RED), true);',
+         "a ring one frame short is refused in silence, and it looks exactly like a ring "
+         "that works")):
+    if statement not in lighting:
+        fail(why)
+if re.search(r"\.shrink\s*\(|hurtAndBreak|\.consume\s*\(", lighting):
+    fail("lighting a ring uses the compass up; it is the wilds' way-finding tool, and a "
+         "ring is already three crafts of frames")
+
+# Finding a ring in the world is the rules' flood, on both axes, with the
+# rules' idea of open.
+finding = squashed(body_of(gate_src, "public static Frame findFrame(LevelAccessor level, BlockPos used)"))
+if ("PortalRules.Ring ring = PortalRules.around( (a, u) -> cell(level.getBlockState("
+        "used.relative(along, a).above(u))), 0, 0);") not in finding:
+    fail("a ring in the world is not found by PortalRules.around, so the rule the harness "
+         "proved from every frame, corners and all, is not the rule that lights")
+if "for (Direction.Axis axis : new Direction.Axis[] {first, second}) {" not in finding \
+        or "Direction.Axis second = first == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;" \
+        not in finding:
+    fail("a ring is looked for on one axis only, so a ring built the other way round never "
+         "lights and says there is no frame")
+cells = squashed(body_of(gate_src, "private static PortalRules.Cell cell(BlockState state)"))
+if "if (state.is(WildBlocks.VALE_FRAME.get())) { return PortalRules.Cell.FRAME; }" not in cells:
+    fail("a Vale Frame is not a frame to the flood, so no ring of them ever closes")
+if "if (state.isAir() || state.is(WildBlocks.VALE_PORTAL.get())) { return PortalRules.Cell.OPEN; }" \
+        not in cells:
+    fail("something other than air or a lit gate counts as open, so a ring lights over "
+         "whatever was left standing in it, or a lit ring cannot be found again")
+
+# Building a Vale side sets every block through one guard, so nothing that
+# holds things is replaced: a ring rebuilt where a player has since put a chest
+# leaves the chest, and a gap in the ring, rather than the chest's contents gone.
+building = squashed(body_of(gate_src, "public static void build(LevelAccessor level, BlockPos anchor, Direction.Axis axis)"))
+placing = squashed(body_of(gate_src, "private static void place(LevelAccessor level, BlockPos pos, BlockState state, int flags)"))
+if not building or re.search(r"level\.setBlock\(", building) \
+        or "if (level.getBlockState(pos).hasBlockEntity()) { return; }" not in placing:
+    fail("building a Vale side replaces blocks that hold things, so a ring rebuilt where a "
+         "player has since put a chest takes the chest and everything in it")
+
+# Breaking a frame closes the gate; standing in the gate is the trip.
+removing = squashed(body_of(frame_src, "protected void onRemove("))
+if "if (!state.is(newState.getBlock()) && !level.isClientSide()) { ValePortal.close(level, pos); }" \
+        not in removing:
+    fail("breaking a Vale Frame leaves its gate hanging in the air, still working, with "
+         "nothing left to break to undo it")
+inside = squashed(body_of(sheet_src, "protected void entityInside("))
+if "if (level.isClientSide() || !(entity instanceof ServerPlayer player)) { return; }" not in inside:
+    fail("the gate moves players on the client, or moves things that are not players; the "
+         "first is a flicker of the wrong world and the second a trip nothing records")
+if "ValeTravel.use(player, pos);" not in inside:
+    fail("standing in a Vale Gate does nothing")
+
+# The gate is a block and never an item, and drops nothing.
+if re.search(r'"vale_portal"|VALE_PORTAL', items_src):
+    fail("the Vale Gate has an item, so a player can carry a gate with no ring to be known "
+         "by, and every trip through it builds another Vale side")
+if not re.search(r'BLOCKS\.register\("vale_portal", \(\) -> new ValePortalBlock\('
+                 r'BlockBehaviour\.Properties\.of\(\)[^;]*\.noCollission\(\)[^;]*\.noLootTable\(\)',
+                 blocks_src):
+    fail("the Vale Gate is not a block with no collision and no loot table: walked into it "
+         "is a wall, and broken it asks for a drop it has none of")
+for stray in ("assets/" + NS + "/models/item/vale_portal.json",
+              "data/" + NS + "/loot_table/blocks/vale_portal.json"):
+    if os.path.isfile(os.path.join(RES, stray)):
+        fail(f"{stray} exists, and the gate is neither an item nor a drop")
+
+# What a ring is built from: a recipe making what the rules say a craft makes,
+# a drop, the right tool, both faces of the gate, drawn see-through.
+per_craft = re.search(r"public static final int FRAMES_PER_CRAFT = (\d+);", portal_rules)
+recipe = read(RES, "data", NS, "recipe/vale_frame.json")
+if not recipe:
+    fail("the Vale Frame has no recipe, and nothing else in the game makes one")
+else:
+    made = json.loads(recipe)
+    if made.get("result", {}).get("id") != f"{NS}:vale_frame":
+        fail(f"the Vale Frame's recipe makes {made.get('result', {}).get('id')}")
+    if not per_craft or made.get("result", {}).get("count") != int(per_craft.group(1)):
+        fail(f"a craft of Vale Frames makes {made.get('result', {}).get('count')} and "
+             f"PortalRules says {per_craft.group(1) if per_craft else 'nothing'}, so the "
+             f"price the harness proved is not the price a player pays")
+    for symbol, value in (made.get("key") or {}).items():
+        if not isinstance(value, dict) or not ({"item", "tag"} & set(value)):
+            fail(f"the Vale Frame's recipe key {symbol!r} is {value!r}; an ingredient in "
+                 f"1.21 is an object with an item or a tag, and anything else drops the "
+                 f"recipe with one line in the log")
+loot = read(RES, "data", NS, "loot_table/blocks/vale_frame.json")
+if f'"name": "{NS}:vale_frame"' not in loot or '"minecraft:survives_explosion"' not in loot:
+    fail("a mined Vale Frame does not drop itself, so a ring can be built and never taken "
+         "down again")
+pickaxe = read(RES, "data/minecraft/tags/block/mineable/pickaxe.json")
+if f"{NS}:vale_frame" not in (json.loads(pickaxe).get("values", []) if pickaxe else []):
+    fail("the Vale Frame wants the right tool for its drop and is not on the pickaxe's list, "
+         "so mining one with anything at all drops nothing")
+gate_state = read(RES, "assets", NS, "blockstates/vale_portal.json")
+gate_variants = json.loads(gate_state).get("variants", {}) if gate_state else {}
+for axis in ("axis=x", "axis=z"):
+    if axis not in gate_variants:
+        fail(f"the Vale Gate has no {axis} in its blockstate, so a ring built that way round "
+             f"is filled with the missing-model cube")
+for model in ("vale_portal_ns", "vale_portal_ew"):
+    body = read(RES, "assets", NS, f"models/block/{model}.json")
+    if not body or json.loads(body).get("render_type") != "minecraft:translucent":
+        fail(f"{model} is not drawn on the translucent layer, and the gate's light is "
+             f"see-through, so it renders as a black sheet")
+
+# The trip: read the way off the world, remember where the player came in,
+# search once a ring, build the far side if it is not standing, land beside it.
+using = squashed(body_of(travel_src, "public static void use(ServerPlayer player, BlockPos gatePos)"))
+if "if (onCooldown(player, server)) { return; }" not in using:
+    fail("a gate is asked every tick a player stands in it, and nothing ignores somebody who "
+         "has just come through, so arriving is being sent straight back")
+if ("if (player.level().dimension().equals(VALE)) { leave(player, server); } "
+        "else { enter(player, server, gatePos); }") not in using:
+    fail("which way a gate leads is not read off the world the player is in, the one fact "
+         "that cannot be wrong")
+entering = squashed(body_of(travel_src,
+                            "private static void enter(ServerPlayer player, MinecraftServer server, BlockPos gatePos)"))
+for statement, why in (
+        ("ValePortal.Frame frame = ValePortal.findFrame(here, gatePos);",
+         "the ring a trip came through is not found again from the gate, so its Vale side is "
+         "filed under whichever block was touched and every trip builds another"),
+        ("links.remember(player.getUUID(), new ValeLinks.Return(here.dimension(), "
+         "back(player, anchor, axis, side), facing(axis, side)));",
+         "where a player came in is not remembered, so the way back cannot put them there"),
+        ("ValeLinks.Arrival arrival = links.arrival(here.dimension(), anchor);",
+         "a ring's Vale side is not looked up before a trip, so every trip through one ring "
+         "searches and builds again"),
+        ("if (arrival == null) { BlockPos column = nearestVerdant(vale, anchor); "
+         "arrival = settle(vale, column != null ? column : anchor, axis); "
+         "links.link(here.dimension(), anchor, arrival); }",
+         "a ring's first trip no longer searches once and files what it found, so either "
+         "every trip costs a compass search and a new ring, or none ever finds the verdant vale"),
+        ("if (!ValePortal.stands(vale, arrival.anchor())) { "
+         "ValePortal.build(vale, arrival.anchor(), arrival.axis()); }",
+         "the ring on the Vale side is not built, or not rebuilt once broken, so a player "
+         "arrives with no way back"),
+        ("BlockPos landing = arrival.anchor().relative(ValePortal.out(arrival.axis()), "
+         "onward * PortalRules.LANDING_OUT);",
+         "a player is not put down beside the ring they arrive at, and put down in it they "
+         "are sent straight back"),
+        ("teleport(player, server, vale, Vec3.atBottomCenterOf(landing), facing(arrival.axis(), onward));",
+         "stepping into a gate does not take a player to the Vale")):
+    if statement not in entering:
+        fail(why)
+searching = squashed(body_of(travel_src, "private static BlockPos nearestVerdant(ServerLevel vale, BlockPos from)"))
+for statement, why in (
+        ("int radius = (int) PortalRules.ARRIVAL_SEARCH_BLOCKS;",
+         "a way in looks as far as something other than the rules say, so what one trip "
+         "costs the server is whatever it is"),
+        ("int step = (int) Math.round(PortalRules.arrivalStep());",
+         "a way in samples on a grid the rules did not work out, so the cost the harness "
+         "proved is not the cost the server pays"),
+        ("int middle = vale.getMinBuildHeight() + vale.getHeight() / 2;",
+         "a way in searches at a height that is not inside the Vale, and a search from outside "
+         "the world's height finds nothing at all"),
+        ("Pair<BlockPos, ?> hit = vale.findClosestBiome3d(holder -> holder.is(wanted), "
+         "new BlockPos(from.getX(), middle, from.getZ()), radius, step, vale.getHeight());",
+         "a way in does not look for the gentlest crossing at one height from the ring's own "
+         "x and z")):
+    if statement not in searching:
+        fail(why)
+if ("return ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath( "
+        "ElysiumWilds.MODID, PortalRules.arrivalBiome()));") \
+        not in squashed(body_of(travel_src, "gentlest() {")):
+    fail("the crossing a way in looks for is not the one PortalRules names and the harness "
+         "proved is nought rings out")
+leaving = squashed(body_of(travel_src, "private static void leave(ServerPlayer player, MinecraftServer server)"))
+if "teleport(player, server, home, back.where(), back.facing());" not in leaving:
+    fail("the way back does not put a player where they came in")
+if ("teleport(player, server, overworld, Vec3.atBottomCenterOf(overworld.getSharedSpawnPos()), "
+        "player.getYRot());") not in leaving:
+    fail("somebody in the Vale with no way in on record goes nowhere through a gate, and "
+         "stands in it being asked every tick")
+backing = squashed(body_of(travel_src, "private static Vec3 back("))
+if ("double out = (axis == Direction.Axis.X ? anchor.getZ() : anchor.getX()) + 0.5D + side "
+        "* PortalRules.LANDING_OUT;") not in backing:
+    fail("the way back puts a player somewhere other than in front of the ring they came in "
+         "by, on their side of it")
+cooling_off = squashed(body_of(travel_src, "private static boolean onCooldown("))
+if "if (left <= 0 || left > PortalRules.COOLDOWN_TICKS) { cooldowns.remove(player.getUUID()); return false; }" \
+        not in cooling_off:
+    fail("a gate cooldown left over from an earlier run of the server is still obeyed; in a "
+         "single-player game the tick count starts again with every world, so a player could "
+         "be shut out of every gate for as long as the last world ran")
+moving = squashed(body_of(travel_src, "private static void teleport("))
+if "cooldowns.put(player.getUUID(), server.getTickCount() + PortalRules.COOLDOWN_TICKS);" \
+        not in moving:
+    fail("a trip does not start the cooldown the rules state, so a player arriving by a "
+         "gate is sent back through it")
+keeping = squashed(links_src)
+for statement in ('tag.put("Returns", backs);', 'tag.put("Arrivals", links);',
+                  'ListTag backs = tag.getList("Returns", Tag.TAG_COMPOUND);',
+                  'ListTag links = tag.getList("Arrivals", Tag.TAG_COMPOUND);'):
+    if statement not in keeping:
+        fail("where players came in and which Vale side each ring leads to are not both "
+             "saved and read back, so after a restart the way back is the world's spawn and "
+             "every ring builds its far side again")
+        break
+
+# One height is the whole column only while every crossing claims the same
+# depth: the search samples one, and a Vale whose biomes changed with depth
+# would hide the verdant vale under a player's feet.
+vale_world = read(RES, "data", NS, "dimension/vale.json")
+if vale_world:
+    vale_claims = json.loads(vale_world)["generator"]["biome_source"]["biomes"]
+    if len({json.dumps(one["parameters"].get("depth")) for one in vale_claims}) != 1 \
+            or len({json.dumps(one["parameters"].get("offset")) for one in vale_claims}) != 1:
+        fail("the Vale's crossings claim different depths, so a column is not one biome top "
+             "to bottom and a way in that searches one height can miss the verdant vale")
+
+# One shape for both ways out of the world. The rift is the same flood in
+# another module; while the two are two copies, their numbers are held equal
+# here, so a player who has built one can build the other.
+rift = strip_comments(read(ROOT, "elysium-dungeons/src/main/java/com/elysium/dungeons/block/RiftPortal.java"))
+if rift:
+    for theirs, ours in (("MIN_INNER_WIDTH", "LEAST_ACROSS"), ("MIN_INNER_HEIGHT", "LEAST_UP"),
+                         ("MAX_INNER", "MOST")):
+        rift_value = re.search(r"public static final int " + theirs + r" = (\d+);", rift)
+        our_value = re.search(r"public static final int " + ours + r" = (\d+);", portal_rules)
+        if not rift_value or not our_value or rift_value.group(1) != our_value.group(1):
+            fail(f"a Vale ring's {ours} is {our_value.group(1) if our_value else 'unset'} and "
+                 f"the rift's {theirs} is {rift_value.group(1) if rift_value else 'unset'}; "
+                 f"both are the Nether portal's shape, so a player who has built one can "
+                 f"build the other")
+
+for key in ("block.elysiumwilds.vale_frame", "block.elysiumwilds.vale_portal",
+            "elysiumwilds.compass.gate", "elysiumwilds.gate.no_frame",
+            "elysiumwilds.gate.no_vale", "elysiumwilds.gate.arrived",
+            "elysiumwilds.gate.arrived_far", "elysiumwilds.gate.home",
+            "elysiumwilds.gate.no_way_back"):
+    if key not in lang:
+        fail(f"{key} has no words, so it reads as its own translation key in the world")
+
+print("the way in         : a ring of Vale Frames found by the rules' flood on both axes "
+      "and lit by the compass without using it up, the gate a block with no item and no "
+      "drop, one search a ring for the gentlest crossing, a landing beside the far ring, "
+      "and the way back to where the player came in")
 
 # ---------------------------------------------------------------------------
 # The overworld: what was written against what the rules say
@@ -1300,6 +1613,57 @@ _room_src = read(SRC, "structure/RoomPiece.java")
 if _room_src.count("setOrientation(net.minecraft.core.Direction.NORTH);") < 2:
     fail("RoomPiece is built without an orientation in one of its constructors, so its blocks land beside "
          "the world's origin instead of inside its box")
+
+# ---------------------------------------------------------------------------
+# The tags (29 Sep 2026): every biome of ours is, to every tag, the biome it
+# models. The preset puts only ours in the overworld, and a biome is in no
+# tag the game does not list it in, so before this none was in
+# minecraft:is_overworld: no strongholds (no way to the End), no villages, no
+# mineshafts, and nothing this pack adds by tag. The generator writes the
+# tags out of the game's own files; this reads the same files and holds the
+# shipped tags to them exactly, both ways.
+# ---------------------------------------------------------------------------
+import importlib.util as _ilu
+import zipfile as _zipfile
+_gen_spec = _ilu.spec_from_file_location("gen_wilds", os.path.join(WORK, "tools/gen_wilds.py"))
+_gen = _ilu.module_from_spec(_gen_spec)
+_gen_spec.loader.exec_module(_gen)
+_shape = _gen.overworld()
+_tags = _gen.biome_tag_members()
+_expected = {}
+for _one in _shape["lands"] + _shape["caves"]:
+    _model = "minecraft:" + _one["model"]
+    for _tag, _members in _tags.items():
+        if _model in _members:
+            _expected.setdefault(_tag, set()).add(f"{NS}:{_one['name']}")
+_ours = {f"{NS}:{_one['name']}" for _one in _shape["lands"] + _shape["caves"]}
+_tag_dir = os.path.join(RES, "data")
+_shipped = {}
+for _namespace in ("minecraft", "c"):
+    _base = os.path.join(_tag_dir, _namespace, "tags/worldgen/biome")
+    for _dirpath, _, _files in os.walk(_base) if os.path.isdir(_base) else []:
+        for _file in _files:
+            if _file.endswith(".json"):
+                _rel = os.path.relpath(os.path.join(_dirpath, _file), _base).replace(os.sep, "/")[:-5]
+                _doc = json.loads(read(_dirpath, _file) or "{}")
+                _shipped[f"{_namespace}:{_rel}"] = {v if isinstance(v, str) else v.get("id", "")
+                                                    for v in _doc.get("values", [])}
+for _biome in sorted(_ours):
+    if _biome not in _shipped.get("minecraft:is_overworld", set()):
+        fail(f"{_biome} is in no minecraft:is_overworld, so it has no stronghold, no mineshaft and "
+             f"none of what this pack adds to the overworld by tag")
+for _tag, _members in sorted(_expected.items()):
+    _missing = sorted(_members - _shipped.get(_tag, set()))
+    if _missing:
+        fail(f"{len(_missing)} biome(s) of ours model a member of {_tag} and are not in it "
+             f"({_missing[0]} ...), so what is keyed to that tag skips them")
+for _tag, _members in sorted(_shipped.items()):
+    _extra = sorted(_members - _expected.get(_tag, set()))
+    if _extra:
+        fail(f"{_tag} lists {_extra[0]} and {len(_extra) - 1} more that model no member of it, "
+             f"so a biome carries a tag its model does not")
+print(f"the tags           : {len(_ours)} biome(s) of ours in {len(_expected)} tag(s), each the tags of "
+      f"the biome it models, read from the game's own files both ways")
 
 if problems:
     print(f"{len(problems)} problem(s):")

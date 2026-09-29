@@ -497,6 +497,20 @@ LINES = {
     "itemGroup.elysiumlogistics": "Elysium Logistics",
     "elysiumlogistics.drawer.empty": "Empty. It will hold %s of each thing.",
     "elysiumlogistics.drawer.holding": "%s. It will hold %s of each.",
+    # Said after either of those when a key or a seal has changed the drawer,
+    # since neither shows on its front.
+    "elysiumlogistics.drawer.locked": "Locked.",
+    "elysiumlogistics.drawer.voids": "Voids overflow.",
+    # The seal and the key. The seal is the pack's own part, so it is fitted
+    # and taken out in the words a pack uses.
+    "elysiumlogistics.drawer.sealed": "%s fitted. What will not fit is destroyed.",
+    "elysiumlogistics.drawer.sealed_twice": "%s is already fitted. A drawer takes one.",
+    "elysiumlogistics.drawer.unsealed": "%s taken out. What will not fit is refused.",
+    "elysiumlogistics.drawer.locked_now": "Locked to what it holds. It takes nothing "
+                                          "else, even emptied.",
+    "elysiumlogistics.drawer.unlocked": "Unlocked. Emptied, it takes anything again.",
+    "elysiumlogistics.drawer.nothing_to_lock": "Nothing in it to lock to. Put something in "
+                                               "first.",
     "elysiumlogistics.controller.alone": "No drawers on its bus.",
     "elysiumlogistics.controller.overloaded": "%s drawers on one controller, and it "
                                               "will index %s. Build another.",
@@ -558,10 +572,12 @@ LINES = {
 }
 
 
-def language(materials=(), depths=(), tiers=0, bodies=(), parts=(), found=()):
+def language(materials=(), depths=(), tiers=0, bodies=(), parts=(), found=(), key=None):
     entries = dict(LINES)
     pack_language(entries, bodies, parts)
     device_language(entries, found)
+    if key:
+        key_language(entries, key)
     for name, shown in NAMES.items():
         entries[f"block.{NS}.{name}"] = shown
     compress_language(entries, materials, depths, tiers)
@@ -1096,6 +1112,97 @@ def pack_language(entries, bodies, parts):
 
 
 # ---------------------------------------------------------------------------
+# The drawer key
+# ---------------------------------------------------------------------------
+#
+# One small item that is not a block, a bag or a part. It locks a drawer to
+# what it holds and is never spent. Its id is read out of LogisticRules, where
+# the drawer reads it too, so the item, its files and the drawer that answers
+# to it cannot disagree about what it is called.
+
+LOGISTIC_RULES = os.path.join(
+    MOD, "src/main/java/com/elysium/logistics/rules/LogisticRules.java")
+
+KEY_WORDS = {"drawer_key": "Drawer Key"}
+
+
+def drawer_key():
+    """The key's id, read out of the rules."""
+    source = open(LOGISTIC_RULES, encoding="utf-8").read()
+    found = re.search(r'public static final String DRAWER_KEY = "([a-z_]+)";', source)
+    if not found:
+        print("the logistics rules no longer name the drawer key, so it would be an "
+              "item with no sprite, no recipe and no name")
+        sys.exit(1)
+    return found.group(1)
+
+
+def key_sprite(ramp):
+    """A key: a ring to hold it by, a shaft, and two teeth, in a drawer's brass.
+
+    Squares and lines rather than an ellipse for the ring, because how Pillow
+    rounds an ellipse has changed between its versions, and a sprite that
+    depends on the version installed is drift on somebody else's machine.
+    """
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    # The bow: a ring round a hole, its corners knocked in so it reads round,
+    # and lit where it faces the light.
+    draw.rectangle([1, 4, 6, 9], fill=rgba(ramp[2]))
+    draw.rectangle([0, 5, 7, 8], fill=rgba(ramp[2]))
+    draw.line([(2, 3), (5, 3)], fill=rgba(ramp[0]))
+    draw.line([(2, 10), (5, 10)], fill=rgba(ramp[0]))
+    draw.line([(0, 5), (0, 8)], fill=rgba(ramp[0]))
+    for corner in ((1, 4), (6, 4), (1, 9), (6, 9)):
+        draw.point(corner, fill=rgba(ramp[0]))
+    draw.rectangle([3, 6, 4, 7], fill=CLEAR)
+    for glint in ((2, 5), (3, 4), (4, 4)):
+        draw.point(glint, fill=rgba(ramp[3]))
+    # The shaft, lit along its top.
+    draw.rectangle([7, 6, 15, 7], fill=rgba(ramp[1]))
+    draw.line([(7, 5), (15, 5)], fill=rgba(ramp[0]))
+    draw.line([(8, 6), (14, 6)], fill=rgba(ramp[3]))
+    draw.line([(7, 8), (15, 8)], fill=rgba(ramp[0]))
+    draw.line([(15, 6), (15, 7)], fill=rgba(ramp[0]))
+    # Two teeth of different depths, which is what makes it a key and not a
+    # rod.
+    draw.rectangle([10, 8, 12, 11], fill=rgba(ramp[2]), outline=rgba(ramp[0]))
+    draw.rectangle([12, 8, 14, 10], fill=rgba(ramp[2]), outline=rgba(ramp[0]))
+    draw.line([(11, 8), (13, 8)], fill=rgba(ramp[1]))
+    return image
+
+
+def key_files(key):
+    """The key's sprite, its model and its recipe."""
+    where = os.path.join(ASSETS, "textures/item")
+    os.makedirs(where, exist_ok=True)
+    key_sprite(BRASS).save(os.path.join(where, key + ".png"))
+    write(os.path.join(ASSETS, "models/item", key + ".json"),
+          {"parent": "item/generated",
+           "textures": {"layer0": f"{NS}:item/{key}"}})
+    # A tripwire hook for the catch and two gold nuggets for the brass: half an
+    # iron ingot and two ninths of a gold one, because a lock is worth having
+    # from the first wall of drawers. Shapeless, since a key has no shape
+    # worth learning.
+    write(os.path.join(DATA, "recipe", key + ".json"),
+          {"type": "minecraft:crafting_shapeless", "category": "equipment",
+           "ingredients": [{"item": "minecraft:tripwire_hook"},
+                           {"item": "minecraft:gold_nugget"},
+                           {"item": "minecraft:gold_nugget"}],
+           "result": {"id": f"{NS}:{key}", "count": 1}})
+    return 2
+
+
+def key_language(entries, key):
+    shown = KEY_WORDS.get(key)
+    if shown is None:
+        print(f"{key} has no name here, so it is called by its id")
+        sys.exit(1)
+    entries[f"item.{NS}.{key}"] = shown
+    return entries
+
+
+# ---------------------------------------------------------------------------
 # The devices, and the logic layer's operators
 # ---------------------------------------------------------------------------
 #
@@ -1273,7 +1380,9 @@ if __name__ == "__main__":
     packed = pack_sprites(bodies, parts)
     data += pack_files(bodies, parts)
     data += placed_files(bodies)
-    keys = language(materials, depths, tiers, bodies, parts, found)
+    key = drawer_key()
+    data += key_files(key)
+    keys = language(materials, depths, tiers, bodies, parts, found, key)
     print(f"logistics: {sprites} sprite(s), {models} block(s) modelled and stated, "
           f"{squashed} compression(s), {devicesprites} device(s), {packed} pack "
-          f"sprite(s), {data} data file(s), {keys} language key(s)")
+          f"sprite(s), a {key}, {data} data file(s), {keys} language key(s)")

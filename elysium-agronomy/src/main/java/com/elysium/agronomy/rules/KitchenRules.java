@@ -94,6 +94,33 @@ public final class KitchenRules {
     /** What a cutting board wants held in the other hand. */
     public static final String KNIFE = "knife";
 
+    /**
+     * What a cutting recipe calls the fillet knife: the knife for what comes
+     * off a hook.
+     *
+     * <p>A kitchen knife cuts the game's cod and salmon; nothing in this pack
+     * catches either, because every catch in water is a draw from the fish
+     * roster. The fillet knife is the one that takes fillets off those
+     * hundred and five ({@link #filleting}), and only those: a knife that
+     * cut everything and lasted longer than an iron one for two nuggets would
+     * be the only knife anybody made.
+     */
+    public static final String FILLET_KNIFE = "fillet_knife";
+
+    /** Every tool a cutting recipe may ask for. */
+    public static final List<String> TOOLS = List.of(KNIFE, FILLET_KNIFE);
+
+    /** What a fillet knife takes off a fish. */
+    public static final String FILLET = "fish_fillet";
+
+    /**
+     * The most a cut may feed, as a multiple of what went onto the board.
+     *
+     * <p>Two: a knife can make a thing worth more to a cook, and it cannot
+     * make food.
+     */
+    public static final int MOST_A_CUT_FEEDS = 2;
+
     /** How much of a knife one cut uses up. */
     public static final int KNIFE_WEAR = 1;
 
@@ -506,12 +533,76 @@ public final class KitchenRules {
                 Ingredient one = INGREDIENT_BY_ID.get(made.getKey());
                 after += (one != null ? one.nutrition() : 1) * made.getValue();
             }
-            if (after > before * 2) {
+            if (after > before * MOST_A_CUT_FEEDS) {
                 bad.add("cutting " + cut.input() + " more than doubles what it feeds, "
                         + "so a knife is a food multiplier");
             }
         }
         return List.copyOf(bad);
+    }
+
+    /**
+     * How many fillets a fish worth this much food comes apart into.
+     *
+     * <p>As many as keep the cut inside {@link #MOST_A_CUT_FEEDS}, rounded
+     * down. A fish worth one is a minnow: nothing comes off it, and it is
+     * eaten whole.
+     */
+    public static int filletsFrom(int nutrition) {
+        Ingredient fillet = INGREDIENT_BY_ID.get(FILLET);
+        if (fillet == null || fillet.nutrition() <= 0 || nutrition <= 0) {
+            return 0;
+        }
+        return nutrition * MOST_A_CUT_FEEDS / fillet.nutrition();
+    }
+
+    /**
+     * Everything a fillet knife cuts: every fish on the roster big enough to
+     * fillet, into {@link #filletsFrom} its food in fillets.
+     *
+     * <p>Walked from {@link FishRules#FISH}, so a fish added to the roster is
+     * a fish the knife takes fillets off the day it is added.
+     */
+    public static List<Cut> filleting() {
+        List<Cut> made = new ArrayList<>();
+        for (FishRules.Fish one : FishRules.FISH) {
+            int fillets = filletsFrom(one.nutrition());
+            if (fillets > 0) {
+                made.add(new Cut(one.id(), FILLET_KNIFE, Map.of(FILLET, fillets)));
+            }
+        }
+        return List.copyOf(made);
+    }
+
+    /**
+     * Every fillet cut that is not a fish of the roster, not the fillet
+     * knife's, or feeds more than {@link #MOST_A_CUT_FEEDS} times the fish.
+     * Handed the cuts, so a control can hand it one built to be caught.
+     */
+    public static List<String> filletsThatCreate(List<Cut> cuts) {
+        List<String> bad = new ArrayList<>();
+        for (Cut cut : cuts) {
+            FishRules.Fish fish = FishRules.fish(cut.input());
+            if (fish == null) {
+                bad.add("the fillet knife cuts " + cut.input() + ", which is no fish on "
+                        + "the roster");
+                continue;
+            }
+            if (!FILLET_KNIFE.equals(cut.tool())) {
+                bad.add("filleting " + fish.id() + " wants a " + cut.tool()
+                        + " rather than the fillet knife");
+            }
+            int after = 0;
+            for (Map.Entry<String, Integer> made : cut.yields().entrySet()) {
+                Ingredient one = INGREDIENT_BY_ID.get(made.getKey());
+                after += (one != null ? one.nutrition() : 1) * made.getValue();
+            }
+            if (after > fish.nutrition() * MOST_A_CUT_FEEDS) {
+                bad.add("filleting " + fish.id() + " feeds " + after + " from a fish worth "
+                        + fish.nutrition() + ", so the fillet knife is a food multiplier");
+            }
+        }
+        return bad;
     }
 
     /**

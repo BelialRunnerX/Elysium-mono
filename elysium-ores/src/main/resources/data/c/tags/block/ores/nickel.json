@@ -26,9 +26,11 @@
       "required": false
     },
     "elysiumores:cinder_nickel_ore",
+    "elysiumores:deepslate_nickel_ore",
     "elysiumores:end_stone_nickel_ore",
     "elysiumores:frost_nickel_ore",
     "elysiumores:netherrack_nickel_ore",
-    "elysiumores:pale_nickel_ore"
+    "elysiumores:pale_nickel_ore",
+    "elysiumores:stone_nickel_ore"
   ]
 }

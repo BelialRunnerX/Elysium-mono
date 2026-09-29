@@ -1670,6 +1670,10 @@
      "Block of Tin Comb"
     ],
     [
+     "titanium_comb_block",
+     "Block of Titanium Comb"
+    ],
+    [
      "tomato_crate",
      "Tomato Crate"
     ],
@@ -1696,6 +1700,10 @@
     [
      "tuff_waxed_botany_pot",
      "Waxed Tuff Botany Pot"
+    ],
+    [
+     "tungsten_comb_block",
+     "Block of Tungsten Comb"
     ],
     [
      "turbot_mount",
@@ -4576,6 +4584,18 @@
      "Tin Seed"
     ],
     [
+     "titanium_bee_spawn_egg",
+     "Titanium Bee Spawn Egg"
+    ],
+    [
+     "titanium_chunk",
+     "Titanium Chunk"
+    ],
+    [
+     "titanium_comb",
+     "Titanium Comb"
+    ],
+    [
      "tomato",
      "Tomato"
     ],
@@ -4610,6 +4630,18 @@
     [
      "tripod_fish_spawn_egg",
      "Tripod Fish Spawn Egg"
+    ],
+    [
+     "tungsten_bee_spawn_egg",
+     "Tungsten Bee Spawn Egg"
+    ],
+    [
+     "tungsten_chunk",
+     "Tungsten Chunk"
+    ],
+    [
+     "tungsten_comb",
+     "Tungsten Comb"
     ],
     [
      "turbot",
@@ -5550,12 +5582,20 @@
      "Tin Bee"
     ],
     [
+     "titanium_bee",
+     "Titanium Bee"
+    ],
+    [
      "triggerfish",
      "Triggerfish"
     ],
     [
      "tripod_fish",
      "Tripod Fish"
+    ],
+    [
+     "tungsten_bee",
+     "Tungsten Bee"
     ],
     [
      "turbot",
@@ -5628,11 +5668,55 @@
    ],
    "World features": [
     [
+     "deepslate_nest",
+     ""
+    ],
+    [
+     "desert_nest",
+     ""
+    ],
+    [
+     "end_highlands_nest",
+     ""
+    ],
+    [
+     "end_nest",
+     ""
+    ],
+    [
      "forest_nest",
      ""
     ],
     [
+     "frozen_nest",
+     ""
+    ],
+    [
+     "highlands_nest",
+     ""
+    ],
+    [
+     "jungle_nest",
+     ""
+    ],
+    [
      "mountain_nest",
+     ""
+    ],
+    [
+     "mushroom_nest",
+     ""
+    ],
+    [
+     "nether_fortress_nest",
+     ""
+    ],
+    [
+     "nether_nest",
+     ""
+    ],
+    [
+     "ocean_nest",
      ""
     ],
     [
@@ -5641,6 +5725,18 @@
     ],
     [
      "river_nest",
+     ""
+    ],
+    [
+     "swamp_nest",
+     ""
+    ],
+    [
+     "underground_nest",
+     ""
+    ],
+    [
+     "volcanic_nest",
      ""
     ],
     [
@@ -6840,6 +6936,10 @@
    "tin_comb",
    "tin_comb_block",
    "tin_seed",
+   "titanium_bee_spawn_egg",
+   "titanium_chunk",
+   "titanium_comb",
+   "titanium_comb_block",
    "tomato",
    "tomato_crate",
    "tomato_paste",
@@ -6855,6 +6955,10 @@
    "tuff_botany_pot",
    "tuff_hopper_botany_pot",
    "tuff_waxed_botany_pot",
+   "tungsten_bee_spawn_egg",
+   "tungsten_chunk",
+   "tungsten_comb",
+   "tungsten_comb_block",
    "turbot",
    "turbot_bucket",
    "turbot_mount",
@@ -6948,7 +7052,7 @@
    "zinc_comb_block",
    "zinc_seed"
   ],
-  "recipes": 630
+  "recipes": 650
  },
  "elysium-almanac": {
   "modid": "elysiumalmanac",
@@ -6979,6 +7083,10 @@
    [
     "what it asks for",
     "… item(s), block(s) and beast(s), … tag(s)"
+   ],
+   [
+    "the whole pack",
+    "… block(s), item(s) and creature(s) introduced"
    ],
    [
     "the rewards",
@@ -8214,6 +8322,128 @@
      "zinc_spyglass",
      "Zinc Spyglass"
     ]
+   ],
+   "World features": [
+    [
+     "aluminum_geode",
+     ""
+    ],
+    [
+     "amethyst_geode",
+     ""
+    ],
+    [
+     "ancient_debris_geode",
+     ""
+    ],
+    [
+     "azure_silver_geode",
+     ""
+    ],
+    [
+     "bort_geode",
+     ""
+    ],
+    [
+     "certus_quartz_geode",
+     ""
+    ],
+    [
+     "coal_geode",
+     ""
+    ],
+    [
+     "copper_geode",
+     ""
+    ],
+    [
+     "crimson_iron_geode",
+     ""
+    ],
+    [
+     "diamond_geode",
+     ""
+    ],
+    [
+     "emerald_geode",
+     ""
+    ],
+    [
+     "fluorite_geode",
+     ""
+    ],
+    [
+     "glowstone_geode",
+     ""
+    ],
+    [
+     "gold_geode",
+     ""
+    ],
+    [
+     "iron_geode",
+     ""
+    ],
+    [
+     "lapis_geode",
+     ""
+    ],
+    [
+     "lead_geode",
+     ""
+    ],
+    [
+     "lithium_geode",
+     ""
+    ],
+    [
+     "nickel_geode",
+     ""
+    ],
+    [
+     "obsidian_geode",
+     ""
+    ],
+    [
+     "osmium_geode",
+     ""
+    ],
+    [
+     "platinum_geode",
+     ""
+    ],
+    [
+     "quartz_geode",
+     ""
+    ],
+    [
+     "redstone_geode",
+     ""
+    ],
+    [
+     "rime_shard_geode",
+     ""
+    ],
+    [
+     "silver_geode",
+     ""
+    ],
+    [
+     "tin_geode",
+     ""
+    ],
+    [
+     "uraninite_geode",
+     ""
+    ],
+    [
+     "uranium_geode",
+     ""
+    ],
+    [
+     "zinc_geode",
+     ""
+    ]
    ]
   },
   "mechanics": [
@@ -8242,8 +8472,16 @@
     "… material(s) —"
    ],
    [
+    "what mines them",
+    "…"
+   ],
+   [
     "the seeding",
     "… material(s), every one of them"
+   ],
+   [
+    "the first shard",
+    "… geode(s), … in the overworld and"
    ],
    [
     "relics",
@@ -8553,7 +8791,7 @@
    "zinc_spyglass",
    "zinc_tinted_glass"
   ],
-  "recipes": 181
+  "recipes": 151
  },
  "elysium-armory": {
   "modid": "elysiumarmory",
@@ -8951,6 +9189,24 @@
      "wide_plate_upgrade",
      "Wide Plate Upgrade"
     ]
+   ],
+   "Loot modifiers": [
+    [
+     "template_from_simple_dungeon",
+     ""
+    ],
+    [
+     "template_from_village_armorer",
+     ""
+    ],
+    [
+     "template_from_village_toolsmith",
+     ""
+    ],
+    [
+     "template_from_village_weaponsmith",
+     ""
+    ]
    ]
   },
   "mechanics": [
@@ -9013,6 +9269,10 @@
    [
     "the plan book",
     "learns plans, answers for one at a time, and a template"
+   ],
+   [
+    "survival",
+    "any affixed piece salvages and a reforge pays back no more than it cost"
    ]
   ],
   "item_models": [
@@ -10553,10 +10813,6 @@
      "Mountainfall"
     ],
     [
-     "music_disc_relic",
-     "Music Disc"
-    ],
-    [
      "needlepoint",
      "Needlepoint"
     ],
@@ -11581,6 +11837,20 @@
      "Worldsplitter"
     ]
    ],
+   "World features": [
+    [
+     "fossiliferous_dirt",
+     ""
+    ],
+    [
+     "suspicious_dirt",
+     ""
+    ],
+    [
+     "suspicious_red_sand",
+     ""
+    ]
+   ],
    "Damage types": [
     [
      "piercing",
@@ -11624,6 +11894,14 @@
    [
     "the digging",
     "… brush(es), … site(s)"
+   ],
+   [
+    "the two sets",
+    "… shape(s), each"
+   ],
+   [
+    "in survival",
+    "… site(s) laid by a feature in their"
    ],
    [
     "what it declares",
@@ -11793,7 +12071,6 @@
    "lunite_spear",
    "lunite_warhammer",
    "mountainfall",
-   "music_disc_relic",
    "needlepoint",
    "netherite_brush",
    "netherite_crossbow",
@@ -11940,7 +12217,7 @@
    "wooden_warhammer",
    "worldsplitter"
   ],
-  "recipes": 261
+  "recipes": 281
  },
  "elysium-ascendancy": {
   "modid": "elysiumascendancy",
@@ -29720,6 +29997,12 @@
      "pigeon",
      "Pigeon"
     ]
+   ],
+   "Loot modifiers": [
+    [
+     "lost_mail_from_cartographer",
+     ""
+    ]
    ]
   },
   "mechanics": [
@@ -31685,11 +31968,15 @@
    ],
    [
     "starting kit",
-    "one gift table, given once, remembered through death"
+    "one gift table, given once, remembered through death, and"
    ],
    [
     "the tier command",
     "the tier, where it came from, and what it is worth"
+   ],
+   [
+    "harvest audit",
+    "/elysium audit harvest asks the running game about every block of every module"
    ]
   ],
   "item_models": [
@@ -32586,6 +32873,14 @@
     "… block(s), each modelled, tagged, named and"
    ],
    [
+    "drawn and tooled",
+    "skipped, no game jar to compare the wood with (set MC_JAR)"
+   ],
+   [
+    "drawn and tooled",
+    "… emberwood shape(s) drawn, modelled"
+   ],
+   [
     "where they grow",
     "… feature(s) across"
    ],
@@ -33027,6 +33322,14 @@
      "Raw Tin"
     ],
     [
+     "raw_titanium",
+     "Raw Titanium"
+    ],
+    [
+     "raw_tungsten",
+     "Raw Tungsten"
+    ],
+    [
      "raw_uraninite",
      "Raw Uraninite"
     ],
@@ -33157,6 +33460,38 @@
     [
      "tin_plate",
      "Tin Plate"
+    ],
+    [
+     "titanium_dust",
+     "Titanium Dust"
+    ],
+    [
+     "titanium_ingot",
+     "Titanium Ingot"
+    ],
+    [
+     "titanium_nugget",
+     "Titanium Nugget"
+    ],
+    [
+     "titanium_plate",
+     "Titanium Plate"
+    ],
+    [
+     "tungsten_dust",
+     "Tungsten Dust"
+    ],
+    [
+     "tungsten_ingot",
+     "Tungsten Ingot"
+    ],
+    [
+     "tungsten_nugget",
+     "Tungsten Nugget"
+    ],
+    [
+     "tungsten_plate",
+     "Tungsten Plate"
     ],
     [
      "void_steel_dust",
@@ -33310,6 +33645,8 @@
    "raw_platinum",
    "raw_silver",
    "raw_tin",
+   "raw_titanium",
+   "raw_tungsten",
    "raw_uraninite",
    "raw_zinc",
    "refinery",
@@ -33348,6 +33685,14 @@
    "tin_ingot",
    "tin_nugget",
    "tin_plate",
+   "titanium_dust",
+   "titanium_ingot",
+   "titanium_nugget",
+   "titanium_plate",
+   "tungsten_dust",
+   "tungsten_ingot",
+   "tungsten_nugget",
+   "tungsten_plate",
    "void_steel_dust",
    "void_steel_ingot",
    "void_steel_nugget",
@@ -33357,7 +33702,7 @@
    "zinc_nugget",
    "zinc_plate"
   ],
-  "recipes": 232
+  "recipes": 248
  },
  "elysium-industry": {
   "modid": "elysiumindustry",
@@ -33495,6 +33840,10 @@
    [
     "the books",
     "a grid hands out what it made and borrowed, less"
+   ],
+   [
+    "fed and emptied",
+    "an empty hand takes what a formed one made, a thing with"
    ],
    [
     "what it declares",
@@ -34233,6 +34582,10 @@
    [
     "the ledger web",
     "… nodes from the rules, every cluster, keystone, stat and"
+   ],
+   [
+    "experience",
+    ""
    ],
    [
     "runs",
@@ -36455,6 +36808,10 @@
      "Deep Pocket"
     ],
     [
+     "drawer_key",
+     "Drawer Key"
+    ],
+    [
      "ember_plate",
      "Ember Plate"
     ],
@@ -36689,6 +37046,7 @@
    "double_compressed_stone",
    "double_compressed_terracotta",
    "double_compressed_tuff",
+   "drawer_key",
    "ember_plate",
    "ender_link",
    "expedition_pack",
@@ -37128,7 +37486,7 @@
    "vault",
    "void_seal"
   ],
-  "recipes": 1111
+  "recipes": 1112
  },
  "elysium-mobs": {
   "modid": "elysiummobs",
@@ -37401,6 +37759,14 @@
    [
     "wandering trader",
     "… common and"
+   ],
+   [
+    "writs of audience",
+    "every office sells its own, one a visit, off its top"
+   ],
+   [
+    "who arrives",
+    ""
    ]
   ],
   "item_models": [
@@ -37574,6 +37940,14 @@
      "Cinder Tin Ore"
     ],
     [
+     "cinder_titanium_ore",
+     "Cinder Titanium Ore"
+    ],
+    [
+     "cinder_tungsten_ore",
+     "Cinder Tungsten Ore"
+    ],
+    [
      "cinder_uraninite_ore",
      "Cinder Uraninite Ore"
     ],
@@ -37590,12 +37964,20 @@
      "Block of Cobalt"
     ],
     [
+     "deepslate_aluminum_ore",
+     "Deepslate Aluminum Ore"
+    ],
+    [
      "deepslate_amber_ore",
      "Deepslate Amber Ore"
     ],
     [
      "deepslate_azure_silver_ore",
      "Deepslate Azure Silver Ore"
+    ],
+    [
+     "deepslate_bort_ore",
+     "Deepslate Bort Ore"
     ],
     [
      "deepslate_certus_quartz_ore",
@@ -37618,6 +38000,10 @@
      "Deepslate Cryonite Ore"
     ],
     [
+     "deepslate_fluorite_ore",
+     "Deepslate Fluorite Ore"
+    ],
+    [
      "deepslate_frostite_ore",
      "Deepslate Frostite Ore"
     ],
@@ -37626,16 +38012,36 @@
      "Deepslate Jade Ore"
     ],
     [
+     "deepslate_lead_ore",
+     "Deepslate Lead Ore"
+    ],
+    [
+     "deepslate_lithium_ore",
+     "Deepslate Lithium Ore"
+    ],
+    [
      "deepslate_lunite_ore",
      "Deepslate Lunite Ore"
+    ],
+    [
+     "deepslate_nickel_ore",
+     "Deepslate Nickel Ore"
     ],
     [
      "deepslate_null_amethyst_ore",
      "Deepslate Null Amethyst Ore"
     ],
     [
+     "deepslate_osmium_ore",
+     "Deepslate Osmium Ore"
+    ],
+    [
      "deepslate_pearlium_ore",
      "Deepslate Pearlium Ore"
+    ],
+    [
+     "deepslate_platinum_ore",
+     "Deepslate Platinum Ore"
     ],
     [
      "deepslate_pyratite_ore",
@@ -37656,6 +38062,34 @@
     [
      "deepslate_sapphire_ore",
      "Deepslate Sapphire Ore"
+    ],
+    [
+     "deepslate_silver_ore",
+     "Deepslate Silver Ore"
+    ],
+    [
+     "deepslate_tin_ore",
+     "Deepslate Tin Ore"
+    ],
+    [
+     "deepslate_titanium_ore",
+     "Deepslate Titanium Ore"
+    ],
+    [
+     "deepslate_tungsten_ore",
+     "Deepslate Tungsten Ore"
+    ],
+    [
+     "deepslate_uraninite_ore",
+     "Deepslate Uraninite Ore"
+    ],
+    [
+     "deepslate_uranium_ore",
+     "Deepslate Uranium Ore"
+    ],
+    [
+     "deepslate_zinc_ore",
+     "Deepslate Zinc Ore"
     ],
     [
      "end_stone_aluminum_ore",
@@ -37762,6 +38196,10 @@
      "End Stone Pearlium Ore"
     ],
     [
+     "end_stone_platinum_ore",
+     "End Stone Platinum Ore"
+    ],
+    [
      "end_stone_pyratite_ore",
      "End Stone Pyratite Ore"
     ],
@@ -37796,6 +38234,14 @@
     [
      "end_stone_tin_ore",
      "End Stone Tin Ore"
+    ],
+    [
+     "end_stone_titanium_ore",
+     "End Stone Titanium Ore"
+    ],
+    [
+     "end_stone_tungsten_ore",
+     "End Stone Tungsten Ore"
     ],
     [
      "end_stone_uraninite_ore",
@@ -37942,6 +38388,14 @@
      "Frost Tin Ore"
     ],
     [
+     "frost_titanium_ore",
+     "Frost Titanium Ore"
+    ],
+    [
+     "frost_tungsten_ore",
+     "Frost Tungsten Ore"
+    ],
+    [
      "frost_uraninite_ore",
      "Frost Uraninite Ore"
     ],
@@ -38004,6 +38458,10 @@
     [
      "netherrack_copper_ore",
      "Netherrack Copper Ore"
+    ],
+    [
+     "netherrack_crimson_iron_ore",
+     "Netherrack Crimson Iron Ore"
     ],
     [
      "netherrack_cryonite_ore",
@@ -38104,6 +38562,14 @@
     [
      "netherrack_tin_ore",
      "Netherrack Tin Ore"
+    ],
+    [
+     "netherrack_titanium_ore",
+     "Netherrack Titanium Ore"
+    ],
+    [
+     "netherrack_tungsten_ore",
+     "Netherrack Tungsten Ore"
     ],
     [
      "netherrack_uraninite_ore",
@@ -38262,6 +38728,14 @@
      "Pale Tin Ore"
     ],
     [
+     "pale_titanium_ore",
+     "Pale Titanium Ore"
+    ],
+    [
+     "pale_tungsten_ore",
+     "Pale Tungsten Ore"
+    ],
+    [
      "pale_uraninite_ore",
      "Pale Uraninite Ore"
     ],
@@ -38310,8 +38784,20 @@
      "Block of Slagsteel"
     ],
     [
+     "stone_aluminum_ore",
+     "Stone Aluminum Ore"
+    ],
+    [
      "stone_amber_ore",
      "Stone Amber Ore"
+    ],
+    [
+     "stone_azure_silver_ore",
+     "Stone Azure Silver Ore"
+    ],
+    [
+     "stone_bort_ore",
+     "Stone Bort Ore"
     ],
     [
      "stone_certus_quartz_ore",
@@ -38322,12 +38808,36 @@
      "Stone Cobalt Ore"
     ],
     [
+     "stone_crimson_iron_ore",
+     "Stone Crimson Iron Ore"
+    ],
+    [
+     "stone_fluorite_ore",
+     "Stone Fluorite Ore"
+    ],
+    [
      "stone_jade_ore",
      "Stone Jade Ore"
     ],
     [
+     "stone_lead_ore",
+     "Stone Lead Ore"
+    ],
+    [
+     "stone_lithium_ore",
+     "Stone Lithium Ore"
+    ],
+    [
+     "stone_nickel_ore",
+     "Stone Nickel Ore"
+    ],
+    [
      "stone_null_amethyst_ore",
      "Stone Null Amethyst Ore"
+    ],
+    [
+     "stone_osmium_ore",
+     "Stone Osmium Ore"
     ],
     [
      "stone_pearlium_ore",
@@ -38356,6 +38866,34 @@
     [
      "stone_sapphire_ore",
      "Stone Sapphire Ore"
+    ],
+    [
+     "stone_silver_ore",
+     "Stone Silver Ore"
+    ],
+    [
+     "stone_tin_ore",
+     "Stone Tin Ore"
+    ],
+    [
+     "stone_titanium_ore",
+     "Stone Titanium Ore"
+    ],
+    [
+     "stone_tungsten_ore",
+     "Stone Tungsten Ore"
+    ],
+    [
+     "stone_uraninite_ore",
+     "Stone Uraninite Ore"
+    ],
+    [
+     "stone_uranium_ore",
+     "Stone Uranium Ore"
+    ],
+    [
+     "stone_zinc_ore",
+     "Stone Zinc Ore"
     ]
    ],
    "Items": [
@@ -38648,6 +39186,14 @@
      ""
     ],
     [
+     "cinder_titanium_ore",
+     ""
+    ],
+    [
+     "cinder_tungsten_ore",
+     ""
+    ],
+    [
      "cinder_uraninite_ore",
      ""
     ],
@@ -38660,11 +39206,19 @@
      ""
     ],
     [
+     "deepslate_aluminum_ore",
+     ""
+    ],
+    [
      "deepslate_amber_ore",
      ""
     ],
     [
      "deepslate_azure_silver_ore",
+     ""
+    ],
+    [
+     "deepslate_bort_ore",
      ""
     ],
     [
@@ -38688,6 +39242,10 @@
      ""
     ],
     [
+     "deepslate_fluorite_ore",
+     ""
+    ],
+    [
      "deepslate_frostite_ore",
      ""
     ],
@@ -38696,7 +39254,19 @@
      ""
     ],
     [
+     "deepslate_lead_ore",
+     ""
+    ],
+    [
+     "deepslate_lithium_ore",
+     ""
+    ],
+    [
      "deepslate_lunite_ore",
+     ""
+    ],
+    [
+     "deepslate_nickel_ore",
      ""
     ],
     [
@@ -38704,7 +39274,15 @@
      ""
     ],
     [
+     "deepslate_osmium_ore",
+     ""
+    ],
+    [
      "deepslate_pearlium_ore",
+     ""
+    ],
+    [
+     "deepslate_platinum_ore",
      ""
     ],
     [
@@ -38725,6 +39303,34 @@
     ],
     [
      "deepslate_sapphire_ore",
+     ""
+    ],
+    [
+     "deepslate_silver_ore",
+     ""
+    ],
+    [
+     "deepslate_tin_ore",
+     ""
+    ],
+    [
+     "deepslate_titanium_ore",
+     ""
+    ],
+    [
+     "deepslate_tungsten_ore",
+     ""
+    ],
+    [
+     "deepslate_uraninite_ore",
+     ""
+    ],
+    [
+     "deepslate_uranium_ore",
+     ""
+    ],
+    [
+     "deepslate_zinc_ore",
      ""
     ],
     [
@@ -38832,6 +39438,10 @@
      ""
     ],
     [
+     "end_stone_platinum_ore",
+     ""
+    ],
+    [
      "end_stone_pyratite_ore",
      ""
     ],
@@ -38865,6 +39475,14 @@
     ],
     [
      "end_stone_tin_ore",
+     ""
+    ],
+    [
+     "end_stone_titanium_ore",
+     ""
+    ],
+    [
+     "end_stone_tungsten_ore",
      ""
     ],
     [
@@ -39012,6 +39630,14 @@
      ""
     ],
     [
+     "frost_titanium_ore",
+     ""
+    ],
+    [
+     "frost_tungsten_ore",
+     ""
+    ],
+    [
      "frost_uraninite_ore",
      ""
     ],
@@ -39057,6 +39683,10 @@
     ],
     [
      "netherrack_copper_ore",
+     ""
+    ],
+    [
+     "netherrack_crimson_iron_ore",
      ""
     ],
     [
@@ -39157,6 +39787,14 @@
     ],
     [
      "netherrack_tin_ore",
+     ""
+    ],
+    [
+     "netherrack_titanium_ore",
+     ""
+    ],
+    [
+     "netherrack_tungsten_ore",
      ""
     ],
     [
@@ -39304,6 +39942,14 @@
      ""
     ],
     [
+     "pale_titanium_ore",
+     ""
+    ],
+    [
+     "pale_tungsten_ore",
+     ""
+    ],
+    [
      "pale_uraninite_ore",
      ""
     ],
@@ -39316,7 +39962,19 @@
      ""
     ],
     [
+     "stone_aluminum_ore",
+     ""
+    ],
+    [
      "stone_amber_ore",
+     ""
+    ],
+    [
+     "stone_azure_silver_ore",
+     ""
+    ],
+    [
+     "stone_bort_ore",
      ""
     ],
     [
@@ -39328,11 +39986,35 @@
      ""
     ],
     [
+     "stone_crimson_iron_ore",
+     ""
+    ],
+    [
+     "stone_fluorite_ore",
+     ""
+    ],
+    [
      "stone_jade_ore",
      ""
     ],
     [
+     "stone_lead_ore",
+     ""
+    ],
+    [
+     "stone_lithium_ore",
+     ""
+    ],
+    [
+     "stone_nickel_ore",
+     ""
+    ],
+    [
      "stone_null_amethyst_ore",
+     ""
+    ],
+    [
+     "stone_osmium_ore",
      ""
     ],
     [
@@ -39361,6 +40043,34 @@
     ],
     [
      "stone_sapphire_ore",
+     ""
+    ],
+    [
+     "stone_silver_ore",
+     ""
+    ],
+    [
+     "stone_tin_ore",
+     ""
+    ],
+    [
+     "stone_titanium_ore",
+     ""
+    ],
+    [
+     "stone_tungsten_ore",
+     ""
+    ],
+    [
+     "stone_uraninite_ore",
+     ""
+    ],
+    [
+     "stone_uranium_ore",
+     ""
+    ],
+    [
+     "stone_zinc_ore",
      ""
     ]
    ],
@@ -39481,12 +40191,20 @@
     "… file(s), every foreign entry optional, none replacing"
    ],
    [
+    "the stones",
+    "… retired mod(s) in the ledger, and every stone one of them"
+   ],
+   [
     "the drop",
     "silk touch, fortune, the world tier, and the pack's own item"
    ],
    [
     "the cordon",
     "… sets on … materials"
+   ],
+   [
+    "the gem chunks",
+    "… gem(s) with an ore here, each smelted and blasted from"
    ],
    [
     "the roots",
@@ -39543,29 +40261,46 @@
    "cinder_silver_ore",
    "cinder_steel_ore",
    "cinder_tin_ore",
+   "cinder_titanium_ore",
+   "cinder_tungsten_ore",
    "cinder_uraninite_ore",
    "cinder_uranium_ore",
    "cinder_zinc_ore",
    "cobalt_block",
    "cobalt_ingot",
    "cobalt_nugget",
+   "deepslate_aluminum_ore",
    "deepslate_amber_ore",
    "deepslate_azure_silver_ore",
+   "deepslate_bort_ore",
    "deepslate_certus_quartz_ore",
    "deepslate_cindrium_ore",
    "deepslate_cobalt_ore",
    "deepslate_crimson_iron_ore",
    "deepslate_cryonite_ore",
+   "deepslate_fluorite_ore",
    "deepslate_frostite_ore",
    "deepslate_jade_ore",
+   "deepslate_lead_ore",
+   "deepslate_lithium_ore",
    "deepslate_lunite_ore",
+   "deepslate_nickel_ore",
    "deepslate_null_amethyst_ore",
+   "deepslate_osmium_ore",
    "deepslate_pearlium_ore",
+   "deepslate_platinum_ore",
    "deepslate_pyratite_ore",
    "deepslate_quartz_ore",
    "deepslate_rime_shard_ore",
    "deepslate_ruby_ore",
    "deepslate_sapphire_ore",
+   "deepslate_silver_ore",
+   "deepslate_tin_ore",
+   "deepslate_titanium_ore",
+   "deepslate_tungsten_ore",
+   "deepslate_uraninite_ore",
+   "deepslate_uranium_ore",
+   "deepslate_zinc_ore",
    "ember_slag",
    "end_stone_aluminum_ore",
    "end_stone_amber_ore",
@@ -39593,6 +40328,7 @@
    "end_stone_null_amethyst_ore",
    "end_stone_osmium_ore",
    "end_stone_pearlium_ore",
+   "end_stone_platinum_ore",
    "end_stone_pyratite_ore",
    "end_stone_quartz_ore",
    "end_stone_redstone_ore",
@@ -39602,6 +40338,8 @@
    "end_stone_silver_ore",
    "end_stone_steel_ore",
    "end_stone_tin_ore",
+   "end_stone_titanium_ore",
+   "end_stone_tungsten_ore",
    "end_stone_uraninite_ore",
    "end_stone_uranium_ore",
    "end_stone_zinc_ore",
@@ -39638,6 +40376,8 @@
    "frost_silver_ore",
    "frost_steel_ore",
    "frost_tin_ore",
+   "frost_titanium_ore",
+   "frost_tungsten_ore",
    "frost_uraninite_ore",
    "frost_uranium_ore",
    "frost_zinc_ore",
@@ -39659,6 +40399,7 @@
    "netherrack_coal_ore",
    "netherrack_cobalt_ore",
    "netherrack_copper_ore",
+   "netherrack_crimson_iron_ore",
    "netherrack_cryonite_ore",
    "netherrack_diamond_ore",
    "netherrack_emerald_ore",
@@ -39684,6 +40425,8 @@
    "netherrack_silver_ore",
    "netherrack_steel_ore",
    "netherrack_tin_ore",
+   "netherrack_titanium_ore",
+   "netherrack_tungsten_ore",
    "netherrack_uraninite_ore",
    "netherrack_uranium_ore",
    "netherrack_zinc_ore",
@@ -39729,6 +40472,8 @@
    "pale_sapphire_ore",
    "pale_silver_ore",
    "pale_tin_ore",
+   "pale_titanium_ore",
+   "pale_tungsten_ore",
    "pale_uraninite_ore",
    "pale_uranium_ore",
    "pale_zinc_ore",
@@ -39756,20 +40501,36 @@
    "slagsteel_block",
    "slagsteel_ingot",
    "slagsteel_nugget",
+   "stone_aluminum_ore",
    "stone_amber_ore",
+   "stone_azure_silver_ore",
+   "stone_bort_ore",
    "stone_certus_quartz_ore",
    "stone_cobalt_ore",
+   "stone_crimson_iron_ore",
+   "stone_fluorite_ore",
    "stone_jade_ore",
+   "stone_lead_ore",
+   "stone_lithium_ore",
+   "stone_nickel_ore",
    "stone_null_amethyst_ore",
+   "stone_osmium_ore",
    "stone_pearlium_ore",
    "stone_platinum_ore",
    "stone_pyratite_ore",
    "stone_quartz_ore",
    "stone_rime_shard_ore",
    "stone_ruby_ore",
-   "stone_sapphire_ore"
+   "stone_sapphire_ore",
+   "stone_silver_ore",
+   "stone_tin_ore",
+   "stone_titanium_ore",
+   "stone_tungsten_ore",
+   "stone_uraninite_ore",
+   "stone_uranium_ore",
+   "stone_zinc_ore"
   ],
-  "recipes": 73
+  "recipes": 93
  },
  "elysium-solarpunk": {
   "modid": "elysiumsolarpunk",
@@ -41812,6 +42573,14 @@
     "… blocks drawn, named and dropping"
    ],
    [
+    "mineable",
+    "… block(s) in a mineable tag; … liquid(s) and"
+   ],
+   [
+    "stone",
+    "… worlds' stone keeps itself to Silk Touch, gives its"
+   ],
+   [
     "runs",
     "the cable and the pipe draw arms and plates, take a dye, and keep it"
    ],
@@ -42564,7 +43333,16 @@
   "name": "Elysium Wilds",
   "description": "Elysium Wilds: things that hunt you, and the proof that fighting a harder one is always worth more than fighting an easier one. Requires Elysium Library.",
   "kinds": {
-   "Blocks": [],
+   "Blocks": [
+    [
+     "vale_frame",
+     "Vale Frame"
+    ],
+    [
+     "vale_portal",
+     "Vale Gate"
+    ]
+   ],
    "Items": [
     [
      "biome_compass",
@@ -43964,6 +44742,10 @@
     ""
    ],
    [
+    "the way in",
+    ""
+   ],
+   [
     "the metric",
     "the game's own nearest-box rule — six axes in the game's"
    ],
@@ -43984,6 +44766,10 @@
     "… kind(s) of building, every one"
    ],
    [
+    "the way in",
+    "a ring of Vale Frames found by the rules' flood on both axes"
+   ],
+   [
     "the overworld",
     "… biome(s) of ours in"
    ],
@@ -43997,8 +44783,9 @@
    ]
   ],
   "item_models": [
-   "biome_compass"
+   "biome_compass",
+   "vale_frame"
   ],
-  "recipes": 1
+  "recipes": 2
  }
 }

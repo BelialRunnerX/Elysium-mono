@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumcolonies:elevator_anchor",
+    "elysiumcolonies:elevator_tether",
+    "elysiumcolonies:elevator_counterweight",
+    "elysiumcolonies:elevator_pylon",
+    "elysiumcolonies:elevator_collar",
+    "elysiumcolonies:elevator_deck",
+    "elysiumcolonies:ruin_seed"
+  ]
+}

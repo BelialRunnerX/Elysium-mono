@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "tag": "c:raw_materials/amber"
+  },
+  "result": {
+    "id": "elysiumores:amber"
+  },
+  "experience": 0.3,
+  "cookingtime": 100
+}

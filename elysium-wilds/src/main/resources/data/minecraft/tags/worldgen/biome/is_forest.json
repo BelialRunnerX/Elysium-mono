@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:clover_flat",
+    "elysiumwilds:clover_hill",
+    "elysiumwilds:clover_scarp",
+    "elysiumwilds:clover_wold",
+    "elysiumwilds:glacier_flat",
+    "elysiumwilds:glacier_hill",
+    "elysiumwilds:glacier_scarp",
+    "elysiumwilds:glacier_wold",
+    "elysiumwilds:gold_flat",
+    "elysiumwilds:gold_hill",
+    "elysiumwilds:gold_scarp",
+    "elysiumwilds:gold_wold",
+    "elysiumwilds:marsh_flat",
+    "elysiumwilds:marsh_hill",
+    "elysiumwilds:marsh_scarp",
+    "elysiumwilds:marsh_wold"
+  ]
+}

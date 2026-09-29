@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:bayou_flat",
+    "elysiumwilds:bayou_hill",
+    "elysiumwilds:bayou_scarp",
+    "elysiumwilds:bayou_wold"
+  ]
+}

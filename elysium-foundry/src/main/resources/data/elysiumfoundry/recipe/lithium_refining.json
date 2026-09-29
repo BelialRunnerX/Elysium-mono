@@ -1,7 +1,7 @@
 {
   "type": "elysiumfoundry:refining",
   "input": {
-    "item": "elysiumfoundry:raw_lithium"
+    "tag": "c:raw_materials/lithium"
   },
   "result": {
     "id": "elysiumfoundry:lithium_ingot",

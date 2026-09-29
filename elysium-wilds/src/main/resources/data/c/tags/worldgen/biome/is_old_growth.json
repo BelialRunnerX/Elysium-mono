@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:boreal_flat",
+    "elysiumwilds:boreal_hill",
+    "elysiumwilds:boreal_scarp",
+    "elysiumwilds:boreal_wold",
+    "elysiumwilds:fen_flat",
+    "elysiumwilds:fen_hill",
+    "elysiumwilds:fen_scarp",
+    "elysiumwilds:fen_wold"
+  ]
+}

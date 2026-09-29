@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:rolling",
+  "input": {
+    "item": "elysiumfoundry:tungsten_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:tungsten_plate",
+    "count": 1
+  },
+  "ticks": 120
+}

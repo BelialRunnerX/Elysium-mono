@@ -4,6 +4,7 @@ import com.elysium.kinetics.rules.KineticRules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The second age, executed.
@@ -79,6 +80,7 @@ public final class IndustryHarness {
         theShaft();
         theAge();
         theShapes();
+        theHands();
         theBooks();
         theWork();
         theReserve();
@@ -867,6 +869,134 @@ public final class IndustryHarness {
                 + " multiblock(s), " + built + " orientation(s) built and "
                 + "accepted and " + refused + " one-block mutation(s) refused, "
                 + "every refusal naming the block that is wrong");
+    }
+
+    /**
+     * The brick machines in a player's hands, and the coke.
+     *
+     * <p>Found by the survival pass of 29 September: a controller took
+     * whatever it was handed, so a brick placed against it while building, or
+     * a pickaxe, went into the input and jammed it until it was broken; and
+     * the blast furnace made steel of iron alone, so the coke the almanac
+     * says it burns was burned by nothing. What goes where is the rules'
+     * answer now, and it is swept here against both machines.
+     */
+    private static void theHands() {
+        none(FurnaceRules.faultsInFuels(FurnaceRules.FUELS, FurnaceRules.FIRINGS,
+                FurnaceRules.SHAPES), "the fuels");
+
+        String oven = FurnaceRules.COKE_OVEN.id();
+        String furnace = FurnaceRules.BLAST_FURNACE.id();
+        String coke = "elysiumindustry:" + FurnaceRules.COKE;
+        FurnaceRules.Firing blast = null;
+        FurnaceRules.Firing coking = null;
+        for (FurnaceRules.Firing one : FurnaceRules.FIRINGS) {
+            if (one.shape().equals(furnace)) {
+                blast = one;
+            }
+            if (one.shape().equals(oven) && one.output().equals(coke)) {
+                coking = one;
+            }
+        }
+        check(blast != null, "the blast furnace has no job, so nothing here burns coke");
+        check(coking != null, "the coke oven does not make coke");
+        if (blast != null && coking != null) {
+            // A blast needs its coke, and no job starts without it.
+            check(FurnaceRules.COKE_PER_BLAST > 0
+                            && FurnaceRules.burnedBy(blast) == FurnaceRules.COKE_PER_BLAST,
+                    "a blast burns " + FurnaceRules.burnedBy(blast) + " coke and the rules "
+                            + "say " + FurnaceRules.COKE_PER_BLAST + ", so the blast furnace "
+                            + "makes steel of iron alone and the oven's coke is burned by "
+                            + "nothing");
+            check(!FurnaceRules.mayFire(blast, 0),
+                    "a blast furnace with no coke in it fires anyway, so coke is "
+                            + "something it never needs");
+            check(!FurnaceRules.mayFire(blast, FurnaceRules.COKE_PER_BLAST - 1),
+                    "a blast furnace fires on less coke than a blast burns");
+            check(FurnaceRules.mayFire(blast, FurnaceRules.COKE_PER_BLAST),
+                    "a blast furnace with a blast's coke in it does not fire, so it "
+                            + "is a stack of bricks whatever it is given");
+            check(FurnaceRules.burnedBy(coking) == 0 && FurnaceRules.mayFire(coking, 0),
+                    "the coke oven wants fuel, so the first lump of coke can never "
+                            + "be made");
+            FurnaceRules.Fuel burns = FurnaceRules.fuelOf(furnace);
+            check(burns != null && burns.item().equals(coking.output()),
+                    "the blast furnace burns something other than what the coke oven "
+                            + "makes");
+        }
+
+        // Where a thing handed to a controller goes. Refused is the answer
+        // that matters: it is what keeps a brick out of the input.
+        Set<String> tagless = Set.of();
+        for (String shape : List.of(oven, furnace)) {
+            for (String stray : List.of("elysiumindustry:" + FurnaceRules.COKE_BRICK,
+                    "elysiumindustry:" + FurnaceRules.BLAST_BRICK,
+                    "elysiumindustry:" + shape, "minecraft:iron_pickaxe",
+                    "minecraft:torch")) {
+                check(FurnaceRules.slotFor(shape, stray, tagless::contains)
+                                == FurnaceRules.REFUSED,
+                        "a " + shape + " takes " + stray + ", which it has no job for, "
+                                + "so it jams until the controller is broken");
+            }
+        }
+        check(FurnaceRules.slotFor(furnace, coke, tagless::contains) == FurnaceRules.FUEL,
+                "coke handed to a blast furnace does not go on its fire");
+        check(FurnaceRules.slotFor(oven, coke, tagless::contains) == FurnaceRules.REFUSED,
+                "a coke oven takes coke, which it has no job for");
+        check(FurnaceRules.slotFor(furnace, "minecraft:coal", tagless::contains)
+                        == FurnaceRules.REFUSED,
+                "a blast furnace takes coal, which it has no job for");
+        check(FurnaceRules.slotFor(oven, "minecraft:oak_log",
+                        Set.of("minecraft:logs", "minecraft:logs_that_burn")::contains)
+                        == FurnaceRules.INPUT,
+                "a coke oven refuses a log, which it chars by its tag");
+        for (FurnaceRules.Firing one : FurnaceRules.FIRINGS) {
+            boolean tagged = one.input().startsWith("#");
+            Set<String> tags = tagged ? Set.of(one.input().substring(1)) : tagless;
+            check(FurnaceRules.slotFor(one.shape(), tagged ? "control:tagged" : one.input(),
+                            tags::contains) == FurnaceRules.INPUT,
+                    one.shape() + " refuses " + one.input() + ", which it has a job for, "
+                            + "so that job can never be started");
+        }
+
+        // Three slots, none of them another's. Gathered into a set that
+        // shrinks on a repeat rather than Set.of, which throws on one and
+        // would take the harness down instead of saying what is wrong.
+        Set<Integer> slots = new java.util.HashSet<>(List.of(FurnaceRules.INPUT,
+                FurnaceRules.OUTPUT, FurnaceRules.FUEL));
+        check(slots.size() == 3 && FurnaceRules.SLOTS == 3,
+                "the input, the output and the fuel are not three slots of three");
+        for (int slot : slots) {
+            check(slot >= 0 && slot < FurnaceRules.SLOTS,
+                    "slot " + slot + " is outside a controller's " + FurnaceRules.SLOTS);
+        }
+        check(FurnaceRules.REFUSED < 0,
+                "refusing a thing answers a slot a controller has");
+
+        // The controls: each of these is a fuel the rules must refuse.
+        check(!FurnaceRules.faultsInFuels(List.of(new FurnaceRules.Fuel("kiln", coke, 1)),
+                        FurnaceRules.FIRINGS, FurnaceRules.SHAPES).isEmpty(),
+                "a fuel for a machine this module does not have is not reported");
+        check(!FurnaceRules.faultsInFuels(List.of(new FurnaceRules.Fuel(furnace, coke, 1),
+                                new FurnaceRules.Fuel(furnace, "minecraft:charcoal", 1)),
+                        FurnaceRules.FIRINGS, FurnaceRules.SHAPES).isEmpty(),
+                "a machine with two fuels and one fuel slot is not reported");
+        check(!FurnaceRules.faultsInFuels(List.of(new FurnaceRules.Fuel(furnace,
+                                "elysiumindustry:pitch", 1)),
+                        FurnaceRules.FIRINGS, FurnaceRules.SHAPES).isEmpty(),
+                "a fuel nothing makes is not reported");
+        check(!FurnaceRules.faultsInFuels(List.of(new FurnaceRules.Fuel(oven, coke, 1)),
+                        FurnaceRules.FIRINGS, FurnaceRules.SHAPES).isEmpty(),
+                "a machine that burns the fuel it makes is not reported, so the first "
+                        + "lump could never be made");
+        check(!FurnaceRules.faultsInFuels(List.of(new FurnaceRules.Fuel(furnace,
+                                "minecraft:iron_ingot", 1)),
+                        FurnaceRules.FIRINGS, FurnaceRules.SHAPES).isEmpty(),
+                "a machine that burns what it fires is not reported");
+
+        System.out.println("  the hands: " + FurnaceRules.FUELS.size() + " fuel(s); a "
+                + "blast burns " + FurnaceRules.COKE_PER_BLAST + " coke and waits "
+                + "without it, and neither controller takes a thing it has no job for");
     }
 
     /** One grid, copied, so a mutation does not scribble on the original. */

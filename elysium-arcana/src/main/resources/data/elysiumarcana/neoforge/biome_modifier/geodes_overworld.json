@@ -1,0 +1,21 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#elysiumarcana:geodes_overworld",
+  "features": [
+    "elysiumarcana:coal_geode",
+    "elysiumarcana:redstone_geode",
+    "elysiumarcana:lapis_geode",
+    "elysiumarcana:amethyst_geode",
+    "elysiumarcana:obsidian_geode",
+    "elysiumarcana:diamond_geode",
+    "elysiumarcana:iron_geode",
+    "elysiumarcana:copper_geode",
+    "elysiumarcana:gold_geode",
+    "elysiumarcana:certus_quartz_geode",
+    "elysiumarcana:platinum_geode",
+    "elysiumarcana:rime_shard_geode",
+    "elysiumarcana:crimson_iron_geode",
+    "elysiumarcana:azure_silver_geode"
+  ],
+  "step": "local_modifications"
+}

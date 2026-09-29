@@ -384,6 +384,14 @@
     {
       "id": "elysiumagronomy:zinc_bee",
       "required": false
+    },
+    {
+      "id": "elysiumagronomy:titanium_bee",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tungsten_bee",
+      "required": false
     }
   ]
 }

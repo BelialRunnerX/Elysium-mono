@@ -200,6 +200,192 @@ expect "a module id nothing else in the tree spells that way" "everything else i
 edit $S/ElysiumArcana.java '        com.elysium.arcana.registry.ArcanaAttachments.ATTACHMENTS.register(modEventBus);' '        '
 expect "a ledger written and never registered" "none of it exists"
 
+echo "the first shard: a geode of every material, in a world a player walks to"
+W=$S/rules/GeodeWorldRules.java
+G2=$M/tools/gen_geodes.py
+DATA=$RES/data/elysiumarcana
+expect_geodes() { local w="$2" g
+  (cd $M && python3 tools/gen_geodes.py >/dev/null 2>&1)
+  g="$(out)"
+  if [[ "$g" == *"$w"* ]]; then echo "  caught : $1"; pass=$((pass+1));
+  else echo "  MISSED : $1"; fail=$((fail+1)); fi; restore; }
+
+edit $W '            new Find("platinum", OVERWORLD_BIOMES, THE_GAMES_BAND),' ''
+expect "a material with no geode in any world" "no platinum geode in any world"
+
+edit $W '            if (found == 0) {' '            if (false) {'
+expect "the rule that finds a material with no geode" "a material with no geode in any world is not reported"
+
+edit $W '            "minecraft:the_nether", List.of("#minecraft:is_nether"),' '            "elysiumspace:cinderveil", List.of("#minecraft:is_nether"),'
+expect "geodes only a rocket reaches" "waits on a rocket"
+
+edit $W '            if (worldOf(find, onFoot) == null) {' '            if (false) {'
+expect "the rule that keeps a geode out of space" "a geode only a rocket reaches is not reported"
+
+edit $W '    public static final Band ON_THE_FLOOR = new Band(8, 24);' '    public static final Band ON_THE_FLOOR = new Band(2, 24);'
+expect "a geode drawn from the bedrock floor" "part of it is in the bedrock"
+
+edit $W '            if (find.band().lowest() < world.bottom() + margin) {' '            if (false) {'
+expect "the rule that keeps a geode off the floor" "drawn from the bedrock floor is not reported"
+
+edit $W '    public static final int CHUNKS_PER_SHARD = 8;' '    public static final int CHUNKS_PER_SHARD = 2;'
+expect "a geode commoner than the game's own" "commoner than the game's own amethyst geode"
+
+edit $W '            } else if (chance < floor) {' '            } else if (false) {'
+expect "the rule that keeps a geode rarer than the game's own" "commoner than the game's own amethyst geode is not reported"
+
+edit $W '    public static final int CHUNKS_PER_SHARD = 8;' '    public static final int CHUNKS_PER_SHARD = 3;'
+expect "a world with a geode round every corner" "a crystal wall round every corner is not a find"
+
+edit $W '            if (world.getValue() > most) {' '            if (false) {'
+expect "the rule that keeps a find a find" "a geode round every corner is not reported"
+
+edit $W '            List.of(OVERWORLD_BIOMES, MOUNTAIN_BIOMES, NETHER_BIOMES);' '            List.of(OVERWORLD_BIOMES, NETHER_BIOMES);'
+expect "a geode under a ground no biome modifier is written for" "it is placed nowhere"
+
+edit $W '            if (!grounds.contains(find.ground())) {' '            if (false) {'
+expect "the rule that finds a geode placed nowhere" "no biome modifier is written for is not reported"
+
+edit $W '            "minecraft:blackstone", "minecraft:basalt");' '            "minecraft:blackstone", "elysiumarcana:iron_block");'
+expect "geodes wrapped in another material's blocks" "not what the geode is of"
+
+edit $W '                if (!block.startsWith("minecraft:")) {' '                if (false) {'
+expect "the rule that keeps a rind the game's rock" "wrapped in this module's own blocks is not reported"
+
+edit $W '    public static final double MINED_BUDDING = 0.04;' '    public static final double MINED_BUDDING = 0.2;'
+expect "a mined geode budding more than a given one" "the dearer seeding is the one found for nothing more often"
+
+edit $W '        if (mined > given) {' '        if (false) {'
+expect "the rule that buds the dearer seedings less" "budding more than a given one is not reported"
+
+edit $W '        bad.addAll(faultsInWorlds(FINDS, ON_FOOT));' '        '
+expect "a rule about the geodes never added up" "faultsInWorlds is written, compiled and never added up"
+
+edit $W '        bad.addAll(faultsInRinds(GROUNDS));' '        if (false) bad.addAll(faultsInRinds(GROUNDS));'
+expect "a rule about the geodes added up only sometimes" "faults() has a condition in it"
+
+edit $M/tools/ArcanaHarness.java '        theFinds();' '        '
+expect "a harness that never asks where the geodes are" "the harness never asks where the geodes are"
+
+edit $S/block/GeodeClusterBlock.java '    public static final DirectionProperty FACING = BlockStateProperties.FACING;' '    public static final DirectionProperty FACING = DirectionProperty.create("facing");'
+expect "crystals the geode feature cannot turn" "off walls and ceilings as well"
+
+echo "what the geode files on disk say"
+edit $G2 "                \"inner_layer_provider\": provider(f\"{NS}:{block_id(material, 'block')}\")," "                \"inner_layer_provider\": provider(f\"{NS}:coal_block\"),"
+expect_geodes "geodes walled in coal whatever they are of" "so its wall is not its own material"
+
+edit $G2 "                    provider(f\"{NS}:{block_id(material, 'budding')}\")," '                    provider("minecraft:budding_amethyst"),'
+expect_geodes "geodes budding the game's amethyst" "so its wall buds something other than its own crystals"
+
+edit $G2 '                    for step in CHAIN],' '                    for step in CHAIN[:-1]],'
+expect_geodes "geodes that never grow a cluster" "where its own four steps are"
+
+edit $G2 '             "chance": PER_SHARD * priced["shards"] if priced else 0},' '             "chance": 24},'
+expect_geodes "geodes as common as the game's own, whatever their price" "how rare it is and how dear seeding it is have come apart"
+
+edit $G2 '                        "min_inclusive": {"absolute": lowest},' '                        "min_inclusive": {"above_bottom": 0},'
+expect_geodes "geodes drawn from outside their band" "where its row's band is"
+
+edit $G2 '                MINED_SHARE if material in MINED else GIVEN_SHARE,' '                GIVEN_SHARE,'
+expect_geodes "mined geodes budding at the given share" "budding, where GeodeWorldRules says"
+
+edit $G2 '            "step": STEP,' '            "step": "underground_ores",'
+expect_geodes "geodes placed at another step" "the step the game places its own geode in"
+
+edit $G2 '            "biomes": f"#{NS}:{name}",' '            "biomes": "#minecraft:is_overworld",'
+expect_geodes "nether geodes under the overworld's biomes" "ground its row names"
+
+python3 - "$DATA/neoforge/biome_modifier/geodes_nether.json" <<'PYX'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p, encoding="utf-8"))
+d["features"].remove("elysiumarcana:bort_geode")
+open(p, "w", encoding="utf-8", newline="\n").write(json.dumps(d, indent=2) + "\n")
+PYX
+expect "a geode no biome modifier places" "no biome modifier places the bort geode"
+
+rm -f $DATA/tags/worldgen/biome/geodes_mountains.json
+expect "a biome modifier naming a tag nobody ships" "is not a tag this module ships"
+
+rm -f $DATA/worldgen/placed_feature/uraninite_geode.json
+expect "a geode with no placement" "there is no placed feature for the uraninite geode"
+
+cp $DATA/worldgen/placed_feature/iron_geode.json $DATA/worldgen/placed_feature/allthemodium_geode.json
+expect "a geode of a material this module does not ship" "a geode of a material this module does not ship"
+
+echo "what mines a geode, and a storage block is one way"
+GR=$S/rules/GeodeRules.java
+GB=$S/registry/GeodeBlocks.java
+T=$RES/data/minecraft/tags/block/mineable/pickaxe.json
+
+edit $G '            for material in materials for kind in kinds]' '            for material in materials for kind in kinds if kind != "budding"]'
+expect_regen "budding blocks that ask for a pickaxe and are in no tool's tag" "ask for the right tool and are in no tool's tag"
+
+edit $GR '            List.of(BLOCK, BUDDING, SMALL, MEDIUM, LARGE, CLUSTER);' '            List.of(BUDDING, SMALL, MEDIUM, LARGE, CLUSTER);'
+expect "a storage block nothing says how to mine" "block is in no tool's tag and not broken by hand either"
+
+edit $GR '            if (!mined && !touched) {' '            if (false) {'
+expect "the rule that finds a kind nothing says how to mine" "a kind no tool is decided for is not reported"
+
+python3 - "$T" <<'PYX'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p, encoding="utf-8"))
+d["values"].remove("elysiumarcana:iron_cluster")
+open(p, "w", encoding="utf-8", newline="\n").write(json.dumps(d, indent=2) + "\n")
+PYX
+expect "a crystal in no tool's tag" "are in no mineable tag and not exempt"
+
+python3 - "$T" <<'PYX'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p, encoding="utf-8"))
+d["values"].append("elysiumarcana:iron_bloc")
+open(p, "w", encoding="utf-8", newline="\n").write(json.dumps(d, indent=2) + "\n")
+PYX
+expect "a pickaxe tag naming a block nobody registers" "so the game refuses the whole tag"
+
+python3 - "$T" <<'PYX'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p, encoding="utf-8"))
+d["values"].append("elysiumarcana:iron_tinted_glass")
+open(p, "w", encoding="utf-8", newline="\n").write(json.dumps(d, indent=2) + "\n")
+PYX
+expect "glass exempt from the tags and in one all the same" "are exempt from the mineable tags and in one all the same"
+
+edit $GB '        return BlockBehaviour.Properties.ofFullCopy(Blocks.TINTED_GLASS)' '        return BlockBehaviour.Properties.ofFullCopy(Blocks.TINTED_GLASS).requiresCorrectToolForDrops()'
+expect "exempt glass that asks for the right tool" "it says so where it is registered"
+
+edit $GB '        return BlockBehaviour.Properties.ofFullCopy(Blocks.TINTED_GLASS)' '        return BlockBehaviour.Properties.ofFullCopy(Blocks.AMETHYST_BLOCK)'
+expect "exempt glass built on a block that asks for the right tool" "it copies Blocks.AMETHYST_BLOCK, which does"
+
+edit $GB '        return BlockBehaviour.Properties.ofFullCopy(Blocks.TINTED_GLASS)' '        return BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)'
+expect "a block built on something nobody has looked up" "nothing here knows whether that asks for the right tool"
+
+edit $GR '            List.of(BLOCK, BUDDING, SMALL, MEDIUM, LARGE, CLUSTER);' '            List.of(BLOCK, BUDDING, SMALL, MEDIUM, LARGE);'
+edit $GR '    public static final List<String> BY_HAND = List.of(GLASS);' '    public static final List<String> BY_HAND = List.of(GLASS, CLUSTER);'
+expect_regen "clusters broken by hand for no stated reason" "breaks cluster by hand and this gives no reason"
+
+edit $GR '    public static final List<String> BY_HAND = List.of(GLASS);' '    public static final List<String> BY_HAND = List.of();'
+expect "a reason kept for an exemption the rules dropped" "GeodeRules no longer does"
+
+edit $G2 '        write(os.path.join(DATA, "recipe", f"{material}_spyglass.json"), {' '        write(os.path.join(DATA, "recipe", f"{material}_shard_from_block.json"), {"type": "minecraft:crafting_shapeless", "category": "misc", "ingredients": [{"item": f"{NS}:{material}_block"}], "result": {"id": f"{NS}:{material}_shard", "count": 4}}); write(os.path.join(DATA, "recipe", f"{material}_spyglass.json"), {'
+expect_geodes "the way back from a storage block to four shards" "and a storage block is one way"
+
+python3 - "$DATA/recipe/iron_shard_from_glass.json" <<'PYX'
+import json, sys
+recipe = {"type": "minecraft:smelting", "category": "misc",
+          "ingredient": {"item": "elysiumarcana:iron_tinted_glass"},
+          "result": {"id": "elysiumarcana:iron_shard"}, "experience": 0.1,
+          "cookingtime": 200}
+open(sys.argv[1], "w", encoding="utf-8", newline="\n").write(json.dumps(recipe, indent=2) + "\n")
+PYX
+expect "a shard made by a recipe rather than grown" "a shard comes only from a cluster"
+
+edit $G2 '            "key": {"S": {"item": f"{NS}:{material}_shard"}},' '            "key": {"S": {"item": f"{NS}:coal_shard"}},'
+expect_geodes "storage blocks made of coal whatever they are of" "is not made of four of its own shards"
+
 echo
 echo "restoring and re-checking"
 restore

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "elysiumfoundry:titanium_ingot"
+    }
+  ],
+  "result": {
+    "id": "elysiumfoundry:titanium_nugget",
+    "count": 9
+  }
+}

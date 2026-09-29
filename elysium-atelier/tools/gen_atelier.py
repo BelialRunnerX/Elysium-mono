@@ -302,9 +302,10 @@ def reclaim(id, material, count):
 
 def data_files(shapes, materials):
     written = 0
-    for name, block, _, _soft in materials:
+    for name, block, _, soft in materials:
         for shape, units, made, of in shapes:
             id = f"{name}_{shape}"
+            harvested("shapes", id, shape, soft)
             write(os.path.join(DATA, "loot_table/blocks", id + ".json"), drop_itself(id))
             write(os.path.join(DATA, "recipe", id + ".json"),
                   shaped(PATTERNS[shape], block, id, made))
@@ -314,20 +315,6 @@ def data_files(shapes, materials):
                 write(os.path.join(DATA, "recipe", id + "_reclaim.json"),
                       reclaim(id, block, back))
                 written += 1
-    tags = os.path.join(OUT, "src/main/resources/data/minecraft/tags/block")
-    # Which tool mines it comes from the material's own softness, not from
-    # whether its block id happens to end in "_planks". Those two agreed right
-    # up until they did not, and a block in neither tag mines at hand speed
-    # with no tool at all — which reads as a bug in the pack rather than in one
-    # line of a generator.
-    wooden = [f"{NS}:{name}_{shape}" for name, _block, _face, soft in materials
-              if soft for shape, _, _, _ in shapes]
-    stony = [f"{NS}:{name}_{shape}" for name, _block, _face, soft in materials
-             if not soft for shape, _, _, _ in shapes]
-    write(os.path.join(tags, "mineable/axe.json"), {"replace": False, "values": wooden})
-    write(os.path.join(tags, "mineable/pickaxe.json"),
-          {"replace": False, "values": stony})
-    written += 2
     return written
 
 
@@ -521,6 +508,7 @@ def join_data(materials):
     tags = {}
     for name, kind, _face, soft in openings(materials):
         id = f"{name}_{kind}"
+        harvested("openings", id, kind, soft)
         block = [b for n, b, _f, _s in materials if n == name][0]
         grid, count = GRIDS[kind]
         write(os.path.join(DATA, "recipe", id + ".json"), {
@@ -534,7 +522,7 @@ def join_data(materials):
         write(os.path.join(DATA, "loot_table/blocks", id + ".json"),
               door_drop(id) if kind == "door" else drop_itself(id))
         written += 2
-        for tag in join_tags(name, kind, soft):
+        for tag in not_mineable(join_tags(name, kind, soft)):
             tags.setdefault(tag, []).append(f"{NS}:{id}")
     for tag, values in sorted(tags.items()):
         namespace, path = tag.split(":", 1)
@@ -822,9 +810,10 @@ def pane_state(id):
 def arch_files(pieces_read, materials):
     """Every architectural block: model, state, item, drop and recipe."""
     blocks = data = 0
-    for name, block, face, _soft in materials:
+    for name, block, face, soft in materials:
         for piece in pieces_read:
             id = name + "_" + piece[0]
+            harvested("pieces", id, piece[0], soft)
             if piece[9]:
                 write(os.path.join(ASSETS, "blockstates", id + ".json"),
                       pane_state(id))
@@ -1101,6 +1090,7 @@ def course_files(kinds, already, materials):
             if name in already.get(kind, set()):
                 continue
             id = name + "_" + kind
+            harvested("courses", id, kind, soft)
             if kind in VANILLA_DRAWN:
                 write(os.path.join(ASSETS, "blockstates", id + ".json"),
                       course_state(id, kind, block))
@@ -1139,7 +1129,7 @@ def course_files(kinds, already, materials):
                   drop_itself(id))
             write(os.path.join(DATA, "recipe", id + ".json"),
                   course_recipe(kind, block, id, made))
-            for tag in course_tags(kind, soft):
+            for tag in not_mineable(course_tags(kind, soft)):
                 tags.setdefault(tag, []).append(f"{NS}:{id}")
             blocks += 1
             data += 2
@@ -1309,6 +1299,7 @@ def trim_files(kinds, soft_family, materials):
             if family == soft_family and not soft:
                 continue
             id = name + "_" + kind
+            harvested("fittings", id, kind, soft)
             if joins:
                 write(os.path.join(ASSETS, "blockstates", id + ".json"),
                       pane_state(id))
@@ -1329,7 +1320,7 @@ def trim_files(kinds, soft_family, materials):
                   drop_itself(id))
             write(os.path.join(DATA, "recipe", id + ".json"),
                   trim_shaped(kind, block, id, made))
-            for tag in trim_tags(kind, soft, climbs):
+            for tag in not_mineable(trim_tags(kind, soft, climbs)):
                 tags.setdefault(tag, []).append(f"{NS}:{id}")
             blocks += 1
             data += 2
@@ -1467,7 +1458,6 @@ def cloth_model(kind, texture):
 def cloth_files(colours, seats, kinds, materials):
     """Every upholstered seat and every piece of cloth."""
     blocks = data = 0
-    tags = []
     woods = [(name, block, face) for name, block, face, soft in materials if soft]
     for colour in colours:
         wool = "minecraft:" + colour + "_wool"
@@ -1497,7 +1487,7 @@ def cloth_files(colours, seats, kinds, materials):
                                     {"item": wool}],
                     "result": {"id": f"{NS}:{id}", "count": 1},
                 })
-                tags.append(f"{NS}:{id}")
+                harvested("cloth", id, shape, True)
                 blocks += 1
                 data += 2
         for kind, made, of in kinds:
@@ -1522,17 +1512,11 @@ def cloth_files(colours, seats, kinds, materials):
                 "pattern": grid, "key": key,
                 "result": {"id": f"{NS}:{id}", "count": made},
             })
-            tags.append(f"{NS}:{id}")
+            # Wool is worked by hand as wood is, and goes on the axe's list
+            # with the seats it is sewn onto (HarvestRules.CLOTH).
+            harvested("cloth", id, kind, True)
             blocks += 1
             data += 2
-    where = os.path.join(OUT, "src/main/resources/data/minecraft",
-                         "tags/block/mineable/axe.json")
-    existing = []
-    if os.path.isfile(where):
-        with open(where, encoding="utf-8") as handle:
-            existing = json.load(handle).get("values", [])
-    write(where, {"replace": False, "values": sorted(set(existing) | set(tags))})
-    data += 1
     return blocks, data
 
 
@@ -1659,6 +1643,7 @@ def diagonal_files(kinds, materials):
     for name, block, face, soft in materials:
         for kind, wide, made, of in kinds:
             id = name + "_" + kind
+            harvested("diagonals", id, kind, soft)
             write(os.path.join(ASSETS, "models/block", id + ".json"),
                   diagonal_model(wide, face))
             write(os.path.join(ASSETS, "blockstates", id + ".json"),
@@ -1669,7 +1654,7 @@ def diagonal_files(kinds, materials):
                   drop_itself(id))
             write(os.path.join(DATA, "recipe", id + ".json"),
                   diagonal_shaped(kind, block, id, made))
-            for tag in diagonal_tags(kind, soft):
+            for tag in not_mineable(diagonal_tags(kind, soft)):
                 tags.setdefault(tag, []).append(f"{NS}:{id}")
             blocks += 1
             data += 2
@@ -1692,6 +1677,90 @@ def diagonal_language(entries, kinds, materials):
             entries["block." + NS + "." + name + "_" + kind] = \
                 MATERIAL_NAMES[name] + " " + DIAGONAL_NAMES[kind]
     return entries
+
+
+# ---------------------------------------------------------------------------
+# What mines it: one list per tool, for every block, written once
+# ---------------------------------------------------------------------------
+#
+# Until 29 September 2026 six families each wrote their blocks into the two
+# tool lists, and the seventh -- the architectural pieces -- wrote nothing. A
+# stone block asks for the right tool before it drops, and the right tool is
+# whichever one's list names it; so 693 roofs, awnings, bridges and lights in
+# every material dropped nothing, and the game's harvest audit said so.
+#
+# Now every family reports each block it writes to harvested(), the tool is
+# decided in one place from HarvestRules, and each list is written once, here,
+# after everything else. Once, because a second writer replaces the first: the
+# space module's generator wrote its pickaxe list three times and shipped the
+# last third. The families' own tag functions still name the tool's list, as
+# the Java they copy does, and not_mineable() keeps them from writing it.
+
+HARVEST_RULES = os.path.join(
+    MOD, "src/main/java/com/elysium/atelier/rules/HarvestRules.java")
+
+#: Every block written so far, as (roster, id, kind, soft).
+HARVESTED = []
+
+
+def harvested(roster, id, kind, soft):
+    """Say a block was written, so its tool's list can name it below."""
+    HARVESTED.append((roster, id, kind, soft))
+
+
+def not_mineable(tags):
+    """A family's tags without the tool's list, which harvest_files() writes."""
+    return [tag for tag in tags if not tag.startswith("minecraft:mineable/")]
+
+
+def by_hand():
+    """The kinds HarvestRules breaks by hand, read out of the Java."""
+    source = open(HARVEST_RULES, encoding="utf-8").read()
+    found = re.search(r"List<String> BY_HAND =\s*List\.of\(([^;]*?)\);", source)
+    if not found:
+        print("HarvestRules has no BY_HAND list, so this file cannot tell which "
+              "kinds are left off every tool's list on purpose")
+        sys.exit(1)
+    names = dict(re.findall(r'public static final String ([A-Z_]+) = "([a-z_]+)";',
+                            source))
+    return [names.get(token, token.strip('"'))
+            for token in re.findall(r'[A-Z_]{2,}|"[a-z_]+"', found.group(1))]
+
+
+def harvest_tool(kind, soft, exempt):
+    """The second copy of HarvestRules.toolFor. Diffed against the first."""
+    if kind in exempt:
+        return ""
+    return "axe" if soft else "pickaxe"
+
+
+def harvest_files():
+    """Each tool's list, once, naming every block a tool is for."""
+    exempt = by_hand()
+    lists = {}
+    seen = set()
+    for roster, id, kind, soft in HARVESTED:
+        if id in seen:
+            print(f"{id} was written twice, the second time by the {roster}, so two "
+                  f"blocks answer to one id and one of them does not exist")
+            sys.exit(1)
+        seen.add(id)
+        tool = harvest_tool(kind, soft, exempt)
+        if tool:
+            lists.setdefault(tool, set()).add(f"{NS}:{id}")
+    for kind in exempt:
+        if not any(k == kind for _r, _i, k, _s in HARVESTED):
+            print(f"HarvestRules breaks {kind} by hand and nothing here writes a "
+                  f"{kind}, so the exemption excuses nothing")
+            sys.exit(1)
+    folder = os.path.join(OUT, "src/main/resources/data/minecraft/tags/block/mineable")
+    written = 0
+    for tool in ("pickaxe", "axe", "shovel", "hoe"):
+        if tool in lists:
+            where = os.path.join(folder, tool + ".json")
+            write(where, {"replace": False, "values": sorted(lists[tool])})
+            written += 1
+    return written, len(seen) - sum(len(one) for one in lists.values())
 
 
 if __name__ == "__main__":
@@ -1903,14 +1972,12 @@ if __name__ == "__main__":
             sys.exit(1)
     made = models_and_states(shapes, materials)
     data = data_files(shapes, materials)
-    # The joins go after the shapes, because data_files() writes the two
-    # mineable tags wholesale and join_data() has to merge into what it left.
+    # Every family reports what it writes to harvested(); the tool lists are
+    # written once, after all seven, so the order here decides nothing.
     joined = join_models_and_states(materials)
     data += join_data(materials)
     built, more = arch_files(read, materials)
     data += more
-    # The courses go last, because they merge into the tag files everything
-    # above has already written into.
     laidup, more = course_files(cut, already, materials)
     data += more
     fittings_made, more = trim_files(fitted, soft_family, materials)
@@ -1919,11 +1986,15 @@ if __name__ == "__main__":
     data += more
     slants, more = diagonal_files(slanted, materials)
     data += more
+    # And each tool's list, once, after every family has said what it wrote.
+    listed, excused = harvest_files()
+    data += listed
     keys = language(shapes, materials, read, cut, already, fitted, soft_family,
                     (colours, seats, cloth_kinds), slanted)
     print(f"atelier: {len(shapes)} shape(s) x {len(materials)} material(s) = {made} "
           f"block(s) modelled and stated, {len(openings(materials))} joining block(s) "
           f"in {joined} more file(s), {built} architectural block(s), "
           f"{laidup} course(s), {fittings_made} fitting(s), {coloured} coloured "
-          f"block(s), {slants} diagonal(s), {data} data file(s), "
-          f"{keys} language key(s)")
+          f"block(s), {slants} diagonal(s), {len(HARVESTED)} block(s) on "
+          f"{listed} tool list(s) with {excused} broken by hand, {data} data "
+          f"file(s), {keys} language key(s)")

@@ -1,6 +1,8 @@
 {
-  "parent": "block/cube_all",
+  "parent": "minecraft:block/slab",
   "textures": {
-    "all": "elysiumarsenal:block/cracked_mud_brick_slab"
+    "bottom": "elysiumarsenal:block/cracked_mud_bricks",
+    "top": "elysiumarsenal:block/cracked_mud_bricks",
+    "side": "elysiumarsenal:block/cracked_mud_bricks"
   }
 }

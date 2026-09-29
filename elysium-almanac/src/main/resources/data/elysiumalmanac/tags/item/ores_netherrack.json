@@ -148,6 +148,18 @@
     {
       "id": "elysiumores:netherrack_zinc_ore",
       "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_crimson_iron_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_titanium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:netherrack_tungsten_ore",
+      "required": false
     }
   ]
 }

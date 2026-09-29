@@ -92,6 +92,14 @@
     {
       "id": "elysiumfoundry:coal_dust",
       "required": false
+    },
+    {
+      "id": "elysiumfoundry:titanium_dust",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:tungsten_dust",
+      "required": false
     }
   ]
 }

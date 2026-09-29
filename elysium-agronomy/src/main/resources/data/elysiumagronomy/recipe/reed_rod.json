@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  C",
+    " CS",
+    "C S"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:sugar_cane"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:reed_rod",
+    "count": 1
+  }
+}

@@ -2,7 +2,7 @@
   "type": "minecraft:smelting",
   "category": "misc",
   "ingredient": {
-    "item": "elysiumfoundry:raw_azure_silver"
+    "tag": "c:raw_materials/azure_silver"
   },
   "result": {
     "id": "elysiumfoundry:azure_silver_ingot"

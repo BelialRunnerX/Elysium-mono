@@ -10,9 +10,11 @@
       "required": false
     },
     "elysiumores:cinder_lithium_ore",
+    "elysiumores:deepslate_lithium_ore",
     "elysiumores:end_stone_lithium_ore",
     "elysiumores:frost_lithium_ore",
     "elysiumores:netherrack_lithium_ore",
-    "elysiumores:pale_lithium_ore"
+    "elysiumores:pale_lithium_ore",
+    "elysiumores:stone_lithium_ore"
   ]
 }

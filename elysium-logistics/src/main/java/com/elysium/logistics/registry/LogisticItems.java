@@ -12,6 +12,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import com.elysium.logistics.rules.CompressRules;
+import com.elysium.logistics.rules.LogisticRules;
 import com.elysium.logistics.rules.NetRules;
 import com.elysium.logistics.rules.PackRules;
 import com.elysium.logistics.pack.PackItem;
@@ -49,6 +50,13 @@ public final class LogisticItems {
             ITEMS.registerSimpleBlockItem(LogisticBlocks.ASSEMBLER);
     public static final DeferredItem<BlockItem> TERMINAL =
             ITEMS.registerSimpleBlockItem(LogisticBlocks.TERMINAL);
+
+    /**
+     * The key that locks a drawer to what it holds. A plain item, because
+     * everything it does is the drawer's doing, and never spent by it.
+     */
+    public static final DeferredItem<Item> DRAWER_KEY =
+            ITEMS.registerSimpleItem(LogisticRules.DRAWER_KEY);
 
     /**
      * One item per compression, walked from the same catalogue the blocks were.
@@ -141,6 +149,9 @@ public final class LogisticItems {
                         for (DeferredItem<? extends Item> item : ORDER) {
                             output.accept(item.get());
                         }
+                        // Then the key, which is for the drawers the list
+                        // starts with.
+                        output.accept(DRAWER_KEY.get());
                         // And the compressions, in the order the rules list
                         // them, so the tab reads as a ladder per material
                         // rather than as five hundred blocks in a heap.

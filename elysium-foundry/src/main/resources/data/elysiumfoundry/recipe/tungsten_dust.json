@@ -1,0 +1,11 @@
+{
+  "type": "elysiumindustry:crushing",
+  "input": {
+    "item": "elysiumfoundry:tungsten_ingot"
+  },
+  "result": {
+    "id": "elysiumfoundry:tungsten_dust",
+    "count": 1
+  },
+  "ticks": 100
+}

@@ -1,0 +1,32 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:ash_crag",
+    "elysiumwilds:boreal_crag",
+    "elysiumwilds:chalk_crag",
+    "elysiumwilds:clover_crag",
+    "elysiumwilds:fen_crag",
+    "elysiumwilds:frost_crag",
+    "elysiumwilds:frost_flat",
+    "elysiumwilds:frost_hill",
+    "elysiumwilds:frost_scarp",
+    "elysiumwilds:frost_wold",
+    "elysiumwilds:glacier_crag",
+    "elysiumwilds:green_crag",
+    "elysiumwilds:green_flat",
+    "elysiumwilds:green_hill",
+    "elysiumwilds:green_scarp",
+    "elysiumwilds:green_wold",
+    "elysiumwilds:heath_crag",
+    "elysiumwilds:hoar_crag",
+    "elysiumwilds:marsh_crag",
+    "elysiumwilds:mire_crag",
+    "elysiumwilds:pine_crag",
+    "elysiumwilds:reed_flat",
+    "elysiumwilds:reed_hill",
+    "elysiumwilds:reed_scarp",
+    "elysiumwilds:reed_wold",
+    "elysiumwilds:rime_crag",
+    "elysiumwilds:sleet_crag"
+  ]
+}

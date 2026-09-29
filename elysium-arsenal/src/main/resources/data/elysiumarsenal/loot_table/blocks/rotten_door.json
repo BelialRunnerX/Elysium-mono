@@ -7,7 +7,16 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "elysiumarsenal:rotten_door"
+          "name": "elysiumarsenal:rotten_door",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "elysiumarsenal:rotten_door",
+              "properties": {
+                "half": "lower"
+              }
+            }
+          ]
         }
       ],
       "conditions": [

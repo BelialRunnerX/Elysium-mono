@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_end",
+  "features": "elysiumagronomy:end_nest",
+  "step": "vegetal_decoration"
+}

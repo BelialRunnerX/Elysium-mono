@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:steam_flat",
+    "elysiumwilds:steam_hill",
+    "elysiumwilds:steam_scarp",
+    "elysiumwilds:steam_wold"
+  ]
+}

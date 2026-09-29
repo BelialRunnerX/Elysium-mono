@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:ash_crag",
+    "elysiumwilds:boreal_crag",
+    "elysiumwilds:fen_crag",
+    "elysiumwilds:mire_crag",
+    "elysiumwilds:pine_crag",
+    "elysiumwilds:rime_flat",
+    "elysiumwilds:rime_hill",
+    "elysiumwilds:rime_scarp",
+    "elysiumwilds:rime_wold"
+  ]
+}

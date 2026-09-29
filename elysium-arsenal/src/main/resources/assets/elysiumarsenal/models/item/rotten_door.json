@@ -1,3 +1,6 @@
 {
-  "parent": "elysiumarsenal:block/rotten_door"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "elysiumarsenal:item/rotten_door"
+  }
 }

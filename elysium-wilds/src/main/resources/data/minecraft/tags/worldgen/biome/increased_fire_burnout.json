@@ -1,0 +1,27 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:ash_crag",
+    "elysiumwilds:bayou_flat",
+    "elysiumwilds:bayou_hill",
+    "elysiumwilds:bayou_scarp",
+    "elysiumwilds:bayou_wold",
+    "elysiumwilds:boreal_crag",
+    "elysiumwilds:fen_crag",
+    "elysiumwilds:frost_crag",
+    "elysiumwilds:frost_flat",
+    "elysiumwilds:frost_hill",
+    "elysiumwilds:frost_scarp",
+    "elysiumwilds:frost_wold",
+    "elysiumwilds:glacier_crag",
+    "elysiumwilds:hoar_crag",
+    "elysiumwilds:mire_crag",
+    "elysiumwilds:pine_crag",
+    "elysiumwilds:rime_crag",
+    "elysiumwilds:sleet_crag",
+    "elysiumwilds:steam_flat",
+    "elysiumwilds:steam_hill",
+    "elysiumwilds:steam_scarp",
+    "elysiumwilds:steam_wold"
+  ]
+}

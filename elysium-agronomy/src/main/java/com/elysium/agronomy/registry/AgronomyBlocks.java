@@ -78,9 +78,14 @@ public final class AgronomyBlocks {
             if (housing.first()) {
                 continue;
             }
+            // Steel from HarvestRules.STEEL_FROM_SLOTS slots, timber below:
+            // the rules decide which apiary wants a pickaxe, and the
+            // validator holds this statement to them.
             made.put(housing.id(), BLOCKS.register(housing.id(),
                     () -> new HiveBlock(
-                            housing.slots() >= 4 ? steel().strength(3.5F)
+                            housing.slots()
+                                    >= com.elysium.agronomy.rules.HarvestRules.STEEL_FROM_SLOTS
+                                    ? steel().strength(3.5F)
                                     : timber().strength(2.5F),
                             housing.id())));
         }

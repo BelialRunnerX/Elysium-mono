@@ -5,6 +5,7 @@ import com.elysium.armory.item.ArmoryGear;
 import com.elysium.armory.item.ArmoryGearLogic;
 import com.elysium.armory.item.ArmoryGearParts;
 import com.elysium.armory.property.ArmorySalvageRules;
+import com.elysium.armory.registry.ArmoryComponents;
 import com.elysium.armory.registry.ArmoryItems;
 import com.elysium.lib.affix.ElysiumAffixEffects;
 import net.minecraft.util.RandomSource;
@@ -19,17 +20,19 @@ import java.util.Map;
  *
  * <p>The rules are in {@link ArmorySalvageRules}; this is what they act on. A
  * whole piece yields its parts back, each on a roll, plus one essence for each
- * level of each affix it was carrying.
+ * level of each affix it was carrying. Any affixed piece can go on the bench,
+ * found or made: a piece of the base game's gear has no parts, and gives only
+ * its essence.
  */
 public final class ArmorySalvage {
 
     private ArmorySalvage() {
     }
 
-    /** Whether there is anything to get out of this stack. */
+    /** Whether there is anything to get out of this stack: parts, essence, or both. */
     public static boolean canSalvage(ItemStack stack) {
-        return stack.getItem() instanceof ArmoryGear
-                && !ArmoryGearLogic.partsOf(stack).isEmpty();
+        boolean modular = stack.getItem() instanceof ArmoryGear && !ArmoryGearLogic.partsOf(stack).isEmpty();
+        return !stack.isEmpty() && ArmorySalvageRules.salvageable(modular, affixLevels(stack));
     }
 
     /**
@@ -55,13 +58,18 @@ public final class ArmorySalvage {
                 out.add(part);
             }
         }
-        int essence = ArmorySalvageRules.essence(affixLevels(gear));
+        int essence = ArmorySalvageRules.essence(affixLevels(gear), paidFor(gear));
         while (essence > 0) {
             int here = Math.min(essence, 64);
             out.add(new ItemStack(ArmoryItems.AFFIX_ESSENCE.get(), here));
             essence -= here;
         }
         return out;
+    }
+
+    /** What a reforge cost for the affixes on a stack; 0 when they were found rather than bought. */
+    public static int paidFor(ItemStack stack) {
+        return stack.getOrDefault(ArmoryComponents.REFORGED.get(), 0);
     }
 
     /** Every level of every affix on a stack, added up. */

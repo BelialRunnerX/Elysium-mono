@@ -1,6 +1,6 @@
 {
-  "parent": "block/cube_all",
+  "parent": "minecraft:block/pressure_plate_up",
   "textures": {
-    "all": "elysiumarsenal:block/rotten_pressure_plate"
+    "texture": "elysiumarsenal:block/rotten_planks"
   }
 }

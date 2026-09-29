@@ -2,7 +2,7 @@
   "type": "minecraft:blasting",
   "category": "misc",
   "ingredient": {
-    "item": "elysiumfoundry:raw_crimson_iron"
+    "tag": "c:raw_materials/crimson_iron"
   },
   "result": {
     "id": "elysiumfoundry:crimson_iron_ingot"

@@ -314,6 +314,48 @@ p.write_text(s, encoding="utf-8")
 PYX
 expect "a declared dependency on a mod this module replaces" "beyond the game and the library"
 
+echo "what mines a machine (the harvest audit, 29 Sep 2026)"
+HR=$M/src/main/java/com/elysium/bestiary/rules/HarvestRules.java
+FB=$M/src/main/java/com/elysium/bestiary/registry/FarmBlocks.java
+T=$M/src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json
+
+python3 - "$T" <<'PYX'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p, encoding="utf-8"))
+d["values"].remove("elysiumbestiary:grinder_saw")
+open(p, "w", encoding="utf-8", newline="\n").write(json.dumps(d, indent=2) + "\n")
+PYX
+expect "a machine in no tool's tag" "ask for the right tool and are in no tool's tag"
+
+edit $HR '            if (said == 0) {' '            if (false) {'
+expect "the rule that finds a machine no tool is decided for, disabled" "a block no tool is decided for is not reported"
+
+edit $HR '    public static final List<String> BY_HAND = List.of();' \
+        '    public static final List<String> BY_HAND = List.of("quiet_casing");'
+edit $V '    MINE_EXEMPT = {}' '    MINE_EXEMPT = {"quiet_casing": "wool, and wool breaks by hand"}'
+expect_regen "an exempt machine that asks for the right tool" "but it asks for the right tool: it copies Blocks.IRON_BLOCK, which does"
+
+edit $FB 'BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)' 'BlockBehaviour.Properties.ofFullCopy(Blocks.ANVIL)'
+expect "a machine built on a game block nobody has looked up" "nothing here knows whether that asks for the right tool"
+
+python3 - "$T" <<'PYX'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p, encoding="utf-8"))
+d["values"].append("elysiumbestiary:grinder_sa")
+open(p, "w", encoding="utf-8", newline="\n").write(json.dumps(d, indent=2) + "\n")
+PYX
+expect "a pickaxe tag naming a block nobody registers" "so the game refuses the whole tag"
+
+edit $HR '    public static final List<String> BY_HAND = List.of();' \
+        '    public static final List<String> BY_HAND = List.of("quiet_casing");'
+expect "a machine broken by hand for no stated reason" "breaks quiet_casing by hand and this gives no reason"
+
+edit $HR '    public static final String MACHINE_TOOL = "pickaxe";' \
+        '    public static final String MACHINE_TOOL = "axe";'
+expect "the rules moved the machines and the tag left where it was" "the tags are written from the rules by tools/gen_bestiary.py"
+
 echo
 echo "restoring and re-checking"
 restore

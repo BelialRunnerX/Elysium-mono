@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "elysiumfoundry:tungsten_dust"
+  },
+  "result": {
+    "id": "elysiumfoundry:tungsten_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

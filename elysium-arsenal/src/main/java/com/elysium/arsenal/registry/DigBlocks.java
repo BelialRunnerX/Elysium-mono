@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -147,6 +148,14 @@ public final class DigBlocks {
     public static final Map<String, DeferredBlock<Block>> ROTTEN = rotten("rotten");
     public static final Map<String, DeferredBlock<Block>> MUD = mudBricks();
 
+    /**
+     * The rotten set, every shape the game's own class for it.
+     *
+     * <p>Each shape also carries what the game's oak one has beyond its class,
+     * as {@code ofFullCopy} gives elysium-flora's: fences, gates and plates
+     * count as solid for what is set on them, a door and a plate break rather
+     * than being pushed in half by a piston, and nothing spawns on a trapdoor.
+     */
     private static Map<String, DeferredBlock<Block>> rotten(String name) {
         Map<String, DeferredBlock<Block>> made = new LinkedHashMap<>();
         made.put(name + "_log", BLOCKS.register(name + "_log",
@@ -157,14 +166,16 @@ public final class DigBlocks {
                 case "_slab" -> new SlabBlock(rotten());
                 case "_stairs" -> new StairBlock(
                         Blocks.OAK_PLANKS.defaultBlockState(), rotten());
-                case "_fence" -> new FenceBlock(rotten());
-                case "_fence_gate" -> new FenceGateBlock(WoodType.OAK, rotten());
+                case "_fence" -> new FenceBlock(rotten().forceSolidOn());
+                case "_fence_gate" -> new FenceGateBlock(WoodType.OAK,
+                        rotten().forceSolidOn());
                 case "_door" -> new DoorBlock(BlockSetType.OAK,
-                        rotten().noOcclusion());
+                        rotten().noOcclusion().pushReaction(PushReaction.DESTROY));
                 case "_trapdoor" -> new TrapDoorBlock(BlockSetType.OAK,
-                        rotten().noOcclusion());
+                        rotten().noOcclusion().isValidSpawn(Blocks::never));
                 case "_pressure_plate" -> new PressurePlateBlock(BlockSetType.OAK,
-                        rotten().noCollission());
+                        rotten().forceSolidOn().noCollission()
+                                .pushReaction(PushReaction.DESTROY));
                 default -> new Block(rotten());
             }));
         }

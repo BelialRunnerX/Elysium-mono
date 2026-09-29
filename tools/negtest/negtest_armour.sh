@@ -1,6 +1,7 @@
 #!/bin/bash
 cd /tmp/Elysium-mono || exit 1
-exec 9>/tmp/negtest_armour.lock; flock -n 9 || exit 2
+negtest_lock() { if command -v flock >/dev/null 2>&1; then flock -n "$1"; else mkdir "$2" 2>/dev/null && trap "rmdir '$2' 2>/dev/null" EXIT; fi; }  # Git Bash on Windows has no flock
+exec 9>/tmp/negtest_armour.lock; negtest_lock 9 /tmp/negtest_armour.lockdir || exit 2
 L=elysium-lib/src/main/java/com/elysium/lib; AR=$L/stats/ElysiumArmourRules.java; AH=$L/event/ElysiumArmourHandler.java; LM=$L/stats/ElysiumAttributeLimits.java; TM=elysium-lib/src/main/resources/META-INF/neoforge.mods.toml
 FILES="$AR $AH $LM $TM"; snap() { rm -rf /tmp/_ar; mkdir -p /tmp/_ar; for f in $FILES; do cp $f /tmp/_ar/; done; }; restore() { for f in $FILES; do cp /tmp/_ar/$(basename $f) $f; done; }
 pass=0; miss=0

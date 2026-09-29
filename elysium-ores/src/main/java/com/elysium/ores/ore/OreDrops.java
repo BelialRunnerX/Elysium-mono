@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,11 +33,13 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <h2>The search order</h2>
  *
- * Raw material, then gem, then dust, then ingot. A player breaking an ore
- * expects to hold something that still has to be smelted, so the raw form wins
- * wherever there is one; the further down the list, the more processed the
- * material already is, and the list only gets that far for materials that have
- * no raw form at all — lapis has no raw lapis, and never will.
+ * {@link UnifyRules#DROP_ORDER}: raw material, then gem, then the base game's
+ * own item, then dust, then ingot. A player breaking an ore expects to hold
+ * something that still has to be smelted, so the raw form wins wherever there
+ * is one; the further down the list, the more processed the material already
+ * is. The base game's coal and redstone come before any dust or ingot a mod
+ * tags, because a dust is what a crusher made of them: with the base game
+ * last, the Nether's coal ore dropped the foundry's coal dust.
  *
  * <p>Within a kind the choice is {@link UnifyRules}', so the ore drops exactly
  * the item everything else in the pack was unified onto. That is the whole
@@ -49,10 +52,6 @@ public final class OreDrops {
     private OreDrops() {
     }
 
-    /** Where a material may be found, best first. */
-    public static final List<String> KINDS =
-            List.of("raw_materials", "gems", "dusts", "ingots");
-
     private static final Map<String, Item> RESOLVED = new ConcurrentHashMap<>();
 
     /** The sentinel for "this pack has no such material", since a map holds no nulls. */
@@ -63,11 +62,18 @@ public final class OreDrops {
      * material.
      *
      * @param family  the {@code c:} family name, {@code "lead"}
-     * @param vanilla an item id to fall back on, or null
+     * @param vanilla the family's own item in the base game, looked for after
+     *                a raw form and a gem and before a dust or an ingot, or null
      */
     @Nullable
     public static Item of(String family, @Nullable String vanilla) {
-        Item found = RESOLVED.computeIfAbsent(family, name -> search(name, vanilla));
+        // Remembered per family and fallback, not per family. The placement
+        // gate asks without the fallback and the ore with it, and with the base
+        // game's item ahead of a dust the two answers differ: one entry for
+        // both would hand the Nether's coal ore whatever worldgen asked first,
+        // which is coal dust.
+        String key = family + "|" + (vanilla == null ? "" : vanilla);
+        Item found = RESOLVED.computeIfAbsent(key, ignored -> search(family, vanilla));
         return found == NONE ? null : found;
     }
 
@@ -90,29 +96,28 @@ public final class OreDrops {
     // ------------------------------------------------------------------
 
     private static Item search(String family, @Nullable String vanilla) {
-        for (String kind : KINDS) {
-            Item chosen = bestIn(kind + "/" + family);
-            if (chosen != null) {
-                return chosen;
+        Map<String, List<String>> members = new HashMap<>();
+        Map<String, Item> byId = new HashMap<>();
+        for (String kind : UnifyRules.DROP_ORDER) {
+            if (!UnifyRules.VANILLA.equals(kind)) {
+                members.put(kind, idsIn(kind + "/" + family, byId));
             }
         }
-        if (vanilla != null) {
-            Item fallback = BuiltInRegistries.ITEM
-                    .getOptional(ResourceLocation.parse(vanilla)).orElse(null);
-            if (fallback != null) {
-                return fallback;
-            }
+        Item fallback = vanilla == null || vanilla.isEmpty() ? null
+                : BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(vanilla)).orElse(null);
+        if (fallback != null) {
+            byId.put(vanilla, fallback);
         }
-        return NONE;
+        String chosen = UnifyRules.drop(members, fallback == null ? null : vanilla);
+        Item item = chosen == null ? null : byId.get(chosen);
+        return item == null ? NONE : item;
     }
 
-    /** The canonical member of one {@code c:} tag, or null if it is empty. */
-    @Nullable
-    private static Item bestIn(String path) {
+    /** Every id in one {@code c:} tag, noting which item each one is. */
+    private static List<String> idsIn(String path, Map<String, Item> byId) {
         TagKey<Item> key = TagKey.create(Registries.ITEM,
                 ResourceLocation.fromNamespaceAndPath("c", path));
         List<String> ids = new ArrayList<>();
-        Map<String, Item> byId = new java.util.HashMap<>();
         for (net.minecraft.core.Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(key)) {
             ResourceKey<Item> id = holder.unwrapKey().orElse(null);
             if (id == null) {
@@ -122,7 +127,6 @@ public final class OreDrops {
             ids.add(spelled);
             byId.put(spelled, holder.value());
         }
-        String canonical = UnifyRules.canonical(ids);
-        return canonical == null ? null : byId.get(canonical);
+        return ids;
     }
 }

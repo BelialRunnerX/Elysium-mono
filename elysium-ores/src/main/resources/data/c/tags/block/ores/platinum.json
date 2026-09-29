@@ -10,6 +10,8 @@
       "required": false
     },
     "elysiumores:cinder_platinum_ore",
+    "elysiumores:deepslate_platinum_ore",
+    "elysiumores:end_stone_platinum_ore",
     "elysiumores:frost_platinum_ore",
     "elysiumores:netherrack_platinum_ore",
     "elysiumores:pale_platinum_ore",

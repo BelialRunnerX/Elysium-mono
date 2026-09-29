@@ -1137,6 +1137,53 @@ public final class MachineHarness {
                 "cycling backwards past zero does not wrap");
     }
 
+    /**
+     * What mines a block: the rules answer for every material the table uses
+     * and for the glass, and the rule that reads a tag reports the three ways
+     * a list can be wrong. A block in no tool's tag breaks at a fist's pace.
+     */
+    private static void theHarvest() {
+        java.util.List<String> tools = com.elysium.solarpunk.rules.HarvestRules.TOOLS;
+        check(tools.contains(com.elysium.solarpunk.rules.HarvestRules.MACHINE_TOOL),
+                "the machines are mined by a tool the game keeps no list for");
+        for (String tool : com.elysium.solarpunk.rules.HarvestRules.TOOL_OF_MATERIAL.values()) {
+            check(tools.contains(tool), "a material is mined by " + tool
+                    + ", which is no tool the game keeps a list for");
+        }
+        check(com.elysium.solarpunk.rules.HarvestRules.toolFor("bloom_glass", "bloom", false)
+                .isEmpty(), "the glass is given a tool, and glass breaks by hand");
+        check(com.elysium.solarpunk.rules.HarvestRules.toolFor("bloom_lantern", "bloom", false)
+                .equals("pickaxe"), "the lantern is not a pickaxe's");
+        check(com.elysium.solarpunk.rules.HarvestRules.toolFor("solar_condenser", "brass", true)
+                .equals(com.elysium.solarpunk.rules.HarvestRules.MACHINE_TOOL),
+                "a machine is not mined by the machines' tool");
+        boolean refused = false;
+        try {
+            com.elysium.solarpunk.rules.HarvestRules.toolFor("bog_brick", "peat", false);
+        } catch (IllegalArgumentException expected) {
+            refused = true;
+        }
+        check(refused, "a material nothing decides a tool for is given one anyway");
+        // The controls on the tag reader: a block no tool is decided for, one
+        // decided twice, and a name that is no block of ours are each reported.
+        java.util.List<String> blocks = java.util.List.of("rammed_earth", "living_wall", "bloom_glass");
+        java.util.Map<String, java.util.List<String>> minedBy = java.util.Map.of(
+                "pickaxe", java.util.List.of("rammed_earth"), "axe", java.util.List.of("living_wall"));
+        java.util.List<String> byHand = java.util.List.of("bloom_glass");
+        check(com.elysium.solarpunk.rules.HarvestRules.untooled(blocks, minedBy, byHand).isEmpty(),
+                "a list that answers once for every block is reported anyway");
+        check(!com.elysium.solarpunk.rules.HarvestRules.untooled(
+                java.util.List.of("rammed_earth", "living_wall", "bloom_glass", "bog_brick"),
+                minedBy, byHand).isEmpty(), "a block no tool is decided for is not reported");
+        check(!com.elysium.solarpunk.rules.HarvestRules.untooled(blocks, minedBy,
+                java.util.List.of("bloom_glass", "rammed_earth")).isEmpty(),
+                "a block mined by a tool and broken by hand is not reported");
+        check(!com.elysium.solarpunk.rules.HarvestRules.untooled(blocks,
+                java.util.Map.of("pickaxe", java.util.List.of("rammed_earth", "bog_brick"),
+                        "axe", java.util.List.of("living_wall")), byHand).isEmpty(),
+                "a tool given to a block nobody registers is not reported");
+    }
+
     public static void main(String[] args) {
         condenserCurve();
         capstanCurve();
@@ -1171,6 +1218,7 @@ public final class MachineHarness {
         aHeldClassFreesItsShare();
         theDefaultRuleIsHarmless();
         everythingIsReachableByClicking();
+        theHarvest();
 
         System.out.println("machines: two generator curves, the choice between "
                 + "them, the reclaimer's rate, the kiln's saving, the tank's "

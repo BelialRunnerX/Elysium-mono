@@ -2,7 +2,7 @@
   "type": "minecraft:blasting",
   "category": "misc",
   "ingredient": {
-    "item": "elysiumfoundry:raw_uraninite"
+    "tag": "c:raw_materials/uraninite"
   },
   "result": {
     "id": "elysiumatomics:uranium_ingot"

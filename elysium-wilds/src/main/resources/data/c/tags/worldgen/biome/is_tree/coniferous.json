@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:glacier_flat",
+    "elysiumwilds:glacier_hill",
+    "elysiumwilds:glacier_scarp",
+    "elysiumwilds:glacier_wold"
+  ]
+}

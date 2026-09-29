@@ -56,6 +56,7 @@ public final class ColonyHarness {
         relief();
         market();
         spaceport();
+        harvest();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -1164,5 +1165,35 @@ public final class ColonyHarness {
             check(PortRules.freightCost(64, mid) <= MarketRules.costOf(64, price),
                     "a full crate cost more shipped direct than bought, at " + price);
         }
+    }
+
+    /**
+     * What mines the elevator: the lists as shipped answer once for every
+     * block, and the rule that reads them reports the three ways a list can be
+     * wrong. A part of the elevator in no tool's tag drops nothing.
+     */
+    private static void harvest() {
+        java.util.List<String> blocks = new java.util.ArrayList<>(HarvestRules.PICKAXE);
+        blocks.addAll(HarvestRules.AXE);
+        blocks.addAll(HarvestRules.SHOVEL);
+        blocks.addAll(HarvestRules.HOE);
+        blocks.addAll(HarvestRules.BY_HAND);
+        java.util.List<String> shipped = HarvestRules.untooled(blocks, HarvestRules.minedBy(),
+                HarvestRules.BY_HAND);
+        check(shipped.isEmpty(), "a block as shipped is given no tool, or two: " + shipped);
+        check(blocks.size() == 8, "the harvest rules answer for " + blocks.size()
+                + " blocks and the module registers eight");
+        // The controls: a block no tool is decided for, one decided twice, and
+        // a name that is no block of ours each have to be reported.
+        java.util.List<String> unlisted = new java.util.ArrayList<>(blocks);
+        unlisted.add("elevator_cab");
+        check(!HarvestRules.untooled(unlisted, HarvestRules.minedBy(), HarvestRules.BY_HAND)
+                .isEmpty(), "a block no tool is decided for is not reported");
+        check(!HarvestRules.untooled(blocks, HarvestRules.minedBy(),
+                java.util.List.of("settlement_seed")).isEmpty(),
+                "a block mined by a tool and broken by hand is not reported");
+        check(!HarvestRules.untooled(blocks, java.util.Map.of("pickaxe", HarvestRules.PICKAXE,
+                "axe", java.util.List.of("elevator_cab")), HarvestRules.BY_HAND).isEmpty(),
+                "a tool given to a block nobody registers is not reported");
     }
 }

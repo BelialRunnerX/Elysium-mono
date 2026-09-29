@@ -262,7 +262,12 @@ public final class BeeRules {
             resource("biolith", "cobalt", "bio_culture"),
             resource("bathysteel", "cobalt", "pressure_shell"),
             resource("hemalite", "nightgold", "blight_crystal"),
-            resource("nullsteel", "nightgold", "null_shard"));
+            resource("nullsteel", "nightgold", "null_shard"),
+            // Titanium and tungsten, which the foundry mines for the core's
+            // gear (29 Sep 2026): bred from the bees of the metals nearest
+            // them, the light one from aluminum and the heavy one from osmium.
+            resource("titanium", "iron", "aluminum"),
+            resource("tungsten", "iron", "osmium"));
 
     private static final Map<String, Bee> BY_ID = new LinkedHashMap<>();
 

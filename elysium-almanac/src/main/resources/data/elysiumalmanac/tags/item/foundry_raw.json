@@ -44,6 +44,14 @@
     {
       "id": "elysiumfoundry:raw_azure_silver",
       "required": false
+    },
+    {
+      "id": "elysiumfoundry:raw_titanium",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:raw_tungsten",
+      "required": false
     }
   ]
 }

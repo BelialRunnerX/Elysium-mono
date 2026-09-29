@@ -48,6 +48,7 @@ public final class ArcanaHarness {
         theWalk();
         theGeodes();
         theBudding();
+        theFinds();
         theRelics();
 
         if (failures > 0) {
@@ -59,7 +60,9 @@ public final class ArcanaHarness {
                 + "of crafting, dissolving and condensing not one left anybody better "
                 + "off than they started, and "
                 + GeodeRules.catalogue().size() + " geode blocks whose growth chain "
-                + "has no hole in it, and "
+                + "has no hole in it, found in "
+                + GeodeWorldRules.FINDS.size() + " geodes in worlds a player walks "
+                + "to, and "
                 + RelicRules.RELICS.size() + " relics carrying every ability the "
                 + "library defines");
     }
@@ -371,6 +374,27 @@ public final class ArcanaHarness {
                 "a plain block claims to grow into something");
         check(!new GeodeRules.Geode("iron", GeodeRules.BLOCK).grows(),
                 "a plain block is a step in the growth chain");
+
+        // What mines each kind: the game's own amethyst, all six by pickaxe,
+        // and the glass by hand. A kind nothing decides is a block every tool
+        // breaks at a fist's pace, and one that asks for the right tool drops
+        // nothing at all.
+        List<String> untooled = GeodeRules.untooled(GeodeRules.KINDS,
+                GeodeRules.PICKAXE, GeodeRules.BY_HAND);
+        check(untooled.isEmpty(), "a kind of geode block nothing says how to mine: "
+                + untooled);
+        check(!GeodeRules.untooled(GeodeRules.KINDS, List.of(GeodeRules.BUDDING),
+                        GeodeRules.BY_HAND).isEmpty(),
+                "a kind no tool is decided for is not reported, and a block that "
+                        + "asks for the right tool with no tool's tag drops nothing");
+        check(!GeodeRules.untooled(List.of(GeodeRules.BLOCK, GeodeRules.GLASS),
+                        List.of(GeodeRules.BLOCK, GeodeRules.GLASS),
+                        List.of(GeodeRules.GLASS)).isEmpty(),
+                "a kind given both a pickaxe and bare hands is not reported");
+        check(!GeodeRules.untooled(GeodeRules.KINDS, List.of("ingot"),
+                        GeodeRules.KINDS).isEmpty(),
+                "a tool given to something that is not a kind of geode block is "
+                        + "not reported");
     }
 
     // ==================================================================
@@ -588,5 +612,158 @@ public final class ArcanaHarness {
                 + "of them paid in its own shards, and " + swept + " price(s) swept "
                 + "against the grid with " + overGrid + " too big for it and "
                 + ragged + " not a whole number of blocks — none of them ours");
+    }
+
+    // ==================================================================
+
+    /**
+     * Where the first shard of each material comes from.
+     *
+     * <p>Every link of the chain was right — a shard from a cluster, a
+     * cluster from a budding block, a budding block from shards — and the
+     * chain had no first link, because no world held a geode. What is checked
+     * here is that every material has one, in a world a player walks to, as
+     * rare as its seeding is dear; and, one control per rule, that each rule
+     * would say so if it were not.
+     */
+    private static void theFinds() {
+        List<String> faults = GeodeWorldRules.faults();
+        check(faults.isEmpty(), "something wrong with where the geodes are: " + faults);
+
+        GeodeWorldRules.Find first = GeodeWorldRules.FINDS.get(0);
+        List<String> materials = GeodeRules.materials();
+
+        // Coverage: the rule the whole file exists for.
+        check(!GeodeWorldRules.faultsInCoverage(List.of(first), materials).isEmpty(),
+                "a material with no geode in any world is not reported, and its "
+                        + "first shard comes from nowhere");
+        check(!GeodeWorldRules.faultsInCoverage(List.of(first, first),
+                        List.of(first.material())).isEmpty(),
+                "a material found in two places is not reported");
+        check(GeodeWorldRules.faultsInCoverage(GeodeWorldRules.FINDS,
+                        materials).isEmpty(),
+                "a geode this module ships is in no world");
+
+        check(!GeodeWorldRules.faultsInStrangers(List.of(new GeodeWorldRules.Find(
+                        "unobtainium", GeodeWorldRules.OVERWORLD_BIOMES,
+                        GeodeWorldRules.THE_GAMES_BAND)), materials).isEmpty(),
+                "a geode of a material this module does not have is not reported");
+
+        // A world that needs a rocket.
+        GeodeWorldRules.Ground moon = new GeodeWorldRules.Ground("pale_moon",
+                "elysiumspace:pale_moon", List.of("#elysiumspace:pale_moon_biomes"),
+                "minecraft:calcite", "minecraft:smooth_basalt");
+        check(!GeodeWorldRules.faultsInWorlds(List.of(new GeodeWorldRules.Find(
+                        "platinum", moon, GeodeWorldRules.THE_GAMES_BAND)),
+                GeodeWorldRules.ON_FOOT).isEmpty(),
+                "a geode only a rocket reaches is not reported");
+
+        // Off the floor and under the roof.
+        check(!GeodeWorldRules.faultsInBands(List.of(new GeodeWorldRules.Find("coal",
+                        GeodeWorldRules.OVERWORLD_BIOMES,
+                        new GeodeWorldRules.Band(-64, 30))),
+                GeodeWorldRules.ON_FOOT, GeodeWorldRules.MARGIN).isEmpty(),
+                "a geode drawn from the bedrock floor is not reported");
+        check(!GeodeWorldRules.faultsInBands(List.of(new GeodeWorldRules.Find(
+                        "glowstone", GeodeWorldRules.NETHER_BIOMES,
+                        new GeodeWorldRules.Band(64, 127))),
+                GeodeWorldRules.ON_FOOT, GeodeWorldRules.MARGIN).isEmpty(),
+                "a geode drawn from the Nether's roof is not reported");
+
+        // How rare.
+        check(!GeodeWorldRules.faultsInRarity(List.of(first), BuddingRules.BUDDINGS, 1,
+                        GeodeWorldRules.THE_GAMES_GEODE).isEmpty(),
+                "a geode commoner than the game's own amethyst geode is not reported");
+        check(!GeodeWorldRules.faultsInRarity(List.of(first), List.of(),
+                        GeodeWorldRules.CHUNKS_PER_SHARD,
+                        GeodeWorldRules.THE_GAMES_GEODE).isEmpty(),
+                "a geode with no seeding price to be as rare as is not reported");
+        check(!GeodeWorldRules.faultsInCrowding(GeodeWorldRules.FINDS,
+                        BuddingRules.BUDDINGS, 3,
+                        GeodeWorldRules.MOST_PER_CHUNK).isEmpty(),
+                "a world with a geode round every corner is not reported");
+
+        // The grounds, which are the biome modifiers.
+        check(!GeodeWorldRules.faultsInGrounds(List.of(
+                        GeodeWorldRules.OVERWORLD_BIOMES, GeodeWorldRules.OVERWORLD_BIOMES,
+                        GeodeWorldRules.MOUNTAIN_BIOMES, GeodeWorldRules.NETHER_BIOMES),
+                GeodeWorldRules.FINDS).isEmpty(),
+                "two grounds writing the one biome modifier are not reported");
+        check(!GeodeWorldRules.faultsInGrounds(List.of(
+                        GeodeWorldRules.OVERWORLD_BIOMES, GeodeWorldRules.NETHER_BIOMES),
+                GeodeWorldRules.FINDS).isEmpty(),
+                "a geode under a ground no biome modifier is written for is not "
+                        + "reported, and it is placed nowhere");
+        check(!GeodeWorldRules.faultsInGrounds(GeodeWorldRules.GROUNDS,
+                        List.of(first)).isEmpty(),
+                "a biome modifier that adds nothing is not reported");
+
+        check(!GeodeWorldRules.faultsInRinds(List.of(new GeodeWorldRules.Ground("iron",
+                        "minecraft:overworld", List.of("#minecraft:is_overworld"),
+                        "elysiumarcana:iron_block", "minecraft:smooth_basalt")))
+                        .isEmpty(),
+                "a geode wrapped in this module's own blocks is not reported, and it "
+                        + "hands out one material for finding another");
+        check(!GeodeWorldRules.faultsInRinds(List.of(new GeodeWorldRules.Ground("bare",
+                        "minecraft:overworld", List.of("#minecraft:is_overworld"),
+                        "minecraft:stone", "minecraft:stone"))).isEmpty(),
+                "a geode with no rind to tell it by is not reported");
+
+        check(!GeodeWorldRules.faultsInBudding(0.083, 0.2).isEmpty(),
+                "a mined geode budding more than a given one is not reported");
+        check(!GeodeWorldRules.faultsInBudding(0.083, 0.0).isEmpty(),
+                "a geode that never grows a shard is not reported");
+        check(!GeodeWorldRules.faultsInBudding(1.5, 0.04).isEmpty(),
+                "a budding share the game's own feature refuses is not reported");
+
+        check(threwOn(() -> new GeodeWorldRules.Band(30, -58)),
+                "a band that holds no height at all is accepted");
+        check(threwOn(() -> new GeodeWorldRules.Ground("empty", "minecraft:overworld",
+                        List.of(), "minecraft:calcite", "minecraft:smooth_basalt")),
+                "a ground under no biome is accepted");
+        check(threwOn(() -> new GeodeWorldRules.World("minecraft:overworld", 64, -64)),
+                "a world whose floor is over its roof is accepted");
+
+        // The sweep: every geode is its seeding's price times the chunks per
+        // shard, and a dearer seeding is never an easier geode to find.
+        int compared = 0;
+        for (GeodeWorldRules.Find one : GeodeWorldRules.FINDS) {
+            BuddingRules.Budding price = BuddingRules.budding(one.material());
+            check(price != null && one.chance()
+                            == GeodeWorldRules.CHUNKS_PER_SHARD * price.shards(),
+                    "the " + one.material() + " geode is not its seeding price times "
+                            + GeodeWorldRules.CHUNKS_PER_SHARD + " chunks a shard");
+            for (GeodeWorldRules.Find other : GeodeWorldRules.FINDS) {
+                BuddingRules.Budding theirs = BuddingRules.budding(other.material());
+                if (price != null && theirs != null
+                        && price.shards() > theirs.shards()) {
+                    check(one.chance() > other.chance(),
+                            one.material() + " costs more to seed than "
+                                    + other.material() + " and is no rarer to find");
+                    compared++;
+                }
+            }
+        }
+        check(compared > 0, "the sweep compared no two prices, so it says nothing");
+
+        int least = Integer.MAX_VALUE;
+        int most = 0;
+        for (GeodeWorldRules.Find one : GeodeWorldRules.FINDS) {
+            least = Math.min(least, one.chance());
+            most = Math.max(most, one.chance());
+        }
+        StringBuilder worlds = new StringBuilder();
+        for (Map.Entry<String, Double> world : GeodeWorldRules.perChunk(
+                GeodeWorldRules.FINDS, BuddingRules.BUDDINGS,
+                GeodeWorldRules.CHUNKS_PER_SHARD).entrySet()) {
+            worlds.append(worlds.length() == 0 ? "" : " and ")
+                    .append("one in ").append(Math.round(1.0 / world.getValue()))
+                    .append(" chunks of ").append(world.getKey());
+        }
+        System.out.println("  the finding: " + GeodeWorldRules.FINDS.size()
+                + " geode(s), each in one chunk in " + least + " to " + most + " at "
+                + GeodeWorldRules.CHUNKS_PER_SHARD + " chunks a shard of its "
+                + "seeding, all of them together " + worlds + ", and none in a world "
+                + "that needs a rocket");
     }
 }

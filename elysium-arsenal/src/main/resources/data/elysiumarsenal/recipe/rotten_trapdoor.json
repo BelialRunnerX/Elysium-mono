@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "elysiumarsenal:rotten_planks"
+    }
+  },
+  "result": {
+    "id": "elysiumarsenal:rotten_trapdoor",
+    "count": 2
+  }
+}

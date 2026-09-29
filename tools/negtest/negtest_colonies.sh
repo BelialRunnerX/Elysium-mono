@@ -47,7 +47,7 @@ expect "a handler speaking MineColonies' own types" "speaks in Settlements"
 echo "additive only"
 edit $S/event/ColonyRaids.java 'ElysiumElites.promote(raider, ColonyRules.raiderTier(tier));' \
   'raider.setColony(null); ElysiumElites.promote(raider, ColonyRules.raiderTier(tier));'
-expect "an add-on writing back into its host" "writes nothing back"
+expect "an add-on writing back into its host" "may not reach past them into the host's own state"
 
 edit $S/event/ColonyRaids.java 'if (!ColonyRules.promotes(tier)) {' \
   'raider.setHealth(raider.getMaxHealth() * 2);
@@ -139,6 +139,64 @@ import json
 p='$R/assets/elysiumcolonies/lang/en_us.json'
 json.dump({},open(p,'w'),indent=2)"
 expect "the moment a town raises a tier, as a raw key" "reads a raw key"
+
+echo "what mines the elevator (the harvest audit, 29 Sep 2026)"
+HR=$S/rules/HarvestRules.java
+PB=$S/registry/PortBlocks.java
+SB=$S/registry/SettleBlocks.java
+T=$R/data/minecraft/tags/block/mineable/pickaxe.json
+regen_port() { (cd $M && python3 tools/gen_port.py >/dev/null 2>&1); }
+
+python3 - "$T" <<'PYX'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p, encoding="utf-8"))
+d["values"].remove("elysiumcolonies:elevator_tether")
+open(p, "w", encoding="utf-8", newline="\n").write(json.dumps(d, indent=2) + "\n")
+PYX
+expect "a tether in no tool's tag" "ask for the right tool and are in no tool's tag"
+
+edit $HR '            if (said == 0) {' '            if (false) {'
+expect "the rule that finds a block no tool is decided for, disabled" "a block no tool is decided for is not reported"
+
+edit $HR '    public static final List<String> AXE = List.of("settlement_seed");' \
+        '    public static final List<String> AXE = List.of();'
+edit $HR '    public static final List<String> BY_HAND = List.of();' \
+        '    public static final List<String> BY_HAND = List.of("settlement_seed");'
+edit $M/validate.py 'MINE_EXEMPT = {}' 'MINE_EXEMPT = {"settlement_seed": "a stake, and a stake pulls out by hand"}'
+edit $SB '                    .mapColor(MapColor.WOOD)
+                    .strength(0.5F)' '                    .mapColor(MapColor.WOOD)
+                    .requiresCorrectToolForDrops()
+                    .strength(0.5F)'
+regen_port
+expect "an exempt stake that asks for the right tool" "but it asks for the right tool: it says so where it is registered"
+
+edit $PB '        return BlockBehaviour.Properties.of()
+                .mapColor(colour)
+                .strength(5.0F, 6.0F)
+                .requiresCorrectToolForDrops()' '        return BlockBehaviour.Properties.ofFullCopy(Blocks.ANVIL)
+                .mapColor(colour)
+                .strength(5.0F, 6.0F)'
+expect "the elevator built, through its helper, on a game block nobody has looked up" "nothing here knows whether that asks for the right tool"
+
+python3 - "$T" <<'PYX'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p, encoding="utf-8"))
+d["values"].append("elysiumcolonies:elevator_teth")
+open(p, "w", encoding="utf-8", newline="\n").write(json.dumps(d, indent=2) + "\n")
+PYX
+expect "a pickaxe tag naming a block nobody registers" "so the game refuses the whole tag"
+
+edit $HR '    public static final List<String> BY_HAND = List.of();' \
+        '    public static final List<String> BY_HAND = List.of("settlement_seed");'
+expect "a stake broken by hand for no stated reason" "breaks settlement_seed by hand and this gives no reason"
+
+edit $HR '    public static final List<String> AXE = List.of("settlement_seed");' \
+        '    public static final List<String> AXE = List.of();'
+edit $HR '    public static final List<String> SHOVEL = List.of();' \
+        '    public static final List<String> SHOVEL = List.of("settlement_seed");'
+expect "the rules moved the stake and the tag left where it was" "the tags are written from the rules by tools/gen_port.py"
 
 echo
 echo "restoring and re-checking"

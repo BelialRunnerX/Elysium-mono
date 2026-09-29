@@ -710,6 +710,15 @@ if os.path.isdir(_ore_tags):
 else:
     fail("elysium-ores declares no ore tags where this expects them, so the seeds "
          "ask for ores nothing is known to fill")
+# The top two rods ask for steel and starsteel by tag. Industry, below this
+# module, fills c:ingots/steel; the foundry fills c:ingots/starsteel. Read out
+# of their own data, as the ores are, so a tag neither of them fills is still
+# a recipe nothing can make.
+for _module in ("elysium-industry", "elysium-foundry"):
+    _ingots = os.path.join(ROOT, _module, "src/main/resources/data/c/tags/item/ingots")
+    if os.path.isdir(_ingots):
+        BELOW_TAGS |= {"c:ingots/" + name[:-5] for name in os.listdir(_ingots)
+                       if name.endswith(".json")}
 below = set()
 for module, namespace in (("elysium-industry", "elysiumindustry"),
                           ("elysium-kinetics", "elysiumkinetics")):
@@ -919,6 +928,56 @@ for material in seeds:
     if f"{material}_from_essence" not in crafted:
         fail(f"there is no way to turn {material} essence into {material}, so the whole "
              f"farm produces a pile of something with no use")
+
+# The way onto the essence ladder, as the recipes on disk have it. Every seed
+# cost four of its own rung's essence and a pot grows essence only out of a
+# seed of its rung, so the first faint essence needed a seed that cost faint
+# essence: the whole ladder, the altar and thirty awakened seeds waited on
+# something no world could make (check_obtainable.py, 29 Sep 2026). The first
+# rung is now paid in SeedRules.FIRST_RUNG_PRICE, and the ladder is walked
+# here from nothing it makes: a seed is bought once every essence it asks for
+# is had, a pot grows its rung's essence, and four of a rung climb to the next.
+first_price = re.search(r'FIRST_RUNG_PRICE = "([a-z_:]+)";',
+                        strip_comments(SEED_RULES, True))
+per_step = int(constant("ESSENCE_PER_STEP", kind="int") or 0)
+rung_ids = [f"{NS}:{name}" for name in essences]
+if not first_price:
+    fail("SeedRules no longer says what a first-rung seed is paid in, so the essence "
+         "ladder has no way in that anybody wrote down")
+else:
+    for material, tier in seeds.items():
+        asked = ingredients(crafted.get(f"{material}_seed", {}))
+        essence_asked = [a for a in asked if a in rung_ids]
+        if tier == "1":
+            if essence_asked or asked.count(first_price.group(1)) != per_step:
+                fail(f"the {material} seed is paid in {essence_asked or asked}, and a "
+                     f"first-rung seed is paid in {per_step} {first_price.group(1)}; "
+                     f"essence there is a ladder nobody can step onto")
+        elif int(tier) <= len(rung_ids) and \
+                essence_asked.count(rung_ids[int(tier) - 1]) != per_step:
+            fail(f"the {material} seed is not paid in {per_step} of its own rung's "
+                 f"essence, so rung {tier} is time nobody has to spend")
+had = set()
+grew = True
+while grew:
+    grew = False
+    for tier, rung in enumerate(rung_ids, start=1):
+        if rung in had:
+            continue
+        climbed = tier > 1 and rung_ids[tier - 2] in had and ingredients(
+            crafted.get(f"{essences[tier - 1]}_from_{essences[tier - 2]}", {})) \
+            == [rung_ids[tier - 2]] * per_step
+        bought = any(str(tier) == t and all(
+            a in had for a in ingredients(crafted.get(f"{m}_seed", {})) if a in rung_ids)
+            and f"{m}_seed" in crafted for m, t in seeds.items())
+        if climbed or bought:
+            had.add(rung)
+            grew = True
+unentered = [rung for rung in rung_ids if rung not in had]
+if unentered:
+    fail(f"the essence ladder cannot be entered from nothing it makes: "
+         f"{', '.join(unentered)} only come out of a pot growing a seed that costs "
+         f"essence nobody can have yet")
 
 for name, recipe in crafted.items():
     for asked in ingredients(recipe):
@@ -1988,6 +2047,63 @@ for name in (worm_farm, tackle_box):
     if f"block.{NS}.{name}" not in lang_file:
         fail(f"{name} has no name a player reads")
 
+# The rods. Five were registered and none had a recipe, so the lava and End
+# families, their baits and their mounts were things no survival player could
+# have: only our float fishes lava and the void (check_obtainable.py, 29 Sep
+# 2026). The first rung is made of no rod at all, and every rung above out of
+# the rung below it, so the ladder can neither be skipped nor loop.
+for rung, name in enumerate(rod_names):
+    recipe = crafted.get(name)
+    if not recipe or recipe.get("result", {}).get("id") != f"{NS}:{name}":
+        fail(f"the {name} has no recipe, so rung {rung + 1} of the rod ladder is an "
+             f"item only the creative menu has")
+        continue
+    made_of = [a for a in ingredients(recipe)
+               if a.startswith(f"{NS}:") and a[len(NS) + 1:] in rod_names]
+    want = [f"{NS}:{rod_names[rung - 1]}"] if rung else []
+    if made_of != want:
+        fail(f"the {name} is made of {made_of or 'no rod'} and the rung below it is "
+             f"{want or 'none'}, so the rod ladder is not a ladder")
+
+# The fillet knife and the measuring line: each made, and each doing something.
+for tool in ("fillet_knife", "measuring_line"):
+    recipe = crafted.get(tool, {})
+    if recipe.get("result", {}).get("id") != f"{NS}:{tool}":
+        fail(f"the {tool} has no recipe, so it is an item only the creative menu has")
+
+# What the fillet knife cuts, on disk, against the rules: every fish of the
+# roster big enough to fillet, into as many fillets as KitchenRules.filletsFrom
+# gives, by the fillet knife and nothing else.
+fillet_knife = re.search(r'FILLET_KNIFE = "([a-z_]+)";', kitchen_source)
+fillet_item = re.search(r'String FILLET = "([a-z_]+)";', kitchen_source)
+cut_feeds = re.search(r"MOST_A_CUT_FEEDS = (\d+);", kitchen_source)
+fillet_worth = re.search(r'new Ingredient\("' + (fillet_item.group(1) if fillet_item else "-")
+                         + r'", (\d+),', kitchen_source)
+if not (fillet_knife and fillet_item and cut_feeds and fillet_worth):
+    fail("KitchenRules no longer says what a fillet knife takes off a fish, so nothing "
+         "below checked the fillet knife's cuts")
+else:
+    wrong_fillets = []
+    for fid, _, _, _, fed in fish_rows:
+        want = int(fed) * int(cut_feeds.group(1)) // int(fillet_worth.group(1))
+        path = os.path.join(RES, "data", NS, "cutting", fid + ".json")
+        if want <= 0:
+            if os.path.isfile(path):
+                wrong_fillets.append(f"{fid} is too small to fillet and has a cut")
+            continue
+        if not os.path.isfile(path):
+            wrong_fillets.append(f"{fid} has no cut")
+            continue
+        body = json.loads(read(path))
+        if (body.get("input") != f"{NS}:{fid}" or body.get("tool") != fillet_knife.group(1)
+                or body.get("yields") != [{"item": f"{NS}:{fillet_item.group(1)}",
+                                           "count": want}]):
+            wrong_fillets.append(f"{fid} is cut {body.get('tool')} into "
+                                 f"{body.get('yields')} and the rules say {want}")
+    if wrong_fillets:
+        fail(f"{len(wrong_fillets)} fish the fillet knife does not cut the way the rules "
+             f"say: " + "; ".join(wrong_fillets[:4]))
+
 # A mount is a trophy: the fish goes in and does not come out.
 for fid in fish_ids[:1] if fish_ids else []:
     path = os.path.join(RES, "data", NS, "recipe", fid + "_mount.json")
@@ -2138,7 +2254,7 @@ FB_SOURCES = {name: squashed(read(SRC, name)) for name in (
     "entity/BeeEntity.java", "entity/FishEntity.java", "registry/FishItems.java",
     "registry/FishEntities.java", "registry/BeeItems.java", "registry/BeeBlocks.java",
     "registry/AgronomyBlocks.java", "registry/FishingBlockEntities.java",
-    "ElysiumAgronomy.java")}
+    "item/MeasuringLineItem.java", "item/KnifeItem.java", "ElysiumAgronomy.java")}
 for fb_name, fb_text in FB_SOURCES.items():
     if not fb_text:
         fail(f"{fb_name} is gone, so the fishing and bees it carried are gone with it")
@@ -2178,6 +2294,30 @@ if "int taken = Math.min(part.getCount(), WaterRules.MOST_BAIT_ON_ROD - count);"
         not in fb_fit:
     fail("a rod takes bait without the rules' limit, so one rod carries as much bait "
          "as a player owns")
+fb_fish_items = FB_SOURCES["registry/FishItems.java"]
+if ('ITEMS.register("fillet_knife", () -> new com.elysium.agronomy.item.KnifeItem( '
+        'new Item.Properties().durability(240), '
+        'com.elysium.agronomy.rules.KitchenRules.FILLET_KNIFE));') not in fb_fish_items:
+    fail("the fillet knife is not a knife the cutting board answers to under its own "
+         "name, so it takes nothing off a fish")
+if "return tool;" not in body_of(FB_SOURCES["item/KnifeItem.java"], "public String tool() {"):
+    fail("a knife does not say its own name to a cutting board, so the fillet knife "
+         "and a kitchen knife cut the same things")
+if ('ITEMS.register("measuring_line", () -> new com.elysium.agronomy.item.'
+        'MeasuringLineItem( new Item.Properties().stacksTo(1)));') not in fb_fish_items:
+    fail("the measuring line is a plain item, so it measures nothing")
+fb_line = FB_SOURCES["item/MeasuringLineItem.java"]
+if "String.valueOf(FishRules.centimetres(fish)));" not in body_of(
+        fb_line, "public static Component measure("):
+    fail("the measuring line says a length that is not the rules' length, so it and "
+         "the fish it is held against disagree")
+if "player.displayClientMessage(measure(fish.rules()), true);" not in body_of(
+        fb_line, "public InteractionResult interactLivingEntity("):
+    fail("the measuring line used on a fish in the water measures nothing")
+if "FishRules.Fish fish = FishRules.fish(AgronomyComponents.ourId(other));" not in body_of(
+        fb_line, "public InteractionResultHolder<ItemStack> use("):
+    fail("the measuring line does not measure a caught fish in the other hand")
+
 fb_tooltip = body_of(fb_rod, "public void appendHoverText(")
 for fb_part in ("hook", "bobber", "bait"):
     if f'Component.translatable("elysiumagronomy.rod.{fb_part}"' not in fb_tooltip:
@@ -2332,6 +2472,24 @@ else:
         fail(f"{fb_placed} famil(ies) of fish are in the water, which is not every "
              f"family that swims on its own")
 
+# A rod-only family is never alive to be scooped into a bucket, and pouring a
+# bucket out was the only other way one could be alive: the five end fish, as
+# creatures and as buckets, were things no survival player could have
+# (check_obtainable.py, 29 Sep 2026). So a caught one goes into an empty bucket
+# at the table (WaterRules.bucketedAtTable). An empty bucket and not a water
+# bucket: the grid hands a water bucket's bucket back, and the fish's bucket
+# hands another back when it is poured, so a water bucket here makes buckets.
+for fid, fb_const, _ in fb_fish:
+    if fb_families.get(fb_const, {}).get("water") != "void":
+        continue
+    recipe = crafted.get(f"{fid}_bucket", {})
+    if recipe.get("result", {}).get("id") != f"{NS}:{fid}_bucket":
+        fail(f"a caught {fid} cannot be put in a bucket, and nothing of its family ever "
+             f"swims, so it is never alive and its bucket is an item nobody can have")
+    elif sorted(ingredients(recipe)) != sorted([f"{NS}:{fid}", "minecraft:bucket"]):
+        fail(f"the {fid} bucket is made of {ingredients(recipe)}, not the fish and an "
+             f"empty bucket")
+
 fb_spawn_placing = body_of(FB_SOURCES["registry/FishEntities.java"],
                            "public static void onSpawnPlacement(")
 if ("(type, level, reason, pos, random) -> Casts.suits(one, level, pos), "
@@ -2379,20 +2537,83 @@ for fb_bee in sorted(fb_all_bees - {b for b, _, _ in fb_wild}):
                                    f"bee_spawn_{fb_bee}.json")):
         fail(f"the {fb_bee} bee is bred and also spawns wild, so the breeding tree has "
              f"a shortcut")
-for fb_home in fb_nested:
+# A nest for every home, not only the four a wild bee lives in. The other
+# fourteen nest blocks were generated nowhere and made by nothing, so no
+# survival player could have one (check_obtainable.py, 29 Sep 2026). Each is
+# built on the ground KeepingRules names, full where a wild bee lives and
+# empty where every bee is bred.
+fb_homes = sorted({home for _, _, home in fb_wild} | set(re.findall(
+    r'place\("[a-z_]+", "([a-z_]+)",', FB_BEE_RULES)))
+fb_ground_words = dict(re.findall(r'public static final String ([A-Z_]+) = "([a-z_]+)";',
+                                  FB_KEEPING_RULES))
+fb_ground = {home: fb_ground_words.get(const, "") for home, const in re.findall(
+    r'ground\("([a-z_]+)", ([A-Z_]+)\);', FB_KEEPING_RULES)}
+
+
+def fb_keeping(name):
+    found = re.search(r"public static final int " + name + r" = (-?[\d_]+);",
+                      FB_KEEPING_RULES)
+    return int(found.group(1).replace("_", "")) if found else None
+
+
+fb_bands = {"cave_floor": (fb_keeping("CAVE_LOWEST"), fb_keeping("CAVE_HIGHEST")),
+            "nether_floor": (fb_keeping("NETHER_LOWEST"), fb_keeping("NETHER_HIGHEST"))}
+for fb_home in fb_homes:
     fb_name = fb_home + "_nest"
     fb_conf = os.path.join(RES, "data", NS, "worldgen/configured_feature", fb_name + ".json")
     fb_placed_path = os.path.join(RES, "data", NS, "worldgen/placed_feature", fb_name + ".json")
     fb_mod = os.path.join(RES, "data", NS, "neoforge/biome_modifier", fb_name + ".json")
     if not (os.path.isfile(fb_conf) and os.path.isfile(fb_placed_path)
             and os.path.isfile(fb_mod)):
-        fail(f"the {fb_name} is generated nowhere, so its wild bee has no nest to be "
-             f"taken from")
+        fail(f"the {fb_name} is generated nowhere, so no survival player can have one"
+             + (" and its wild bee has no nest to be taken from"
+                if fb_home in fb_nested else ""))
         continue
     if f'"Name": "{NS}:{fb_name}"' not in read(fb_conf):
         fail(f"the {fb_name}'s feature places some other block")
-    if json.loads(read(fb_placed_path)).get("feature") != f"{NS}:{fb_name}":
+    fb_bees = json.loads(read(fb_conf)).get("config", {}).get("to_place", {}).get(
+        "state", {}).get("Properties", {}).get("bees")
+    fb_want = str(fb_keeping("NEST_BEES")) if fb_home in fb_nested else "0"
+    if fb_bees != fb_want:
+        fail(f"the {fb_name} is generated with {fb_bees} bee(s) in it and "
+             f"KeepingRules.nestBees says {fb_want}, so "
+             + ("its wild bee is never there to be taken" if fb_home in fb_nested
+                else "a bred bee is found in the world and the tree has a shortcut"))
+    fb_placing = json.loads(read(fb_placed_path))
+    if fb_placing.get("feature") != f"{NS}:{fb_name}":
         fail(f"the {fb_name}'s placement places another feature")
+    fb_steps = {step.get("type"): step for step in fb_placing.get("placement", [])}
+    fb_where = fb_ground.get(fb_home, "")
+    if fb_steps.get("minecraft:rarity_filter", {}).get("chance") != fb_keeping("NEST_CHUNKS"):
+        fail(f"the {fb_name} is not one in {fb_keeping('NEST_CHUNKS')} chunks, the rarity "
+             f"KeepingRules gives every nest")
+    fb_map = fb_steps.get("minecraft:heightmap", {}).get("heightmap")
+    if fb_where == "surface" and fb_map != "WORLD_SURFACE_WG":
+        fail(f"the {fb_name} is built on the land and not found by the surface map")
+    elif fb_where == "sea_bed" and (fb_map != "OCEAN_FLOOR_WG"
+                                    or "minecraft:water" not in json.dumps(fb_placing)):
+        fail(f"the {fb_name} is built on the sea bed and not found by the ocean floor "
+             f"under water")
+    elif fb_where in fb_bands:
+        fb_band = fb_steps.get("minecraft:height_range", {}).get("height", {})
+        fb_scan = fb_steps.get("minecraft:environment_scan", {})
+        if fb_map is not None:
+            fail(f"the {fb_name} is found by the {fb_map} map, and below the surface "
+                 f"that map is the land above or, in the nether, the bedrock roof")
+        if (fb_band.get("min_inclusive", {}).get("absolute"),
+                fb_band.get("max_inclusive", {}).get("absolute")) != fb_bands[fb_where]:
+            fail(f"the {fb_name} is looked for in a band that is not KeepingRules' "
+                 f"{fb_bands[fb_where]}")
+        if fb_scan.get("direction_of_search") != "down" \
+                or fb_scan.get("max_steps") != fb_keeping("FLOOR_SCAN"):
+            fail(f"the {fb_name} does not look down through air for a floor, so it "
+                 f"floats or is built into rock")
+        if fb_steps.get("minecraft:count", {}).get("count") != fb_keeping("NEST_TRIES_BELOW"):
+            fail(f"the {fb_name} is looked for from a number of points KeepingRules did "
+                 f"not say")
+    elif fb_where not in ("surface", "sea_bed"):
+        fail(f"the {fb_name} is built on {fb_where or 'no ground'}, which the placement "
+             f"cannot follow")
     fb_body = json.loads(read(fb_mod))
     if fb_body.get("type") != "neoforge:add_features" \
             or fb_body.get("features") != f"{NS}:{fb_name}" \
@@ -2435,6 +2656,15 @@ for fb_tool, fb_class in (("bee_scoop", "BeeScoopItem"), ("bee_smoker", "BeeSmok
                      r'agronomy\.item\.' + fb_class + r'\( new Item\.Properties\(\)',
                      fb_bee_items):
         fail(f"the {fb_tool} is a plain item, so it does nothing")
+# The four things a hive is worked with. A jar is how every species gets
+# into a hive and a treat is how every bred bee is bred, and none of the four
+# had a recipe: ninety-two bees, ninety-six combs and every comb block waited
+# on them (check_obtainable.py, 29 Sep 2026).
+for fb_tool in ("bee_jar", "bee_scoop", "bee_smoker", "bee_treat"):
+    if crafted.get(fb_tool, {}).get("result", {}).get("id") != f"{NS}:{fb_tool}":
+        fail(f"the {fb_tool} has no recipe, so every mechanic it works is one no "
+             f"survival player can reach")
+
 fb_hive = FB_SOURCES["block/HiveBlock.java"]
 if "ItemStack comb = combOf();" not in body_of(fb_hive, "public void work("):
     fail("a hive makes the plain comb whatever lives in it, so none of the roster's "
@@ -2484,9 +2714,10 @@ if fb_unnamed:
          f"so a player reads the key: {fb_unnamed[:4]}")
 
 print(f"fishing and bees   : {len([f for f in fb_families.values() if f['water'] != 'void'])} "
-      f"famil(ies) of fish in the water, {len(fb_wild)} wild bee(s) in {len(fb_nested)} "
-      f"nest biome(s), rods that cast their tackle, and every comb off a bee or out of "
-      f"a hive of its own")
+      f"famil(ies) of fish in the water and the rod-only one bucketed at a table, "
+      f"{len(fb_wild)} wild bee(s) in {len(fb_nested)} full nest(s) and a nest in every one "
+      f"of {len(fb_homes)} homes, rods that cast their tackle, and every comb off a bee or "
+      f"out of a hive of its own")
 
 # ===========================================================================
 # END fishing and bees in the world (agro-fishbees)
@@ -2566,9 +2797,14 @@ if "return KitchenRules.isHeat(BuiltInRegistries.BLOCK.getKey( " \
          "a player lights")
 slicing = body_of(station_sq, "public Component slice(ItemStack knife, Player player, "
                               "InteractionHand hand) {")
-if "KitchenRules.Cut cut = AgronomyData.cutFor(nameOf(contents.get(at)));" not in slicing:
+if "KitchenRules.Cut cut = AgronomyData.cutFor(nameOf(contents.get(at)), toolOf(knife));" \
+        not in slicing:
     fail("a knife on a board does not ask the cutting folder what it cuts, so "
          "eleven cuts on disk cut nothing")
+if "return knife.getItem() instanceof KnifeItem one ? one.tool() : KitchenRules.KNIFE;" \
+        not in body_of(station_sq, "public static String toolOf(ItemStack knife) {"):
+    fail("a board asks for cuts under a name the knife in hand did not give, so the "
+         "fillet knife takes nothing off a fish or a kitchen knife fillets one")
 if "knife.hurtAndBreak(KitchenRules.KNIFE_WEAR, player, " \
         "LivingEntity.getSlotForHand(hand));" not in slicing:
     fail("a cut does not wear the knife, so a flint knife is a netherite one")
@@ -2886,6 +3122,350 @@ _rock_blocks = body_of(_be_src, "private static Block[] rockGeneratorBlocks()")
 if _rock_blocks is None or "AgronomyBlocks.VEINS.values()" not in _rock_blocks:
     fail("the rock generator entity type does not list the vein generators, so the game refuses "
          "to place a copper or iron generator at all")
+
+
+# ---------------------------------------------------------------------------
+# 13. What mines them: every block on a tool's list, or excused for a reason
+#     the registry bears out
+# ---------------------------------------------------------------------------
+#
+# A block whose properties ask for the right tool — its own line, or copied
+# from the game's stone, terracotta or iron block — drops nothing unless it is
+# in one of the game's mineable tags, because with no tag no tool is ever
+# right. Nothing tagged 459 of this module's 465 blocks (29 September 2026):
+# every botany pot, the altar, the centrifuge, the seven vein generators and
+# the kitchen's iron stations broke, vanished and dropped nothing in a survival
+# player's hands, whatever their loot tables said.
+#
+# HarvestRules says what each kind of block is built of and so what mines it;
+# gen_agronomy.py writes the tags from that, once each; and this reads the
+# registries to hold every kind to what its blocks are actually built on, with
+# its own table of what the game's blocks ask of a tool. An exemption is read
+# where the block is registered, not taken on trust.
+
+HARVEST_RULES = read(PURE, "HarvestRules.java")
+harvest_sq = re.sub(r'"\s*\+\s*"', "", squashed(HARVEST_RULES))
+harvest_words = dict(re.findall(r'public static final String ([A-Z_]+) = "([a-z_]+)";',
+                                harvest_sq))
+_harvest_tools = re.search(r"TOOLS = List\.of\(([^;]*?)\);", harvest_sq)
+harvest_tools = ([harvest_words.get(word, word)
+                  for word in re.findall(r"[A-Z_]+", _harvest_tools.group(1))]
+                 if _harvest_tools else [])
+harvest_by_hand = harvest_words.get("BY_HAND", "")
+#: material id -> (the game's blocks it is built on, the tool, the reason)
+harvest_materials = {}
+for _mid, _built, _tool, _why in re.findall(
+        r'new Material\(([A-Z_]+), List\.of\(([^)]*)\), ([A-Z_]+), "((?:[^"\\]|\\.)*)"\)',
+        harvest_sq):
+    harvest_materials[harvest_words.get(_mid, _mid)] = (
+        set(re.findall(r'"([A-Z_]+)"', _built)), harvest_words.get(_tool, _tool), _why)
+#: (kind name, material id), in the order the rules list them
+harvest_kinds = [(name, harvest_words.get(material, material)) for name, material
+                 in re.findall(r'new Kind\("([a-z_*]+)", ([A-Z_]+)\)', harvest_sq)]
+_steel_from = re.search(r"public static final int STEEL_FROM_SLOTS = (\d+);", harvest_sq)
+steel_from_slots = int(_steel_from.group(1)) if _steel_from else None
+if (not harvest_tools or not harvest_by_hand or not harvest_materials or not harvest_kinds
+        or steel_from_slots is None):
+    fail("HarvestRules no longer has the shape this reads, so what mines a block is "
+         "checked by nothing")
+
+
+def harvest_kind(block):
+    """HarvestRules.kindOf(): the kind by exact name first, then by suffix."""
+    for name, material in harvest_kinds:
+        if name == block:
+            return name, material
+    for name, material in harvest_kinds:
+        if name.startswith("*") and block.endswith(name[1:]) and len(block) > len(name) - 1:
+            return name, material
+    return None, None
+
+
+#: What the game's blocks this module copies ask of a tool, read out of the
+#: game's own code and its tag files: whether they drop only to the right
+#: tool, and which tool's tag the game puts them in (None for no tag at all).
+#: A block copying something not here is a failure, not a pass.
+GAMES_OWN = {
+    "STONE": (True, "pickaxe"),
+    "STONE_BRICKS": (True, "pickaxe"),
+    "TERRACOTTA": (True, "pickaxe"),
+    "IRON_BLOCK": (True, "pickaxe"),
+    "OAK_PLANKS": (False, "axe"),
+    "BEE_NEST": (False, "axe"),
+    "BROWN_MUSHROOM_BLOCK": (False, "axe"),
+    "WHEAT": (False, "axe"),
+    "DIRT": (False, "shovel"),
+    "HONEYCOMB_BLOCK": (False, None),
+}
+
+# --- the tags as written ------------------------------------------------------
+
+harvest_tagged = {}
+harvest_tag_files = set()
+for tool in harvest_tools:
+    path = os.path.join(RES, "data/minecraft/tags/block/mineable", tool + ".json")
+    if not os.path.isfile(path):
+        continue
+    try:
+        tag = json.load(open(path, encoding="utf-8"))
+    except ValueError:
+        fail(f"mineable/{tool}.json is not JSON, so the game refuses it and every block "
+             f"in it drops nothing")
+        continue
+    harvest_tag_files.add(tool)
+    if tag.get("replace") is not False:
+        fail(f"mineable/{tool} does not say replace: false, so it replaces the game's own "
+             f"list and every vanilla block on it drops nothing")
+    for one in tag.get("values", []):
+        named = one.get("id") if isinstance(one, dict) else one
+        if not isinstance(named, str):
+            continue
+        if not named.startswith(NS + ":") or not asset(
+                "blockstates", named.split(":", 1)[1] + ".json"):
+            fail(f"mineable/{tool} names {named}, which is not a block this module "
+                 f"registers, so the game refuses the whole tag and every block in it is "
+                 f"back to dropping nothing")
+            continue
+        harvest_tagged.setdefault(named.split(":", 1)[1], set()).add(tool)
+
+# --- how each kind is built, read where it is registered ---------------------
+
+_agro_sq = squashed(blocks_src)
+_bees_sq = squashed(BEE_BLOCKS)
+_kitchen_sq = squashed(KITCHEN_BLOCKS)
+_pots_sq = squashed(POT_BLOCKS)
+
+
+def method_body(source, name):
+    """The body of a private static method, by name."""
+    found = re.search(r"private static [\w.<>, ]+? " + re.escape(name) + r"\([^)]*\) \{",
+                      source)
+    return body_of(source, found.group(0)) if found else ""
+
+
+def helper_body(source, name):
+    """The body of a private static helper that builds properties or a block.
+
+    Only those: a registry's register() loop is a private static method too,
+    and following BLOCKS.register(...) into it read the botany pots' stone
+    and terracotta into every soil."""
+    found = re.search(r"private static (?:BlockBehaviour\.Properties|Block|DeferredBlock<Block>) "
+                      + re.escape(name) + r"\([^)]*\) \{", source)
+    return body_of(source, found.group(0)) if found else ""
+
+
+def statement_of(source, token):
+    """The whole BLOCKS.register(...) statement that contains a token."""
+    at = source.find(token)
+    start = source.rfind("BLOCKS.register", 0, at + len(token)) if at >= 0 else -1
+    end = source.find(";", at) if at >= 0 else -1
+    return source[start:end + 1] if start >= 0 and end >= 0 else ""
+
+
+def built_on(source, snippet, seen=None):
+    """What a block built like this copies of the game's, and what its own
+    properties say: (the Blocks.X names, asks for the right tool, instabreak).
+    Follows every properties helper the snippet calls into its body."""
+    seen = set() if seen is None else seen
+    copies = set(re.findall(r"\bBlocks\.([A-Z_]+)", snippet))
+    asks = ".requiresCorrectToolForDrops()" in snippet
+    touch = ".instabreak()" in snippet
+    for called in sorted(set(re.findall(r"\b([a-z]\w*)\(", snippet))):
+        if called in seen:
+            continue
+        seen.add(called)
+        inner = helper_body(source, called)
+        if inner:
+            more, asks_more, touch_more = built_on(source, inner, seen)
+            copies |= more
+            asks = asks or asks_more
+            touch = touch or touch_more
+    return copies, asks, touch
+
+
+# The two places one loop builds blocks of two materials. The statement is
+# named whole, and each block is then read as the branch it takes.
+HOUSING_BUILT = ("made.put(housing.id(), BLOCKS.register(housing.id(), () -> new HiveBlock( "
+                 "housing.slots() >= com.elysium.agronomy.rules.HarvestRules.STEEL_FROM_SLOTS "
+                 "? steel().strength(3.5F) : timber().strength(2.5F), housing.id())));")
+if HOUSING_BUILT not in _agro_sq:
+    fail("AgronomyBlocks no longer builds a housing on steel from "
+         "HarvestRules.STEEL_FROM_SLOTS slots and on timber below, so the rules and the "
+         "registry can disagree about which apiary wants a pickaxe")
+STATION_BUILT = ("BlockBehaviour.Properties properties = KitchenRules.BOARD.equals(station) "
+                 "? timber() : iron();")
+if STATION_BUILT not in _kitchen_sq:
+    fail("KitchenBlocks no longer builds the cutting board on timber and the other "
+         "stations on iron, so which station wants which tool is read from nothing")
+
+#: kind name -> (the registry it is built in, the statements or bodies that build it)
+HOW_BUILT = {
+    "pot": (_agro_sq, [statement_of(_agro_sq, 'BLOCKS.register("pot",')]),
+    "accelerator": (_agro_sq, [statement_of(_agro_sq, 'BLOCKS.register("accelerator",')]),
+    "hive": (_agro_sq, [statement_of(_agro_sq, 'BLOCKS.register("hive",')]),
+    "rock_generator": (_agro_sq,
+                       [statement_of(_agro_sq, 'BLOCKS.register("rock_generator",')]),
+    "*_generator": (_agro_sq, [
+        statement_of(_agro_sq, 'BLOCKS.register("driven_rock_generator",'),
+        statement_of(_agro_sq, 'BLOCKS.register("industrial_rock_generator",'),
+        method_body(_agro_sq, "registerVeins")]),
+    "centrifuge": (_agro_sq, [statement_of(_agro_sq, "ApiaryRules.CENTRIFUGE,")]),
+    "worm_farm": (_agro_sq, [method_body(_agro_sq, "station")]),
+    "tackle_box": (_agro_sq, [method_body(_agro_sq, "station")]),
+    "*_mount": (_agro_sq, [method_body(_agro_sq, "station")]),
+    "*_comb_block": (_bees_sq, [method_body(_bees_sq, "registerCombs")]),
+    "*_nest": (_bees_sq, [method_body(_bees_sq, "registerNests")]),
+    "*_cabinet": (_kitchen_sq, [method_body(_kitchen_sq, "registerCabinets")]),
+    "*_crate": (_kitchen_sq, [method_body(_kitchen_sq, "registerCrates")]),
+    "*_crop": (_kitchen_sq, [method_body(_kitchen_sq, "registerCrops")]),
+    "mushroom_colony": (_kitchen_sq, [statement_of(_kitchen_sq, "CropRules.COLONY,")]),
+    "*_botany_pot": (_pots_sq, [method_body(_pots_sq, "register")]),
+}
+for _name in ALTAR_BLOCKS:
+    HOW_BUILT[_name] = (_agro_sq, [method_body(_agro_sq, "registerAltar")])
+for _soil in our_soils:
+    HOW_BUILT[_soil] = (_pots_sq, [method_body(_pots_sq, "registerSoils")])
+for _hid, _bees_held, _slots, _from in housings:
+    if _hid not in HOW_BUILT and steel_from_slots is not None:
+        HOW_BUILT[_hid] = (_agro_sq, ["steel()" if _slots >= steel_from_slots else "timber()"])
+for _const, _block in kitchen_stations.items():
+    HOW_BUILT[_block] = (_kitchen_sq, ["timber()" if _const == "BOARD" else "iron()"])
+
+harvest_asks = {}
+for name, material in harvest_kinds:
+    if material not in harvest_materials:
+        fail(f"HarvestRules builds {name} of {material}, which is no material there")
+        continue
+    built, tool, why = harvest_materials[material]
+    if name not in HOW_BUILT:
+        fail(f"nothing here finds how {name} is built, so nothing shows what it asks of a "
+             f"tool: add the statement that registers it to HOW_BUILT")
+        continue
+    source, snippets = HOW_BUILT[name]
+    if not all(snippets):
+        fail(f"{name} is no longer registered where this reads, so nothing shows what it "
+             f"asks of a tool")
+        continue
+    copies, asks, touch = set(), False, False
+    for snippet in snippets:
+        more, asks_more, touch_more = built_on(source, snippet)
+        copies |= more
+        asks = asks or asks_more
+        touch = touch or touch_more
+    how = "it says so where it is registered" if asks else ""
+    unknown = sorted(copies - set(GAMES_OWN))
+    if unknown:
+        fail(f"{name} copies Blocks.{unknown[0]}, and nothing here knows whether that asks "
+             f"for the right tool: look it up in the game's jar and add it to GAMES_OWN")
+        continue
+    if not copies:
+        fail(f"{name} is built on nothing of the game's that this can see, so what it asks "
+             f"of a tool is read from nothing")
+        continue
+    if copies != built:
+        fail(f"HarvestRules says {name} is {material}, on Blocks."
+             f"{'/'.join(sorted(built))}, and the registry builds it on Blocks."
+             f"{'/'.join(sorted(copies))}: one of them is wrong about what mines it")
+    for copied in sorted(copies):
+        if GAMES_OWN[copied][0]:
+            asks = True
+            how = how or f"it copies Blocks.{copied}, which does"
+    games_tags = {GAMES_OWN[copied][1] for copied in copies} - {None}
+    harvest_asks[name] = asks
+    if tool == harvest_by_hand:
+        if asks:
+            fail(f"{name} is broken by hand ({why}), but it asks for the right tool: {how}. "
+                 f"With no tag no tool is right, so it drops nothing")
+        elif games_tags and not touch:
+            fail(f"{name} is broken by hand ({why}), and it is built on Blocks."
+                 f"{'/'.join(sorted(copies))}, which the game puts in the "
+                 f"{'/'.join(sorted(games_tags))}'s tag: put it there too, as the game "
+                 f"does, so the tool is quicker than a fist on it")
+    elif games_tags and games_tags != {tool}:
+        fail(f"{name} is on the {tool} list and built on Blocks.{'/'.join(sorted(copies))}, "
+             f"which the game mines with a {'/'.join(sorted(games_tags))}: "
+             + (f"only the {tool} is ever right for it, so the game's tool breaks it and "
+                f"gets nothing" if asks
+                else f"the game's tool is no quicker than a fist on it"))
+
+# --- every registered block, by blockstate -----------------------------------
+
+harvest_blocks = sorted(
+    name[:-5] for name in os.listdir(os.path.join(RES, "assets", NS, "blockstates"))
+    if name.endswith(".json"))
+harvest_counts = {}
+harvest_unknown, harvest_asking_untagged, harvest_untagged = [], [], []
+harvest_wrong_tag, harvest_exempt_tagged = [], []
+kinds_used = set()
+for block in harvest_blocks:
+    name, material = harvest_kind(block)
+    if name is None:
+        harvest_unknown.append(block)
+        continue
+    kinds_used.add(name)
+    tool = harvest_materials.get(material, (set(), "", ""))[1]
+    tags = harvest_tagged.get(block, set())
+    harvest_counts[tool] = harvest_counts.get(tool, 0) + 1
+    if tool == harvest_by_hand:
+        if tags:
+            harvest_exempt_tagged.append(block)
+    elif not tags:
+        (harvest_asking_untagged if harvest_asks.get(name) else harvest_untagged).append(block)
+    elif tags != {tool}:
+        harvest_wrong_tag.append(f"{block} ({', '.join(sorted(tags))} for {tool})")
+if harvest_unknown:
+    fail(f"{len(harvest_unknown)} block(s) belong to no kind in HarvestRules, so nothing "
+         f"says what mines them and the generator can put them in no tag: "
+         + ", ".join(harvest_unknown[:6]))
+if harvest_asking_untagged:
+    fail(f"{len(harvest_asking_untagged)} block(s) ask for the right tool and are in no "
+         f"tool's tag, so no tool is ever right and they drop nothing however they are "
+         f"mined: " + ", ".join(harvest_asking_untagged[:6]))
+if harvest_untagged:
+    fail(f"{len(harvest_untagged)} block(s) are in no mineable tag and not broken by hand "
+         f"either, so every tool breaks them at a fist's pace: "
+         + ", ".join(harvest_untagged[:6]))
+if harvest_wrong_tag:
+    fail(f"{len(harvest_wrong_tag)} block(s) are in a tag HarvestRules does not put them "
+         f"in, or in two: " + ", ".join(harvest_wrong_tag[:6]))
+if harvest_exempt_tagged:
+    fail(f"{len(harvest_exempt_tagged)} block(s) are broken by hand in HarvestRules and in "
+         f"a tool's tag all the same; take the kind off BY_HAND or out of the tag: "
+         + ", ".join(harvest_exempt_tagged[:6]))
+harvest_stale = [name for name, _ in harvest_kinds if name not in kinds_used]
+if harvest_stale:
+    fail(f"HarvestRules names {', '.join(harvest_stale)}, which no registered block "
+         f"belongs to, so the rule is about nothing")
+for tool in harvest_tools:
+    if harvest_counts.get(tool) and tool not in harvest_tag_files:
+        fail(f"HarvestRules puts {harvest_counts[tool]} block(s) on the {tool} list and "
+             f"there is no mineable/{tool}.json, so none of them is on it")
+    if not harvest_counts.get(tool) and tool in harvest_tag_files:
+        fail(f"there is a mineable/{tool}.json and HarvestRules puts nothing on the {tool} "
+             f"list, so it was written by hand")
+for material, (built, tool, why) in harvest_materials.items():
+    if tool == harvest_by_hand and not why.strip():
+        fail(f"HarvestRules breaks {material} by hand and gives no reason, so its blocks "
+             f"are left out of every tool's tag on nobody's say-so")
+
+# --- and the pipeline that writes and proves it -------------------------------
+
+if ('HARVEST_RULES = _source("HarvestRules.java")' not in generator
+        or "def harvest_tags():" not in generator):
+    fail("the generator no longer reads HarvestRules for the mineable tags, so the tags "
+         "and the rules can disagree about what mines a block")
+if "    written += harvest_tags()\n" not in generator:
+    fail("the generator no longer writes the mineable tags, so every block is back to "
+         "being mined by nothing")
+if "theHarvest();" not in harness_sq:
+    fail("the harness no longer runs the harvest checks, so what mines a block is checked "
+         "by reading")
+
+print(f"what mines them    : {len(harvest_blocks)} block(s) — "
+      + ", ".join(f"{harvest_counts.get(tool, 0)} by {tool}" for tool in harvest_tools
+                  if harvest_counts.get(tool))
+      + f", and {harvest_counts.get(harvest_by_hand, 0)} broken by hand for a reason the "
+      f"registry bears out; every kind held to the statement that registers it")
 
 
 if problems:

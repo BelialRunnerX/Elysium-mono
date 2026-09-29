@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
+    "powered=false": {
       "model": "elysiumarsenal:block/rotten_pressure_plate"
+    },
+    "powered=true": {
+      "model": "elysiumarsenal:block/rotten_pressure_plate_down"
     }
   }
 }

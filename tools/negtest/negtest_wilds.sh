@@ -282,5 +282,14 @@ json.dump(d, open(p, "w", encoding="utf-8"), indent=2)
 PYX
 expect "a reference world saved under an older preset" "saved under an older preset"
 
+echo "the tags (29 Sep 2026)"
+edit $M/src/main/resources/data/minecraft/tags/worldgen/biome/is_overworld.json '    "elysiumwilds:acacia_flat",
+' ''
+expect "a biome of ours in no is_overworld" "is in no minecraft:is_overworld"
+
+edit $M/src/main/resources/data/minecraft/tags/worldgen/biome/is_forest.json '"values": [' '"values": [
+    "elysiumwilds:acacia_flat",'
+expect "a biome carrying a tag its model does not" "model no member of it"
+
 echo "wilds: $pass caught, $fail missed"
 [ "$fail" -eq 0 ]

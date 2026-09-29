@@ -344,6 +344,9 @@ MAIL_IDS = [MAIL_NAMES[one[0]] for one in MAIL if one[0] in MAIL_NAMES]
 BIRD_ROWS = [(one[0], int(one[4])) for one in re.findall(
     r'new Bird\("([a-z_]+)", (\w+), ([^,]+), (\d+), (\d+)\)', _flat)]
 BIRDS = [one[0] for one in BIRD_ROWS]
+# Where the birds come from: a biome modifier per row of PostRules.WILD.
+WILD_ROWS = [(one[0], one[1], int(one[2]), int(one[3]), int(one[4])) for one in re.findall(
+    r'new Wild\("([a-z_]+)", "([^"]+)", (\d+), (\d+), (\d+)\)', _flat)]
 _seal_materials = re.search(r"List<String> SEAL_MATERIALS = List\.of\((.*?)\);",
                             _flat)
 SEAL_MATERIALS = (re.findall(r'"([a-z_]+)"', _seal_materials.group(1))
@@ -1125,6 +1128,35 @@ POST_SHAPES = {
 
 def data_files():
     written = 0
+    # The birds' way into the world, one biome modifier a row of the rules.
+    for bird, biomes, weight, least, most in WILD_ROWS:
+        write(os.path.join(DATA, "neoforge/biome_modifier", bird + "_spawns.json"), {
+            "type": "neoforge:add_spawns",
+            "biomes": biomes,
+            "spawners": [{"type": f"{NS}:{bird}", "weight": weight,
+                          "minCount": least, "maxCount": most}],
+        })
+        written += 1
+    # Lost mail, the second road: a village cartographer keeps what the post
+    # lost. One in five of their chests, one piece at a time.
+    write(os.path.join(DATA, "loot_table/post/lost_mail.json"), {
+        "type": "minecraft:chest",
+        "pools": [{"rolls": 1, "entries": [{"type": "minecraft:item", "name": f"{NS}:lost_mail"}]}],
+    })
+    write(os.path.join(DATA, "loot_modifiers/lost_mail_from_cartographer.json"), {
+        "type": "neoforge:add_table",
+        "conditions": [
+            {"condition": "neoforge:loot_table_id",
+             "loot_table_id": "minecraft:chests/village/village_cartographer"},
+            {"condition": "minecraft:random_chance", "chance": 0.2},
+        ],
+        "table": f"{NS}:post/lost_mail",
+    })
+    write(os.path.join(OUT, "src/main/resources/data/neoforge/loot_modifiers/global_loot_modifiers.json"), {
+        "replace": False,
+        "entries": [f"{NS}:lost_mail_from_cartographer"],
+    })
+    written += 3
     for name in BLOCKS:
         write(os.path.join(DATA, "loot_table/blocks", name + ".json"),
               gives_itself_back(name) if name != "grave" else drops_nothing(name))
@@ -1322,7 +1354,7 @@ LINES = {
     "elysiumcomforts.loot.yours": "Yours",
     "item.elysiumcomforts.trader_crate": "Trader's Crate",
     "item.elysiumcomforts.trader_crate_full": "Trader's Crate",
-    "elysiumcomforts.trader.empty": "Empty. Use it on a villager.",
+    "elysiumcomforts.trader.empty": "Empty. Crouch and use it on a villager.",
     "elysiumcomforts.trader.carrying": "Carrying a %s, level %s",
     "elysiumcomforts.trader.restocked": "Restocked %s time(s) today",
     "item.elysiumcomforts.address_tag": "Address Tag",

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "tag": "c:raw_materials/titanium"
+  },
+  "result": {
+    "id": "elysiumfoundry:titanium_ingot"
+  },
+  "experience": 0.3,
+  "cookingtime": 200
+}

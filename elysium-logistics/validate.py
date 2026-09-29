@@ -1419,6 +1419,152 @@ print(f"packs at work      : every insertion, fitting and removal ruled by the "
       f"capability, a page at a time in the game's own chest screen, and the "
       f"parts' behaviours on the game bus")
 
+# ---------------------------------------------------------------------------
+# What a player fits to a drawer
+# ---------------------------------------------------------------------------
+#
+# A drawer's lock and its voiding were saved, loaded and obeyed from the day
+# the drawer was written, and nothing a player could hold set either: only
+# /data did. A void seal and a key are how a survival player does. Every rule
+# below names the statement that does it, so undoing one fails here rather
+# than leaving a flag quietly unreachable again.
+
+drawer_src = strip_comments(read(SRC, "block/DrawerBlock.java"), True)
+drawer_store_src = strip_comments(read(SRC, "block/DrawerStore.java"), True)
+
+drawer_use = squashed(body_of(drawer_src, "protected ItemInteractionResult useItemOn("))
+KEY_TURNS = ("if (held.is(ours(LogisticRules.DRAWER_KEY))) { "
+             "player.displayClientMessage(into.turnKey(), true); "
+             "return ItemInteractionResult.SUCCESS; }")
+SEAL_FITS = ("if (held.is(ours(LogisticRules.DRAWER_SEAL))) { "
+             "player.displayClientMessage(into.seal(held), true); "
+             "return ItemInteractionResult.SUCCESS; }")
+PUT_AWAY = "if (into.offer(held)) { return ItemInteractionResult.SUCCESS; }"
+need(drawer_use, KEY_TURNS,
+     "a drawer key used on a drawer does not turn in it, or is spent doing it, so the "
+     "lock is back to a flag only /data can set")
+need(drawer_use, SEAL_FITS,
+     "a void seal used on a drawer is not fitted to it, so a drawer voids for /data "
+     "and for nobody else")
+if KEY_TURNS in drawer_use and SEAL_FITS in drawer_use and PUT_AWAY in drawer_use \
+        and drawer_use.find(PUT_AWAY) < max(drawer_use.find(KEY_TURNS),
+                                            drawer_use.find(SEAL_FITS)):
+    fail("a drawer puts away what it is offered before asking whether it is the key or "
+         "the seal, so the first one a player uses is filed away inside it")
+need(drawer_use, "player.displayClientMessage(into.says(), true); "
+                 "return ItemInteractionResult.CONSUME;",
+     "a drawer that takes none of what it is offered says nothing, so a locked one "
+     "refusing a new kind looks broken")
+
+sealing = squashed(body_of(drawer_src, "public Component seal(ItemStack held)"))
+SEAL_REFUSED = ('if (!LogisticRules.takesSeal(store.voiding())) { return '
+                'Component.translatable("elysiumlogistics.drawer.sealed_twice", name); }')
+need(sealing, SEAL_REFUSED,
+     "a drawer that already voids takes a second seal and spends it on nothing")
+need(sealing, "store.voiding(true);",
+     "fitting a seal does not turn the drawer's voiding on, so the seal is spent and "
+     "nothing is voided")
+if "held.shrink(1);" not in sealing or (
+        SEAL_REFUSED in sealing
+        and sealing.find("held.shrink(1);") < sealing.find(SEAL_REFUSED)):
+    fail("a seal is not spent when it is fitted, or is spent when it is refused, so "
+         "one seal seals every drawer in the world or a refusal costs a seal")
+
+unsealing = squashed(body_of(drawer_src, "public ItemStack unseal()"))
+need(unsealing, "ItemStack seal = sealsHeld(); store.voiding(false); return seal;",
+     "taking a seal out does not hand back the seal that was fitted, or leaves the "
+     "drawer voiding after it has gone")
+seals_held = squashed(body_of(drawer_src, "public ItemStack sealsHeld()"))
+need(seals_held, "return new ItemStack(ours(LogisticRules.DRAWER_SEAL), "
+                 "LogisticRules.sealsIn(store.voiding()));",
+     "what a drawer hands back for its seal is not what the rules say it holds, so a "
+     "seal is made or lost on the way out")
+without = squashed(body_of(drawer_src, "protected InteractionResult useWithoutItem("))
+need(without, "if (player.isShiftKeyDown() && from.store().voiding()) { "
+              "ItemStack seal = from.unseal();",
+     "crouching with an empty hand at a sealed drawer never takes the seal back out, so "
+     "a drawer sealed once voids for good")
+need(without, "if (player.getMainHandItem().isEmpty()) { "
+              "player.setItemInHand(InteractionHand.MAIN_HAND, seal); } else { "
+              "player.getInventory().placeItemBackInInventory(seal); }",
+     "a seal taken out of a drawer is never given to the player, so taking it out "
+     "destroys it")
+breaking = squashed(body_of(drawer_src, "protected void onRemove("))
+need(breaking, "Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), "
+               "from.sealsHeld());",
+     "a broken drawer destroys the seal fitted to it, and a part is never lost with the "
+     "block it was fitted to")
+
+turning = squashed(body_of(drawer_src, "public Component turnKey()"))
+need(turning, 'if (store.locked()) { store.locked(false); return '
+              'Component.translatable("elysiumlogistics.drawer.unlocked"); }',
+     "a key does not unlock a locked drawer, so a drawer locked once stays locked")
+need(turning, 'if (!LogisticRules.mayLock(store.kindsKept())) { return '
+              'Component.translatable("elysiumlogistics.drawer.nothing_to_lock"); }',
+     "a key locks a drawer with nothing in it, which then refuses everything and looks "
+     "broken")
+need(turning, 'store.locked(true); return '
+              'Component.translatable("elysiumlogistics.drawer.locked_now");',
+     "a key never locks a drawer, so it forgets what it held the first time it runs dry")
+
+KEEPS_KIND = ("if (!LogisticRules.keepsKind(locked, counts[slot])) { "
+              "kinds[slot] = ItemStack.EMPTY; }")
+need(squashed(body_of(drawer_store_src, "public ItemStack extractItem(")), KEEPS_KIND,
+     "a drawer decides for itself whether an emptied slot keeps its kind, so the lock "
+     "the rules describe is not the lock it obeys")
+need(squashed(body_of(drawer_store_src, "public void locked(boolean now)")),
+     "locked = now; for (int slot = 0; slot < kinds.length; slot++) { " + KEEPS_KIND
+     + " } changed.run();",
+     "unlocking a drawer leaves its emptied slots holding their kinds, so it stays locked "
+     "to them while it says it is empty")
+
+saying = squashed(body_of(drawer_src, "public Component says()"))
+need(saying, 'if (store.locked()) { line.append(" ").append('
+             'Component.translatable("elysiumlogistics.drawer.locked")); }',
+     "a locked drawer does not say it is locked, and nothing on its front does")
+need(saying, 'if (store.voiding()) { line.append(" ").append('
+             'Component.translatable("elysiumlogistics.drawer.voids")); }',
+     "a sealed drawer does not say it voids overflow, and nothing on its front does")
+if saying.count("return ") != 1 or "return line; }" not in saying:
+    fail("a drawer says what it holds on some path without what a key or a seal has made "
+         "of it, so an empty locked drawer refuses things and never says why")
+
+rules_kept = strip_comments(rules, True)
+drawer_key = re.search(r'public static final String DRAWER_KEY\s*=\s*"([a-z_]+)";', rules_kept)
+drawer_seal = re.search(r'public static final String DRAWER_SEAL\s*=\s*"([a-z_]+)";', rules_kept)
+if not drawer_key or not drawer_seal:
+    fail("the rules do not name a drawer's key and seal, so nothing here knows which "
+         "items a drawer answers to")
+else:
+    if drawer_seal.group(1) not in [one[0] for one in pack_parts if one[1] == "void"]:
+        fail(f"a drawer is sealed with {drawer_seal.group(1)}, which is not the pack's void "
+             f"part, so the seal a bag takes does nothing to a drawer")
+    key = drawer_key.group(1)
+    missing = []
+    for where in (f"assets/{NS}/textures/item/{key}.png",
+                  f"assets/{NS}/models/item/{key}.json",
+                  f"data/{NS}/recipe/{key}.json"):
+        if not os.path.isfile(os.path.join(RES, where)):
+            missing.append(where.rsplit("/", 2)[-2])
+    if f"item.{NS}.{key}" not in lang:
+        missing.append("name")
+    if missing:
+        fail(f"the {key} has no {', '.join(missing)}, so a survival player cannot make "
+             f"one or cannot tell what it is")
+    made_key = crafted.get(key, {}).get("result", {}).get("id")
+    if key in crafted and made_key != f"{NS}:{key}":
+        fail(f"the {key}'s recipe makes {made_key}, so the key itself is made by nothing")
+    need(pack_src, "public static final DeferredItem<Item> DRAWER_KEY = "
+                   "ITEMS.registerSimpleItem(LogisticRules.DRAWER_KEY);",
+         "the drawer key is not registered, so its recipe makes an item that does not "
+         "exist")
+    need(pack_src, "output.accept(DRAWER_KEY.get());",
+         "the drawer key is in no creative tab, so nobody in a creative world can find it")
+
+print("a drawer's fittings: a void seal fitted by hand and handed back whole, taken out "
+      "or broken; a key that locks it to what it holds, unlocks it, and is never spent; "
+      "and a status line that says both")
+
 print("what it declares   : the game, the library, and the grid a network hangs off")
 
 if problems:

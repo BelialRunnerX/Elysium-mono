@@ -4,15 +4,19 @@ Every sprite, model and data file elysium-wilds ships.
 
     python3 tools/gen_wilds.py
 
-One item so far, and it has a needle, which means it is not one model but a
-ring of them: the game picks a frame from the `angle` property, so a compass
-with three frames reads as a compass that is broken rather than one that is
-coarse. Sixteen is the fewest that reads as turning.
+The compass has a needle, which means it is not one model but a ring of
+them: the game picks a frame from the `angle` property, so a compass with three
+frames reads as a compass that is broken rather than one that is coarse.
+Sixteen is the fewest that reads as turning.
+
+And the way into the Vale: the Vale Frame a ring is built from, and the gate
+that fills a lit ring, which is a block and never an item.
 """
 import json
 import os
 import re
 import sys
+import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MOD = os.path.dirname(HERE)
@@ -132,6 +136,191 @@ def needle(frame):
     draw.line([(centre, centre), (tipx, tipy)], fill=rgba(NORTH))
     draw.point((centre, centre), fill=rgba(RING[3]))
     return image
+
+
+# ---------------------------------------------------------------------------
+# The way into the Vale
+# ---------------------------------------------------------------------------
+#
+# A frame of mossy stone brick with one lit seed in it, and a gate of moving
+# green light to fill a ring of them. How many frames a craft makes is read
+# off PortalRules, the one number the recipe and the harness share, so a
+# change there is a change here rather than a recipe the proof is not about.
+
+PORTAL_RULES = os.path.join(
+    MOD, "src/main/java/com/elysium/wilds/rules/PortalRules.java")
+
+#: Stone brick with green in its grey, moss on top of it, and a seed of the
+#: pack's own light.
+BRICK = [(58, 64, 56), (84, 92, 80), (108, 116, 100), (134, 142, 124)]
+MOSS = [(44, 70, 36), (66, 100, 48), (92, 130, 60), (124, 160, 78)]
+SEED = [(127, 112, 196), (169, 155, 232)]
+
+#: The gate, darkest to brightest, never quite opaque: a gate you cannot see
+#: through is a wall. Alpha between nought and full wants the translucent layer,
+#: which its models say (check_models.py holds that).
+GATE = [(28, 74, 46, 150), (44, 110, 62, 170), (72, 150, 84, 190),
+        (120, 196, 118, 205), (178, 236, 160, 220)]
+
+#: How the gate's light moves: sixteen steps of a wave, dark to bright to dark.
+WAVE = [0, 0, 1, 1, 2, 2, 3, 3, 4, 3, 3, 2, 2, 1, 1, 0]
+
+#: Frames of the gate's animation, and ticks each is shown for.
+GATE_FRAMES = 8
+GATE_TICKS = 3
+
+
+def frames_per_craft():
+    """What one craft of frames makes, read off the rules."""
+    found = re.search(r"public static final int FRAMES_PER_CRAFT = (\d+);",
+                      read(PORTAL_RULES))
+    if not found:
+        print("PortalRules no longer says how many frames a craft makes, so the "
+              "recipe would make a number the rules know nothing about")
+        sys.exit(1)
+    return int(found.group(1))
+
+
+def scatter(x, y, seed):
+    """
+    A fixed hash of a pixel, nought to ninety-nine.
+
+    Fixed rather than random, so the sprite comes out the same on every
+    machine and the generated-file check passes for everybody. Mixed rather
+    than a sum of multiples, because a sum lays its pattern out in stripes and
+    moss does not grow in stripes.
+    """
+    h = (x * 374761393 + y * 668265263 + seed * 2246822519) & 0xFFFFFFFF
+    h = ((h ^ (h >> 13)) * 1274126177) & 0xFFFFFFFF
+    return (h ^ (h >> 16)) % 100
+
+
+def vale_frame():
+    """Stone brick in four courses, moss thick at the top and in the cracks, a seed lit in it."""
+    image = Image.new("RGBA", (16, 16), rgba(BRICK[1]))
+    for y in range(16):
+        course = y // 4
+        joints = (7, 15) if course % 2 == 0 else (3, 11)
+        for x in range(16):
+            crack = y % 4 == 3 or x in joints
+            speck = scatter(x, y, 1)
+            colour = BRICK[0] if speck < 10 else BRICK[2] if speck < 24 else BRICK[1]
+            if crack:
+                colour = BRICK[0]
+            elif y % 4 == 0 and (x + 1) not in joints:
+                colour = BRICK[3]
+            if scatter(x, y, 2) < (44, 20, 9, 3)[course] + (26 if crack else 0):
+                colour = MOSS[scatter(x, y, 3) % len(MOSS)]
+            image.putpixel((x, y), rgba(colour))
+    # The pack's own accent, so a player reads "Elysium put this here" before
+    # they read "mossy brick".
+    for x, y, lit in ((7, 9, 1), (8, 9, 1), (6, 9, 0), (9, 9, 0), (7, 8, 0), (8, 10, 0)):
+        image.putpixel((x, y), rgba(SEED[lit]))
+    return image
+
+
+def vale_gate():
+    """The gate's light, every frame of it in one strip, a wave with sparks in it."""
+    image = Image.new("RGBA", (16, 16 * GATE_FRAMES), CLEAR)
+    for frame in range(GATE_FRAMES):
+        for y in range(16):
+            for x in range(16):
+                bend = ((x - 8) * (x - 8) + (y - 8) * (y - 8)) // 6
+                level = WAVE[(x * 3 + y * 5 + frame * 2 + bend) % len(WAVE)]
+                if (x * 37 + y * 101 + frame * 53) % 89 < 2:
+                    level = len(GATE) - 1
+                image.putpixel((x, frame * 16 + y), GATE[level])
+    return image
+
+
+def gate_model(start, end):
+    """A thin sheet of gate across a block, the way a Nether portal is drawn."""
+    faces = {side: {"texture": "#portal"}
+             for side in ("north", "south", "east", "west", "up", "down")}
+    return {
+        "parent": "minecraft:block/block",
+        "render_type": "minecraft:translucent",
+        "textures": {"portal": "%s:block/vale_portal" % NS,
+                     "particle": "%s:block/vale_portal" % NS},
+        "elements": [{"from": start, "to": end, "shade": False, "faces": faces}],
+    }
+
+
+def portal_files():
+    """The frame and the gate: sprites, models, states, the drop, the recipe, the tool."""
+    blocks = os.path.join(ASSETS, "textures/block")
+    os.makedirs(blocks, exist_ok=True)
+    vale_frame().save(os.path.join(blocks, "vale_frame.png"))
+    vale_gate().save(os.path.join(blocks, "vale_portal.png"))
+    write(os.path.join(blocks, "vale_portal.png.mcmeta"),
+          {"animation": {"frametime": GATE_TICKS}})
+
+    write(os.path.join(ASSETS, "models/block/vale_frame.json"), {
+        "parent": "minecraft:block/cube_all",
+        "textures": {"all": "%s:block/vale_frame" % NS},
+    })
+    write(os.path.join(ASSETS, "models/item/vale_frame.json"),
+          {"parent": "%s:block/vale_frame" % NS})
+    write(os.path.join(ASSETS, "blockstates/vale_frame.json"),
+          {"variants": {"": {"model": "%s:block/vale_frame" % NS}}})
+    # The axis is which way the ring runs: along x the sheet faces north and
+    # south, along z east and west.
+    write(os.path.join(ASSETS, "models/block/vale_portal_ns.json"),
+          gate_model([0, 0, 6], [16, 16, 10]))
+    write(os.path.join(ASSETS, "models/block/vale_portal_ew.json"),
+          gate_model([6, 0, 0], [10, 16, 16]))
+    write(os.path.join(ASSETS, "blockstates/vale_portal.json"), {"variants": {
+        "axis=x": {"model": "%s:block/vale_portal_ns" % NS},
+        "axis=z": {"model": "%s:block/vale_portal_ew" % NS},
+    }})
+
+    # The frame drops itself; the gate drops nothing and has no table at all.
+    write(os.path.join(DATA, "loot_table/blocks/vale_frame.json"), {
+        "type": "minecraft:block",
+        "pools": [{
+            "rolls": 1,
+            "entries": [{"type": "minecraft:item", "name": "%s:vale_frame" % NS}],
+            "conditions": [{"condition": "minecraft:survives_explosion"}],
+        }],
+    })
+    # The rift frame's recipe in the Vale's stone: brick at the corners, moss
+    # on the sides, an ender pearl in the middle.
+    write(os.path.join(DATA, "recipe/vale_frame.json"), {
+        "type": "minecraft:crafting_shaped",
+        "category": "building",
+        "pattern": ["BMB", "MPM", "BMB"],
+        "key": {
+            "B": {"item": "minecraft:mossy_stone_bricks"},
+            "M": {"item": "minecraft:moss_block"},
+            "P": {"item": "minecraft:ender_pearl"},
+        },
+        "result": {"id": "%s:vale_frame" % NS, "count": frames_per_craft()},
+    })
+    write(os.path.join(MINECRAFT, "tags/block/mineable/pickaxe.json"),
+          {"replace": False, "values": ["%s:vale_frame" % NS]})
+    return 13
+
+
+PORTAL_WORDS = {
+    "block.elysiumwilds.vale_frame": "Vale Frame",
+    "block.elysiumwilds.vale_portal": "Vale Gate",
+    "elysiumwilds.compass.gate":
+        "Use it on a ring of Vale Frames to open the way into the Vale.",
+    "elysiumwilds.gate.no_frame":
+        "No closed ring of Vale Frames here. It needs an empty opening at least "
+        "%sx%s, framed on every side.",
+    "elysiumwilds.gate.no_vale":
+        "The gate opens onto nothing. The Vale is missing from this world.",
+    "elysiumwilds.gate.arrived":
+        "The verdant vale, the gentlest ground in the Vale. Everything further "
+        "out is harder.",
+    "elysiumwilds.gate.arrived_far":
+        "No verdant vale within reach of this ring, so this is the Vale "
+        "wherever it could put you.",
+    "elysiumwilds.gate.home": "Back where you went in.",
+    "elysiumwilds.gate.no_way_back":
+        "No way in on record for you, so the gate puts you at the world's spawn.",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -262,7 +451,10 @@ def vale_biome(name, warmth, wet, warmths, wets):
 
 def vale_files(found, warmths, wets):
     """Every biome of the Vale, the dimension and the type it is."""
-    data = os.path.join(MOD, "src/main/resources/data", NS)
+    # Under OUT like everything else: written into the module instead, a
+    # validation run rewrote the shipped files mid-check and nothing compared
+    # them with what the generator makes.
+    data = DATA
     written = 0
     claims = []
     for name, warmth, wet in found:
@@ -380,7 +572,10 @@ def grammars():
 
 
 def structure_files(names):
-    data = os.path.join(MOD, "src/main/resources/data", NS)
+    # Under OUT like everything else: written into the module instead, a
+    # validation run rewrote the shipped files mid-check and nothing compared
+    # them with what the generator makes.
+    data = DATA
     written = 0
     for name in names:
         biomes = GRAMMAR_BIOMES.get(name)
@@ -914,6 +1109,71 @@ def unshadowed(vanilla, ours):
     return kept
 
 
+# ---------------------------------------------------------------------------
+# The tags: a biome of ours is, to every tag, the biome it models
+# ---------------------------------------------------------------------------
+#
+# The preset puts only our biomes in the overworld, and a biome is in no tag
+# the game does not list it in. So until 29 September 2026 no biome of ours
+# was in minecraft:is_overworld, and everything keyed to a tag was keyed to
+# nowhere: strongholds (the tag is #is_overworld, so there was no way to the
+# End), villages, mineshafts, and every feature and spawn this pack adds by
+# tag. Each of ours decorates like one of the game's own biomes, so it takes
+# every tag that biome is a direct member of, read from the game's and
+# NeoForge's own tag files. Nesting carries the rest.
+
+MC_JAR = os.environ.get("MC_JAR", "C:/tmp/mc/libs/vanilla-assets.jar")
+NEOFORGE_JAR = os.environ.get(
+    "NEOFORGE_JAR", "C:/ClaudeValoria/Valoria/build/moddev/artifacts/neoforge-21.1.251.jar")
+TAG_FOLDER = "tags/worldgen/biome/"
+
+
+def biome_tag_members():
+    """Every biome tag the game and NeoForge define, with its direct members."""
+    found = {}
+    for jar in (MC_JAR, NEOFORGE_JAR):
+        if not os.path.isfile(jar):
+            print(f"the jar {jar} is not there, and the biome tags are read out of it "
+                  f"(set MC_JAR and NEOFORGE_JAR)")
+            sys.exit(1)
+        with zipfile.ZipFile(jar) as opened:
+            for name in opened.namelist():
+                parts = name.split("/")
+                if len(parts) < 6 or parts[0] != "data" or parts[1] not in ("minecraft", "c") \
+                        or "/".join(parts[2:5]) + "/" != TAG_FOLDER or not name.endswith(".json"):
+                    continue
+                tag = parts[1] + ":" + "/".join(parts[5:])[:-5]
+                doc = json.loads(opened.read(name).decode("utf-8"))
+                members = found.setdefault(tag, set())
+                for value in doc.get("values", []):
+                    if isinstance(value, dict):
+                        value = value.get("id", "")
+                    if isinstance(value, str) and value and not value.startswith("#"):
+                        members.add(value if ":" in value else "minecraft:" + value)
+    return found
+
+
+def biome_tag_files(shape):
+    """One tag file per tag any model of ours is in, listing ours that model it."""
+    tags = biome_tag_members()
+    ours = {}
+    for one in shape["lands"] + shape["caves"]:
+        model = "minecraft:" + one["model"]
+        for tag, members in tags.items():
+            if model in members:
+                ours.setdefault(tag, set()).add("%s:%s" % (NS, one["name"]))
+    if "minecraft:is_overworld" not in ours:
+        print("no biome of ours models an overworld biome, so none is in is_overworld")
+        sys.exit(1)
+    written = 0
+    for tag in sorted(ours):
+        namespace, path = tag.split(":", 1)
+        write(os.path.join(OUT, "src/main/resources/data", namespace, TAG_FOLDER, path + ".json"),
+              {"replace": False, "values": sorted(ours[tag])})
+        written += 1
+    return written
+
+
 def preset_files(shape):
     """
     The three world presets, with our list in front of vanilla's.
@@ -1005,12 +1265,15 @@ def main():
         "result": {"id": "%s:biome_compass" % NS, "count": 1},
     })
 
+    portalfiles = portal_files()
+
     found, warmths, wets = vale()
     valefiles = vale_files(found, warmths, wets)
     built = grammars()
     valefiles += structure_files(built)
     shape = overworld()
     overfiles = overworld_files(shape)
+    overfiles += biome_tag_files(shape)
 
     entries = {
         "itemGroup.elysiumwilds": "Elysium Wilds",
@@ -1023,14 +1286,16 @@ def main():
         "elysiumwilds.compass.nowhere": "No %s anywhere the compass can see from here",
         "elysiumwilds.compass.nomatch": "Nothing here matches what you have typed",
     }
+    entries.update(PORTAL_WORDS)
     vale_language(entries, found)
     overworld_language(entries, shape)
     write(os.path.join(ASSETS, "lang/en_us.json"), dict(sorted(entries.items())))
 
-    print("elysium-wilds: 1 item, %d needle frame(s), 1 recipe, %d biome(s) of "
-          "the Vale and %d kind(s) of building in %d file(s); %d biome(s) of "
-          "ours in the overworld and %d feature(s) to put in them, in %d file(s)"
-          % (FRAMES, len(found), len(built), valefiles,
+    print("elysium-wilds: 1 item, %d needle frame(s), 1 recipe, a way into the Vale "
+          "in %d file(s), %d biome(s) of the Vale and %d kind(s) of building in %d "
+          "file(s); %d biome(s) of ours in the overworld and %d feature(s) to put "
+          "in them, in %d file(s)"
+          % (FRAMES, portalfiles, len(found), len(built), valefiles,
              len(shape["lands"]) + len(shape["caves"]), len(shape["ours"]),
              overfiles))
 

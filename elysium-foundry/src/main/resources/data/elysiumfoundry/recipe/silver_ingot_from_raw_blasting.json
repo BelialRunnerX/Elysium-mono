@@ -2,7 +2,7 @@
   "type": "minecraft:blasting",
   "category": "misc",
   "ingredient": {
-    "item": "elysiumfoundry:raw_silver"
+    "tag": "c:raw_materials/silver"
   },
   "result": {
     "id": "elysiumfoundry:silver_ingot"

@@ -54,6 +54,7 @@ deleting its row from the table below. Nothing else has to be remembered.
 import json
 import math
 import os
+import re
 import sys
 import pathlib
 import shutil
@@ -873,9 +874,11 @@ def sprite_resin(ramp, seed):
 # The table
 # ===========================================================================
 #
-# "tool" decides which mineable tag the block joins, and nothing else — none of
-# these need a *specific* tool tier, because a building set a player cannot
-# take back down again is a building set they will not experiment with.
+# Which mineable tag a block joins is not in this table: rules/HarvestRules.java
+# decides it from the material the block is made of (the second word of its
+# "tile"), and write_tags() reads the rules. None of these need a *specific*
+# tool tier, because a building set a player cannot take back down again is a
+# building set they will not experiment with.
 
 INGREDIENTS = [
     {
@@ -940,7 +943,7 @@ BUILDING = [
     {
         "id": "rammed_earth", "name": "Rammed Earth",
         "tile": ("strata", "earth"), "sound": "MUD_BRICKS", "strength": (1.4, 3.0),
-        "tool": "pickaxe", "variants": ["stairs", "slab", "wall"],
+        "variants": ["stairs", "slab", "wall"],
         "tooltip": "Soil, gravel and clay driven together. Cheap, and it never runs out.",
         "recipe": {"type": "shaped", "count": 4,
                    "pattern": ["dg", "cd"],
@@ -950,7 +953,7 @@ BUILDING = [
     {
         "id": "pale_plaster", "name": "Pale Plaster",
         "tile": ("stucco", "plaster"), "sound": "CALCITE", "strength": (1.2, 3.0),
-        "tool": "pickaxe", "variants": ["stairs", "slab", "wall"],
+        "variants": ["stairs", "slab", "wall"],
         "tooltip": "A lime wall that throws daylight back into the room.",
         "recipe": {"type": "shaped", "count": 4,
                    "pattern": ["cb", "bc"],
@@ -959,7 +962,7 @@ BUILDING = [
     {
         "id": "verdigris_copper", "name": "Verdigris Copper",
         "tile": ("plate", "patina"), "sound": "COPPER", "strength": (3.0, 6.0),
-        "tool": "pickaxe", "variants": ["stairs", "slab"],
+        "variants": ["stairs", "slab"],
         "tooltip": "Copper panel, aged green on purpose and then stopped there.",
         "recipe": {"type": "shaped", "count": 4,
                    "pattern": ["cv", "vc"],
@@ -969,7 +972,7 @@ BUILDING = [
     {
         "id": "solar_brass_block", "name": "Block of Solar Brass",
         "tile": ("plate", "brass"), "sound": "COPPER", "strength": (3.0, 6.0),
-        "tool": "pickaxe", "variants": [],
+        "variants": [],
         "tooltip": "Nine ingots, kept where you can find them.",
         "recipe": {"type": "shaped", "count": 1,
                    "pattern": ["iii", "iii", "iii"],
@@ -979,7 +982,7 @@ BUILDING = [
     {
         "id": "woven_cane_block", "name": "Woven Cane Block",
         "tile": ("weave", "cane"), "sound": "BAMBOO_WOOD", "strength": (1.5, 2.0),
-        "tool": "axe", "variants": ["stairs", "slab"],
+        "variants": ["stairs", "slab"],
         "tooltip": "A wall you could carry one-handed.",
         "recipe": {"type": "shaped", "count": 4,
                    "pattern": ["ww", "ww"],
@@ -988,7 +991,7 @@ BUILDING = [
     {
         "id": "mosaic_tile", "name": "Mosaic Tile",
         "tile": ("mosaic", "clay"), "sound": "CALCITE", "strength": (1.4, 4.0),
-        "tool": "pickaxe", "variants": ["stairs", "slab"],
+        "variants": ["stairs", "slab"],
         "tooltip": "Fired clay and glaze, set by hand. No two faces match.",
         "recipe": {"type": "shaped", "count": 4,
                    "pattern": ["tv", "vt"],
@@ -997,7 +1000,7 @@ BUILDING = [
     {
         "id": "cane_lattice", "name": "Cane Lattice",
         "tile": ("lattice", "cane"), "sound": "BAMBOO_WOOD", "strength": (1.0, 1.5),
-        "tool": "axe", "variants": [], "render": "cutout", "solid": False,
+        "variants": [], "render": "cutout", "solid": False,
         "tooltip": "Screening. Keeps the sun off without keeping the air out.",
         "recipe": {"type": "shaped", "count": 4,
                    "pattern": ["wb", "bw"],
@@ -1006,7 +1009,7 @@ BUILDING = [
     {
         "id": "copper_grating", "name": "Copper Grating",
         "tile": ("grating", "copper"), "sound": "COPPER_GRATE", "strength": (3.0, 6.0),
-        "tool": "pickaxe", "variants": [], "render": "cutout", "solid": False,
+        "variants": [], "render": "cutout", "solid": False,
         "tooltip": "Walkway and vent cover. Machinery looks like it is running under it.",
         "recipe": {"type": "shaped", "count": 4,
                    "pattern": ["c c", "ccc", "c c"],
@@ -1022,7 +1025,7 @@ BUILDING = [
         "block_class": "com.elysium.solarpunk.power.PowerGovernorBlock",
         "shape": "stateless",
         "tile": ("plate", "brass"), "sound": "COPPER",
-        "strength": (1.5, 3.0), "tool": "pickaxe", "variants": [],
+        "strength": (1.5, 3.0), "variants": [],
         "tooltip": "One rule for the grid it is attached to: when something is "
                    "true, stop a class of machine and everything below it. "
                    "Use it to cycle the condition, sneak-use to cycle what is "
@@ -1043,7 +1046,7 @@ BUILDING = [
         "block_class": "com.elysium.solarpunk.power.PowerConduitBlock",
         "shape": "pipe",
         "tile": ("conduit", "brass"), "sound": "COPPER",
-        "strength": (1.5, 3.0), "tool": "pickaxe", "variants": [],
+        "strength": (1.5, 3.0), "variants": [],
         # Not cutout. The tile is solid brass with no holes in it, and a cutout
         # render pass for a texture with no transparent pixel is a pass spent
         # on nothing. noOcclusion stays, because the block is not a full cube
@@ -1064,7 +1067,7 @@ BUILDING = [
         # drawn at partial alpha, and the cutout shader rounds alpha to on or
         # off — so under cutout this block would render as a solid brass cube
         # and the glazing would simply be gone.
-        "tool": "pickaxe", "variants": [], "render": "translucent", "solid": False,
+        "variants": [], "render": "translucent", "solid": False,
         "tooltip": "Glazing in a brass frame. Light in, weather out.",
         "recipe": {"type": "shaped", "count": 6,
                    "pattern": ["bgb", "gbg", "bgb"],
@@ -1073,7 +1076,7 @@ BUILDING = [
     {
         "id": "bloom_glass", "name": "Bloom Glass",
         "tile": ("bloomglass", "bloom"), "sound": "GLASS", "strength": (0.5, 0.5),
-        "tool": None, "variants": [], "render": "translucent", "solid": False,
+        "variants": [], "render": "translucent", "solid": False,
         "light": 12,
         "tooltip": "Lit from inside, and never warm to the touch.",
         "recipe": {"type": "shapeless", "count": 1,
@@ -1082,7 +1085,7 @@ BUILDING = [
     {
         "id": "bloom_lantern", "name": "Bloom Lantern",
         "tile": ("lantern", "bloom"), "sound": "LANTERN", "strength": (1.0, 1.0),
-        "tool": "pickaxe", "variants": [], "light": 15,
+        "variants": [], "light": 15,
         "tooltip": "The brightest thing here, and it burns nothing to do it.",
         "recipe": {"type": "shaped", "count": 2,
                    "pattern": [" b ", "brb", " b "],
@@ -1091,7 +1094,7 @@ BUILDING = [
     {
         "id": "living_wall", "name": "Living Wall",
         "tile": ("greenery", "leaf"), "sound": "MOSS", "strength": (0.8, 0.8),
-        "tool": "axe", "variants": [],
+        "variants": [],
         "tooltip": "Planting held against a cane screen. Grows over anything.",
         "recipe": {"type": "shapeless", "count": 1,
                    "ingredients": ["minecraft:moss_block", NS + ":woven_cane"]},
@@ -1099,7 +1102,7 @@ BUILDING = [
     {
         "id": "terrace_planter", "name": "Terrace Planter",
         "tile": ("weave", "cane"), "top": ("soil", "soil"), "sound": "MOSS",
-        "strength": (1.0, 1.0), "tool": "axe", "variants": [],
+        "strength": (1.0, 1.0), "variants": [],
         "tooltip": "A bed of soil in a cane box. Put it anywhere flat.",
         "recipe": {"type": "shaped", "count": 2,
                    "pattern": ["w w", "wdw", "www"],
@@ -1190,7 +1193,6 @@ def white_stone_entries():
                 "tile": (stone["tile"], stone["tile"]),
                 "sound": "CALCITE",
                 "strength": (1.5, 6.0),
-                "tool": "pickaxe",
                 "variants": ["stairs", "slab", "wall"],
                 "tooltip": ("Cut and dressed flat." if dressed
                             else stone["tooltip"]),
@@ -1219,7 +1221,6 @@ def white_stone_entries():
                     "overlay": (trim["suffix"], metal_palette),
                     "sound": "CALCITE",
                     "strength": (1.5, 6.0),
-                    "tool": "pickaxe",
                     "variants": [],
                     "tooltip": trim["blurb"] % metal_name,
                     "recipe": {
@@ -2323,14 +2324,60 @@ def kiln_inputs():
     return sorted(values)
 
 
+HARVEST_RULES = JAVA / "rules/HarvestRules.java"
+
+
+def harvest_rules():
+    """
+    HarvestRules, read rather than retyped: the tool every machine is for, the
+    blocks broken by hand, and the tool for each material a building block is
+    made of. A block in no tool's tag breaks at a fist's pace, which is what
+    the harvest audit of 29 September 2026 found 676 blocks of the pack doing.
+    """
+    text = HARVEST_RULES.read_text(encoding="utf-8")
+    text = re.sub(r"//[^\n]*", " ", re.sub(r"/\*.*?\*/", " ", text, flags=re.S))
+    machine_tool = re.search(r'String MACHINE_TOOL = "([a-z]+)";', text)
+    by_hand = re.search(r"List<String> BY_HAND = List\.of\(([^;]*?)\);", text, re.S)
+    of_material = re.search(
+        r"Map<String, String> TOOL_OF_MATERIAL = Map\.ofEntries\((.*?)\);", text, re.S)
+    if not (machine_tool and by_hand and of_material):
+        raise SystemExit("HarvestRules does not say what mines a block")
+    return (machine_tool.group(1),
+            re.findall(r'"([a-z_]+)"', by_hand.group(1)),
+            dict(re.findall(r'Map\.entry\("([a-z]+)", "([a-z]+)"\)', of_material.group(1))))
+
+
+def tool_for(block_id, spec, variant):
+    """Which tool mines a block, from HarvestRules; None for one broken by hand."""
+    machine_tool, by_hand, of_material = harvest_rules()
+    if block_id in by_hand:
+        return None
+    if variant == "machine":
+        return machine_tool
+    material = spec["tile"][1]
+    if material not in of_material:
+        raise SystemExit(f"{block_id} is made of {material}, and HarvestRules does not "
+                         f"say what mines that")
+    return of_material[material]
+
+
+def mineable_lists():
+    """{tool: [block ids]} for every block, in registration order, from the rules."""
+    mineable = {}
+    for block_id, _, spec, variant in block_entries():
+        tool = tool_for(block_id, spec, variant)
+        if tool is not None:
+            mineable.setdefault(tool, []).append(f"{NS}:{block_id}")
+    return mineable
+
+
 def write_tags():
-    mineable = {"pickaxe": [], "axe": []}
+    # One write a tag file, from the whole list at once: a generator that
+    # wrote a tag in pieces kept only the last piece.
+    mineable = mineable_lists()
     stairs, slabs, walls = [], [], []
 
     for block_id, _, spec, variant in block_entries():
-        tool = "pickaxe" if variant == "machine" else spec.get("tool")
-        if tool in mineable:
-            mineable[tool].append(f"{NS}:{block_id}")
         if variant == "stairs":
             stairs.append(f"{NS}:{block_id}")
         elif variant == "slab":

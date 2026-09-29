@@ -167,6 +167,11 @@ a check that has genuinely stopped working.
 
 ### elysium-logistics
 
+**`negtest_logistics.sh`** (found 29 Sep by the drawer work)
+
+    STALE: IndustryRules.java :: return new IndustryRules.Machine(devices * DEVICE_DRAW,   (now + extra * DEVICE_DRAW)
+
+
 **`negtest_logistics2.sh`**
 
     STALE: LogisticItems.java :: TIMBER_DRAWER, BRASS_DRAWER, STEEL_DRAWER, BUS, CONTROLLER);

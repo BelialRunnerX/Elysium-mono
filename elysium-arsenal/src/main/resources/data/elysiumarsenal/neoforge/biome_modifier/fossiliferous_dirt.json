@@ -1,0 +1,8 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#elysiumarsenal:has_dig_site_fossiliferous_dirt",
+  "features": [
+    "elysiumarsenal:fossiliferous_dirt"
+  ],
+  "step": "underground_ores"
+}

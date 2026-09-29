@@ -24,6 +24,13 @@ import java.util.List;
  * does, and it has to be set after the entity exists.
  *
  * It also reads better. These are not eggs; they are writs.
+ *
+ * <h2>Where one comes from</h2>
+ *
+ * The envoy it names sells it, one a visit, at the price of the best row on
+ * that envoy's screen (ImperialEnvoy.rollOffers). So a writ is bought where
+ * its envoy deals: anybody can buy the Sentinel's, and only a player the Code
+ * already hunts can buy the Emperor's.
  */
 public class EnvoySummonsItem extends Item {
 

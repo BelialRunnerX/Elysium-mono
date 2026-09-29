@@ -3,6 +3,7 @@ package com.elysium.arsenal.rules;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
@@ -14,6 +15,11 @@ import java.util.TreeSet;
  * <p>Four rosters and one function. The rosters are checked the way everything
  * else in this module is: nothing pointless, nothing that is something else
  * under a different name, nothing so rare it may as well not exist.
+ *
+ * <p>And two things the rest takes for granted, both of which were false until
+ * 29 September 2026: that every site is somewhere in a world, and that every
+ * fossil half, totem and rotten log is in some pool. A dig can pass every other
+ * check here and still be a mechanic only a command can reach.
  *
  * <p>The function is {@link DigRules#whatIsBuried}, and it gets a sweep of its
  * own because everything about dig sites rests on it being a function of the
@@ -45,6 +51,8 @@ public final class DigHarness {
     public static void main(String[] args) {
         theBrushes();
         theSites();
+        whereTheSitesAre();
+        whatTheDigPromises();
         whatIsBuriedIsAPlace();
         theFossils();
         theArtifacts();
@@ -56,7 +64,8 @@ public final class DigHarness {
             System.exit(1);
         }
         System.out.println(checks + " checks: three brushes that climb and none of "
-                + "them fast, sites whose contents are a function of where they are, "
+                + "them fast, sites that every world holds and whose contents are a "
+                + "function of where they are, every fossil half and totem in a pool, "
                 + "seven fossils in halves worth pairing, three artefacts none of "
                 + "which is a worse version of another, and two sorts of totem that "
                 + "stay two sorts");
@@ -140,6 +149,132 @@ public final class DigHarness {
         }
         System.out.println("  the sites: " + DigRules.SITES.size()
                 + ", drawing from " + DigRules.POOLS.size() + " pool(s)");
+    }
+
+    /**
+     * Every site in a world.
+     *
+     * <p>A site nothing lays down passes every other check in this file: its
+     * pool is full, its hash stirs and its spread is the weights, and no
+     * player ever sees one.
+     */
+    private static void whereTheSitesAre() {
+        check(DigRules.unplaced().isEmpty(),
+                "sites no world holds: " + DigRules.unplaced());
+        for (DigRules.Patch one : DigRules.PATCHES) {
+            check(one.sitesAChunk() > 0.0D, one.site() + "'s patches lay nothing");
+            check(one.most() <= DigRules.WIDEST_PATCH,
+                    one.site() + "'s patches are wider than the game will load");
+        }
+        for (DigRules.Seam one : DigRules.SEAMS) {
+            check(one.size() <= DigRules.LARGEST_SEAM,
+                    one.site() + "'s veins are larger than the game will load");
+            check(one.lowest() >= DigRules.WORLD_FLOOR
+                            && one.highest() < DigRules.WORLD_CEILING,
+                    one.site() + " lies outside the world");
+        }
+        check(DigRules.columnsWithin(1) == 5 && DigRules.columnsWithin(2) == 13,
+                "a disk's columns are not counted the way the game lays them, so "
+                        + "every density printed below is wrong");
+
+        int refused = 0;
+        List<String> ground = List.of("minecraft:dirt");
+        List<String> plains = List.of("minecraft:plains");
+        try {
+            new DigRules.Patch("too_wide", 10, 1, DigRules.WIDEST_PATCH + 1, ground,
+                    plains);
+        } catch (IllegalArgumentException expected) {
+            refused++;
+        }
+        try {
+            new DigRules.Patch("never", 0, 1, 2, ground, plains);
+        } catch (IllegalArgumentException expected) {
+            refused++;
+        }
+        try {
+            new DigRules.Patch("nowhere", 10, 1, 2, ground, List.of());
+        } catch (IllegalArgumentException expected) {
+            refused++;
+        }
+        try {
+            new DigRules.Seam("too_big", 3, DigRules.LARGEST_SEAM + 1, 0, 160,
+                    "minecraft:dirt", plains);
+        } catch (IllegalArgumentException expected) {
+            refused++;
+        }
+        try {
+            new DigRules.Seam("upside_down", 3, 6, 160, 0, "minecraft:dirt", plains);
+        } catch (IllegalArgumentException expected) {
+            refused++;
+        }
+        check(refused == 5, refused + " of 5 impossible placements were refused");
+
+        // The control: with the patches taken away, every patched site is
+        // reported. A check that cannot say "no world" says "every world"
+        // just as convincingly.
+        List<String> bare = DigRules.unplaced(DigRules.SITES, List.of(), DigRules.SEAMS);
+        for (DigRules.Patch one : DigRules.PATCHES) {
+            boolean named = false;
+            for (String complaint : bare) {
+                named |= complaint.startsWith(one.site() + " is in no world");
+            }
+            check(named, "with no patches at all, " + one.site() + " was not reported "
+                    + "as in no world, so the check cannot report the thing it exists "
+                    + "to report");
+        }
+
+        StringBuilder thick = new StringBuilder();
+        for (DigRules.Patch one : DigRules.PATCHES) {
+            thick.append(", ").append(one.site()).append(" about ")
+                    .append(Math.round(one.sitesAChunk() * 10.0D) / 10.0D)
+                    .append(" a chunk on flat ground");
+        }
+        System.out.println("  where the sites are: " + DigRules.PATCHES.size()
+                + " patch(es) and " + DigRules.SEAMS.size() + " seam(s), every site "
+                + "in a world" + thick);
+    }
+
+    /**
+     * Everything only a dig hands out, in some pool.
+     *
+     * <p>The fossil halves and the totems come from brushing and from nothing
+     * else in the game. They are walked here one at a time as well as asked of
+     * the rules, so a rule that stopped looking would not take this with it.
+     */
+    private static void whatTheDigPromises() {
+        check(DigRules.neverDugUp().isEmpty(),
+                "promised by the dig and in no pool: " + DigRules.neverDugUp());
+
+        Set<String> held = new HashSet<>();
+        for (List<DigRules.Find> finds : DigRules.POOLS.values()) {
+            for (DigRules.Find one : finds) {
+                held.add(one.item());
+            }
+        }
+        int halves = 0;
+        for (FossilRules.Fossil one : FossilRules.FOSSILS) {
+            for (String part : List.of(FossilRules.SKULL, FossilRules.BODY)) {
+                halves++;
+                check(held.contains("elysiumarsenal:" + one.id(part)),
+                        one.id(part) + " is in no pool, so the " + one.creature()
+                                + " fossil can never be made whole");
+            }
+        }
+        for (TotemRules.Totem one : TotemRules.TOTEMS) {
+            check(held.contains("elysiumarsenal:" + one.name()),
+                    one.name() + " is a totem no pool holds, so it can never be had");
+        }
+
+        // The control: with nothing in any pool, every promise is reported.
+        int promised = halves + TotemRules.TOTEMS.size() + DigRules.TURNED_UP.size();
+        int reported = DigRules.neverDugUp(Map.of()).size();
+        check(reported == promised,
+                "an empty set of pools was reported as missing " + reported + " of "
+                        + promised + " finds, so the check cannot report the thing "
+                        + "it exists to report");
+        System.out.println("  what the dig promises: " + halves + " fossil halves, "
+                + TotemRules.TOTEMS.size() + " totems and " + DigRules.TURNED_UP.size()
+                + " other finds, every one in a pool");
     }
 
     /**

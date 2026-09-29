@@ -936,6 +936,21 @@ public final class ComfortHarness {
                         + "is not reported");
         check(PostRules.faultsInLoop(PostRules.BIRDS).isEmpty(),
                 "the birds this module ships are reported as one-way");
+        check(!PostRules.faultsInWayIn(PostRules.BIRDS, List.of()).isEmpty(),
+                "birds that only turn into each other, with nothing spawning either, are not "
+                        + "reported, which is the loop the post shipped with");
+        check(!PostRules.faultsInWayIn(PostRules.BIRDS,
+                        List.of(new PostRules.Wild("pigeon", "#c:is_plains", 0, 2, 4))).isEmpty(),
+                "a bird that spawns at weight nought is taken as a way in");
+        check(PostRules.faultsInWayIn(PostRules.BIRDS, PostRules.WILD).isEmpty(),
+                "the birds this module ships are reported as having no way in");
+        check(PostRules.lostOn(0) && !PostRules.lostOn(PostRules.LOSS_IN_A_THOUSAND)
+                        && !PostRules.lostOn(999) && !PostRules.lostOn(-1),
+                "a parcel is lost on the wrong rolls: the rules price "
+                        + PostRules.LOSS_IN_A_THOUSAND + " in a thousand");
+        check(PostRules.salvaged(4) == 1 && PostRules.salvaged(3) == 0 && PostRules.salvaged(64) < 64,
+                "what survives a loss is not a quarter rounded down, so losing a parcel "
+                        + "could pay");
 
         check(!PostRules.faultsInSymbolNames(List.of("a", "a")).isEmpty(),
                 "a symbol cut twice is not reported");

@@ -80,6 +80,7 @@ public final class AgronomyHarness {
         theSeeds();
         theWaters();
         theKeeping();
+        theHarvest();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -1310,6 +1311,10 @@ public final class AgronomyHarness {
         for (FishRules.Fish one : FishRules.FISH) {
             check(names.add(one.id()), "two fish called " + one.id());
             check(one.length() > 0.0F, one.id() + " has no length to keep a record of");
+            check(FishRules.centimetres(one) >= 1
+                            && Math.abs(FishRules.centimetres(one) - one.length()) <= 0.5F,
+                    one.id() + " is " + one.length() + " cm long and a measuring line reads "
+                            + FishRules.centimetres(one));
             check(one.nutrition() > 0, one.id() + " feeds nobody");
             check(!one.id().endsWith("_bucket"),
                     one.id() + " already ends in _bucket, so its bucket would be "
@@ -1818,6 +1823,72 @@ public final class AgronomyHarness {
         check(KitchenRules.KNIFE_WEAR >= 1, "a cut wears a knife by nothing, so a "
                 + "flint knife is a netherite one");
 
+        // The fillet knife: every fish big enough to fillet, by it and by
+        // nothing else, and none of it a food multiplier. The kitchen's own
+        // cuts and the fillet knife's sit in one list on disk, so the two are
+        // checked together: a kitchen knife that cut a fish, or a fillet knife
+        // that cut beef, would be one knife doing both jobs.
+        List<KitchenRules.Cut> filleting = KitchenRules.filleting();
+        List<KitchenRules.Cut> onDisk = new java.util.ArrayList<>(KitchenRules.CUTS);
+        onDisk.addAll(filleting);
+        check(KitchenRules.TOOLS.contains(KitchenRules.KNIFE)
+                        && KitchenRules.TOOLS.contains(KitchenRules.FILLET_KNIFE),
+                "the tools a cutting recipe may ask for are " + KitchenRules.TOOLS);
+        check(KitchenRules.ingredient(KitchenRules.FILLET) != null,
+                "a fillet knife takes off " + KitchenRules.FILLET
+                        + ", which the kitchen does not make");
+        check(KitchenRules.filletsThatCreate(filleting).isEmpty(),
+                "the fillet knife is a food multiplier: "
+                        + KitchenRules.filletsThatCreate(filleting));
+        int filleted = 0;
+        for (FishRules.Fish one : FishRules.FISH) {
+            int fillets = KitchenRules.filletsFrom(one.nutrition());
+            KitchenRules.Cut cut = KitchenRules.cutFor(one.id(), KitchenRules.FILLET_KNIFE,
+                    onDisk);
+            if (fillets > 0) {
+                check(cut != null && cut.yields().equals(
+                                java.util.Map.of(KitchenRules.FILLET, fillets)),
+                        one.id() + " is worth " + fillets + " fillet(s) and the fillet "
+                                + "knife takes " + (cut == null ? "nothing" : cut.yields())
+                                + " off it");
+                filleted++;
+            } else {
+                check(cut == null, one.id() + " is too small to fillet and the knife "
+                        + "takes something off it");
+            }
+            check(KitchenRules.cutFor(one.id(), KitchenRules.KNIFE, onDisk) == null,
+                    "a kitchen knife cuts " + one.id() + ", so the fillet knife is one "
+                            + "knife too many");
+        }
+        check(filleted == filleting.size() && filleted >= FishRules.FISH.size() / 2,
+                "the fillet knife cuts " + filleting.size() + " fish and "
+                        + filleted + " are big enough to fillet");
+        check(KitchenRules.cutFor("beef", KitchenRules.FILLET_KNIFE, onDisk) == null,
+                "a fillet knife cuts beef, so it is a kitchen knife that lasts longer "
+                        + "and costs two nuggets");
+        check(KitchenRules.filletsFrom(1) == 0,
+                "a fish worth one comes apart into fillets worth three each");
+        // Controls, built to be caught: a minnow into five fillets, a fillet
+        // knife that cuts beef, and a fillet cut asking for another tool.
+        check(!KitchenRules.filletsThatCreate(List.of(new KitchenRules.Cut("bleak_minnow",
+                        KitchenRules.FILLET_KNIFE, java.util.Map.of(KitchenRules.FILLET, 5))))
+                        .isEmpty(),
+                "a minnow cut into five fillets is not reported, so the fillet rule "
+                        + "answers no to everything");
+        check(!KitchenRules.filletsThatCreate(List.of(new KitchenRules.Cut("beef",
+                        KitchenRules.FILLET_KNIFE, java.util.Map.of(KitchenRules.FILLET, 1))))
+                        .isEmpty(),
+                "a fillet knife cutting something that is no fish is not reported");
+        check(!KitchenRules.filletsThatCreate(List.of(new KitchenRules.Cut("mackerel",
+                        KitchenRules.KNIFE, java.util.Map.of(KitchenRules.FILLET, 1))))
+                        .isEmpty(),
+                "a fillet cut for the kitchen knife is not reported");
+        for (KitchenRules.Cut cut : onDisk) {
+            check(KitchenRules.TOOLS.contains(cut.tool()),
+                    "cutting " + cut.input() + " wants a " + cut.tool()
+                            + ", which is a tool nobody has");
+        }
+
         // Heat.
         check(KitchenRules.needsHeat(KitchenRules.POT)
                         && KitchenRules.needsHeat(KitchenRules.SKILLET),
@@ -2050,6 +2121,36 @@ public final class AgronomyHarness {
                 "every seed grows something this module has to invent an item for, "
                         + "which means none of them grows anything the game or the "
                         + "pack already has");
+
+        // The way onto the ladder. A pot grows a rung's essence only out of a
+        // seed of that rung, so the first rung's seeds have to be bought with
+        // something the ladder does not make, and every rung above with what
+        // the rung below grows.
+        check(SeedRules.unreachableRungs().isEmpty(),
+                "the essence ladder cannot be entered from nothing it makes: "
+                        + SeedRules.unreachableRungs());
+        check(SeedRules.faultsInPrice().isEmpty(),
+                "a rung of the ladder bought from outside it: " + SeedRules.faultsInPrice());
+        check(!SeedRules.paidInEssence(1),
+                "the first rung is paid in its own essence, which only a pot growing a "
+                        + "first-rung seed makes");
+        check(SeedRules.FIRST_RUNG_PRICE.startsWith("minecraft:"),
+                "the first rung is paid in " + SeedRules.FIRST_RUNG_PRICE
+                        + ", which is not the game's own, so the way in waits on a module");
+        // Controls. The ladder as it was, every rung paid in its own essence,
+        // has to read as the loop it was; a ladder with nothing on its first
+        // rung has no way in either; and a ladder entered at the bottom is
+        // climbed all the way.
+        check(SeedRules.unreachableRungs(SeedRules.SEEDS, tier -> true).size()
+                        == AgronomyRules.TIERS,
+                "a ladder whose every seed costs its own essence reads as enterable, so "
+                        + "the walk answers yes to everything");
+        check(SeedRules.unreachableRungs(SeedRules.atTier(2), tier -> tier > 1).size()
+                        == AgronomyRules.TIERS,
+                "a ladder with no seed on its first rung reads as enterable");
+        check(SeedRules.unreachableRungs(SeedRules.atTier(1), tier -> tier > 1).isEmpty(),
+                "a ladder entered at the first rung is not climbed to the top, so the "
+                        + "walk forgets that four of a rung make one of the next");
     }
 
     // ==================================================================
@@ -2092,6 +2193,17 @@ public final class AgronomyHarness {
                         + " said to be wild");
         check(placed >= FishRules.FAMILIES.size() - 1,
                 "more than one family is rod-only, and only the void has no water");
+        // A rod-only family is alive only out of a bucket, and its bucket is
+        // filled at a table, since there is nothing alive to scoop.
+        check(WaterRules.neverAlive().isEmpty(),
+                "families never alive in the world: " + WaterRules.neverAlive());
+        for (FishRules.Family family : FishRules.FAMILIES) {
+            check(WaterRules.bucketedAtTable(family) != WaterRules.spawnsWild(family),
+                    family.name() + (WaterRules.spawnsWild(family)
+                            ? " swims wild and is also bucketed at a table, so a dead "
+                            + "fish comes back to life"
+                            : " never swims wild and is not bucketed at a table"));
+        }
 
         // Bands by depth: monotone, starting at the surface, reaching the abyss.
         int last = -1;
@@ -2404,6 +2516,40 @@ public final class AgronomyHarness {
         check(KeepingRules.faultsInTemper(2.0F, 400, 1_200, 8, 6).isEmpty(),
                 "an ordinary temper is reported as wrong");
 
+        // A nest for every home, on the ground it names, full where a wild bee
+        // lives and empty where every bee is bred.
+        check(KeepingRules.faultsInGrounds().isEmpty(),
+                "somewhere a nest cannot be built: " + KeepingRules.faultsInGrounds());
+        for (String home : BeeRules.homes()) {
+            check(KeepingRules.GROUNDS.contains(KeepingRules.groundOf(home)),
+                    home + "'s nest is built on " + KeepingRules.groundOf(home)
+                            + ", which is no ground");
+            check(KeepingRules.nestBees(home) == (KeepingRules.wildAt(home) == null
+                            ? 0 : KeepingRules.NEST_BEES),
+                    home + "'s nest is generated with " + KeepingRules.nestBees(home)
+                            + " bee(s) in it and its wild bee is " + KeepingRules.wildAt(home));
+        }
+        Set<String> grounds = new HashSet<>();
+        for (String home : BeeRules.homes()) {
+            grounds.add(KeepingRules.groundOf(home));
+        }
+        check(grounds.size() == KeepingRules.GROUNDS.size(),
+                "only " + grounds + " of " + KeepingRules.GROUNDS + " are built on, so a "
+                        + "ground is a word with no nest");
+        // Controls for the bands, built to be caught.
+        check(!KeepingRules.faultsInBands(-70, 0, 32, 100, 24, 4).isEmpty(),
+                "a cave band that starts under the bedrock is not reported");
+        check(!KeepingRules.faultsInBands(-54, 0, 20, 100, 24, 4).isEmpty(),
+                "a nether band that starts in the lava sea is not reported");
+        check(!KeepingRules.faultsInBands(-54, 0, 32, 140, 24, 4).isEmpty(),
+                "a nether band that reaches over the roof is not reported");
+        check(!KeepingRules.faultsInBands(-54, 0, 32, 100, 40, 4).isEmpty(),
+                "a look for a floor longer than the game allows is not reported");
+        check(!KeepingRules.faultsInBands(-54, 0, 32, 100, 24, 0).isEmpty(),
+                "a nest below the surface looked for from nowhere is not reported");
+        check(KeepingRules.faultsInBands(-54, 0, 32, 100, 24, 4).isEmpty(),
+                "ordinary bands are reported as wrong");
+
         // The wild spawns are something and come in a group that is a group.
         check(KeepingRules.WILD_SPAWN_WEIGHT >= 1, "wild bees never spawn");
         check(KeepingRules.WILD_SPAWN_LEAST >= 1
@@ -2412,8 +2558,148 @@ public final class AgronomyHarness {
                         + KeepingRules.WILD_SPAWN_MOST);
 
         System.out.println("  the keeping: " + KeepingRules.nested().size()
-                + " nest(s) for " + wild + " wild bees in " + BeeRules.homes().size()
-                + " named homes, " + bred + " bees bred through the hive, and every "
-                + "one of " + BeeRules.BEES.size() + " a thing a jar can hold");
+                + " full nest(s) for " + wild + " wild bees and a nest generated in every "
+                + "one of " + BeeRules.homes().size() + " named homes, " + bred
+                + " bees bred through the hive, and every one of " + BeeRules.BEES.size()
+                + " a thing a jar can hold");
+    }
+
+    // ==================================================================
+
+    /**
+     * What mines every block, and that nothing is left to nothing.
+     *
+     * <p>A block in no tool's tag that asks for the right tool drops nothing
+     * at all, and 459 of the module's 465 did on 29 September 2026. The
+     * tables are checked to hang together, the rule that finds an uncovered
+     * block is shown able to find one, and every block the other rules name
+     * is shown covered.
+     */
+    private static void theHarvest() {
+        check(HarvestRules.faults().isEmpty(),
+                "what mines a block is wrong: " + HarvestRules.faults());
+        check(HarvestRules.TOOLS.size() == 4 && !HarvestRules.TOOLS.contains(HarvestRules.BY_HAND),
+                "the game has four mining tools and by hand is not one of them");
+        check(HarvestRules.STEEL_FROM_SLOTS > 0,
+                "every housing is steel, the plain hive included");
+
+        // The decisions, one of each, as the registries build them.
+        check(HarvestRules.PICKAXE.equals(HarvestRules.tool("pot")),
+                "the pot is clay on terracotta and is not a pickaxe's");
+        check(HarvestRules.PICKAXE.equals(HarvestRules.tool("stone_hopper_botany_pot"))
+                        && HarvestRules.PICKAXE.equals(HarvestRules.tool("red_concrete_botany_pot")),
+                "a botany pot is fired clay or stone and is not a pickaxe's");
+        check(HarvestRules.PICKAXE.equals(HarvestRules.tool("rock_generator"))
+                        && HarvestRules.PICKAXE.equals(HarvestRules.tool("copper_generator"))
+                        && HarvestRules.PICKAXE.equals(HarvestRules.tool("industrial_rock_generator")),
+                "a generator, stone or steel, is not a pickaxe's");
+        check(HarvestRules.PICKAXE.equals(HarvestRules.tool("centrifuge"))
+                        && HarvestRules.PICKAXE.equals(HarvestRules.tool("essence_relay")),
+                "the centrifuge or the altar is not a pickaxe's");
+        check(HarvestRules.PICKAXE.equals(HarvestRules.tool("stone_oven"))
+                        && HarvestRules.AXE.equals(HarvestRules.tool("cutting_board")),
+                "the iron stations and the timber board are not told apart");
+        check(HarvestRules.AXE.equals(HarvestRules.tool("apiary"))
+                        && HarvestRules.PICKAXE.equals(HarvestRules.tool("industrial_apiary")),
+                "the timber apiary and the steel one are not told apart");
+        check(HarvestRules.AXE.equals(HarvestRules.tool("plains_nest"))
+                        && HarvestRules.AXE.equals(HarvestRules.tool("oak_cabinet"))
+                        && HarvestRules.AXE.equals(HarvestRules.tool("mushroom_colony")),
+                "a nest, a cabinet or the colony is not an axe's");
+        check(HarvestRules.SHOVEL.equals(HarvestRules.tool("void_silt")),
+                "a soil is not a shovel's");
+        check(HarvestRules.BY_HAND.equals(HarvestRules.tool("iron_comb_block"))
+                        && HarvestRules.BY_HAND.equals(HarvestRules.tool("rice_crop")),
+                "a comb block or a crop is given a tool");
+        check(!HarvestRules.why("iron_comb_block").isBlank()
+                        && HarvestRules.why("nothing_of_ours").isBlank(),
+                "a reason is given for the wrong block");
+
+        // Every block the other rules name is covered, and only the comb
+        // blocks and the crops are left to a hand.
+        int byHand = 0;
+        for (String block : HarvestRules.catalogued()) {
+            if (HarvestRules.BY_HAND.equals(HarvestRules.tool(block))) {
+                byHand++;
+            }
+        }
+        check(byHand == BeeRules.BEES.size() + CropRules.CROPS.size(),
+                byHand + " blocks are broken by hand and there are " + BeeRules.BEES.size()
+                        + " comb blocks and " + CropRules.CROPS.size() + " crops");
+        check(HarvestRules.unknown(HarvestRules.catalogued()).isEmpty(),
+                "blocks no kind covers: " + HarvestRules.unknown(HarvestRules.catalogued()));
+        check(HarvestRules.byHand().size() == 2,
+                HarvestRules.byHand().size() + " materials are broken by hand and only the "
+                        + "wax and the crops should be");
+
+        // The refusals, each shown to refuse.
+        boolean refused = false;
+        try {
+            HarvestRules.tool("nothing_of_ours");
+        } catch (IllegalArgumentException expected) {
+            refused = true;
+        }
+        check(refused, "a block no kind covers is given a tool");
+        check(!HarvestRules.unknown(List.of("nothing_of_ours")).isEmpty(),
+                "a block no kind covers is not reported");
+        check(HarvestRules.unknown(List.of("pot", "iron_comb_block")).isEmpty(),
+                "a covered block is reported as unknown");
+        refused = false;
+        try {
+            new HarvestRules.Material("x", List.of("STONE"), "chainsaw", "why");
+        } catch (IllegalArgumentException expected) {
+            refused = true;
+        }
+        check(refused, "a material mined by a tool the game has not got can be declared");
+        refused = false;
+        try {
+            new HarvestRules.Material("x", List.of("STONE"), HarvestRules.BY_HAND, " ");
+        } catch (IllegalArgumentException expected) {
+            refused = true;
+        }
+        check(refused, "a material broken by hand for no reason can be declared");
+        refused = false;
+        try {
+            new HarvestRules.Material("x", List.of(), HarvestRules.PICKAXE, "why");
+        } catch (IllegalArgumentException expected) {
+            refused = true;
+        }
+        check(refused, "a material built on nothing can be declared");
+
+        // Controls for the table check, each built to be caught.
+        List<HarvestRules.Kind> twice = new java.util.ArrayList<>(HarvestRules.KINDS);
+        twice.add(new HarvestRules.Kind("pot", HarvestRules.CLAY));
+        check(!HarvestRules.faultsIn(twice, HarvestRules.MATERIALS).isEmpty(),
+                "a kind listed twice is not reported");
+        List<HarvestRules.Kind> ambiguous = new java.util.ArrayList<>(HarvestRules.KINDS);
+        ambiguous.add(new HarvestRules.Kind("*_rock_generator", HarvestRules.STONE));
+        check(!HarvestRules.faultsIn(ambiguous, HarvestRules.MATERIALS).isEmpty(),
+                "two suffixes that both cover a block are not reported");
+        List<HarvestRules.Kind> combless = new java.util.ArrayList<>();
+        for (HarvestRules.Kind kind : HarvestRules.KINDS) {
+            if (!kind.name().equals("*_comb_block")) {
+                combless.add(kind);
+            }
+        }
+        check(!HarvestRules.faultsIn(combless, HarvestRules.MATERIALS).isEmpty(),
+                "a comb block no kind covers is not reported");
+        List<HarvestRules.Kind> unmade = new java.util.ArrayList<>(HarvestRules.KINDS);
+        unmade.add(new HarvestRules.Kind("nothing_of_ours", "marble"));
+        check(!HarvestRules.faultsIn(unmade, HarvestRules.MATERIALS).isEmpty(),
+                "a kind of a material nobody declared is not reported");
+        List<HarvestRules.Kind> wrongApiary = new java.util.ArrayList<>();
+        for (HarvestRules.Kind kind : HarvestRules.KINDS) {
+            wrongApiary.add(kind.name().equals("industrial_apiary")
+                    ? new HarvestRules.Kind(kind.name(), HarvestRules.TIMBER) : kind);
+        }
+        check(!HarvestRules.faultsIn(wrongApiary, HarvestRules.MATERIALS).isEmpty(),
+                "a steel apiary given to the axe is not reported");
+        check(HarvestRules.faultsIn(HarvestRules.KINDS, HarvestRules.MATERIALS).isEmpty(),
+                "the tables as they stand are reported as wrong");
+
+        System.out.println("  what mines them: " + HarvestRules.KINDS.size() + " kinds of "
+                + "block across " + HarvestRules.MATERIALS.size() + " materials, every one "
+                + "of " + HarvestRules.catalogued().size() + " catalogued blocks covered, "
+                + byHand + " broken by hand with a reason");
     }
 }

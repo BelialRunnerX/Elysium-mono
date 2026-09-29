@@ -97,6 +97,10 @@ COLOURS = {
     "diamond":       (0x5C, 0xE8, 0xE0),
     "emerald":       (0x2C, 0xD0, 0x5C),
     "platinum":      (0xBC, 0xDC, 0xE4),
+    # Titanium lavender, as most packs draw it, so it is not a fifth pale grey
+    # beside tin, aluminium, silver and platinum; tungsten a dark gunmetal.
+    "titanium":      (0xB4, 0x9C, 0xD8),
+    "tungsten":      (0x44, 0x48, 0x54),
     "fluorite":      (0x9C, 0xE0, 0xD4),
     "certus_quartz": (0xB4, 0xC8, 0xE8),
     "osmium":        (0xA8, 0xC0, 0xD8),

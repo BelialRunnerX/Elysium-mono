@@ -52,8 +52,9 @@ import java.util.List;
  * at a time; uses it with an empty hand to start it once what is in it is
  * exactly a recipe, and again to take what it made; and sneaks with an empty
  * hand to have the ingredients back. The board takes a knife in place of the
- * empty hand: a knife used on a board cuts the first thing on it that a knife
- * cuts, and wears by {@link KitchenRules#KNIFE_WEAR}.
+ * empty hand: a knife used on a board cuts the first thing on it that that
+ * knife cuts, and wears by {@link KitchenRules#KNIFE_WEAR}. A kitchen knife and
+ * the fillet knife cut different things ({@link KnifeItem#tool}).
  *
  * <p>Why it waits to be told rather than starting the moment it can: dough
  * alone on a board is pasta and dough with wheat is a pie crust. A board that
@@ -262,7 +263,8 @@ public class StationBlock extends BaseEntityBlock {
                 return Component.translatable("elysiumagronomy.station.busy");
             }
             for (int at = 0; at < contents.size(); at++) {
-                KitchenRules.Cut cut = AgronomyData.cutFor(nameOf(contents.get(at)));
+                KitchenRules.Cut cut = AgronomyData.cutFor(nameOf(contents.get(at)),
+                        toolOf(knife));
                 if (cut == null) {
                     continue;
                 }
@@ -277,6 +279,11 @@ public class StationBlock extends BaseEntityBlock {
                         whole.getHoverName());
             }
             return Component.translatable("elysiumagronomy.station.nothing_to_cut");
+        }
+
+        /** What a cutting recipe calls the knife in hand. */
+        public static String toolOf(ItemStack knife) {
+            return knife.getItem() instanceof KnifeItem one ? one.tool() : KitchenRules.KNIFE;
         }
 
         /** An empty hand: take what it made, or start it. */

@@ -15,7 +15,11 @@ Run from the repo root:   python3 elysium-space/validate.py
      registered block, and no stellaris: id survived the port.
   5. COMPLETENESS. Every block has a blockstate, models whose textures exist, an
      item model, lang and a loot table. Every world in the table has a
-     dimension, and every dimension is in the table.
+     dimension, and every dimension is in the table. Every block is in a
+     mineable tag, or is exempt for a stated reason and needs no tool. Each
+     world's stone breaks as vanilla's does (Silk Touch keeps it, any other
+     pickaxe gives its cobblestone, a furnace turns that back), and the stones
+     and ores are pickaxe-mineable.
   6. THE EMERALD BASTION. No monsters in its biomes, deepslate for stone,
      no stone or cobblestone anywhere in its generation, emerald the most
      common ore, and no oceans.
@@ -342,14 +346,240 @@ if f"elysium.hazard.{NS}.vacuum" not in lang:
     fail("the vacuum hazard has no name")
 # Art borrowed from vanilla mangrove must be ours after the rename. A bare
 # "block/mangrove_x" path means minecraft:, and Emgrove would render red.
+# The prefix is normalised as json_files' keys are: with the forward slashes of
+# "src/main/resources" left in, it matched no path on Windows and this check
+# never ran there.
+_assets = os.path.normpath(os.path.join(RES, "assets")) + os.sep
 for path in json_files:
-    if path.startswith(os.path.join(RES, "assets")):
+    if path.startswith(_assets):
         for s in strings(json_files[path]):
             if "mangrove" in s:
                 fail(f"{os.path.relpath(path, WORK)} still points at {s!r}; Emgrove's "
                      f"art is the green copy under elysiumspace:")
 print(f"completeness       : {len(BLOCKS)} blocks drawn, named and dropping; "
       f"{len(WORLDS)} worlds each with a dimension")
+
+# ---------------------------------------------------------------------------
+# 5a. Breaking blocks: every block is mined by some tool, and each world's
+#     stone breaks into its cobblestone
+# ---------------------------------------------------------------------------
+# Every block is in a mineable tag, or is on MINE_EXEMPT with its reason. With
+# no tag every tool mines a block at a fist's pace, and a block that asks for
+# the right tool drops nothing: the stones, ores, metal blocks and machines did
+# that until 29 September, and the Freight Terminal with them. An exemption is
+# read where the block is registered, not taken on trust: an exempt block must
+# not ask for the right tool, and any vanilla block it copies (and so inherits
+# that from) must be one that breaks at a touch or is a liquid.
+MINEABLE = {}
+for _tool in ("pickaxe", "axe", "shovel", "hoe"):
+    _tag = json_files.get(os.path.join(RES, f"data/minecraft/tags/block/mineable/{_tool}.json"))
+    for _id in _tag.get("values", []) if isinstance(_tag, dict) else []:
+        MINEABLE.setdefault(_id, set()).add(_tool)
+PICKAXE = {_id for _id, _tools in MINEABLE.items() if "pickaxe" in _tools}
+MINE_EXEMPT = {
+    "pale_vines": "it breaks at a touch, as cave vines do",
+    "pale_vines_plant": "it breaks at a touch, as cave vines do",
+    "emgrove_propagule": "it breaks at a touch, as a mangrove propagule does",
+}
+MINE_EXEMPT.update({_n: "a liquid: a bucket takes it up and nothing mines it" for _n in LIQUIDS})
+# The vanilla blocks an exempt block may copy. None of them asks for a tool. A
+# block that copies none has every property written where it is registered.
+BY_HAND = {"CAVE_VINES", "CAVE_VINES_PLANT", "MANGROVE_PROPAGULE", "WATER"}
+
+
+def _statement(src, start):
+    """The Java statement from `start` to the semicolon that ends it."""
+    depth = 0
+    for i in range(start, len(src)):
+        if src[i] in "([{":
+            depth += 1
+        elif src[i] in ")]}":
+            depth -= 1
+        elif src[i] == ";" and depth == 0:
+            return src[start:i]
+    return src[start:]
+
+
+def registration(name):
+    """Where a block is registered, with the body of any helper it goes through:
+    everything its properties are made of. Empty if it cannot be found."""
+    if name in LIQUIDS:
+        at = fluids_src.find("BLOCKS.register(name,")
+        return _statement(fluids_src, at) if at >= 0 else ""
+    m = re.search(r'(?:BLOCKS\.register|\b(ore|metal|deco|stairs|slab|pillar))\("' + re.escape(name) + '"',
+                  blocks_src)
+    if not m:
+        return ""
+    helper = body_of(blocks_src, f"DeferredBlock<Block> {m.group(1)}(") if m.group(1) else ""
+    return _statement(blocks_src, m.start()) + helper
+
+
+_mined = _touch = 0
+for b in BLOCKS + LIQUIDS:
+    if b not in MINE_EXEMPT:
+        if f"{NS}:{b}" in MINEABLE:
+            _mined += 1
+        else:
+            fail(f"{b} is in no mineable tag, so it takes a fist and drops nothing quickly")
+        continue
+    if b not in LIQUIDS:
+        _touch += 1
+    why, made = MINE_EXEMPT[b], registration(b)
+    copied = set(re.findall(r"\bBlocks\.([A-Z_]+)", made))
+    if f"{NS}:{b}" in MINEABLE:
+        fail(f"{b} is exempt from the mineable tags but is in "
+             f"{', '.join(sorted(MINEABLE[NS + ':' + b]))}; take it off MINE_EXEMPT")
+    elif not made:
+        fail(f"{b} is exempt from the mineable tags, but nothing here finds where it is "
+             f"registered, so nothing shows it needs no tool")
+    elif "requiresCorrectToolForDrops" in made:
+        fail(f"{b} is exempt from the mineable tags ({why}), but it asks for the right tool "
+             f"to drop; with no tag no tool is right, so it would drop nothing")
+    elif copied - BY_HAND:
+        _odd = ", ".join("Blocks." + c for c in sorted(copied - BY_HAND))
+        fail(f"{b} is exempt from the mineable tags ({why}), but it copies {_odd}, which is "
+             f"not one that breaks at a touch")
+for b in sorted(set(MINE_EXEMPT) - set(BLOCKS) - set(LIQUIDS)):
+    fail(f"{b} is exempt from the mineable tags but is not registered; take it off MINE_EXEMPT")
+print(f"mineable           : {_mined} block(s) in a mineable tag; {len(LIQUIDS)} liquid(s) and "
+      f"{_touch} that break at a touch exempt, each read where it is registered")
+
+# Until 29 September the three stones dropped themselves: nothing made Frost
+# Cobblestone, and the pale and cinder kinds were salvage from two ruins. A
+# world's stone now breaks as vanilla stone does: Silk Touch keeps it, any other
+# pickaxe gives the cobblestone, and a furnace turns that back. None of it
+# happens unless minecraft:mineable/pickaxe names the stone. It copies vanilla
+# stone, which drops nothing to a tool that is not right for it, and an ore asks
+# for the right tool too. The generator had written that tag three times over,
+# and the last write kept only the 49 building blocks.
+
+
+def _condition(c, silk):
+    """Whether one loot condition passes when a pickaxe breaks the block, with
+    Silk Touch or without. None if this check cannot tell."""
+    kind = str(c.get("condition", "")).replace("minecraft:", "") if isinstance(c, dict) else ""
+    if kind == "survives_explosion":
+        return True                      # a pickaxe is not an explosion
+    if kind == "match_tool":
+        wants = c.get("predicate")
+        tests = wants.get("predicates") if isinstance(wants, dict) and set(wants) == {"predicates"} else None
+        enchants = (tests.get("minecraft:enchantments")
+                    if isinstance(tests, dict) and set(tests) == {"minecraft:enchantments"} else None)
+        if isinstance(enchants, list) and enchants and all(
+                isinstance(e, dict) and e.get("enchantments") == "minecraft:silk_touch" for e in enchants):
+            return silk
+        return None
+    if kind == "inverted":
+        inner = _condition(c.get("term"), silk)
+        return None if inner is None else not inner
+    if kind in ("any_of", "all_of"):
+        parts = [_condition(term, silk) for term in c.get("terms", [])]
+        if None in parts:
+            return None
+        return any(parts) if kind == "any_of" else all(parts)
+    return None
+
+
+def _runs(node, silk):
+    if not isinstance(node, dict) or not isinstance(node.get("conditions", []), list):
+        return None
+    parts = [_condition(c, silk) for c in node.get("conditions", [])]
+    return None if None in parts else all(parts)
+
+
+def _entry(e, silk):
+    """(whether the entry expanded, the items it offers the pool), or None."""
+    ran = _runs(e, silk)
+    if ran is None:
+        return None
+    if not ran:
+        return False, []
+    kind = str(e.get("type", "")).replace("minecraft:", "")
+    if kind == "item":
+        return True, [e.get("name")]
+    if kind == "empty":
+        return True, []
+    if kind == "alternatives":           # the first child that expands, and only it
+        for child in e.get("children", []):
+            got = _entry(child, silk)
+            if got is None or got[0]:
+                return got
+        return False, []
+    if kind in ("group", "sequence"):
+        offered = []
+        for child in e.get("children", []):
+            got = _entry(child, silk)
+            if got is None:
+                return None
+            offered += got[1]
+            if kind == "sequence" and not got[0]:
+                return False, offered
+        return True, offered
+    return None
+
+
+def pickaxe_drops(table, silk):
+    """What a block's loot table can give when a pickaxe breaks the block, with
+    Silk Touch or without: the sorted item ids, or None where the table asks
+    something this check cannot answer."""
+    found = set()
+    for pool in table.get("pools", []):
+        if not isinstance(pool, dict):
+            return None
+        rolls = pool.get("rolls", 1)
+        if isinstance(rolls, (int, float)) and rolls <= 0:
+            continue
+        ran = _runs(pool, silk)
+        if ran is None:
+            return None
+        for entry in pool.get("entries", []) if ran else []:
+            got = _entry(entry, silk)
+            if got is None:
+                return None
+            found.update(got[1])
+    return sorted(found)
+
+
+def _said(drops):
+    return "something this check cannot read" if drops is None else ", ".join(drops) or "nothing"
+
+
+def _ingredient_items(ingredient):
+    both = ingredient if isinstance(ingredient, list) else [ingredient]
+    return {one.get("item") for one in both if isinstance(one, dict)}
+
+
+_recipes = os.path.normpath(os.path.join(DATA, "recipe")) + os.sep
+SMELTED = {(next(iter(_ingredient_items(r.get("ingredient"))), None), r.get("result", {}).get("id"))
+           for p, r in json_files.items()
+           if p.startswith(_recipes) and isinstance(r, dict) and r.get("type") == "minecraft:smelting"
+           and len(_ingredient_items(r.get("ingredient"))) == 1 and isinstance(r.get("result"), dict)}
+_stones = 0
+for cob in sorted(b for b in BLOCKS if b.endswith("_cobblestone")):
+    base = cob[:-len("_cobblestone")] + "_stone"
+    if base not in BLOCKS:
+        fail(f"{cob} is registered but {base} is not, so the cobblestone has no stone to break out of")
+        continue
+    _stones += 1
+    table = json_files.get(os.path.join(DATA, "loot_table/blocks", base + ".json"))
+    if isinstance(table, dict):          # a missing table is reported above
+        plain, silky = pickaxe_drops(table, False), pickaxe_drops(table, True)
+        if plain != [f"{NS}:{cob}"]:
+            fail(f"{base} gives {_said(plain)} to a pickaxe without Silk Touch, not {cob}. Vanilla "
+                 f"stone gives cobblestone, and nothing else makes {cob} renewable")
+        if silky != [f"{NS}:{base}"]:
+            fail(f"{base} gives {_said(silky)} to Silk Touch; Silk Touch keeps the stone itself, "
+                 f"as it keeps vanilla stone")
+    if (f"{NS}:{cob}", f"{NS}:{base}") not in SMELTED:
+        fail(f"no furnace recipe turns {cob} back into {base}, so the stone a pickaxe breaks "
+             f"is gone for good")
+    if f"{NS}:{base}" not in PICKAXE:
+        fail(f"{base} is in no mineable tag, so no pickaxe is right for it and breaking it drops "
+             f"nothing: it copies vanilla stone, which needs one")
+if not _stones:
+    fail("no world's stone has a cobblestone; the three stones should each break into one")
+print(f"stone              : {_stones} worlds' stone keeps itself to Silk Touch, gives its "
+      f"cobblestone to any other pickaxe and smelts back; stones and ores are pickaxe-mineable")
 
 # ---------------------------------------------------------------------------
 # 5b. The rocket: the server decides, and client code stays on the client
@@ -509,6 +739,9 @@ for f in os.listdir(bm_dir):
 for b in BLOCKS:
     if b.endswith("_ore") and f"{NS}:{b}" not in placed:
         fail(f"ore {b} is registered but no biome modifier places it; it would never generate")
+    if b.endswith("_ore") and f"{NS}:{b}" not in PICKAXE:
+        fail(f"ore {b} is in no mineable tag, so no pickaxe is right for it and mining it "
+             f"drops nothing")
     if b.endswith("_ore"):
         loot = os.path.join(DATA, "loot_table/blocks", b + ".json")
         if os.path.isfile(loot) and "minecraft:fortune" not in open(loot).read():

@@ -976,8 +976,8 @@ def self_drop(name):
             "conditions": [{"condition": "minecraft:survives_explosion"}]}]}
 
 
-SELF_DROPS = ["pale_regolith", "pale_stone", "frost_regolith", "frost_stone", "cinder_sand",
-              "cinder_stone", "cinder_sandstone", "emgrove_log", "emgrove_wood",
+SELF_DROPS = ["pale_regolith", "frost_regolith", "cinder_sand", "cinder_sandstone",
+              "emgrove_log", "emgrove_wood",
               "stripped_emgrove_log", "stripped_emgrove_wood", "emgrove_planks", "emgrove_roots",
               "muddy_emgrove_roots", "oxygen_distributor", "launch_pad", "coal_generator", "solar_panel",
               "fuel_refinery", "water_separator", "cable", "pipe", "pumpjack", "diesel_generator"]
@@ -987,6 +987,15 @@ def loot():
     lt = os.path.join(DATA, "loot_table/blocks")
     for name in SELF_DROPS:
         write(os.path.join(lt, name + ".json"), self_drop(name))
+    # A world's stone breaks as vanilla stone does: Silk Touch keeps the stone,
+    # any other pickaxe gives that world's cobblestone, and a furnace turns it
+    # back (building_blocks). The stones used to drop themselves, so nothing
+    # made Frost Cobblestone, and the pale and cinder kinds were salvage from
+    # two ruins.
+    stone = vjson("data/minecraft/loot_table/blocks/stone.json")
+    for w, base in STONE_BASE.items():
+        write(os.path.join(lt, base + ".json"), sub_all(stone, [
+            ("minecraft:cobblestone", f"{NS}:{w}_cobblestone"), ("minecraft:stone", f"{NS}:{base}")]))
     # The fluid tank keeps what it holds: the block entity's contents ride on the item.
     tank = self_drop("fluid_tank")
     tank["pools"][0]["entries"][0]["functions"] = [{"function": "minecraft:copy_components",
@@ -1088,8 +1097,22 @@ def recipes():
 
 
 
+# What each tag holds so far in this run. Three steps add to
+# minecraft:mineable/pickaxe (tags, materials, building_blocks), and a plain
+# overwrite kept only the last step's 49 building blocks. The other 47 were
+# lost: the three stones, cinder sandstone, 17 ores, 15 metal blocks and the
+# machines. Most copy a block that needs a pickaxe, so no pickaxe was right for
+# them and breaking one dropped nothing.
+_TAGGED = {}
+
+
 def tag(ns, kind, name, values):
-    write(os.path.join(RES, f"data/{ns}/tags/{kind}/{name}.json"), {"replace": False, "values": values})
+    """Write a tag, keeping what earlier steps of this run put in it."""
+    kept = _TAGGED.setdefault((ns, kind, name), [])
+    for value in values:
+        if value not in kept:
+            kept.append(value)
+    write(os.path.join(RES, f"data/{ns}/tags/{kind}/{name}.json"), {"replace": False, "values": kept})
 
 
 def tags():

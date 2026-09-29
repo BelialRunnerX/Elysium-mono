@@ -2,7 +2,7 @@
   "type": "minecraft:blasting",
   "category": "misc",
   "ingredient": {
-    "item": "elysiumfoundry:raw_lithium"
+    "tag": "c:raw_materials/lithium"
   },
   "result": {
     "id": "elysiumfoundry:lithium_ingot"

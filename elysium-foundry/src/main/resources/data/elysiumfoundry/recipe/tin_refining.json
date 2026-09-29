@@ -1,7 +1,7 @@
 {
   "type": "elysiumfoundry:refining",
   "input": {
-    "item": "elysiumfoundry:raw_tin"
+    "tag": "c:raw_materials/tin"
   },
   "result": {
     "id": "elysiumfoundry:tin_ingot",

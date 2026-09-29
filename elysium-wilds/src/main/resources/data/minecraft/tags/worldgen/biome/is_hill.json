@@ -1,0 +1,22 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:acacia_crag",
+    "elysiumwilds:amber_crag",
+    "elysiumwilds:ash_flat",
+    "elysiumwilds:ash_hill",
+    "elysiumwilds:ash_scarp",
+    "elysiumwilds:ash_wold",
+    "elysiumwilds:bayou_crag",
+    "elysiumwilds:chalk_flat",
+    "elysiumwilds:chalk_hill",
+    "elysiumwilds:chalk_scarp",
+    "elysiumwilds:chalk_wold",
+    "elysiumwilds:gold_crag",
+    "elysiumwilds:mire_flat",
+    "elysiumwilds:mire_hill",
+    "elysiumwilds:mire_scarp",
+    "elysiumwilds:mire_wold",
+    "elysiumwilds:reed_crag"
+  ]
+}

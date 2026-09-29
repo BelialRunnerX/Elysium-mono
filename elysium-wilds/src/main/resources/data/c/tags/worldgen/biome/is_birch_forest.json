@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:gold_flat",
+    "elysiumwilds:gold_hill",
+    "elysiumwilds:gold_scarp",
+    "elysiumwilds:gold_wold"
+  ]
+}

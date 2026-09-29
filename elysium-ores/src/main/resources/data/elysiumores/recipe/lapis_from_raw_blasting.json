@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "ingredient": {
+    "tag": "c:raw_materials/lapis"
+  },
+  "result": {
+    "id": "minecraft:lapis_lazuli"
+  },
+  "experience": 0.3,
+  "cookingtime": 100
+}

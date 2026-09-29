@@ -1,0 +1,8 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#elysiumarsenal:has_dig_site_suspicious_dirt",
+  "features": [
+    "elysiumarsenal:suspicious_dirt"
+  ],
+  "step": "underground_ores"
+}

@@ -8,7 +8,8 @@ pass=0; miss=0
 # its own case, then "restored" the breakage. One copy at a time, and never
 # start from a tree that is already failing.
 exec 9>/tmp/negtest_scar.lock
-flock -n 9 || { echo "another negtest_scar is running; refusing"; exit 2; }
+negtest_lock() { if command -v flock >/dev/null 2>&1; then flock -n "$1"; else mkdir "$2" 2>/dev/null && trap "rmdir '$2' 2>/dev/null" EXIT; fi; }  # Git Bash on Windows has no flock
+negtest_lock 9 /tmp/negtest_scar.lockdir || { echo "another negtest_scar is running; refusing"; exit 2; }
 if ! timeout 1800 python3 validate.py >/dev/null 2>&1; then
   echo "SETUP FAILED: the tree is not clean before any case is broken"; exit 2
 fi

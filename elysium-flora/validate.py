@@ -63,6 +63,21 @@ def load(*parts):
     return json.load(open(path, encoding="utf-8")) if os.path.isfile(path) else None
 
 
+def harness_trouble(output):
+    """The lines of a harness run that say what went wrong.
+
+    A failing harness prints its sections as it goes and its failures among
+    them, so the failures are picked out rather than the first lines handed on.
+    This file called it without ever defining it, the only one of the
+    validators that call it to do so: a failing harness ended the validator in
+    a NameError before it said what had failed, and the six harness cases of
+    tools/negtest/negtest_flora.sh went missed until 29 September 2026.
+    """
+    lines = [line for line in output.splitlines()
+             if line.strip().startswith("FAIL:") or "failure(s)" in line]
+    return "\n".join(lines or output.strip().splitlines()[-12:])[:2000]
+
+
 def body_of(src, signature):
     start = src.find(signature)
     if start < 0:
@@ -298,6 +313,152 @@ if "FurnaceFuelBurnTimeEvent" not in handler or "setBurnTime" not in handler:
          "the tree is a log that behaves like oak")
 print(f"the wood           : {len(wood)} block(s), each modelled, tagged, named and "
       f"droppable")
+
+# ---------------------------------------------------------------------------
+# 5b. The wood, drawn and tooled the game's way
+# ---------------------------------------------------------------------------
+# A turn got wrong is a state that exists and is drawn the wrong way, which no
+# count of states can see. The emberwood stairs turned every left corner back
+# whichever way up it stood, so 23 of their 40 states were wrong (upside-down
+# corners the wrong way round, the texture lock on the wrong ones) until 29
+# September 2026, when the arsenal's rotten stairs were checked against the
+# game's own and these were found beside them. So each shape's blockstate, its
+# models' names put in the game's words, is the game's own, and so are its
+# models' parents and texture slots and its item model: the stairs against
+# oak's, the mapping every wooden stair shares, and the rest against crimson's,
+# whose properties each copies (the trapdoor is where the two differ: crimson's
+# turns with the way it faces, oak's does not).
+
+GAME_SHAPES = {"emberwood_stairs": "oak_stairs", "emberwood_slab": "crimson_slab",
+               "emberwood_fence": "crimson_fence", "emberwood_fence_gate": "crimson_fence_gate",
+               "emberwood_door": "crimson_door", "emberwood_trapdoor": "crimson_trapdoor",
+               "emberwood_button": "crimson_button",
+               "emberwood_pressure_plate": "crimson_pressure_plate"}
+_mc_jar = next((p for p in (os.environ.get("MC_JAR", ""), "/tmp/mc/libs/vanilla-assets.jar",
+                            "C:/tmp/mc/libs/vanilla-assets.jar") if p and os.path.isfile(p)), None)
+
+
+def _as_drawn(model):
+    """A variant as the game reads it: no turn and no texture lock are the defaults."""
+    if not isinstance(model, dict):
+        return json.dumps(model, sort_keys=True)
+    return json.dumps({k: v for k, v in model.items()
+                       if not (k in ("x", "y") and v == 0) and not (k == "uvlock" and v is False)},
+                      sort_keys=True)
+
+
+def _drawn(state):
+    if "multipart" in state:
+        return sorted(json.dumps({"when": part.get("when"), "apply": _as_drawn(part.get("apply"))},
+                                 sort_keys=True) for part in state["multipart"])
+    return {frozenset(key.split(",")): _as_drawn(model)
+            for key, model in state.get("variants", {}).items()}
+
+
+def _full_id(value):
+    return value if ":" in value else "minecraft:" + value
+
+
+if _mc_jar is None:
+    print("drawn and tooled   : skipped, no game jar to compare the wood with (set MC_JAR)")
+else:
+    import zipfile as _zipfile
+    with _zipfile.ZipFile(_mc_jar) as _jar:
+        _names = set(_jar.namelist())
+
+        def game(path):
+            return json.loads(_jar.read(path)) if path in _names else None
+
+        undrawn = []
+        for ours, theirs in GAME_SHAPES.items():
+            planks = theirs.split("_")[0] + "_planks"
+            said = json.dumps(load(ASSETS, f"blockstates/{ours}.json") or {})
+            said = said.replace(f'"{NS}:block/{ours}', f'"minecraft:block/{theirs}') \
+                .replace(f'"{NS}:block/emberwood_planks"', f'"minecraft:block/{planks}"')
+            game_state = game(f"assets/minecraft/blockstates/{theirs}.json")
+            if game_state is None:
+                undrawn.append(f"the game has no {theirs} to draw {ours} after")
+                continue
+            mine, other = _drawn(json.loads(said)), _drawn(game_state)
+            if mine != other:
+                wrong = (sum(1 for key in mine if mine[key] != other.get(key))
+                         if isinstance(mine, dict) and isinstance(other, dict) else "some")
+                undrawn.append(f"{ours}'s states are not the game's own {theirs}'s: {wrong} "
+                               f"of them drawn differently")
+            for name in sorted(set(re.findall(rf'"{NS}:block/([a-z_]+)"',
+                                              json.dumps(load(ASSETS, f"blockstates/{ours}.json")
+                                                         or {})))):
+                model = load(ASSETS, f"models/block/{name}.json") or {}
+                named = name.replace(ours, theirs, 1).replace("emberwood_planks", planks, 1)
+                reference = game(f"assets/minecraft/models/block/{named}.json") or {}
+                if _full_id(model.get("parent", "")) != _full_id(reference.get("parent", "")) \
+                        or set(model.get("textures", {})) != set(reference.get("textures", {})):
+                    undrawn.append(f"{name} is not built like the game's {named}")
+            held = load(ASSETS, f"models/item/{ours}.json") or {}
+            held_like = game(f"assets/minecraft/models/item/{theirs}.json") or {}
+            if _full_id(held.get("parent", "")).replace(f"{NS}:block/{ours}",
+                                                        f"minecraft:block/{theirs}") \
+                    != _full_id(held_like.get("parent", "")) \
+                    or set(held.get("textures", {})) != set(held_like.get("textures", {})):
+                undrawn.append(f"{ours} is not held the way the game holds its {theirs}")
+        if undrawn:
+            fail(f"{len(undrawn)} emberwood shape(s) are not drawn the game's way: "
+                 + "; ".join(undrawn[:5]))
+
+        # Every block on the tool lists of the block it copies. The lists decide
+        # how fast a tool breaks a block and, for one that needs the right tool
+        # (the charcoal block, as coal's does), whether it gives anything up.
+        # A list holds tags as well as blocks, and ours add to the game's own
+        # (planks, wooden_stairs), so both are read and followed.
+        TOOL_LISTS = ("mineable/axe", "mineable/pickaxe", "mineable/shovel", "mineable/hoe",
+                      "sword_efficient")
+
+        def values(tag, with_ours):
+            listed = (game(f"data/minecraft/tags/block/{tag}.json") or {}).get("values", [])
+            if with_ours:
+                listed = listed + (load(RES, f"data/minecraft/tags/block/{tag}.json")
+                                   or {}).get("values", [])
+            return [v["id"] if isinstance(v, dict) else v for v in listed]
+
+        def members(tag, with_ours, seen=None):
+            seen = seen if seen is not None else set()
+            if tag in seen:
+                return set()
+            seen.add(tag)
+            found = set()
+            for value in values(tag, with_ours):
+                if value.startswith("#minecraft:"):
+                    found |= members(value[len("#minecraft:"):], with_ours, seen)
+                elif not value.startswith("#"):
+                    found.add(_full_id(value))
+            return found
+
+        game_lists = {tool: members(tool, False) for tool in TOOL_LISTS}
+        our_lists = {tool: members(tool, True) for tool in TOOL_LISTS}
+        copied = {}
+        for name, body in re.findall(r'BLOCKS\.register\("([a-z0-9_]+)",(.*?)\);',
+                                     blocks_literal, re.S):
+            source = re.search(r"copy\(Blocks\.([A-Z0-9_]+)\)", body)
+            if source:
+                copied[name] = source.group(1).lower()
+        untooled = []
+        for name, original in sorted(copied.items()):
+            wanted = [t for t in TOOL_LISTS if f"minecraft:{original}" in game_lists[t]]
+            has = [t for t in TOOL_LISTS if f"{NS}:{name}" in our_lists[t]]
+            if wanted != has:
+                untooled.append(f"{name} is on {', '.join(has) or 'no list'} and "
+                                f"{original} on {', '.join(wanted) or 'none'}")
+        if len(copied) < len(registered):
+            fail(f"{len(copied)} of {len(registered)} blocks are read as copying a block of the "
+                 f"game's, so the rest are held to no tool list at all: "
+                 + ", ".join(sorted(set(registered) - set(copied))))
+        if untooled:
+            fail(f"{len(untooled)} block(s) are not on the tool lists of the block each copies, "
+                 f"so a tool breaks them slower than the game's own and one that needs the "
+                 f"tool gives nothing to it: " + "; ".join(untooled[:5]))
+        print(f"drawn and tooled   : {len(GAME_SHAPES)} emberwood shape(s) drawn, modelled "
+              f"and held as the game's own, and {len(copied)} block(s) on the tool lists of "
+              f"the block each copies")
 
 # ---------------------------------------------------------------------------
 # Recipes, and the road they open

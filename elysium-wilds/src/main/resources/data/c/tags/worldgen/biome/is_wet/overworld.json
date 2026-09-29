@@ -1,0 +1,27 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:basaltcavern",
+    "elysiumwilds:bayou_flat",
+    "elysiumwilds:bayou_hill",
+    "elysiumwilds:bayou_scarp",
+    "elysiumwilds:bayou_wold",
+    "elysiumwilds:chalkcavern",
+    "elysiumwilds:dripwell",
+    "elysiumwilds:frostvault",
+    "elysiumwilds:geyserwell",
+    "elysiumwilds:icewell",
+    "elysiumwilds:ochrecavern",
+    "elysiumwilds:palm_flat",
+    "elysiumwilds:palm_hill",
+    "elysiumwilds:palm_scarp",
+    "elysiumwilds:palm_wold",
+    "elysiumwilds:slatecavern",
+    "elysiumwilds:springvault",
+    "elysiumwilds:steam_flat",
+    "elysiumwilds:steam_hill",
+    "elysiumwilds:steam_scarp",
+    "elysiumwilds:steam_wold",
+    "elysiumwilds:steamwell"
+  ]
+}

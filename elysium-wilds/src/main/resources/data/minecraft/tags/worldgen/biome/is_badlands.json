@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:cinder_flat",
+    "elysiumwilds:cinder_hill",
+    "elysiumwilds:cinder_scarp",
+    "elysiumwilds:cinder_wold"
+  ]
+}

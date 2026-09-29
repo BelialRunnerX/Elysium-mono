@@ -3,6 +3,7 @@ package com.elysium.npcs;
 import com.elysium.lib.standing.ElysiumStanding;
 import com.elysium.npcs.entity.EnvoyKind;
 import com.elysium.npcs.entity.ImperialEnvoy;
+import com.elysium.npcs.rules.CourtRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,9 +13,6 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Who arrives, and when.
  *
@@ -23,8 +21,14 @@ import java.util.List;
  * Once every few minutes, each player is checked: whichever standing meter they
  * are further up decides which half of the court is interested in them, and one
  * of the members of that half who will actually deal with them arrives nearby.
- * Nothing arrives for a player at the bottom of both meters, which is correct —
- * the court has no reason to have heard of you yet.
+ * When nobody in that half will, one of whoever will comes instead, from either
+ * half. The Sentinel deals with a player the Code has not noticed at all, so
+ * there is always somebody who can come.
+ *
+ * The choice itself is CourtRules.arrivals, which is pure so that a harness can
+ * run it over every standing there is. It used to be written out here, and had
+ * a hole for as long as it was: Favor 1 to 24 over less Suspicion picked the
+ * Favor half, whose lowest gate is Favor 25, and nobody came at all.
  *
  * <h2>Why the check is throttled to a whole interval rather than rolled per tick</h2>
  *
@@ -89,28 +93,31 @@ public final class EnvoyScheduler {
     /**
      * Which of the five, if any.
      *
-     * The meter the player is further up decides the half of the court, and
-     * then only those members who would actually deal with them are candidates
-     * — so an envoy never arrives to refuse you, which is the one arrival that
-     * would read as the mod being broken.
+     * CourtRules.arrivals decides, from the two meters and who would deal: the
+     * half of the court the player is further up, and when nobody in that half
+     * would deal, anybody who would. Only those who would deal are ever
+     * candidates, so an envoy never arrives to refuse you, which is the one
+     * arrival that would read as the mod being broken.
+     *
+     * Null only when nobody at all would deal, which the court as declared
+     * cannot produce: the Sentinel deals at band 0.
      */
     private static EnvoyKind pick(Player player, RandomSource random) {
         int favor = ElysiumStanding.getFavor(player);
         int suspicion = ElysiumStanding.getSuspicion(player);
-        EnvoyKind.Meter meter = suspicion >= favor
-                ? EnvoyKind.Meter.SUSPICION
-                : EnvoyKind.Meter.FAVOR;
-
-        List<EnvoyKind> candidates = new ArrayList<>();
-        for (EnvoyKind kind : EnvoyKind.values()) {
-            if (kind.meter() == meter && kind.willDealWith(player)) {
-                candidates.add(kind);
-            }
+        EnvoyKind[] court = EnvoyKind.values();
+        boolean[] readsFavor = new boolean[court.length];
+        boolean[] willDeal = new boolean[court.length];
+        for (int i = 0; i < court.length; i++) {
+            readsFavor[i] = court[i].meter() == EnvoyKind.Meter.FAVOR;
+            willDeal[i] = court[i].willDealWith(player);
         }
-        if (candidates.isEmpty()) {
+
+        int[] chosen = CourtRules.arrivals(favor, suspicion, readsFavor, willDeal);
+        if (chosen.length == 0) {
             return null;
         }
-        return candidates.get(random.nextInt(candidates.size()));
+        return court[chosen[random.nextInt(chosen.length)]];
     }
 
     /**

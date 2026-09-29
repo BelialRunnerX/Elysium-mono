@@ -223,6 +223,22 @@ why it is worth doing; never a restatement of the title).
   blocks; now 250 over its ten real rows). `/elysium colony ruin <pos>` (operator) raises one,
   because a force-loaded chunk with no player gets no random ticks.
   **Next:** expand the Ledger Web (priority 2); decide the content gaps with Dylan.
+* **29 Sep, small hours — everything in survival.** Dylan: "All content should be available and
+  accessible via survival." `check_obtainable.py` (root validate) walks the pack from a new world;
+  seven investigation agents then ten fix agents; CONVERSION §16.15 has the whole list (pigeons, lost
+  mail, foundry tags, ore priority and drop order, overworld ores, titanium/tungsten, writs and the
+  envoy dead zone, one codex, furnaces, drawer seal and key, the dig, emberwood stairs, thirty geodes,
+  arcana tool tags, salvager/template/conversion, agronomy's six, space stones and tool tags, the Vale
+  portal, wilds biome tags). 7,173 of 7,173 catalogued things reached; almanac 523 steps, none left out.
+  Declared sources live in tools/obtainable_sources.py + tools/obtainable/. Three fix agents (agronomy,
+  Vale, arcana harvest) were cut off by a usage limit mid-negtest; their modules validate; their negtests
+  were rerun by the lead.
+* **29 Sep, midday — every block on a tool list.** The live harvest audit on that build found 676 blocks that
+  asked for a tool and had none tagged (drop nothing in survival). Three agents, one brief (HARVEST_BRIEF in
+  the scratchpad; CONVERSION 16.16): atelier 2,990 blocks, agronomy 465, bestiary/colonies/armory/npcs/
+  solarpunk/ores. The audit now writes logs/harvest-audit.txt. Two Windows tooling traps closed: flock-guarded
+  negtests (16) and the atelier validator's container jar path (its blockstate/cut comparisons had never run).
+  Live on the 13:31 build: 0 untagged, 0 unbreakable; harvest: passes.
 * **29 Sep, ~01:15 — step 3, the Ledger Web wider.** A third ring, the frontier: sixteen clusters
   outside the starts, 723 nodes (was 419), 42 notables; each reached by a road out from the rim's
   nearest road. CONVERSION §16.14, SKILLTREE.md, SPEC_SKILLTREE.md. negtest_web 10/0; in the game

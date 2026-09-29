@@ -34,6 +34,12 @@ import java.util.Set;
  * blocks under the world's floor, floats. Nothing swims there on its own, so
  * no spawn is written for it, and {@link #spawnsWild} is what says so rather
  * than a missing file.
+ *
+ * <p>A fish's bucket is filled from a live fish, the game's way, and a
+ * rod-only fish is never alive in the world to be scooped. So one caught on a
+ * line goes into a bucket at a crafting table instead ({@link
+ * #bucketedAtTable}), and pouring that bucket out is how an end fish comes to
+ * be swimming anywhere.
  */
 public final class WaterRules {
 
@@ -78,6 +84,37 @@ public final class WaterRules {
     /** Whether a family's fish swim on their own, or only ever come up on a line. */
     public static boolean spawnsWild(FishRules.Family family) {
         return !FishRules.VOID.equals(family.water());
+    }
+
+    /**
+     * Whether a family's fish are put in a bucket at a crafting table, a
+     * caught one and an empty bucket, rather than scooped alive out of the
+     * water.
+     *
+     * <p>Exactly the families that never spawn: a bucket is otherwise filled
+     * from a live fish, and nothing of a rod-only family is ever alive to be
+     * filled from. An empty bucket and not a water bucket, because a water
+     * bucket in a crafting grid hands its bucket back, and the fish's bucket
+     * hands another back when it is poured: two buckets for one.
+     */
+    public static boolean bucketedAtTable(FishRules.Family family) {
+        return !spawnsWild(family);
+    }
+
+    /**
+     * Every family no fish of which is ever alive in the world: it neither
+     * spawns nor comes out of a bucket filled at a table. Must be empty.
+     */
+    public static List<String> neverAlive() {
+        List<String> bad = new ArrayList<>();
+        for (FishRules.Family family : FishRules.FAMILIES) {
+            if (!spawnsWild(family) && !bucketedAtTable(family)) {
+                bad.add(family.name() + " fish never swim on their own and no bucket of "
+                        + "one can be filled, so the creature, its bucket and its egg "
+                        + "are things no survival player can have");
+            }
+        }
+        return List.copyOf(bad);
     }
 
     /** Every family that spawns on its own, in roster order. */
@@ -320,6 +357,7 @@ public final class WaterRules {
     public static List<String> faults() {
         List<String> bad = new ArrayList<>();
         bad.addAll(homeless());
+        bad.addAll(neverAlive());
         bad.addAll(faultsInBands(BAND_FLOORS));
         bad.addAll(weightsThatHurt());
         bad.addAll(faultsInTiming());

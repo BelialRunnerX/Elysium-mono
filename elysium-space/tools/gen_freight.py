@@ -2,11 +2,11 @@
 """
 Everything the freight terminal ships that is a file rather than a decision.
 
-One block, its model, its textures, its drop, its recipe and its words. The
-textures are built rather than drawn, the same way the waygate's are: a vanilla
-block is the surface and the terminal's own marking is laid over it, so a
-terminal reads as a machine somebody bolted a hatch to rather than as a
-recolour.
+One block, its model, its textures, its drop, its recipe, its place in the
+pickaxe tag and its words. The textures are built rather than drawn, the same
+way the waygate's are: a vanilla block is the surface and the terminal's own
+marking is laid over it, so a terminal reads as a machine somebody bolted a
+hatch to rather than as a recolour.
 """
 import json
 import os
@@ -173,9 +173,31 @@ def words():
     return len(WORDS)
 
 
+def tags():
+    """
+    The terminal copies an iron block, which drops only to a pickaxe, so the
+    pickaxe tag has to name it or breaking one drops nothing (its cargo spills,
+    the terminal is lost).
+
+    Merged into the tag gen_space.py and gen_waygate.py wrote before this runs,
+    never written over it: an overwrite is how the stones, ores and machines
+    lost theirs until 29 September.
+    """
+    path = os.path.join(RES, "data/minecraft/tags/block/mineable/pickaxe.json")
+    body = {"replace": False, "values": []}
+    if os.path.isfile(path):
+        body = json.load(open(path, encoding="utf-8"))
+    values = body.setdefault("values", [])
+    if f"{NS}:freight_terminal" not in values:
+        values.append(f"{NS}:freight_terminal")
+    write(path, body)
+    return 1
+
+
 def main():
     print(f"textures : {textures()}")
     print(f"block    : {block()} (blockstate, model, item model, drop, recipe)")
+    print(f"tags     : {tags()} (the pickaxe tag, merged)")
     print(f"words    : {words()}")
 
 

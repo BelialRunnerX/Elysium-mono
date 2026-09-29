@@ -611,6 +611,10 @@ lang.update({
     "elysium.screen.points": "%s points to assign",
 
     "elysium.level.up": "Level %s \u00b7 %s points to assign",
+    "elysium.audit.harvest.clean": "Harvest audit: %s blocks, and every one of the %s that needs a tool has one tagged to mine it; none a player places is unbreakable.",
+    "elysium.audit.harvest.untagged": "Harvest audit: %s of the %s blocks that need a tool have no tool tagged to mine them, so they drop nothing: %s (the whole list is in logs/harvest-audit.txt)",
+    "elysium.audit.harvest.unwritten": "Harvest audit: the list could not be written to %s (%s)",
+    "elysium.audit.harvest.unbreakable": "Harvest audit: %s blocks a player can place can never be broken: %s",
     "elysium.character.chosen": "Recorded: %s, %s",
     "elysium.character.unchosen": "Unrecorded",
     "elysium.command.header": "%s \u00b7 %s \u00b7 Level %s",

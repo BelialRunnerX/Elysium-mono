@@ -119,7 +119,12 @@ public class MailboxBlockEntity extends BlockEntity {
         }
         for (int slot = 0; slot < held.size(); slot++) {
             if (held.get(slot).isEmpty()) {
-                held.set(slot, flying);
+                // The loss the rules price, rolled once, where the parcel lands.
+                ItemStack landing = flying;
+                if (level != null && PostRules.lostOn(level.random.nextInt(1000))) {
+                    landing = lostFrom(flying, level.registryAccess());
+                }
+                held.set(slot, landing);
                 flying = ItemStack.EMPTY;
                 arrives = 0L;
                 setChanged();
@@ -129,6 +134,26 @@ public class MailboxBlockEntity extends BlockEntity {
         arrives = now + PostRules.SOONEST;
         setChanged();
         return false;
+    }
+
+    /**
+     * What arrives instead of a lost parcel: lost mail holding what the rules
+     * say survives of each stack inside, as many stacks as lost mail holds.
+     * A letter, with nothing inside, arrives as empty lost mail.
+     */
+    private static ItemStack lostFrom(ItemStack parcel, HolderLookup.Provider lookup) {
+        ItemStack lost = new ItemStack(
+                com.elysium.comforts.registry.ComfortItems.MAIL.get(PostRules.LOST_MAIL).get());
+        int room = PostRules.mail(PostRules.LOST_MAIL).slots();
+        java.util.List<ItemStack> kept = new java.util.ArrayList<>();
+        for (ItemStack one : com.elysium.comforts.item.MailItem.inside(parcel, lookup)) {
+            int left = PostRules.salvaged(one.getCount());
+            if (left > 0 && kept.size() < room) {
+                kept.add(one.copyWithCount(left));
+            }
+        }
+        com.elysium.comforts.item.MailItem.fill(lost, kept, lookup);
+        return lost;
     }
 
     /**

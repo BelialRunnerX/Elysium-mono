@@ -384,6 +384,14 @@
     {
       "id": "elysiumagronomy:zinc_comb_block",
       "required": false
+    },
+    {
+      "id": "elysiumagronomy:titanium_comb_block",
+      "required": false
+    },
+    {
+      "id": "elysiumagronomy:tungsten_comb_block",
+      "required": false
     }
   ]
 }

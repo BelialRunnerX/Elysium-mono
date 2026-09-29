@@ -305,6 +305,10 @@ def plans(tex, models, lang):
         lang[f"{NS}.tier.{rung}"] = title(rung)
     lang[f"{NS}.blueprint.blank"] = "No shape chosen"
     lang[f"{NS}.blueprint.needs"] = "Takes %s material(s)"
+    # A part's extra ingredient, which the grid charges one of (a coating's
+    # glass bottle); and a found template before anyone has read it.
+    lang[f"{NS}.blueprint.also"] = "Also takes one %s"
+    lang[f"{NS}.template.unread"] = "Not yet read: carry it to see the plan"
 
 
 def armour_layers(root, lang):

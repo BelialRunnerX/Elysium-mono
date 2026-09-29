@@ -13,7 +13,9 @@ table and not the other.
 import json
 import os
 import re
+import subprocess
 import sys
+import tempfile
 
 WORK = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(WORK, "src/main/resources/assets/elysiumnpcs")
@@ -48,6 +50,73 @@ def fail(msg):
 
 def exists(rel):
     return os.path.exists(os.path.join(RES, rel))
+
+
+def strip_comments(text):
+    """The code alone: every comment blanked, strings kept."""
+    text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+    return re.sub(r"//[^\n]*", " ", text)
+
+
+def squashed(text):
+    """The code alone, every run of whitespace as one space.
+
+    The rules below name whole statements, and a statement only reads the same
+    in the file and in the rule once its line breaks are gone. Comments go
+    first, or a rule is beaten by putting // in front of the line it names.
+    """
+    return " ".join(strip_comments(text).split())
+
+
+def body_of(text, signature):
+    """The inside of one method, by brace matching; empty if it is not there."""
+    start = text.find(signature)
+    if start < 0:
+        return ""
+    opened = text.find("{", start)
+    if opened < 0:
+        return ""
+    depth = 0
+    for index in range(opened, len(text)):
+        if text[index] == "{":
+            depth += 1
+        elif text[index] == "}":
+            depth -= 1
+            if depth == 0:
+                return text[opened + 1:index]
+    return text[opened + 1:]
+
+
+def enclosing(code, needle):
+    """The headers of the blocks the first `needle` in `code` sits inside.
+
+    A header is whatever stands between the end of the statement before and the
+    brace that opens the block, squashed: "if (!fee.isEmpty())", "else".
+    """
+    at = code.find(needle)
+    if at < 0:
+        return []
+    headers = []
+    start = 0
+    for index in range(at):
+        char = code[index]
+        if char == "{":
+            headers.append(" ".join(code[start:index].split()))
+            start = index + 1
+        elif char == "}":
+            if headers:
+                headers.pop()
+            start = index + 1
+        elif char == ";":
+            start = index + 1
+    return headers
+
+
+def harness_trouble(output):
+    """The lines of a harness run that say what went wrong, and no more."""
+    lines = [line for line in output.splitlines()
+             if line.strip().startswith("FAIL:") or "failure(s)" in line]
+    return "\n".join(lines or output.strip().splitlines()[-12:])[:2000]
 
 
 # ---------------------------------------------------------------------------
@@ -693,6 +762,331 @@ else:
             print(f"wandering trader   : {len(generic_offers)} common and "
                   f"{len(rare_offers)} rare offers, the rare ones dearer, and a registry "
                   f"anything can add to")
+
+# ---------------------------------------------------------------------------
+# The writ of audience: every envoy sells its own, one a visit
+# ---------------------------------------------------------------------------
+#
+# The five writs were creative-only: registered, drawn, named, and handed out
+# by nothing but the creative tab. Each envoy now sells its own as a fixed row
+# after the amnesty writ, priced off the office's top shelf, so each writ is
+# bought where its envoy deals: with elysium-core's prices, 4-6 aetherium or
+# voidglass ingots from the Sentinel, 24-32 neutronium from the Emperor or the
+# Queen.
+# Each rule below is one way for that to be quietly undone.
+WRIT = "new ItemStack(ElysiumNpcs.summonsFor(kind).get())"
+envoy_java = open(os.path.join(JAVA, "entity/ImperialEnvoy.java"), encoding="utf-8").read()
+roll = squashed(body_of(envoy_java, "private MerchantOffers rollOffers()"))
+refresh = squashed(body_of(envoy_java, "private void refreshSoldOut()"))
+if WRIT not in roll:
+    fail("no envoy sells its own writ of audience, so the five writs are creative-only "
+         "again: rollOffers must add " + WRIT + " as a fixed row")
+else:
+    row = re.search(r"rolled\.add\(new MerchantOffer\( ?new ItemCost\((\w+)\.getItem\(\), "
+                    r"(\w+)\.getCount\(\)\), " + re.escape(WRIT) + r", ([\w.]+), 0, 0\.0F\)\);",
+                    roll)
+    if row is None:
+        fail("the writ of audience row no longer reads as rolled.add(new MerchantOffer(new "
+             "ItemCost(fee...), the writ, uses, 0, 0.0F)), so nothing below can say what it "
+             "costs or how many a visit sells")
+    else:
+        price, counted, uses = row.groups()
+        if counted != price or (f"ItemStack {price} = ElysiumPrices.roll(kind.rewardTier(), "
+                                f"ledger);") not in roll:
+            fail("the writ of audience is not priced off the office's top shelf from the "
+                 "ledger's own seed (ElysiumPrices.roll(kind.rewardTier(), ledger)): it costs "
+                 "less than the best row on the screen, or changes under a player who walks "
+                 "home to pay for it")
+        if uses != "CourtRules.AUDIENCE_USES":
+            fail(f"the writ of audience row sells {uses} a visit rather than "
+                 f"CourtRules.AUDIENCE_USES, the one a visit the harness holds")
+        # A braceless if in front of the row would gate it without a block.
+        if roll[max(0, row.start() - 2):row.start()] not in ("{ ", "; ", "} "):
+            fail("the writ of audience row is the tail of some other statement, so it is "
+                 "sold only when that statement says so")
+
+    # Every office, not one half. The row may wait on its price and on nothing
+    # else; the screen already refuses below the office's band.
+    roll_code = strip_comments(body_of(envoy_java, "private MerchantOffers rollOffers()"))
+    gates = [header for header in enclosing(roll_code, "ElysiumNpcs.summonsFor(kind)")
+             if not re.fullmatch(r"if \(!\w+\.isEmpty\(\)\)", header)]
+    if gates:
+        fail(f"the writ of audience row sits inside '{gates[0]}', so only some offices sell "
+             f"their writ. Every office sells its own, and the screen already refuses below "
+             f"the office's band")
+
+    # Counted, and left alone by the reroll. A sold-out writ that came back as
+    # a reward row would pay the player a second time for buying it.
+    counted_at = roll.find("fixedRows = rolled.size();")
+    if not roll.find(WRIT) < counted_at < roll.find(
+            "for (int i = 0; i < kind.offerCount(); i++) {"):
+        fail("rollOffers does not count its fixed rows between the writ of audience and the "
+             "first roll (fixedRows = rolled.size();), so the reroll cannot tell a writ from "
+             "a roll")
+    if "for (int i = fixedRows; i < current.size(); i++) {" not in refresh \
+            or "int tier = kind.tierForOffer(i - fixedRows);" not in refresh:
+        fail("refreshSoldOut rerolls the fixed rows or numbers the rolls from the top of the "
+             "screen: a writ bought out comes back as an extra reward, and every refill "
+             "lands at the tier of the row below it")
+
+    print("writs of audience  : every office sells its own, one a visit, off its top "
+          "shelf, and the reroll leaves it sold")
+
+# ---------------------------------------------------------------------------
+# What mines a bench (rules/HarvestRules; the harvest audit of 29 Sep 2026)
+# ---------------------------------------------------------------------------
+#
+# A block breaks at the speed of the tool the game lists it under, and one in
+# no tool's list breaks at a fist's pace whatever a player holds. The pickaxe
+# tag was a file typed by hand, five benches long, and the gear bench was not
+# in it. It is written from the rules by gen_village.py now, for every bench.
+# So every registered bench is in exactly one of this module's mineable tags,
+# or named BY_HAND in the rules with its reason here; an exemption is read
+# where the bench is registered (the one helper that registers all of them),
+# not taken on trust; the tag is the benches in the order the Java declares
+# them; and a tag names only blocks this module registers, because one
+# unknown id makes the game refuse the whole tag.
+_NS = "elysiumnpcs"
+_harvest_path = os.path.join(JAVA, "rules", "HarvestRules.java")
+_harvest_src = (strip_comments(open(_harvest_path, encoding="utf-8").read())
+                if os.path.exists(_harvest_path) else "")
+if not _harvest_src:
+    fail("rules/HarvestRules.java is missing, so nothing says what mines a bench and the "
+         "pickaxe tag is a file typed by hand again")
+HARVEST_TOOLS = ("pickaxe", "axe", "shovel", "hoe")
+_bench_tool = re.search(r'String BENCH_TOOL = "([a-z]+)";', _harvest_src)
+_bench_tool = _bench_tool.group(1) if _bench_tool else ""
+if _bench_tool not in HARVEST_TOOLS:
+    fail(f"HarvestRules.BENCH_TOOL is {_bench_tool!r}, which is no tool the game keeps a "
+         f"list for, so the benches are written into a tag nothing reads")
+_by_hand_found = re.search(r"List<String> BY_HAND = List\.of\(([^;]*?)\);", _harvest_src, re.S)
+_by_hand = re.findall(r'"([a-z_]+)"', _by_hand_found.group(1)) if _by_hand_found else []
+_mineable_dir = os.path.join(WORK, "src/main/resources/data/minecraft/tags/block/mineable")
+MINEABLE = {}
+for _tool in HARVEST_TOOLS:
+    _tag = os.path.join(_mineable_dir, _tool + ".json")
+    if not os.path.isfile(_tag):
+        continue
+    _doc = json.load(open(_tag, encoding="utf-8"))
+    if _doc.get("replace"):
+        fail(f"mineable/{_tool} sets replace: true, which throws away every other mod's "
+             f"entries in the game's own tag")
+    for _one in _doc.get("values", []):
+        _named = _one.get("id") if isinstance(_one, dict) else _one
+        if not isinstance(_named, str):
+            continue
+        MINEABLE.setdefault(_named, set()).add(_tool)
+        if _named.startswith(f"{_NS}:") and not exists(
+                f"blockstates/{_named.split(':', 1)[1]}.json"):
+            fail(f"mineable/{_tool} names {_named}, which is not a block this module "
+                 f"registers, so the game refuses the whole tag and every block in it is "
+                 f"back to dropping nothing")
+
+#: The benches no tool is for, and why. HarvestRules.BY_HAND says which; a
+#: bench it names with no reason here is refused, and so is a reason for a
+#: bench it no longer names. Nothing, today: every bench is framed in copper.
+MINE_EXEMPT = {}
+
+#: What the game's blocks this module copies ask of a tool, read out of the
+#: game's own jar. No bench copies one; a bench that starts to is looked up
+#: here or refused.
+ASKS_FOR_A_TOOL = {}
+
+
+def asks_for_a_tool(made, what):
+    """Whether a block built like this asks for the right tool, and how."""
+    if not made:
+        fail(f"nothing here finds how {what} is built, so nothing shows whether it asks "
+             f"for the right tool")
+        return None, ""
+    if ".requiresCorrectToolForDrops()" in made:
+        return True, "it says so where it is registered"
+    for copied in re.findall(r"\bBlocks\.([A-Z_]+)", made):
+        if copied not in ASKS_FOR_A_TOOL:
+            fail(f"{what} copies Blocks.{copied}, and nothing here knows whether that asks "
+                 f"for the right tool: look it up in the game's jar and add it")
+            return None, ""
+        if ASKS_FOR_A_TOOL[copied]:
+            return True, f"it copies Blocks.{copied}, which does"
+    return False, ""
+
+
+_station_code = (strip_comments(open(STATIONS, encoding="utf-8").read())
+                 if os.path.exists(STATIONS) else "")
+_benches = [bench for _role, bench in re.findall(r'station\("(\w+)",\s*"(\w+)",', _station_code)]
+for _name in sorted(os.path.splitext(f)[0] for f in os.listdir(os.path.join(RES, "blockstates"))
+                    if f.endswith(".json")) if os.path.isdir(os.path.join(RES, "blockstates")) else []:
+    if _name not in _benches:
+        fail(f"{_name} has a blockstate and is no station of ElysiumStations, so nothing "
+             f"here can say what mines it")
+for _name in _by_hand:
+    if _name not in MINE_EXEMPT:
+        fail(f"HarvestRules breaks {_name} by hand and this gives no reason, so it is left "
+             f"out of every tool's tag on nobody's say-so")
+    if _name not in _benches:
+        fail(f"HarvestRules breaks {_name} by hand and no such bench is registered")
+for _name in MINE_EXEMPT:
+    if _name not in _by_hand:
+        fail(f"a reason is given for breaking {_name} by hand and HarvestRules no longer "
+             f"does, so the exemption covers a bench the rules put in a tool's tag")
+# One helper registers every bench, so one reading answers for all of them.
+_station_flat = squashed(body_of(_station_code, "private static Station station("))
+_start = _station_flat.find("BLOCKS.register(id,")
+_made = _station_flat[_start:_station_flat.find(";", _start)] if _start >= 0 else ""
+_asks, _how = asks_for_a_tool(_made, "a bench")
+_tool_blocks = []
+_asking_untagged = []
+_untagged = []
+for _name in _benches:
+    _tags = MINEABLE.get(f"{_NS}:{_name}", set())
+    if _asks:
+        _tool_blocks.append(_name)
+    if len(_tags) > 1:
+        fail(f"{_name} is in {len(_tags)} mineable tags ({', '.join(sorted(_tags))}), so two "
+             f"tools are right and the rules can only have named one")
+    if _name in MINE_EXEMPT:
+        if _asks:
+            fail(f"{_name} is exempt from the mineable tags ({MINE_EXEMPT[_name]}), but it "
+                 f"asks for the right tool: {_how}. With no tag no tool is right, so it "
+                 f"would drop nothing")
+        if _tags:
+            fail(f"{_name} is exempt from the mineable tags and in one all the same; take "
+                 f"it off MINE_EXEMPT or out of the tag")
+        continue
+    if not _tags:
+        (_asking_untagged if _asks else _untagged).append(_name)
+    if sorted(_tags) != [_bench_tool]:
+        fail(f"the rules put {_name} under {_bench_tool} and the tags under "
+             f"{' and '.join(sorted(_tags)) or 'none'}; the tags are written from the rules "
+             f"by tools/gen_village.py, so one of them was edited by hand")
+if _asking_untagged:
+    fail(f"{len(_asking_untagged)} block(s) ask for the right tool and are in no tool's tag, "
+         f"so no tool is ever right and they drop nothing however they are mined: "
+         + ", ".join(_asking_untagged))
+if _untagged:
+    fail(f"{len(_untagged)} block(s) are in no mineable tag and not exempt, so every tool "
+         f"breaks them at a fist's pace: " + ", ".join(_untagged))
+# And the tag is the benches in the order the Java declares them, which is
+# what tools/gen_village.py writes from its table; anything else was typed.
+_tag = os.path.join(_mineable_dir, _bench_tool + ".json")
+_shipped = json.load(open(_tag, encoding="utf-8")).get("values", []) if os.path.isfile(_tag) else []
+_wanted = [f"{_NS}:{bench}" for bench in _benches if bench not in _by_hand]
+if _benches and _shipped != _wanted:
+    fail(f"mineable/{_bench_tool} is not what tools/gen_village.py writes from HarvestRules "
+         f"and the stations ({len(_shipped)} named, {len(_wanted)} declared, or the order "
+         f"differs)")
+print(f"what mines them    : {len(_benches)} bench(es), {len(_tool_blocks)} asking for the "
+      f"right tool, every one in exactly one tool's tag or broken by hand with a reason: "
+      f"{len(_benches) - len(MINE_EXEMPT)} by {_bench_tool}, {len(MINE_EXEMPT)} by hand")
+
+# ---------------------------------------------------------------------------
+# Who arrives: rules/CourtRules, run over every standing by tools/CourtHarness
+# ---------------------------------------------------------------------------
+#
+# EnvoyScheduler used to choose on its own, against a live player, and had a
+# hole for as long as it did: Favor 1 to 24 over less Suspicion picked the
+# Favor half, whose lowest gate is Favor 25, and Favor does not decay at 25 or
+# below, so such a player was visited by nobody, the Sentinel included. The
+# choice is now CourtRules.arrivals, the JDK alone, and the harness runs it over
+# every Favor/Suspicion pair with the court read out of EnvoyKind and the
+# meters out of ElysiumStanding. Handed over rather than copied, so raising
+# the Sentinel's gate fails here as surely as breaking the rule does.
+PURE = os.path.join(JAVA, "rules")
+HARNESS = os.path.join(WORK, "tools", "CourtHarness.java")
+HARNESS_MAIN = "com.elysium.npcs.rules.CourtHarness"
+
+rule_files = sorted(name for name in os.listdir(PURE)
+                    if name.endswith(".java")) if os.path.isdir(PURE) else []
+if "CourtRules.java" not in rule_files:
+    fail("rules/CourtRules.java is missing, so who arrives is decided where no harness "
+         "can run it")
+for name in rule_files:
+    rule_code = strip_comments(open(os.path.join(PURE, name), encoding="utf-8").read())
+    rule_code = re.sub(r"^\s*package [^;]+;", "", rule_code, count=1, flags=re.M)
+    for forbidden in ("net.minecraft", "net.neoforged", "com.mojang", "com.elysium"):
+        if forbidden in rule_code:
+            fail(f"rules/{name} reaches for {forbidden}; the rules are the JDK and nothing "
+                 f"else, so that a harness can run them")
+
+standing_path = os.path.join(WORK, "..", "elysium-lib", "src", "main", "java", "com",
+                             "elysium", "lib", "standing", "ElysiumStanding.java")
+standing_code = strip_comments(open(standing_path, encoding="utf-8").read()) \
+    if os.path.exists(standing_path) else ""
+standing_ints = dict(re.findall(r"public static final int (\w+) = (\w+);", standing_code))
+
+
+def standing_int(token, seen=()):
+    """A number, or a constant of ElysiumStanding's followed to its number."""
+    token = token.strip().replace("ElysiumStanding.", "")
+    if token.isdigit():
+        return int(token)
+    if token in standing_ints and token not in seen:
+        return standing_int(standing_ints[token], seen + (token,))
+    return None
+
+
+meter_top = standing_int("MAX")
+band_edges = re.search(r"BAND_THRESHOLDS = \{([^}]*)\}", standing_code)
+band_edges = [standing_int(edge) for edge in band_edges.group(1).split(",")] if band_edges else []
+court = [(envoy, meter, standing_int(gate)) for envoy, meter, gate in re.findall(
+    r'^\s+[A-Z_]+\("(\w+)",\s*Meter\.(\w+),\s*([\w.]+),', strip_comments(kind_source), re.M)]
+
+if meter_top is None or not band_edges or None in band_edges or not court \
+        or any(gate is None for _envoy, _meter, gate in court):
+    fail("could not read every member's gate out of EnvoyKind, or the top and the band "
+         "edges of a meter out of ElysiumStanding (MAX, BAND_THRESHOLDS), so the harness "
+         "has no real court to try")
+elif not os.path.exists(HARNESS):
+    fail("tools/CourtHarness.java is missing, so nothing runs the court's rules")
+elif rule_files:
+    with tempfile.TemporaryDirectory() as tmp:
+        staged = os.path.join(tmp, "src")
+        classes = os.path.join(tmp, "out")
+        os.makedirs(staged)
+        for source in [os.path.join(PURE, name) for name in rule_files] + [HARNESS]:
+            with open(source, encoding="utf-8") as original, \
+                    open(os.path.join(staged, os.path.basename(source)), "w",
+                         encoding="utf-8") as copy:
+                copy.write(original.read())
+        compiled = subprocess.run(
+            ["javac", "-nowarn", "-d", classes]
+            + [os.path.join(staged, name) for name in sorted(os.listdir(staged))],
+            capture_output=True, text=True)
+        if compiled.returncode != 0:
+            fail("the court's rules and harness do not compile against the JDK alone:\n"
+                 + compiled.stderr.strip()[:1200])
+        else:
+            ran = subprocess.run(
+                ["java", "-cp", classes, HARNESS_MAIN, str(meter_top),
+                 ",".join(str(edge) for edge in band_edges)]
+                + [f"{envoy}:{meter}:{gate}" for envoy, meter, gate in court],
+                capture_output=True, text=True)
+            if ran.returncode != 0:
+                fail("the court harness failed:\n" + harness_trouble(ran.stdout))
+            else:
+                print("who arrives        : " + ran.stdout.strip().splitlines()[-1])
+
+# The scheduler asks the rule, with the player's own meters and the court as
+# EnvoyKind declares it, and sends one of whoever the rule names. Anything
+# else is a choice made where the harness cannot see it.
+scheduler_java = open(os.path.join(JAVA, "EnvoyScheduler.java"), encoding="utf-8").read()
+pick = squashed(body_of(strip_comments(scheduler_java), "private static EnvoyKind pick("))
+if "int[] chosen = CourtRules.arrivals(favor, suspicion, readsFavor, willDeal);" not in pick:
+    fail("EnvoyScheduler.pick does not ask CourtRules.arrivals who may come, so the choice "
+         "is arithmetic the harness never runs, which is how the dead zone went unseen")
+if "int favor = ElysiumStanding.getFavor(player);" not in pick \
+        or "int suspicion = ElysiumStanding.getSuspicion(player);" not in pick:
+    fail("EnvoyScheduler.pick hands the rule something other than the player's own Favor "
+         "and Suspicion")
+if "readsFavor[i] = court[i].meter() == EnvoyKind.Meter.FAVOR;" not in pick:
+    fail("EnvoyScheduler.pick does not tell the rule which members read Favor, so the "
+         "halves it chooses between are not the ones EnvoyKind declares")
+if "willDeal[i] = court[i].willDealWith(player);" not in pick:
+    fail("EnvoyScheduler.pick does not ask each member whether they would deal "
+         "(willDealWith), so an envoy can arrive only to refuse you")
+if "return court[chosen[random.nextInt(chosen.length)]];" not in pick:
+    fail("EnvoyScheduler.pick does not send one of the members the rule chose, drawn at "
+         "random: the same envoy comes every time, or one the rule did not name")
 
 print()
 

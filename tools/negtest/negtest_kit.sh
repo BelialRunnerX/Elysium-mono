@@ -46,8 +46,45 @@ json.dump(d, open(p,'w'), indent=2)"
 expect "a kit with nothing in it" "given nothing and the code runs anyway"
 restore
 
-edit $T '"name": "elysium:imperial_codex"' '"name": "elysium:imperial_manual"'
+edit $T '"name": "minecraft:bread"' '"name": "elysium:imperial_manual"'
 expect "a kit handing out something nobody registers" "does not register"
+restore
+
+# One codex, not two: elysium-lib's join handler hands one over on the same
+# login, so the kit leaves it out and core has to keep handing the library one.
+edit $T '  "pools": [
+    {' '  "pools": [
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "elysium:imperial_codex"
+        }
+      ]
+    },
+    {'
+expect "two codices on a first login" "a new player starts with two"
+restore
+
+edit $T '          "type": "minecraft:item",
+          "name": "minecraft:bread",' '          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "name": "elysium:imperial_codex"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bread",'
+expect "a second codex tucked inside an alternatives entry" "a new player starts with two"
+restore
+
+edit $M/src/main/java/com/elysium/core/ElysiumContent.java '        ElysiumHooks.setCodex(() -> new ItemStack(Elysium.IMPERIAL_CODEX.get()));' ''
+expect "the codex left to a library that is given none" "no new player is given one"
 restore
 
 edit $K 'PlayerEvent.PlayerLoggedInEvent event' 'PlayerEvent.PlayerLoggedOutEvent event'

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "elysiumwilds:block/vale_portal_ns"
+    },
+    "axis=z": {
+      "model": "elysiumwilds:block/vale_portal_ew"
+    }
+  }
+}

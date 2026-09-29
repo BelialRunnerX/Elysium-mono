@@ -29,6 +29,7 @@
   "elysiumindustry.diesel_engine.idle": "Idle: it has fuel, but nothing on the grid wants power.",
   "elysiumindustry.furnace.empty": "Built, and empty.",
   "elysiumindustry.furnace.unformed": "Not a %s yet. Relative to this block, %s.",
+  "elysiumindustry.furnace.unfuelled": "Waiting for %s: a job burns %s, and it holds %s.",
   "elysiumindustry.furnace.working": "Firing: %s tick(s) in.",
   "elysiumindustry.grid.burned": "Burned out: %s through a wire rated for %s.",
   "elysiumindustry.grid.dark": "Nothing on this grid is generating.",

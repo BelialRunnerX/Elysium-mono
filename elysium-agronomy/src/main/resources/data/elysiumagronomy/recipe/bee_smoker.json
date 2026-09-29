@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "minecraft:bucket"
+    },
+    {
+      "item": "minecraft:leather"
+    },
+    {
+      "item": "minecraft:campfire"
+    }
+  ],
+  "result": {
+    "id": "elysiumagronomy:bee_smoker",
+    "count": 1
+  }
+}

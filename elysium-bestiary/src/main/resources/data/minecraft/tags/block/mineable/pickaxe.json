@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumbestiary:mob_fan",
+    "elysiumbestiary:mob_conveyor",
+    "elysiumbestiary:grinder_saw",
+    "elysiumbestiary:grinder_spikes",
+    "elysiumbestiary:absorption_hopper",
+    "elysiumbestiary:experience_tap",
+    "elysiumbestiary:experience_press",
+    "elysiumbestiary:quiet_casing",
+    "elysiumbestiary:dread_soil"
+  ]
+}

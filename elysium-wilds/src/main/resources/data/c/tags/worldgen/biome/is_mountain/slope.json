@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:frost_flat",
+    "elysiumwilds:frost_hill",
+    "elysiumwilds:frost_scarp",
+    "elysiumwilds:frost_wold",
+    "elysiumwilds:glacier_flat",
+    "elysiumwilds:glacier_hill",
+    "elysiumwilds:glacier_scarp",
+    "elysiumwilds:glacier_wold",
+    "elysiumwilds:green_flat",
+    "elysiumwilds:green_hill",
+    "elysiumwilds:green_scarp",
+    "elysiumwilds:green_wold",
+    "elysiumwilds:reed_flat",
+    "elysiumwilds:reed_hill",
+    "elysiumwilds:reed_scarp",
+    "elysiumwilds:reed_wold"
+  ]
+}

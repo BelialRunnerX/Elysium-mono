@@ -6,8 +6,10 @@ import com.elysium.armory.item.ArmoryGearStats;
 import com.elysium.armory.item.ArmoryGearTraits;
 import com.elysium.armory.item.ArmoryMarks;
 import com.elysium.armory.item.ArmoryTint;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -71,6 +73,19 @@ public final class ArmoryComponents {
                     .persistent(com.elysium.armory.item.ArmoryPlanBook.CODEC)
                     .networkSynchronized(
                             com.elysium.armory.item.ArmoryPlanBook.STREAM_CODEC)
+                    .build());
+
+    /**
+     * What a reforge cost for the affixes a piece carries, in essence. Salvage
+     * pays those affixes back one essence a level and never more than this,
+     * so rerolling a cheap piece and taking it apart cannot print essence
+     * ({@link com.elysium.armory.property.ArmorySalvageRules#essence(int, int)}).
+     * Found affixes have no price, and a piece that carries them has no mark.
+     */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REFORGED =
+            TYPES.register("reforged", () -> DataComponentType.<Integer>builder()
+                    .persistent(Codec.INT)
+                    .networkSynchronized(ByteBufCodecs.VAR_INT)
                     .build());
 
     public static void register(IEventBus modBus) {

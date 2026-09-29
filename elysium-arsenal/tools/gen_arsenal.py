@@ -1001,6 +1001,20 @@ ARTIFACT_RULES = os.path.join(
     MOD, "src/main/java/com/elysium/arsenal/rules/ArtifactRules.java")
 TOTEM_RULES = os.path.join(MOD,
                            "src/main/java/com/elysium/arsenal/rules/TotemRules.java")
+DIG_BLOCKS = os.path.join(MOD,
+                          "src/main/java/com/elysium/arsenal/registry/DigBlocks.java")
+
+
+def set_shapes():
+    """The shapes the two decorative sets come in, read out of DigBlocks: the
+    rotten set's wood shapes and the cracked mud bricks' stone ones, each
+    without its full block (planks, bricks), which is a cube."""
+    source = open(DIG_BLOCKS, encoding="utf-8").read()
+    wood = re.findall(r'"(_[a-z_]+)"', re.search(
+        r"WOOD_SHAPES = List\.of\(([^)]*)\)", source).group(1))
+    stone = re.findall(r'"(_[a-z_]+)"', re.search(
+        r"STONE_SHAPES = List\.of\(([^)]*)\)", source).group(1))
+    return [shape for shape in wood if shape != "_planks"], stone
 
 
 def brushes():
@@ -1011,6 +1025,38 @@ def brushes():
 def sites():
     source = open(DIG_RULES, encoding="utf-8").read()
     return re.findall(r'new Site\("([a-z_]+)", "([a-z:_]+)", "([a-z_]+)"\)', source)
+
+
+def patches():
+    """The surface patches, read out of DigRules like everything else here."""
+    source = open(DIG_RULES, encoding="utf-8").read()
+    found = re.findall(
+        r'new Patch\("([a-z_]+)", (\d+), (\d+), (\d+),\s*List\.of\(([^)]*)\),\s*'
+        r'List\.of\(([^)]*)\)\)', source)
+    declared = len(re.findall(r'new Patch\("', source))
+    if len(found) != declared:
+        print(f"the rules declare {declared} patches and this file could read "
+              f"{len(found)}; something was written in a shape it does not know")
+        sys.exit(1)
+    return [(site, int(one_in), int(least), int(most),
+             re.findall(r'"([^"]+)"', replaces), re.findall(r'"([^"]+)"', biomes))
+            for site, one_in, least, most, replaces, biomes in found]
+
+
+def seams():
+    """The buried seams, likewise."""
+    source = open(DIG_RULES, encoding="utf-8").read()
+    found = re.findall(
+        r'new Seam\("([a-z_]+)", (\d+), (\d+), (-?\d+), (-?\d+), "([a-z0-9_:/]+)",\s*'
+        r'List\.of\(([^)]*)\)\)', source)
+    declared = len(re.findall(r'new Seam\("', source))
+    if len(found) != declared:
+        print(f"the rules declare {declared} seams and this file could read "
+              f"{len(found)}; something was written in a shape it does not know")
+        sys.exit(1)
+    return [(site, int(tries), int(size), int(lowest), int(highest), within,
+             re.findall(r'"([^"]+)"', biomes))
+            for site, tries, size, lowest, highest, within, biomes in found]
 
 
 def fossils():
@@ -1199,15 +1245,6 @@ def totem_texture(name, held):
     return image
 
 
-def disc_texture():
-    image = Image.new("RGBA", (16, 16), CLEAR)
-    draw = ImageDraw.Draw(image)
-    draw.ellipse([2, 2, 13, 13], fill=rgba((38, 32, 34)), outline=rgba((20, 16, 18)))
-    draw.ellipse([6, 6, 9, 9], fill=rgba((196, 120, 70)))
-    draw.arc([4, 4, 11, 11], start=20, end=160, fill=rgba((90, 80, 78)))
-    return image
-
-
 def cube(folder, id, texture, sides=None, render_type=None):
     """
     A block that is one texture on all six sides, with its item and its drop.
@@ -1237,6 +1274,270 @@ def drops(id):
                    "entries": [{"type": "minecraft:item", "name": f"{NS}:{id}"}],
                    "conditions": [{"condition": "minecraft:survives_explosion"}]}],
     }
+
+
+# ---------------------------------------------------------------------------
+# The two decorative sets, shaped
+# ---------------------------------------------------------------------------
+#
+# Every shape is the game's own: the same parent models, the same states and
+# the same turns as its oak or mud brick counterpart, cut from the set's full
+# block. Until 29 September 2026 each was a cube with one model for all its
+# states, so a slab stood a full block tall over half a block of collision
+# and a pressure plate was a block nothing could stand on.
+
+#: Each set's stem, the full block its shapes are cut from, and its palette.
+SET_BLOCKS = {"rotten": ("rotten_planks", "rotten"),
+              "cracked_mud_brick": ("cracked_mud_bricks", "mud")}
+
+
+def stair_variants(id):
+    """The game's own stair states, turned by facing and turned over for the
+    top half. Turning a stair over mirrors it, so an upside-down corner turns
+    the other way from one the right way up; a rule that turns every corner
+    alike draws those wrong and every state is still there to count, so this
+    is checked against the game's own oak stairs, one for one."""
+    out = {}
+    for facing, y in (("east", 0), ("south", 90), ("west", 180), ("north", 270)):
+        for half in ("bottom", "top"):
+            for shape, suffix in (("straight", ""), ("inner_left", "_inner"),
+                                  ("inner_right", "_inner"), ("outer_left", "_outer"),
+                                  ("outer_right", "_outer")):
+                turn = y
+                if half == "bottom" and shape.endswith("_left"):
+                    turn = (y + 270) % 360
+                if half == "top" and shape.endswith("_right"):
+                    turn = (y + 90) % 360
+                model = {"model": f"{NS}:block/{id}{suffix}"}
+                if half == "top":
+                    model["x"] = 180
+                if turn:
+                    model["y"] = turn
+                if half == "top" or turn:
+                    model["uvlock"] = True
+                out[f"facing={facing},half={half},shape={shape}"] = model
+    return out
+
+
+def fence_multipart(id):
+    """A post, and a side towards each neighbour it joins."""
+    parts = [{"apply": {"model": f"{NS}:block/{id}_post"}}]
+    for side, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270)):
+        apply = {"model": f"{NS}:block/{id}_side", "uvlock": True}
+        if y:
+            apply["y"] = y
+        parts.append({"when": {side: "true"}, "apply": apply})
+    return parts
+
+
+def gate_variants(id):
+    out = {}
+    for facing, y in (("south", 0), ("west", 90), ("north", 180), ("east", 270)):
+        for in_wall in ("false", "true"):
+            for open_state in ("false", "true"):
+                suffix = ("_wall" if in_wall == "true" else "") \
+                    + ("_open" if open_state == "true" else "")
+                model = {"model": f"{NS}:block/{id}{suffix}", "uvlock": True}
+                if y:
+                    model["y"] = y
+                out[f"facing={facing},in_wall={in_wall},open={open_state}"] = model
+    return out
+
+
+def door_variants(id):
+    out = {}
+    for facing, y in (("east", 0), ("south", 90), ("west", 180), ("north", 270)):
+        for half in ("lower", "upper"):
+            for hinge in ("left", "right"):
+                for open_state in ("false", "true"):
+                    part = "bottom" if half == "lower" else "top"
+                    suffix = f"_{part}_{hinge}" + ("_open" if open_state == "true" else "")
+                    turn = y
+                    if open_state == "true":
+                        turn = (y + (90 if hinge == "left" else 270)) % 360
+                    model = {"model": f"{NS}:block/{id}{suffix}"}
+                    if turn:
+                        model["y"] = turn
+                    out[f"facing={facing},half={half},hinge={hinge},"
+                        f"open={open_state}"] = model
+    return out
+
+
+def trapdoor_variants(id):
+    """The game's oak trapdoor: shut, it lies the same way whichever way it
+    faces; open, it stands against the side it faces."""
+    out = {}
+    for facing, y in (("north", 0), ("south", 180), ("east", 90), ("west", 270)):
+        for half in ("bottom", "top"):
+            for open_state in ("false", "true"):
+                if open_state == "true":
+                    model = {"model": f"{NS}:block/{id}_open"}
+                    if y:
+                        model["y"] = y
+                else:
+                    model = {"model": f"{NS}:block/{id}_{half}"}
+                out[f"facing={facing},half={half},open={open_state}"] = model
+    return out
+
+
+def slab_drops(id):
+    """A slab's table, the game's own: two from a double slab."""
+    return {
+        "type": "minecraft:block",
+        "pools": [{"rolls": 1, "bonus_rolls": 0,
+                   "entries": [{"type": "minecraft:item", "name": f"{NS}:{id}",
+                                "functions": [
+                                    {"function": "minecraft:set_count", "count": 2,
+                                     "add": False,
+                                     "conditions": [{
+                                         "condition": "minecraft:block_state_property",
+                                         "block": f"{NS}:{id}",
+                                         "properties": {"type": "double"}}]},
+                                    {"function": "minecraft:explosion_decay"}]}]}],
+    }
+
+
+def door_drops(id):
+    """A door's table, the game's own: from the lower half only. Breaking
+    either half takes the other with it, and that half's table runs too, so a
+    table on both halves is two doors for every one broken."""
+    return {
+        "type": "minecraft:block",
+        "pools": [{"rolls": 1, "bonus_rolls": 0,
+                   "entries": [{"type": "minecraft:item", "name": f"{NS}:{id}",
+                                "conditions": [{
+                                    "condition": "minecraft:block_state_property",
+                                    "block": f"{NS}:{id}",
+                                    "properties": {"half": "lower"}}]}],
+                   "conditions": [{"condition": "minecraft:survives_explosion"}]}],
+    }
+
+
+def door_texture(palette, half):
+    """One half of a door: planks up it inside a frame, the handle below."""
+    ramp = BLOCK_PALETTES[palette]
+    image = noisy(ramp, 31 if half == "bottom" else 43)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([0, 0, 15, 15], outline=rgba(ramp[0]))
+    for x in (5, 10):
+        draw.line([(x, 1), (x, 14)], fill=rgba(ramp[0]))
+    if half == "bottom":
+        draw.line([(13, 1), (13, 3)], fill=rgba(BLOCK_PALETTES["bone"][1]))
+    else:
+        draw.line([(1, 12), (14, 12)], fill=rgba(ramp[0]))
+    return image
+
+
+def door_sprite(palette):
+    """The door in the hand, flat, the way the game draws its own doors."""
+    ramp = BLOCK_PALETTES[palette]
+    image = Image.new("RGBA", (16, 16), CLEAR)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle([4, 0, 11, 15], fill=rgba(ramp[1]), outline=rgba(ramp[0]))
+    draw.line([(7, 1), (7, 14)], fill=rgba(ramp[2]))
+    draw.line([(5, 7), (10, 7)], fill=rgba(ramp[0]))
+    draw.point((10, 9), fill=rgba(BLOCK_PALETTES["bone"][1]))
+    return image
+
+
+def shape_files(blocks, items, stem, shape):
+    """One shape of a set: the game's own blockstate, models, item model and
+    drop for that shape, cut from the set's full block."""
+    full, palette = SET_BLOCKS[stem]
+    id = stem + shape
+    cut = f"{NS}:block/{full}"
+    sides = {"bottom": cut, "top": cut, "side": cut}
+    item, loot, sprites = f"{NS}:block/{id}", drops(id), 0
+    if shape == "_slab":
+        models = {id: ("slab", sides), f"{id}_top": ("slab_top", sides)}
+        state = {"variants": {"type=bottom": {"model": f"{NS}:block/{id}"},
+                              "type=top": {"model": f"{NS}:block/{id}_top"},
+                              "type=double": {"model": cut}}}
+        loot = slab_drops(id)
+    elif shape == "_stairs":
+        models = {id: ("stairs", sides), f"{id}_inner": ("inner_stairs", sides),
+                  f"{id}_outer": ("outer_stairs", sides)}
+        state = {"variants": stair_variants(id)}
+    elif shape == "_fence":
+        models = {f"{id}{part}": (f"fence{part}", {"texture": cut})
+                  for part in ("_post", "_side", "_inventory")}
+        state = {"multipart": fence_multipart(id)}
+        item = f"{NS}:block/{id}_inventory"
+    elif shape == "_fence_gate":
+        models = {f"{id}{part}": (f"template_fence_gate{part}", {"texture": cut})
+                  for part in ("", "_open", "_wall", "_wall_open")}
+        state = {"variants": gate_variants(id)}
+    elif shape == "_door":
+        halves = {"top": f"{NS}:block/{id}_top", "bottom": f"{NS}:block/{id}_bottom"}
+        models = {f"{id}{part}": (f"door{part}", halves)
+                  for part in ("_bottom_left", "_bottom_left_open", "_bottom_right",
+                               "_bottom_right_open", "_top_left", "_top_left_open",
+                               "_top_right", "_top_right_open")}
+        state = {"variants": door_variants(id)}
+        for half in ("top", "bottom"):
+            door_texture(palette, half).save(os.path.join(blocks, f"{id}_{half}.png"))
+        door_sprite(palette).save(os.path.join(items, id + ".png"))
+        sprites += 3
+        item = None
+        loot = door_drops(id)
+    elif shape == "_trapdoor":
+        plain_texture(palette, 31).save(os.path.join(blocks, id + ".png"))
+        sprites += 1
+        models = {f"{id}{part}": (f"template_trapdoor{part}",
+                                  {"texture": f"{NS}:block/{id}"})
+                  for part in ("_bottom", "_top", "_open")}
+        state = {"variants": trapdoor_variants(id)}
+        item = f"{NS}:block/{id}_bottom"
+    elif shape == "_pressure_plate":
+        models = {id: ("pressure_plate_up", {"texture": cut}),
+                  f"{id}_down": ("pressure_plate_down", {"texture": cut})}
+        state = {"variants": {"powered=false": {"model": f"{NS}:block/{id}"},
+                              "powered=true": {"model": f"{NS}:block/{id}_down"}}}
+    else:
+        print(f"{id} is a shape this generator has no models for, so it would be "
+              f"drawn as nothing")
+        sys.exit(1)
+    for name, (parent, textures) in models.items():
+        model = {"parent": f"minecraft:block/{parent}", "textures": textures}
+        # A door and a trapdoor are cut out, as the game's are, so a texture
+        # with a hole in it shows the hole rather than black.
+        if shape in ("_door", "_trapdoor"):
+            model["render_type"] = "minecraft:cutout"
+        write(os.path.join(ASSETS, "models/block", name + ".json"), model)
+    write(os.path.join(ASSETS, "blockstates", id + ".json"), state)
+    if item:
+        write(os.path.join(ASSETS, "models/item", id + ".json"), {"parent": item})
+    else:
+        # Held flat, the way the game holds its own doors.
+        write(os.path.join(ASSETS, "models/item", id + ".json"),
+              {"parent": "item/generated",
+               "textures": {"layer0": f"{NS}:item/{id}"}})
+    write(os.path.join(DATA, "loot_table/blocks", id + ".json"), loot)
+    return sprites, len(models) + 1, 1
+
+
+def dig_tags(sited, boned, stood, wood, stone):
+    """Which tool mines each block the dig adds.
+
+    The game's own lists decide both how fast a tool breaks a block and, for a
+    block that needs the right tool, whether it gives anything up. Until 29
+    September 2026 no block here was on any list, so a fossil, a chiselled
+    bone block or a mud brick that a player set down and broke again gave
+    nothing to any tool.
+    """
+    pickaxe = [f"{creature}_fossil{part}" for creature, _, _, _, _ in boned
+               for part in ("_head", "_body", "")]
+    pickaxe += ["chiseled_bone_block", "cracked_mud_bricks", "infested_mud_bricks"]
+    pickaxe += [f"cracked_mud_brick{shape}" for shape in stone]
+    pickaxe += [name for name, kind, _, _, _ in stood if kind == "PLACED"]
+    axe = ["archeology_table", "rotten_log", "rotten_planks"]
+    axe += [f"rotten{shape}" for shape in wood]
+    shovel = [block for block, _, _ in sited]
+    folder = os.path.join(OUT, "src/main/resources/data/minecraft/tags/block/mineable")
+    for tool, blocks in (("pickaxe", pickaxe), ("axe", axe), ("shovel", shovel)):
+        write(os.path.join(folder, tool + ".json"),
+              {"replace": False, "values": [f"{NS}:{block}" for block in blocks]})
+    return 3
 
 
 def dig_files(brushed, sited, boned, found, stood, whole):
@@ -1326,21 +1627,20 @@ def dig_files(brushed, sited, boned, found, stood, whole):
 
     for id, kind, seed in (("rotten_log", "rotten", 23),
                            ("rotten_planks", "rotten", 29),
-                           ("rotten_slab", "rotten", 29),
-                           ("rotten_stairs", "rotten", 29),
-                           ("rotten_fence", "rotten", 29),
-                           ("rotten_fence_gate", "rotten", 29),
-                           ("rotten_door", "rotten", 31),
-                           ("rotten_trapdoor", "rotten", 31),
-                           ("rotten_pressure_plate", "rotten", 29),
                            ("cracked_mud_bricks", "mud", 37),
-                           ("cracked_mud_brick_slab", "mud", 37),
-                           ("cracked_mud_brick_stairs", "mud", 37),
                            ("infested_mud_bricks", "mud", 41)):
         one, two, three = cube(blocks, id, plain_texture(kind, seed))
         sprites += one
         made += two
         data += three
+    wood, stone = set_shapes()
+    for stem, shapes in (("rotten", wood), ("cracked_mud_brick", stone)):
+        for shape in shapes:
+            one, two, three = shape_files(blocks, items, stem, shape)
+            sprites += one
+            made += two
+            data += three
+    data += dig_tags(sited, boned, stood, wood, stone)
 
     # ---- the totems --------------------------------------------------------
     for name, kind, _, _, _ in stood:
@@ -1388,14 +1688,167 @@ def dig_files(brushed, sited, boned, found, stood, whole):
               {"parent": "item/generated", "textures": {"layer0": f"{NS}:item/{id}"}})
         sprites += 1
         made += 1
-
-    disc_texture().save(os.path.join(items, "music_disc_relic.png"))
-    write(os.path.join(ASSETS, "models/item", "music_disc_relic.json"),
-          {"parent": "item/generated",
-           "textures": {"layer0": f"{NS}:item/music_disc_relic"}})
-    sprites += 1
-    made += 1
+    # There was a disc here, retired on 29 September 2026: a plain item with
+    # no song, which no jukebox would play and nothing handed out. The dirt
+    # pool gives the game's own relic disc instead.
     return sprites, made, data
+
+
+# ---------------------------------------------------------------------------
+# Where the sites lie
+# ---------------------------------------------------------------------------
+#
+# Until 29 September 2026 nothing put a site in any world, so everything the
+# dig hands out came from a command and from nowhere else. Each site now has a
+# feature named after it, placed in a biome tag of its own by a biome modifier;
+# how thick, how wide and where are DigRules' PATCHES and SEAMS.
+
+#: The step the sites are laid at. The game lays its own disks of sand, clay
+#: and gravel and its underground dirt here, after the ground is shaped and
+#: before any tree or flower exists, so a patch never lies under a trunk.
+DIG_STEP = "underground_ores"
+
+
+def lies_in(site, biomes):
+    """A site's biomes as a tag of its own, and the modifier that lays it there.
+
+    A tag rather than the list itself, because a biome set is one tag or a
+    list of ids and never a list with a tag in it (the game refuses the whole
+    world: "Not a JSON object"). Named flat, has_dig_site_<site>, rather than
+    in a folder: check_datapack.py finds a modifier's tag by a flat name, and
+    reports a tag in a folder as missing.
+    """
+    tag = f"has_dig_site_{site}"
+    write(os.path.join(DATA, "tags/worldgen/biome", tag + ".json"),
+          {"replace": False, "values": biomes})
+    write(os.path.join(DATA, "neoforge/biome_modifier", site + ".json"), {
+        "type": "neoforge:add_features",
+        "biomes": f"#{NS}:{tag}",
+        "features": [f"{NS}:{site}"],
+        "step": DIG_STEP})
+    return 2
+
+
+def dig_worldgen(laid, buried):
+    written = 0
+    for site, one_in, least, most, replaces, biomes in laid:
+        # One block deep (half_height 0): the heightmap finds the first open
+        # block above the ground and one down is the ground itself, so a patch
+        # is the top layer and nothing under it.
+        write(os.path.join(DATA, "worldgen/configured_feature", site + ".json"), {
+            "type": "minecraft:disk",
+            "config": {
+                "state_provider": {
+                    "fallback": {"type": "minecraft:simple_state_provider",
+                                 "state": {"Name": f"{NS}:{site}"}},
+                    "rules": []},
+                "target": {"type": "minecraft:matching_blocks", "blocks": replaces},
+                "radius": {"type": "minecraft:uniform",
+                           "min_inclusive": least, "max_inclusive": most},
+                "half_height": 0}})
+        write(os.path.join(DATA, "worldgen/placed_feature", site + ".json"), {
+            "feature": f"{NS}:{site}",
+            "placement": [
+                {"type": "minecraft:rarity_filter", "chance": one_in},
+                {"type": "minecraft:in_square"},
+                {"type": "minecraft:heightmap", "heightmap": "WORLD_SURFACE_WG"},
+                {"type": "minecraft:random_offset", "xz_spread": 0, "y_spread": -1},
+                {"type": "minecraft:biome"}]})
+        written += 2 + lies_in(site, biomes)
+    for site, tries, size, lowest, highest, within, biomes in buried:
+        # A vein that touches a cave keeps every block it laid, so a seam
+        # shows in a cave wall, which is where a player looking for one looks.
+        write(os.path.join(DATA, "worldgen/configured_feature", site + ".json"), {
+            "type": "minecraft:ore",
+            "config": {
+                "size": size,
+                "discard_chance_on_air_exposure": 0.0,
+                "targets": [{"target": {"predicate_type": "minecraft:tag_match",
+                                        "tag": within},
+                             "state": {"Name": f"{NS}:{site}"}}]}})
+        write(os.path.join(DATA, "worldgen/placed_feature", site + ".json"), {
+            "feature": f"{NS}:{site}",
+            "placement": [
+                {"type": "minecraft:count", "count": tries},
+                {"type": "minecraft:in_square"},
+                {"type": "minecraft:height_range",
+                 "height": {"type": "minecraft:uniform",
+                            "min_inclusive": {"absolute": lowest},
+                            "max_inclusive": {"absolute": highest}}},
+                {"type": "minecraft:biome"}]})
+        written += 2 + lies_in(site, biomes)
+    return written
+
+
+# ---------------------------------------------------------------------------
+# What the finds make
+# ---------------------------------------------------------------------------
+
+#: The rotten set: the game's own wood-set grids and counts, on rotten planks
+#: ("#") and sticks ("/"). Planks come four to a log, as every log's do.
+ROTTEN_GRIDS = {
+    "rotten_slab": (["###"], 6, "building"),
+    "rotten_stairs": (["#  ", "## ", "###"], 4, "building"),
+    "rotten_fence": (["#/#", "#/#"], 3, "misc"),
+    "rotten_fence_gate": (["/#/", "/#/"], 1, "redstone"),
+    "rotten_door": (["##", "##", "##"], 3, "redstone"),
+    "rotten_trapdoor": (["###", "###"], 2, "redstone"),
+    "rotten_pressure_plate": (["##"], 1, "redstone"),
+}
+
+#: The cracked mud brick set, from cracked mud bricks: the game's own stone
+#: grids, and beside each the count a stonecutter gives, as for its bricks.
+MUD_GRIDS = {
+    "cracked_mud_brick_slab": (["###"], 6, 2),
+    "cracked_mud_brick_stairs": (["#  ", "## ", "###"], 4, 1),
+}
+
+
+def dig_recipes(boned):
+    """Whole fossils from their halves, and the two sets from what a dig turns up."""
+    written = 0
+    # A whole fossil is its skull and its body put together. FossilEffects
+    # already counts a whole as both halves, so this is the block a pair is for.
+    for creature, _, _, _, _ in boned:
+        write(os.path.join(DATA, "recipe", f"{creature}_fossil.json"), {
+            "type": "minecraft:crafting_shapeless", "category": "building",
+            "ingredients": [{"item": f"{NS}:{creature}_fossil_head"},
+                            {"item": f"{NS}:{creature}_fossil_body"}],
+            "result": {"id": f"{NS}:{creature}_fossil", "count": 1}})
+        written += 1
+    write(os.path.join(DATA, "recipe", "rotten_planks.json"), {
+        "type": "minecraft:crafting_shapeless", "category": "building",
+        "ingredients": [{"item": f"{NS}:rotten_log"}],
+        "result": {"id": f"{NS}:rotten_planks", "count": 4}})
+    written += 1
+    for id, (pattern, count, category) in ROTTEN_GRIDS.items():
+        key = {"#": {"item": f"{NS}:rotten_planks"}}
+        if any("/" in row for row in pattern):
+            key["/"] = {"item": "minecraft:stick"}
+        write(os.path.join(DATA, "recipe", id + ".json"), {
+            "type": "minecraft:crafting_shaped", "category": category,
+            "pattern": pattern, "key": key,
+            "result": {"id": f"{NS}:{id}", "count": count}})
+        written += 1
+    # Smelted from the game's own mud bricks, the way cracked stone bricks are
+    # made: the badlands give the first few, and a furnace keeps the set going.
+    write(os.path.join(DATA, "recipe", "cracked_mud_bricks.json"), {
+        "type": "minecraft:smelting", "category": "blocks",
+        "ingredient": {"item": "minecraft:mud_bricks"},
+        "result": {"id": f"{NS}:cracked_mud_bricks"},
+        "experience": 0.1, "cookingtime": 200})
+    written += 1
+    for id, (pattern, count, cut) in MUD_GRIDS.items():
+        write(os.path.join(DATA, "recipe", id + ".json"), {
+            "type": "minecraft:crafting_shaped", "category": "building",
+            "pattern": pattern, "key": {"#": {"item": f"{NS}:cracked_mud_bricks"}},
+            "result": {"id": f"{NS}:{id}", "count": count}})
+        write(os.path.join(DATA, "recipe", id + "_stonecutting.json"), {
+            "type": "minecraft:stonecutting",
+            "ingredient": {"item": f"{NS}:cracked_mud_bricks"},
+            "result": {"id": f"{NS}:{id}", "count": cut}})
+        written += 2
+    return written
 
 
 #: What each brush is faced with. Its tier's own metal, the way every other
@@ -1452,7 +1905,6 @@ DECOR_NAMES = {
     "cracked_mud_brick_slab": "Cracked Mud Brick Slab",
     "cracked_mud_brick_stairs": "Cracked Mud Brick Stairs",
     "infested_mud_bricks": "Infested Mud Bricks",
-    "music_disc_relic": "Music Disc",
 }
 
 
@@ -1478,8 +1930,7 @@ def dig_language(entries, brushed, sited, boned, found, stood):
         entries[f"item.{NS}.identified_{name}"] = ARTIFACT_WORDS[name]
         entries[f"{NS}.artifact.{name}"] = ARTIFACT_WORDS[name]
     for id, words in DECOR_NAMES.items():
-        key = "item" if id == "music_disc_relic" else "block"
-        entries[f"{key}.{NS}.{id}"] = words
+        entries[f"block.{NS}.{id}"] = words
     entries[f"{NS}.artifact.unknown"] = "One of %1$s things"
     entries[f"{NS}.artifact.set"] = "%1$s %2$s"
     entries[f"{NS}.artifact.fits"] = "Goes into %1$s, up to %2$s deep"
@@ -1641,6 +2092,16 @@ if __name__ == "__main__":
     sprites += more_sprites
     made += more_models
     data += more_data
+    laid = patches()
+    buried = seams()
+    strangers = [row[0] for row in laid + buried
+                 if row[0] not in {block for block, _, _ in sited}]
+    if strangers:
+        print(f"the digging rules lay {strangers} in the world, and they are not "
+              f"sites")
+        sys.exit(1)
+    data += dig_worldgen(laid, buried)
+    data += dig_recipes(boned)
     entries = dig_language(entries, brushed, sited, boned, found, stood)
     write(os.path.join(ASSETS, "lang/en_us.json"), dict(sorted(entries.items())))
     keys = len(entries)

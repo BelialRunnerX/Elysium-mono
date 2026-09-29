@@ -2,7 +2,7 @@
   "type": "minecraft:smelting",
   "category": "misc",
   "ingredient": {
-    "item": "elysiumfoundry:raw_aluminum"
+    "tag": "c:raw_materials/aluminum"
   },
   "result": {
     "id": "elysiumfoundry:aluminum_ingot"

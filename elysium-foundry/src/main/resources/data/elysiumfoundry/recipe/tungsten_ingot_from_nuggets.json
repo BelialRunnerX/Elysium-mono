@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "NNN",
+    "NNN",
+    "NNN"
+  ],
+  "key": {
+    "N": {
+      "item": "elysiumfoundry:tungsten_nugget"
+    }
+  },
+  "result": {
+    "id": "elysiumfoundry:tungsten_ingot",
+    "count": 1
+  }
+}

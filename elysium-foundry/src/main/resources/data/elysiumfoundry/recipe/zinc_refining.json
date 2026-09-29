@@ -1,7 +1,7 @@
 {
   "type": "elysiumfoundry:refining",
   "input": {
-    "item": "elysiumfoundry:raw_zinc"
+    "tag": "c:raw_materials/zinc"
   },
   "result": {
     "id": "elysiumfoundry:zinc_ingot",

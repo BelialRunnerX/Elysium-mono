@@ -1,6 +1,7 @@
 #!/bin/bash
 cd /tmp/Elysium-mono || exit 1
-exec 9>/tmp/negtest_suit.lock; flock -n 9 || { echo busy; exit 2; }
+negtest_lock() { if command -v flock >/dev/null 2>&1; then flock -n "$1"; else mkdir "$2" 2>/dev/null && trap "rmdir '$2' 2>/dev/null" EXIT; fi; }  # Git Bash on Windows has no flock
+exec 9>/tmp/negtest_suit.lock; negtest_lock 9 /tmp/negtest_suit.lockdir || { echo busy; exit 2; }
 J=elysium-space/src/main/java/com/elysium/space; A=elysium-space/src/main/resources/assets/elysiumspace
 SUIT=$J/item/SpaceSuitItem.java; EV=$J/event/SuitEvents.java; SA=$J/world/SuitAir.java
 L1=$A/textures/models/armor/space_suit_layer_1.png; LANG=$A/lang/en_us.json

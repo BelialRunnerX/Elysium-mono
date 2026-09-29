@@ -1,0 +1,10 @@
+{
+  "input": "elysiumagronomy:void_ray",
+  "tool": "fillet_knife",
+  "yields": [
+    {
+      "item": "elysiumagronomy:fish_fillet",
+      "count": 4
+    }
+  ]
+}

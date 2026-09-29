@@ -27,12 +27,19 @@ wrong rather than as a villager painted the wrong colour.
 """
 import json
 import pathlib
+import re
 
 from PIL import Image
 
 MODULE = pathlib.Path(__file__).resolve().parent.parent
 RES = MODULE / "src/main/resources"
 NS = "elysiumnpcs"
+
+#: What mines a bench: rules/HarvestRules.java, read rather than retyped. The
+#: pickaxe tag was a file typed by hand until 29 September 2026, and the sixth
+#: bench was not in it; it is written from the rules for every bench now.
+HARVEST = MODULE / "src/main/java/com/elysium/npcs/rules/HarvestRules.java"
+TOOLS = ("pickaxe", "axe", "shovel", "hoe")
 
 # ---------------------------------------------------------------------------
 # The table
@@ -286,6 +293,36 @@ def write_person(entry):
 # Language
 # ---------------------------------------------------------------------------
 
+def harvest_rules():
+    """HarvestRules' two answers: the tool every bench is for, and the benches broken by hand."""
+    text = HARVEST.read_text(encoding="utf-8")
+    text = re.sub(r"//[^\n]*", " ", re.sub(r"/\*.*?\*/", " ", text, flags=re.S))
+    tool = re.search(r'String BENCH_TOOL = "([a-z]+)";', text)
+    by_hand = re.search(r"List<String> BY_HAND = List\.of\(([^;]*?)\);", text, re.S)
+    if not tool or not by_hand:
+        raise SystemExit("HarvestRules does not say what mines a bench")
+    return tool.group(1), re.findall(r'"([a-z_]+)"', by_hand.group(1))
+
+
+def mineable_tags():
+    """{tool: [block ids]} for every bench, from HarvestRules and the table."""
+    tool, by_hand = harvest_rules()
+    tags = {}
+    for one in PROFESSIONS:
+        if one["bench"] not in by_hand:
+            tags.setdefault(tool, []).append(f"{NS}:{one['bench']}")
+    return tags
+
+
+def write_tags():
+    """The game's mineable tags, one write a file, from the whole list at once."""
+    tags = mineable_tags()
+    for tool, values in tags.items():
+        write_json(f"data/minecraft/tags/block/mineable/{tool}.json",
+                   {"replace": False, "values": values})
+    return len(tags)
+
+
 def lang_entries():
     entries = {}
     for one in PROFESSIONS:
@@ -303,6 +340,7 @@ def main():
     for entry in PROFESSIONS:
         write_bench(entry)
         write_person(entry)
+    tagged = write_tags()
 
     path = RES / f"assets/{NS}/lang/en_us.json"
     existing = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
@@ -313,7 +351,8 @@ def main():
     print(f"village            : {len(PROFESSIONS)} professions, "
           f"{len(PROFESSIONS) * 3} bench textures, "
           f"{len(PROFESSIONS)} clothing overlays")
-    print(f"                     {len(lang_entries())} language entries")
+    print(f"                     {len(lang_entries())} language entries, "
+          f"{tagged} mineable tag(s) from HarvestRules")
 
 
 if __name__ == "__main__":

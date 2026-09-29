@@ -693,6 +693,190 @@ print(f"geodes             : {len(geode_materials)} material(s) — "
 
 
 # ---------------------------------------------------------------------------
+# 7a. What mines a geode, and a storage block is one way
+# ---------------------------------------------------------------------------
+#
+# Every block is in a mineable tag, or is exempt with its reason. The storage
+# block and the budding block are built on the game's amethyst block, which
+# asks for the right tool; with no tool's tag no tool is right, and for as long
+# as nothing tagged them each took seven seconds to break and dropped nothing,
+# whatever its loot table said. An exemption is read where the block is
+# registered, not taken on trust: an exempt block must not ask for the right
+# tool, and neither may anything it copies.
+#
+# And a storage block is one way, as the game's amethyst block is. A found
+# geode's wall is some 380 of them, and a recipe back to shards would make
+# every geode 1,500 shards on the spot.
+
+MINEABLE = {}
+for tool in ("pickaxe", "axe", "shovel", "hoe"):
+    tag_path = os.path.join(RES, "data/minecraft/tags/block/mineable", tool + ".json")
+    if not os.path.isfile(tag_path):
+        continue
+    for one in json.load(open(tag_path, encoding="utf-8")).get("values", []):
+        named = one.get("id") if isinstance(one, dict) else one
+        if not isinstance(named, str):
+            continue
+        MINEABLE.setdefault(named, set()).add(tool)
+        if named.startswith(NS + ":") and not asset(
+                "blockstates", named.split(":", 1)[1] + ".json"):
+            fail(f"mineable/{tool} names {named}, which is not a block this module "
+                 f"registers, so the game refuses the whole tag and every block in "
+                 f"it is back to dropping nothing")
+
+#: The kinds of geode block no tool is for, and why. GeodeRules.BY_HAND says
+#: which; a kind it names with no reason here is refused, and so is a reason
+#: for a kind it no longer names.
+MINE_EXEMPT = {
+    "tinted_glass": "glass breaks at a touch and asks for no tool, and the game's "
+                    "own tinted glass is in no tool's tag",
+}
+
+#: What the game's blocks this module copies ask of a tool, read out of the
+#: game's own jar: obsidian and the amethyst block want the right one, the
+#: amethyst cluster and tinted glass want none.
+ASKS_FOR_A_TOOL = {"OBSIDIAN": True, "AMETHYST_BLOCK": True,
+                   "AMETHYST_CLUSTER": False, "TINTED_GLASS": False}
+
+
+def asks_for_a_tool(made, what):
+    """Whether a block built like this asks for the right tool, and how."""
+    if not made:
+        fail(f"nothing here finds how {what} is built, so nothing shows whether it "
+             f"asks for the right tool")
+        return None, ""
+    if ".requiresCorrectToolForDrops()" in made:
+        return True, "it says so where it is registered"
+    for copied in re.findall(r"\bBlocks\.([A-Z_]+)", made):
+        if copied not in ASKS_FOR_A_TOOL:
+            fail(f"{what} copies Blocks.{copied}, and nothing here knows whether that "
+                 f"asks for the right tool: look it up in the game's jar and add it")
+            return None, ""
+        if ASKS_FOR_A_TOOL[copied]:
+            return True, f"it copies Blocks.{copied}, which does"
+    return False, ""
+
+
+_geode_names = dict(re.findall(r'public static final String ([A-Z_]+) = "([a-z_]+)";',
+                               GEODE_RULES))
+
+
+def _kinds_in(name):
+    found = re.search(r"List<String> " + name + r" = List\.of\(([^;]*?)\);", geode_source)
+    return ([_geode_names.get(token, token.strip('"'))
+             for token in re.findall(r'[A-Z_]{2,}|"[a-z_]+"', found.group(1))]
+            if found else [])
+
+
+_built_as = squashed(GEODE_BLOCKS)
+_properties = dict(re.findall(
+    r"private static BlockBehaviour\.Properties (\w+)\(\) \{ return (.*?); \}", _built_as))
+_kind_built = {}
+_crystal_fn = re.search(r"new GeodeClusterBlock\((\w+)\(\)", _built_as)
+for _step in _kinds_in("CHAIN"):
+    _kind_built[_step] = _crystal_fn.group(1) if _crystal_fn else None
+for _constant, _function in re.findall(
+        r"GeodeRules\.([A-Z_]+)\)\.id\(\), \(\) -> new \w+\((\w+)\(\)", _built_as):
+    _kind_built[_geode_names.get(_constant, _constant)] = _function
+kind_asks = {kind: asks_for_a_tool(_properties.get(_kind_built.get(kind)), f"the {kind}")
+             for kind in geode_kinds}
+
+by_hand = _kinds_in("BY_HAND")
+for kind in by_hand:
+    if kind not in MINE_EXEMPT:
+        fail(f"GeodeRules breaks {kind} by hand and this gives no reason, so it is "
+             f"left out of every tool's tag on nobody's say-so")
+for kind in MINE_EXEMPT:
+    if kind not in by_hand:
+        fail(f"a reason is given for breaking {kind} by hand and GeodeRules no longer "
+             f"does, so the exemption covers blocks the rules put in a tool's tag")
+
+_arcana_built = squashed(read(SRC, "registry/ArcanaBlocks.java"))
+tool_blocks = []
+untagged = []
+asking_untagged = []
+for name in blocks:
+    start = _arcana_built.find(f'BLOCKS.register("{name}"')
+    made = _arcana_built[start:_arcana_built.find(";", start)] if start >= 0 else ""
+    asks, _how = asks_for_a_tool(made, name)
+    if asks:
+        tool_blocks.append(name)
+    if f"{NS}:{name}" not in MINEABLE:
+        (asking_untagged if asks else untagged).append(f"{NS}:{name}")
+for material in geode_materials:
+    for kind in geode_kinds:
+        block = f"{NS}:{geode_id(material, kind)}"
+        asks, _how = kind_asks[kind]
+        if asks:
+            tool_blocks.append(block)
+        if block in MINEABLE:
+            continue
+        if asks:
+            asking_untagged.append(block)
+        elif kind not in MINE_EXEMPT:
+            untagged.append(block)
+if asking_untagged:
+    fail(f"{len(asking_untagged)} block(s) ask for the right tool and are in no tool's "
+         f"tag, so no tool is ever right and they drop nothing however they are "
+         f"mined: " + ", ".join(asking_untagged[:6]))
+if untagged:
+    fail(f"{len(untagged)} block(s) are in no mineable tag and not exempt, so every "
+         f"tool breaks them at a fist's pace: " + ", ".join(untagged[:6]))
+for kind, why in MINE_EXEMPT.items():
+    asks, how = kind_asks.get(kind, (None, ""))
+    if asks:
+        fail(f"{kind} is exempt from the mineable tags ({why}), but it asks for the "
+             f"right tool: {how}. With no tag no tool is right, so it would drop "
+             f"nothing")
+    tagged = [m for m in geode_materials if f"{NS}:{geode_id(m, kind)}" in MINEABLE]
+    if tagged:
+        fail(f"{len(tagged)} {kind} block(s) are exempt from the mineable tags and in "
+             f"one all the same; take the kind off MINE_EXEMPT or out of the tag")
+
+# Four shards make a storage block, of its own shards: the seeding is paid in
+# blocks. And nothing makes shards back.
+recipe_dir = os.path.join(RES, "data", NS, "recipe")
+shard_ids = {f"{NS}:{material}_shard" for material in geode_materials}
+storage_ids = {f"{NS}:{material}_block" for material in geode_materials}
+for material in geode_materials:
+    at = os.path.join(recipe_dir, f"{material}_block.json")
+    made_of = (set(re.findall(r'"(elysiumarcana:[a-z_]+)"', read(at)))
+               if os.path.isfile(at) else set())
+    if made_of != {f"{NS}:{material}_shard", f"{NS}:{material}_block"}:
+        fail(f"{material}_block is not made of four of its own shards (its recipe "
+             f"names {sorted(made_of) or 'nothing'}), and the seeding is paid in "
+             f"blocks, so no budding {material} can be made")
+for name in sorted(os.listdir(recipe_dir)) if os.path.isdir(recipe_dir) else []:
+    if not name.endswith(".json"):
+        continue
+    try:
+        recipe = json.loads(read(recipe_dir, name))
+    except ValueError:
+        continue
+    result = recipe.get("result")
+    makes = result.get("id") if isinstance(result, dict) else result
+    if makes not in shard_ids:
+        continue
+    takes = sorted(set(re.findall(r'"(elysiumarcana:[a-z_]+)"', json.dumps(recipe)))
+                   & storage_ids)
+    if takes:
+        fail(f"recipe/{name} turns {', '.join(takes)} back into {makes}, and a "
+             f"storage block is one way, as the game's amethyst block is: a found "
+             f"geode's wall is some 380 of them, so every geode is 1,500 shards on "
+             f"the spot")
+    else:
+        fail(f"recipe/{name} makes {makes}, and a shard comes only from a cluster: "
+             f"a recipe for one is a second way in that nothing prices")
+
+print(f"what mines them    : {len(blocks) + len(geode_materials) * len(geode_kinds)} "
+      f"block(s), {len(tool_blocks)} of them asking for the right tool and every one "
+      f"of those in a tool's tag; the storage block, the budding block and the four "
+      f"crystals by pickaxe, as the game's amethyst, and "
+      f"{len(geode_materials) * len(MINE_EXEMPT)} broken by hand with a reason; and "
+      f"no recipe back from a storage block to shards")
+
+
+# ---------------------------------------------------------------------------
 # 7b. How a budding block is made
 # ---------------------------------------------------------------------------
 #
@@ -813,6 +997,290 @@ else:
           f"made of its own blocks in the number its row prices, with a catalyst "
           f"that is not another material's shard, small enough for a grid of "
           f"{grid} — so GeOre can leave the mods folder")
+
+
+# ---------------------------------------------------------------------------
+# 7c. Where the first shard comes from
+# ---------------------------------------------------------------------------
+#
+# A shard comes from a cluster, a cluster grows out of a budding block, and a
+# budding block is made of shards. For as long as this module put no geode in
+# any world that chain had no first link, and all three hundred of its ids were
+# out of a survival player's reach. What is held here is the half the harness
+# cannot see: that the files on disk put every material's geode in the world,
+# under the biomes and in the band its row names, as rare as its seeding is
+# dear, and made of that material's own blocks in the game's rock.
+
+WORLD_SRC = strip_comments(read(SRC, "rules/GeodeWorldRules.java"), keep_strings=True)
+OURS = os.path.join(RES, "data", NS)
+
+
+def data_file(*parts):
+    """A data file of this module's, parsed, or None if it is not there."""
+    path = os.path.join(OURS, *parts)
+    if not os.path.isfile(path):
+        return None
+    try:
+        return json.load(open(path, encoding="utf-8"))
+    except ValueError:
+        fail(f"{'/'.join(parts)} is not readable as JSON, so the game refuses the "
+             f"whole data pack over it")
+        return None
+
+
+def state_of(provider):
+    """The block a simple state provider puts down."""
+    if not isinstance(provider, dict):
+        return None
+    return (provider.get("state") or {}).get("Name")
+
+
+if not WORLD_SRC:
+    fail("nothing says where a geode is found, so the first shard of every "
+         "material comes from nowhere")
+else:
+    _world = squashed(WORLD_SRC)
+    _per = re.search(r"int CHUNKS_PER_SHARD = (\d+);", _world)
+    per_shard = int(_per.group(1)) if _per else 0
+    _given = re.search(r"double GIVEN_BUDDING = ([\d.]+);", _world)
+    _mined = re.search(r"double MINED_BUDDING = ([\d.]+);", _world)
+    given_share = float(_given.group(1)) if _given else None
+    mined_share = float(_mined.group(1)) if _mined else None
+    _step = re.search(r'String STEP = "(\w+)";', _world)
+    placing_step = _step.group(1) if _step else None
+    world_ids = dict(re.findall(
+        r'World (\w+) = new World\("([\w:]+)", -?\d+, -?\d+\);', _world))
+    _foot = re.search(r"List<World> ON_FOOT = List\.of\(([^;]*)\);", _world)
+    on_foot = ({world_ids.get(one) for one in re.findall(r"\w+", _foot.group(1))}
+               if _foot else set())
+    grounds = {const: (name, world, re.findall(r'"([^"]+)"', listed), middle, outer)
+               for const, name, world, listed, middle, outer in re.findall(
+                   r'Ground (\w+) = new Ground\("(\w+)", "([\w:]+)", '
+                   r'List\.of\(([^)]*)\), "([\w:]+)", "([\w:]+)"\);', _world)}
+    bands = {const: (int(low), int(high)) for const, low, high in re.findall(
+        r"Band (\w+) = new Band\((-?\d+), (-?\d+)\);", _world)}
+    _order = re.search(r"List<Ground> GROUNDS = List\.of\(([^;]*)\);", _world)
+    written = ([grounds[one][0] for one in re.findall(r"\w+", _order.group(1))
+                if one in grounds] if _order else [])
+    finds = re.findall(r'new Find\("(\w+)", (\w+), (\w+)\)', _world)
+    prices = {material: int(shards) for material, _from, shards, _catalyst
+              in re.findall(r'new Budding\("(\w+)", "(\w+)", (\d+), (\w+)\)',
+                            squashed(BUDDING_SRC))}
+    _named = dict(re.findall(r'public static final String ([A-Z_]+) = "([a-z_]+)";',
+                             GEODE_RULES))
+    _chain = re.search(r"List<String> CHAIN = List\.of\(([^;]*?)\);", geode_source)
+    chain = ([_named.get(token, token.strip('"'))
+              for token in re.findall(r'[A-Z_]{2,}|"[a-z_]+"', _chain.group(1))]
+             if _chain else [])
+
+    if not (per_shard and finds and grounds and bands and written and chain
+            and given_share and mined_share and placing_step and on_foot):
+        fail(f"GeodeWorldRules reads as {len(finds)} geode(s), {len(grounds)} "
+             f"ground(s) and {len(bands)} band(s) at {per_shard} chunk(s) a shard, so "
+             f"the checks below are walking a short list and passing")
+
+    modifier_dir = os.path.join(OURS, "neoforge/biome_modifier")
+    placed_by = {}
+    for name in sorted(os.listdir(modifier_dir)) if os.path.isdir(modifier_dir) else []:
+        if not name.endswith(".json"):
+            continue
+        doc = data_file("neoforge/biome_modifier", name) or {}
+        listed = doc.get("features")
+        for feature in listed if isinstance(listed, list) else [listed]:
+            if isinstance(feature, str):
+                placed_by.setdefault(feature, []).append((name[:-5], doc))
+
+    over = nether = 0
+    for material in geode_materials:
+        rows = [row for row in finds if row[0] == material]
+        if not rows:
+            fail(f"there is no {material} geode in GeodeWorldRules, so its first "
+                 f"shard comes from nowhere: a shard comes from a cluster, a cluster "
+                 f"from a budding block and a budding block from shards")
+            continue
+        _material, ground_const, band_const = rows[0]
+        if ground_const not in grounds or band_const not in bands:
+            fail(f"the {material} geode is under {ground_const} in {band_const}, and "
+                 f"GeodeWorldRules declares no such ground or band")
+            continue
+        ground_name, world, biomes, middle, outer = grounds[ground_const]
+        lowest, highest = bands[band_const]
+        feature_id = f"{NS}:{material}_geode"
+        if world not in on_foot:
+            fail(f"the {material} geode is in {world}, which a player does not walk "
+                 f"to, so its first shard waits on a rocket")
+        if world == "minecraft:overworld":
+            over += 1
+        elif world == "minecraft:the_nether":
+            nether += 1
+
+        # The geode: this material's own blocks, in the game's rock.
+        made = data_file("worldgen/configured_feature", f"{material}_geode.json")
+        if made is None:
+            fail(f"there is no configured feature for the {material} geode, so its "
+                 f"placement names nothing and the world does not load")
+        else:
+            config = made.get("config") or {}
+            layers = config.get("blocks") or {}
+            if made.get("type") != "minecraft:geode":
+                fail(f"the {material} geode is a {made.get('type')}, not the game's "
+                     f"own geode feature")
+            for key, wanted, why in (
+                    ("filling_provider", "minecraft:air",
+                     "so it is not hollow and nothing grows inside it"),
+                    ("inner_layer_provider", f"{NS}:{material}_block",
+                     "so its wall is not its own material"),
+                    ("alternate_inner_layer_provider", f"{NS}:budding_{material}",
+                     "so its wall buds something other than its own crystals, or "
+                     "nothing at all"),
+                    ("middle_layer_provider", middle,
+                     f"the rock the {ground_name} ground wraps a geode in"),
+                    ("outer_layer_provider", outer,
+                     f"the rind the {ground_name} ground wraps a geode in")):
+                got = state_of(layers.get(key))
+                if got != wanted:
+                    fail(f"the {material} geode's {key} is {got} where it should be "
+                         f"{wanted}, {why}")
+            grown = [one.get("Name") for one in layers.get("inner_placements") or []
+                     if isinstance(one, dict)]
+            wanted = [f"{NS}:{material}_{step}" for step in chain]
+            if grown != wanted:
+                fail(f"the {material} geode grows {grown} where its own four steps "
+                     f"are {wanted}, smallest first, so a found geode holds crystals "
+                     f"of something else or of a step that does not exist")
+            for block in [state_of(layers.get("inner_layer_provider")),
+                          state_of(layers.get("alternate_inner_layer_provider"))] + grown:
+                if isinstance(block, str) and block.startswith(NS + ":") and not asset(
+                        "blockstates", block.split(":", 1)[1] + ".json"):
+                    fail(f"the {material} geode names {block}, which is not a block "
+                         f"this module registers, so the world does not load")
+            share = mined_share if material in geode_mined else given_share
+            if config.get("use_alternate_layer0_chance") != share:
+                fail(f"the {material} geode's wall is "
+                     f"{config.get('use_alternate_layer0_chance')} budding, where "
+                     f"GeodeWorldRules says {share} for "
+                     f"{'what the foundry mines' if material in geode_mined else 'what the game hands you'}")
+
+        # Where and how often.
+        placed = data_file("worldgen/placed_feature", f"{material}_geode.json")
+        if placed is None:
+            fail(f"there is no placed feature for the {material} geode, so nothing "
+                 f"puts it in the world and its first shard comes from nowhere")
+        else:
+            placing = [one for one in placed.get("placement") or []
+                       if isinstance(one, dict)]
+            kinds = [one.get("type") for one in placing]
+            by_kind = {one.get("type"): one for one in placing}
+            if placed.get("feature") != feature_id:
+                fail(f"the {material} geode's placement places "
+                     f"{placed.get('feature')}, not {feature_id}")
+            if kinds != ["minecraft:rarity_filter", "minecraft:in_square",
+                         "minecraft:height_range", "minecraft:biome"]:
+                fail(f"the {material} geode is placed by {kinds}, where the game's own "
+                     f"geode takes a rarity, a spread across the chunk, a height and "
+                     f"the biome check, in that order")
+            chance = (by_kind.get("minecraft:rarity_filter") or {}).get("chance")
+            price = prices.get(material)
+            if price is None:
+                fail(f"{material} has no seeding price, so nothing says how rare its "
+                     f"geode is")
+            elif chance != per_shard * price:
+                fail(f"the {material} geode is in one chunk in {chance}, and its "
+                     f"seeding costs {price} shard(s), which at {per_shard} chunk(s) "
+                     f"a shard is one in {per_shard * price}: how rare it is and how "
+                     f"dear seeding it is have come apart")
+            height = (by_kind.get("minecraft:height_range") or {}).get("height")
+            if height != {"type": "minecraft:uniform",
+                          "min_inclusive": {"absolute": lowest},
+                          "max_inclusive": {"absolute": highest}}:
+                fail(f"the {material} geode is drawn from {json.dumps(height)}, where "
+                     f"its row's band is y {lowest} to {highest}")
+
+        # And in some biome: one modifier, under the ground its row names.
+        placers = placed_by.get(feature_id, [])
+        if not placers:
+            fail(f"no biome modifier places the {material} geode, so it is placed in "
+                 f"no biome and its first shard comes from nowhere")
+        elif len(placers) > 1:
+            fail(f"the {material} geode is placed by {len(placers)} biome modifiers "
+                 f"({', '.join(name for name, _doc in placers)}), so it is commoner "
+                 f"than its price wherever they overlap")
+        else:
+            modifier, doc = placers[0]
+            if doc.get("type") != "neoforge:add_features":
+                fail(f"{modifier} is a {doc.get('type')}, not neoforge:add_features, "
+                     f"so it does not add the {material} geode to anything")
+            if doc.get("step") != placing_step:
+                fail(f"{modifier} places the {material} geode at step "
+                     f"{doc.get('step')}, not {placing_step}, the step the game "
+                     f"places its own geode in")
+            if doc.get("biomes") != f"#{NS}:geodes_{ground_name}":
+                fail(f"{modifier} puts the {material} geode under "
+                     f"{doc.get('biomes')}, not #{NS}:geodes_{ground_name}, the "
+                     f"{ground_name} ground its row names")
+            tag = data_file("tags/worldgen/biome", f"geodes_{ground_name}.json")
+            if tag is None:
+                fail(f"#{NS}:geodes_{ground_name} is not a tag this module ships, so "
+                     f"the {material} geode is under no biome at all")
+            elif tag.get("values") != biomes:
+                fail(f"#{NS}:geodes_{ground_name} holds {tag.get('values')}, where "
+                     f"the {ground_name} ground is {biomes}")
+
+    # Nothing on disk for a material or a ground the rules do not have.
+    for folder in ("worldgen/configured_feature", "worldgen/placed_feature"):
+        where = os.path.join(OURS, folder)
+        for name in sorted(os.listdir(where)) if os.path.isdir(where) else []:
+            if name.endswith("_geode.json") \
+                    and name[:-len("_geode.json")] not in geode_materials:
+                fail(f"{folder}/{name} is a geode of a material this module does not "
+                     f"ship, so it names blocks nothing registers and the world does "
+                     f"not load")
+    for name in sorted(os.listdir(modifier_dir)) if os.path.isdir(modifier_dir) else []:
+        if name.startswith("geodes_") and name[len("geodes_"):-len(".json")] not in written:
+            fail(f"neoforge/biome_modifier/{name} is for a ground GeodeWorldRules no "
+                 f"longer writes, so it goes on placing whatever it last named")
+
+    # Every rule the file declares is added up, and faults() is a list.
+    _wsum = squashed(body_of(WORLD_SRC, "public static List<String> faults()"))
+    _wrules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", WORLD_SRC))
+    _wadded = set(re.findall(r"bad\.addAll\((faultsIn\w+)\([^;]*\)\);", _wsum))
+    if len(_wrules) < 6:
+        fail(f"only {len(_wrules)} rule(s) about where a geode is are declared at "
+             f"all, so the check below is checking nothing")
+    if re.search(r"\bif\s*\(", _wsum):
+        fail("GeodeWorldRules' faults() has a condition in it, so some rule is added "
+             "up only sometimes")
+    for _wrule in sorted(_wrules - _wadded):
+        fail(f"{_wrule} is written, compiled and never added up by GeodeWorldRules' "
+             f"faults(), so it answers the harness's controls and is never once asked "
+             f"about the geodes this module ships")
+    if "theFinds();" not in squashed(body_of(strip_comments(read(HARNESS)),
+                                             "public static void main(")):
+        fail("the harness never asks where the geodes are, so every rule in "
+             "GeodeWorldRules compiles and is never run")
+
+    # The feature turns and floods a crystal through the game's own properties.
+    _crystal = squashed(strip_comments(read(SRC, "block/GeodeClusterBlock.java")))
+    for statement, why in (
+            ("public static final DirectionProperty FACING = BlockStateProperties.FACING;",
+             "the geode feature turns a crystal to the face it grows out of through "
+             "the game's own FACING property, so without it every crystal in a found "
+             "geode points up, off walls and ceilings as well"),
+            ("public static final BooleanProperty WATERLOGGED = "
+             "BlockStateProperties.WATERLOGGED;",
+             "the geode feature fills a crystal with water through the game's own "
+             "WATERLOGGED property, so without it a flooded geode's crystals hold "
+             "pockets of air")):
+        if statement not in _crystal:
+            fail("the crystals: " + why)
+
+    _chances = sorted(per_shard * prices[m] for m, _g, _b in finds if m in prices)
+    print(f"the first shard    : {len(finds)} geode(s), {over} in the overworld and "
+          f"{nether} in the Nether, one chunk in "
+          f"{_chances[0] if _chances else 0} to {_chances[-1] if _chances else 0} "
+          f"at {per_shard} chunk(s) a shard of the seeding, each placed by one biome "
+          f"modifier in a world a player walks to and made of its own material's "
+          f"blocks in the game's rock")
 
 
 

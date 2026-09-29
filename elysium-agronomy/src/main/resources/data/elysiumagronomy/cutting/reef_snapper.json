@@ -1,0 +1,10 @@
+{
+  "input": "elysiumagronomy:reef_snapper",
+  "tool": "fillet_knife",
+  "yields": [
+    {
+      "item": "elysiumagronomy:fish_fillet",
+      "count": 2
+    }
+  ]
+}

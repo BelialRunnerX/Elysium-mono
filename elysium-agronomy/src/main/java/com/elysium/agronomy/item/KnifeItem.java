@@ -14,15 +14,33 @@ import net.minecraft.world.item.Item;
  *
  * <p>What a knife does to what it cuts is {@link KitchenRules#CUTS}, read
  * off disk; how much a cut wears it is {@link KitchenRules#KNIFE_WEAR}.
+ *
+ * <p>A knife carries the name a cutting recipe calls it by, and the board
+ * asks for cuts under that name. The five kitchen knives are {@link
+ * KitchenRules#KNIFE}; the fillet knife is {@link KitchenRules#FILLET_KNIFE},
+ * and cuts the fish the kitchen's knives leave alone.
  */
 public class KnifeItem extends Item {
 
+    private final String tool;
+
+    /** A kitchen knife. */
     public KnifeItem(Properties properties) {
+        this(properties, KitchenRules.KNIFE);
+    }
+
+    /** A knife a cutting recipe calls by another name. */
+    public KnifeItem(Properties properties, String tool) {
         super(properties);
+        if (!KitchenRules.TOOLS.contains(tool)) {
+            throw new IllegalArgumentException(tool + " is no tool a cutting recipe asks for, "
+                    + "so a knife of it would cut nothing");
+        }
+        this.tool = tool;
     }
 
     /** What a cutting recipe calls this kind of tool. */
     public String tool() {
-        return KitchenRules.KNIFE;
+        return tool;
     }
 }

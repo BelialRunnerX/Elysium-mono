@@ -274,6 +274,16 @@ edit $M/src/main/java/com/elysium/comforts/ElysiumComforts.java \
   'com.elysium.comforts.registry.ComfortComponents.TYPES.register(modEventBus);' '/* */'
 expect "a component written and never registered" "written and none of it exists"
 
+echo "the way in, and the loss (29 Sep 2026)"
+edit $M/src/main/java/com/elysium/comforts/rules/PostRules.java '            new Wild("pigeon", "#c:is_plains", 8, 2, 4));' '            new Wild("pigeon", "#c:is_plains", 0, 2, 4));'
+expect "a bird that spawns at weight nought" "which is never"
+
+edit $M/src/main/java/com/elysium/comforts/block/MailboxBlockEntity.java 'if (level != null && PostRules.lostOn(level.random.nextInt(1000))) {' 'if (false) {'
+expect "a loss priced and never rolled" "rolled nowhere"
+
+edit $M/src/main/resources/data/neoforge/loot_modifiers/global_loot_modifiers.json '"elysiumcomforts:lost_mail_from_cartographer"' '"elysiumcomforts:nothing"'
+expect "a loot modifier written and never listed" "never applies it"
+
 echo
 echo "restoring and re-checking"
 restore

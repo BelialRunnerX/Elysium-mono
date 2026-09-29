@@ -68,6 +68,66 @@
     {
       "id": "elysiumores:deepslate_sapphire_ore",
       "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_aluminum_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_bort_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_fluorite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_lead_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_lithium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_nickel_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_osmium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_platinum_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_silver_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_tin_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_titanium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_tungsten_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_uraninite_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_uranium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:deepslate_zinc_ore",
+      "required": false
     }
   ]
 }

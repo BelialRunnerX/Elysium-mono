@@ -75,10 +75,22 @@ public final class UnifyRules {
      * on every load. That determinism matters more than the ordering itself: a
      * canonical that changed between sessions would move the player's items
      * around behind their back.
+     *
+     * <p>The foundry and atomics come straight after this module, ahead of every
+     * other mod and of the agronomy, which is unlisted. The agronomy tags a
+     * chunk into {@code c:raw_materials/} for sixty materials, so it shares
+     * every mined metal's family with the foundry; unlisted against unlisted,
+     * the tie went to the alphabet, {@code elysiumagronomy} before
+     * {@code elysiumfoundry}, and every ore of the foundry's twelve metals and
+     * of uranium dropped a chunk. The twelve raw metals and atomics' raw
+     * uranium could then never be had at all: a looted one was unified into
+     * the chunk, and nothing turns a chunk back (check_obtainable.py, 29
+     * September 2026).
      */
     public static final List<String> PRIORITY = List.of(
             "minecraft",
             "elysium", "elysiumlib", "elysiumspace", "elysiumores",
+            "elysiumfoundry", "elysiumatomics",
             "mekanism",
             "immersiveengineering",
             "create",
@@ -92,6 +104,56 @@ public final class UnifyRules {
             "createdeco",
             "mysticalagriculture",
             "mysticalagradditions");
+
+    // ------------------------------------------------------------------
+    // What an ore drops
+    // ------------------------------------------------------------------
+
+    /** The family's own item in the base game, as a step in {@link #DROP_ORDER}. */
+    public static final String VANILLA = "vanilla";
+
+    /**
+     * Where an ore's drop is looked for, best first: a {@code c:} kind, or
+     * {@link #VANILLA} for the family's own item in the base game.
+     *
+     * <p>Raw first: a player breaking an ore expects something that still has
+     * to be smelted. A gem next, because a gem comes out of the ground whole.
+     * Then the base game's item, before any dust or ingot, because a dust and
+     * an ingot are what a crusher or a furnace made of it: with the base game
+     * last, the Nether's and the End's coal ores dropped the foundry's coal
+     * dust, which {@code c:dusts/coal} offered first (check_obtainable.py, 29
+     * September 2026). A dust, and an ingot last, only for a family with no
+     * raw form, no gem and nothing in the base game.
+     */
+    public static final List<String> DROP_ORDER =
+            List.of("raw_materials", "gems", "vanilla", "dusts", "ingots");
+
+    /**
+     * What an ore of one family drops.
+     *
+     * @param members every id answering to {@code c:<kind>/<family>}, by kind
+     * @param vanilla the family's own item in the base game, or null
+     * @return the canonical of the first step in {@link #DROP_ORDER} that has
+     *         anything, or null when the pack has none of the material
+     */
+    public static String drop(Map<String, ? extends Collection<String>> members, String vanilla) {
+        for (String kind : DROP_ORDER) {
+            if (VANILLA.equals(kind)) {
+                if (vanilla != null && !vanilla.isEmpty()) {
+                    return vanilla;
+                }
+                continue;
+            }
+            Collection<String> found = members.get(kind);
+            String chosen = found == null ? null : canonical(found);
+            if (chosen != null) {
+                return chosen;
+            }
+        }
+        return null;
+    }
+
+    // ------------------------------------------------------------------
 
     /** Where a namespace stands; lower is better, and the unlisted stand last. */
     public static int rank(String namespace) {

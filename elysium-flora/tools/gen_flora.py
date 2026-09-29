@@ -293,6 +293,16 @@ def axis_states(name, model):
 
 
 def stair_variants(name):
+    """The game's own stair states (oak's, crimson's: every wooden stair's).
+
+    Turning a stair over mirrors it, so an upside-down corner turns the other
+    way from one the right way up: a left corner is turned a quarter back when
+    the stair stands, and a right corner a quarter on when it is upside down.
+    Until 29 September 2026 this turned every left corner back whichever way up
+    it was, and 23 of the 40 states were drawn wrong (upside-down corners the
+    wrong way round, and the texture lock on the wrong ones) while every state
+    was still there to count. validate.py compares this with the game's own.
+    """
     out = {}
     for facing, y in (("north", 270), ("east", 0), ("south", 90), ("west", 180)):
         for half in ("bottom", "top"):
@@ -302,14 +312,15 @@ def stair_variants(name):
                 key = f"facing={facing},half={half},shape={shape}"
                 model = {"model": f"{NS}:block/{name}{suffix}"}
                 turn = y
-                if shape.endswith("_left"):
+                if half == "bottom" and shape.endswith("_left"):
                     turn = (y + 270) % 360
+                if half == "top" and shape.endswith("_right"):
+                    turn = (y + 90) % 360
                 if turn:
                     model["y"] = turn
                 if half == "top":
                     model["x"] = 180
-                    model["uvlock"] = True
-                elif shape != "straight":
+                if half == "top" or turn:
                     model["uvlock"] = True
                 out[key] = model
     return out
@@ -591,7 +602,12 @@ def tags():
     block_tag("wooden_buttons", [f"{NS}:emberwood_button"])
     block_tag("wooden_pressure_plates", [f"{NS}:emberwood_pressure_plate"])
     block_tag("crops", [f"{NS}:loomflax", f"{NS}:downbloom"])
-    block_tag("mineable/axe", wooden)
+    # The crops and the wild plants break at a touch, so no tool is faster;
+    # they are on the axe's list because the wheat and tall grass they are
+    # drawn after are, and validate.py holds every block here to the lists of
+    # the one it copies.
+    block_tag("mineable/axe", wooden + [f"{NS}:loomflax", f"{NS}:downbloom",
+                                        f"{NS}:wild_loomflax", f"{NS}:wild_downbloom"])
     block_tag("mineable/hoe", [f"{NS}:emberwood_leaves", f"{NS}:downbloom_bale"])
     block_tag("mineable/pickaxe", [f"{NS}:emberwood_charcoal_block"])
     block_tag("sword_efficient", [f"{NS}:loomflax", f"{NS}:downbloom",

@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "entries": [
+    "elysiumarmory:template_from_village_weaponsmith",
+    "elysiumarmory:template_from_village_toolsmith",
+    "elysiumarmory:template_from_village_armorer",
+    "elysiumarmory:template_from_simple_dungeon"
+  ]
+}

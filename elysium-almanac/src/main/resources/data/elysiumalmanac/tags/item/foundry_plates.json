@@ -88,6 +88,14 @@
     {
       "id": "elysiumfoundry:starsteel_plate",
       "required": false
+    },
+    {
+      "id": "elysiumfoundry:titanium_plate",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:tungsten_plate",
+      "required": false
     }
   ]
 }

@@ -5,9 +5,12 @@ Every sprite, model and data file elysium-arcana ships.
     python3 tools/gen_arcana.py
 
 One block. The whole of this module is arithmetic; there is nothing to model.
+It also writes the pickaxe's tag, for the transmuter and for every geode block
+GeodeRules gives a pickaxe.
 """
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -173,6 +176,36 @@ RECIPES = {
 }
 
 
+#: The geode blocks a pickaxe is for, read out of GeodeRules the way
+#: gen_geodes.py reads it: the thirty materials, and which of the seven kinds
+#: the rules give a pickaxe. Without these in the tag, the storage block and
+#: the budding block ask for the right tool and no tool is right, so each took
+#: seven seconds to break and dropped nothing.
+GEODE_RULES = os.path.join(MOD, "src/main/java/com/elysium/arcana/rules/GeodeRules.java")
+
+
+def geode_pickaxe():
+    source = open(GEODE_RULES, encoding="utf-8").read()
+    named = dict(re.findall(r'public static final String ([A-Z_]+) = "([a-z_]+)";', source))
+
+    def listing(name):
+        found = re.search(r"public static final List<String> " + name
+                          + r" =\s*List\.of\(([^;]*?)\);", source, re.S)
+        if not found:
+            return []
+        return [literal or named.get(constant, "")
+                for literal, constant in re.findall(r'"([a-z_]+)"|([A-Z_]{2,})',
+                                                    found.group(1))]
+
+    materials = listing("MINED") + listing("THE_GAMES_OWN")
+    kinds = listing("PICKAXE")
+    if not materials or not kinds or "" in kinds:
+        print("GeodeRules no longer has the shape this reads")
+        sys.exit(2)
+    return [f"{NS}:budding_{material}" if kind == "budding" else f"{NS}:{material}_{kind}"
+            for material in materials for kind in kinds]
+
+
 def data_files():
     written = 0
     for name in BLOCKS:
@@ -183,7 +216,8 @@ def data_files():
         written += 1
     tags = os.path.join(OUT, "src/main/resources/data/minecraft/tags/block")
     write(os.path.join(tags, "mineable/pickaxe.json"),
-          {"replace": False, "values": [f"{NS}:{name}" for name in BLOCKS]})
+          {"replace": False,
+           "values": [f"{NS}:{name}" for name in BLOCKS] + geode_pickaxe()})
     write(os.path.join(tags, "needs_diamond_tool.json"),
           {"replace": False, "values": [f"{NS}:{name}" for name in BLOCKS]})
     written += 2

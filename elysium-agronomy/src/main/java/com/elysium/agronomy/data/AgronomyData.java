@@ -99,10 +99,14 @@ public final class AgronomyData {
         return KitchenRules.couldBecome(station, have, menu);
     }
 
-    /** What a knife makes of that item, or null. */
+    /**
+     * What a knife makes of that item, or null. The knife is named by what a
+     * cutting recipe calls it: a kitchen knife and the fillet knife cut
+     * different things.
+     */
     @Nullable
-    public static KitchenRules.Cut cutFor(String item) {
-        return KitchenRules.cutFor(item, KitchenRules.KNIFE, cuts);
+    public static KitchenRules.Cut cutFor(String item, String tool) {
+        return KitchenRules.cutFor(item, tool, cuts);
     }
 
     /** The soil that block is, or null when it is not one. */

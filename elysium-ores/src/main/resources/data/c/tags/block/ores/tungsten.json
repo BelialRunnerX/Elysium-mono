@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumores:cinder_tungsten_ore",
+    "elysiumores:deepslate_tungsten_ore",
+    "elysiumores:end_stone_tungsten_ore",
+    "elysiumores:frost_tungsten_ore",
+    "elysiumores:netherrack_tungsten_ore",
+    "elysiumores:pale_tungsten_ore",
+    "elysiumores:stone_tungsten_ore"
+  ]
+}

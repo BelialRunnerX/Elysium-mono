@@ -176,13 +176,19 @@ public final class FishItems {
         return Map.copyOf(made);
     }
 
-    /** Takes a fish off the hook without spoiling it. */
+    /**
+     * Takes fillets off what comes off a hook: a knife to a cutting board,
+     * whose cuts are the fish roster's ({@link
+     * com.elysium.agronomy.rules.KitchenRules#filleting}). Two hundred and
+     * forty fish, one wear a fish.
+     */
     public static final DeferredItem<Item> FILLET_KNIFE =
-            ITEMS.register("fillet_knife", () -> new Item(new Item.Properties()
-                    .durability(240)));
+            ITEMS.register("fillet_knife", () -> new com.elysium.agronomy.item.KnifeItem(
+                    new Item.Properties().durability(240),
+                    com.elysium.agronomy.rules.KitchenRules.FILLET_KNIFE));
 
-    /** Says how big the last one was. */
+    /** Says how big a fish is: one in the water, or one held in the other hand. */
     public static final DeferredItem<Item> MEASURING_LINE =
-            ITEMS.register("measuring_line", () -> new Item(new Item.Properties()
-                    .stacksTo(1)));
+            ITEMS.register("measuring_line", () -> new com.elysium.agronomy.item.MeasuringLineItem(
+                    new Item.Properties().stacksTo(1)));
 }

@@ -1,6 +1,7 @@
 #!/bin/bash
 cd /tmp/Elysium-mono || exit 1
-exec 9>/tmp/negtest_uncap.lock; flock -n 9 || exit 2
+negtest_lock() { if command -v flock >/dev/null 2>&1; then flock -n "$1"; else mkdir "$2" 2>/dev/null && trap "rmdir '$2' 2>/dev/null" EXIT; fi; }  # Git Bash on Windows has no flock
+exec 9>/tmp/negtest_uncap.lock; negtest_lock 9 /tmp/negtest_uncap.lockdir || exit 2
 CB=elysium-lib/src/main/java/com/elysium/lib/event/ElysiumCombatHandler.java
 TI=elysium-lib/src/main/java/com/elysium/lib/item/ElysiumRuneTiers.java
 cp $CB /tmp/cb.bak; cp $TI /tmp/ti.bak; pass=0; miss=0

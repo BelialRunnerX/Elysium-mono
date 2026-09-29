@@ -370,6 +370,165 @@ for bench in BENCHES:
     # it passed on a block that was never registered at all.
     if f'BLOCKS.register("{bench}"' not in blocks_src:
         fail(f"the {bench} is drawn and named and never registered")
+
+# ---------------------------------------------------------------------------
+# What mines a bench (ArmoryHarvestRules; the harvest audit of 29 Sep 2026)
+# ---------------------------------------------------------------------------
+# A block breaks at the speed of the tool the game lists it under, and one
+# that asks for the right tool drops nothing unless some tool is listed as
+# right. The audit found every bench in no tool's tag. So every registered
+# block is in exactly one of this module's mineable tags, or is named BY_HAND
+# in the rules with its reason here; an exemption is read where the block is
+# registered, not taken on trust; the tags are what the rules say, written by
+# tools/gen_harvest.py; and a tag names only blocks this module registers,
+# because one unknown id makes the game refuse the whole tag.
+HARVEST_RULES = os.path.join(PURE, "ArmoryHarvestRules.java")
+_harvest_src = (strip_comments(open(HARVEST_RULES, encoding="utf-8").read(), keep_strings=True)
+                if os.path.isfile(HARVEST_RULES) else "")
+if not _harvest_src:
+    fail("property/ArmoryHarvestRules.java is missing, so nothing says what mines a bench "
+         "and the tags are written from nothing")
+
+
+def _harvest_list(name):
+    found = re.search(r"List<String> " + name + r" = List\.of\(([^;]*?)\);", _harvest_src, re.S)
+    return re.findall(r'"([a-z_]+)"', found.group(1)) if found else []
+
+
+HARVEST_TOOLS = ("pickaxe", "axe", "shovel", "hoe")
+MINEABLE = {}
+for _tool in HARVEST_TOOLS:
+    _tag = os.path.join(RES, "data/minecraft/tags/block/mineable", _tool + ".json")
+    if not os.path.isfile(_tag):
+        continue
+    _doc = json.load(open(_tag, encoding="utf-8"))
+    if _doc.get("replace"):
+        fail(f"mineable/{_tool} sets replace: true, which throws away every other mod's "
+             f"entries in the game's own tag")
+    for _one in _doc.get("values", []):
+        _named = _one.get("id") if isinstance(_one, dict) else _one
+        if not isinstance(_named, str):
+            continue
+        MINEABLE.setdefault(_named, set()).add(_tool)
+        if _named.startswith("elysiumarmory:") and not os.path.isfile(os.path.join(
+                RES, "assets/elysiumarmory/blockstates", _named.split(":", 1)[1] + ".json")):
+            fail(f"mineable/{_tool} names {_named}, which is not a block this module "
+                 f"registers, so the game refuses the whole tag and every block in it "
+                 f"is back to dropping nothing")
+
+#: The blocks no tool is for, and why. ArmoryHarvestRules.BY_HAND says which;
+#: a block it names with no reason here is refused, and so is a reason for a
+#: block it no longer names. Nothing, today: every bench is metal or stone.
+MINE_EXEMPT = {}
+
+#: What the game's blocks this module copies ask of a tool, read out of the
+#: game's own jar. No bench copies one; a bench that starts to is looked up
+#: here or refused.
+ASKS_FOR_A_TOOL = {}
+
+
+def asks_for_a_tool(made, what):
+    """Whether a block built like this asks for the right tool, and how."""
+    if not made:
+        fail(f"nothing here finds how {what} is built, so nothing shows whether it "
+             f"asks for the right tool")
+        return None, ""
+    if ".requiresCorrectToolForDrops()" in made:
+        return True, "it says so where it is registered"
+    for copied in re.findall(r"\bBlocks\.([A-Z_]+)", made):
+        if copied not in ASKS_FOR_A_TOOL:
+            fail(f"{what} copies Blocks.{copied}, and nothing here knows whether that "
+                 f"asks for the right tool: look it up in the game's jar and add it")
+            return None, ""
+        if ASKS_FOR_A_TOOL[copied]:
+            return True, f"it copies Blocks.{copied}, which does"
+    return False, ""
+
+
+_registered_blocks = re.findall(r'BLOCKS\.register\("([a-z_]+)"', blocks_src)
+_blockstate_dir = os.path.join(RES, "assets/elysiumarmory/blockstates")
+for _name in sorted(os.path.splitext(f)[0] for f in os.listdir(_blockstate_dir)
+                    if f.endswith(".json")):
+    if _name not in _registered_blocks:
+        fail(f"{_name} has a blockstate and no registration in ArmoryBlocks, so nothing "
+             f"below can say what mines it")
+_by_hand = _harvest_list("BY_HAND")
+for _name in _by_hand:
+    if _name not in MINE_EXEMPT:
+        fail(f"ArmoryHarvestRules breaks {_name} by hand and this gives no reason, so it "
+             f"is left out of every tool's tag on nobody's say-so")
+for _name in MINE_EXEMPT:
+    if _name not in _by_hand:
+        fail(f"a reason is given for breaking {_name} by hand and ArmoryHarvestRules no "
+             f"longer does, so the exemption covers a block the rules put in a tool's tag")
+_rule_tools = {}
+for _tool in HARVEST_TOOLS:
+    for _name in _harvest_list(_tool.upper()):
+        _rule_tools.setdefault(_name, []).append(_tool)
+for _name in sorted(set(_rule_tools) | set(_by_hand)):
+    if _name not in _registered_blocks:
+        fail(f"ArmoryHarvestRules says what mines {_name}, and no such block is "
+             f"registered, so the tag it is written into is refused whole")
+_flat_blocks = re.sub(r"\s+", " ", blocks_src)
+_tool_blocks = []
+_asking_untagged = []
+_untagged = []
+for _name in _registered_blocks:
+    _start = _flat_blocks.find(f'BLOCKS.register("{_name}"')
+    _made = _flat_blocks[_start:_flat_blocks.find(";", _start)] if _start >= 0 else ""
+    _asks, _how = asks_for_a_tool(_made, f"the {_name}")
+    _tags = MINEABLE.get(f"elysiumarmory:{_name}", set())
+    if _asks:
+        _tool_blocks.append(_name)
+    if len(_tags) > 1:
+        fail(f"{_name} is in {len(_tags)} mineable tags ({', '.join(sorted(_tags))}), so "
+             f"two tools are right and the rules can only have named one")
+    if _name in MINE_EXEMPT:
+        if _asks:
+            fail(f"{_name} is exempt from the mineable tags ({MINE_EXEMPT[_name]}), but it "
+                 f"asks for the right tool: {_how}. With no tag no tool is right, so it "
+                 f"would drop nothing")
+        if _tags:
+            fail(f"{_name} is exempt from the mineable tags and in one all the same; take "
+                 f"it off MINE_EXEMPT or out of the tag")
+        continue
+    if not _tags:
+        (_asking_untagged if _asks else _untagged).append(_name)
+    if sorted(_rule_tools.get(_name, [])) != sorted(_tags):
+        fail(f"the rules put {_name} under {' and '.join(_rule_tools.get(_name)) or 'no tool'} "
+             f"and the tags under {' and '.join(sorted(_tags)) or 'none'}; the tags are "
+             f"written from the rules by tools/gen_harvest.py, so one of them was edited "
+             f"by hand")
+if _asking_untagged:
+    fail(f"{len(_asking_untagged)} block(s) ask for the right tool and are in no tool's "
+         f"tag, so no tool is ever right and they drop nothing however they are mined: "
+         + ", ".join(_asking_untagged))
+if _untagged:
+    fail(f"{len(_untagged)} block(s) are in no mineable tag and not exempt, so every tool "
+         f"breaks them at a fist's pace: " + ", ".join(_untagged))
+with tempfile.TemporaryDirectory() as _scratch:
+    _ran = subprocess.run([sys.executable, os.path.join(WORK, "tools/gen_harvest.py"), _scratch],
+                          capture_output=True, text=True, cwd=WORK)
+    if _ran.returncode != 0:
+        fail(f"tools/gen_harvest.py no longer runs: {_ran.stderr.strip()[-300:]}")
+    else:
+        _sub = "data/minecraft/tags/block/mineable"
+        _made, _shipped = os.path.join(_scratch, _sub), os.path.join(RES, _sub)
+        _names = (set(os.listdir(_made)) if os.path.isdir(_made) else set()) | \
+            (set(os.listdir(_shipped)) if os.path.isdir(_shipped) else set())
+        for _name in sorted(_names):
+            _one, _two = os.path.join(_made, _name), os.path.join(_shipped, _name)
+            if not (os.path.isfile(_one) and os.path.isfile(_two)
+                    and filecmp.cmp(_one, _two, shallow=False)):
+                fail(f"{_sub}/{_name} is not what tools/gen_harvest.py writes from "
+                     f"ArmoryHarvestRules")
+print(f"what mines them    : {len(_registered_blocks)} block(s), {len(_tool_blocks)} asking "
+      f"for the right tool, every one in exactly one tool's tag or broken by hand with a "
+      f"reason: " + ", ".join(f"{sum(1 for t in _rule_tools.values() if t == [tool])} by {tool}"
+                              for tool in HARVEST_TOOLS
+                              if any(t == [tool] for t in _rule_tools.values()))
+      + f", {len(MINE_EXEMPT)} by hand")
+
 # Essence and sheet metal are salvaged and pressed. A crafting recipe for
 # either would be a way around the two benches that exist to produce them.
 for made in ("affix_essence", "sheet_metal"):
@@ -960,7 +1119,7 @@ _remaining = method_body(_book_recipe,
                          "public NonNullList<ItemStack> getRemainingItems(CraftingInput input)")
 _learn = method_body(_book_data, "public ArmoryPlanBook learn(String part)")
 
-if "part = onlyKnown(book, materials);" not in _part_read:
+if "part = onlyKnown(book, bench);" not in _part_read:
     fail("a plan book is not resolved against the materials beside it, so a book "
          "that knows two plans makes whichever the search found first")
 if not re.search(r"if \(only != null\) \{\s*return null;", _only_known):
@@ -996,6 +1155,234 @@ if not os.path.isfile(os.path.join(RES, "data/elysiumarmory/recipe/plan_book.jso
 
 print("the plan book      : learns plans, answers for one at a time, and a template "
       "is still a template")
+
+# ---------------------------------------------------------------------------
+# Survival: where essence and templates come from, and what a recipe charges
+# ---------------------------------------------------------------------------
+#
+# The reachability check (check_obtainable.py, 29 September 2026) found two
+# items here nobody could have, and the reading around them two recipes that
+# did not do what they said. Affix essence came only from salvaging modular
+# gear with affixes on it, and a modular piece carries affixes only after a
+# reforge, which is paid in essence. The template was registered and made by
+# nothing. The conversion recipe took a shape out of a map whose order changes
+# every launch, so a pickaxe converted on some starts and not others. And three
+# parts named an extra ingredient the grid never asked for, one of them an item
+# that does not exist. Each is held here to the statement that fixed it.
+
+
+def _squashed(text):
+    """One method's source on one line, so a statement wrapped over two lines
+    reads as the statement it is."""
+    return re.sub(r"\s+", " ", text)
+
+
+# Essence: any affixed piece goes on the salvager, and a reforged one pays back
+# no more than the reroll cost.
+if ("return !stack.isEmpty() && ArmorySalvageRules.salvageable(modular, affixLevels(stack));"
+        not in method_body(salvage_src, "public static boolean canSalvage(ItemStack stack)")):
+    fail("the salvager does not take any affixed piece, so essence can never be had: a modular piece "
+         "carries affixes only after a reforge, and a reforge is paid in essence")
+if ("int essence = ArmorySalvageRules.essence(affixLevels(gear), paidFor(gear));"
+        not in method_body(salvage_src, "public static List<ItemStack> salvage(")):
+    fail("salvage pays essence without asking what a reforge cost, so rerolling a wooden sword and "
+         "taking it apart prints essence")
+if ("return stack.getOrDefault(ArmoryComponents.REFORGED.get(), 0);"
+        not in method_body(salvage_src, "public static int paidFor(ItemStack stack)")):
+    fail("salvage reads what a reforge cost from somewhere other than the mark the reforge leaves")
+if ("copy.set(ArmoryComponents.REFORGED.get(), cost(targetRarity));"
+        not in method_body(reforge_src, "public static List<ItemStack> choices(")):
+    fail("a reforged piece does not record what it cost, so salvage cannot cap what it pays back")
+if 'TYPES.register("reforged"' not in components:
+    fail("the mark a reforge leaves is never registered, so nothing can carry it")
+
+# Templates: found in the chests the rules name, blank, and read on the server
+# from the same list of plans the Gear Smithing Table offers.
+_blueprint_src = strip_comments(open(os.path.join(SRC, "item/ArmoryBlueprintItem.java"),
+                                     encoding="utf-8").read(), keep_strings=True)
+_table_src = strip_comments(open(os.path.join(SRC, "block/ArmorySmithingTableBlock.java"),
+                                 encoding="utf-8").read(), keep_strings=True)
+if ("if (ArmoryPlanRules.plannable(part.isUpgrade(), part.crafting().materials())) {"
+        not in method_body(_blueprint_src, "public static List<String> plannable()")):
+    fail("the plans are not listed by the rule, so the table and a found template can disagree "
+         "about what can be planned")
+if ("List<String> parts = ArmoryBlueprintItem.plannable();"
+        not in method_body(_table_src, "protected InteractionResult useWithoutItem(")):
+    fail("the Gear Smithing Table keeps a list of plans of its own, so a found template can plan a "
+         "part the table never draws, or the other way round")
+_tick = _squashed(method_body(_blueprint_src, "public void inventoryTick("))
+for _statement in ("if (reusable || level.isClientSide() || partOf(stack) != null) { return; }",
+                   "List<String> plans = plannable();",
+                   "int drawn = ArmoryPlanRules.drawn(plans.size(), level.getRandom().nextDouble());",
+                   "plan(stack, plans.get(drawn));"):
+    if _statement not in _tick:
+        fail(f"a found template is never read into a plan, so it stays blank and makes nothing "
+             f"(inventoryTick has lost \"{_statement}\")")
+        break
+_plan_rules = strip_comments(open(os.path.join(PURE, "ArmoryPlanRules.java"), encoding="utf-8").read(),
+                             keep_strings=True)
+_found_rows = re.findall(r'new Found\("([a-z0-9_:/.]+)", ([0-9.]+)D\)', _plan_rules)
+if not _found_rows:
+    fail("ArmoryPlanRules finds a template in no chest, so the template is an item nobody can hold")
+_global_file = os.path.join(RES, "data/neoforge/loot_modifiers/global_loot_modifiers.json")
+_listed = set(json.load(open(_global_file, encoding="utf-8")).get("entries", [])
+              if os.path.isfile(_global_file) else [])
+for _chest, _chance in _found_rows:
+    _name = "template_from_" + _chest.rsplit("/", 1)[1]
+    _file = os.path.join(RES, "data/elysiumarmory/loot_modifiers", _name + ".json")
+    _doc = json.load(open(_file, encoding="utf-8")) if os.path.isfile(_file) else {}
+    _when = {c.get("condition"): c for c in _doc.get("conditions", []) if isinstance(c, dict)}
+    if (_doc.get("type") != "neoforge:add_table" or _doc.get("table") != "elysiumarmory:found/template"
+            or len(_when) != 2
+            or _when.get("neoforge:loot_table_id", {}).get("loot_table_id") != _chest
+            or _when.get("minecraft:random_chance", {}).get("chance") != float(_chance)):
+        fail(f"the rules find a template in {_chest}, one chest in {round(1 / float(_chance))}, and no "
+             f"loot modifier says so")
+    if f"elysiumarmory:{_name}" not in _listed:
+        fail(f"elysiumarmory:{_name} is written and never listed in global_loot_modifiers.json, so the "
+             f"game never applies it and that chest never holds a template")
+_found_file = os.path.join(RES, "data/elysiumarmory/loot_table/found/template.json")
+_found_doc = json.load(open(_found_file, encoding="utf-8")) if os.path.isfile(_found_file) else {}
+_found_names = [entry.get("name") for pool in _found_doc.get("pools", []) for entry in pool.get("entries", [])]
+if _found_names != ["elysiumarmory:template"]:
+    fail(f"the found table holds {_found_names}, not one template, so a chest that should hold a plan "
+         f"holds something else")
+with tempfile.TemporaryDirectory() as _scratch:
+    _ran = subprocess.run([sys.executable, os.path.join(WORK, "tools/gen_loot.py"), _scratch],
+                          capture_output=True, text=True, cwd=WORK)
+    if _ran.returncode != 0:
+        fail(f"tools/gen_loot.py no longer runs: {_ran.stderr.strip()[-300:]}")
+    else:
+        for _sub in ("data/elysiumarmory/loot_table/found", "data/elysiumarmory/loot_modifiers",
+                     "data/neoforge/loot_modifiers"):
+            _made, _shipped = os.path.join(_scratch, _sub), os.path.join(RES, _sub)
+            _names = (set(os.listdir(_made)) if os.path.isdir(_made) else set()) | \
+                (set(os.listdir(_shipped)) if os.path.isdir(_shipped) else set())
+            for _name in sorted(_names):
+                _one, _two = os.path.join(_made, _name), os.path.join(_shipped, _name)
+                if not (os.path.isfile(_one) and os.path.isfile(_two)
+                        and filecmp.cmp(_one, _two, shallow=False)):
+                    fail(f"{_sub}/{_name} is not what tools/gen_loot.py writes from ArmoryPlanRules")
+
+# The conversion: the rule reads the name, and every material it names is one.
+_conversion = strip_comments(open(os.path.join(SRC, "recipe/ArmoryConversionRecipe.java"),
+                                  encoding="utf-8").read(), keep_strings=True)
+if ("return ArmoryConversionRules.of(key.getPath());"
+        not in method_body(_conversion, "static ArmoryConversionRules.Conversion of(ItemStack stack)")):
+    fail("the conversion recipe does not ask ArmoryConversionRules what a piece becomes, so the rule "
+         "the harness holds is not the one the game runs")
+if "endsWith(" in _conversion or "Map.of" in _conversion:
+    fail("the conversion recipe reads names with a table of its own again; a Map.ofEntries is ordered "
+         "differently every launch, and so was what a pickaxe became")
+_conv_rules = strip_comments(open(os.path.join(PURE, "ArmoryConversionRules.java"), encoding="utf-8").read(),
+                             keep_strings=True)
+_conv_words = re.search(r"Map<String, String> MATERIALS = Map\.of\((.*?)\);", _conv_rules, re.S)
+_conv_made_of = re.findall(r'"([a-z_]+)"', _conv_words.group(1))[1::2] if _conv_words else []
+_conv_shapes = re.findall(r'new Shape\("([a-z_]+)", "([a-z_]+)", (?:"([a-z_]+)"|null)\)', _conv_rules)
+if not _conv_shapes or not _conv_made_of:
+    fail("ArmoryConversionRules names no shape or no material, so no piece of the base game converts")
+for _word, _gear, _material in _conv_shapes:
+    if _gear not in GEAR_ITEMS:
+        fail(f"a {_word} converts to {_gear}, which has no gear item")
+    if _material:
+        _conv_made_of.append(_material)
+for _material in sorted(set(_conv_made_of)):
+    if not os.path.isfile(os.path.join(MATERIALS, _material + ".json")):
+        fail(f"the conversion makes gear of {_material}, which is no material here, so that piece "
+             f"converts into nothing")
+
+# The extras: the grid takes them out before it reads the materials, a book
+# asks for them too, and a blueprint says so.
+_materials_of = _squashed(method_body(_part_recipe, "private static List<String> materialsOf("))
+for _statement in ("boolean[] extras = ArmoryPlanRules.extras(part.crafting().extra(), bench.size(), "
+                   "(index, extra) -> answers(bench.get(index), extra));",
+                   "if (extras == null) { return null; }",
+                   "if (extras[i]) { continue; }"):
+    if _statement not in _materials_of:
+        fail(f"a part's extras are read from the data and never charged, so a coating needs no glass "
+             f"bottle and a mace core no heavy core (materialsOf has lost \"{_statement}\")")
+        break
+if "List<String> materials = part == null ? null : materialsOf(part, bench);" not in _part_read:
+    fail("the grid is read without taking the part's extras out, so the recipe never charges them")
+if "List<String> materials = known == null ? null : materialsOf(known, bench);" not in _only_known:
+    fail("a plan book picks its plan without the extras, so it can choose a coating with no bottle on "
+         "the bench")
+if ("return tag != null && stack.is(TagKey.create(Registries.ITEM, tag));"
+        not in method_body(_part_recipe, "private static boolean answers(")):
+    fail("an extra named by #tag matches nothing, so a part that asks for one can never be made")
+if "for (String extra : part.crafting().extra()) {" not in method_body(_blueprint_src,
+                                                                     "public void appendHoverText("):
+    fail("a blueprint does not say what else its part takes, so the grid charges a bottle nobody was told of")
+for _key in ("elysiumarmory.blueprint.also", "elysiumarmory.template.unread"):
+    if _key not in lang:
+        fail(f"{_key} has no translation")
+
+# Every item a material or a part names exists. The loader cannot tell: a
+# material whose item is gone is one nobody can use, and a part whose extra is
+# gone is one nobody can make ("minecraft:bort" sat in the setting, found 29
+# September 2026). The base game's ids are read off its own jar, ours off the
+# modules, and a #tag an extra names has to be one some module fills.
+_mc_jar = next((p for p in (os.environ.get("MC_JAR", ""), "/tmp/mc/libs/vanilla-assets.jar",
+                            "C:/tmp/mc/libs/vanilla-assets.jar") if p and os.path.isfile(p)), None)
+_vanilla_items = None
+if _mc_jar:
+    import zipfile
+    with zipfile.ZipFile(_mc_jar) as _jar:
+        _prefix = "assets/minecraft/models/item/"
+        _vanilla_items = {n[len(_prefix):-len(".json")] for n in _jar.namelist()
+                          if n.startswith(_prefix) and n.endswith(".json")}
+_MONO = os.path.dirname(WORK)
+_module_res = [os.path.join(_MONO, d, "src/main/resources") for d in sorted(os.listdir(_MONO))
+               if d.startswith("elysium-") and os.path.isdir(os.path.join(_MONO, d, "src/main/resources"))]
+
+
+def _registered(namespace, path):
+    """An item one of the modules ships: it has a model, which every item has."""
+    return any(os.path.isfile(os.path.join(res, "assets", namespace, "models/item", path + ".json"))
+               for res in _module_res)
+
+
+def _filled(namespace, path):
+    """An item tag some module writes, with at least one entry in it."""
+    for res in _module_res:
+        tag = os.path.join(res, "data", namespace, "tags/item", path + ".json")
+        if os.path.isfile(tag) and json.load(open(tag, encoding="utf-8")).get("values"):
+            return True
+    return False
+
+
+_named = []
+for _path in material_files:
+    _crafting = json.load(open(_path, encoding="utf-8")).get("crafting", {})
+    _where = os.path.relpath(_path, RES).replace(os.sep, "/")
+    if isinstance(_crafting.get("ingredient"), str):
+        _named.append((_where, _crafting["ingredient"], False))
+    for _substitute in (_crafting.get("part_substitutes") or {}).values():
+        if isinstance(_substitute, str):
+            _named.append((_where, _substitute, False))
+for _path in part_files:
+    _where = os.path.relpath(_path, RES).replace(os.sep, "/")
+    for _extra in json.load(open(_path, encoding="utf-8")).get("crafting", {}).get("extra", []):
+        _named.append((_where, _extra, True))
+for _where, _id, _is_extra in _named:
+    if _id.startswith("#"):
+        _ns, _, _tag = _id[1:].partition(":")
+        if _is_extra and _ns != "minecraft" and not _filled(_ns, _tag):
+            fail(f"{_where} asks for {_id}, a tag no module fills, so that part can never be made")
+        continue
+    _ns, _, _item = _id.partition(":")
+    if _ns == "minecraft":
+        if _vanilla_items is not None and _item not in _vanilla_items:
+            fail(f"{_where} names {_id}, which the game does not have, so "
+                 + ("that part can never be made" if _is_extra else "that material can never be used"))
+    elif not _registered(_ns, _item):
+        fail(f"{_where} names {_id}, which no module of the pack registers")
+
+print(f"survival           : any affixed piece salvages and a reforge pays back no more than it cost; "
+      f"a template is found in {len(_found_rows)} chests; {len(_conv_shapes)} shapes convert by one rule; "
+      f"extras are charged")
+print(f"what the data names: {len(_named)} item(s) and tag(s) named by materials and parts, each one there"
+      + ("" if _vanilla_items is not None else " (the base game's not checked: no vanilla jar, set MC_JAR)"))
 
 if problems:
     print(f"{len(problems)} PROBLEM(S):")

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.IntPredicate;
 
 /**
  * Seeds that grow metal, and the one thing they are not allowed to grow.
@@ -31,6 +32,14 @@ import java.util.TreeSet;
  * own. No alloy, no processed material, nothing a machine makes. The tier is
  * how far up the essence ladder a material sits, and the ladder is made of
  * time rather than yield, so wanting more is always answered by a bigger farm.
+ *
+ * <h2>The way onto the ladder</h2>
+ *
+ * A pot grows a rung's essence only out of a seed of that rung. So what the
+ * first rung's seeds cost decides whether the ladder can be climbed at all:
+ * {@link #FIRST_RUNG_PRICE} is the game's own wheat seeds, every rung above
+ * pays in its own essence, and {@link #unreachableRungs} walks the ladder
+ * from nothing it makes and names any rung it cannot reach.
  */
 public final class SeedRules {
 
@@ -233,6 +242,89 @@ public final class SeedRules {
             }
         }
         return List.copyOf(twice);
+    }
+
+    // ==================================================================
+    // What a seed costs, and the way onto the ladder
+    // ==================================================================
+
+    /**
+     * What a seed on the first rung is paid in: four of the game's wheat
+     * seeds, where a seed on any rung above costs four of its own rung's
+     * essence ({@link AgronomyRules#ESSENCE_PER_STEP} either way), besides a
+     * sample of what it grows.
+     *
+     * <p>The first rung was paid in faint essence, and faint essence comes
+     * only out of a pot growing a first-rung seed. The first faint essence
+     * needed a seed that cost faint essence, so the whole ladder, the altar
+     * and every awakened seed waited on something no world could make. Wheat
+     * seeds are the way in; the pot keeps the seed, so one bought seed is a
+     * rung for good, and every rung above still costs what the rung below
+     * grows.
+     */
+    public static final String FIRST_RUNG_PRICE = "minecraft:wheat_seeds";
+
+    /** Whether a seed of this tier is paid in its own rung's essence. The first rung is not. */
+    public static boolean paidInEssence(int tier) {
+        return tier > 1;
+    }
+
+    /**
+     * Every rung of the essence ladder a player cannot reach starting from
+     * nothing the ladder makes. Must be empty.
+     */
+    public static List<String> unreachableRungs() {
+        return unreachableRungs(SEEDS, SeedRules::paidInEssence);
+    }
+
+    /**
+     * The same walk, over seeds and a price handed in, so a control can hand
+     * it the loop this ladder used to be.
+     *
+     * <p>A rung is reached when a seed on it can be bought without its own
+     * essence, because a pot grows the rung's essence out of that seed; or
+     * when the rung below is reached, because {@link
+     * AgronomyRules#ESSENCE_PER_STEP} of one rung climb to one of the next. A
+     * seed paid in its own rung's essence buys nothing on a rung nothing
+     * else reaches: that is the loop.
+     */
+    public static List<String> unreachableRungs(List<Seed> seeds, IntPredicate paidInEssence) {
+        List<String> lost = new ArrayList<>();
+        boolean below = false;
+        for (int tier = 1; tier <= AgronomyRules.TIERS; tier++) {
+            boolean bought = false;
+            for (Seed seed : seeds) {
+                if (seed.tier() == tier && !paidInEssence.test(tier)) {
+                    bought = true;
+                }
+            }
+            boolean reached = below || bought;
+            if (!reached) {
+                lost.add("rung " + tier + " cannot be reached from nothing the ladder makes: "
+                        + "no rung under it is reached, and every seed on it costs its own "
+                        + "essence, which only a pot growing one of those seeds makes");
+            }
+            below = reached;
+        }
+        return List.copyOf(lost);
+    }
+
+    /**
+     * Every rung above the first that is paid for from outside the ladder.
+     *
+     * <p>Must be empty. A top-rung seed bought with wheat is a ladder whose
+     * rungs are all on the floor: the time the tiers are made of would be
+     * skipped by a recipe.
+     */
+    public static List<String> faultsInPrice() {
+        List<String> bad = new ArrayList<>();
+        for (int tier = 2; tier <= AgronomyRules.TIERS; tier++) {
+            if (!paidInEssence(tier)) {
+                bad.add("a tier " + tier + " seed is paid for from outside the ladder, so "
+                        + "the rungs under it are time nobody has to spend");
+            }
+        }
+        return List.copyOf(bad);
     }
 
     /** Every seed whose essence turns into nothing anybody can name. */

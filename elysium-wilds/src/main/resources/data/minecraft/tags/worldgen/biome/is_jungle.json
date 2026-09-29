@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:palm_flat",
+    "elysiumwilds:palm_hill",
+    "elysiumwilds:palm_scarp",
+    "elysiumwilds:palm_wold",
+    "elysiumwilds:steam_flat",
+    "elysiumwilds:steam_hill",
+    "elysiumwilds:steam_scarp",
+    "elysiumwilds:steam_wold"
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "type": "elysiumfoundry:refining",
   "input": {
-    "item": "elysiumfoundry:raw_aluminum"
+    "tag": "c:raw_materials/aluminum"
   },
   "result": {
     "id": "elysiumfoundry:aluminum_ingot",

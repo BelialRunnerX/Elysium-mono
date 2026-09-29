@@ -1,6 +1,7 @@
 package com.elysium.armory.craft;
 
 import com.elysium.armory.property.ArmorySalvageRules;
+import com.elysium.armory.registry.ArmoryComponents;
 import com.elysium.lib.affix.ElysiumAffixRoll;
 import com.elysium.lib.item.ElysiumLootCategory;
 import com.elysium.lib.item.ElysiumRarities;
@@ -70,6 +71,9 @@ public final class ArmoryReforge {
             ElysiumAffixRoll.clear(copy);
             ElysiumAffixRoll.roll(copy, targetRarity, worldTier, random);
             copy.set(DataComponents.RARITY, ElysiumRarities.getRarityFromTier(targetRarity));
+            // What these affixes cost, so taking the piece apart pays back no
+            // more than that (ArmorySalvageRules.essence).
+            copy.set(ArmoryComponents.REFORGED.get(), cost(targetRarity));
             out.add(copy);
         }
         return out;

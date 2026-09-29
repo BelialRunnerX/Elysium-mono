@@ -7,9 +7,14 @@ import com.elysium.armory.material.ArmoryMaterial;
 import com.elysium.armory.material.ArmoryMaterials;
 import com.elysium.armory.material.ArmoryPart;
 import com.elysium.armory.material.ArmoryParts;
+import com.elysium.armory.property.ArmoryPlanRules;
 import com.elysium.armory.registry.ArmoryRecipes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -26,8 +31,10 @@ import java.util.List;
  * SG-22).
  *
  * <p>One recipe for all forty-eight parts, because the blueprint says which
- * part and the part says how many materials it takes and what they may be. A
- * template is used up; a blueprint comes back.
+ * part and the part says how many materials it takes, what they may be, and
+ * what else goes in: a coating takes a glass bottle, a mace core a heavy core
+ * and a setting a bort, one each, used up with the materials. A template is
+ * used up; a blueprint comes back.
  *
  * <p>Mixed materials are allowed on purpose — it is what makes two of the same
  * shape different — and the first one laid down is the one the part is named
@@ -45,7 +52,7 @@ public class ArmoryCompoundPartRecipe extends CustomRecipe {
     private static Found read(CraftingInput input) {
         ArmoryPart part = null;
         boolean reusable = false;
-        List<String> materials = new ArrayList<>();
+        List<ItemStack> bench = new ArrayList<>();
         boolean blueprint = false;
         ItemStack book = ItemStack.EMPTY;
         for (int i = 0; i < input.size(); i++) {
@@ -79,33 +86,67 @@ public class ArmoryCompoundPartRecipe extends CustomRecipe {
                 book = stack;
                 continue;
             }
-            ArmoryMaterial material = ArmoryMaterials.get().byItem(stack);
+            // Everything else is the bench: the part's extras and its
+            // materials, told apart once the part is known.
+            bench.add(stack);
+        }
+        if (!book.isEmpty()) {
+            part = onlyKnown(book, bench);
+        }
+        List<String> materials = part == null ? null : materialsOf(part, bench);
+        return materials == null ? null : new Found(part, reusable, materials);
+    }
+
+    /**
+     * The materials on a bench for one part: its extras taken out first, and
+     * everything left a material. Null when an extra is missing or something
+     * left over is not a material.
+     */
+    private static List<String> materialsOf(ArmoryPart part, List<ItemStack> bench) {
+        boolean[] extras = ArmoryPlanRules.extras(part.crafting().extra(), bench.size(),
+                (index, extra) -> answers(bench.get(index), extra));
+        if (extras == null) {
+            return null;                            // an extra the part asks for is not there
+        }
+        List<String> materials = new ArrayList<>();
+        for (int i = 0; i < bench.size(); i++) {
+            if (extras[i]) {
+                continue;
+            }
+            ArmoryMaterial material = ArmoryMaterials.get().byItem(bench.get(i));
             if (material == null) {
                 return null;                        // something in the grid is not a material
             }
             materials.add(material.id());
         }
-        if (!book.isEmpty()) {
-            part = onlyKnown(book, materials);
+        return materials;
+    }
+
+    /** Whether a stack is what an extra names: the item of that id, or one in that #tag. */
+    private static boolean answers(ItemStack stack, String extra) {
+        if (extra.startsWith("#")) {
+            ResourceLocation tag = ResourceLocation.tryParse(extra.substring(1));
+            return tag != null && stack.is(TagKey.create(Registries.ITEM, tag));
         }
-        return part == null ? null : new Found(part, reusable, materials);
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals(extra);
     }
 
     /**
      * The one part a book could be planning, given what else is in the grid.
      *
      * A book that knows forty plans cannot say which one you meant, so the
-     * materials decide: exactly one of the plans it knows must be makeable
-     * from what is on the bench. Two that both fit is ambiguous and refused,
-     * which is the honest answer — the player puts the blueprint in instead
-     * and gets exactly what they asked for.
+     * bench decides: exactly one of the plans it knows must be makeable from
+     * what is on it, extras and all. Two that both fit is ambiguous and
+     * refused, which is the honest answer — the player puts the blueprint in
+     * instead and gets exactly what they asked for.
      */
-    private static ArmoryPart onlyKnown(ItemStack book, List<String> materials) {
+    private static ArmoryPart onlyKnown(ItemStack book, List<ItemStack> bench) {
         ArmoryPart only = null;
         for (String id : com.elysium.armory.item.ArmoryPlanBookItem.plansOf(book)
                 .plans()) {
             ArmoryPart known = ArmoryParts.get().byId(id);
-            if (known == null || !fits(known, materials)) {
+            List<String> materials = known == null ? null : materialsOf(known, bench);
+            if (materials == null || !fits(known, materials)) {
                 continue;
             }
             if (only != null) {

@@ -30,6 +30,15 @@ except ImportError:
     print("Pillow is needed to draw the sprites: pip install pillow")
     sys.exit(1)
 
+# The other generators' block lists, for the mineable tags below: the same
+# tables read once, rather than a second reading of every rules file here.
+sys.path.insert(0, HERE)
+from gen_bees import BEES, HOMES, HOUSINGS, CENTRIFUGE            # noqa: E402
+from gen_fish import MOUNTS, TACKLE_BLOCKS                        # noqa: E402
+from gen_kitchen import WOODS, CRATED, STATIONS, CROPS, COLONY    # noqa: E402
+from gen_pots import POTS, pot_id, OURS as SOILS                  # noqa: E402
+from gen_veins import VEINS                                       # noqa: E402
+
 
 def write(path, obj):
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -70,6 +79,16 @@ for _material, _tier, _makes in re.findall(
 if not SEEDS:
     print("no seeds could be read out of SeedRules.java")
     sys.exit(2)
+
+#: What a first-rung seed is paid in, where every rung above pays its own
+#: essence (SeedRules.FIRST_RUNG_PRICE and paidInEssence). A pot grows a rung's
+#: essence only out of a seed of that rung, so a first rung paid in faint
+#: essence was a ladder nobody could step onto.
+FIRST_RUNG_PRICE = re.search(r'FIRST_RUNG_PRICE = "([a-z_:]+)";', _seed_source)
+if not FIRST_RUNG_PRICE:
+    print("SeedRules no longer says what the first rung is paid in")
+    sys.exit(2)
+FIRST_RUNG_PRICE = FIRST_RUNG_PRICE.group(1)
 
 #: Materials whose essence turns into a chunk this module makes itself, because
 #: a recipe result has to be a concrete item and the foundry sits above us.
@@ -118,6 +137,89 @@ PER_INSANIUM = int(re.search(r"ESSENCE_PER_STEP = (\d+);",
 
 #: How many steps of growth a pot's blockstate carries.
 AGES = 4
+
+# ---------------------------------------------------------------------------
+# What mines them, read out of HarvestRules
+# ---------------------------------------------------------------------------
+#
+# A block that asks for the right tool and is in no mineable tag drops
+# nothing, and 459 of the module's 465 were in none (29 September 2026). The
+# four tags are written here, once each, for every block of the module — the
+# other generators' blocks included, which is why their lists are imported
+# above. A tag file written twice keeps only the second write, which is how
+# the space module once lost two thirds of its pickaxe tag.
+
+HARVEST_RULES = _source("HarvestRules.java")
+_harvest = " ".join(re.sub(r"//[^\n]*", " ",
+                           re.sub(r"/\*.*?\*/", " ", HARVEST_RULES, flags=re.S)).split())
+_harvest = re.sub(r'"\s*\+\s*"', "", _harvest)
+HARVEST_WORDS = dict(re.findall(r'public static final String ([A-Z_]+) = "([a-z_]+)";',
+                                _harvest))
+_tools = re.search(r"TOOLS = List\.of\(([^;]*?)\);", _harvest)
+HARVEST_TOOLS = ([HARVEST_WORDS.get(word, word) for word in re.findall(r"[A-Z_]+", _tools.group(1))]
+                 if _tools else [])
+BY_HAND = HARVEST_WORDS.get("BY_HAND", "")
+
+#: material id -> the tool that mines it, or BY_HAND
+MATERIAL_TOOL = {}
+for _material, _built, _tool, _why in re.findall(
+        r'new Material\(([A-Z_]+), List\.of\(([^)]*)\), ([A-Z_]+), "((?:[^"\\]|\\.)*)"\)',
+        _harvest):
+    MATERIAL_TOOL[HARVEST_WORDS.get(_material, _material)] = HARVEST_WORDS.get(_tool, _tool)
+
+#: (kind name, material id), in the order HarvestRules.KINDS lists them
+HARVEST_KINDS = [(name, HARVEST_WORDS.get(material, material)) for name, material
+                 in re.findall(r'new Kind\("([a-z_*]+)", ([A-Z_]+)\)', _harvest)]
+
+if not HARVEST_TOOLS or not BY_HAND or not MATERIAL_TOOL or not HARVEST_KINDS:
+    print("HarvestRules.java no longer has the shape this reads, so no mineable tag "
+          "can be written")
+    sys.exit(2)
+
+
+def harvest_tool(block):
+    """HarvestRules.tool(): the kind by exact name first, then by suffix."""
+    for name, material in HARVEST_KINDS:
+        if name == block:
+            return MATERIAL_TOOL.get(material)
+    for name, material in HARVEST_KINDS:
+        if name.startswith("*") and block.endswith(name[1:]) and len(block) > len(name) - 1:
+            return MATERIAL_TOOL.get(material)
+    return None
+
+
+def every_block():
+    """Every block the module registers, once each, from the tables that register them."""
+    ids = list(BLOCKS) + ALTAR_BLOCKS
+    ids += [housing["id"] for housing in HOUSINGS]
+    ids += [CENTRIFUGE] + [vein["material"] + "_generator" for vein in VEINS]
+    ids += TACKLE_BLOCKS + MOUNTS
+    ids += [bee["id"] + "_comb_block" for bee in BEES] + [home + "_nest" for home in HOMES]
+    ids += list(STATIONS.values())
+    ids += [wood + "_cabinet" for wood in WOODS] + [crop + "_crate" for crop in CRATED]
+    ids += [crop["id"] + "_crop" for crop in CROPS] + [COLONY]
+    ids += list(SOILS) + [pot_id(material, fitting) for material, fitting in POTS]
+    return list(dict.fromkeys(ids))
+
+
+def harvest_tags():
+    """The mineable tags, one file per tool, each written exactly once."""
+    tags = os.path.join(OUT, "src/main/resources/data/minecraft/tags/block/mineable")
+    listed = {tool: [] for tool in HARVEST_TOOLS}
+    for block in every_block():
+        tool = harvest_tool(block)
+        if tool is None:
+            print(f"HarvestRules has no kind for {block}, so nothing says what mines it")
+            sys.exit(2)
+        if tool in listed:
+            listed[tool].append(f"{NS}:{block}")
+    written = 0
+    for tool, values in listed.items():
+        if values:
+            write(os.path.join(tags, tool + ".json"),
+                  {"replace": False, "values": sorted(values)})
+            written += 1
+    return written
 
 
 # ---------------------------------------------------------------------------
@@ -555,8 +657,12 @@ def ladder_recipes():
         # the ground. You mine it once and grow it after that.
         sample = (TAG(f"c:ores/{material}") if material in CHUNKED
                   else ITEM(gives))
+        # The first rung is paid in the game's own seeds, every rung above in
+        # its own essence: SeedRules.paidInEssence.
+        price = (ITEM(FIRST_RUNG_PRICE) if tier == 1
+                 else ITEM(f"{NS}:{ESSENCES[tier - 1]}"))
         made[f"{material}_seed"] = shapeless(
-            [ITEM(f"{NS}:{ESSENCES[tier - 1]}")] * ESSENCE_PER_STEP + [sample],
+            [price] * ESSENCE_PER_STEP + [sample],
             f"{NS}:{material}_seed")
         made[f"{material}_from_essence"] = shapeless(
             [ITEM(f"{NS}:{ESSENCES[tier - 1]}")] * ESSENCE_PER_INGOT, gives)
@@ -625,13 +731,9 @@ def data_files():
           {"replace": False, "values": [f"{NS}:bee"]})
     written += 1
 
-    tags = os.path.join(OUT, "src/main/resources/data/minecraft/tags/block")
-    write(os.path.join(tags, "mineable/pickaxe.json"),
-          {"replace": False, "values": [f"{NS}:{name}" for name in BLOCKS
-                                        if name != "hive"]})
-    write(os.path.join(tags, "mineable/axe.json"),
-          {"replace": False, "values": [f"{NS}:hive"]})
-    written += 2
+    # What mines every block of the module, from HarvestRules: one write per
+    # tag file, since a second write would replace the first.
+    written += harvest_tags()
     return written
 
 

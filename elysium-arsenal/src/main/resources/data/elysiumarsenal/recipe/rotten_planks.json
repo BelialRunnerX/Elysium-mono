@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumarsenal:rotten_log"
+    }
+  ],
+  "result": {
+    "id": "elysiumarsenal:rotten_planks",
+    "count": 4
+  }
+}

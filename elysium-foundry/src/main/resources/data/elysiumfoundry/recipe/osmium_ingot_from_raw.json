@@ -2,7 +2,7 @@
   "type": "minecraft:smelting",
   "category": "misc",
   "ingredient": {
-    "item": "elysiumfoundry:raw_osmium"
+    "tag": "c:raw_materials/osmium"
   },
   "result": {
     "id": "elysiumfoundry:osmium_ingot"

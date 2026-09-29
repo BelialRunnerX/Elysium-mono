@@ -144,6 +144,14 @@
     {
       "id": "elysiumores:cinder_zinc_ore",
       "required": false
+    },
+    {
+      "id": "elysiumores:cinder_titanium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:cinder_tungsten_ore",
+      "required": false
     }
   ]
 }

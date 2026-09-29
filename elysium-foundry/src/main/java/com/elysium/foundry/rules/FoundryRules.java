@@ -192,6 +192,15 @@ public final class FoundryRules {
             mined("rime_shard", 0),
             mined("uraninite", 0),
 
+            // Two the pack's gear asks for and nothing made. The core's
+            // titanium and tungsten tools and armour take c:ingots/titanium
+            // and c:ingots/tungsten, which no jar the pack ships fills, so
+            // twenty-six pieces could never be made (check_obtainable.py,
+            // 29 Sep 2026). elysium-ores generates both ores; like the five
+            // above, they go no further up the chain.
+            mined("titanium", 0),
+            mined("tungsten", 0),
+
             // Tier 1 — two things from the ground, melted together. Every one
             // of these is a tag elysium-ores declares and nothing installed
             // fills once the old jars go.

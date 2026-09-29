@@ -10,9 +10,11 @@
       "required": false
     },
     "elysiumores:cinder_bort_ore",
+    "elysiumores:deepslate_bort_ore",
     "elysiumores:end_stone_bort_ore",
     "elysiumores:frost_bort_ore",
     "elysiumores:netherrack_bort_ore",
-    "elysiumores:pale_bort_ore"
+    "elysiumores:pale_bort_ore",
+    "elysiumores:stone_bort_ore"
   ]
 }

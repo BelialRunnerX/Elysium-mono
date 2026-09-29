@@ -2252,6 +2252,40 @@ else:
                 if name.startswith("elysium:") and name.split(":", 1)[1] not in items:
                     fail(f"the starting kit hands out {name}, which this mod does not "
                          f"register")
+
+        # One codex, not two. elysium-lib's join handler (ElysiumJoinHandler.
+        # onLoggedIn) hands every new player the codex this mod gives it through
+        # ElysiumHooks.setCodex, and records that it did (elysiumlib:codex_given).
+        # The kit is rolled on the same login, so a codex in it was a second
+        # copy, and every new player started with two. The kit leaves the codex
+        # to the library, which only holds while this mod still hands it one.
+        _content = re.sub(r"//[^\n]*|/\*.*?\*/", " ", open(
+            os.path.join(JAVA_DIR, "ElysiumContent.java"), encoding="utf-8").read(), flags=re.S)
+        _codex_hook = re.search(r"ElysiumHooks\.setCodex\(\s*\(\)\s*->\s*new ItemStack\("
+                                r"\s*Elysium\.([A-Z0-9_]+)\.get\(\)\s*\)\s*\)\s*;", _content)
+        if _codex_hook is None:
+            fail("this mod no longer hands the library its codex (ElysiumHooks.setCodex in "
+                 "ElysiumContent), and the starting kit leaves the codex to the library's "
+                 "join handler, so no new player is given one")
+        else:
+            _codex = "elysium:" + holders.get(_codex_hook.group(1),
+                                              _codex_hook.group(1).lower())
+
+            def _kit_items(node):
+                """Every item entry in the table, however deep it is nested."""
+                if isinstance(node, dict):
+                    if node.get("type") == "minecraft:item" and isinstance(node.get("name"), str):
+                        yield node["name"]
+                    for value in node.values():
+                        yield from _kit_items(value)
+                elif isinstance(node, list):
+                    for value in node:
+                        yield from _kit_items(value)
+
+            if _codex in set(_kit_items(table)):
+                fail(f"the starting kit hands out {_codex}, and elysium-lib's join handler "
+                     f"already gives every new player the codex this mod hands it through "
+                     f"ElysiumHooks.setCodex, on the same login: a new player starts with two")
     if "PlayerLoggedInEvent" not in kit:
         fail("the starting kit is never given: nothing listens for a player arriving")
     if "player.getData(GIVEN.get())" not in kit or "player.setData(GIVEN.get(), true)" not in kit:
@@ -2265,7 +2299,8 @@ else:
              "pack cannot change or empty it")
     if "player.drop(" not in kit:
         fail("a kit handed to a player with a full inventory is silently destroyed")
-    print("starting kit       : one gift table, given once, remembered through death")
+    print("starting kit       : one gift table, given once, remembered through death, and "
+          "the codex left to the library's join handler")
 
 # ---------------------------------------------------------------------------
 # /elysium tier (SPEC_CLONE P12.15)
@@ -2299,6 +2334,34 @@ else:
         if key not in lang:
             fail(f"the tier command prints {key} and nothing translates it")
     print("the tier command   : the tier, where it came from, and what it is worth")
+
+# The harvest audit (29 Sep 2026): the running game is asked, for every block
+# of every module, whether one that needs a tool has a tool tagged to mine it
+# (the space module's pickaxe tag was written three times over and forty-seven
+# blocks dropped nothing). The live suite runs it; this holds that it asks.
+_audit_path = os.path.join(JAVA_DIR, "command/HarvestAudit.java")
+_audit = strip_java_comments(open(_audit_path, encoding="utf-8").read()) if os.path.isfile(_audit_path) else ""
+for _needed, _why in (("state.requiresCorrectToolForDrops()", "no longer asks which blocks need a tool"),
+                      ("BlockTags.MINEABLE_WITH_PICKAXE", "no longer asks whether a pickaxe is tagged"),
+                      ("getDestroySpeed(", "no longer asks whether a placed block can be broken")):
+    if _needed not in _audit:
+        fail(f"the harvest audit {_why} ({_needed!r} is gone)")
+_command_path = os.path.join(JAVA_DIR, "command/ElysiumCommand.java")
+if "HarvestAudit.run(context.getSource())" not in strip_java_comments(open(_command_path, encoding="utf-8").read()):
+    fail("/elysium audit harvest is not registered, so the live suite cannot ask the game")
+# The answer names a dozen; the whole list is written under the server's
+# directory, because six hundred offenders in twelve modules (29 Sep 2026)
+# cannot be fixed from a dozen names, and the chat message says where.
+if "writeList(source, untagged, unbreakable);" not in _audit \
+        or "Files.write(file, lines, StandardCharsets.UTF_8);" not in _audit:
+    fail("the harvest audit no longer writes its whole list to a file, so anything past the "
+         f"{'NAMED'} it names in chat is counted and never seen")
+_audit_lang = lang.get("elysium.audit.harvest.untagged", "")
+if "logs/harvest-audit.txt" not in _audit_lang or 'LIST_FILE = "logs/harvest-audit.txt"' not in _audit:
+    fail("the harvest audit's message and its LIST_FILE do not name the same file, so the message "
+         "sends a reader to a list that is somewhere else")
+print("harvest audit      : /elysium audit harvest asks the running game about every block of every "
+      "module, and writes the whole list to logs/harvest-audit.txt")
 
 if problems:
     print(f"{len(problems)} PROBLEM(S):")

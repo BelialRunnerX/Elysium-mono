@@ -15,6 +15,7 @@ Idempotent: run it as often as you like.
 """
 import json
 import os
+import re
 
 from PIL import Image
 
@@ -25,6 +26,12 @@ RES = os.path.join(MOD, "src/main/resources")
 ASSETS = os.path.join(RES, "assets", NS)
 DATA = os.path.join(RES, "data", NS)
 BASE = os.path.join(HERE, "base")
+
+#: What mines each block: rules/HarvestRules.java, read rather than retyped.
+#: A block in no tool's tag breaks at a fist's pace, and one that asks for the
+#: right tool — every part of the elevator does — drops nothing at all.
+HARVEST = os.path.join(MOD, "src/main/java/com/elysium/colonies/rules/HarvestRules.java")
+TOOLS = ("pickaxe", "axe", "shovel", "hoe")
 
 #: The colour of a working port. Amber rather than Elysium's usual cold blue,
 #: because everything else this repository lights up is arcane and a freight
@@ -327,6 +334,36 @@ NAMES = ("elevator_anchor", "elevator_tether", "elevator_counterweight",
          "elevator_pylon", "elevator_collar", "elevator_deck")
 
 
+def harvest_list(name):
+    """HarvestRules.<name>, a List.of of block ids, in order."""
+    text = open(HARVEST, encoding="utf-8").read()
+    text = re.sub(r"//[^\n]*", " ", re.sub(r"/\*.*?\*/", " ", text, flags=re.S))
+    found = re.search(r"List<String> " + name + r" = List\.of\(([^;]*?)\);", text, re.S)
+    if not found:
+        raise SystemExit(f"HarvestRules has no {name} list to read")
+    return re.findall(r'"([a-z_]+)"', found.group(1))
+
+
+def tags():
+    """
+    The game's mineable tags, from HarvestRules.
+
+    Every block of the module, the two stakes included: the tag is what sets
+    the breaking speed, whether or not the block asks for the tool. One write a
+    tag file, from the whole list at once, because a generator that wrote a tag
+    in pieces kept only the last piece.
+    """
+    written = 0
+    for tool in TOOLS:
+        blocks = harvest_list(tool.upper())
+        if not blocks:
+            continue
+        write(os.path.join(RES, "data/minecraft/tags/block/mineable", tool + ".json"),
+              {"replace": False, "values": [f"{NS}:{block}" for block in blocks]})
+        written += 1
+    return written
+
+
 def recipes():
     """
     What a spaceport costs.
@@ -443,6 +480,7 @@ def words():
 def main():
     print(f"textures  : {textures()}")
     print(f"blocks    : {blocks()} (blockstate, model, item model, drop)")
+    print(f"tags      : {tags()} mineable tag(s), from HarvestRules")
     print(f"recipes   : {recipes()}")
     print(f"words     : {words()}")
 

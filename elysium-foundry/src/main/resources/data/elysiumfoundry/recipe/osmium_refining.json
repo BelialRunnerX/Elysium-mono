@@ -1,7 +1,7 @@
 {
   "type": "elysiumfoundry:refining",
   "input": {
-    "item": "elysiumfoundry:raw_osmium"
+    "tag": "c:raw_materials/osmium"
   },
   "result": {
     "id": "elysiumfoundry:osmium_ingot",

@@ -2,7 +2,8 @@
 # Negative tests for elysium-armory, elysium-ascendancy and the hotbar.
 cd /tmp/Elysium-mono || exit 1
 exec 9>/tmp/negtest_modules.lock
-flock -n 9 || { echo "another negtest_modules is running; refusing"; exit 2; }
+negtest_lock() { if command -v flock >/dev/null 2>&1; then flock -n "$1"; else mkdir "$2" 2>/dev/null && trap "rmdir '$2' 2>/dev/null" EXIT; fi; }  # Git Bash on Windows has no flock
+negtest_lock 9 /tmp/negtest_modules.lockdir || { echo "another negtest_modules is running; refusing"; exit 2; }
 A=elysium-armory/src/main/java/com/elysium/armory
 S=elysium-ascendancy/src/main/java/com/elysium/ascendancy
 AC=$A/property/ArmoryCompute.java

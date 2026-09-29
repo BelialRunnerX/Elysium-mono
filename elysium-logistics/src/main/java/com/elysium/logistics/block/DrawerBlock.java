@@ -1,21 +1,26 @@
 package com.elysium.logistics.block;
 
+import com.elysium.logistics.ElysiumLogistics;
 import com.elysium.logistics.registry.LogisticBlockEntities;
 import com.elysium.logistics.rules.LogisticRules;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -52,8 +57,22 @@ import org.jetbrains.annotations.Nullable;
  * a hundred times more often than "what exactly is in slot two".
  *
  * <p>Prodding one with an empty hand takes a stack. Prodding it while
- * crouching says what is in it and how much. A comparator reads how full it
- * is, which is what a player wants to automate on.
+ * crouching says what is in it and how much, or takes a void seal back out
+ * if one is fitted. A comparator reads how full it is, which is what a
+ * player wants to automate on.
+ *
+ * <h2>What a player can fit to one</h2>
+ *
+ * A void seal, the same part a bag takes, used on it: from then on what will
+ * not fit is destroyed rather than refused. That is the one thing in this
+ * module that destroys anything, so it is the one thing a player has to do
+ * by hand. The seal comes back out into an empty hand, and a broken drawer
+ * drops it with everything else in it.
+ *
+ * <p>And a key, used on it, which locks it to what it holds: emptied, it
+ * keeps its kinds and takes no new ones, so a hopper cannot re-type a wall of
+ * drawers the first time one runs dry. The key is never spent. Neither shows
+ * on the front, so the drawer says both whenever it says what it holds.
  */
 public class DrawerBlock extends BaseEntityBlock {
 
@@ -115,10 +134,27 @@ public class DrawerBlock extends BaseEntityBlock {
         if (held.isEmpty() || !(level.getBlockEntity(pos) instanceof DrawerBlockEntity into)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
-        if (!level.isClientSide && into.offer(held)) {
+        if (level.isClientSide) {
             return ItemInteractionResult.SUCCESS;
         }
-        return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        // The key and the seal are asked about before anything goes in, or
+        // the first key a player turns in a drawer is a key filed away in it.
+        if (held.is(ours(LogisticRules.DRAWER_KEY))) {
+            player.displayClientMessage(into.turnKey(), true);
+            return ItemInteractionResult.SUCCESS;
+        }
+        if (held.is(ours(LogisticRules.DRAWER_SEAL))) {
+            player.displayClientMessage(into.seal(held), true);
+            return ItemInteractionResult.SUCCESS;
+        }
+        if (into.offer(held)) {
+            return ItemInteractionResult.SUCCESS;
+        }
+        // Nothing went in: it is full, it holds something else, or it is
+        // locked to what it holds. Say so, since a lock does not show on the
+        // front and a drawer that silently refuses looks broken.
+        player.displayClientMessage(into.says(), true);
+        return ItemInteractionResult.CONSUME;
     }
 
     @Override
@@ -128,7 +164,18 @@ public class DrawerBlock extends BaseEntityBlock {
             return InteractionResult.PASS;
         }
         if (!level.isClientSide) {
-            if (player.isShiftKeyDown()) {
+            if (player.isShiftKeyDown() && from.store().voiding()) {
+                // The seal back into the empty hand, as a crate gives up its
+                // last part: what was fitted by hand comes out by hand.
+                ItemStack seal = from.unseal();
+                player.displayClientMessage(Component.translatable(
+                        "elysiumlogistics.drawer.unsealed", seal.getHoverName()), true);
+                if (player.getMainHandItem().isEmpty()) {
+                    player.setItemInHand(InteractionHand.MAIN_HAND, seal);
+                } else {
+                    player.getInventory().placeItemBackInInventory(seal);
+                }
+            } else if (player.isShiftKeyDown()) {
                 player.displayClientMessage(from.says(), true);
             } else {
                 ItemStack out = from.takeStack(hit.getDirection());
@@ -150,8 +197,22 @@ public class DrawerBlock extends BaseEntityBlock {
             for (ItemStack stack : from.store().spill()) {
                 Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
             }
+            // And the seal, if one is fitted: a part is never lost with the
+            // block it was fitted to, as a crate's are not.
+            Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), from.sealsHeld());
         }
         super.onRemove(state, level, pos, replacement, moving);
+    }
+
+    /**
+     * The item this module registered under a name the rules give.
+     *
+     * <p>By name, as a crate names the parts it drops, so the drawer and the
+     * rules agree on which item is the seal and which the key.
+     */
+    private static Item ours(String name) {
+        return BuiltInRegistries.ITEM.get(
+                ResourceLocation.fromNamespaceAndPath(ElysiumLogistics.MODID, name));
     }
 
     @Override
@@ -220,26 +281,82 @@ public class DrawerBlock extends BaseEntityBlock {
             return ItemStack.EMPTY;
         }
 
+        /**
+         * Fit a void seal off the held stack, and say so.
+         *
+         * <p>One, and only while there is none. A second is refused and stays
+         * in the hand, because a seal spent on nothing is a seal destroyed.
+         */
+        public Component seal(ItemStack held) {
+            Component name = held.getHoverName();
+            if (!LogisticRules.takesSeal(store.voiding())) {
+                return Component.translatable("elysiumlogistics.drawer.sealed_twice", name);
+            }
+            store.voiding(true);
+            held.shrink(1);
+            return Component.translatable("elysiumlogistics.drawer.sealed", name);
+        }
+
+        /** Take the seal back out, voiding off, and hand over what came out. */
+        public ItemStack unseal() {
+            ItemStack seal = sealsHeld();
+            store.voiding(false);
+            return seal;
+        }
+
+        /** The seal fitted to it, as an item: the one it took, or nothing. */
+        public ItemStack sealsHeld() {
+            return new ItemStack(ours(LogisticRules.DRAWER_SEAL),
+                    LogisticRules.sealsIn(store.voiding()));
+        }
+
+        /**
+         * Turn a key in it: locked if it was not, unlocked if it was, and say
+         * which. Nothing here touches the key, which is never spent.
+         */
+        public Component turnKey() {
+            if (store.locked()) {
+                store.locked(false);
+                return Component.translatable("elysiumlogistics.drawer.unlocked");
+            }
+            if (!LogisticRules.mayLock(store.kindsKept())) {
+                return Component.translatable("elysiumlogistics.drawer.nothing_to_lock");
+            }
+            store.locked(true);
+            return Component.translatable("elysiumlogistics.drawer.locked_now");
+        }
+
         /** What it would say if it could talk. */
         public Component says() {
+            MutableComponent line;
             if (store.bare()) {
-                return Component.translatable("elysiumlogistics.drawer.empty",
+                line = Component.translatable("elysiumlogistics.drawer.empty",
                         String.format("%,d", store.drawer().room()));
-            }
-            StringBuilder said = new StringBuilder();
-            for (int slot = 0; slot < store.getSlots(); slot++) {
-                if (store.kindIn(slot).isEmpty()) {
-                    continue;
+            } else {
+                StringBuilder said = new StringBuilder();
+                for (int slot = 0; slot < store.getSlots(); slot++) {
+                    if (store.kindIn(slot).isEmpty()) {
+                        continue;
+                    }
+                    if (said.length() > 0) {
+                        said.append(", ");
+                    }
+                    said.append(String.format("%,d", store.countIn(slot)))
+                            .append(" ")
+                            .append(store.kindIn(slot).getHoverName().getString());
                 }
-                if (said.length() > 0) {
-                    said.append(", ");
-                }
-                said.append(String.format("%,d", store.countIn(slot)))
-                        .append(" ")
-                        .append(store.kindIn(slot).getHoverName().getString());
+                line = Component.translatable("elysiumlogistics.drawer.holding",
+                        said.toString(), String.format("%,d", store.drawer().room()));
             }
-            return Component.translatable("elysiumlogistics.drawer.holding",
-                    said.toString(), String.format("%,d", store.drawer().room()));
+            // What a key or a seal has made of it, since neither shows on the
+            // front and both change what it does with the next thing offered.
+            if (store.locked()) {
+                line.append(" ").append(Component.translatable("elysiumlogistics.drawer.locked"));
+            }
+            if (store.voiding()) {
+                line.append(" ").append(Component.translatable("elysiumlogistics.drawer.voids"));
+            }
+            return line;
         }
 
         /**

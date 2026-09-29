@@ -98,9 +98,14 @@ edit $ST '            return KitchenRules.isHeat(BuiltInRegistries.BLOCK.getKey(
 expect "a fuel the rules never saw" "rather than KitchenRules.HEAT"
 
 echo "the knife"
-edit $ST '                KitchenRules.Cut cut = AgronomyData.cutFor(nameOf(contents.get(at)));' \
+edit $ST '                KitchenRules.Cut cut = AgronomyData.cutFor(nameOf(contents.get(at)),
+                        toolOf(knife));' \
          '                KitchenRules.Cut cut = null;'
 expect "a knife that asks nobody what it cuts" "does not ask the cutting folder"
+
+edit $ST '            return knife.getItem() instanceof KnifeItem one ? one.tool() : KitchenRules.KNIFE;' \
+         '            return KitchenRules.KNIFE;'
+expect "a board that asks every knife for a kitchen knife's cuts" "a board asks for cuts under a name"
 
 edit $ST '                knife.hurtAndBreak(KitchenRules.KNIFE_WEAR, player,
                         LivingEntity.getSlotForHand(hand));' ''

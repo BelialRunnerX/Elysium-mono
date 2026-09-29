@@ -144,6 +144,14 @@
     {
       "id": "elysiumores:frost_zinc_ore",
       "required": false
+    },
+    {
+      "id": "elysiumores:frost_titanium_ore",
+      "required": false
+    },
+    {
+      "id": "elysiumores:frost_tungsten_ore",
+      "required": false
     }
   ]
 }

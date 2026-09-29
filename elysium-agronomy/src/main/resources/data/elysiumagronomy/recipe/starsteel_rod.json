@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " M ",
+    "MRM",
+    " M "
+  ],
+  "key": {
+    "M": {
+      "tag": "c:ingots/starsteel"
+    },
+    "R": {
+      "item": "elysiumagronomy:steel_rod"
+    }
+  },
+  "result": {
+    "id": "elysiumagronomy:starsteel_rod",
+    "count": 1
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:basaltcavern",
+    "elysiumwilds:chalkcavern",
+    "elysiumwilds:dripwell",
+    "elysiumwilds:emberhollow",
+    "elysiumwilds:frostvault",
+    "elysiumwilds:geyserwell",
+    "elysiumwilds:icewell",
+    "elysiumwilds:mossgrotto",
+    "elysiumwilds:ochrecavern",
+    "elysiumwilds:pinehollow",
+    "elysiumwilds:rimegrotto",
+    "elysiumwilds:rootgrotto",
+    "elysiumwilds:slatecavern",
+    "elysiumwilds:springvault",
+    "elysiumwilds:steamwell"
+  ]
+}

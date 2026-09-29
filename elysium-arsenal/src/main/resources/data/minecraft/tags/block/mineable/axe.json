@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumarsenal:archeology_table",
+    "elysiumarsenal:rotten_log",
+    "elysiumarsenal:rotten_planks",
+    "elysiumarsenal:rotten_slab",
+    "elysiumarsenal:rotten_stairs",
+    "elysiumarsenal:rotten_fence",
+    "elysiumarsenal:rotten_fence_gate",
+    "elysiumarsenal:rotten_door",
+    "elysiumarsenal:rotten_trapdoor",
+    "elysiumarsenal:rotten_pressure_plate"
+  ]
+}

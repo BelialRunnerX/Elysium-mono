@@ -77,7 +77,9 @@ def tries(band):
 # and poor grades are that mod's own idea of a ladder and not ours to extend).
 # ---------------------------------------------------------------------------
 FAMILIES = [
-    # (family, band, the vanilla item to fall back on, or None)
+    # (family, band, the base game's own item, or None). An ore drops that item
+    # after a raw form and a gem and before any dust or ingot a mod tags
+    # (UnifyRules.DROP_ORDER).
     ("coal",           COMMON,     "minecraft:coal"),
     ("copper",         COMMON,     None),
     ("iron",           COMMON,     None),
@@ -96,6 +98,12 @@ FAMILIES = [
     ("diamond",        PRECIOUS,   "minecraft:diamond"),
     ("emerald",        PRECIOUS,   "minecraft:emerald"),
     ("platinum",       PRECIOUS,   None),
+    # The core's gear asks c:ingots/titanium and c:ingots/tungsten, and no jar
+    # the pack ships had either: twenty-six pieces could never be made
+    # (check_obtainable.py, 29 Sep 2026). elysium-foundry makes both from
+    # these ores, on platinum's band.
+    ("titanium",       PRECIOUS,   None),
+    ("tungsten",       PRECIOUS,   None),
     ("fluorite",       PRECIOUS,   None),
     ("certus_quartz",  PRECIOUS,   None),
     ("osmium",         EXOTIC,     None),
@@ -172,6 +180,39 @@ if not ROSTER or not DROPS or not PARTS or not CLOTH_MADE_OF:
     raise SystemExit("CordonMaterials.java did not parse; the roster's shape changed")
 
 # ---------------------------------------------------------------------------
+# What mines them (rules/HarvestRules.java): read, never retyped.
+# ---------------------------------------------------------------------------
+# A block in no tool's mineable tag breaks at a fist's pace, and one that asks
+# for the right tool drops nothing at all. The cloth block was skipped here by
+# name until the harvest audit of 29 September 2026; the rules decide by kind.
+HARVEST_SRC = open(os.path.join(JAVA, "rules/HarvestRules.java"), encoding="utf-8").read()
+HARVEST_SRC = re.sub(r"//[^\n]*", " ", re.sub(r"/\*.*?\*/", " ", HARVEST_SRC, flags=re.S))
+
+
+def _harvest_list(name):
+    found = re.search(r"List<String> " + name + r" = List\.of\(([^;]*?)\);", HARVEST_SRC, re.S)
+    if not found:
+        raise SystemExit("HarvestRules has no %s list to read" % name)
+    return re.findall(r'"([A-Z_a-z]+)"', found.group(1))
+
+
+_ore_tool = re.search(r'String ORE_TOOL = "([a-z]+)";', HARVEST_SRC)
+if not _ore_tool:
+    raise SystemExit("HarvestRules does not say what mines an ore")
+ORE_TOOL = _ore_tool.group(1)
+PICKAXE_KINDS = _harvest_list("PICKAXE_KINDS")
+BY_HAND_KINDS = _harvest_list("BY_HAND_KINDS")
+
+
+def tool_for_kind(kind):
+    """Which tool mines a block of this kind, from HarvestRules; None for one broken by hand."""
+    if kind in BY_HAND_KINDS:
+        return None
+    if kind in PICKAXE_KINDS:
+        return "pickaxe"
+    raise SystemExit("%s is a kind of material HarvestRules does not say what mines" % kind)
+
+# ---------------------------------------------------------------------------
 # Where the roots come from (rules/CordonSources.java): read, never retyped.
 # ---------------------------------------------------------------------------
 SOURCES_SRC = open(os.path.join(JAVA, "rules/CordonSources.java"), encoding="utf-8").read()
@@ -241,15 +282,52 @@ BIOMES = {
 
 # ---------------------------------------------------------------------------
 # What the pack already has, so nothing here duplicates it.
+#
+# The scan is the pack this was written against, and most of the mods in it
+# are gone: tools/retire.py moves a replaced jar out of the pack and writes its
+# row, mod id and all, into the licensing ledger. An ore a retired mod put in
+# stone is an ore nobody puts there now, so which stones are filled is asked
+# of the mods still shipped. Asked of the whole scan, it left the Overworld
+# with no tin, zinc, nickel, silver, lead, aluminium, lithium, osmium, uranium
+# or uraninite, because Mekanism, Create, Immersive Engineering and the rest
+# once had them there (check_obtainable.py, 29 Sep 2026). The tags are another
+# matter: an optional entry for a retired mod costs nothing and tidies a pack
+# that still has it, so unify_tags() reads the whole scan.
 # ---------------------------------------------------------------------------
 VANILLA_STONE_AND_DEEPSLATE = {"coal", "copper", "iron", "gold", "redstone",
                                "lapis", "emerald", "diamond"}
+LEDGER = os.path.join(os.path.dirname(MOD), "docs", "LICENSING.md")
+
+
+def retired_mods():
+    """Every mod id with a row in the licensing ledger: the jars the pack no longer ships."""
+    if not os.path.isfile(LEDGER):
+        raise SystemExit("docs/LICENSING.md is not beside this module, so which mods the pack "
+                         "still ships cannot be read")
+    ids = set()
+    for line in open(LEDGER, encoding="utf-8"):
+        row = re.match(r"^\| [^|]* \| `[^`]+\.jar` \| ([^|]*) \|", line)
+        if row:
+            ids.update(part.strip() for part in row.group(1).split(",") if part.strip())
+    if not ids:
+        raise SystemExit("docs/LICENSING.md lists no retired jar; the ledger's table changed shape")
+    return ids
+
+
+RETIRED = retired_mods()
+
+
+def shipped(block):
+    """Whether the mod a scanned block belongs to is still in the pack."""
+    return block.split(":", 1)[0] not in RETIRED
 
 
 def existing_hosts(family):
-    """Which stones somebody has already put this material in."""
+    """Which stones a mod the pack still ships has already put this material in."""
     have = set()
     for block in SCAN["ores"].get(family, []):
+        if not shipped(block):
+            continue
         path = block.split(":", 1)[1]
         for prefix, host in (("deepslate_", "deepslate"),
                              ("nether_", "netherrack"),
@@ -383,14 +461,18 @@ def ore_blocks():
             }]
         })
 
-    TOOL_TAGS["mineable"].extend(mineable)
+    MINEABLE.setdefault(ORE_TOOL, []).extend(mineable)
     TOOL_TAGS["stone"].extend(needs_stone)
     TOOL_TAGS["iron"].extend(needs_iron)
     TOOL_TAGS["diamond"].extend(needs_diamond)
     return len(GAPS)
 
 
-TOOL_TAGS = {"mineable": [], "stone": [], "iron": [], "diamond": []}
+TOOL_TAGS = {"stone": [], "iron": [], "diamond": []}
+#: {tool: [block ids]}, the game's mineable tags, filled by ore_blocks() and
+#: cordon() and written once each by tool_tags(): a tag written in pieces
+#: keeps only the last piece.
+MINEABLE = {}
 
 
 def loot_modifiers():
@@ -438,8 +520,10 @@ def cordon_sources():
 
 
 def tool_tags():
-    for path, values in (("minecraft/tags/block/mineable/pickaxe.json", TOOL_TAGS["mineable"]),
-                         ("minecraft/tags/block/needs_stone_tool.json", TOOL_TAGS["stone"]),
+    for tool, values in sorted(MINEABLE.items()):
+        write(os.path.join(RES, "data", "minecraft/tags/block/mineable/%s.json" % tool),
+              {"replace": False, "values": sorted(values)})
+    for path, values in (("minecraft/tags/block/needs_stone_tool.json", TOOL_TAGS["stone"]),
                          ("minecraft/tags/block/needs_iron_tool.json", TOOL_TAGS["iron"]),
                          ("minecraft/tags/block/needs_diamond_tool.json", TOOL_TAGS["diamond"])):
         write(os.path.join(RES, "data", path),
@@ -515,8 +599,9 @@ def cordon():
         for name in block_names:
             _block(name)
             blocks += 1
-            if kind != "CLOTH":
-                TOOL_TAGS["mineable"].append(f"{NS}:{name}")
+            tool = tool_for_kind(kind)
+            if tool is not None:
+                MINEABLE.setdefault(tool, []).append(f"{NS}:{name}")
                 tier = "diamond" if band >= EXOTIC else "iron" if band >= PRECIOUS else "stone"
                 if kind == "ALLOY":
                     tier = "iron"
@@ -584,6 +669,39 @@ def cordon():
         _c_tag("plates", part["family"], [f"{NS}:{part['name']}"])
         recipes += 1
     return items, blocks, recipes
+
+
+# ---------------------------------------------------------------------------
+# A gem's raw chunk, smelted back into the gem.
+#
+# An ore drops the first of a raw form, a gem, the game's own item, a dust and
+# an ingot that its family has (UnifyRules.DROP_ORDER), and the agronomy tags a
+# chunk into c:raw_materials/<gem> for every gem here. So a ruby ore drops a
+# ruby chunk, and so do this module's diamond, emerald, lapis and quartz ores.
+# A furnace takes the chunk on to the gem, as elysium-foundry's does for its
+# four gems; without it the six Cordon gems, their blocks and the pyratite
+# plate were things nothing made, and a diamond ore in the Nether gave a chunk
+# that was good for nothing (check_obtainable.py, 29 Sep 2026).
+# ---------------------------------------------------------------------------
+#: The base game's gems among FAMILIES. Their ore gives the family's own item.
+VANILLA_GEMS = ("diamond", "emerald", "lapis", "quartz")
+
+
+def gem_smelting():
+    """Smelting and blasting of #c:raw_materials/<gem> into the gem, for every gem with an ore here."""
+    fallback = {family: vanilla for family, _, vanilla in FAMILIES}
+    gems = {row["family"]: f"{NS}:{row['family']}" for row in ROSTER if row["kind"] == "GEM"}
+    for family in VANILLA_GEMS:
+        if not fallback.get(family):
+            raise SystemExit(f"{family} is one of the game's gems and FAMILIES gives it no item")
+        gems[family] = fallback[family]
+    for family, gem in sorted(gems.items()):
+        for suffix, cook, time in (("", "smelting", 200), ("_blasting", "blasting", 100)):
+            write(os.path.join(DATA, f"recipe/{family}_from_raw{suffix}.json"), {
+                "type": f"minecraft:{cook}", "category": "misc",
+                "ingredient": {"tag": f"c:raw_materials/{family}"},
+                "result": {"id": gem}, "experience": 0.3, "cookingtime": time})
+    return 2 * len(gems)
 
 
 def cordon_language():
@@ -697,12 +815,13 @@ import java.util.List;
  * GENERATED by tools/gen_ores.py from tools/pack_scan.json. Do not edit by
  * hand; edit the generator and run it.
  *
- * <p>A row exists for each material-and-stone pair that nobody in the scanned
- * pack had filled in: netherrack_lead_ore exists because six mods put lead in
- * stone and deepslate and none put it in the Nether. A row is a name, the
- * material family it belongs to, the stone it is hosted in, how hard it is to
- * find, and - for the handful of materials vanilla itself supplies - the item
- * to fall back on when no mod has claimed the family's tag.
+ * <p>A row exists for each material-and-stone pair that no mod the pack
+ * still ships has filled in: netherrack_lead_ore exists because none of the six
+ * mods that put lead in stone and deepslate put it in the Nether, and
+ * stone_lead_ore because all six are retired. A row is a name, the material
+ * family it belongs to, the stone it is hosted in, how hard it is to find,
+ * and - for the handful of materials vanilla itself supplies - the game's own
+ * item, which the ore drops ahead of any dust or ingot a mod tags.
  *
  * <p>Nothing here names another mod's item. The family is a tag; what the tag
  * resolves to is a runtime question, asked by OreDrops.
@@ -714,9 +833,10 @@ public final class OreCatalogue {
 
     /**
      * One ore: the block's own path, the c: material family it belongs to, the
-     * stone it is found in, how rare it is on OreRules' scale, and the item to
-     * drop when no mod supplies the family - null for the families no mod-free
-     * install has.
+     * stone it is found in, how rare it is on OreRules' scale, and the game's
+     * own item for the family, dropped when the family has no raw form and no
+     * gem (UnifyRules.DROP_ORDER) - null for the families no mod-free install
+     * has.
      */
     public record Entry(String name, String family, String host, int band,
                         String vanilla) {
@@ -740,6 +860,7 @@ def main():
     tags = unify_tags()
     ores = ore_blocks()
     items, blocks, recipes = cordon()
+    smelted = gem_smelting()
     tool_tags()
     modifiers = loot_modifiers()
     seeds = cordon_sources()
@@ -749,6 +870,7 @@ def main():
     print(f"unification tags  : {tags}")
     print(f"ore blocks        : {ores} across {len(HOSTS)} stones")
     print(f"cordon materials  : {items} items, {blocks} blocks, {recipes} recipes")
+    print(f"gem smelting      : {smelted} recipes, a raw chunk into its gem")
     print(f"cordon sources    : {seeds} roots, {len(SOURCES)} sources in vanilla loot, {modifiers} loot modifiers listed")
     print(f"biome modifiers   : {dims} worlds")
     print(f"catalogue rows    : {rows}")

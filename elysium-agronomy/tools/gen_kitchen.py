@@ -670,7 +670,7 @@ LINES = {
     f"{NS}.station.not_a_board": "A knife is for the cutting board.",
     f"{NS}.station.busy": "Wait for it to finish.",
     f"{NS}.station.cut": "Cut the %s.",
-    f"{NS}.station.nothing_to_cut": "Nothing on it a knife cuts.",
+    f"{NS}.station.nothing_to_cut": "Nothing on it that knife cuts.",
     f"{NS}.station.cold": "No fire under it.",
     f"{NS}.station.made": "%s ready: take it with an empty hand.",
     f"{NS}.station.cooking": "Making %s, about %ss to go.",

@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "elysiumnpcs:sentinel_summons",
+      "required": false
+    },
+    {
+      "id": "elysiumnpcs:architect_summons",
+      "required": false
+    },
+    {
+      "id": "elysiumnpcs:commander_summons",
+      "required": false
+    },
+    {
+      "id": "elysiumnpcs:emperor_summons",
+      "required": false
+    },
+    {
+      "id": "elysiumnpcs:queen_summons",
+      "required": false
+    }
+  ]
+}

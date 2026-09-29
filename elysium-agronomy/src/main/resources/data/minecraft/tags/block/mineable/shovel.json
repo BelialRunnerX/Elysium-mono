@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumagronomy:ashen_bed",
+    "elysiumagronomy:clay_bed",
+    "elysiumagronomy:gravel_bed",
+    "elysiumagronomy:rich_loam",
+    "elysiumagronomy:void_silt"
+  ]
+}

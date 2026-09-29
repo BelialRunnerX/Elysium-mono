@@ -88,6 +88,14 @@
     {
       "id": "elysiumfoundry:starsteel_nugget",
       "required": false
+    },
+    {
+      "id": "elysiumfoundry:titanium_nugget",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:tungsten_nugget",
+      "required": false
     }
   ]
 }

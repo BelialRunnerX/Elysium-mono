@@ -1400,6 +1400,182 @@ for _block in PORT_BLOCKS:
                      f"MineColonies and may be the only Elysium jar installed, so its "
                      f"one structure has to be buildable out of the base game")
 
+# ---------------------------------------------------------------------------
+# What mines them (rules/HarvestRules; the harvest audit of 29 Sep 2026)
+# ---------------------------------------------------------------------------
+# Every part of the elevator asks for the right tool (PortBlocks.metal() says
+# so), and a block that asks for the right tool drops nothing unless some
+# tool's mineable tag names it. Nothing named them: a colony that took its
+# elevator down lost every block of it. So every registered block is in
+# exactly one of this module's mineable tags, or named BY_HAND in the rules
+# with its reason here; an exemption is read where the block is registered —
+# through the properties helper it calls, not taken on trust; the tags are
+# what the rules say, written by tools/gen_port.py; and a tag names only
+# blocks this module registers, because one unknown id makes the game refuse
+# the whole tag.
+_harvest_src = strip_comments(read(PURE, "HarvestRules.java"), keep_strings=True)
+if not _harvest_src:
+    fail("rules/HarvestRules.java is missing, so nothing says what mines the elevator "
+         "and the tags are written from nothing")
+
+
+def _harvest_list(name):
+    found = re.search(r"List<String> " + name + r" = List\.of\(([^;]*?)\);", _harvest_src, re.S)
+    return re.findall(r'"([a-z_]+)"', found.group(1)) if found else []
+
+
+HARVEST_TOOLS = ("pickaxe", "axe", "shovel", "hoe")
+MINEABLE = {}
+for _tool in HARVEST_TOOLS:
+    _tag = os.path.join(RES, "data/minecraft/tags/block/mineable", _tool + ".json")
+    if not os.path.isfile(_tag):
+        continue
+    _doc = json.load(open(_tag, encoding="utf-8"))
+    if _doc.get("replace"):
+        fail(f"mineable/{_tool} sets replace: true, which throws away every other mod's "
+             f"entries in the game's own tag")
+    for _one in _doc.get("values", []):
+        _named = _one.get("id") if isinstance(_one, dict) else _one
+        if not isinstance(_named, str):
+            continue
+        MINEABLE.setdefault(_named, set()).add(_tool)
+        if _named.startswith(f"{NS}:") and not os.path.isfile(os.path.join(
+                RES, f"assets/{NS}/blockstates", _named.split(":", 1)[1] + ".json")):
+            fail(f"mineable/{_tool} names {_named}, which is not a block this module "
+                 f"registers, so the game refuses the whole tag and every block in it "
+                 f"is back to dropping nothing")
+
+#: The blocks no tool is for, and why. HarvestRules.BY_HAND says which; a block
+#: it names with no reason here is refused, and so is a reason for a block it
+#: no longer names. Nothing, today: the stakes are wood and stone, so a tool
+#: sets their speed even though neither asks for one.
+MINE_EXEMPT = {}
+
+#: What the game's blocks this module copies ask of a tool, read out of the
+#: game's own jar. Nothing here copies one; a block that starts to is looked
+#: up here or refused.
+ASKS_FOR_A_TOOL = {}
+
+
+def asks_for_a_tool(made, what):
+    """Whether a block built like this asks for the right tool, and how."""
+    if not made:
+        fail(f"nothing here finds how {what} is built, so nothing shows whether it "
+             f"asks for the right tool")
+        return None, ""
+    if ".requiresCorrectToolForDrops()" in made:
+        return True, "it says so where it is registered"
+    for copied in re.findall(r"\bBlocks\.([A-Z_]+)", made):
+        if copied not in ASKS_FOR_A_TOOL:
+            fail(f"{what} copies Blocks.{copied}, and nothing here knows whether that "
+                 f"asks for the right tool: look it up in the game's jar and add it")
+            return None, ""
+        if ASKS_FOR_A_TOOL[copied]:
+            return True, f"it copies Blocks.{copied}, which does"
+    return False, ""
+
+
+_registries = [strip_comments(read(SRC, "registry/PortBlocks.java"), keep_strings=True),
+               strip_comments(read(SRC, "registry/SettleBlocks.java"), keep_strings=True)]
+# A properties helper shared by several registrations (PortBlocks.metal) is
+# where the tool is asked for, so a registration that calls one reads as the
+# call and the helper's body together.
+_property_helpers = {}
+for _registry in _registries:
+    for _helper in re.findall(r"private static BlockBehaviour\.Properties (\w+)\(", _registry):
+        _property_helpers[_helper] = re.sub(r"\s+", " ", body_of(
+            _registry, f"private static BlockBehaviour.Properties {_helper}("))
+
+
+def _built_as(name):
+    for _registry in _registries:
+        _flat = re.sub(r"\s+", " ", _registry)
+        _at = re.search(r'BLOCKS\.register\( ?"' + name + '"', _flat)
+        if not _at:
+            continue
+        _made = _flat[_at.start():_flat.find(";", _at.start())]
+        for _helper, _body in _property_helpers.items():
+            if re.search(r"\b" + _helper + r"\(", _made):
+                _made += " " + _body
+        return _made
+    return ""
+
+
+_registered_blocks = re.findall(r'BLOCKS\.register\(\s*"([a-z_]+)"', "\n".join(_registries))
+_blockstate_dir = os.path.join(RES, f"assets/{NS}/blockstates")
+for _name in sorted(os.path.splitext(f)[0] for f in os.listdir(_blockstate_dir)
+                    if f.endswith(".json")) if os.path.isdir(_blockstate_dir) else []:
+    if _name not in _registered_blocks:
+        fail(f"{_name} has a blockstate and no registration in PortBlocks or SettleBlocks, "
+             f"so nothing here can say what mines it")
+_by_hand = _harvest_list("BY_HAND")
+for _name in _by_hand:
+    if _name not in MINE_EXEMPT:
+        fail(f"HarvestRules breaks {_name} by hand and this gives no reason, so it is left "
+             f"out of every tool's tag on nobody's say-so")
+for _name in MINE_EXEMPT:
+    if _name not in _by_hand:
+        fail(f"a reason is given for breaking {_name} by hand and HarvestRules no longer "
+             f"does, so the exemption covers a block the rules put in a tool's tag")
+_rule_tools = {}
+for _tool in HARVEST_TOOLS:
+    for _name in _harvest_list(_tool.upper()):
+        _rule_tools.setdefault(_name, []).append(_tool)
+for _name in sorted(set(_rule_tools) | set(_by_hand)):
+    if _name not in _registered_blocks:
+        fail(f"HarvestRules says what mines {_name}, and no such block is registered, so "
+             f"the tag it is written into is refused whole")
+_tool_blocks = []
+_asking_untagged = []
+_untagged = []
+for _name in _registered_blocks:
+    _asks, _how = asks_for_a_tool(_built_as(_name), f"the {_name}")
+    _tags = MINEABLE.get(f"{NS}:{_name}", set())
+    if _asks:
+        _tool_blocks.append(_name)
+    if len(_tags) > 1:
+        fail(f"{_name} is in {len(_tags)} mineable tags ({', '.join(sorted(_tags))}), so "
+             f"two tools are right and the rules can only have named one")
+    if _name in MINE_EXEMPT:
+        if _asks:
+            fail(f"{_name} is exempt from the mineable tags ({MINE_EXEMPT[_name]}), but it "
+                 f"asks for the right tool: {_how}. With no tag no tool is right, so it "
+                 f"would drop nothing")
+        if _tags:
+            fail(f"{_name} is exempt from the mineable tags and in one all the same; take "
+                 f"it off MINE_EXEMPT or out of the tag")
+        continue
+    if not _tags:
+        (_asking_untagged if _asks else _untagged).append(_name)
+    if sorted(_rule_tools.get(_name, [])) != sorted(_tags):
+        fail(f"the rules put {_name} under {' and '.join(_rule_tools.get(_name, [])) or 'no tool'} "
+             f"and the tags under {' and '.join(sorted(_tags)) or 'none'}; the tags are "
+             f"written from the rules by tools/gen_port.py, so one of them was edited by "
+             f"hand")
+if _asking_untagged:
+    fail(f"{len(_asking_untagged)} block(s) ask for the right tool and are in no tool's "
+         f"tag, so no tool is ever right and they drop nothing however they are mined: "
+         + ", ".join(_asking_untagged))
+if _untagged:
+    fail(f"{len(_untagged)} block(s) are in no mineable tag and not exempt, so every tool "
+         f"breaks them at a fist's pace: " + ", ".join(_untagged))
+# And each tag is the rules' list in the rules' order, which is what
+# tools/gen_port.py writes; anything else was typed.
+for _tool in HARVEST_TOOLS:
+    _tag = os.path.join(RES, "data/minecraft/tags/block/mineable", _tool + ".json")
+    _shipped = (json.load(open(_tag, encoding="utf-8")).get("values", [])
+                if os.path.isfile(_tag) else [])
+    _wanted = [f"{NS}:{name}" for name in _harvest_list(_tool.upper())]
+    if _shipped != _wanted:
+        fail(f"mineable/{_tool} is not what tools/gen_port.py writes from HarvestRules "
+             f"({len(_shipped)} named, {len(_wanted)} in the rules)")
+print(f"what mines them    : {len(_registered_blocks)} block(s), {len(_tool_blocks)} asking "
+      f"for the right tool, every one in exactly one tool's tag or broken by hand with a "
+      f"reason: " + ", ".join(f"{sum(1 for t in _rule_tools.values() if t == [tool])} by {tool}"
+                              for tool in HARVEST_TOOLS
+                              if any(t == [tool] for t in _rule_tools.values()))
+      + f", {len(MINE_EXEMPT)} by hand")
+
 # The structure is read out of the world, and every part of it is load-bearing.
 _read = body_of(_elevator, "public static Reading read(")
 if not _read:

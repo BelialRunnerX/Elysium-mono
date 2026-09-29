@@ -1,6 +1,8 @@
 {
-  "parent": "block/cube_all",
+  "parent": "minecraft:block/stairs",
   "textures": {
-    "all": "elysiumarsenal:block/rotten_stairs"
+    "bottom": "elysiumarsenal:block/rotten_planks",
+    "top": "elysiumarsenal:block/rotten_planks",
+    "side": "elysiumarsenal:block/rotten_planks"
   }
 }

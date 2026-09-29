@@ -26,9 +26,11 @@
       "required": false
     },
     "elysiumores:cinder_uraninite_ore",
+    "elysiumores:deepslate_uraninite_ore",
     "elysiumores:end_stone_uraninite_ore",
     "elysiumores:frost_uraninite_ore",
     "elysiumores:netherrack_uraninite_ore",
-    "elysiumores:pale_uraninite_ore"
+    "elysiumores:pale_uraninite_ore",
+    "elysiumores:stone_uraninite_ore"
   ]
 }

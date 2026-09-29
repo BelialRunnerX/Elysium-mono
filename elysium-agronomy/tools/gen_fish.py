@@ -106,6 +106,51 @@ TACKLE_BOX = TACKLE_BOX.group(1)
 TACKLE_BLOCKS = [WORM_FARM, TACKLE_BOX]
 MOUNTS = [one["id"] + "_mount" for one in FISH]
 
+# ---------------------------------------------------------------------------
+# The rods: what each rung is built from
+# ---------------------------------------------------------------------------
+
+#: What each rung of rod is built from. The first is the game's own rod shape
+#: in sugar cane; every rung above is the rung below with four of this around
+#: it, so a rod is improved rather than replaced, the way the hive housings
+#: are. Keyed by name: a rung the registry adds and this table does not is a
+#: generator that stops, not a rod nobody can make.
+ROD_MATERIALS = {
+    "reed_rod": {"item": "minecraft:sugar_cane"},
+    "oak_rod": {"tag": "minecraft:oak_logs"},
+    "iron_rod": {"item": "minecraft:iron_ingot"},
+    "steel_rod": {"tag": "c:ingots/steel"},
+    "starsteel_rod": {"tag": "c:ingots/starsteel"},
+}
+if [name for name in ROD_NAMES if name not in ROD_MATERIALS]:
+    print("a rung of rod has nothing to be built from: "
+          f"{[name for name in ROD_NAMES if name not in ROD_MATERIALS]}")
+    sys.exit(2)
+
+# ---------------------------------------------------------------------------
+# The fillet knife's cuts, read out of KitchenRules
+# ---------------------------------------------------------------------------
+
+KITCHEN_SOURCE = read(os.path.join(
+    MOD, "src/main/java/com/elysium/agronomy/rules/KitchenRules.java"))
+FILLET_KNIFE = re.search(r'FILLET_KNIFE = "([a-z_]+)";', KITCHEN_SOURCE)
+FILLET = re.search(r'String FILLET = "([a-z_]+)";', KITCHEN_SOURCE)
+MOST_A_CUT_FEEDS = re.search(r"MOST_A_CUT_FEEDS = (\d+);", KITCHEN_SOURCE)
+FILLET_WORTH = re.search(r'new Ingredient\("' + (FILLET.group(1) if FILLET else "")
+                         + r'", (\d+),', KITCHEN_SOURCE)
+if not (FILLET_KNIFE and FILLET and MOST_A_CUT_FEEDS and FILLET_WORTH):
+    print("KitchenRules no longer says what a fillet knife takes off a fish")
+    sys.exit(2)
+FILLET_KNIFE = FILLET_KNIFE.group(1)
+FILLET = FILLET.group(1)
+MOST_A_CUT_FEEDS = int(MOST_A_CUT_FEEDS.group(1))
+FILLET_WORTH = int(FILLET_WORTH.group(1))
+
+
+def fillets_from(nutrition):
+    """KitchenRules.filletsFrom: as many fillets as keep the cut inside the rule."""
+    return nutrition * MOST_A_CUT_FEEDS // FILLET_WORTH
+
 
 # ---------------------------------------------------------------------------
 # The water the fish swim in without a rod, read out of WaterRules
@@ -585,6 +630,81 @@ def tackle_data():
             "result": {"id": f"{NS}:{bobber['id']}", "count": 1},
         })
         written += 1
+
+    # The rods. The game's own rod fishes water as the bottom rung, but only
+    # ours casts a float that floats on lava and in the End's void, so a rod
+    # nobody can make is two families nobody can catch.
+    for rung, name in enumerate(ROD_NAMES):
+        if rung == 0:
+            recipe = {
+                "type": "minecraft:crafting_shaped",
+                "category": "equipment",
+                "pattern": ["  C", " CS", "C S"],
+                "key": {"C": ROD_MATERIALS[name], "S": {"item": "minecraft:string"}},
+                "result": {"id": f"{NS}:{name}", "count": 1},
+            }
+        else:
+            recipe = {
+                "type": "minecraft:crafting_shaped",
+                "category": "equipment",
+                "pattern": [" M ", "MRM", " M "],
+                "key": {"M": ROD_MATERIALS[name],
+                        "R": {"item": f"{NS}:{ROD_NAMES[rung - 1]}"}},
+                "result": {"id": f"{NS}:{name}", "count": 1},
+            }
+        write(os.path.join(data, "recipe", name + ".json"), recipe)
+        written += 1
+
+    # The fillet knife: a thin blade, so it is not an iron knife's ingot on
+    # a stick. And the measuring line: string marked off in black.
+    write(os.path.join(data, "recipe", "fillet_knife.json"), {
+        "type": "minecraft:crafting_shaped",
+        "category": "equipment",
+        "pattern": ["  N", " N ", "S  "],
+        "key": {"N": {"item": "minecraft:iron_nugget"}, "S": {"item": "minecraft:stick"}},
+        "result": {"id": f"{NS}:fillet_knife", "count": 1},
+    })
+    write(os.path.join(data, "recipe", "measuring_line.json"), {
+        "type": "minecraft:crafting_shapeless",
+        "category": "equipment",
+        "ingredients": [{"item": "minecraft:string"}, {"item": "minecraft:string"},
+                        {"item": "minecraft:stick"}, {"item": "minecraft:black_dye"}],
+        "result": {"id": f"{NS}:measuring_line", "count": 1},
+    })
+    written += 2
+
+    # What the fillet knife cuts: every fish big enough to fillet, into as
+    # many fillets as KitchenRules.filletsFrom gives. The cutting board reads
+    # these beside the kitchen's own cuts, and asks for a cut by the knife's
+    # name, so a kitchen knife never takes a fillet off one of these.
+    for one in FISH:
+        fillets = fillets_from(one["nutrition"])
+        if fillets <= 0:
+            continue
+        write(os.path.join(data, "cutting", one["id"] + ".json"), {
+            "input": f"{NS}:{one['id']}",
+            "tool": FILLET_KNIFE,
+            "yields": [{"item": f"{NS}:{FILLET}", "count": fillets}],
+        })
+        written += 1
+
+    # A fish of a family that never swims on its own is never alive to be
+    # scooped, so a caught one goes into a bucket at the table
+    # (WaterRules.bucketedAtTable), and pouring it out is how an end fish
+    # comes to be swimming. An empty bucket: a water bucket in a crafting grid
+    # hands its bucket back, and the fish's bucket hands another back when it
+    # is poured, which is two buckets for one.
+    wild = {family["name"] for family in WILD_FAMILIES}
+    for one in FISH:
+        if one["family"]["name"] in wild:
+            continue
+        write(os.path.join(data, "recipe", one["id"] + "_bucket.json"), {
+            "type": "minecraft:crafting_shapeless",
+            "category": "misc",
+            "ingredients": [{"item": f"{NS}:{one['id']}"}, {"item": "minecraft:bucket"}],
+            "result": {"id": f"{NS}:{one['id']}_bucket", "count": 1},
+        })
+        written += 1
     return written
 
 
@@ -599,6 +719,9 @@ SAYINGS = {
     f"{NS}.worm_farm.fed": "The farm will make %s",
     f"{NS}.worm_farm.hungry": "Feed it a fish, and it makes that fish's bait",
     f"{NS}.worm_farm.working": "Making %s: %s of %s",
+    f"{NS}.line.measured": "%s: %s cm long",
+    f"{NS}.line.nothing": "Nothing to measure: hold a fish in the other hand, or use the "
+                          "line on one in the water",
 }
 
 

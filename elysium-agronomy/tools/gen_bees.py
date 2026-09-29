@@ -92,7 +92,7 @@ BIOME_OF = dict(re.findall(r'biome\("([a-z_]+)", "([^"]+)"\);', KEEPING))
 
 
 def keeping_number(name):
-    found = re.search(r"public static final int " + name + r" = ([\d_]+);", KEEPING)
+    found = re.search(r"public static final int " + name + r" = (-?[\d_]+);", KEEPING)
     if not found:
         print("KeepingRules no longer says", name)
         sys.exit(2)
@@ -112,15 +112,99 @@ if not NESTED or any(home not in BIOME_OF for home in HOMES):
           f"{[home for home in HOMES if home not in BIOME_OF]}")
     sys.exit(2)
 
+#: KeepingRules.groundOf(): what each home's nest is built on.
+GROUND_OF = dict(re.findall(r'ground\("([a-z_]+)", ([A-Z_]+)\);', KEEPING))
+GROUND_WORDS = dict(re.findall(
+    r'public static final String ([A-Z_]+) = "([a-z_]+)";', KEEPING))
+GROUND_OF = {home: GROUND_WORDS.get(const, "") for home, const in GROUND_OF.items()}
+GROUNDS = ("surface", "cave_floor", "nether_floor", "sea_bed")
+if any(GROUND_OF.get(home) not in GROUNDS for home in HOMES):
+    print("KeepingRules does not give every home a ground to build its nest on: "
+          f"{[home for home in HOMES if GROUND_OF.get(home) not in GROUNDS]}")
+    sys.exit(2)
+CAVE_LOWEST = keeping_number("CAVE_LOWEST")
+CAVE_HIGHEST = keeping_number("CAVE_HIGHEST")
+NETHER_LOWEST = keeping_number("NETHER_LOWEST")
+NETHER_HIGHEST = keeping_number("NETHER_HIGHEST")
+FLOOR_SCAN = keeping_number("FLOOR_SCAN")
+NEST_TRIES_BELOW = keeping_number("NEST_TRIES_BELOW")
+
+#: What a nest below the surface may be built in, and what it stands on.
+OPEN_AIR = ["minecraft:air", "minecraft:cave_air"]
+
+
+def nest_placement(home):
+    """
+    Where in its biome a home's nest goes: the ground KeepingRules names.
+
+    <p>The land and the sea bed are found by the game's own maps of the top
+    of the world. A cave floor and the nether's floor are found by picking
+    points in a band and walking down through air to the first solid block,
+    because the nether's map of its top is its bedrock roof and a cave's is
+    the land above it. Every one of them ends by checking the nest has room
+    and something under it, since the feature itself places over whatever
+    is there.
+    """
+    ground = GROUND_OF[home]
+    rare = {"type": "minecraft:rarity_filter", "chance": NEST_CHUNKS}
+    if ground == "surface":
+        return [
+            rare,
+            {"type": "minecraft:in_square"},
+            {"type": "minecraft:heightmap", "heightmap": "WORLD_SURFACE_WG"},
+            {"type": "minecraft:biome"},
+            {"type": "minecraft:block_predicate_filter",
+             "predicate": {"type": "minecraft:all_of", "predicates": [
+                 {"type": "minecraft:matching_blocks", "blocks": "minecraft:air"},
+                 {"type": "minecraft:solid", "offset": [0, -1, 0]}]}},
+        ]
+    if ground == "sea_bed":
+        return [
+            rare,
+            {"type": "minecraft:in_square"},
+            {"type": "minecraft:heightmap", "heightmap": "OCEAN_FLOOR_WG"},
+            {"type": "minecraft:biome"},
+            {"type": "minecraft:block_predicate_filter",
+             "predicate": {"type": "minecraft:all_of", "predicates": [
+                 {"type": "minecraft:matching_blocks", "blocks": "minecraft:water"},
+                 {"type": "minecraft:solid", "offset": [0, -1, 0]}]}},
+        ]
+    lowest, highest = ((CAVE_LOWEST, CAVE_HIGHEST) if ground == "cave_floor"
+                       else (NETHER_LOWEST, NETHER_HIGHEST))
+    return [
+        rare,
+        {"type": "minecraft:count", "count": NEST_TRIES_BELOW},
+        {"type": "minecraft:in_square"},
+        {"type": "minecraft:height_range",
+         "height": {"type": "minecraft:uniform",
+                    "min_inclusive": {"absolute": lowest},
+                    "max_inclusive": {"absolute": highest}}},
+        {"type": "minecraft:environment_scan",
+         "direction_of_search": "down",
+         "max_steps": FLOOR_SCAN,
+         "target_condition": {"type": "minecraft:solid"},
+         "allowed_search_condition": {"type": "minecraft:matching_blocks",
+                                      "blocks": OPEN_AIR}},
+        {"type": "minecraft:random_offset", "xz_spread": 0, "y_spread": 1},
+        {"type": "minecraft:biome"},
+        {"type": "minecraft:block_predicate_filter",
+         "predicate": {"type": "minecraft:all_of", "predicates": [
+             {"type": "minecraft:matching_blocks", "blocks": OPEN_AIR},
+             {"type": "minecraft:solid", "offset": [0, -1, 0]}]}},
+    ]
+
 
 def wild_world():
     """
-    Where the wild bees are found: a spawn and a nest in each one's biome.
+    Where the wild bees are found, and a nest in every home.
 
-    <p>An add-spawns modifier per wild bee, in its home's biome, and for each
-    home a wild bee lives in, a nest generated on the surface there, full.
-    Bred bees get neither: a bred bee found in the world is a breeding tree
-    with a shortcut, which KeepingRules says and the harness checks.
+    <p>An add-spawns modifier per wild bee, in its home's biome. And for
+    every home, a nest generated in its biome on the ground KeepingRules
+    names: full where a wild bee lives, empty where every bee is bred
+    (KeepingRules.nestBees). Bred bees get no spawn: a bred bee found in the
+    world is a breeding tree with a shortcut. Their homes still get a nest,
+    because a nest block nothing generates is a block no survival player
+    can have.
     """
     written = 0
     for bee in BEES:
@@ -134,27 +218,19 @@ def wild_world():
                           "minCount": WILD_LEAST, "maxCount": WILD_MOST}],
         })
         written += 1
-    for home in NESTED:
+    for home in HOMES:
         name = home + "_nest"
+        bees = NEST_BEES if home in NESTED else 0
         write(os.path.join(DATA, "worldgen/configured_feature", name + ".json"), {
             "type": "minecraft:simple_block",
             "config": {"to_place": {
                 "type": "minecraft:simple_state_provider",
                 "state": {"Name": f"{NS}:{name}",
-                          "Properties": {"bees": str(NEST_BEES)}}}},
+                          "Properties": {"bees": str(bees)}}}},
         })
         write(os.path.join(DATA, "worldgen/placed_feature", name + ".json"), {
             "feature": f"{NS}:{name}",
-            "placement": [
-                {"type": "minecraft:rarity_filter", "chance": NEST_CHUNKS},
-                {"type": "minecraft:in_square"},
-                {"type": "minecraft:heightmap", "heightmap": "WORLD_SURFACE_WG"},
-                {"type": "minecraft:biome"},
-                {"type": "minecraft:block_predicate_filter",
-                 "predicate": {"type": "minecraft:all_of", "predicates": [
-                     {"type": "minecraft:matching_blocks", "blocks": "minecraft:air"},
-                     {"type": "minecraft:solid", "offset": [0, -1, 0]}]}},
-            ],
+            "placement": nest_placement(home),
         })
         write(os.path.join(DATA, "neoforge/biome_modifier", name + ".json"), {
             "type": "neoforge:add_features",
@@ -759,6 +835,39 @@ def machinery_recipes():
         "result": {"id": f"{NS}:{CENTRIFUGE}", "count": 1},
     })
     made += 1
+
+    # The four things a hive is worked with. Every species gets into a hive by
+    # a jar and every bred bee is bred with a treat, so a jar nobody can make
+    # is ninety-two bees nobody can have.
+    write(os.path.join(DATA, "recipe", "bee_jar.json"), {
+        "type": "minecraft:crafting_shaped",
+        "category": "equipment",
+        "pattern": [" P ", "G G", "GGG"],
+        "key": {"P": {"tag": "minecraft:planks"}, "G": {"item": "minecraft:glass"}},
+        "result": {"id": f"{NS}:bee_jar", "count": 1},
+    })
+    write(os.path.join(DATA, "recipe", "bee_scoop.json"), {
+        "type": "minecraft:crafting_shaped",
+        "category": "equipment",
+        "pattern": [" B", "S "],
+        "key": {"B": {"item": "minecraft:bowl"}, "S": {"item": "minecraft:stick"}},
+        "result": {"id": f"{NS}:bee_scoop", "count": 1},
+    })
+    write(os.path.join(DATA, "recipe", "bee_smoker.json"), {
+        "type": "minecraft:crafting_shapeless",
+        "category": "equipment",
+        "ingredients": [{"item": "minecraft:bucket"}, {"item": "minecraft:leather"},
+                        {"item": "minecraft:campfire"}],
+        "result": {"id": f"{NS}:bee_smoker", "count": 1},
+    })
+    write(os.path.join(DATA, "recipe", "bee_treat.json"), {
+        "type": "minecraft:crafting_shapeless",
+        "category": "misc",
+        "ingredients": [{"item": "minecraft:honey_bottle"}, {"item": "minecraft:sugar"},
+                        {"tag": "minecraft:small_flowers"}],
+        "result": {"id": f"{NS}:bee_treat", "count": 4},
+    })
+    made += 4
     for upgrade in UPGRADES:
         earns = upgrade["bees"] > 0 or upgrade["faster"] > 1.0
         heart = "minecraft:gold_ingot" if earns else "minecraft:copper_ingot"

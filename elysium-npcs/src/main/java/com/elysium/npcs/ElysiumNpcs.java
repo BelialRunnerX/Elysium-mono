@@ -80,6 +80,9 @@ public class ElysiumNpcs {
      * They all spawn the same entity type and then set the kind, which is why
      * the egg has to do a little work rather than being a plain
      * DeferredSpawnEggItem for each: the type alone does not say who arrives.
+     *
+     * In survival each envoy sells its own, one a visit — see
+     * {@code ImperialEnvoy.rollOffers}. That row is the only way one is made.
      */
     private static final Map<EnvoyKind, DeferredHolder<Item, Item>> EGGS =
             new LinkedHashMap<>();
@@ -95,8 +98,9 @@ public class ElysiumNpcs {
      * §27.1's amnesty row, as something you can carry.
      *
      * Registered here rather than in a content mod because the court is what
-     * sells it — see {@code ImperialEnvoy.rollOffers}, where it is the one
-     * guaranteed row on a Suspicion-reading office's list.
+     * sells it — see {@code ImperialEnvoy.rollOffers}, where it is the first
+     * guaranteed row on a Suspicion-reading office's list, above the writ of
+     * audience every office sells.
      */
     public static final DeferredHolder<Item, Item> WRIT_OF_AMNESTY =
             ITEMS.register("writ_of_amnesty",

@@ -18,6 +18,7 @@ designer is confident about and wrong about.
   5. THE CATALOGUE, generated rather than typed.
   6. THE SEAM.
 """
+import itertools
 import json
 import os
 import sys as _sys
@@ -470,9 +471,26 @@ else:
             if drifted:
                 fail(f"{len(drifted)} generated file(s) differ from what the generator "
                      f"writes: " + ", ".join(sorted(drifted)[:6]))
+            # And the other way: a file shipped that the generator no longer
+            # writes. The generator never deletes, so whatever it stops making
+            # stays in the jar - the retired disc's sprite and model did,
+            # until this looked. Only the mods file is written by hand.
+            left = []
+            for dirpath, _, filenames in os.walk(RES):
+                for name in filenames:
+                    kept = os.path.join(dirpath, name)
+                    rel = os.path.relpath(kept, RES)
+                    if rel.replace(os.sep, "/").startswith("META-INF/"):
+                        continue
+                    if not os.path.isfile(os.path.join(fresh, rel)):
+                        left.append(rel.replace(os.sep, "/"))
+            if left:
+                fail(f"{len(left)} shipped file(s) the generator no longer writes, left "
+                     f"behind by something retired or kept by hand: "
+                     + ", ".join(sorted(left)[:6]))
 
 print("generated          : every sprite, model, recipe and name written by the "
-      "generator")
+      "generator, and nothing shipped that it no longer writes")
 
 # ---------------------------------------------------------------------------
 # 5c. The Cordon's rungs, and the roster they are read from
@@ -1211,11 +1229,15 @@ if ("return DigBlocks.SITES.values().stream() .map(DeferredHolder::get)"
 
 # Block items inherit their block's model; a block item that did not would be
 # a floating flat square in the hand. Everything the digging adds that is a
-# block is one, and the list is the same one the checks above walk.
-block_items = set(dug_blocks)
+# block is one, and the list is the same one the checks above walk - except a
+# door, which is held flat with a sprite of its own, as the game's doors are:
+# its block model is half a door, a sliver in the hand.
+held_flat = {block for block in dug_blocks if block.endswith("_door")}
+block_items = set(dug_blocks) - held_flat
+flat_on_purpose |= held_flat
 flat_on_purpose |= {f"identified_{name}" for name, _, _ in artifact_rows}
 flat_on_purpose |= {name for name, kind in totem_rows if kind == "HELD"}
-flat_on_purpose |= {"artifact_shard", "unidentified_artifact", "music_disc_relic"}
+flat_on_purpose |= {"artifact_shard", "unidentified_artifact"}
 handheld_on_purpose = {name for name, _ in brush_rows}
 
 wrong = []
@@ -1259,6 +1281,415 @@ print(f"the digging        : {len(brush_rows)} brush(es), {len(site_rows)} site(
       f"{len(fossil_rows)} fossil(s) in {how_many_stages}-stage digs, "
       f"{len(artifact_rows)} artefact(s) and {len(totem_rows)} totem(s), every "
       f"block drawn, modelled, named, dropping itself and registered")
+
+# ---------------------------------------------------------------------------
+# The dig, in a survival world
+# ---------------------------------------------------------------------------
+#
+# Dylan, 29 September 2026: "All content should be available and accessible
+# via survival." Until that day the dig was registered, drawn, named and
+# brushable, and no world held any of it: nothing laid a site down, brushing
+# gave up the game's own things and a shard, and every fossil, totem, rotten
+# plank and cracked brick came from a command and from nothing else. Each rule
+# below is one link of the chain a survival player walks instead: a site in a
+# world, a pool that holds the find, a recipe for what the finds make.
+
+GENERATION_STEPS = {"raw_generation", "lakes", "local_modifications",
+                    "underground_structures", "surface_structures", "strongholds",
+                    "underground_ores", "underground_decoration", "fluid_springs",
+                    "vegetal_decoration", "top_layer_modification"}
+DIG_DATA = os.path.join(RES, "data", NS)
+
+
+def dig_json(*parts):
+    text = read(DIG_DATA, *parts)
+    try:
+        return json.loads(text) if text else None
+    except ValueError:
+        return None
+
+
+# A site is in a world when a feature lays it down, the feature is placed with
+# the biome filter, and a biome modifier adds it at a step the game has, to a
+# set of biomes with something in it.
+added_to = {}
+_modifiers = os.path.join(DIG_DATA, "neoforge/biome_modifier")
+for _name in sorted(os.listdir(_modifiers)) if os.path.isdir(_modifiers) else []:
+    _body = dig_json("neoforge/biome_modifier", _name)
+    if not isinstance(_body, dict) or _body.get("type") != "neoforge:add_features":
+        continue
+    _features = _body.get("features")
+    for _feature in [_features] if isinstance(_features, str) else _features or []:
+        added_to.setdefault(_feature, []).append((_name[:-5], _body))
+
+unlaid = []
+for site, _, _ in site_rows:
+    configured = dig_json("worldgen/configured_feature", f"{site}.json")
+    if configured is None or f'"Name": "{NS}:{site}"' not in json.dumps(configured):
+        unlaid.append(f"{site} has no feature that lays it down")
+        continue
+    placed = dig_json("worldgen/placed_feature", f"{site}.json")
+    if placed is None or placed.get("feature") != f"{NS}:{site}":
+        unlaid.append(f"{site}'s feature is never placed")
+        continue
+    if {"type": "minecraft:biome"} not in placed.get("placement", []):
+        unlaid.append(f"{site} is placed with no biome filter, so its sites spill over "
+                      f"the edge of every biome it is added to")
+    modifiers = added_to.get(f"{NS}:{site}", [])
+    if not modifiers:
+        unlaid.append(f"{site} is added to no biome, so no world ever holds one")
+    for modifier, body in modifiers:
+        if body.get("step") not in GENERATION_STEPS:
+            unlaid.append(f"{modifier} adds {site} at the step {body.get('step')!r}, "
+                          f"which is not one of the game's eleven, so no world loads")
+        biomes = body.get("biomes")
+        if isinstance(biomes, str) and biomes.startswith(f"#{NS}:"):
+            tag = dig_json("tags/worldgen/biome", biomes.split(":", 1)[1] + ".json")
+            if not tag or not tag.get("values"):
+                unlaid.append(f"{modifier} adds {site} to {biomes}, which names no "
+                              f"biome")
+        elif not biomes:
+            unlaid.append(f"{modifier} adds {site} to no biome at all")
+if unlaid:
+    fail(f"{len(unlaid)} thing(s) keep a site out of every survival world: "
+         + "; ".join(unlaid[:5]))
+
+# Brushing is the only thing in the game that hands out the fossil halves, the
+# totems, the rotten log and infested mud bricks, so each has to be in a pool.
+# The fossil pool walks the roster for its halves; everything else is named.
+pooling = squashed(body_of(dig_src, "private static Map<String, List<Find>> pools() {"))
+walked = ("for (FossilRules.Fossil one : FossilRules.FOSSILS) { "
+          "fossil.add(new Find(OURS + one.id(FossilRules.SKULL), HALF_A_FOSSIL)); "
+          "fossil.add(new Find(OURS + one.id(FossilRules.BODY), HALF_A_FOSSIL)); }")
+if walked not in pooling or 'made.put("fossil", List.copyOf(fossil));' not in pooling:
+    fail("the fossil pool is not every skull and every body walked from the fossil "
+         "roster, so a fossil added there is one no site gives up and nobody can make "
+         "whole")
+pooled = set(re.findall(r'new Find\("([a-z0-9_:]+)", \d+\)', pooling))
+promised = [name for name, _ in totem_rows] + ["rotten_log", "cracked_mud_bricks",
+                                                "infested_mud_bricks"]
+unheld = [name for name in promised if f"{NS}:{name}" not in pooled]
+if unheld:
+    fail(f"{', '.join(unheld)}: promised by the dig and held by no pool in DigRules, "
+         f"so a survival player can never have one")
+
+# A pool entry has to name something the game has. The site's block entity looks
+# the id up and, finding nothing, hands out nothing, without a word to anyone.
+_vanilla_items = set()
+if os.environ.get("MC_JAR") and os.path.isfile(os.environ["MC_JAR"]):
+    import zipfile as _zipfile
+    with _zipfile.ZipFile(os.environ["MC_JAR"]) as _jar:
+        _vanilla_items = {n.rsplit("/", 1)[1][:-5] for n in _jar.namelist()
+                          if n.startswith("assets/minecraft/models/item/")
+                          and n.endswith(".json")}
+nothing = []
+for item in sorted(pooled):
+    namespace, path = item.split(":", 1)
+    if namespace == NS:
+        if not os.path.isfile(os.path.join(RES, f"assets/{NS}/models/item/{path}.json")) \
+                or not (f"item.{NS}.{path}" in lang or f"block.{NS}.{path}" in lang):
+            nothing.append(item)
+    elif namespace == "minecraft":
+        if _vanilla_items and path not in _vanilla_items:
+            nothing.append(item)
+    else:
+        nothing.append(item)
+if nothing:
+    fail(f"{', '.join(nothing)} is in a pool and is nothing the game has, so the site "
+         f"that holds it gives up nothing")
+
+# What the finds make. A pair of halves is for a whole fossil; a rotten log is
+# for a rotten set; the badlands' cracked bricks start a set a furnace keeps
+# going. Read from what ships, whatever made it.
+makes = {}
+_recipes = os.path.join(DIG_DATA, "recipe")
+for _name in sorted(os.listdir(_recipes)) if os.path.isdir(_recipes) else []:
+    _body = dig_json("recipe", _name)
+    if not isinstance(_body, dict):
+        continue
+    _result = _body.get("result")
+    _made = _result.get("id") if isinstance(_result, dict) else _result
+    if isinstance(_made, str):
+        makes.setdefault(_made, []).append(_body)
+
+
+def takes(body):
+    """Every item a recipe takes, however it is laid out."""
+    if body.get("type") == "minecraft:crafting_shaped":
+        key = body.get("key", {})
+        return sorted(key.get(symbol, {}).get("item", "?")
+                      for row in body.get("pattern", []) for symbol in row
+                      if symbol != " ")
+    if body.get("type") == "minecraft:crafting_shapeless":
+        return sorted(one.get("item", "?") for one in body.get("ingredients", []))
+    return [body.get("ingredient", {}).get("item", "?")]
+
+
+broken_wholes = []
+for creature, _, _ in fossil_rows:
+    halves = sorted([f"{NS}:{creature}_fossil_body", f"{NS}:{creature}_fossil_head"])
+    if not any(body.get("type") == "minecraft:crafting_shapeless" and takes(body) == halves
+               for body in makes.get(f"{NS}:{creature}_fossil", [])):
+        broken_wholes.append(creature)
+if broken_wholes:
+    fail(f"{', '.join(broken_wholes)}: the whole fossil cannot be made from its skull "
+         f"and its body, so the block a pair of halves is for is one a survival "
+         f"player cannot have")
+
+_wood_shapes = re.findall(r'"(_[a-z_]+)"', re.search(
+    r"WOOD_SHAPES = List\.of\(([^)]*)\)", dig_blocks_src).group(1))
+_stone_shapes = re.findall(r'"(_[a-z_]+)"', re.search(
+    r"STONE_SHAPES = List\.of\(([^)]*)\)", dig_blocks_src).group(1))
+unmade = []
+if not any(set(takes(body)) == {f"{NS}:rotten_log"}
+           for body in makes.get(f"{NS}:rotten_planks", [])):
+    unmade.append("rotten_planks is not made from the rotten log")
+for shape in _wood_shapes:
+    if shape == "_planks":
+        continue
+    if not any(f"{NS}:rotten_planks" in takes(body)
+               and set(takes(body)) <= {f"{NS}:rotten_planks", "minecraft:stick"}
+               for body in makes.get(f"{NS}:rotten{shape}", [])):
+        unmade.append(f"rotten{shape} is not made from rotten planks")
+if unmade:
+    fail("the rotten set is not made from what a dig turns up: " + "; ".join(unmade))
+
+cracking = []
+if not any(body.get("type") == "minecraft:smelting"
+           and takes(body) == ["minecraft:mud_bricks"]
+           for body in makes.get(f"{NS}:cracked_mud_bricks", [])):
+    cracking.append("cracked mud bricks are not smelted from the game's own mud "
+                    "bricks, so the set is only as big as what the badlands give up")
+for shape in _stone_shapes:
+    if not any(set(takes(body)) == {f"{NS}:cracked_mud_bricks"}
+               for body in makes.get(f"{NS}:cracked_mud_brick{shape}", [])):
+        cracking.append(f"cracked_mud_brick{shape} is not made from cracked mud "
+                        f"bricks")
+if cracking:
+    fail("the cracked mud bricks: " + "; ".join(cracking))
+
+# The songless disc, retired: a plain item that no jukebox would play and
+# nothing handed out. The dirt pool hands out the game's own relic disc in its
+# place, and the book's "what else is buried" asks for that one.
+retired = "music_disc_relic"
+still = []
+if retired in dig_items_src:
+    still.append("DigItems registers it")
+for kind, where in (("model", f"assets/{NS}/models/item/{retired}.json"),
+                    ("sprite", f"assets/{NS}/textures/item/{retired}.png")):
+    if os.path.isfile(os.path.join(RES, where)):
+        still.append(f"its {kind} is shipped")
+if f"item.{NS}.{retired}" in lang:
+    still.append("it has a name")
+if still:
+    fail(f"{NS}:{retired} was retired on 29 September 2026, a disc with no song, and "
+         f"it is back: " + "; ".join(still))
+_dirt_pool = re.search(r'made\.put\("dirt", List\.of\((.*?)\)\);', pooling)
+if not _dirt_pool or not re.search(r'new Find\("minecraft:music_disc_relic", \d+\)',
+                                   _dirt_pool.group(1)):
+    fail("the dirt pool no longer holds the game's own relic disc, which is the disc "
+         "the dig hands out in place of the retired one")
+
+# ---------------------------------------------------------------------------
+# The two sets, shaped
+# ---------------------------------------------------------------------------
+#
+# Until 29 September 2026 every shape of the rotten and cracked mud brick sets
+# was a cube with one model for all its states: a slab stood a full block tall
+# over half a block of collision, a fence was a wall nobody saw over, and a
+# pressure plate was a block nothing could stand on. Each shape is now its
+# block class's own states, drawn with the game's own models and turns, and
+# registered as that class; a door drops once and a double slab twice.
+
+FACINGS = ("north", "south", "east", "west")
+#: Each shape: the class DigBlocks registers it as, and the states its models
+#: have to cover (a fence is a post and four sides, so it has none here).
+SHAPE_STATES = {
+    "_slab": ("SlabBlock", {"type": ("bottom", "top", "double")}),
+    "_stairs": ("StairBlock", {"facing": FACINGS, "half": ("bottom", "top"),
+                               "shape": ("straight", "inner_left", "inner_right",
+                                         "outer_left", "outer_right")}),
+    "_fence": ("FenceBlock", None),
+    "_fence_gate": ("FenceGateBlock", {"facing": FACINGS, "in_wall": ("false", "true"),
+                                       "open": ("false", "true")}),
+    "_door": ("DoorBlock", {"facing": FACINGS, "half": ("lower", "upper"),
+                            "hinge": ("left", "right"), "open": ("false", "true")}),
+    "_trapdoor": ("TrapDoorBlock", {"facing": FACINGS, "half": ("bottom", "top"),
+                                    "open": ("false", "true")}),
+    "_pressure_plate": ("PressurePlateBlock", {"powered": ("false", "true")}),
+}
+#: Each set's stem, its full block, and the game's own set it is drawn after.
+SHAPED_SETS = (("rotten", [s for s in _wood_shapes if s != "_planks"], "rotten_planks",
+                "oak", "oak_planks"),
+               ("cracked_mud_brick", _stone_shapes, "cracked_mud_bricks", "mud_brick",
+                "mud_bricks"))
+
+
+def asset_json(*parts):
+    text = read(RES, "assets", NS, *parts)
+    try:
+        return json.loads(text) if text else None
+    except ValueError:
+        return None
+
+
+_registered_as = {}
+for _shape, _class in re.findall(r'case "(_[a-z_]+)" -> new (\w+)\(', dig_blocks_src):
+    _registered_as.setdefault(_shape, set()).add(_class)
+
+unshaped = []
+for stem, shapes, _, _, _ in SHAPED_SETS:
+    for shape in shapes:
+        id = stem + shape
+        if shape not in SHAPE_STATES:
+            unshaped.append(f"{id} is a shape nothing here knows the states of")
+            continue
+        wanted, states = SHAPE_STATES[shape]
+        if _registered_as.get(shape) != {wanted}:
+            unshaped.append(f"{id} is registered as "
+                            f"{' and '.join(sorted(_registered_as.get(shape, {'nothing'})))} "
+                            f"and drawn as a {wanted}, so the game refuses the states its "
+                            f"blockstate names")
+        state = asset_json("blockstates", f"{id}.json") or {}
+        if states is None:
+            parts = state.get("multipart", [])
+            sides = {side for part in parts
+                     for side, value in (part.get("when") or {}).items() if value == "true"}
+            if not any("when" not in part for part in parts) \
+                    or sides != {"north", "east", "south", "west"}:
+                unshaped.append(f"{id} is not a post with a side towards each of its four "
+                                f"neighbours")
+            continue
+        keys = [dict(part.split("=", 1) for part in key.split(",") if part)
+                for key in state.get("variants", {})]
+        if not keys or any(not key for key in keys):
+            unshaped.append(f"{id} is one model for every state, so it is drawn a full "
+                            f"block whatever shape it stands in")
+            continue
+        strangers = sorted({name for key in keys for name in key if name not in states})
+        if strangers:
+            unshaped.append(f"{id} names {', '.join(strangers)}, which its block does not "
+                            f"have, so the game refuses the whole blockstate")
+        for values in itertools.product(*states.values()):
+            wanted_state = dict(zip(states, values))
+            matched = sum(1 for key in keys
+                          if all(wanted_state.get(k) == v for k, v in key.items()))
+            if matched != 1:
+                unshaped.append(f"{id} has {matched} model(s) for "
+                                + ",".join(f"{k}={v}" for k, v in wanted_state.items()))
+                break
+if unshaped:
+    fail(f"{len(unshaped)} shape(s) of the two sets are not drawn as their shapes: "
+         + "; ".join(unshaped[:5]))
+
+# And drawn the game's way. A turn got wrong is a variant that exists and draws
+# the wrong way, which no count of states can see: a stair rule that turns
+# every corner alike draws most upside-down corners backwards. So each shape's
+# blockstate, its model names put in the game's words, is the game's own for
+# the same shape (oak for the rotten set, mud brick for the cracked one), and
+# every model and item model has the game's parent and texture slots.
+_game_jar = None
+if os.environ.get("MC_JAR") and os.path.isfile(os.environ["MC_JAR"]):
+    import zipfile as _zipfile
+    _game_jar = _zipfile.ZipFile(os.environ["MC_JAR"])
+
+
+def _game(kind, name):
+    try:
+        return json.loads(_game_jar.read(f"assets/minecraft/{kind}/{name}.json"))
+    except (KeyError, ValueError):
+        return None
+
+
+def _canon(state):
+    if "variants" in state:
+        return {frozenset(key.split(",")): json.dumps(model, sort_keys=True)
+                for key, model in state["variants"].items()}
+    return sorted(json.dumps(part, sort_keys=True) for part in state.get("multipart", []))
+
+
+def _ident(value):
+    return value if ":" in value else "minecraft:" + value
+
+
+not_the_games = []
+for stem, shapes, full, game, game_full in SHAPED_SETS if _game_jar else ():
+    for shape in [s for s in shapes if s in SHAPE_STATES]:
+        id, theirs = stem + shape, game + shape
+        renamed = [(f'"{NS}:block/{id}', f'"minecraft:block/{theirs}'),
+                   (f'"{NS}:block/{full}"', f'"minecraft:block/{game_full}"')]
+        said = json.dumps(asset_json("blockstates", f"{id}.json") or {})
+        for old, new in renamed:
+            said = said.replace(old, new)
+        game_state = _game("blockstates", theirs)
+        if game_state is None:
+            not_the_games.append(f"the game has no {theirs} to draw {id} after")
+            continue
+        if _canon(json.loads(said)) != _canon(game_state):
+            not_the_games.append(f"{id}'s states are not the game's own {theirs}'s")
+        names = set(re.findall(rf'"{NS}:block/([a-z_]+)"',
+                               json.dumps(asset_json("blockstates", f"{id}.json") or {})))
+        for name in sorted(names):
+            ours = asset_json("models/block", f"{name}.json") or {}
+            other = _game("models", "block/" + name.replace(id, theirs, 1)
+                          .replace(full, game_full, 1)) or {}
+            if _ident(ours.get("parent", "")) != _ident(other.get("parent", "")) \
+                    or set(ours.get("textures", {})) != set(other.get("textures", {})):
+                not_the_games.append(f"{name} is not built like the game's "
+                                     f"{name.replace(id, theirs, 1)}")
+        ours = asset_json("models/item", f"{id}.json") or {}
+        other = _game("models", f"item/{theirs}") or {}
+        if _ident(ours.get("parent", "")).replace(f"{NS}:block/{id}",
+                                                  f"minecraft:block/{theirs}") \
+                != _ident(other.get("parent", "")) \
+                or set(ours.get("textures", {})) != set(other.get("textures", {})):
+            not_the_games.append(f"{id} is not held the way the game holds its {theirs}")
+if not_the_games:
+    fail(f"{len(not_the_games)} shape(s) are not drawn the game's way: "
+         + "; ".join(not_the_games[:5]))
+
+# What they drop. Breaking either half of a door takes the other half with
+# it, and that half's table runs too, so a door whose table drops from both
+# halves is two doors for every one broken; a double slab is two slabs.
+misdropped = []
+for stem, shapes, _, _, _ in SHAPED_SETS:
+    for shape in shapes:
+        id = stem + shape
+        table = json.dumps(dig_json("loot_table/blocks", f"{id}.json") or {})
+        if shape == "_door" and '"properties": {"half": "lower"}' not in table:
+            misdropped.append(f"{id} drops from both halves, so every door broken is "
+                              f"two doors")
+        if shape == "_slab" and ('"properties": {"type": "double"}' not in table
+                                 or '"function": "minecraft:set_count"' not in table):
+            misdropped.append(f"a double {id} drops one slab, so every one broken loses "
+                              f"one")
+if misdropped:
+    fail("the sets' drops: " + "; ".join(misdropped))
+
+# Which tool mines each block. The game's lists decide how fast a tool breaks
+# a block and, for one that needs the right tool, whether it gives anything up:
+# until 29 September 2026 no block here was on any list, so a fossil, a
+# chiselled bone block or a mud brick set down and broken again was gone.
+tooled = {}
+for tool in ("pickaxe", "axe", "shovel", "hoe"):
+    listed = read(RES, "data/minecraft/tags/block/mineable", f"{tool}.json")
+    for value in (json.loads(listed).get("values", []) if listed else []):
+        tooled.setdefault(value, []).append(tool)
+untooled = [block for block in dug_blocks if not tooled.get(f"{NS}:{block}")]
+if untooled:
+    fail(f"{len(untooled)} block(s) the digging adds are on no tool's list, so nothing "
+         f"mines them faster, and those that need the right tool give nothing to any: "
+         + ", ".join(untooled[:8]))
+
+print(f"the two sets       : {sum(len(s) for _, s, _, _, _ in SHAPED_SETS)} shape(s), each "
+      f"its class's own states drawn "
+      f"{'the way the game draws its own' if _game_jar else 'in full (no game jar to compare)'}"
+      f", doors dropping once and double slabs twice, and every dig block on a tool's list")
+
+print(f"in survival        : {len(site_rows)} site(s) laid by a feature in their "
+      f"biomes, {2 * len(fossil_rows)} fossil halves, {len(totem_rows)} totems and 3 "
+      f"other finds in the pools, every whole fossil and both sets made from what a "
+      f"dig turns up, and the songless disc retired")
 
 print("what it declares   : the game and the library, and not one thing beyond them")
 

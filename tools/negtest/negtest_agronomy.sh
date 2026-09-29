@@ -118,6 +118,85 @@ expect "a dependency on one of the ten" "and nothing else"
 edit $R/assets/elysiumagronomy/lang/en_us.json '"No bees in it."' '"No bees in it. "'
 expect "a generated file quietly edited by hand" "edited by hand"
 
+echo "the way onto the essence ladder"
+edit $S/rules/SeedRules.java '        return tier > 1;' '        return true;'
+expect "a first rung paid in the essence only it grows" "the essence ladder cannot be entered"
+
+edit $S/rules/SeedRules.java '            boolean reached = below || bought;' '            boolean reached = bought;'
+expect "a walk that forgets four of a rung climb to the next" "is not climbed to the top"
+
+edit $G '        price = (ITEM(FIRST_RUNG_PRICE) if tier == 1' '        price = (ITEM(f"{NS}:{ESSENCES[0]}") if tier == 1'
+regen
+expect "first-rung seeds written back in faint essence" "a ladder nobody can step onto"
+
+echo "what mines them"
+H=$S/rules/HarvestRules.java
+T=$R/data/minecraft/tags/block/mineable
+BB=$S/registry/BeeBlocks.java
+PB=$S/registry/PotBlocks.java
+AB=$S/registry/AgronomyBlocks.java
+untag() { python3 - "$1" "$2" <<'PYX'
+import json, sys
+p, name = sys.argv[1], sys.argv[2]
+d = json.load(open(p, encoding="utf-8"))
+d["values"].remove(name)
+open(p, "w", encoding="utf-8", newline="\n").write(json.dumps(d, indent=2) + "\n")
+PYX
+}
+tag() { python3 - "$1" "$2" <<'PYX'
+import json, sys
+p, name = sys.argv[1], sys.argv[2]
+d = json.load(open(p, encoding="utf-8"))
+d["values"].append(name)
+open(p, "w", encoding="utf-8", newline="\n").write(json.dumps(d, indent=2) + "\n")
+PYX
+}
+
+untag $T/pickaxe.json elysiumagronomy:centrifuge
+expect "a machine that asks for a pickaxe, dropped from its tag" "ask for the right tool and are in no tool's tag"
+
+untag $T/axe.json elysiumagronomy:oak_cabinet
+expect "a cabinet in no tool's tag" "are in no mineable tag and not broken by hand either"
+
+edit $H '            if (kindOf(block) == null) {' '            if (false) {'
+expect "the rule that finds a block no kind covers, disabled" "a block no kind covers is not reported"
+
+tag $T/pickaxe.json elysiumagronomy:centrifuge_
+expect "a pickaxe tag naming a block nobody registers" "so the game refuses the whole tag"
+
+tag $T/axe.json elysiumagronomy:iron_comb_block
+expect "a comb block broken by hand and in a tag all the same" "broken by hand in HarvestRules and in a tool's tag all the same"
+
+edit $H '                    "on the game'"'"'s honeycomb block, which asks for no tool and is in no "' '                    ""'
+edit $H '                            + "tool'"'"'s tag, so a hand is as quick as anything"),' '                            + ""),'
+expect "wax broken by hand for no stated reason" "by hand and gives no reason"
+
+edit $BB '        return BlockBehaviour.Properties.ofFullCopy(Blocks.HONEYCOMB_BLOCK)' '        return BlockBehaviour.Properties.ofFullCopy(Blocks.HONEYCOMB_BLOCK).requiresCorrectToolForDrops()'
+expect "an exempt comb block that asks for the right tool" "it says so where it is registered"
+
+edit $BB '        return BlockBehaviour.Properties.ofFullCopy(Blocks.HONEYCOMB_BLOCK)' '        return BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)'
+expect "an exempt comb block built on a block that asks for the right tool" "it copies Blocks.IRON_BLOCK, which does"
+
+edit $PB '                            .ofFullCopy(Blocks.DIRT)' '                            .ofFullCopy(Blocks.MUD)'
+expect "a soil built on something nobody has looked up" "nothing here knows whether that asks for the right tool"
+
+edit $H '            new Material(TIMBER, List.of("OAK_PLANKS"), AXE,' '            new Material(TIMBER, List.of("OAK_PLANKS"), BY_HAND,'
+regen
+expect "every wooden thing broken by hand" "which the game puts in the axe's tag: put it there too"
+
+edit $H '            new Material(STEEL, List.of("IRON_BLOCK"), PICKAXE,' '            new Material(STEEL, List.of("IRON_BLOCK"), AXE,'
+regen
+expect "steel given to the axe" "which the game mines with a pickaxe: only the axe is ever right for it"
+
+edit $AB '                                    >= com.elysium.agronomy.rules.HarvestRules.STEEL_FROM_SLOTS' '                                    >= 4'
+expect "a registry keeping its own number of slots" "no longer builds a housing on steel from"
+
+edit $G '    written += harvest_tags()' '    written += 0'
+expect "a generator that no longer writes the tags" "the generator no longer writes the mineable tags"
+
+edit $H '            new Kind("*_crop", CROP));' '            new Kind("*_crop", CROP), new Kind("marble_bed", SOIL));'
+expect "a kind of block nothing registers" "which no registered block belongs to"
+
 echo
 echo "restoring and re-checking"
 restore

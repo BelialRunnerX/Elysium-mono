@@ -101,8 +101,25 @@ expect "gems with no tag to be dropped through" "drop nothing once the mods"
 rm $R/data/elysiumfoundry/recipe/bort_from_raw.json
 expect "a gem whose raw chunk is a dead end" "cannot be smelted from its raw chunk"
 
+edit $R/data/elysiumfoundry/recipe/aluminum_ingot_from_raw.json '"tag": "c:raw_materials/aluminum"' '"item": "elysiumfoundry:raw_aluminum"'
+expect "a smelting recipe that refuses the ore's actual drop" "where the family's #c:raw_materials tag belongs"
+
 edit $R/assets/elysiumfoundry/lang/en_us.json '"Tin Ingot"' '"Tin Ingot "'
 expect "a generated file quietly edited by hand" "edited by hand"
+
+rm $R/data/c/tags/item/ingots/titanium.json
+expect "the core's titanium gear with no ingot in the pack" "can never be made"
+
+edit $F '            mined("tungsten", 0),
+' '            mined("tungsten", 0),
+            mined("unobtainium", 0),
+'
+edit $G '    "tungsten": (0, {}, (68, 72, 84)),
+' '    "tungsten": (0, {}, (68, 72, 84)),
+    "unobtainium": (0, {}, (90, 90, 90)),
+'
+regen
+expect "a raw metal no ore in the pack gives" "raw metal nobody can dig"
 
 echo
 echo "restoring and re-checking"

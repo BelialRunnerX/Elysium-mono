@@ -1,7 +1,7 @@
 {
   "type": "elysiumfoundry:refining",
   "input": {
-    "item": "elysiumfoundry:raw_platinum"
+    "tag": "c:raw_materials/platinum"
   },
   "result": {
     "id": "elysiumfoundry:platinum_ingot",

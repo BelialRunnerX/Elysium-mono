@@ -215,6 +215,11 @@ QUESTS = {
                     "Pick somewhere and it points at the nearest one. It looks "
                     "the same distance for everything, however rare, which is "
                     "why it does not make the server stutter."),
+    "vale_gate": ("The way into the Vale",
+            "Ten Vale Frames, four to a craft of mossy stone bricks, moss and an "
+            "ender pearl, in a Nether portal's ring. Use the surveyor's compass on "
+            "any frame and the gate lights. It puts you down in the gentlest "
+            "crossing, the Verdant Vale, beside a ring built there to come home by."),
     "somewhere_else": ("A waystone",
                        "Bind one, and then bind another, and the distance "
                        "between them costs power rather than time. The price "
@@ -552,7 +557,12 @@ QUESTS = {
     "sealed_and_sieved": ("A seal and a sieve",
             "A sieve lets in only what the bag already holds. A void seal destroys "
             "what would not fit, and only of things already inside: for the "
-            "cobblestone you are sick of, never a stray diamond."),
+            "cobblestone you are sick of, never a stray diamond. Use one on a drawer "
+            "and it voids that drawer's overflow; crouch with an empty hand to take it back."),
+    "lock_the_drawer": ("A key to the drawer",
+            "A tripwire hook and two gold nuggets. Used on a drawer it locks it to "
+            "what it holds, so it keeps its place when emptied and takes nothing "
+            "else; used again, it lets go. The key is never spent."),
     "a_crate_of_parts": ("A crate",
             "Twenty-seven slots and two fittings, and the same parts as a bag. The "
             "jars this replaces had one upgrade system for what you wear and another "
@@ -639,11 +649,11 @@ QUESTS = {
             "Every rung is twice as slow as the one below, so a farm loses to a mine "
             "until it is a deliberate project. Second rung: nickel, silver, "
             "aluminium, lithium, lapis, quartz, glowstone."),
-    "radiant_essence": ("Radiant essence",
+    "keen_essence": ("Keen essence",
             "The ones worth a trip: gold, osmium, amethyst, fluorite, certus quartz, "
             "obsidian and crimson iron, at four times the wait of a copper seed and "
             "still under two thirds of a mine."),
-    "keen_essence": ("Keen essence",
+    "radiant_essence": ("Radiant essence",
             "Deep, cold or somewhere else entirely: platinum, uranium, uraninite, "
             "bort, rime shard, azure silver, diamond and emerald. Eight times the "
             "wait of the first rung."),
@@ -1633,7 +1643,7 @@ QUESTS = {
             "will do. A built elytra wears as it flies, like the game's own, and like "
             "every built piece stops one point short of breaking."),
     "forge_fittings": ("Fittings, and the kit",
-            "Binding, grip, tip, coating, lining: one material each, bolted on. The "
+            "Binding, grip, tip, coating (and a glass bottle), lining: one material each, bolted on. The "
             "mod kit takes the last one off whole. Upgrades: magnetic, a spoon for a "
             "pickaxe, a wider plate, and a red card that lets it break."),
     "forge_alloy": ("Metals that agree",
@@ -1650,14 +1660,19 @@ QUESTS = {
             "more on top of its grade, once. Under a roof it waits for ever."),
     "forge_salvage": ("Taken back apart",
             "An untouched piece gives each part back three times in four, a nearly "
-            "broken one once in four. Affixes were never parts: they come back as "
-            "essence, one per level, which is what a reroll is paid in."),
+            "broken one once in four. Affixes were never parts: any affixed piece, "
+            "found gear included, comes back as essence, one per level, and a "
+            "reforged piece never pays back more than its reroll cost."),
+    "forge_found_template": ("A found template",
+            "One in four village smiths' chests and one dungeon chest in ten keeps "
+            "a blank template. Carry it and it settles into a plan, one of the "
+            "smithing table's own, to work from once."),
     "forge_reforge": ("A bad roll, rolled again",
             "The essence you put in is the rarity you get: five is Legendary. Three "
             "results at once, and the same three until the inputs change, so closing "
             "and reopening the table buys nothing."),
     "forge_jewellery": ("A ring of your own",
-            "Shank, band or chain of metal, and a setting on top. A ring, bracelet or "
+            "Shank, band or chain of metal, and a setting (and a bort) on top. A ring, bracelet or "
             "necklace is worn in its own slot and carries its materials' traits the "
             "way a blade does; moonwalker works from a ring."),
     "forge_masterwork": ("A set worth keeping",
@@ -1667,9 +1682,10 @@ QUESTS = {
 
     # --- the_geodes ---
     "geode_shards": ("Four shards to a block",
-            "Thirty materials: twenty the foundry mines and ten the game digs up, "
-            "each with a shard, a block of four shards and a way back. The block is "
-            "what a seeding is paid in, so this is the unit to save in."),
+            "Thirty geodes grow wild: fifteen under the overworld below y 30, "
+            "emerald's beneath the mountains, and fifteen in the Nether. Break the "
+            "clusters for shards; four make a block, and like amethyst a block does "
+            "not come apart again. A seeding is paid in blocks, so save in them."),
     "geode_seed_given": ("Seed a geode",
             "Two to four blocks of the material's own shards and a glow ink sac make "
             "a budding block. Its own shards and nothing else, so a geode multiplies "
@@ -2122,6 +2138,10 @@ QUESTS = {
             "Every office that reads Suspicion carries two. One takes 25 off, which "
             "is exactly a band, and never below your claim's floor: the Empire "
             "forgets your conduct, not your fortress."),
+    "court_audience": ("A writ of audience",
+            "Every envoy sells its own writ, one a visit, where its office deals: "
+            "the Sentinel to anyone, the Emperor only at Hunted. Use it at home and "
+            "that envoy comes, and stays."),
     "court_commission": ("A court commission",
             "Crouch and use the Emperor or the Queen: eight times a trade's quantity "
             "within three days, three top-shelf rolls on settling and twelve "
@@ -2296,6 +2316,13 @@ WORLDS = {
 # of the whole catalogue against these families and the tasks together.
 
 FAMILIES = {
+    "npcs_writs_of_audience": [
+        "elysiumnpcs:sentinel_summons",
+        "elysiumnpcs:architect_summons",
+        "elysiumnpcs:commander_summons",
+        "elysiumnpcs:emperor_summons",
+        "elysiumnpcs:queen_summons",
+    ],
     "agronomy_awakened_seeds": [
         "elysiumagronomy:awakened_coal_seed",
         "elysiumagronomy:awakened_copper_seed",
@@ -2453,6 +2480,8 @@ FAMILIES = {
         "elysiumagronomy:wax_bee",
         "elysiumagronomy:wither_bound_bee",
         "elysiumagronomy:zinc_bee",
+        "elysiumagronomy:titanium_bee",
+        "elysiumagronomy:tungsten_bee",
     ],
     "agronomy_bobbers": [
         "elysiumagronomy:cork_bobber",
@@ -2598,6 +2627,8 @@ FAMILIES = {
         "elysiumagronomy:uranium_chunk",
         "elysiumagronomy:void_steel_chunk",
         "elysiumagronomy:zinc_chunk",
+        "elysiumagronomy:titanium_chunk",
+        "elysiumagronomy:tungsten_chunk",
     ],
     "agronomy_comb_blocks": [
         "elysiumagronomy:aluminum_comb_block",
@@ -2696,6 +2727,8 @@ FAMILIES = {
         "elysiumagronomy:wax_comb_block",
         "elysiumagronomy:wither_bound_comb_block",
         "elysiumagronomy:zinc_comb_block",
+        "elysiumagronomy:titanium_comb_block",
+        "elysiumagronomy:tungsten_comb_block",
     ],
     "agronomy_combs": [
         "elysiumagronomy:comb",
@@ -2795,6 +2828,8 @@ FAMILIES = {
         "elysiumagronomy:wax_comb",
         "elysiumagronomy:wither_bound_comb",
         "elysiumagronomy:zinc_comb",
+        "elysiumagronomy:titanium_comb",
+        "elysiumagronomy:tungsten_comb",
     ],
     "agronomy_crates": [
         "elysiumagronomy:barley_crate",
@@ -8348,6 +8383,8 @@ FAMILIES = {
         "elysiumfoundry:void_steel_dust",
         "elysiumfoundry:starsteel_dust",
         "elysiumfoundry:coal_dust",
+        "elysiumfoundry:titanium_dust",
+        "elysiumfoundry:tungsten_dust",
     ],
     "foundry_first_alloys": [
         "elysiumfoundry:bronze_ingot",
@@ -8381,6 +8418,8 @@ FAMILIES = {
         "elysiumfoundry:lithium_ingot",
         "elysiumfoundry:crimson_iron_ingot",
         "elysiumfoundry:azure_silver_ingot",
+        "elysiumfoundry:titanium_ingot",
+        "elysiumfoundry:tungsten_ingot",
     ],
     "foundry_nuggets": [
         "elysiumfoundry:tin_nugget",
@@ -8405,6 +8444,8 @@ FAMILIES = {
         "elysiumfoundry:hardened_bronze_nugget",
         "elysiumfoundry:void_steel_nugget",
         "elysiumfoundry:starsteel_nugget",
+        "elysiumfoundry:titanium_nugget",
+        "elysiumfoundry:tungsten_nugget",
     ],
     "foundry_plates": [
         "elysiumfoundry:tin_plate",
@@ -8429,6 +8470,8 @@ FAMILIES = {
         "elysiumfoundry:hardened_bronze_plate",
         "elysiumfoundry:void_steel_plate",
         "elysiumfoundry:starsteel_plate",
+        "elysiumfoundry:titanium_plate",
+        "elysiumfoundry:tungsten_plate",
     ],
     "foundry_raw": [
         "elysiumfoundry:raw_tin",
@@ -8442,6 +8485,8 @@ FAMILIES = {
         "elysiumfoundry:raw_lithium",
         "elysiumfoundry:raw_crimson_iron",
         "elysiumfoundry:raw_azure_silver",
+        "elysiumfoundry:raw_titanium",
+        "elysiumfoundry:raw_tungsten",
     ],
     "foundry_rods": [
         "elysiumfoundry:steel_rod",
@@ -9100,6 +9145,8 @@ FAMILIES = {
         "elysiumores:cinder_uraninite_ore",
         "elysiumores:cinder_uranium_ore",
         "elysiumores:cinder_zinc_ore",
+        "elysiumores:cinder_titanium_ore",
+        "elysiumores:cinder_tungsten_ore",
     ],
     "ores_deepslate": [
         "elysiumores:deepslate_amber_ore",
@@ -9119,6 +9166,21 @@ FAMILIES = {
         "elysiumores:deepslate_rime_shard_ore",
         "elysiumores:deepslate_ruby_ore",
         "elysiumores:deepslate_sapphire_ore",
+        "elysiumores:deepslate_aluminum_ore",
+        "elysiumores:deepslate_bort_ore",
+        "elysiumores:deepslate_fluorite_ore",
+        "elysiumores:deepslate_lead_ore",
+        "elysiumores:deepslate_lithium_ore",
+        "elysiumores:deepslate_nickel_ore",
+        "elysiumores:deepslate_osmium_ore",
+        "elysiumores:deepslate_platinum_ore",
+        "elysiumores:deepslate_silver_ore",
+        "elysiumores:deepslate_tin_ore",
+        "elysiumores:deepslate_titanium_ore",
+        "elysiumores:deepslate_tungsten_ore",
+        "elysiumores:deepslate_uraninite_ore",
+        "elysiumores:deepslate_uranium_ore",
+        "elysiumores:deepslate_zinc_ore",
     ],
     "ores_dug_ingots": [
         "elysiumores:cobalt_ingot",
@@ -9163,6 +9225,9 @@ FAMILIES = {
         "elysiumores:end_stone_uraninite_ore",
         "elysiumores:end_stone_uranium_ore",
         "elysiumores:end_stone_zinc_ore",
+        "elysiumores:end_stone_platinum_ore",
+        "elysiumores:end_stone_titanium_ore",
+        "elysiumores:end_stone_tungsten_ore",
     ],
     "ores_found": [
         "elysiumores:phasium",
@@ -9206,6 +9271,8 @@ FAMILIES = {
         "elysiumores:frost_uraninite_ore",
         "elysiumores:frost_uranium_ore",
         "elysiumores:frost_zinc_ore",
+        "elysiumores:frost_titanium_ore",
+        "elysiumores:frost_tungsten_ore",
     ],
     "ores_gems": [
         "elysiumores:amber",
@@ -9253,6 +9320,9 @@ FAMILIES = {
         "elysiumores:netherrack_uraninite_ore",
         "elysiumores:netherrack_uranium_ore",
         "elysiumores:netherrack_zinc_ore",
+        "elysiumores:netherrack_crimson_iron_ore",
+        "elysiumores:netherrack_titanium_ore",
+        "elysiumores:netherrack_tungsten_ore",
     ],
     "ores_nuggets": [
         "elysiumores:cobalt_nugget",
@@ -9302,6 +9372,8 @@ FAMILIES = {
         "elysiumores:pale_uraninite_ore",
         "elysiumores:pale_uranium_ore",
         "elysiumores:pale_zinc_ore",
+        "elysiumores:pale_titanium_ore",
+        "elysiumores:pale_tungsten_ore",
     ],
     "ores_raw": [
         "elysiumores:raw_cobalt",
@@ -9332,6 +9404,22 @@ FAMILIES = {
         "elysiumores:stone_rime_shard_ore",
         "elysiumores:stone_ruby_ore",
         "elysiumores:stone_sapphire_ore",
+        "elysiumores:stone_aluminum_ore",
+        "elysiumores:stone_azure_silver_ore",
+        "elysiumores:stone_bort_ore",
+        "elysiumores:stone_crimson_iron_ore",
+        "elysiumores:stone_fluorite_ore",
+        "elysiumores:stone_lead_ore",
+        "elysiumores:stone_lithium_ore",
+        "elysiumores:stone_nickel_ore",
+        "elysiumores:stone_osmium_ore",
+        "elysiumores:stone_silver_ore",
+        "elysiumores:stone_tin_ore",
+        "elysiumores:stone_titanium_ore",
+        "elysiumores:stone_tungsten_ore",
+        "elysiumores:stone_uraninite_ore",
+        "elysiumores:stone_uranium_ore",
+        "elysiumores:stone_zinc_ore",
     ],
     "ores_storage_blocks": [
         "elysiumores:amber_block",
@@ -9725,6 +9813,7 @@ FAMILIES = {
 # the reason. A pattern and a reason, so the coverage rule can say what was
 # excused and why rather than silently counting it as done.
 EXCUSED = [
+    (r"^elysiumwilds:vale_portal$", "the gate a ring of Vale Frames lights: walked into, never held or placed"),
     (r"^elysiumagronomy:.*_spawn_egg$", "spawn eggs are creative-only"),
     (r"^elysiumspace:.*_spawn_egg$", "spawn eggs are creative-only"),
     (r"^elysiumspace:(oil|fuel|diesel)$", "fluid blocks: met as a lake or a spill, and carried as the bucket the book introduces"),
@@ -9732,7 +9821,6 @@ EXCUSED = [
     (r"^elysiumwilds:biome_compass_\d\d$", "sprite-only needle frames of the surveyor's compass, never an item in hand"),
     (r"^elysium:.*_spawn_egg$", "spawn eggs are creative-only"),
     (r"^elysiumnpcs:envoy$", "met, not hunted: the envoy is introduced by the pages about its arrival and its ledger, and a guide that asked for one dead would be steering a player against the Empire"),
-    (r"^elysiumnpcs:.*_summons$", "the five writs of audience are creative-only: no recipe, no drop, no ledger row; the court arrives on its own schedule and the book introduces it through the envoy and its ledger"),
     (r"^elysiumcolonies:(settlement_seed|ruin_seed)$", "the survey stake and the ruin marker have no item and no recipe, are placed by the world, and are spent on their first random tick when a player comes near, so nobody ever holds or touches one; the_town explains both in its first two pages"),
     (r"^elysiumbestiary:.*_spawn_egg$", "spawn eggs are creative-only; every creature is introduced by slay"),
     (r"^elysiummobs:.*_spawn_egg$", "spawn eggs are creative-only; every family is introduced by slay"),
@@ -9741,7 +9829,6 @@ EXCUSED = [
     (r"^elysiumbestiary:shade$", "the shade is the player's own summon from an arcana relic ability, gone in 600 ticks"),
     (r"^elysiumcomforts:.*_spawn_egg$", "spawn eggs are creative-only"),
     (r"^elysiumcomforts:(charred_)?pigeon$", "no natural spawn, recipe or breeding stock reaches a survival player yet (the only source is the creative spawn egg), and a creature can only be named by slay, which is no way to meet a courier; the pigeonhole quest's words carry them"),
-    (r"^elysiumarmory:template$", "the single-use template has no recipe and no loot table anywhere in the pack; blueprints do its job and are introduced"),
 ]
 
 

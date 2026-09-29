@@ -47,12 +47,14 @@ public final class OreHarness {
     public static void main(String[] args) {
         priority();
         canonicals();
+        drops();
         guard();
         bands();
         tiers();
         fortune();
         cordon();
         sources();
+        harvest();
 
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
@@ -87,6 +89,71 @@ public final class OreHarness {
                 "vanilla is absent from the priority list");
         check(UnifyRules.PRIORITY.size() == Set.copyOf(UnifyRules.PRIORITY).size(),
                 "a namespace is listed twice, so its rank depends on which copy is found");
+
+        // The metal modules. The agronomy is unlisted and tags a chunk into
+        // every mined metal's c:raw_materials family, so an unlisted foundry
+        // lost every tie to it on the alphabet.
+        check("elysiumfoundry:raw_tin".equals(UnifyRules.canonical(
+                        List.of("elysiumagronomy:tin_chunk", "elysiumfoundry:raw_tin"))),
+                "the agronomy's tin chunk outranks the foundry's raw tin, so every tin ore drops a "
+                        + "chunk and raw tin is a thing nobody can hold");
+        check("elysiumatomics:raw_uranium".equals(UnifyRules.canonical(
+                        List.of("elysiumagronomy:uranium_chunk", "elysiumatomics:raw_uranium"))),
+                "the agronomy's uranium chunk outranks atomics' raw uranium, so every uranium ore "
+                        + "drops a chunk and raw uranium is a thing nobody can hold");
+        check(UnifyRules.rank("elysiumores") < UnifyRules.rank("elysiumfoundry")
+                        && UnifyRules.rank("elysiumfoundry") < UnifyRules.rank("mekanism")
+                        && UnifyRules.rank("elysiumatomics") < UnifyRules.rank("mekanism"),
+                "the foundry and atomics do not sit between this module and the other mods, so a "
+                        + "pack that has one of those mods drops its metal from our ores");
+    }
+
+    /** What an ore drops: UnifyRules.DROP_ORDER, and drop() walking it. */
+    private static void drops() {
+        List<String> order = UnifyRules.DROP_ORDER;
+        check(!order.isEmpty() && "raw_materials".equals(order.get(0)),
+                "the drop looks for something before the raw form, so breaking an ore hands a "
+                        + "player a thing that has already been smelted");
+        check("ingots".equals(order.get(order.size() - 1)),
+                "the drop looks for an ingot before something less worked");
+        check(order.contains(UnifyRules.VANILLA) && order.contains("dusts")
+                        && order.indexOf(UnifyRules.VANILLA) < order.indexOf("dusts")
+                        && order.indexOf(UnifyRules.VANILLA) < order.indexOf("ingots"),
+                "the base game's item comes after a dust or an ingot, so the Nether's coal ore "
+                        + "drops the foundry's coal dust rather than coal");
+        check(order.size() == Set.copyOf(order).size(),
+                "a step of the drop order is listed twice");
+
+        // Coal: the foundry tags its coal dust into c:dusts/coal.
+        String coal = UnifyRules.drop(Map.of("dusts", List.of("elysiumfoundry:coal_dust")),
+                "minecraft:coal");
+        check("minecraft:coal".equals(coal),
+                "a coal ore drops " + coal + " rather than coal, because a dust a crusher makes "
+                        + "came before the game's own item");
+        // Tin: the foundry's raw tin and the agronomy's chunk, and an ingot.
+        String tin = UnifyRules.drop(Map.of(
+                "raw_materials", List.of("elysiumagronomy:tin_chunk", "elysiumfoundry:raw_tin"),
+                "ingots", List.of("elysiumfoundry:tin_ingot")), null);
+        check("elysiumfoundry:raw_tin".equals(tin),
+                "a tin ore drops " + tin + " rather than the foundry's raw tin");
+        // Lapis: the agronomy's chunk is raw, and raw comes before the gem.
+        String lapis = UnifyRules.drop(Map.of(
+                "raw_materials", List.of("elysiumagronomy:lapis_chunk"),
+                "gems", List.of("minecraft:lapis_lazuli")), "minecraft:lapis_lazuli");
+        check("elysiumagronomy:lapis_chunk".equals(lapis),
+                "a lapis ore drops " + lapis + " while a raw form of lapis exists");
+        String ruby = UnifyRules.drop(Map.of("gems", List.of("elysiumores:ruby")), null);
+        check("elysiumores:ruby".equals(ruby), "a ruby ore drops " + ruby + " rather than the ruby");
+        String steel = UnifyRules.drop(Map.of("ingots", List.of("zzz_mod:steel_ingot",
+                "elysiumspace:steel_ingot")), null);
+        check("elysiumspace:steel_ingot".equals(steel),
+                "a family with nothing but ingots drops " + steel + " rather than its canonical ingot");
+        check(UnifyRules.drop(Map.of(), null) == null,
+                "a family nothing supplies drops something");
+        check(UnifyRules.drop(Map.of("dusts", List.of()), "") == null,
+                "an empty fallback was dropped as an item");
+        check("minecraft:coal".equals(UnifyRules.drop(Map.of(), "minecraft:coal")),
+                "a family nothing tags did not fall back on the game's own item");
     }
 
     private static void canonicals() {
@@ -393,5 +460,53 @@ public final class OreHarness {
         }
         check(OreRules.fortuned(1, 3, 0.99D) > OreRules.fortuned(1, 1, 0.99D),
                 "a higher fortune did not reach further on the same roll");
+    }
+
+    /**
+     * What mines a block: every kind of material that registers a block gets
+     * one answer, and the rule that reads a tag reports the three ways a list
+     * can be wrong. A block in no tool's tag drops nothing if it asks for one.
+     */
+    private static void harvest() {
+        check(HarvestRules.TOOLS.contains(HarvestRules.ORE_TOOL), "the ores are mined by "
+                + HarvestRules.ORE_TOOL + ", which is no tool the game keeps a list for");
+        for (CordonMaterials.Kind kind : CordonMaterials.Kind.values()) {
+            if (kind == CordonMaterials.Kind.EXTERNAL) {
+                continue;
+            }
+            boolean decided = HarvestRules.PICKAXE_KINDS.contains(kind.name())
+                    || HarvestRules.BY_HAND_KINDS.contains(kind.name());
+            check(decided, kind + " registers blocks and the harvest rules say nothing "
+                    + "about what mines them");
+            check(!(HarvestRules.PICKAXE_KINDS.contains(kind.name())
+                    && HarvestRules.BY_HAND_KINDS.contains(kind.name())),
+                    kind + " is both mined by a pickaxe and broken by hand");
+        }
+        check(HarvestRules.toolForKind("CLOTH").isEmpty(), "cloth is given a tool, and wool "
+                + "breaks by hand");
+        check(HarvestRules.toolForKind("METAL").equals("pickaxe"), "a metal block is not a "
+                + "pickaxe's");
+        boolean refused = false;
+        try {
+            HarvestRules.toolForKind("EXTERNAL");
+        } catch (IllegalArgumentException expected) {
+            refused = true;
+        }
+        check(refused, "a kind nothing decides a tool for is given one anyway");
+        // The controls on the tag reader: a block no tool is decided for, one
+        // decided twice, and a name that is no block of ours are each reported.
+        List<String> blocks = List.of("tin_block", "raw_tin_block", "mireweave_block");
+        Map<String, List<String>> minedBy = Map.of("pickaxe", List.of("tin_block", "raw_tin_block"));
+        List<String> byHand = List.of("mireweave_block");
+        check(HarvestRules.untooled(blocks, minedBy, byHand).isEmpty(),
+                "a list that answers once for every block is reported anyway");
+        check(!HarvestRules.untooled(List.of("tin_block", "raw_tin_block", "mireweave_block",
+                "peat_block"), minedBy, byHand).isEmpty(),
+                "a block no tool is decided for is not reported");
+        check(!HarvestRules.untooled(blocks, minedBy, List.of("mireweave_block", "tin_block"))
+                .isEmpty(), "a block mined by a tool and broken by hand is not reported");
+        check(!HarvestRules.untooled(blocks, Map.of("pickaxe", List.of("tin_block",
+                "raw_tin_block", "peat_block")), byHand).isEmpty(),
+                "a tool given to a block nobody registers is not reported");
     }
 }

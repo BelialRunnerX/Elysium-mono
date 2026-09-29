@@ -715,11 +715,82 @@ public final class LogisticRules {
      * Whether a store is allowed to destroy what will not fit.
      *
      * <p>False by default and true only for a drawer a player has explicitly
-     * upgraded to void. It is the single exception to "items are never
-     * destroyed", it is opt-in, and it is worth a named constant so that the
-     * harness can assert every other path conserves.
+     * upgraded to void, by fitting it with a {@link #DRAWER_SEAL}. It is the
+     * single exception to "items are never destroyed", it is opt-in, and it
+     * is worth a named constant so that the harness can assert every other
+     * path conserves.
      */
     public static boolean voids(boolean upgraded) {
         return upgraded;
+    }
+
+    // ==================================================================
+    // What a player fits to a drawer
+    // ==================================================================
+
+    /**
+     * The part that makes a drawer void: the pack's own void seal.
+     *
+     * <p>The same part and not a second one, because a player who has learned
+     * what a seal does to a bag has then learned what it does to a drawer,
+     * and one recipe is one thing to remember. The harness holds it to being
+     * the pack's void part.
+     */
+    public static final String DRAWER_SEAL = "void_seal";
+
+    /**
+     * The key that locks a drawer to what it holds, and unlocks it again.
+     *
+     * <p>Never spent by turning. A lock a player pays for every time is a
+     * lock nobody turns, and then a hopper re-types the drawer the first time
+     * it runs dry.
+     */
+    public static final String DRAWER_KEY = "drawer_key";
+
+    /**
+     * Whether a drawer takes a seal: one, and only while it has none.
+     *
+     * <p>A second would do nothing, and a seal spent on nothing is eight
+     * obsidian and an ender pearl gone; so it is refused and stays in the
+     * hand.
+     */
+    public static boolean takesSeal(boolean voiding) {
+        return !voiding;
+    }
+
+    /**
+     * How many seals a drawer gives back, taken out or broken: the one it
+     * took, or none.
+     *
+     * <p>The other half of {@link #takesSeal}, and the two together are why a
+     * seal is never destroyed: fitting spends one, and whatever happens to
+     * the drawer afterwards hands that one back.
+     */
+    public static int sealsIn(boolean voiding) {
+        return voiding ? 1 : 0;
+    }
+
+    /**
+     * Whether a slot keeps its kind: while it holds any of it, or while the
+     * drawer is locked.
+     *
+     * <p>That is the whole of what a lock is. An unlocked drawer that runs dry
+     * forgets what it held, so the next thing a hopper brings becomes its
+     * kind; a locked one keeps the kind at nought and takes nothing new, so a
+     * wall of drawers stays sorted however often it is emptied.
+     */
+    public static boolean keepsKind(boolean locked, int count) {
+        return locked || count > 0;
+    }
+
+    /**
+     * Whether a key locks a drawer that holds or keeps this many kinds.
+     *
+     * <p>Not an empty one. Locked with no kind in it, a drawer refuses
+     * everything, and a drawer that refuses everything looks broken.
+     * Unlocking is always allowed, and is not asked about here.
+     */
+    public static boolean mayLock(int kinds) {
+        return kinds > 0;
     }
 }

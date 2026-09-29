@@ -44,6 +44,14 @@
     {
       "id": "elysiumfoundry:azure_silver_ingot",
       "required": false
+    },
+    {
+      "id": "elysiumfoundry:titanium_ingot",
+      "required": false
+    },
+    {
+      "id": "elysiumfoundry:tungsten_ingot",
+      "required": false
     }
   ]
 }

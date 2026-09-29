@@ -1,7 +1,13 @@
 {
   "variants": {
-    "": {
+    "type=bottom": {
       "model": "elysiumarsenal:block/cracked_mud_brick_slab"
+    },
+    "type=top": {
+      "model": "elysiumarsenal:block/cracked_mud_brick_slab_top"
+    },
+    "type=double": {
+      "model": "elysiumarsenal:block/cracked_mud_bricks"
     }
   }
 }

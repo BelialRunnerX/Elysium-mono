@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumwilds:fen_flat",
+    "elysiumwilds:fen_hill",
+    "elysiumwilds:fen_scarp",
+    "elysiumwilds:fen_wold",
+    "elysiumwilds:marsh_flat",
+    "elysiumwilds:marsh_hill",
+    "elysiumwilds:marsh_scarp",
+    "elysiumwilds:marsh_wold",
+    "elysiumwilds:steam_flat",
+    "elysiumwilds:steam_hill",
+    "elysiumwilds:steam_scarp",
+    "elysiumwilds:steam_wold"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "input": "elysiumagronomy:blind_cavefish",
+  "tool": "fillet_knife",
+  "yields": [
+    {
+      "item": "elysiumagronomy:fish_fillet",
+      "count": 1
+    }
+  ]
+}

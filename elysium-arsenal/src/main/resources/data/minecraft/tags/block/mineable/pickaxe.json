@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    "elysiumarsenal:ocelot_fossil_head",
+    "elysiumarsenal:ocelot_fossil_body",
+    "elysiumarsenal:ocelot_fossil",
+    "elysiumarsenal:wolf_fossil_head",
+    "elysiumarsenal:wolf_fossil_body",
+    "elysiumarsenal:wolf_fossil",
+    "elysiumarsenal:chicken_fossil_head",
+    "elysiumarsenal:chicken_fossil_body",
+    "elysiumarsenal:chicken_fossil",
+    "elysiumarsenal:guardian_fossil_head",
+    "elysiumarsenal:guardian_fossil_body",
+    "elysiumarsenal:guardian_fossil",
+    "elysiumarsenal:creeper_fossil_head",
+    "elysiumarsenal:creeper_fossil_body",
+    "elysiumarsenal:creeper_fossil",
+    "elysiumarsenal:sheep_fossil_head",
+    "elysiumarsenal:sheep_fossil_body",
+    "elysiumarsenal:sheep_fossil",
+    "elysiumarsenal:villager_fossil_head",
+    "elysiumarsenal:villager_fossil_body",
+    "elysiumarsenal:villager_fossil",
+    "elysiumarsenal:chiseled_bone_block",
+    "elysiumarsenal:cracked_mud_bricks",
+    "elysiumarsenal:infested_mud_bricks",
+    "elysiumarsenal:cracked_mud_brick_slab",
+    "elysiumarsenal:cracked_mud_brick_stairs",
+    "elysiumarsenal:growth_totem",
+    "elysiumarsenal:radiance_totem"
+  ]
+}

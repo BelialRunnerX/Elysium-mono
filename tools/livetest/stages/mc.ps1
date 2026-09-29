@@ -45,7 +45,10 @@ public class Win32MC {
 [Win32MC]::SetProcessDPIAware() | Out-Null
 function MC-Place([int]$x = 0, [int]$y = 0, [int]$w = 1600, [int]$h = 900) { $p = MC-Window; [Win32MC]::MoveWindow($p.MainWindowHandle, $x, $y, $w, $h, $true) | Out-Null; Start-Sleep -Milliseconds 500 }
 function MC-Window { Get-Process java -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like 'Minecraft*' } | Select-Object -First 1 }
-function MC-Focus { $p = MC-Window; if(-not $p){ throw 'no Minecraft window' }; [Win32MC]::ShowWindow($p.MainWindowHandle, 9) | Out-Null; [Win32MC]::SetForegroundWindow($p.MainWindowHandle) | Out-Null; Start-Sleep -Milliseconds 400; $r = New-Object Win32MC+RECT; [Win32MC]::GetWindowRect($p.MainWindowHandle, [ref]$r) | Out-Null; $r }
+# Windows lets only the process that last received input set the foreground window, so a
+# tap of ALT (which the game ignores) is sent first; without it the call fails whenever the
+# Claude window, a terminal or a negtest's javac has the focus, and every key after is refused.
+function MC-Focus { $p = MC-Window; if(-not $p){ throw 'no Minecraft window' }; [Win32MC]::Key([uint16]0x12, $false); Start-Sleep -Milliseconds 40; [Win32MC]::Key([uint16]0x12, $true); [Win32MC]::ShowWindow($p.MainWindowHandle, 9) | Out-Null; [Win32MC]::SetForegroundWindow($p.MainWindowHandle) | Out-Null; Start-Sleep -Milliseconds 400; $r = New-Object Win32MC+RECT; [Win32MC]::GetWindowRect($p.MainWindowHandle, [ref]$r) | Out-Null; $r }
 function MC-Rect { $p = MC-Window; $r = New-Object Win32MC+RECT; [Win32MC]::GetWindowRect($p.MainWindowHandle, [ref]$r) | Out-Null; $r }
 function MC-Shot([string]$path, [double]$scale = 1.0) {
   $r = MC-Rect; $w = $r.Right - $r.Left; $h = $r.Bottom - $r.Top

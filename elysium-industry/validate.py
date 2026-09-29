@@ -895,6 +895,133 @@ print(f"the brick machines : {len(shape_ids)} multiblock(s) out of "
       f"one-block mutation of every one of them refused by name, and "
       f"{len(firings)} job(s) that want no wire at all")
 
+# ---------------------------------------------------------------------------
+# The brick machines in a player's hands, and the coke (29 September 2026)
+# ---------------------------------------------------------------------------
+#
+# The survival pass found three things wrong with them. What they made came
+# out only when the controller was broken. offer took whatever it was handed,
+# so a coke brick placed against the controller while building, or a pickaxe,
+# went into the input and jammed it until it was broken. And the blast furnace
+# made steel of iron alone, so the coke the almanac says it burns, and burns
+# for 3,200 ticks in any furnace, was burned by nothing. Each rule below names
+# the statement that fixed one of them.
+
+_use_empty = squashed(body_of(FURNACE_BLOCK, "protected InteractionResult useWithoutItem("))
+if "ItemStack made = state.getValue(FORMED) ? furnace.take() : ItemStack.EMPTY;" not in _use_empty \
+        or "player.getInventory().placeItemBackInInventory(made);" not in _use_empty:
+    fail("an empty hand on a formed controller takes nothing out of it, so what a coke "
+         "oven or a blast furnace makes comes out only when the controller is broken")
+if "} else { player.displayClientMessage(furnace.saying(level, pos, state), false); }" \
+        not in _use_empty:
+    fail("an empty hand on a controller with nothing to take is told nothing, so a "
+         "machine that has not formed no longer says which brick is wrong")
+_take = squashed(body_of(FURNACE_BLOCK, "public ItemStack take()"))
+if "ItemStack made = items.getStackInSlot(FurnaceRules.OUTPUT); if (!made.isEmpty()) " \
+        "{ return items.extractItem(FurnaceRules.OUTPUT, made.getCount(), false); }" \
+        not in _take:
+    fail("take() does not hand over the output slot first, so the empty hand comes away "
+         "with something other than what the machine made")
+if "if (!stuck.isEmpty() && FurnaceRules.slotFor(shape().id(), idOf(stuck), " \
+        "inTag(stuck)) != FurnaceRules.INPUT) { return items.extractItem(" \
+        "FurnaceRules.INPUT, stuck.getCount(), false); }" not in _take:
+    fail("take() leaves a thing no job takes in the input for good, so a brick or a "
+         "lump of coke put in before offer asked still jams the controller until it is "
+         "broken")
+
+_offer = squashed(body_of(FURNACE_BLOCK, "public boolean offer("))
+if "int slot = held.isEmpty() ? FurnaceRules.REFUSED : FurnaceRules.slotFor(shape().id(), " \
+        "idOf(held), inTag(held)); if (slot == FurnaceRules.REFUSED) { return false; }" \
+        not in _offer:
+    fail("offer takes whatever it is handed, so a brick placed against the controller "
+         "while building, or a pickaxe, goes into the input and jams the machine until "
+         "it is broken")
+if "if (!items.insertItem(slot, held.copyWithCount(1), false).isEmpty()) {" not in _offer:
+    fail("offer puts a thing somewhere other than the slot the rules gave it, so coke "
+         "handed to a blast furnace lands in the input and jams it")
+_use_item = squashed(body_of(FURNACE_BLOCK, "protected ItemInteractionResult useItemOn("))
+if "if (FurnaceRules.slotFor(shape().id(), idOf(held), inTag(held)) == FurnaceRules.REFUSED) " \
+        "{ return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION; }" not in _use_item:
+    fail("a thing the controller has no job for does not pass through it, so a brick "
+         "used on it is swallowed rather than placed; and passing to the default "
+         "interaction instead would take the output and still place nothing")
+
+_work = squashed(body_of(FURNACE_BLOCK, "private void work("))
+if "if (!FurnaceRules.mayFire(firing, fuelHeld())) { return; } done++;" not in _work:
+    fail("a job starts without asking for its fuel, so the blast furnace makes steel of "
+         "iron alone and the oven's coke is burned by nothing")
+if "ItemStack fuel = items.getStackInSlot(FurnaceRules.FUEL); fuel.shrink(" \
+        "FurnaceRules.burnedBy(firing)); items.setStackInSlot(FurnaceRules.FUEL, fuel);" \
+        not in _work:
+    fail("a blast furnace keeps its coke when the steel comes out, so one lump fires "
+         "for ever")
+_held = squashed(body_of(FURNACE_BLOCK, "private int fuelHeld()"))
+if "ItemStack fuel = items.getStackInSlot(FurnaceRules.FUEL);" not in _held \
+        or "? 0 : fuel.getCount();" not in _held:
+    fail("how much coke is on the fire is not read out of the fuel slot, so what a job "
+         "asks for and what the machine holds are two different things")
+
+_remove = squashed(body_of(FURNACE_BLOCK, "protected void onRemove("))
+_spill = squashed(body_of(FURNACE_BLOCK, "public SimpleContainer spill()"))
+if "Containers.dropContents(level, pos, furnace.spill());" not in _remove \
+        or "ItemStack[] every = new ItemStack[items.getSlots()]; for (int slot = 0; " \
+           "slot < every.length; slot++) { every[slot] = items.getStackInSlot(slot); }" \
+        not in _spill:
+    fail("a broken controller drops less than it holds, so the coke on a blast "
+         "furnace's fire goes with the bricks")
+_flat_block = squashed(FURNACE_BLOCK)
+if "new ItemStackHandler(FurnaceRules.SLOTS)" not in _flat_block \
+        or "super.setSize(Math.max(size, FurnaceRules.SLOTS));" not in _flat_block:
+    fail("a controller can load with fewer than FurnaceRules.SLOTS slots, and one saved "
+         "before the fuel slot says it has two; the first look at its fuel then throws")
+_saying = squashed(body_of(FURNACE_BLOCK, "public Component saying("))
+if '"elysiumindustry.furnace.unfuelled"' not in _saying \
+        or "elysiumindustry.furnace.unfuelled" not in lang:
+    fail("a blast furnace waiting for coke says it is firing, or says nothing a "
+         "language file names, so a player cannot tell it wants coke")
+
+fuels = re.findall(r'new Fuel\("([a-z_]+)", "([a-z_:]+)", ([A-Z_]+|\d+)\)', _fflat)
+per_blast = re.search(r"COKE_PER_BLAST = (\d+);", FURNACE_RULES)
+if not coke or ("blast_furnace", f"{NS}:{coke.group(1)}", "COKE_PER_BLAST") not in fuels \
+        or not per_blast or int(per_blast.group(1)) <= 0:
+    fail("the blast furnace does not burn coke at COKE_PER_BLAST a job, which is what "
+         "the almanac says makes it work and what makes the coke oven worth building")
+
+# Coke in every furnace. NeoForge 1.21.1 reads fuel from the data map
+# neoforge:furnace_fuels, and a data map's file sits under the namespace of the
+# map it fills: data/neoforge/data_maps/item/furnace_fuels.json, whoever
+# writes it. The same file under this module's namespace names a map that does
+# not exist; the game logs one warning and nothing burns.
+COKE_BURN = re.search(r"COKE_BURN = ([\d_]+);", FURNACE_RULES)
+FUEL_MAP = os.path.join(RES, "data/neoforge/data_maps/item/furnace_fuels.json")
+try:
+    fuel_map = json.load(open(FUEL_MAP, encoding="utf-8")) if os.path.isfile(FUEL_MAP) else {}
+except ValueError:
+    fuel_map = {}
+fuel_map = fuel_map if isinstance(fuel_map, dict) else {}
+_values = fuel_map.get("values")
+_burn = _values.get(f"{NS}:{coke.group(1) if coke else 'coke'}") \
+    if isinstance(_values, dict) else None
+_burn = _burn.get("burn_time") if isinstance(_burn, dict) else _burn
+if not COKE_BURN or _burn != int(COKE_BURN.group(1).replace("_", "")):
+    fail(f"coke is no furnace fuel at FurnaceRules.COKE_BURN: "
+         f"data/neoforge/data_maps/item/furnace_fuels.json gives it {_burn!r} and the rules "
+         f"say {COKE_BURN.group(1) if COKE_BURN else 'nothing'}, so the lump the almanac "
+         f"says burns twice as long as coal burns for whatever the file says, or not at all")
+if fuel_map.get("replace"):
+    fail("the furnace fuel data map says \"replace\": true, which throws away every fuel "
+         "the game and every other mod declared: coal and logs stop burning")
+for _namespace in sorted(os.listdir(os.path.join(RES, "data"))):
+    if _namespace != "neoforge" and os.path.isdir(os.path.join(RES, "data", _namespace, "data_maps")):
+        fail(f"data/{_namespace}/data_maps/ fills data maps named {_namespace}:..., and "
+             f"none exist; a data map's file sits under the namespace of the map it "
+             f"fills (neoforge:furnace_fuels is data/neoforge/), so these fill nothing")
+
+print(f"fed and emptied    : an empty hand takes what a formed one made, a thing with "
+      f"no job there passes through, and a blast burns "
+      f"{per_blast.group(1) if per_blast else '?'} coke, which burns "
+      f"{format(_burn, ',') if isinstance(_burn, int) else _burn} ticks in any furnace")
+
 
 print(f"the age in the world: {len(registered)} block(s) and {len(parts)} part(s), each "
       f"modelled, dropped, named and craftable; "

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * The two brick machines Age II starts with, before it has a grid.
@@ -178,8 +179,127 @@ public final class FurnaceRules {
      * <p>Above coal, because a lump of it cost a lump of coal and a quarter
      * of an hour. Below what Age I's refinery gets out of a coal block, so
      * that this is a better lump rather than a better refinery.
+     *
+     * <p>The game's code never reads it. The generator writes it into
+     * NeoForge's furnace fuel data map, so every furnace and every engine
+     * that burns fuel burns coke for this long.
      */
     public static final int COKE_BURN = 3_200;
+
+    // ==================================================================
+    // What a player hands one, and what it burns
+    // ==================================================================
+
+    /** The slot a job is fired out of. */
+    public static final int INPUT = 0;
+
+    /** The slot what it made waits in, for a player's empty hand. */
+    public static final int OUTPUT = 1;
+
+    /** The slot its fuel waits in. Only a machine that burns something fills it. */
+    public static final int FUEL = 2;
+
+    /** How many slots a controller has. */
+    public static final int SLOTS = 3;
+
+    /** What {@link #slotFor} answers for a thing the machine has no job for. */
+    public static final int REFUSED = -1;
+
+    /**
+     * What a machine burns, and how much of it one job takes.
+     *
+     * @param shape  which machine burns it
+     * @param item   what it burns
+     * @param perJob how many of it one job takes
+     */
+    public record Fuel(String shape, String item, int perJob) {
+
+        public Fuel {
+            Objects.requireNonNull(shape, "a fuel for nothing");
+            Objects.requireNonNull(item, "a fuel that is nothing");
+            if (perJob <= 0) {
+                throw new IllegalArgumentException(shape + " burns " + perJob
+                        + " " + item + " a job, which is not burning it");
+            }
+        }
+    }
+
+    /**
+     * What the machines burn.
+     *
+     * <p>The blast furnace burns coke, {@link #COKE_PER_BLAST} to the job.
+     * The coke oven burns nothing. That is the whole design of it, and it is
+     * also why there is a first lump of coke at all: an oven that wanted coke
+     * to make coke could never be started.
+     */
+    public static final List<Fuel> FUELS = List.of(
+            new Fuel("blast_furnace", "elysiumindustry:coke", COKE_PER_BLAST));
+
+    /** What a machine burns, or null for one that burns nothing. */
+    public static Fuel fuelOf(String shape) {
+        for (Fuel one : FUELS) {
+            if (one.shape().equals(shape)) {
+                return one;
+            }
+        }
+        return null;
+    }
+
+    /** How much fuel a job spends: none in a machine that burns nothing. */
+    public static int burnedBy(Firing job) {
+        Fuel fuel = fuelOf(job.shape());
+        return fuel == null ? 0 : fuel.perJob();
+    }
+
+    /**
+     * Whether a job may go on with this much of its machine's fuel in it.
+     *
+     * <p>The block asks every tick, so a job never starts short: a blast
+     * furnace with no coke in it holds its iron and waits. The coke is spent
+     * when the steel comes out, so a player who breaks one halfway through
+     * has lost the wait and not the coke.
+     */
+    public static boolean mayFire(Firing job, int fuelHeld) {
+        return fuelHeld >= burnedBy(job);
+    }
+
+    /**
+     * The job a machine has for a thing, whatever the count, or null.
+     *
+     * @param shape which machine
+     * @param item  the thing's id
+     * @param inTag whether the thing is in a tag, named without its '#'
+     */
+    public static Firing jobFor(String shape, String item, Predicate<String> inTag) {
+        for (Firing one : FIRINGS) {
+            if (!one.shape().equals(shape)) {
+                continue;
+            }
+            if (one.input().startsWith("#") ? inTag.test(one.input().substring(1))
+                    : one.input().equals(item)) {
+                return one;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Which slot a thing handed to a machine goes in, or {@link #REFUSED}.
+     *
+     * <p>The question a controller asks before it takes anything. It used to
+     * take whatever it was handed: a coke brick placed against it while
+     * building, or a pickaxe, went into the input, fired into nothing, and
+     * sat there until the controller was broken. A thing the machine has no
+     * job for is refused now, and the hand holding it does what it would do
+     * anywhere else.
+     */
+    public static int slotFor(String shape, String item, Predicate<String> inTag) {
+        Fuel fuel = fuelOf(shape);
+        if (fuel != null && fuel.item().equals(item)) {
+            return FUEL;
+        }
+        return jobFor(shape, item, inTag) != null ? INPUT : REFUSED;
+    }
 
     // ==================================================================
     // What has to be true of all of it
@@ -193,6 +313,7 @@ public final class FurnaceRules {
         }
         bad.addAll(ShapeRules.faultsInSet(SHAPES));
         bad.addAll(faultsInFirings(FIRINGS, SHAPES));
+        bad.addAll(faultsInFuels(FUELS, FIRINGS, SHAPES));
         return List.copyOf(bad);
     }
 
@@ -255,6 +376,53 @@ public final class FurnaceRules {
             if (!busy.contains(shape.id())) {
                 bad.add(shape.id() + " has nothing to fire, so it is twenty-six "
                         + "bricks a player puts down once");
+            }
+        }
+        return bad;
+    }
+
+    /**
+     * Whether every fuel can be had, and burned where it is meant to be.
+     *
+     * <p>Handed all three rosters, so a control can pass a fuel for a machine
+     * that does not exist, a fuel nothing makes, or a machine that burns what
+     * it makes, which over the rosters this module ships it can only ever
+     * answer no to.
+     */
+    public static List<String> faultsInFuels(List<Fuel> fuels, List<Firing> firings,
+                                             List<ShapeRules.Shape> shapes) {
+        List<String> bad = new ArrayList<>();
+        Set<String> machines = new LinkedHashSet<>();
+        for (ShapeRules.Shape shape : shapes) {
+            machines.add(shape.id());
+        }
+        Set<String> burning = new LinkedHashSet<>();
+        for (Fuel one : fuels) {
+            if (!machines.contains(one.shape())) {
+                bad.add(one.item() + " is burned in a " + one.shape()
+                        + ", which is not a machine this module has");
+            }
+            if (!burning.add(one.shape())) {
+                bad.add(one.shape() + " burns two fuels and has one slot to hold "
+                        + "them, so the second is refused at the door");
+            }
+            boolean made = one.item().startsWith("minecraft:");
+            for (Firing job : firings) {
+                if (job.output().equals(one.item())) {
+                    made = true;
+                    if (job.shape().equals(one.shape())) {
+                        bad.add(one.shape() + " burns the " + one.item()
+                                + " it makes, so the first lump can never be made");
+                    }
+                }
+                if (job.shape().equals(one.shape()) && job.input().equals(one.item())) {
+                    bad.add(one.shape() + " both burns and fires " + one.item()
+                            + ", so a lump handed to it has two slots to go in");
+                }
+            }
+            if (!made) {
+                bad.add(one.shape() + " burns " + one.item() + ", which no brick "
+                        + "machine makes, so it is a stack of bricks");
             }
         }
         return bad;

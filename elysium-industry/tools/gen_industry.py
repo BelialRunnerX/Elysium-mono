@@ -266,6 +266,8 @@ COKING = int(re.search(r"COKING_TICKS = ([\d_]+);", FURNACE_SOURCE)
              .group(1).replace("_", ""))
 BLASTING = int(re.search(r"BLASTING_TICKS = ([\d_]+);", FURNACE_SOURCE)
                .group(1).replace("_", ""))
+COKE_BURN = int(re.search(r"COKE_BURN = ([\d_]+);", FURNACE_SOURCE)
+                .group(1).replace("_", ""))
 
 
 def brick(base, mortar):
@@ -725,6 +727,17 @@ def data_files():
             })
             written += 1
 
+    # Coke is a furnace fuel, for as long as FurnaceRules.COKE_BURN says, so a
+    # vanilla furnace, the turbine and every engine that burns fuel burn it.
+    # NeoForge reads fuel from the data map neoforge:furnace_fuels, and a data
+    # map's file sits under the map's namespace, not the writer's: under this
+    # module's own it would name a map that does not exist and burn nothing.
+    # No "replace", so vanilla's fuels and every other mod's stay.
+    fuels = os.path.join(OUT, "src/main/resources/data/neoforge/data_maps/item")
+    write(os.path.join(fuels, "furnace_fuels.json"),
+          {"values": {f"{NS}:{COKE}": {"burn_time": COKE_BURN}}})
+    written += 1
+
     # Every block in the age is metal, so every block in the age is a pickaxe job.
     picks = os.path.join(OUT, "src/main/resources/data/minecraft/tags/block")
     write(os.path.join(picks, "mineable/pickaxe.json"),
@@ -792,6 +805,8 @@ LINES = {
         "Not a %s yet. Relative to this block, %s.",
     "elysiumindustry.furnace.empty": "Built, and empty.",
     "elysiumindustry.furnace.working": "Firing: %s tick(s) in.",
+    "elysiumindustry.furnace.unfuelled":
+        "Waiting for %s: a job burns %s, and it holds %s.",
 }
 
 #: What each machine says, in its own words.

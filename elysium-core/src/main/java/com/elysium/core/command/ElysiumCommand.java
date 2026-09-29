@@ -77,6 +77,12 @@ public final class ElysiumCommand {
                     printTier(context.getSource(), player);
                     return 1;
                 }))
+                // Every block that needs a tool has one tagged to mine it, and
+                // none a player can place is unbreakable. Operators only.
+                .then(Commands.literal("audit")
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.literal("harvest")
+                                .executes(context -> HarvestAudit.run(context.getSource()))))
                 // Levels for a test: experience granted through the same path a
                 // kill grants it, until the level asked for. Operators only.
                 .then(Commands.literal("level")

@@ -836,6 +836,11 @@ if os.path.isfile(GENERATOR):
             compared = [(os.path.join(RES, kind, NS), os.path.join(tmp, "src/main/resources", kind, NS))
                         for kind in ("assets", "data")]
             compared.append((os.path.join(SRC, "client"), os.path.join(tmp, "src/main/java/com/elysium/bestiary/client")))
+            # And the game's own tags this module writes into: the mineable
+            # tags come from HarvestRules, and one edited by hand is a machine
+            # that drops nothing again after the next regen.
+            compared.append((os.path.join(RES, "data", "minecraft"),
+                             os.path.join(tmp, "src/main/resources/data/minecraft")))
             for here, there in compared:
                 for base, _, names in os.walk(there):
                     for name in names:
@@ -2398,6 +2403,132 @@ else:
                  "places once and never works out the point of")):
             if key not in lang:
                 fail(f"{name} {why}")
+
+    # What mines them (rules/HarvestRules; the harvest audit of 29 Sep 2026).
+    # Every machine copies the game's iron block, which asks for the right
+    # tool, and nothing put one in a tool's tag: all nine broke in seven
+    # seconds and dropped nothing. So every registered block is in exactly one
+    # of this module's mineable tags, or named BY_HAND in the rules with its
+    # reason here; an exemption is read where the block is registered, not
+    # taken on trust; the tags are what the rules say, written by the
+    # generator; and a tag names only blocks this module registers, because
+    # one unknown id makes the game refuse the whole tag.
+    HARVEST_SRC = strip_comments(read(SRC, "rules/HarvestRules.java"), keep_strings=True)
+    if not HARVEST_SRC:
+        fail("rules/HarvestRules.java is missing, so nothing says what mines a machine "
+             "and the tags are written from nothing")
+    HARVEST_TOOLS = ("pickaxe", "axe", "shovel", "hoe")
+    _machine_tool = re.search(r'String MACHINE_TOOL = "([a-z]+)";', HARVEST_SRC)
+    _machine_tool = _machine_tool.group(1) if _machine_tool else ""
+    if _machine_tool not in HARVEST_TOOLS:
+        fail(f"HarvestRules.MACHINE_TOOL is {_machine_tool!r}, which is no tool the game "
+             f"keeps a list for, so the machines are written into a tag nothing reads")
+    _by_hand_found = re.search(r"List<String> BY_HAND = List\.of\(([^;]*?)\);", HARVEST_SRC, re.S)
+    _by_hand = re.findall(r'"([a-z_]+)"', _by_hand_found.group(1)) if _by_hand_found else []
+    MINEABLE = {}
+    for _tool in HARVEST_TOOLS:
+        _tag = os.path.join(RES, "data/minecraft/tags/block/mineable", _tool + ".json")
+        if not os.path.isfile(_tag):
+            continue
+        _doc = json.load(open(_tag, encoding="utf-8"))
+        if _doc.get("replace"):
+            fail(f"mineable/{_tool} sets replace: true, which throws away every other "
+                 f"mod's entries in the game's own tag")
+        for _one in _doc.get("values", []):
+            _named = _one.get("id") if isinstance(_one, dict) else _one
+            if not isinstance(_named, str):
+                continue
+            MINEABLE.setdefault(_named, set()).add(_tool)
+            if _named.startswith(f"{NS}:") and not os.path.isfile(os.path.join(
+                    RES, f"assets/{NS}/blockstates", _named.split(":", 1)[1] + ".json")):
+                fail(f"mineable/{_tool} names {_named}, which is not a block this module "
+                     f"registers, so the game refuses the whole tag and every block in "
+                     f"it is back to dropping nothing")
+
+    #: The machines no tool is for, and why. HarvestRules.BY_HAND says which; a
+    #: machine it names with no reason here is refused, and so is a reason for
+    #: a machine it no longer names. Nothing, today: every one is an iron block.
+    MINE_EXEMPT = {}
+
+    #: What the game's blocks this module copies ask of a tool, read out of the
+    #: game's own jar: the iron block wants the right one.
+    ASKS_FOR_A_TOOL = {"IRON_BLOCK": True}
+
+    def asks_for_a_tool(made, what):
+        """Whether a block built like this asks for the right tool, and how."""
+        if not made:
+            fail(f"nothing here finds how {what} is built, so nothing shows whether it "
+                 f"asks for the right tool")
+            return None, ""
+        if ".requiresCorrectToolForDrops()" in made:
+            return True, "it says so where it is registered"
+        for copied in re.findall(r"\bBlocks\.([A-Z_]+)", made):
+            if copied not in ASKS_FOR_A_TOOL:
+                fail(f"{what} copies Blocks.{copied}, and nothing here knows whether that "
+                     f"asks for the right tool: look it up in the game's jar and add it")
+                return None, ""
+            if ASKS_FOR_A_TOOL[copied]:
+                return True, f"it copies Blocks.{copied}, which does"
+        return False, ""
+
+    _machine_ids = [row[0] for row in machines]
+    _blockstate_dir = os.path.join(RES, f"assets/{NS}/blockstates")
+    for _name in sorted(os.path.splitext(f)[0] for f in os.listdir(_blockstate_dir)
+                        if f.endswith(".json")) if os.path.isdir(_blockstate_dir) else []:
+        if _name not in _machine_ids:
+            fail(f"{_name} has a blockstate and is no machine of the rules, so nothing "
+                 f"here can say what mines it")
+    for _name in _by_hand:
+        if _name not in MINE_EXEMPT:
+            fail(f"HarvestRules breaks {_name} by hand and this gives no reason, so it is "
+                 f"left out of every tool's tag on nobody's say-so")
+        if _name not in _machine_ids:
+            fail(f"HarvestRules breaks {_name} by hand and no such machine is registered")
+    for _name in MINE_EXEMPT:
+        if _name not in _by_hand:
+            fail(f"a reason is given for breaking {_name} by hand and HarvestRules no "
+                 f"longer does, so the exemption covers a block the rules put in a tag")
+    # One statement registers all nine, so one reading answers for all nine.
+    _flat_reg = squashed(FARM_REG)
+    _start = _flat_reg.find("BLOCKS.register(one.id()")
+    _made = _flat_reg[_start:_flat_reg.find(";", _start)] if _start >= 0 else ""
+    _asks, _how = asks_for_a_tool(_made, "a machine")
+    _tool_blocks = []
+    _asking_untagged = []
+    _untagged = []
+    for _name in _machine_ids:
+        _tags = MINEABLE.get(f"{NS}:{_name}", set())
+        if _asks:
+            _tool_blocks.append(_name)
+        if len(_tags) > 1:
+            fail(f"{_name} is in {len(_tags)} mineable tags ({', '.join(sorted(_tags))}), "
+                 f"so two tools are right and the rules can only have named one")
+        if _name in MINE_EXEMPT:
+            if _asks:
+                fail(f"{_name} is exempt from the mineable tags ({MINE_EXEMPT[_name]}), but "
+                     f"it asks for the right tool: {_how}. With no tag no tool is right, so "
+                     f"it would drop nothing")
+            if _tags:
+                fail(f"{_name} is exempt from the mineable tags and in one all the same; "
+                     f"take it off MINE_EXEMPT or out of the tag")
+            continue
+        if not _tags:
+            (_asking_untagged if _asks else _untagged).append(_name)
+        if sorted(_tags) != [_machine_tool]:
+            fail(f"the rules put {_name} under {_machine_tool} and the tags under "
+                 f"{' and '.join(sorted(_tags)) or 'none'}; the tags are written from the "
+                 f"rules by tools/gen_bestiary.py, so one of them was edited by hand")
+    if _asking_untagged:
+        fail(f"{len(_asking_untagged)} block(s) ask for the right tool and are in no tool's "
+             f"tag, so no tool is ever right and they drop nothing however they are mined: "
+             + ", ".join(_asking_untagged))
+    if _untagged:
+        fail(f"{len(_untagged)} block(s) are in no mineable tag and not exempt, so every "
+             f"tool breaks them at a fist's pace: " + ", ".join(_untagged))
+    print(f"what mines them     : {len(_machine_ids)} block(s), {len(_tool_blocks)} asking "
+          f"for the right tool, every one in exactly one tool's tag or broken by hand "
+          f"with a reason: {len(_machine_ids) - len(MINE_EXEMPT)} by {_machine_tool}, "
+          f"{len(MINE_EXEMPT)} by hand")
 
     # What a machine is built from has to be a thing that exists. This check
     # exists because it did not: `minecraft:wool` reads like an item, is a tag,

@@ -1501,6 +1501,33 @@ else:
                 fail(f"{name}'s recipe uses '{symbol}' in its pattern and never "
                      f"says what it is, so the game refuses the recipe")
 
+    # The way in (29 Sep 2026): every row of PostRules.WILD is a biome modifier
+    # that spawns that bird there, as the rules say; and the loss the rules
+    # price is rolled where a parcel lands, with a second road to lost mail.
+    _wild = re.findall(r'new Wild\("([a-z_]+)", "([^"]+)", (\d+), (\d+), (\d+)\)',
+                       re.sub(r"\s+", " ", POST))
+    if not _wild:
+        fail("no bird spawns anywhere, so the post's carriers can never be met")
+    for _bird, _biomes, _weight, _least, _most in _wild:
+        _written = read(RES, "data", NS, "neoforge/biome_modifier", _bird + "_spawns.json")
+        _doc = json.loads(_written) if _written else {}
+        _spawner = (_doc.get("spawners") or [{}])[0]
+        if _doc.get("type") != "neoforge:add_spawns" or _doc.get("biomes") != _biomes \
+                or _spawner.get("type") != f"{NS}:{_bird}" or _spawner.get("weight") != int(_weight) \
+                or _spawner.get("minCount") != int(_least) or _spawner.get("maxCount") != int(_most):
+            fail(f"the rules spawn {_bird} in {_biomes} at weight {_weight}, {_least} to {_most}, "
+                 f"and no biome modifier says so, so the bird has no way into the world")
+    _box = squashed(read(SRC, "block/MailboxBlockEntity.java"))
+    if "PostRules.lostOn(level.random.nextInt(1000))" not in _box:
+        fail("a parcel is never lost where it lands, so the loss the rules price is rolled "
+             "nowhere and lost mail is an item nothing makes")
+    if "PostRules.salvaged(one.getCount())" not in _box:
+        fail("lost mail keeps an amount the box works out itself, not the rules' salvage")
+    _global = read(RES, "data/neoforge/loot_modifiers/global_loot_modifiers.json")
+    if f"{NS}:lost_mail_from_cartographer" not in _global:
+        fail("the cartographer's lost mail is written and never listed, so the game never "
+             "applies it")
+
     # Every rule the file declares is added up.
     _sum = squashed(body_of(POST, "public static List<String> faults()"))
     _rules = set(re.findall(r"public static List<String> (faultsIn\w+)\(", POST))

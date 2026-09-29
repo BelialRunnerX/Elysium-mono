@@ -2,7 +2,8 @@
   "variants": {
     "facing=north,half=bottom,shape=straight": {
       "model": "elysiumflora:block/emberwood_stairs",
-      "y": 270
+      "y": 270,
+      "uvlock": true
     },
     "facing=north,half=bottom,shape=inner_left": {
       "model": "elysiumflora:block/emberwood_stairs_inner",
@@ -32,25 +33,23 @@
     },
     "facing=north,half=top,shape=inner_left": {
       "model": "elysiumflora:block/emberwood_stairs_inner",
-      "y": 180,
+      "y": 270,
       "x": 180,
       "uvlock": true
     },
     "facing=north,half=top,shape=inner_right": {
       "model": "elysiumflora:block/emberwood_stairs_inner",
-      "y": 270,
       "x": 180,
       "uvlock": true
     },
     "facing=north,half=top,shape=outer_left": {
       "model": "elysiumflora:block/emberwood_stairs_outer",
-      "y": 180,
+      "y": 270,
       "x": 180,
       "uvlock": true
     },
     "facing=north,half=top,shape=outer_right": {
       "model": "elysiumflora:block/emberwood_stairs_outer",
-      "y": 270,
       "x": 180,
       "uvlock": true
     },
@@ -63,8 +62,7 @@
       "uvlock": true
     },
     "facing=east,half=bottom,shape=inner_right": {
-      "model": "elysiumflora:block/emberwood_stairs_inner",
-      "uvlock": true
+      "model": "elysiumflora:block/emberwood_stairs_inner"
     },
     "facing=east,half=bottom,shape=outer_left": {
       "model": "elysiumflora:block/emberwood_stairs_outer",
@@ -72,8 +70,7 @@
       "uvlock": true
     },
     "facing=east,half=bottom,shape=outer_right": {
-      "model": "elysiumflora:block/emberwood_stairs_outer",
-      "uvlock": true
+      "model": "elysiumflora:block/emberwood_stairs_outer"
     },
     "facing=east,half=top,shape=straight": {
       "model": "elysiumflora:block/emberwood_stairs",
@@ -82,33 +79,33 @@
     },
     "facing=east,half=top,shape=inner_left": {
       "model": "elysiumflora:block/emberwood_stairs_inner",
-      "y": 270,
       "x": 180,
       "uvlock": true
     },
     "facing=east,half=top,shape=inner_right": {
       "model": "elysiumflora:block/emberwood_stairs_inner",
+      "y": 90,
       "x": 180,
       "uvlock": true
     },
     "facing=east,half=top,shape=outer_left": {
       "model": "elysiumflora:block/emberwood_stairs_outer",
-      "y": 270,
       "x": 180,
       "uvlock": true
     },
     "facing=east,half=top,shape=outer_right": {
       "model": "elysiumflora:block/emberwood_stairs_outer",
+      "y": 90,
       "x": 180,
       "uvlock": true
     },
     "facing=south,half=bottom,shape=straight": {
       "model": "elysiumflora:block/emberwood_stairs",
-      "y": 90
+      "y": 90,
+      "uvlock": true
     },
     "facing=south,half=bottom,shape=inner_left": {
-      "model": "elysiumflora:block/emberwood_stairs_inner",
-      "uvlock": true
+      "model": "elysiumflora:block/emberwood_stairs_inner"
     },
     "facing=south,half=bottom,shape=inner_right": {
       "model": "elysiumflora:block/emberwood_stairs_inner",
@@ -116,8 +113,7 @@
       "uvlock": true
     },
     "facing=south,half=bottom,shape=outer_left": {
-      "model": "elysiumflora:block/emberwood_stairs_outer",
-      "uvlock": true
+      "model": "elysiumflora:block/emberwood_stairs_outer"
     },
     "facing=south,half=bottom,shape=outer_right": {
       "model": "elysiumflora:block/emberwood_stairs_outer",
@@ -132,29 +128,32 @@
     },
     "facing=south,half=top,shape=inner_left": {
       "model": "elysiumflora:block/emberwood_stairs_inner",
+      "y": 90,
       "x": 180,
       "uvlock": true
     },
     "facing=south,half=top,shape=inner_right": {
       "model": "elysiumflora:block/emberwood_stairs_inner",
-      "y": 90,
+      "y": 180,
       "x": 180,
       "uvlock": true
     },
     "facing=south,half=top,shape=outer_left": {
       "model": "elysiumflora:block/emberwood_stairs_outer",
+      "y": 90,
       "x": 180,
       "uvlock": true
     },
     "facing=south,half=top,shape=outer_right": {
       "model": "elysiumflora:block/emberwood_stairs_outer",
-      "y": 90,
+      "y": 180,
       "x": 180,
       "uvlock": true
     },
     "facing=west,half=bottom,shape=straight": {
       "model": "elysiumflora:block/emberwood_stairs",
-      "y": 180
+      "y": 180,
+      "uvlock": true
     },
     "facing=west,half=bottom,shape=inner_left": {
       "model": "elysiumflora:block/emberwood_stairs_inner",
@@ -184,25 +183,25 @@
     },
     "facing=west,half=top,shape=inner_left": {
       "model": "elysiumflora:block/emberwood_stairs_inner",
-      "y": 90,
+      "y": 180,
       "x": 180,
       "uvlock": true
     },
     "facing=west,half=top,shape=inner_right": {
       "model": "elysiumflora:block/emberwood_stairs_inner",
-      "y": 180,
+      "y": 270,
       "x": 180,
       "uvlock": true
     },
     "facing=west,half=top,shape=outer_left": {
       "model": "elysiumflora:block/emberwood_stairs_outer",
-      "y": 90,
+      "y": 180,
       "x": 180,
       "uvlock": true
     },
     "facing=west,half=top,shape=outer_right": {
       "model": "elysiumflora:block/emberwood_stairs_outer",
-      "y": 180,
+      "y": 270,
       "x": 180,
       "uvlock": true
     }

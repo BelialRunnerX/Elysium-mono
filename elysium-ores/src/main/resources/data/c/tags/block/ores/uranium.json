@@ -30,9 +30,11 @@
       "required": false
     },
     "elysiumores:cinder_uranium_ore",
+    "elysiumores:deepslate_uranium_ore",
     "elysiumores:end_stone_uranium_ore",
     "elysiumores:frost_uranium_ore",
     "elysiumores:netherrack_uranium_ore",
-    "elysiumores:pale_uranium_ore"
+    "elysiumores:pale_uranium_ore",
+    "elysiumores:stone_uranium_ore"
   ]
 }

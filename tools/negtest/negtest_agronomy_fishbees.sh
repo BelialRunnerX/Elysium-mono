@@ -192,6 +192,88 @@ d=json.load(open(p,encoding='utf-8')); d.pop('elysiumagronomy.rod.hook')
 json.dump(d,open(p,'w',encoding='utf-8'),indent=2)"
 expect "a rod tooltip with no words" "have no words"
 
+echo "the rods, made"
+rm -f "$D/recipe/iron_rod.json"
+expect "a rung of rod with no recipe" "the iron_rod has no recipe"
+
+python3 -c "
+import json
+p='$DP/recipe/starsteel_rod.json'
+d=json.load(open(p)); d['key']['R']['item']='elysiumagronomy:reed_rod'
+json.dump(d,open(p,'w'),indent=2)"
+expect "the top rod made out of the bottom one" "so the rod ladder is not a ladder"
+
+echo "the fillet knife and the measuring line"
+edit $S/registry/FishItems.java 'new com.elysium.agronomy.item.KnifeItem(
+                    new Item.Properties().durability(240),
+                    com.elysium.agronomy.rules.KitchenRules.FILLET_KNIFE));' 'new Item(new Item.Properties().durability(240)));'
+expect "a fillet knife that is a plain item" "the fillet knife is not a knife"
+
+edit $S/item/KnifeItem.java '        return tool;' '        return KitchenRules.KNIFE;'
+expect "a knife that forgets its own name" "does not say its own name"
+
+edit $S/rules/KitchenRules.java '        return nutrition * MOST_A_CUT_FEEDS / fillet.nutrition();' '        return nutrition * 3;'
+expect "a fillet knife that makes food" "the fillet knife is a food multiplier"
+
+rm -f "$D/cutting/mackerel.json"
+expect "a fish the fillet knife leaves whole" "does not cut the way the rules say"
+
+edit $S/registry/FishItems.java 'new com.elysium.agronomy.item.MeasuringLineItem(' 'new Item('
+expect "a measuring line that is a plain item" "the measuring line is a plain item"
+
+edit $S/item/MeasuringLineItem.java 'String.valueOf(FishRules.centimetres(fish)));' 'String.valueOf(fish.nutrition()));'
+expect "a measuring line that reads the wrong number" "not the rules' length"
+
+rm -f "$D/recipe/measuring_line.json"
+expect "a measuring line nobody can make" "the measuring_line has no recipe"
+
+echo "the end fish, alive"
+rm -f "$D/recipe/void_ray_bucket.json"
+expect "an end fish nobody can put in a bucket" "a caught void_ray cannot be put in a bucket"
+
+python3 -c "
+import json
+p='$DP/recipe/chorus_perch_bucket.json'
+d=json.load(open(p)); d['ingredients'][1]['item']='minecraft:water_bucket'
+json.dump(d,open(p,'w'),indent=2)"
+expect "an end fish bucketed in a water bucket, two buckets for one" "not the fish and an empty bucket"
+
+edit $S/rules/WaterRules.java '        return !spawnsWild(family);' '        return false;'
+expect "a rod-only family never alive anywhere" "never alive in the world"
+
+echo "a nest in every home"
+rm -f "$D/neoforge/biome_modifier/ocean_nest.json"
+expect "a bred home's nest generated nowhere" "ocean_nest is generated nowhere"
+
+python3 -c "
+import json
+p='$DP/worldgen/configured_feature/ocean_nest.json'
+d=json.load(open(p)); d['config']['to_place']['state']['Properties']['bees']='3'
+json.dump(d,open(p,'w'),indent=2)"
+expect "a bred home's nest generated full" "a bred bee is found in the world"
+
+python3 -c "
+import json
+p='$DP/worldgen/placed_feature/nether_nest.json'
+d=json.load(open(p))
+d['placement']=[{'type':'minecraft:rarity_filter','chance':24},{'type':'minecraft:in_square'},
+                {'type':'minecraft:heightmap','heightmap':'WORLD_SURFACE_WG'},{'type':'minecraft:biome'}]
+json.dump(d,open(p,'w'),indent=2)"
+expect "a nether nest found by the surface map" "the bedrock roof"
+
+edit $S/rules/KeepingRules.java '        ground("ocean", SEA_BED);' ''
+expect "a home with no ground to build its nest on" "no ground to build it on"
+
+edit $S/rules/KeepingRules.java '        return wildAt(home) == null ? 0 : NEST_BEES;' '        return NEST_BEES;'
+expect "every nest full, bred homes too" "bee(s) in it and its wild bee is"
+
+echo "the four bee tools, made"
+rm -f "$D/recipe/bee_jar.json"
+expect "a bee jar nobody can make" "the bee_jar has no recipe"
+
+rm -f "$D/recipe/bee_treat.json"
+expect "a bee treat nobody can make" "the bee_treat has no recipe"
+
 echo
 echo "restoring and re-checking"
 restore

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "elysiumarsenal:chicken_fossil_head"
+    },
+    {
+      "item": "elysiumarsenal:chicken_fossil_body"
+    }
+  ],
+  "result": {
+    "id": "elysiumarsenal:chicken_fossil",
+    "count": 1
+  }
+}

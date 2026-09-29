@@ -1,6 +1,7 @@
 package com.elysium.npcs.entity;
 
 import com.elysium.npcs.ElysiumNpcs;
+import com.elysium.npcs.rules.CourtRules;
 import com.elysium.lib.standing.ElysiumCommission;
 import com.elysium.lib.standing.ElysiumPrices;
 import com.elysium.lib.standing.ElysiumRewards;
@@ -175,6 +176,14 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
      */
     @Nullable
     private MerchantOffers offers;
+
+    /**
+     * How many rows at the head of the ledger are fixed rather than rolled:
+     * the amnesty writ on an office that reads Suspicion, and every office's
+     * writ of audience. Counted when the ledger is rolled, and read by
+     * {@link #refreshSoldOut()}, which redraws rolls and nothing else.
+     */
+    private int fixedRows;
 
     /** Who has the screen open, for the vanilla merchant contract. */
     @Nullable
@@ -453,10 +462,15 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
     /**
      * Build what this envoy brought.
      *
-     * One row per {@link EnvoyKind#offerCount()}, each at the tier the office
-     * assigns it, each a reward bought with a price — both drawn from the
-     * library's provider pools so that every installed mod is on both sides of
-     * the trade and this mod names no item on either.
+     * The fixed rows come first and are not rolls: the amnesty writ, on an
+     * office that reads Suspicion, and the envoy's own writ of audience, on
+     * every office. They are counted into {@link #fixedRows} so that a reroll
+     * never touches them.
+     *
+     * Then one row per {@link EnvoyKind#offerCount()}, each at the tier the
+     * office assigns it, each a reward bought with a price — both drawn from
+     * the library's provider pools so that every installed mod is on both
+     * sides of the trade and this mod names no item on either.
      *
      * A tier that nothing will pay out at is skipped rather than filled with a
      * placeholder. An envoy with three of its five rows missing is a thin
@@ -472,8 +486,8 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
         // else that had asked it for a number first.
         RandomSource ledger = RandomSource.create(ledgerSeed);
 
-        // §27.1's amnesty row, and the one offer on this screen that is not a
-        // roll.
+        // §27.1's amnesty row, and the first of the two offers on this screen
+        // that are not rolls.
         //
         // Guaranteed, because it is the only way a player has of lowering
         // Suspicion by choosing to. An amnesty that turned up one visit in
@@ -493,6 +507,30 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
                         kAmnestyUses, 0, 0.0F));
             }
         }
+
+        // The writ of audience: this envoy's own summons, on every office, one
+        // a visit (CourtRules.AUDIENCE_USES). It is the only way a writ is
+        // made in survival, and the one way to have an envoy come to you
+        // rather than wait for one to arrive.
+        //
+        // Priced like the amnesty row, off the office's top shelf and from the
+        // ledger's own seed, so a writ costs what the best row on this screen
+        // costs and does not change under a player who walks home to pay for
+        // it. With elysium-core installed that is 4-6 aetherium or voidglass
+        // ingots from the Sentinel, 12-16 from the Architect or the Commander,
+        // and 24-32 neutronium ingots from the Emperor or the Queen. The screen
+        // refuses below the office's band, so each writ is sold only where its
+        // envoy deals.
+        ItemStack fee = ElysiumPrices.roll(kind.rewardTier(), ledger);
+        if (!fee.isEmpty()) {
+            rolled.add(new MerchantOffer(
+                    new ItemCost(fee.getItem(), fee.getCount()),
+                    new ItemStack(ElysiumNpcs.summonsFor(kind).get()),
+                    CourtRules.AUDIENCE_USES, 0, 0.0F));
+        }
+
+        // Everything above is fixed and everything below is a roll.
+        fixedRows = rolled.size();
 
         for (int i = 0; i < kind.offerCount(); i++) {
             int tier = kind.tierForOffer(i);
@@ -624,12 +662,22 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
     }
 
     /**
-     * Draw a new offer into every exhausted row.
+     * Draw a new offer into every exhausted roll.
      *
      * A row that cannot be refilled — because nothing will pay out at its tier
      * any more — is left sold out rather than removed. Removing it would
      * renumber every row below it, and the use counts saved against this
      * ledger are positional.
+     *
+     * <h4>Not the fixed rows</h4>
+     *
+     * The amnesty writ and the writ of audience at the head of the ledger are
+     * not rolls, so there is nothing to redraw them into. A writ bought out
+     * stays bought out for the rest of the visit, which is what one a visit
+     * means; redrawing its row would also hand the player an extra reward for
+     * having bought it. The rolls are numbered from the first roll, not from
+     * the top of the screen, or a refill on a screen with fixed rows lands at
+     * the tier of the row below it.
      */
     private void refreshSoldOut() {
         MerchantOffers current = offers;
@@ -637,11 +685,11 @@ public class ImperialEnvoy extends PathfinderMob implements Merchant {
             return;
         }
         EnvoyKind kind = getKind();
-        for (int i = 0; i < current.size(); i++) {
+        for (int i = fixedRows; i < current.size(); i++) {
             if (!current.get(i).isOutOfStock()) {
                 continue;
             }
-            int tier = kind.tierForOffer(i);
+            int tier = kind.tierForOffer(i - fixedRows);
             // A fresh draw from the entity's own source, not the ledger seed.
             // The seed reproduces the ledger an envoy ARRIVED with; what
             // replaces a spent row is new, and deriving it from the same seed
