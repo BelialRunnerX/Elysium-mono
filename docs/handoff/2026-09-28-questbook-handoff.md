@@ -29,9 +29,9 @@ Dylan also asked for screenshots of whatever is tested (client stages under
 
 * Branch `integration` at C:\Users\weaks\AppData\Local\Temp\Elysium-mono (= /tmp/Elysium-mono).
 * **Abandoned ruins (colonies, roadmap §3 item 1 "abandoned half")** — built, validated,
-  compiled (dist has the jars), committed as a checkpoint if you see the commit
-  "Colonies: abandoned ruins"; if not, `git status` shows it uncommitted and every
-  file is listed there. What is NOT yet done for ruins: the live scenario
+  compiled (dist has the jars) and committed as a47010e7 "Colonies: abandoned ruins, and
+  a handoff for the questbook" (negtest_colonies3: the four new cases caught; its nine
+  misses are the pre-existing stale anchors in STALE-ANCHORS.md). What is NOT yet done for ruins: the live scenario
   `colony_ruin` (tools/livetest/scenarios.py) has not been run against a server on
   the new jar, and the jars in E:\testingbuilds\ElysiumServer and E:\testingbuilds\Elysium
   are still the cf24eb16 build. Install (move old jars to mods/_superseded, copy
