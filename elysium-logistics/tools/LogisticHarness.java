@@ -207,6 +207,21 @@ public final class LogisticHarness {
         check(LogisticRules.voids(true),
                 "a voiding upgrade does not void, so the one exception is not available "
                         + "either");
+        // A hopper calls a slot full at the ceiling the store names and never
+        // offers to a full one, so the ceiling is the room until the store
+        // voids, and then there is none (live test, 29 September 2026).
+        for (LogisticRules.Drawer drawer : List.of(LogisticRules.TIMBER_DRAWER,
+                LogisticRules.BRASS_DRAWER, LogisticRules.STEEL_DRAWER)) {
+            check(LogisticRules.ceiling(drawer.room(), false) == drawer.room(),
+                    "a drawer nobody sealed tells a hopper a slot holds "
+                            + LogisticRules.ceiling(drawer.room(), false) + " rather than "
+                            + "its room of " + drawer.room() + ", so a hopper keeps offering "
+                            + "to a full drawer or stops before it is full");
+            check(LogisticRules.ceiling(drawer.room(), true) > drawer.room(),
+                    "a sealed drawer tells a hopper it is full at its room of "
+                            + drawer.room() + ", so the hopper stops feeding it there and "
+                            + "the seal voids nothing a hopper brings");
+        }
     }
 
     // ==================================================================

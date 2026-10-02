@@ -156,9 +156,15 @@ expect "a sealed drawer that does not say so" "a sealed drawer does not say it v
 edit $DB '                line = Component.translatable("elysiumlogistics.drawer.empty",' '                return Component.translatable("elysiumlogistics.drawer.empty",'
 expect "an empty drawer that says nothing of its lock or seal" "an empty locked drawer refuses things and never says why"
 
+edit $DST '        return LogisticRules.ceiling(drawer.room(), voiding);' '        return drawer.room();'
+expect "a sealed drawer that tells a hopper it is full at its room" "every hopper stops feeding it there"
+
 echo "the rules, executed by the harness"
 edit $LRU '        return !voiding;' '        return true;'
 expect "rules that let a drawer take a second seal" "a sealed drawer takes another seal"
+
+edit $LRU '        return voids(voiding) ? Integer.MAX_VALUE : Math.max(0, room);' '        return Math.max(0, room);'
+expect "rules under which a sealed drawer is full at its room" "stops feeding it there and the seal voids"
 
 edit $LRU '        return voiding ? 1 : 0;' '        return 0;'
 expect "rules that give no seal back" "did not add up to the seals the hand started with"

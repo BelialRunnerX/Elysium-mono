@@ -1086,6 +1086,126 @@ for statement, why in (
          "x and z")):
     if statement not in searching:
         fail(why)
+# Where the Vale side goes: by a ring already standing, else on the nearest dry
+# column within the rules' reach, else, when all of that is sea, by the shore
+# the rules' eight compass lines meet, settled the same way, else the column as
+# found. The ground is the heightmap that stops at water and the search finds a
+# biome rather than a block, so the nearest verdant column, when it was a lake,
+# a river or the sea, had the ring built on the water and the player landing in
+# it (1 October 2026: the live stage arrived at sea level in a bay); and the
+# Vale has no ocean biome, so a fresh ring's first trip landed in a sea where
+# every column within sixty-four was water but its own pads (1 October, late).
+# The spiral, the lines and the dryness test are the rules', proved in the
+# way-in harness; held here is that the trip asks them in that order, with what
+# the world says stands at each column's top, fluid and sturdiness both, and
+# settles for the column as found only when neither stage finds dry ground.
+settling = squashed(body_of(travel_src,
+                            "private static ValeLinks.Arrival settle(ServerLevel vale, BlockPos column, Direction.Axis axis)"))
+for statement, why in (
+        ("ValeLinks.Arrival near = near(vale, column, axis); if (near != null) { return near; }",
+         "the near stage, a ring standing by the column or the nearest dry column within the spiral's "
+         "reach, is not tried first, so a verdant landing is walked off to a far shore or built over "
+         "a standing ring"),
+        ("PortalRules.Column far = PortalRules.nearestFarDry(footing(vale, column));",
+         "when the spiral finds only water the Vale side is not walked out along the rules' compass "
+         "lines to a shore, so a ring whose verdant column sits in a sea is built on the water and the "
+         "player lands in it a hundred blocks from land"),
+        ("if (far != null) { near = near(vale, column.offset(far.east(), 0, far.south()), axis); "
+         "if (near != null) { return near; } }",
+         "the shore the far stage finds is not settled the way the column was, so a ring standing "
+         "there is built over, or the side goes somewhere other than the shore found"),
+        ("return on(vale, column, axis);",
+         "the Vale side does not settle for the column as found when everything within reach of both "
+         "stages is water, so a ring whose verdant vale is all sea has no far side at all")):
+    if statement not in settling:
+        fail(why)
+nearing = squashed(body_of(travel_src,
+                           "private static ValeLinks.Arrival near(ServerLevel vale, BlockPos column, Direction.Axis axis)"))
+for statement, why in (
+        ("ValeLinks.Arrival standing = standingBy(vale, groundAt(vale, column)); "
+         "if (standing != null) { return standing; }",
+         "a ring already standing where a Vale side goes is not used first, so the side is built "
+         "over it and breaks it"),
+        ("PortalRules.Column dry = PortalRules.nearestDry(footing(vale, column));",
+         "the Vale side is not moved to the dry column the rules find nearest, so when the verdant "
+         "column the search found is a lake, a river or the sea the ring is built on the water and "
+         "the player lands in it"),
+        ("if (dry == null) { return null; }",
+         "the near stage does not say when everything within its reach is water, so the far stage "
+         "is never asked and the sea is landed in"),
+        ("BlockPos spot = column.offset(dry.east(), 0, dry.south());",
+         "the Vale side goes somewhere other than the dry column found"),
+        ("return standing != null ? standing : on(vale, spot, axis);",
+         "the Vale side is not built at the column settled on, or a ring standing by it is built "
+         "over")):
+    if statement not in nearing:
+        fail(why)
+building = squashed(body_of(travel_src,
+                            "private static ValeLinks.Arrival on(ServerLevel vale, BlockPos spot, Direction.Axis axis)"))
+if "return new ValeLinks.Arrival(new BlockPos(spot.getX(), y, spot.getZ()), axis);" not in building:
+    fail("the Vale side is not built at the spot settled on")
+footing_src = squashed(body_of(travel_src,
+                               "private static PortalRules.Surface footing(ServerLevel vale, BlockPos column)"))
+if "return (east, south) -> top(vale, column.offset(east, 0, south));" not in footing_src:
+    fail("the ground the rules read is not what stands at the top of each column so many blocks east "
+         "and south of the one settled, so the dry search is asked about somewhere else")
+topping = squashed(body_of(travel_src, "private static PortalRules.Footing top(ServerLevel vale, BlockPos column)"))
+if ("BlockPos under = groundAt(vale, column).below(); "
+        "return new PortalRules.Footing(wet(vale, under), firm(vale, under));") not in topping:
+    fail("what stands at a column's top is not the block its heightmap stopped under, read for fluid "
+         "and for sturdiness both, so the dry search is asked something other than what the harness "
+         "proved")
+wetting = squashed(body_of(travel_src, "private static boolean wet(ServerLevel vale, BlockPos under)"))
+if "return !vale.getFluidState(under).isEmpty();" not in wetting:
+    fail("whether a column is wet is not read off the fluid in the block its heightmap stopped "
+         "under, so the dry search is asked something other than what the harness proved and a "
+         "lake can count as ground again")
+firming = squashed(body_of(travel_src, "private static boolean firm(ServerLevel vale, BlockPos under)"))
+if "return vale.getBlockState(under).isFaceSturdy(vale, under, Direction.UP);" not in firming:
+    fail("whether a column's top would hold a player up is not read off the sturdiness of its upper "
+         "face, so a fence post, a bottom slab or a chest's lid that stops the heightmap and holds "
+         "nobody up is called ground and a ring is built on it")
+grounding = squashed(body_of(travel_src, "private static BlockPos groundAt(ServerLevel vale, BlockPos column)"))
+if ("vale.getChunk(column.getX() >> 4, column.getZ() >> 4); "
+        "return vale.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column);") not in grounding:
+    fail("the ground a Vale side is set on is not the heightmap's with the chunk generated first, "
+         "so it is read off a chunk that is not there yet and the ring is built at the bottom of "
+         "the world")
+dryness = squashed(body_of(portal_rules, "public static boolean dry(Surface surface, Column at)"))
+if "Footing top = surface.at(at.east(), at.south()); return !top.fluid() && top.sturdy();" not in dryness:
+    fail("a column is not dry by both of the rules' tests, nothing flowing at its top and a top "
+         "that holds a player up, so either a lake or a fence post is called ground")
+drying = squashed(body_of(portal_rules, "public static Column nearestDry(Surface surface)"))
+if "for (Column one : drySearch()) { if (dry(surface, one)) { return one; } }" not in drying:
+    fail("the dry column is not the first dry one of the rules' own search, so what the harness "
+         "proved nearest first is not what the trip lands on")
+spiralling = squashed(body_of(portal_rules, "private static List<Column> spiral()"))
+if not re.search(r"public static final int DRY_SEARCH_BLOCKS = \d+;", portal_rules) \
+        or "for (int south = -DRY_SEARCH_BLOCKS; south <= DRY_SEARCH_BLOCKS; south++) {" not in spiralling \
+        or "for (int east = -DRY_SEARCH_BLOCKS; east <= DRY_SEARCH_BLOCKS; east++) {" not in spiralling \
+        or "columns.sort(NEAREST_FIRST);" not in spiralling:
+    fail("the dry search does not read its reach from PortalRules.DRY_SEARCH_BLOCKS, or is not "
+         "sorted nearest first, so how far a landing may be moved is not the number the harness "
+         "proved")
+# The far stage: its stride and reach are the rules' constants, every stride
+# past the spiral's square along the eight lines, sorted nearest first, and the
+# first dry sample is the shore.
+faring = squashed(body_of(portal_rules, "public static Column nearestFarDry(Surface surface)"))
+if "for (Column one : farDrySearch()) { if (dry(surface, one)) { return one; } }" not in faring:
+    fail("the far shore is not the first dry sample of the rules' own compass lines, so what the "
+         "harness proved nearest first is not where a trip past a sea lands")
+lining = squashed(body_of(portal_rules, "private static List<Column> lines()"))
+striding = squashed(body_of(portal_rules, "private static int stride()"))
+if not re.search(r"public static final int FAR_DRY_STEP = \d+;", portal_rules) \
+        or not re.search(r"public static final int FAR_DRY_SEARCH_BLOCKS = \d+;", portal_rules) \
+        or "return Math.max(1, FAR_DRY_STEP);" not in striding \
+        or "for (int out = stride(); out <= FAR_DRY_SEARCH_BLOCKS; out += stride()) {" not in lining \
+        or "if (out <= DRY_SEARCH_BLOCKS) { continue; }" not in lining \
+        or "for (int[] line : LINES) { columns.add(new Column(line[0] * out, line[1] * out)); }" not in lining \
+        or "columns.sort(NEAREST_FIRST);" not in lining:
+    fail("the far stage does not walk the eight compass lines by PortalRules.FAR_DRY_STEP out to "
+         "PortalRules.FAR_DRY_SEARCH_BLOCKS past the spiral's square, sorted nearest first, so how "
+         "far a sea may be crossed and what it costs the server is not what the harness proved")
 if ("return ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath( "
         "ElysiumWilds.MODID, PortalRules.arrivalBiome()));") \
         not in squashed(body_of(travel_src, "gentlest() {")):

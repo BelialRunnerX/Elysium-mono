@@ -145,6 +145,224 @@ def logistics_bus(t):
                   path="store.slots")
 
 
+# --- the network's other faces, and what a player fits to a drawer (29 September 2026)
+# Each device on a fed bus: a steam turbine on coal beside the controller, as
+# the importer above. There is no player here, so a device is told what to
+# care about the way it saves itself (/data merge runs loadAdditional): its
+# `filter` is the item it was shown, its `threshold` a rung of
+# NetRules.THRESHOLDS, an ender link's `channel` the id it was shown. A
+# drawer's store is written the same way: store.slots[N].kind / .count,
+# store.voiding (the seal), store.locked (the key). The traps: a drawer's
+# slots list carries the kind's own count of 1 beside the real count, so read
+# store.slots[0].count rather than expect_item; and a channel is only joined
+# on load or by hand (MECHANICS.md), so the ender link's plot is unloaded and
+# loaded again before it is asked to carry anything.
+import re as _re
+import time as _time
+
+
+def _text(t, dx, dy, dz, path):
+    """A string NBT value, without its quotes, or ''."""
+    m = _re.search(r'has the following block data: "([^"]*)"', t.data(dx, dy, dz, path))
+    return m.group(1) if m else ""
+
+
+def _count_is(t, dx, dy, dz, path, wanted, why):
+    """Exactly this number at that path: the rules give numbers, not floors."""
+    value = t.number(dx, dy, dz, path)
+    return t.expect(value == wanted, f"{why}: {path} at {t.at(dx, dy, dz)} is {value}, wanted {wanted}")
+
+
+def _drawer(t, dx, dy, dz, item, count, **flags):
+    """A timber drawer holding this many of the item, sealed (voiding) or locked as asked."""
+    t.setblock(dx, dy, dz, "elysiumlogistics:timber_drawer")
+    slot = f'{{kind:{{id:"{item}",count:1}},count:{count}}}' if item else "{count:0}"
+    more = "".join(f",{name}:{'1b' if on else '0b'}" for name, on in flags.items())
+    out = t.cmd(f"data merge block {t.at(dx, dy, dz)} {{store:{{slots:[{slot}]{more}}}}}")
+    if "Modified" not in out:
+        t.problems.append(f"could not write the drawer at {t.at(dx, dy, dz)}: {out}")
+
+
+def _fed_controller(t, dx, dy, dz):
+    """A steam turbine on coal and, east of it, the controller it lights."""
+    t.setblock(dx, dy, dz, "elysiumindustry:steam_turbine")
+    t.hopper_into(dx, dy, dz, "minecraft:coal_block", 4)
+    t.setblock(dx + 1, dy, dz, "elysiumlogistics:controller")
+
+
+def _shown(t, dx, dy, dz, item, more=""):
+    """Tell a device what to care about, as a right-click with the item would."""
+    out = t.cmd(f'data merge block {t.at(dx, dy, dz)} {{filter:{{id:"{item}",count:1}}{more}}}')
+    if "Modified" not in out:
+        t.problems.append(f"could not set the filter of the device at {t.at(dx, dy, dz)}: {out}")
+
+
+def _reload(t, *spots):
+    """Unload the plot and load it again: what reopening a world does to every block entity on it."""
+    x0, z0 = t.ox - 1, t.oz - 1
+    x1, z1 = t.ox + t.PLOT - 2, t.oz + t.PLOT - 2
+
+    def loaded():
+        return [("Test passed" in t.cmd(f"execute if loaded {t.at(*spot)}")) for spot in spots]
+
+    t.cmd(f"forceload remove {x0} {z0} {x1} {z1}")
+    gone = False
+    for _ in range(60):
+        _time.sleep(0.5)
+        if not any(loaded()):
+            gone = True
+            break
+    t.cmd(f"forceload add {x0} {z0} {x1} {z1}")
+    for _ in range(60):
+        _time.sleep(0.5)
+        if all(loaded()):
+            break
+    t.expect(gone, "the plot did not unload when its forceload was taken away, so nothing on it was loaded again")
+    t.expect(all(loaded()), "the plot did not come back when it was force-loaded again")
+
+
+@scenario("logistics: an exporter moves only the thing it was shown out of the network, and one shown nothing is idle")
+def logistics_exporter(t):
+    _fed_controller(t, 2, 0, 2)
+    t.setblock(4, 0, 2, "elysiumlogistics:bus")
+    _drawer(t, 5, 0, 2, "minecraft:cobblestone", 40)
+    t.setblock(4, 0, 3, "elysiumlogistics:bus")
+    _drawer(t, 5, 0, 3, "minecraft:dirt", 40)
+    t.setblock(3, 0, 3, "elysiumlogistics:bus")
+    t.setblock(3, 0, 4, "elysiumlogistics:exporter[facing=south]")
+    _shown(t, 3, 0, 4, "minecraft:cobblestone")
+    t.chest(3, 0, 5)
+    t.setblock(2, 0, 3, "elysiumlogistics:exporter[facing=west]")     # shown nothing
+    t.chest(1, 0, 3)
+    t.advance(200)          # ten rounds of NetRules.TICK_EVERY; a round is a stack, the controller passes sixteen a tick
+    t.expect_item(3, 0, 5, "minecraft:cobblestone", 40,
+                  "the exporter shown cobblestone did not move the drawer's forty into its chest")
+    t.expect(not any(i == "minecraft:dirt" for i, _ in t.items(3, 0, 5)),
+             f"the exporter shown cobblestone moved dirt as well, into the chest at {t.at(3, 0, 5)}")
+    _count_is(t, 5, 0, 2, "store.slots[0].count", 0, "the cobblestone drawer still holds what the exporter moved out")
+    _count_is(t, 5, 0, 3, "store.slots[0].count", 40, "the dirt drawer lost dirt to an exporter shown cobblestone")
+    t.expect(not t.items(1, 0, 3), f"an exporter shown nothing filled its chest at {t.at(1, 0, 3)}")
+
+
+@scenario("logistics: a storage bus makes the chest it faces part of the network, so a hopper into the controller fills that chest")
+def logistics_storage_bus(t):
+    _fed_controller(t, 2, 0, 2)
+    t.setblock(4, 0, 2, "elysiumlogistics:bus")
+    t.setblock(5, 0, 2, "elysiumlogistics:storage_bus[facing=east]")
+    t.chest(6, 0, 2)
+    # Into the controller: the network owns no drawer, so the only room it has is the chest it borrows.
+    t.hopper_into(3, 0, 2, "minecraft:cobblestone", 8)
+    t.advance(200)
+    t.expect_item(6, 0, 2, "minecraft:cobblestone", 8,
+                  "the chest behind the storage bus did not take the hopper's eight cobblestone")
+    t.expect(not t.items(3, 1, 2), f"the hopper into the controller still holds cobblestone at {t.at(3, 1, 2)}")
+
+
+@scenario("logistics: every device costs its controller what the rules bill: one draw for a drawer or a monitor, two for a storage bus or an interface, four for an ender link")
+def logistics_device_draws(t):
+    _fed_controller(t, 2, 0, 2)
+    t.fill((4, 0, 2), (8, 0, 2), "elysiumlogistics:bus")
+    # LogisticRules.DEVICE_DRAW is 1.5 a slot; NetRules.DEVICES says how many slots' worth each device pays.
+    steps = [
+        ("elysiumlogistics:timber_drawer", 1.5),
+        ("elysiumlogistics:monitor", 3.0),
+        ("elysiumlogistics:storage_bus[facing=north]", 6.0),
+        ("elysiumlogistics:interface", 9.0),
+        ("elysiumlogistics:ender_link", 15.0),
+    ]
+    for at, (block, demand) in enumerate(steps):
+        t.setblock(4 + at, 0, 1, block)
+        t.advance(60)       # the controller looks again every forty ticks, then the grid is solved
+        name = block.split(":")[1].split("[")[0]
+        _count_is(t, 3, 0, 2, "demand", demand, f"with the {name} added, the controller asks the grid for the wrong draw")
+    # A monitor keeps what it was shown, since that is all it has to say a count of.
+    _shown(t, 5, 0, 1, "minecraft:cobblestone")
+    t.expect(_text(t, 5, 0, 1, "filter.id") == "minecraft:cobblestone", "the monitor forgot what it was shown")
+
+
+@scenario("logistics: a detector lights a lamp at its threshold: sixty-three cobblestone is dark, sixty-four is lit, sixty-three again is dark")
+def logistics_detector(t):
+    _fed_controller(t, 2, 0, 2)
+    t.setblock(4, 0, 2, "elysiumlogistics:bus")
+    t.setblock(5, 0, 2, "elysiumlogistics:timber_drawer")
+    t.setblock(4, 0, 3, "elysiumlogistics:bus")
+    t.setblock(4, 0, 4, "elysiumlogistics:detector[facing=south]")
+    _shown(t, 4, 0, 4, "minecraft:cobblestone", ",threshold:64")       # the third rung of NetRules.THRESHOLDS
+    t.setblock(5, 0, 4, "minecraft:redstone_lamp")
+    for count, lit in ((63, False), (64, True), (63, False)):
+        t.cmd(f'data merge block {t.at(5, 0, 2)} {{store:{{slots:[{{kind:{{id:"minecraft:cobblestone",count:1}},count:{count}}}]}}}}')
+        t.advance(60)       # three rounds of the detector, and the lamp's four-tick delay
+        t.expect_state(4, 0, 4, f"elysiumlogistics:detector[powered={str(lit).lower()}]",
+                       f"holding {count} cobblestone against a threshold of 64, the detector's redstone is wrong")
+        t.expect_state(5, 0, 4, f"minecraft:redstone_lamp[lit={str(lit).lower()}]",
+                       f"holding {count} cobblestone against a threshold of 64, the lamp beside the detector is wrong")
+
+
+@scenario("logistics: an interface hands the network to the hopper under it, which fills the chest below")
+def logistics_interface(t):
+    _fed_controller(t, 2, 2, 2)
+    t.setblock(4, 2, 2, "elysiumlogistics:bus")
+    _drawer(t, 5, 2, 2, "minecraft:cobblestone", 40)
+    t.setblock(4, 2, 3, "elysiumlogistics:bus")
+    t.setblock(4, 2, 4, "elysiumlogistics:interface[facing=south]")
+    t.setblock(4, 1, 4, "minecraft:hopper[facing=down]")     # a hopper takes from whatever inventory is above it
+    t.chest(4, 0, 4)
+    t.advance(500)          # one item every eight ticks: forty in 320
+    t.expect_item(4, 0, 4, "minecraft:cobblestone", 40,
+                  "the hopper under the interface did not draw the drawer's forty cobblestone into the chest")
+    _count_is(t, 5, 2, 2, "store.slots[0].count", 0, "the drawer still holds cobblestone the hopper under the interface took")
+
+
+@scenario("logistics: an ender link carries a hopper's cobblestone from one network into the other's drawer over one channel, once the plot has loaded again")
+def logistics_ender_link(t):
+    # Network A: a controller and a link and no drawer of its own, so what a hopper gives it can only go through the link.
+    _fed_controller(t, 2, 0, 2)
+    t.setblock(4, 0, 2, "elysiumlogistics:bus")
+    t.setblock(5, 0, 2, "elysiumlogistics:ender_link[facing=east]", '{channel:"minecraft:diamond"}')
+    t.hopper_into(3, 0, 2, "minecraft:cobblestone", 8)
+    # Network B, nine blocks of air away: its own turbine and controller, a link on the same channel, and a drawer.
+    _fed_controller(t, 14, 0, 2)
+    t.setblock(16, 0, 2, "elysiumlogistics:bus")
+    t.setblock(17, 0, 2, "elysiumlogistics:ender_link[facing=east]", '{channel:"minecraft:diamond"}')
+    t.setblock(16, 0, 3, "elysiumlogistics:timber_drawer")
+    # /data names the channel; only a load or a right-click puts the link on its roster (MECHANICS.md).
+    _reload(t, (5, 0, 2), (17, 0, 2))
+    t.advance(300)
+    _count_is(t, 16, 0, 3, "store.slots[0].count", 8,
+              "the other network's drawer did not receive the eight cobblestone the hopper gave the first")
+    t.expect(_text(t, 16, 0, 3, "store.slots[0].kind.id") == "minecraft:cobblestone",
+             f"the other network's drawer holds something other than cobblestone at {t.at(16, 0, 3)}")
+    t.expect(not t.items(3, 1, 2), f"the hopper into the first network's controller still holds cobblestone at {t.at(3, 1, 2)}")
+
+
+@scenario("logistics: a void seal destroys what a full drawer cannot take, a plain drawer refuses it, and a key keeps an emptied drawer's kind")
+def logistics_seal_and_key(t):
+    room = 32 * 64                                              # LogisticRules.TIMBER_DRAWER: 32 stacks of one kind
+    _drawer(t, 2, 0, 2, "minecraft:cobblestone", room - 8, voiding=True)      # sealed, eight short of full
+    t.hopper_into(2, 0, 2, "minecraft:cobblestone", 64)
+    _drawer(t, 2, 0, 5, "minecraft:cobblestone", room - 8)                    # plain, eight short of full
+    t.hopper_into(2, 0, 5, "minecraft:cobblestone", 64)
+    _drawer(t, 2, 0, 8, "minecraft:cobblestone", 0, locked=True)              # locked to cobblestone, and run dry
+    t.hopper_into(2, 0, 8, "minecraft:dirt", 8)
+    t.setblock(2, 0, 11, "elysiumlogistics:timber_drawer")                    # bare and unlocked
+    t.hopper_into(2, 0, 11, "minecraft:dirt", 8)
+    t.advance(600)          # a hopper moves one item every eight ticks: sixty-four in 512
+    _count_is(t, 2, 0, 2, "store.slots[0].count", room, "the sealed drawer did not fill to its 2,048")
+    t.expect(not t.items(2, 1, 2),
+             f"the hopper on the sealed drawer still holds cobblestone at {t.at(2, 1, 2)}, so the seal voided nothing")
+    _count_is(t, 2, 0, 5, "store.slots[0].count", room, "the plain drawer did not fill to its 2,048")
+    t.expect_item(2, 1, 5, "minecraft:cobblestone", 56, "the plain drawer took more than its 2,048: the hopper on it should keep 56")
+    _count_is(t, 2, 0, 8, "store.slots[0].count", 0, "the locked drawer took dirt")
+    t.expect(_text(t, 2, 0, 8, "store.slots[0].kind.id") == "minecraft:cobblestone",
+             "the locked drawer, run dry, forgot the cobblestone it was locked to")
+    t.expect_item(2, 1, 8, "minecraft:dirt", 8, "the hopper on the locked drawer lost dirt")
+    _count_is(t, 2, 0, 11, "store.slots[0].count", 8, "the bare drawer did not take the hopper's dirt")
+    # The other half of the lock: the kind it keeps is the kind it still takes.
+    t.cmd(f"item replace block {t.at(2, 1, 8)} container.0 with minecraft:cobblestone 8")
+    t.advance(100)
+    _count_is(t, 2, 0, 8, "store.slots[0].count", 8, "the locked drawer refused the cobblestone it is locked to")
+
+
 @scenario("inventories: every machine with a top face takes what a hopper offers")
 def inventories_in(t):
     rigs = [
@@ -305,6 +523,199 @@ def agronomy_hive(t):
     made = [i for i, c in t.items(4, 0, 4, "items.Items") if i.endswith("comb")]
     t.expect(bool(made), f"the hive made no comb in forty thousand ticks among eight flowers "
                          f"(worked {t.number(4, 0, 4, 'worked')})")
+
+
+# --- the stations around the water and in the kitchen ------------------------
+# The worm farm, the tackle box, the bobbers, the skillet and the cutting board
+# were the agronomy blocks PLAYTEST.md called unverified until 29 September
+# 2026. Each is asked what its rules say without a player: a block entity's
+# ticker sprints, a box's slots answer a hopper, and `data merge` runs
+# loadAdditional, so a farm or a station can be handed the state a player's
+# hands would have put in it. What only a hand can do - feed a farm a fish,
+# put a knife to a board, cast a bobber - is said so, and the client stage
+# has it.
+
+import glob as _glob
+import json as _json
+import os as _os
+import re as _re
+
+_AGRONOMY = "elysiumagronomy"
+_AGRONOMY_DATA = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))),
+                               "elysium-agronomy", "src", "main", "resources", "data", _AGRONOMY)
+
+
+def _station(t, dx, dy, dz, block, contents, making):
+    """A kitchen station handed what a player put in it and told to start, in StationBlockEntity's own tags."""
+    t.setblock(dx, dy, dz, block)
+    listed = ",".join(f'{{id:"{item}",count:1}}' for item in contents)
+    t.cmd(f'data merge block {t.at(dx, dy, dz)} {{contents:[{listed}],cooking:1b,making:"{making}",progress:0}}')
+
+
+@scenario("agronomy: a worm farm fed a river fish makes river bait one every 1 200 ticks, stops at sixteen, and drops them when broken")
+def agronomy_worm_farm(t):
+    farm = f"{_AGRONOMY}:worm_farm"
+    # Feeding is a fish in a hand (WormFarmBlock.useItemOn); what it leaves in
+    # the farm is the fish's family (TackleRules.baitFor), so the farm is handed that.
+    t.setblock(2, 0, 2, farm)
+    t.cmd(f'data merge block {t.at(2, 0, 2)} {{family:"river"}}')
+    t.expect('"river"' in t.data(2, 0, 2, "family"), "the farm did not keep the family it was fed")
+    t.setblock(5, 0, 2, farm)                                   # never fed
+    t.setblock(8, -1, 2, "minecraft:hopper")                    # catches what the full farm drops
+    t.setblock(8, 0, 2, farm)                                   # full, and a tick from its next bait
+    t.cmd(f'data merge block {t.at(8, 0, 2)} {{family:"lake",held:16,worked:1199}}')
+    t.advance(2500)                        # TackleRules.WORM_TICKS is 1 200: two baits and change
+    held = t.number(2, 0, 2, "held")
+    t.expect(held == 2, f"a fed farm made {held} bait in 2 500 ticks; one every 1 200 ticks is two")
+    t.expect(t.number(5, 0, 2, "held") in (None, 0.0), f"a farm nobody fed made {t.number(5, 0, 2, 'held')} bait")
+    t.expect(t.number(8, 0, 2, "held") == 16,
+             f"a full farm went past sixteen: {t.number(8, 0, 2, 'held')} (TackleRules.WORM_FARM_HOLDS)")
+    # Emptying is an empty hand (useWithoutItem); breaking it drops the same
+    # stack, as its family's bait item, and the hopper under it says how many.
+    t.setblock(8, 0, 2, "minecraft:air")
+    t.advance(40)
+    t.expect_item(8, -1, 2, f"{_AGRONOMY}:lake_bait", 16,
+                  "a broken farm holding sixteen did not drop sixteen lake bait into the hopper under it")
+
+
+@scenario("agronomy: a tackle box takes every hook, bobber, bait and rod a hopper offers, refuses cobblestone, and empties into a hopper below")
+def agronomy_tackle_box(t):
+    box = f"{_AGRONOMY}:tackle_box"
+    # TackleRules.isTackle: the four hooks and four bobbers, a family's bait, anything called a rod
+    tackle = ["iron_hook", "barbed_hook", "double_hook", "gilded_hook",
+              "cork_bobber", "glow_bobber", "lead_bobber", "lantern_bobber", "river_bait", "reed_rod"]
+    for column, item in enumerate(tackle):
+        t.setblock(2 + column * 2, 0, 2, box)
+        t.hopper_into(2 + column * 2, 0, 2, f"{_AGRONOMY}:{item}", 1)
+    t.setblock(2, 0, 6, box)                                    # what is not tackle stays in the hopper
+    t.hopper_into(2, 0, 6, "minecraft:cobblestone", 8)
+    t.setblock(6, 1, 6, box)                                    # a hopper under a box draws from it, as from a chest
+    t.cmd(f"item replace block {t.at(6, 1, 6)} container.0 with {_AGRONOMY}:barbed_hook")
+    t.setblock(6, 0, 6, "minecraft:hopper[facing=down]")
+    t.chest(6, -1, 6)
+    t.advance(100)
+    for column, item in enumerate(tackle):
+        t.expect_item(2 + column * 2, 0, 2, f"{_AGRONOMY}:{item}", 1,
+                      f"the tackle box took no {item} from the hopper above it", path="Items")
+    t.expect(not any(i == "minecraft:cobblestone" for i, c in t.items(2, 0, 6, "Items")),
+             "a tackle box took cobblestone, so it is a chest with a fish on it")
+    t.expect_item(2, 1, 6, "minecraft:cobblestone", 8, "the cobblestone the box refused is gone from the hopper")
+    t.expect_item(6, -1, 6, f"{_AGRONOMY}:barbed_hook", 1, "a hopper under a tackle box drew nothing out of it")
+
+
+@scenario("agronomy: the four bobbers are items that stack to one and sit on a rod as the component its cast reads")
+def agronomy_bobbers(t):
+    # A cast is a hand's: ElysiumRodItem.use throws the float that carries the
+    # bobber and the game's own float does the waiting, so the quarter a cork
+    # takes off the wait (WaterRules.waitFor) and the band a lead one opens
+    # (TackleRules.reaches) are checked from the client (PLAYTEST.md). What the
+    # server answers: each of TackleRules.BOBBERS is an item, a rod carries it
+    # in the elysiumagronomy:bobber component and reads it back
+    # (AgronomyComponents.bobberOn), and two of one do not stack.
+    t.chest(2, 0, 2)
+    for slot, name in enumerate(("cork_bobber", "glow_bobber", "lead_bobber", "lantern_bobber")):
+        given = t.cmd(f"item replace block {t.at(2, 0, 2)} container.{slot} with {_AGRONOMY}:{name}")
+        t.expect("Replaced" in given, f"{name} is not an item the game can give: {given[:80]}")
+        rod = t.cmd(f'item replace block {t.at(2, 0, 2)} container.{slot + 9} with '
+                    f'{_AGRONOMY}:reed_rod[{_AGRONOMY}:bobber="{name}"]')
+        t.expect("Replaced" in rod, f"a reed rod cannot carry {name} as its bobber: {rod[:80]}")
+        read = t.cmd(f'execute if items block {t.at(2, 0, 2)} container.{slot + 9} '
+                     f'{_AGRONOMY}:reed_rod[{_AGRONOMY}:bobber="{name}"]')
+        t.expect("passed" in read, f"a rod fitted with {name} does not read it back: {read[:80]}")
+    other = t.cmd(f'execute if items block {t.at(2, 0, 2)} container.9 {_AGRONOMY}:reed_rod[{_AGRONOMY}:bobber="glow_bobber"]')
+    t.expect("passed" not in other, "a rod fitted with a cork reads as fitted with a glow bobber")
+    # two corks through a hopper land in two slots of one each: a bobber stacks to one
+    t.setblock(5, 1, 2, "minecraft:hopper[facing=down]")
+    t.cmd(f"item replace block {t.at(5, 1, 2)} container.0 with {_AGRONOMY}:cork_bobber")
+    t.cmd(f"item replace block {t.at(5, 1, 2)} container.1 with {_AGRONOMY}:cork_bobber")
+    t.chest(5, 0, 2)
+    t.advance(60)
+    corks = [c for i, c in t.items(5, 0, 2, "Items") if i == f"{_AGRONOMY}:cork_bobber"]
+    t.expect(corks == [1, 1], f"two cork bobbers through a hopper became {corks}; a bobber stacks to one")
+
+
+@scenario("agronomy: a skillet over a fire fries bacon and eggs in 240 ticks, waits while it is cold, and stops on what is not a recipe")
+def agronomy_skillet(t):
+    pan = f"{_AGRONOMY}:skillet"
+    meal = f"{_AGRONOMY}:bacon_and_eggs"
+    of = [f"{_AGRONOMY}:bacon", "minecraft:egg"]                # cooking/bacon_and_eggs.json: skillet, 240 ticks, one serving
+    t.setblock(2, -1, 2, "minecraft:magma_block")               # one of KitchenRules.HEAT
+    _station(t, 2, 0, 2, pan, of, meal)
+    _station(t, 5, 0, 2, pan, of, meal)                         # on bare stone: cold, and a skillet needsHeat
+    t.setblock(8, -1, 2, "minecraft:campfire")
+    _station(t, 8, 0, 2, pan, of[:1], meal)                     # bacon alone is not what it was told to make
+    t.advance(120)
+    t.expect_number(2, 0, 2, "progress", 100, "the skillet over magma is not frying")
+    t.expect(not t.items(2, 0, 2, "made"), "the skillet was done inside 160 ticks; bacon and eggs take 240")
+    t.advance(200)
+    t.expect_item(2, 0, 2, meal, 1, "the skillet over magma fried no bacon and eggs in 320 ticks", path="made")
+    t.expect(not t.items(2, 0, 2, "contents"), "the skillet kept its bacon and egg after frying them")
+    t.expect(t.number(5, 0, 2, "cooking") == 1 and t.number(5, 0, 2, "progress") == 0,
+             f"a cold skillet did not wait for a fire: cooking {t.number(5, 0, 2, 'cooking')}, "
+             f"progress {t.number(5, 0, 2, 'progress')}")
+    t.expect(t.number(8, 0, 2, "cooking") == 0 and not t.items(8, 0, 2, "made"),
+             "a skillet holding bacon alone went on making bacon and eggs; a recipe is exactly its ingredients")
+    t.setblock(5, -1, 2, "minecraft:campfire")                  # a fire lit under the cold one, and it goes
+    t.advance(300)
+    t.expect_item(5, 0, 2, meal, 1, "a skillet lit after waiting cold fried nothing", path="made")
+
+
+@scenario("agronomy: a cutting board makes a sandwich, pasta and a crust in 200 ticks with no fire, refuses two dough, and the server read its cuts")
+def agronomy_cutting_board(t):
+    a = _AGRONOMY
+    board = f"{a}:cutting_board"
+    _station(t, 2, 0, 2, board, ["minecraft:bread", f"{a}:ham", f"{a}:cabbage_leaf"], f"{a}:ham_sandwich")   # cooking/, 200 ticks
+    _station(t, 5, 0, 2, board, [f"{a}:dough"], f"{a}:pasta")                                          # larder/, PREP_TICKS
+    _station(t, 8, 0, 2, board, [f"{a}:dough", "minecraft:wheat"], f"{a}:pie_crust")                 # larder/
+    _station(t, 11, 0, 2, board, [f"{a}:dough", f"{a}:dough"], f"{a}:pasta")                          # two dough are not one
+    _station(t, 14, 0, 2, board, [f"{a}:bacon", "minecraft:egg"], f"{a}:bacon_and_eggs")              # the skillet's meal, on a board
+    t.advance(100)
+    t.expect_number(2, 0, 2, "progress", 80, "a board on bare stone is not working; a board wants no fire")
+    t.expect(not t.items(2, 0, 2, "made"), "the board was done inside 140 ticks; a sandwich takes 200")
+    t.advance(200)
+    for dx, made in ((2, f"{a}:ham_sandwich"), (5, f"{a}:pasta"), (8, f"{a}:pie_crust")):
+        t.expect_item(dx, 0, 2, made, 1, f"the board made no {made} in 300 ticks", path="made")
+    t.expect(t.number(11, 0, 2, "cooking") == 0 and not t.items(11, 0, 2, "made"),
+             "two dough on a board became pasta; a recipe is exactly its ingredients")
+    t.expect(t.number(14, 0, 2, "cooking") == 0 and not t.items(14, 0, 2, "made"),
+             "a board fried bacon and eggs, which is the skillet's")
+    # The knife is a hand's: StationBlockEntity.slice wears the knife the player
+    # holds, so the cut itself is a client check. What the server answers: every
+    # knife the cutting folder names and everything it yields is an item, and
+    # the folder as the server read it (AgronomyData's line in its log) is the
+    # folder in the tree.
+    tools, yields = set(), set()
+    for path in _glob.glob(_os.path.join(_AGRONOMY_DATA, "cutting", "*.json")):
+        with open(path, encoding="utf-8") as f:
+            cut = _json.load(f)
+        tools.add(cut["tool"])
+        yields.update(one["item"] for one in cut["yields"])
+    knives = {"knife": [f"{a}:{kind}_knife" for kind in ("flint", "iron", "golden", "diamond", "netherite")],
+              "fillet_knife": [f"{a}:fillet_knife"]}
+    t.expect(tools <= set(knives), f"the cutting folder asks for a tool no knife is called: {sorted(tools - set(knives))}")
+    t.chest(2, 0, 6)
+    for slot, item in enumerate(sorted(yields) + [k for tool in sorted(tools) for k in knives.get(tool, [])]):
+        given = t.cmd(f"item replace block {t.at(2, 0, 6)} container.{slot % 27} with {item}")
+        t.expect("Replaced" in given, f"{item}, which a knife cuts with or cuts to, is not an item the game can give: {given[:80]}")
+    on_disk = (len(_glob.glob(_os.path.join(_AGRONOMY_DATA, "cooking", "*.json")))
+               + len(_glob.glob(_os.path.join(_AGRONOMY_DATA, "larder", "*.json"))),
+               len(_glob.glob(_os.path.join(_AGRONOMY_DATA, "cutting", "*.json"))))
+    log = _os.environ.get("ELYSIUM_SERVER_LOG", "E:/testingbuilds/ElysiumServer/logs/latest.log")
+    known = None
+    if _os.path.isfile(log):
+        with open(log, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                if "the kitchen and the pots know" in line:
+                    known = line.strip()
+    if known is None:
+        # The line is printed at data-pack load, so a log that has rolled over since the
+        # server started (log4j rolls it daily) no longer holds it.
+        why = "no server log at" if not _os.path.isfile(log) else "no data-pack load line left in"
+        print(f"           ({why} {log}, so how many cuts the server read is not checked; ELYSIUM_SERVER_LOG names it)")
+    else:
+        read = _re.search(r"(\d+) order\(s\), (\d+) cut\(s\)", known)
+        t.expect(read is not None and (int(read.group(1)), int(read.group(2))) == on_disk,
+                 f"the server read {known.split('know', 1)[-1].strip()}; the tree has {on_disk[0]} orders and {on_disk[1]} cuts")
 
 
 @scenario("solarpunk: the kiln fires on coal, the press and the loom run on the condenser, the tank grows carrots")
@@ -649,14 +1060,34 @@ def colony_ruin(t):
     t.expect("ruin stands" in raised, f"the ruin was not raised: {raised[:120]}")
     chest = t.cmd(f"fill {x0} {y0 - 4} {z0} {x1} {y1} {z1} minecraft:air replace minecraft:chest")
     t.expect("filled" in chest, f"the ruin left no chest: {chest[:80]}")
-    # Everything above the floor, counted by the tool that mines it, whatever the
-    # style pack built with.
-    standing = 0
-    for tool in ("axe", "pickaxe", "shovel", "hoe"):
-        out = t.cmd(f"fill {x0} {y0} {z0} {x1} {y1} {z1} minecraft:air replace #minecraft:mineable/{tool}")
-        digits = "".join(ch for ch in out.split("filled")[-1] if ch.isdigit()) if "filled" in out else ""
-        standing += int(digits) if digits else 0
-    t.expect(standing >= 40, f"the ruin left {standing} block(s) of its building standing; a building is more than that")
+    # How much stands is read from the server's own account of the ruin ("a ruin of
+    # a minecolonies:builder stands at ...: 82 of 1243 blocks left, 10 rows"), when
+    # its log is at hand: the style pack's own hut blocks are in no mineable tag, so
+    # a count by tool undercounts a builder's hut by three to one and judged a sound
+    # ruin a failure (1 Oct). RuinRules keeps nineteen in twenty of the floor row and
+    # never all of the roof, so a fiftieth of the building, and never fewer than
+    # twenty blocks, is the least that can stand.
+    log = _os.environ.get("ELYSIUM_SERVER_LOG", "E:/testingbuilds/ElysiumServer/logs/latest.log")
+    account = None
+    if _os.path.isfile(log):
+        with open(log, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                if "a ruin of a" in line and "blocks left" in line:
+                    account = line
+    counted = _re.search(r"(\d+) of (\d+) blocks left", account) if account else None
+    if counted:
+        left, total = int(counted.group(1)), int(counted.group(2))
+        t.expect(left >= max(20, total // 50),
+                 f"the ruin left {left} of {total} blocks; RuinRules keeps the floor and some of every row, so a fiftieth at the least")
+    else:
+        # Without the log, count by the tool that mines it; the pack's own hut
+        # blocks are missed, so only a token of a building is asked for.
+        standing = 0
+        for tool in ("axe", "pickaxe", "shovel", "hoe"):
+            out = t.cmd(f"fill {x0} {y0} {z0} {x1} {y1} {z1} minecraft:air replace #minecraft:mineable/{tool}")
+            digits = "".join(ch for ch in out.split("filled")[-1] if ch.isdigit()) if "filled" in out else ""
+            standing += int(digits) if digits else 0
+        t.expect(standing >= 20, f"the ruin left {standing} tagged block(s) standing (no server log to count by); a building is more than that")
     after = t.cmd("elysium colony natural")
     t.expect(before == after, "raising a ruin changed the list of settlements that founded themselves")
 

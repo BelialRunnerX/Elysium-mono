@@ -133,9 +133,15 @@ public class DrawerStore implements IItemHandler {
         return kinds[slot].copyWithCount(counts[slot]);
     }
 
+    /**
+     * Its room, or no ceiling once sealed: a hopper calls a slot full at this
+     * number and never offers to a full one, so a sealed drawer must not have
+     * one (the rules say why; the live test of 29 September 2026 says what
+     * happened without it).
+     */
     @Override
     public int getSlotLimit(int slot) {
-        return drawer.room();
+        return LogisticRules.ceiling(drawer.room(), voiding);
     }
 
     @Override

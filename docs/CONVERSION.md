@@ -1863,6 +1863,25 @@ each through rules, harness, generator, validator and negtest):
   geode this pack adds by tag. Each now carries every tag the game's biome it
   models is a direct member of, read from the game's and NeoForge's own
   files (140 biomes in 68 tags), and the validator holds it both ways.
+  (1 October: the landing is dry now. The Vale side goes to the nearest dry
+  column within `PortalRules.DRY_SEARCH_BLOCKS` of the verdant column the
+  search found, since the ground it was set on was the heightmap that counts
+  water and the live stage arrived at sea level standing in a bay; the way-in
+  harness proves the spiral and the negtest breaks it nine ways. The reach
+  began at twenty-four blocks, which crosses any river or pond, and a first
+  trip through a fresh ring still landed in the bay: the Vale has no ocean
+  biome, so its seas are low ground of the land biomes and the nearest
+  verdant column can be forty blocks from shore. Sixty-four now, nine chunks
+  by nine, the most being four chunks each way. 1 October, late: a fresh
+  ring's first trip landed in a sea where 16,629 of the 16,641 columns within
+  sixty-four were water, the other twelve its own pads, and a spiral wide
+  enough for such seas is tens of thousands of columns on the server thread;
+  so when the spiral finds nothing the side now walks the eight compass lines
+  out to `FAR_DRY_SEARCH_BLOCKS` in strides of `FAR_DRY_STEP`, nearest sample
+  first, and settles by the shore it meets as it would by the column, with
+  the column as found still the last resort; and a column is dry only when
+  the block its heightmap stopped under holds no fluid *and* would hold a
+  player up, so a fence post or a slab is not called ground.)
 * *almanac*: the book follows: the essence rungs in agronomy's order, the
   dig's first step counts the brush's use rather than a break, steps for the
   writs, the drawer key, the found template and the Vale gate, the words for
@@ -1924,7 +1943,8 @@ not know is a failure, not a pass — and the negtest breaking each of those):
 
 The build went back on the E: server at 13:31 and the audit answered: *0
 untagged, 0 unbreakable* — every one of the 3,026 blocks that asks for a tool
-has one tagged to mine it. The `harvest:` scenario passes.
+has one tagged to mine it. The `harvest:` scenario passes, and in the evening the
+whole live suite ran on that build: 58 of 58.
 
 Two more Windows traps closed in the tooling: sixteen negtests guarded
 themselves with `flock`, which Git Bash lacks, and refused to run at all
@@ -1946,10 +1966,17 @@ or says what it saw, in the words a player would use.
 
     python3 tools/livetest/livetest.py [--only cable] [--verbose]
 
-Twenty-one scenarios: every run's plates and arms (and water poured at the end of each line); the dye rule; energy across a
+Forty scenarios: every run's plates and arms (and water poured at the end of each line); the dye rule; energy across a
 cable, water across a pipe, a red cable refusing a blue one; the industry
 grid; the solarpunk condenser, conduit, harvester and tree harvester; the
-logistics bus; each producing machine of industry, kinetics, foundry,
+logistics bus, and its other faces on a fed bus (29 Sep): an exporter moving
+only what it was shown, a storage bus lending its chest, a detector lighting
+a lamp at its threshold and not one below it, an interface handing the
+network to a hopper, an ender link joining two networks on one channel once
+its plot has loaded again, every device billing the draw the rules list, and
+the drawer's void seal and key under a hopper; the agronomy stations and
+tackle of the same day (worm farm, tackle box, bobbers, skillet, cutting
+board); each producing machine of industry, kinetics, foundry,
 agronomy and solarpunk making its product from a hopper's input; and every
 hopper-fed inventory in the pack taking its input; and the catalogue, which
 reads `docs/features.json` (`tools/catalogue.py`, the feature catalogue of

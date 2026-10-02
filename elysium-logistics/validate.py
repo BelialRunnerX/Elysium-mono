@@ -661,6 +661,16 @@ if "isSameItemSameComponents" not in inserting:
     fail("a drawer will take a different item into a slot that already holds something, "
          "so two kinds of thing end up counted as one and the difference is destroyed")
 
+# NeoForge's hopper hook calls a slot full at the limit the store names and never
+# offers to a full inventory, so a sealed drawer's limit has to come from the
+# rule that lifts it (live test, 29 September 2026: sealed and plain alike kept
+# 56 cobblestone in the hopper above them).
+limiting = body_of(store, "public int getSlotLimit(")
+if "LogisticRules.ceiling(drawer.room(), voiding)" not in limiting:
+    fail("a drawer tells a hopper for itself how much a slot will hold, so a sealed one "
+         "says it is full at its room and every hopper stops feeding it there - which is "
+         "the one thing a seal is for")
+
 extracting = body_of(store, "public ItemStack extractItem(")
 if "Math.min(Math.min(wanted, counts[slot])" not in extracting:
     fail("a drawer hands out more than it holds, or more than a stack, either of which "

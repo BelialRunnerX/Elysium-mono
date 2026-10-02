@@ -724,6 +724,26 @@ public final class LogisticRules {
         return upgraded;
     }
 
+    /**
+     * What a store says one slot will hold, asked from outside: its room, or
+     * no ceiling at all once it voids.
+     *
+     * <p>A hopper asks this before it offers anything. The hopper's hook calls
+     * a slot full the moment what it holds has reached the slot's limit, and
+     * never offers to a full inventory (NeoForge's
+     * {@code VanillaInventoryCodeHooks.isFull}), so a sealed drawer that
+     * answered with its room would be a sealed drawer every hopper stopped
+     * feeding the moment it filled — and the one thing a seal is for is that
+     * the hopper never stops. The live test of 29 September 2026 found exactly
+     * that: the sealed drawer and the plain one both left 56 cobblestone in
+     * the hopper above them. What a slot holds is still reported honestly;
+     * only the ceiling moves, and only for the one store a player has asked
+     * to destroy its overflow.
+     */
+    public static int ceiling(int room, boolean voiding) {
+        return voids(voiding) ? Integer.MAX_VALUE : Math.max(0, room);
+    }
+
     // ==================================================================
     // What a player fits to a drawer
     // ==================================================================

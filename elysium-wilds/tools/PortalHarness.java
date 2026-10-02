@@ -1,8 +1,10 @@
 package com.elysium.wilds.rules;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -39,6 +41,8 @@ public final class PortalHarness {
         theSmallest();
         theBuilt();
         theArrival();
+        theLanding();
+        theFarShore();
         theControls();
 
         if (failures > 0) {
@@ -50,7 +54,9 @@ public final class PortalHarness {
                 + "corners included, a gap, an L, a block and a frame left inside "
                 + "refused, the smallest ring three crafts, the ring the Vale builds a "
                 + "ring by the same rule with the landing outside it, and a way in that "
-                + "costs one compass search and drops a player in the gentlest crossing");
+                + "costs one compass search and drops a player in the gentlest crossing, on "
+                + "the nearest dry ground, or past a sea on the nearest shore its compass "
+                + "lines meet");
     }
 
     // ==================================================================
@@ -341,6 +347,326 @@ public final class PortalHarness {
                 + "nought rings out, looked for " + Math.round(PortalRules.ARRIVAL_SEARCH_BLOCKS)
                 + " blocks every " + Math.round(PortalRules.arrivalStep()) + " at one height, "
                 + cost + " samples, once a ring");
+    }
+
+    /**
+     * A way in lands on dry ground: the nearest dry column within reach, found
+     * for a bounded price, and the column it found when all of it is sea.
+     */
+    private static void theLanding() {
+        int reach = PortalRules.DRY_SEARCH_BLOCKS;
+        List<PortalRules.Column> search = PortalRules.drySearch();
+        check(search.size() == PortalRules.drySamples()
+                        && new HashSet<>(search).size() == search.size(),
+                "the dry search is " + search.size() + " columns, "
+                        + new HashSet<>(search).size() + " of them distinct, and a square "
+                        + reach + " each way is " + PortalRules.drySamples());
+        check(!search.isEmpty() && search.get(0).equals(new PortalRules.Column(0, 0)),
+                "the dry search does not start at the column the way in found, so a dry "
+                        + "landing is moved off itself");
+        boolean nearestFirst = true;
+        boolean inReach = true;
+        int last = -1;
+        for (PortalRules.Column one : search) {
+            int far = PortalRules.farOf(one);
+            nearestFirst &= far >= last;
+            last = far;
+            inReach &= Math.abs(one.east()) <= reach && Math.abs(one.south()) <= reach;
+        }
+        check(nearestFirst, "the dry search is not nearest first, so a landing is moved "
+                + "further than it need be");
+        check(inReach, "the dry search looks further than " + reach + " blocks");
+
+        // Dryness is the one question, asked the right way round.
+        PortalRules.Surface land = (east, south) -> PortalRules.Footing.GROUND;
+        PortalRules.Surface sea = (east, south) -> PortalRules.Footing.WATER;
+        check(PortalRules.dry(land, new PortalRules.Column(0, 0)), "dry ground is not dry");
+        check(!PortalRules.dry(sea, new PortalRules.Column(0, 0)), "a lake is dry");
+
+        // Dry where the way in found: it stays put, after one look.
+        int[] asked = {0};
+        PortalRules.Column stay = PortalRules.nearestDry((east, south) -> {
+            asked[0]++;
+            return PortalRules.Footing.GROUND;
+        });
+        check(new PortalRules.Column(0, 0).equals(stay),
+                "a dry column is moved off itself to " + stay);
+        check(asked[0] == 1, "a dry column was looked at " + asked[0] + " times");
+
+        // The sea: nothing dry, so null, and no more looks than the search has.
+        asked[0] = 0;
+        PortalRules.Column none = PortalRules.nearestDry((east, south) -> {
+            asked[0]++;
+            return PortalRules.Footing.WATER;
+        });
+        check(none == null, "the open sea has a dry column at " + none);
+        check(asked[0] == PortalRules.drySamples(), "the sea was looked at " + asked[0]
+                + " times, and the search is " + PortalRules.drySamples() + " columns");
+
+        // Round ponds of every size that fits: the bank is found, and it is the
+        // nearest bank there is.
+        int ponds = 0;
+        for (int radius = 1; radius < reach; radius++) {
+            int wet = radius * radius;
+            PortalRules.Surface pond = (east, south) -> top(east * east + south * south <= wet);
+            PortalRules.Column bank = PortalRules.nearestDry(pond);
+            check(bank != null && PortalRules.dry(pond, bank),
+                    "a pond of radius " + radius + " has no bank within " + reach);
+            if (bank != null) {
+                int far = PortalRules.farOf(bank);
+                check(far > wet && far <= (radius + 1) * (radius + 1),
+                        "the bank of a pond of radius " + radius + " is found at " + bank
+                                + ", and the nearest bank is nearer");
+            }
+            ponds++;
+        }
+        // A river down the middle: its near bank, the west one of the two.
+        int rivers = 0;
+        for (int half = 0; half < reach; half++) {
+            int width = half;
+            PortalRules.Column bank = PortalRules.nearestDry(
+                    (east, south) -> top(Math.abs(east) <= width));
+            check(bank != null && bank.equals(new PortalRules.Column(-(width + 1), 0)),
+                    "a river " + (2 * width + 1) + " wide lands at " + bank + " and its near "
+                            + "west bank is " + (width + 1) + " out");
+            rivers++;
+        }
+        // Water past the whole search is the sea.
+        int wide = 4 * reach * reach;
+        check(PortalRules.nearestDry((east, south) -> top(east * east + south * south <= wide))
+                        == null, "a lake wider than the search has a bank inside it");
+
+        // Shores of every shape, against the slow answer: the column found is
+        // dry, and nothing dry is nearer.
+        Random random = new Random(1_002_026L);
+        int shores = 0;
+        for (int trial = 0; trial < 400; trial++) {
+            double angle = random.nextDouble() * Math.PI * 2;
+            double shore = random.nextInt(2 * reach + 1) - reach;
+            boolean coast = random.nextBoolean();
+            int[][] lakes = new int[random.nextInt(4)][];
+            for (int i = 0; i < lakes.length; i++) {
+                lakes[i] = new int[] {random.nextInt(2 * reach + 1) - reach,
+                        random.nextInt(2 * reach + 1) - reach, 1 + random.nextInt(Math.max(1, reach))};
+            }
+            PortalRules.Surface mixed = (east, south) -> {
+                if (coast && east * Math.cos(angle) + south * Math.sin(angle) < shore) {
+                    return PortalRules.Footing.WATER;
+                }
+                for (int[] lake : lakes) {
+                    int de = east - lake[0];
+                    int ds = south - lake[1];
+                    if (de * de + ds * ds <= lake[2] * lake[2]) {
+                        return PortalRules.Footing.WATER;
+                    }
+                }
+                return PortalRules.Footing.GROUND;
+            };
+            PortalRules.Column found = PortalRules.nearestDry(mixed);
+            int nearest = Integer.MAX_VALUE;
+            for (int south = -reach; south <= reach; south++) {
+                for (int east = -reach; east <= reach; east++) {
+                    if (PortalRules.dry(mixed, new PortalRules.Column(east, south))) {
+                        nearest = Math.min(nearest, east * east + south * south);
+                    }
+                }
+            }
+            if (nearest == Integer.MAX_VALUE) {
+                check(found == null, "a shore with no dry column within reach lands at " + found);
+            } else {
+                check(found != null && PortalRules.dry(mixed, found)
+                                && PortalRules.farOf(found) == nearest,
+                        "a shore lands at " + found + " and the nearest dry column is "
+                                + nearest + " away, squared");
+            }
+            shores++;
+        }
+        System.out.println("  the landing: the nearest dry column within " + reach + " blocks, "
+                + search.size() + " columns nearest first, " + ponds + " ponds and " + rivers
+                + " rivers banked, " + shores + " shores against the slow answer, the sea left "
+                + "as found");
+    }
+
+    /** What stands at a column's top, from whether it is water. */
+    private static PortalRules.Footing top(boolean water) {
+        return water ? PortalRules.Footing.WATER : PortalRules.Footing.GROUND;
+    }
+
+    /** Which of the nine ways a column lies from the origin: the middle is 4. */
+    private static int wayOf(PortalRules.Column one) {
+        return (Integer.signum(one.east()) + 1) * 3 + Integer.signum(one.south()) + 1;
+    }
+
+    /**
+     * A way in that finds only sea within the spiral walks the eight compass
+     * lines for a shore: every stride of every line past the spiral's square,
+     * nearest first, and the shore it lands on is the nearest one sampled.
+     * Dry is nothing flowing and a top that holds a player up.
+     */
+    private static void theFarShore() {
+        int near = PortalRules.DRY_SEARCH_BLOCKS;
+        int reach = PortalRules.FAR_DRY_SEARCH_BLOCKS;
+        int stride = PortalRules.FAR_DRY_STEP;
+        PortalRules.Column origin = new PortalRules.Column(0, 0);
+        List<PortalRules.Column> far = PortalRules.farDrySearch();
+        if (stride < 1 || reach <= near || far.size() < 2) {
+            // The numbers have said what is wrong; there is no far shore to prove.
+            check(false, "the far stage strides " + stride + " out to " + reach + " past a spiral of "
+                    + near + ", " + far.size() + " sample(s): nothing to walk");
+            return;
+        }
+        int strides = reach / stride - near / stride;
+        check(!far.isEmpty() && far.size() == PortalRules.farDrySamples()
+                        && new HashSet<>(far).size() == far.size(),
+                "the far search is " + far.size() + " columns, " + new HashSet<>(far).size()
+                        + " distinct, and eight lines of " + strides + " strides is "
+                        + PortalRules.farDrySamples());
+        boolean nearestFirst = true;
+        boolean onLine = true;
+        boolean onStride = true;
+        boolean pastNear = true;
+        boolean inReach = true;
+        int last = -1;
+        int[] ways = new int[9];
+        for (PortalRules.Column one : far) {
+            int farOff = PortalRules.farOf(one);
+            nearestFirst &= farOff >= last;
+            last = farOff;
+            int east = Math.abs(one.east());
+            int south = Math.abs(one.south());
+            int out = Math.max(east, south);
+            onLine &= out > 0 && (east == 0 || east == out) && (south == 0 || south == out);
+            onStride &= out % stride == 0;
+            pastNear &= out > near;
+            inReach &= out <= reach;
+            ways[wayOf(one)]++;
+        }
+        check(nearestFirst, "the far search is not nearest first, so a landing crosses a wider "
+                + "sea than it need");
+        check(onLine, "the far search leaves the eight compass lines");
+        check(onStride, "the far search does not stride " + stride + " blocks");
+        check(pastNear, "the far search looks inside the spiral's square, which has looked "
+                + "there already");
+        check(inReach, "the far search looks further than " + reach + " blocks");
+        boolean everyLine = ways[4] == 0;
+        for (int way = 0; way < ways.length; way++) {
+            everyLine &= way == 4 || ways[way] == strides;
+        }
+        check(everyLine, "the far search does not walk all eight compass lines " + strides
+                + " strides each: " + Arrays.toString(ways));
+
+        // Dry is both things, and either alone is not.
+        check(PortalRules.dry((east, south) -> PortalRules.Footing.GROUND, origin), "ground is not dry");
+        check(!PortalRules.dry((east, south) -> PortalRules.Footing.WATER, origin), "water is dry");
+        check(!PortalRules.dry((east, south) -> new PortalRules.Footing(false, false), origin),
+                "a fence post is called ground: nothing flows at it and it holds nobody up");
+        check(!PortalRules.dry((east, south) -> new PortalRules.Footing(true, true), origin),
+                "a flooded floor is called ground");
+
+        // On land the far stage names its first sample, the nearest there is.
+        PortalRules.Column first = PortalRules.nearestFarDry((east, south) -> PortalRules.Footing.GROUND);
+        check(first != null && first.equals(far.get(0))
+                        && PortalRules.farOf(first) == far.stream().mapToInt(PortalRules::farOf).min().orElse(-1),
+                "on land the far stage lands at " + first + " rather than its nearest sample");
+
+        // A fence post at the nearest sample is passed over for the ground at the next.
+        PortalRules.Column post = far.get(0);
+        PortalRules.Column ground = far.get(1);
+        PortalRules.Column past = PortalRules.nearestFarDry((east, south) -> {
+            PortalRules.Column at = new PortalRules.Column(east, south);
+            return at.equals(post) ? new PortalRules.Footing(false, false)
+                    : at.equals(ground) ? PortalRules.Footing.GROUND : PortalRules.Footing.WATER;
+        });
+        check(ground.equals(past), "a sea with a fence post at " + post + " and ground at " + ground
+                + " lands at " + past);
+
+        // A coast a hundred blocks off in each of the eight directions: the
+        // spiral finds nothing, and the far stage lands on that line at the
+        // coast, which is a whole number of strides out.
+        int coast = 100;
+        String[] names = {"north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west"};
+        int[][] lines = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
+        int coasts = 0;
+        for (int line = 0; line < lines.length; line++) {
+            int de = lines[line][0];
+            int ds = lines[line][1];
+            int along = de * de + ds * ds;
+            PortalRules.Surface shore = (east, south) -> top(east * de + south * ds < coast * along);
+            check(PortalRules.nearestDry(shore) == null, "the spiral finds a bank in a sea a hundred "
+                    + "blocks from the " + names[line] + " shore");
+            PortalRules.Column landed = PortalRules.nearestFarDry(shore);
+            check(landed != null && landed.equals(new PortalRules.Column(de * coast, ds * coast)),
+                    "a shore a hundred blocks " + names[line] + " is landed on at " + landed
+                            + " rather than (" + de * coast + ", " + ds * coast + ")");
+            coasts++;
+        }
+        // A coast east at every distance the far stage reaches: landed on at
+        // the first stride past the water, never nearer, never a stride late.
+        int easts = 0;
+        for (int at = near + 1; at <= reach; at++) {
+            int shoreAt = at;
+            PortalRules.Column landed = PortalRules.nearestFarDry((east, south) -> top(east < shoreAt));
+            int expected = (shoreAt + stride - 1) / stride * stride;
+            check(landed != null && landed.equals(new PortalRules.Column(expected, 0)),
+                    "a shore " + shoreAt + " blocks east is landed on at " + landed + " and the first "
+                            + "stride past the water is " + expected);
+            easts++;
+        }
+
+        // A round sea of radius a hundred: nothing dry within the spiral, and
+        // the far stage lands on the nearest sample outside it.
+        int round = coast * coast;
+        PortalRules.Surface roundSea = (east, south) -> top(east * east + south * south <= round);
+        check(PortalRules.nearestDry(roundSea) == null, "the spiral finds a bank in a round sea of radius " + coast);
+        PortalRules.Column rim = PortalRules.nearestFarDry(roundSea);
+        int nearestRim = far.stream().filter(one -> PortalRules.dry(roundSea, one))
+                .mapToInt(PortalRules::farOf).min().orElse(-1);
+        check(rim != null && PortalRules.dry(roundSea, rim) && PortalRules.farOf(rim) == nearestRim
+                        && PortalRules.farOf(rim) > round,
+                "a round sea of radius " + coast + " is landed on at " + rim + ", and the nearest dry "
+                        + "sample is " + nearestRim + " away, squared");
+
+        // A sea wider than the reach: null, after every look and no more.
+        int[] asked = {0};
+        int wide = 2 * reach * reach + 1;
+        PortalRules.Column none = PortalRules.nearestFarDry((east, south) -> {
+            asked[0]++;
+            return top(east * east + south * south <= wide);
+        });
+        check(none == null, "a sea wider than the far reach has a shore at " + none);
+        check(asked[0] == PortalRules.farDrySamples(), "a sea wider than the far reach was looked "
+                + "at " + asked[0] + " times, and the far search is " + PortalRules.farDrySamples()
+                + " columns");
+
+        // Seas of every shape, against the slow answer: the shore found is
+        // dry, and no sample is nearer.
+        Random random = new Random(1_010_2026L);
+        int seas = 0;
+        for (int trial = 0; trial < 400; trial++) {
+            double angle = random.nextDouble() * Math.PI * 2;
+            double shoreAt = near + random.nextInt(2 * reach);
+            boolean disc = random.nextBoolean();
+            int radius = near + random.nextInt(reach);
+            PortalRules.Surface sea = (east, south) -> top(disc
+                    ? east * east + south * south <= radius * radius
+                    : east * Math.cos(angle) + south * Math.sin(angle) < shoreAt);
+            PortalRules.Column found = PortalRules.nearestFarDry(sea);
+            int nearest = far.stream().filter(one -> PortalRules.dry(sea, one))
+                    .mapToInt(PortalRules::farOf).min().orElse(Integer.MAX_VALUE);
+            if (nearest == Integer.MAX_VALUE) {
+                check(found == null, "a sea past every sample is landed on at " + found);
+            } else {
+                check(found != null && PortalRules.dry(sea, found) && PortalRules.farOf(found) == nearest,
+                        "a sea is landed on at " + found + " and the nearest dry sample is "
+                                + nearest + " away, squared");
+            }
+            seas++;
+        }
+        System.out.println("  the far shore: past a sea, " + far.size() + " samples every " + stride
+                + " blocks along eight compass lines out to " + reach + ", nearest first, " + coasts
+                + " coasts landed on where they lie, " + easts + " eastern shores at the first stride "
+                + "past the water, a round sea rimmed, " + seas + " seas against the slow answer, a "
+                + "sea past the reach left as found, and a fence post not called ground");
     }
 
     /** The checks, checked. */

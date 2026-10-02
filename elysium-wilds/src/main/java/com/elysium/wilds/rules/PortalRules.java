@@ -46,6 +46,13 @@ import java.util.Set;
  * through. The Vale side is filed under the ring that led to it, so it is
  * searched for once and built once, and everybody through one ring arrives at
  * the same place.
+ *
+ * <p>And it is built on dry ground. The search finds a biome, not a block, so
+ * the nearest column of the verdant vale is as likely a lake as a meadow; the
+ * side goes to the nearest dry column within {@link #DRY_SEARCH_BLOCKS}, and
+ * when all of that is sea, to the nearest shore the eight compass lines meet
+ * within {@link #FAR_DRY_SEARCH_BLOCKS}. Dry is nothing flowing at the top of
+ * the column and a top that holds a player up.
  */
 public final class PortalRules {
 
@@ -340,6 +347,262 @@ public final class PortalRules {
     }
 
     // ==================================================================
+    // Dry ground
+    // ==================================================================
+
+    /**
+     * How far from the column a way in found a dry one is looked for: a modest
+     * spiral, {@value} blocks each way, nearest first.
+     *
+     * <p>The ground a Vale side is set on is the heightmap that stops at
+     * water, so the top of a lake is as high as its bank; and the search finds
+     * a biome, not a block, so the nearest verdant column is as likely a lake,
+     * a river or the sea as a meadow. Built there, the ring stood on the water
+     * and the player landed in it (the live stage of 1 October 2026 arrived at
+     * sea level in a bay). A gate should land a player on dry ground.
+     * Sixty-four each way is {@link #drySamples()} columns, nine chunks by
+     * nine once a ring. Twenty-four crossed any river or pond but not the
+     * Vale's seas: the Vale has no ocean biome, so its water is low ground of
+     * the land biomes, and the nearest verdant column can sit in a bay forty
+     * blocks from shore (1 October 2026, a player left swimming). Sixty-four
+     * still stays inside one patch of biome, about {@link WildRules#WORLD_GRAIN}
+     * across, so a dry landing is still a verdant one.
+     */
+    public static final int DRY_SEARCH_BLOCKS = 64;
+
+    /** Blocks to a chunk, which is what looking at a column costs. */
+    private static final int CHUNK = 16;
+
+    /**
+     * And the most the reach may be: four chunks each way. Every column looked
+     * at is a chunk generated, on the server thread, on top of the seconds the
+     * first trip's biome search already holds it for; nine chunks by nine is
+     * a few seconds once a ring, and more would be felt.
+     */
+    public static final int DRY_SEARCH_MOST = 4 * CHUNK;
+
+    /** A column of the Vale, so many blocks east and south of the one a way in found. */
+    public record Column(int east, int south) {
+    }
+
+    /**
+     * What stands at the top of a column: the block its heightmap stopped
+     * under, as the two things a landing asks of it.
+     *
+     * @param fluid  whether a fluid stands in it: water, or lava
+     * @param sturdy whether its upper face would hold a player up
+     */
+    public record Footing(boolean fluid, boolean sturdy) {
+
+        /** Ground: nothing flows, and it holds. */
+        public static final Footing GROUND = new Footing(false, true);
+
+        /** The top of a lake, a river or the sea. */
+        public static final Footing WATER = new Footing(true, false);
+    }
+
+    /** The ground round the column a way in found, read one column at a time. */
+    @FunctionalInterface
+    public interface Surface {
+
+        /** What stands at the top of this column. */
+        Footing at(int east, int south);
+    }
+
+    /**
+     * Whether a column is dry: nothing flows at its surface, and the surface
+     * would hold a player up.
+     *
+     * <p>Fluid is asked because the heightmap has already counted the water
+     * as ground: the block its column stops under is the lake's top. Lava is
+     * as wet as water as far as a landing goes, and worse, so the two are not
+     * told apart. Sturdiness is asked because the heightmap stops under
+     * whatever blocks motion, and a fence post, a bottom slab, a chest's lid
+     * or a bank of snow stops it without holding anybody up: a ring built on
+     * one puts a player down through it.
+     */
+    public static boolean dry(Surface surface, Column at) {
+        Objects.requireNonNull(surface, "no ground to read");
+        Footing top = surface.at(at.east(), at.south());
+        return !top.fluid() && top.sturdy();
+    }
+
+    /**
+     * Nearest the column a way in found first. Ties go to the northernmost
+     * and then the westernmost, so the order is the same on every server and
+     * a ring's far side is where the harness says. Declared before the lists
+     * it sorts, since a static field is nothing until its line is reached.
+     */
+    private static final Comparator<Column> NEAREST_FIRST = Comparator.comparingInt(PortalRules::farOf)
+            .thenComparingInt(Column::south).thenComparingInt(Column::east);
+
+    /** Every column within reach, nearest first, worked out once. */
+    private static final List<Column> DRY_SEARCH = spiral();
+
+    /**
+     * Every column within {@link #DRY_SEARCH_BLOCKS} of the one a way in
+     * found, nearest first, that column itself first of all, ties as
+     * {@link #NEAREST_FIRST} settles them.
+     */
+    public static List<Column> drySearch() {
+        return DRY_SEARCH;
+    }
+
+    private static List<Column> spiral() {
+        List<Column> columns = new ArrayList<>();
+        for (int south = -DRY_SEARCH_BLOCKS; south <= DRY_SEARCH_BLOCKS; south++) {
+            for (int east = -DRY_SEARCH_BLOCKS; east <= DRY_SEARCH_BLOCKS; east++) {
+                columns.add(new Column(east, south));
+            }
+        }
+        columns.sort(NEAREST_FIRST);
+        return List.copyOf(columns);
+    }
+
+    /** How far a column is from the one a way in found, squared. */
+    public static int farOf(Column one) {
+        return one.east() * one.east() + one.south() * one.south();
+    }
+
+    /** How many columns the search looks at, at most: all of them, over the sea. */
+    public static int drySamples() {
+        return (2 * DRY_SEARCH_BLOCKS + 1) * (2 * DRY_SEARCH_BLOCKS + 1);
+    }
+
+    /**
+     * The dry column nearest the one a way in found, or null when everything
+     * within reach is water. Then the way in settles for the column it found,
+     * as it always did: a ring on the sea is still a way home.
+     */
+    public static Column nearestDry(Surface surface) {
+        Objects.requireNonNull(surface, "no ground to read");
+        for (Column one : drySearch()) {
+            if (dry(surface, one)) {
+                return one;
+            }
+        }
+        return null;
+    }
+
+    // ------------------------------------------------------------------
+    // The far shore
+    // ------------------------------------------------------------------
+
+    /**
+     * How far apart the far stage samples along each of its lines: {@value}
+     * blocks.
+     *
+     * <p>The near spiral looks at every column, because a bank can be one
+     * block wide and a pond one block across. The far stage is looking for a
+     * shore, once the spiral has found only water, and a shore worth leaving
+     * a sea for is wider than a stride; one look every four blocks meets it
+     * within four blocks of where it is. Four is a quarter of a chunk, so a
+     * line generates each chunk it crosses once and looks at it four times.
+     */
+    public static final int FAR_DRY_STEP = 4;
+
+    /**
+     * How far out the far stage walks: {@value} blocks along each of the
+     * eight compass lines, north, north-east, east and on round.
+     *
+     * <p>The Vale has no ocean biome, so its seas are low ground of the land
+     * biomes, and the first trip of a fresh ring landed in one where 16,629 of
+     * the 16,641 columns within sixty-four were water at sea level, the other
+     * twelve the ring's own pads, and the shore a hundred blocks off (1 October
+     * 2026, late). A spiral wide enough for such a sea is tens of thousands of
+     * columns and hundreds of chunks generated on the server thread. Eight
+     * lines sampled every {@link #FAR_DRY_STEP} blocks out to {@value} are at
+     * most eight by sixty-four looks, 512, and {@link #farDrySamples()} once
+     * the strides inside the spiral's square are left out; the chunks under
+     * them, about a hundred and thirty along the lines, are a few seconds
+     * once a ring. The samples are taken in order of distance across all
+     * eight lines, so the first dry column met is the nearest dry one of
+     * those sampled and the side goes to the nearest shore, not the first
+     * line's.
+     */
+    public static final int FAR_DRY_SEARCH_BLOCKS = 256;
+
+    /**
+     * And the most it may: {@value} blocks, thirty-two chunks along each
+     * line. Twice the reach is twice the chunks and twice the seconds a first
+     * trip holds the server for, and a sea the lines cannot cross at {@value}
+     * is one a ring on the water is the honest answer to: the way in settles
+     * for the column it found, as it always did.
+     */
+    public static final int FAR_DRY_SEARCH_MOST = 512;
+
+    /**
+     * The eight compass lines, each as one stride east and one stride south:
+     * north, north-east, east, south-east, south, south-west, west,
+     * north-west. A diagonal's stride is a stride in each, so its samples sit
+     * a stride further apart than an axis's; the sort puts every sample where
+     * its distance says.
+     */
+    private static final int[][] LINES = {
+            {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
+
+    /** Every column the far stage looks at, nearest first, worked out once. */
+    private static final List<Column> FAR_DRY_SEARCH = lines();
+
+    /**
+     * Every column the far stage looks at, nearest first: every
+     * {@link #FAR_DRY_STEP} blocks along each of the eight compass lines out
+     * to {@link #FAR_DRY_SEARCH_BLOCKS}, leaving out the strides that fall
+     * inside the near spiral's square, which has looked there already. Ties
+     * as {@link #NEAREST_FIRST} settles them, so the shore a ring lands on is
+     * the same on every server.
+     */
+    public static List<Column> farDrySearch() {
+        return FAR_DRY_SEARCH;
+    }
+
+    /**
+     * The stride the lines are walked by. A stride of nought is a fault,
+     * and {@link #faults()} says so; it is not also a loop that never ends.
+     */
+    private static int stride() {
+        return Math.max(1, FAR_DRY_STEP);
+    }
+
+    private static List<Column> lines() {
+        List<Column> columns = new ArrayList<>();
+        for (int out = stride(); out <= FAR_DRY_SEARCH_BLOCKS; out += stride()) {
+            if (out <= DRY_SEARCH_BLOCKS) {
+                continue;
+            }
+            for (int[] line : LINES) {
+                columns.add(new Column(line[0] * out, line[1] * out));
+            }
+        }
+        columns.sort(NEAREST_FIRST);
+        return List.copyOf(columns);
+    }
+
+    /**
+     * How many columns the far stage looks at, at most: all of them, over the
+     * open sea. The strides of a line past the spiral's square and inside the
+     * reach, eight times.
+     */
+    public static int farDrySamples() {
+        return LINES.length * Math.max(0, FAR_DRY_SEARCH_BLOCKS / stride() - DRY_SEARCH_BLOCKS / stride());
+    }
+
+    /**
+     * The nearest dry column the compass lines meet, or null when every
+     * column they sample is water: the sea is wider than the reach, and the
+     * way in settles for the column it found.
+     */
+    public static Column nearestFarDry(Surface surface) {
+        Objects.requireNonNull(surface, "no ground to read");
+        for (Column one : farDrySearch()) {
+            if (dry(surface, one)) {
+                return one;
+            }
+        }
+        return null;
+    }
+
+    // ==================================================================
     // What has to be true
     // ==================================================================
 
@@ -367,6 +630,32 @@ public final class PortalRules {
         }
         if (COOLDOWN_TICKS < 1) {
             bad.add("a gate has no cooldown, so it is used twenty times a second");
+        }
+        if (DRY_SEARCH_BLOCKS < 1) {
+            bad.add("a dry column is looked for " + DRY_SEARCH_BLOCKS + " blocks out, so a Vale "
+                    + "side is never moved off the water and a gate lands a player in the sea");
+        }
+        if (DRY_SEARCH_BLOCKS > DRY_SEARCH_MOST) {
+            bad.add("a dry column is looked for " + DRY_SEARCH_BLOCKS + " blocks out, which is "
+                    + drySamples() + " columns and a flood of chunks generated on the server "
+                    + "thread; four chunks each way, " + DRY_SEARCH_MOST + ", is the most");
+        }
+        if (FAR_DRY_STEP < 1) {
+            bad.add("the far stage strides " + FAR_DRY_STEP + " blocks along its lines, which is "
+                    + "standing still: every look would be at the column the spiral found wet");
+        }
+        if (FAR_DRY_SEARCH_BLOCKS <= DRY_SEARCH_BLOCKS) {
+            bad.add("the far stage reaches " + FAR_DRY_SEARCH_BLOCKS + " blocks and the near spiral "
+                    + DRY_SEARCH_BLOCKS + ", so it looks nowhere it did not once the spiral has found "
+                    + "only water, and a gate still lands a player in the sea");
+        } else if (farDrySamples() == 0) {
+            bad.add("the far stage strides " + FAR_DRY_STEP + " blocks and reaches "
+                    + FAR_DRY_SEARCH_BLOCKS + ", so it takes no stride past the spiral at all");
+        }
+        if (FAR_DRY_SEARCH_BLOCKS > FAR_DRY_SEARCH_MOST) {
+            bad.add("the far stage reaches " + FAR_DRY_SEARCH_BLOCKS + " blocks, which is "
+                    + farDrySamples() + " looks and the chunks under them generated on the server "
+                    + "thread every first trip; " + FAR_DRY_SEARCH_MOST + " is the most");
         }
         ValeRules.Biome arrival = ValeRules.biome(ARRIVAL);
         if (arrival == null) {

@@ -31,10 +31,11 @@ import java.util.UUID;
  * A gate anywhere but the Vale is a way in. Its ring is known by its anchor,
  * and the Vale side is filed under that anchor: the first trip looks for the
  * verdant vale nearest the ring (the gentlest crossing, where the bestiary
- * counts its rings from), builds a ring there and files it; every trip after
- * goes to the same ring, rebuilt if somebody broke it. The player is put down
- * beside it on the far side from where they walked in, facing on, so walking
- * forward is walking away from it.
+ * counts its rings from), builds a ring on the nearest dry ground there, or
+ * on the nearest shore when that ground is all sea, and files it; every trip
+ * after goes to the same ring, rebuilt if somebody broke it. The player is put
+ * down beside it on the far side from where they walked in, facing on, so
+ * walking forward is walking away from it.
  *
  * <h2>Out</h2>
  *
@@ -159,22 +160,123 @@ public final class ValeTravel {
 
     /**
      * Where a ring's Vale side goes: by a ring already standing there if there
-     * is one, since building over it would break it, and otherwise on the
-     * ground at the column, low enough that the lintel is inside the world.
+     * is one, since building over it would break it; otherwise on the ground at
+     * the nearest dry column, which is the column itself when it is dry; when
+     * everything within the spiral's reach is water, by the nearest shore the
+     * rules' eight compass lines meet, settled the same way; and on the column
+     * anyway when they meet none; low enough that the lintel is inside the
+     * world.
+     *
+     * <p>Dry, because the ground is the heightmap that stops at water, and the
+     * search finds a biome rather than a block: the nearest verdant column,
+     * when it was a lake, a river or the sea, had the ring built on the water
+     * and the player landing in it (1 October 2026: the live stage arrived at
+     * sea level in a bay). Far, because the Vale has no ocean biome, so its
+     * seas are low ground of the land biomes, and a fresh ring's first trip
+     * landed in one where every column within sixty-four was water but the
+     * ring's own pads, the shore a hundred blocks off (1 October, late). The
+     * spiral, the lines and the dryness test are the rules', and the harness
+     * proves them; what is the world's is what stands at each column's top.
      */
     private static ValeLinks.Arrival settle(ServerLevel vale, BlockPos column, Direction.Axis axis) {
-        vale.getChunk(column.getX() >> 4, column.getZ() >> 4);     // generate it, so the heightmap is real
-        BlockPos ground = vale.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column);
-        BlockPos standing = ValePortal.near(vale, ground);
-        if (standing != null) {
-            ValePortal.Frame there = ValePortal.findFrame(vale, standing);
-            if (there != null) {
-                return new ValeLinks.Arrival(there.anchor(), there.axis());
+        ValeLinks.Arrival near = near(vale, column, axis);
+        if (near != null) {
+            return near;
+        }
+        // The spiral found only water. The shore the compass lines meet is
+        // settled as the column was: a ring standing by it is used, and the
+        // side goes to the nearest dry column to it, which, dry by the same
+        // test, is the shore itself after one look.
+        PortalRules.Column far = PortalRules.nearestFarDry(footing(vale, column));
+        if (far != null) {
+            near = near(vale, column.offset(far.east(), 0, far.south()), axis);
+            if (near != null) {
+                return near;
             }
         }
+        // Sea past the reach of both: a ring on the water is still a way home.
+        return on(vale, column, axis);
+    }
+
+    /**
+     * The near stage at a column: a ring already standing by it; else the Vale
+     * side at the nearest dry column within
+     * {@link PortalRules#DRY_SEARCH_BLOCKS}, by a ring already standing there
+     * if there is one; null when everything within reach is water. It comes
+     * first, and runs again at the shore the far stage finds, because it is
+     * cheap and keeps a verdant landing verdant.
+     */
+    private static ValeLinks.Arrival near(ServerLevel vale, BlockPos column, Direction.Axis axis) {
+        ValeLinks.Arrival standing = standingBy(vale, groundAt(vale, column));
+        if (standing != null) {
+            return standing;
+        }
+        PortalRules.Column dry = PortalRules.nearestDry(footing(vale, column));
+        if (dry == null) {
+            return null;
+        }
+        BlockPos spot = column.offset(dry.east(), 0, dry.south());
+        // A ring standing by the dry column is used too, for the same reason.
+        standing = standingBy(vale, groundAt(vale, spot));
+        return standing != null ? standing : on(vale, spot, axis);
+    }
+
+    /** The Vale side built on the ground at a spot, low enough that the lintel is inside the world. */
+    private static ValeLinks.Arrival on(ServerLevel vale, BlockPos spot, Direction.Axis axis) {
+        BlockPos ground = groundAt(vale, spot);
         int y = Math.max(vale.getMinBuildHeight() + 1,
                 Math.min(ground.getY(), vale.getMaxBuildHeight() - PortalRules.LEAST_UP - 2));
-        return new ValeLinks.Arrival(new BlockPos(column.getX(), y, column.getZ()), axis);
+        return new ValeLinks.Arrival(new BlockPos(spot.getX(), y, spot.getZ()), axis);
+    }
+
+    /** The ring already standing by a spot, as the arrival it would be, or null. */
+    private static ValeLinks.Arrival standingBy(ServerLevel vale, BlockPos ground) {
+        BlockPos standing = ValePortal.near(vale, ground);
+        if (standing == null) {
+            return null;
+        }
+        ValePortal.Frame there = ValePortal.findFrame(vale, standing);
+        return there == null ? null : new ValeLinks.Arrival(there.anchor(), there.axis());
+    }
+
+    /**
+     * The first block above a column's surface, water and lava counted as
+     * surface, which is what the ring's sill is set on. The chunk is generated
+     * first, so the heightmap is real.
+     */
+    private static BlockPos groundAt(ServerLevel vale, BlockPos column) {
+        vale.getChunk(column.getX() >> 4, column.getZ() >> 4);
+        return vale.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column);
+    }
+
+    /**
+     * The ground round a column, read for the rules one column at a time: what
+     * stands at the top of the one so many blocks east and south of it.
+     */
+    private static PortalRules.Surface footing(ServerLevel vale, BlockPos column) {
+        return (east, south) -> top(vale, column.offset(east, 0, south));
+    }
+
+    /**
+     * What stands at a column's top, for the rules' dryness test: the block
+     * its heightmap stopped under, whether a fluid stands in it and whether it
+     * would hold a player up. Both, because the heightmap counts water as
+     * ground, and counts a fence post, a bottom slab or a chest's lid as
+     * ground too; a ring built on either puts a player down through it.
+     */
+    private static PortalRules.Footing top(ServerLevel vale, BlockPos column) {
+        BlockPos under = groundAt(vale, column).below();
+        return new PortalRules.Footing(wet(vale, under), firm(vale, under));
+    }
+
+    /** Whether a fluid stands in a block: water, or lava. */
+    private static boolean wet(ServerLevel vale, BlockPos under) {
+        return !vale.getFluidState(under).isEmpty();
+    }
+
+    /** Whether a block would hold a player up: its upper face is sturdy, as a block a player stands on is. */
+    private static boolean firm(ServerLevel vale, BlockPos under) {
+        return vale.getBlockState(under).isFaceSturdy(vale, under, Direction.UP);
     }
 
     // ------------------------------------------------------------------

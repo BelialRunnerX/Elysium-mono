@@ -114,6 +114,56 @@ edit $R '    public static final double ARRIVAL_SEARCH_BLOCKS = WildRules.MOST_S
         '    public static final double ARRIVAL_SEARCH_BLOCKS = 40_000.0D;'
 expect_h "a way in that looks further than the compass may" "looks further than the compass"
 
+edit $R '    public static final int DRY_SEARCH_BLOCKS = 64;' '    public static final int DRY_SEARCH_BLOCKS = 0;'
+expect_h "a Vale side never moved off the water" "never moved off the water"
+
+edit $R '    public static final int DRY_SEARCH_BLOCKS = 64;' '    public static final int DRY_SEARCH_BLOCKS = 200;'
+expect_h "a dry column looked for across a hundred chunks" "a flood of chunks generated"
+
+edit $R '        return !top.fluid() && top.sturdy();' '        return top.fluid() || !top.sturdy();'
+expect_h "dry and wet read backwards" "a lake is dry"
+
+edit $R '                columns.add(new Column(east, south));
+            }
+        }
+        columns.sort(NEAREST_FIRST);' '                columns.add(new Column(east, south));
+            }
+        }'
+expect_h "a dry search that is not nearest first" "the dry search is not nearest first"
+
+edit $R '        for (Column one : drySearch()) {' '        for (Column one : List.of(new Column(0, 0))) {'
+expect_h "a dry search of the one column" "has no bank within"
+
+edit $R '        return !top.fluid() && top.sturdy();' '        return !top.fluid();'
+expect_h "a fence post called ground by the rules" "a fence post is called ground"
+
+edit $R '    public static final int FAR_DRY_SEARCH_BLOCKS = 256;' '    public static final int FAR_DRY_SEARCH_BLOCKS = 0;'
+expect_h "a far stage that reaches nowhere" "looks nowhere it did not"
+
+edit $R '    public static final int FAR_DRY_SEARCH_BLOCKS = 256;' '    public static final int FAR_DRY_SEARCH_BLOCKS = 10_000;'
+expect_h "a far stage that walks ten thousand blocks of chunks" "the chunks under them"
+
+edit $R '    public static final int FAR_DRY_STEP = 4;' '    public static final int FAR_DRY_STEP = 0;'
+expect_h "a far stage that strides nowhere" "which is standing still"
+
+edit $R '                columns.add(new Column(line[0] * out, line[1] * out));
+            }
+        }
+        columns.sort(NEAREST_FIRST);' '                columns.add(new Column(line[0] * out, line[1] * out));
+            }
+        }'
+expect_h "a far search that is not nearest first" "the far search is not nearest first"
+
+edit $R '            if (out <= DRY_SEARCH_BLOCKS) {
+                continue;
+            }
+' ''
+expect_h "a far search looking where the spiral already did" "which has looked there already"
+
+edit $R '{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};' \
+        '{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}};'
+expect_h "a far search of seven compass lines" "does not walk all eight compass lines"
+
 rm -f $H
 expect "no way-in harness at all" "there is no way-in harness"
 
@@ -278,6 +328,45 @@ expect "a way in sampling every height of every column" "at one height from the 
 
 edit $VT '        int middle = vale.getMinBuildHeight() + vale.getHeight() / 2;' '        int middle = 400;'
 expect "a way in searching from above the top of the world" "finds nothing at all"
+
+edit $VT '        PortalRules.Column dry = PortalRules.nearestDry(footing(vale, column));' \
+         '        PortalRules.Column dry = null;'
+expect "a Vale side built on the water" "built on the water and the player lands in it"
+
+edit $VT '        return !vale.getFluidState(under).isEmpty();' '        return false;'
+expect "every column dry as far as the trip can tell" "a lake can count as ground again"
+
+edit $VT '        return vale.getBlockState(under).isFaceSturdy(vale, under, Direction.UP);' '        return true;'
+expect "a fence post called ground by the trip" "holds nobody up is called ground"
+
+edit $VT '        return on(vale, column, axis);
+    }' '        return null;
+    }'
+expect "no settling for the column found when all of it is sea" "all sea has no far side at all"
+
+edit $VT '        ValeLinks.Arrival standing = standingBy(vale, groundAt(vale, column));
+        if (standing != null) {
+            return standing;
+        }
+        PortalRules.Column dry' '        ValeLinks.Arrival standing = null;
+        PortalRules.Column dry'
+expect "a ring already standing built over" "built over it and breaks it"
+
+edit $VT '        PortalRules.Column far = PortalRules.nearestFarDry(footing(vale, column));' \
+         '        PortalRules.Column far = null;'
+expect "the far stage dropped from the trip" "a hundred blocks from land"
+
+edit $VT '            near = near(vale, column.offset(far.east(), 0, far.south()), axis);' \
+         '            near = on(vale, column.offset(far.east(), 0, far.south()), axis);'
+expect "a far shore built on without settling" "somewhere other than the shore found"
+
+edit $VT '        ValeLinks.Arrival near = near(vale, column, axis);
+        if (near != null) {
+            return near;
+        }
+' '        ValeLinks.Arrival near;
+'
+expect "the far stage before the near one" "walked off to a far shore"
 
 edit $VT '                ElysiumWilds.MODID, PortalRules.arrivalBiome()));' \
          '                ElysiumWilds.MODID, "vale_sulphur_springs"));'

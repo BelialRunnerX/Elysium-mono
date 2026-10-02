@@ -238,7 +238,32 @@ why it is worth doing; never a restatement of the title).
   the scratchpad; CONVERSION 16.16): atelier 2,990 blocks, agronomy 465, bestiary/colonies/armory/npcs/
   solarpunk/ores. The audit now writes logs/harvest-audit.txt. Two Windows tooling traps closed: flock-guarded
   negtests (16) and the atelier validator's container jar path (its blockstate/cut comparisons had never run).
-  Live on the 13:31 build: 0 untagged, 0 unbreakable; harvest: passes.
+  Live on the 13:31 build: 0 untagged, 0 unbreakable; harvest: passes; the whole live suite 58/58 (evening).
+* **30 Sep — twelve more live scenarios** for what PLAYTEST called unverified: logistics exporter, storage bus,
+  monitor, detector, interface, ender link, drawer seal + key (7); agronomy worm farm, tackle box, bobbers, skillet,
+  cutting board (5). All pass on the shipped jar but the seal half of the drawer one: a void seal never fired through
+  a hopper (NeoForge's hopper hook calls the slot full at getSlotLimit) — fixed (LogisticRules.ceiling,
+  DrawerStore.getSlotLimit; negtest_logistics_drawer 36/0), rebuilt 1 Oct. Three stale PLAYTEST claims corrected
+  (trinkets are found in five structure chests and crafted; the Cordon metals are dug and alloyed; the four packs
+  are implemented). Suite now 70 scenarios.
+* **1 Oct — the Vale gate by hand.** stage_vale_client.ps1 run to the end on the 21:08 build: compass lights the ring, a
+  survival player standing in the gate arrives in elysiumwilds:vale, a step back through the return ring comes home;
+  screenshots in handback/screenshots/vale. Stage traps: face north (yaw 180), aim the crosshair at the sill (a compass
+  used on air opens its chooser; ESC clears its search, a second ESC closes), stand in the gate rather than walk through
+  (autoJump is off on the dev client; the first trip's search freezes the integrated server ~10 s and a walking client
+  overshoots into the return ring), and never run a stage while a compile competes for the CPU.
+* **1 Oct — two scenario repairs.** The ruin scenario counted standing blocks by mineable tag, and the style pack's own
+  hut blocks are in none (a sound builder's-hut ruin, 82 of 1,243 left, counted as 23 and failed); it now reads the
+  server's own account from the log, floor a fiftieth of the building and twenty blocks. The cutting-board scenario
+  says why it skipped the server's cut count when the log has rolled over. The Vale landing is being made dry
+  (settle() took the heightmap that counts water; the live arrival stood in a bay). The dry spiral at 24 then 64
+  blocks still landed in a sea measured 16,629 water columns of 16,641 at sea level within 64 blocks (the Vale has no
+  ocean biome; its seas are the land biomes' low ground), so a far stage walks the eight compass lines out to
+  256 blocks for a shore. Suite 70/70 on the 23:12 build (transit alone after a lag-induced miss).
+* **2 Oct, 00:55 — the far shore, live.** On the 00:49 build a fresh ring's first trip landed at (1082, 64, -109) in the
+  Vale: land a step east, water three blocks west and north, the ring across the waterline with its pad over the edge.
+  Refinement left: settle the ring a stride inland so both landings are dry. Earlier rings reuse their Vale-side ring
+  by design, so a landing test needs a fresh anchor AND the old Vale-side ring (frames, gate, mossy pads) removed.
 * **29 Sep, ~01:15 — step 3, the Ledger Web wider.** A third ring, the frontier: sixteen clusters
   outside the starts, 723 nodes (was 419), 42 notables; each reached by a road out from the rim's
   nearest road. CONVERSION §16.14, SKILLTREE.md, SPEC_SKILLTREE.md. negtest_web 10/0; in the game
