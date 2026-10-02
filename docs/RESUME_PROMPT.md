@@ -10,19 +10,22 @@ I'm continuing work on Elysium, a private Minecraft 1.21.1 / NeoForge modpack
 conversion. It is for my own use — not commercial, not public — so licensing is
 my problem to handle with mod authors, not a reason to stop.
 
-**Get the source back first. It is not in this container.**
+**Where the source is (2 October 2026).** The working tree is a git
+checkout on branch `integration` at
 
-The whole tree is on my machine as plain files, at
+    C:\Users\weaks\AppData\Local\Temp\Elysium-mono      (= /tmp/Elysium-mono in Git Bash)
 
-    C:\Users\weaks\curseforge\Elysium-mono
-
-18058 files, every one verified against a SHA-256 manifest
-(`MIRROR-MANIFEST.json`, at the top of that folder) after it was written. Copy
-it into the container at `/tmp/Elysium-mono` and check it arrived:
+mirrored by fast-forward to `E:\Elysium-mono` and `D:\Elysium-mono` after
+every commit, with a bundle, patch and the built jars in
+`E:\testingbuilds\Elysium\handback` and the same under `D:`. Check it:
 
     ls -d elysium-*            should count 29
-    ls tools/negtest/*.sh      should count 140
-    python3 tools/board.py list
+    ls tools/negtest/*.sh      should count 212
+    git log --oneline -1       84ef6ee2 or later
+
+Read first: `docs/handoff/2026-09-28-questbook-handoff.md` (the dated trail,
+newest at the bottom), then `docs/CONVERSION.md` §16.15–16.16 and §17, then
+`docs/PLAYTEST.md` for what is proved live and what is still by hand.
 
 **Then read `docs/AGENTS.md`.** It is short, and it is the whole working
 agreement: how the repository is laid out, how to take a unit of work without
@@ -34,11 +37,15 @@ mistakes this project has actually made and now checks for.
     python3 tools/board.py list
     python3 tools/board.py claim <module> --as <yourname>
 
-**Where it stands.** 29 modules, 45 validators (29 module +
-16 cross-cutting), 140 negative-test scripts. 33 of the pack's jars
-are replaced; 102 are still planned, across 16 units on the board.
-`docs/MANIFEST.md` is the ledger and `docs/SPLITS.md` holds the jars that span
-several modules.
+**Where it stands.** 29 modules, all built and validating; the root
+`validate.py` runs 29 module validators plus the cross-cutting checks
+(`check_obtainable.py` among them: every item, block and creature the pack
+adds is reachable from a new world in survival); 212 negative-test scripts;
+a 70-scenario live suite over RCON (`tools/livetest/livetest.py`) on the
+dedicated server at `E:\testingbuilds\ElysiumServer`, and client stages
+(`tools/livetest/stages/`) that drive the dev client at
+`E:\testingbuilds\Elysium`. `docs/MANIFEST.md` is the ledger and
+`docs/SPLITS.md` holds the jars that span several modules.
 
 **Before you hand anything back:**
 
@@ -48,8 +55,11 @@ several modules.
     bash tools/negtest/negtest_<yours>.sh
     python3 tools/ownership.py --as <yourname>
 
-Then build with `./compile.sh --jars --bundle`, send me the jars, and write
-them into both `Instances/Claude/mods` and `Instances/Claude-dev-build/mods`.
+Then build with `./compile.sh --jars --bundle` and install `dist/elysium-all-1.0.0.jar`
+and `dist/elysiumcolonies-1.0.0.jar` into both E: instances' `mods` (retire the
+old jars to `mods/_superseded`, never delete), restart the server, and run the
+live suite on a quiet machine. Never compile while a negtest has a module
+snapshotted; never run a client stage beside a compile or negtest.
 
 **Standing preferences.** One feature all the way through before the next —
 architected, ruled, harnessed, generated, validated, negative-tested, built.

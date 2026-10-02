@@ -267,6 +267,19 @@ why it is worth doing; never a restatement of the title).
   Vale: land a step east, water three blocks west and north, the ring across the waterline with its pad over the edge.
   Refinement left: settle the ring a stride inland so both landings are dry. Earlier rings reuse their Vale-side ring
   by design, so a landing test needs a fresh anchor AND the old Vale-side ring (frames, gate, mossy pads) removed.
+* **2 Oct, headless (Dylan saving the machine for something else; no Minecraft run).** The live runner asks
+  `tick query` before each scenario, waits for the server to keep up and marks what ran behind (livetest.py;
+  CONVERSION §17, PLAYTEST). PLAYTEST's 69 unticked boxes cross-referenced against the scenarios and stages:
+  3 proved, 41 partly, 25 open (colony day-cycle simulation is the big untested group; four boxes contradicted
+  the code and say so now: the launch key is H, the skill tree is the Ledger Web, marble/limestone/alabaster are
+  solarpunk stones, JEI is not shipped), and a "What the by-hand run still has to do" section groups the open
+  boxes into six client sessions. The ratchet: colonies' 47 and lib's 20 half-statement anchors rewritten to
+  whole statements (94 -> 27; --bless now writes LF). Dry runs found pre-existing negtest drift to fix some day:
+  negtest_colonies3 (8 anchors: ColonyLife found(), Charters.plan().next(), three in FrontierExchange, three in
+  ExchangeRules) and negtest_tooltip (1: @SubscribeEvent in ElysiumQualityOfLife). Docs brought to today: TODO §0-1,
+  AGENTS (212 scripts, the live suite in "finished"), RESUME_PROMPT, the stages README (all eleven stages;
+  stage_seven_client.ps1 copied in from the scratchpad since §16.7 cites it). Also under way: the Vale ring settled a
+  stride inland so both landings are dry (wilds), and dryrun.py running every dry run in a throwaway git worktree.
 * **29 Sep, ~01:15 — step 3, the Ledger Web wider.** A third ring, the frontier: sixteen clusters
   outside the starts, 723 nodes (was 419), 42 notables; each reached by a road out from the rim's
   nearest road. CONVERSION §16.14, SKILLTREE.md, SPEC_SKILLTREE.md. negtest_web 10/0; in the game

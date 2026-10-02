@@ -1130,7 +1130,7 @@ else:
         fail("the world floor is written in more than one place, so the two writers would "
              "disagree about whether a floor may ever go down")
     _visited = body_of(_tiers_src, "public static boolean visited")
-    if "lift(player," not in _visited:
+    if "return lift(player, worldTier(level.dimension().location()));" not in _visited:
         fail("visited() no longer raises the floor through lift(), so arriving in a deeper "
              "world would write a floor nothing compared")
     for _event in ("PlayerChangedDimensionEvent", "PlayerLoggedInEvent"):
@@ -1497,7 +1497,7 @@ else:
         fire_body = body_of(field_src, "static float measureFire(")
         if fire_body is None:
             fail("nothing scans for fire, so the second gate does not exist")
-        elif "isLoaded(" not in fire_body:
+        elif "if (!level.isLoaded(at)) {" not in fire_body:
             fail("the fire scan reads blocks without asking whether the chunk "
                  "is loaded, so it generates terrain at the edge of every "
                  "player's view once a second forever")
@@ -1597,7 +1597,7 @@ else:
                      "with the set and the claim — and a state that also "
                      "combines as a share is two implementations that have to "
                      "agree")
-            if "wornShares(" not in all_shares:
+            if "float[] worn = wornShares(entity, hazard);" not in all_shares:
                 fail("ElysiumProtection.allShares no longer includes worn "
                      "armour, so standing somewhere replaces wearing something")
 
@@ -1751,7 +1751,7 @@ else:
         fail("proportionOf is gone — nothing turns a point total into an effect")
     else:
         body = proportion[1].split("public float curveOf(", 1)[0]
-        if "effective(" not in body:
+        if "return curveOf(effective(points));" not in body:
             fail("proportionOf does not pass the point total through "
                  "effective(), so the linear-plus-square scaling exists and "
                  "nothing is scaled by it")
@@ -1791,15 +1791,21 @@ def _declared_body(text, name):
     return None
 
 
-for rule, what in (("healthFor", "Vitality's health"),
-                   ("damageFor", "Strength's damage"),
-                   ("shieldFor", "Willpower's shield"),
-                   ("regenFor", "Vitality's regeneration"),
-                   ("armourFor", "Fortitude's armour")):
+for rule, what, scaled in (
+        ("healthFor", "Vitality's health",
+         "return effective(vitality) * HEALTH_PER_POINT;"),
+        ("damageFor", "Strength's damage",
+         "return effective(strength) * DAMAGE_PER_POINT;"),
+        ("shieldFor", "Willpower's shield",
+         "return effective(willpower) * SHIELD_PER_POINT;"),
+        ("regenFor", "Vitality's regeneration",
+         "return REGEN_BASE + effective(vitality) * REGEN_PER_POINT;"),
+        ("armourFor", "Fortitude's armour",
+         "return effective(fortitude) * ARMOUR_PER_POINT;")):
     body = _declared_body(flat_src, rule)
     if body is None:
         fail(f"{rule} is gone, so {what} has no rule that can be executed")
-    elif "effective(" not in body:
+    elif scaled not in body:
         fail(f"{what} multiplies the raw point total instead of the scaled one, "
              f"so it falls further behind every proportional stat with every "
              f"level and nothing in the game says why")
@@ -1904,7 +1910,7 @@ else:
         gathered = body_of(strip_comments(
             open(protection_path, encoding="utf-8").read()),
             "public static float[] allShares(")
-        if gathered is not None and "roomShare(" not in gathered:
+        if gathered is not None and "float room = roomShare(entity, hazard);" not in gathered:
             fail("ElysiumProtection.allShares never includes the room, so "
                  "standing in a bunker is worth exactly as much as standing in "
                  "the rain")
@@ -2452,10 +2458,10 @@ _incoming = body_of(_combat,
 if _incoming is None:
     fail("ElysiumCombatHandler has no incoming-damage handler")
 else:
-    if "ElysiumTelegraph.allowed(" not in _incoming:
+    if "float permitted = ElysiumTelegraph.allowed(amount, announced);" not in _incoming:
         fail("the damage pipeline no longer caps unannounced blows, so the "
              "readability rule holds only for mobs that choose to keep it")
-    if "ElysiumWarnings.spend(" not in _incoming:
+    if "ElysiumWarnings.spend(swinging);" not in _incoming:
         fail("a warning is never spent, so one wind-up licences every blow that "
              "follows it for as long as the mob keeps swinging")
     # Before armour and the matrix, or a player in good gear can legally be hit
@@ -2521,7 +2527,7 @@ if _check_attack is None:
     fail("ElysiumTelegraphedAttack no longer overrides the attack, so it is "
          "vanilla's goal with a longer name")
 else:
-    if "ElysiumWarnings.begin(" not in _check_attack:
+    if "ElysiumWarnings.begin(mob, damage);" not in _check_attack:
         fail("the telegraphed attack never raises a warning")
     if "Attributes.ATTACK_DAMAGE" not in _check_attack:
         fail("the wind-up is no longer sized from the mob's own attack damage, "
@@ -2658,7 +2664,7 @@ if _direct != 1:
 _held = body_of(_contracts_src, "public static List<ElysiumContract> held(Player player)")
 if _held is None:
     fail("ElysiumContracts has no held method")
-elif "expired(" not in _held or "punish(" not in _held:
+elif "if (contract.expired(now)) {" not in _held or "punish(player, contract);" not in _held:
     fail("held() no longer sweeps for expiry, so a deadline is a suggestion "
          "and nothing ever applies the consequence §19.2 asks for")
 
@@ -2856,10 +2862,13 @@ if "ElysiumTelegraph.isDangerous" not in _scar_src:
          "that takes a block out of the world with no warning at all")
 
 # 5. It is measured on the swing, not on what landed.
-_incoming2 = body_of(_combat,
-                     "public static void onIncomingDamage(LivingIncomingDamageEvent event)")
-if _incoming2 is not None and "ElysiumCover.scar(" in _incoming2:
-    if "event.getAmount()" not in _incoming2.split("ElysiumCover.scar(")[1][:120]:
+# Whether the handler scars at all is not this rule's question, so it is gated
+# on the class being mentioned; what it checks is the whole call.
+_incoming2 = squashed(body_of(_combat,
+                     "public static void onIncomingDamage(LivingIncomingDamageEvent event)") or "")
+if "ElysiumCover.scar" in _incoming2:
+    if "com.elysium.lib.scar.ElysiumCover.scar( victim.level(), victim, event.getAmount());" \
+            not in _incoming2:
         fail("scarring is measured on the damage that landed rather than the "
              "blow that was swung, so the better armoured a player is the more "
              "solid the world becomes around them")
@@ -2927,6 +2936,8 @@ else:
     if _place is None:
         fail("ElysiumWorksHandler has no onPlace; nothing feeds the works")
     else:
+        # One line per statement, so a statement that wraps can be named whole.
+        _place = squashed(_place)
         # 1. A claimed placement is the claim's business.
         if not re.search(r"ElysiumClaims\.of\(\w+\)\.at\([^;]*\)\s*!=\s*null\s*\)"
                          r"\s*\{\s*return\s*;", _place):
@@ -2937,7 +2948,8 @@ else:
         # 2. Doctrine scales the weight, before the site sees it.
         _scaled = _place.find("ElysiumConspicuity.scaled(")
         _built = _place.find(".built(")
-        if _scaled < 0 or "suspicionMultiplier(" not in _place:
+        if _scaled < 0 or "weight = ElysiumConspicuity.scaled(weight, " \
+                "ElysiumDoctrines.suspicionMultiplier(player));" not in _place:
             fail("ElysiumWorksHandler.onPlace does not scale by doctrine. A "
                  "Clandestine builder would be exactly as loud as a Sanctioned "
                  "one, and the tree's commitment would be a word")
@@ -2945,7 +2957,8 @@ else:
             fail("ElysiumWorksHandler scales by doctrine after the site has "
                  "already recorded the unscaled weight")
         # 3. No post for a player below the notice threshold.
-        if ".plant(" in _place and not re.search(
+        if "ElysiumInspection post = ElysiumInspections.of(level) " \
+                ".plant(level, player, event.getPos());" in _place and not re.search(
                 r"getSuspicion\(\w+\)\s*>=\s*ElysiumStanding\.NOTICE", _place):
             fail("ElysiumWorksHandler plants an inspection post without the "
                  "notice-threshold gate. Below it the Empire watches nobody, "
@@ -2964,7 +2977,8 @@ _works_path = os.path.join(SRC, "works/ElysiumWorks.java")
 if os.path.isfile(_works_path):
     _built_body = body_of(strip_comments(open(_works_path, encoding="utf-8").read()),
                           "public ElysiumSite.Placed built(")
-    if _built_body is None or ".placed(" not in _built_body:
+    if _built_body is None \
+            or "ElysiumSite.Placed result = siteAt(pos, now).placed(weight, now);" not in _built_body:
         fail("ElysiumWorks.built no longer delegates to ElysiumSite.placed. "
              "The rule has moved somewhere the harness does not execute it")
 
@@ -3023,7 +3037,7 @@ else:
                  "the one thing a player most wants it to do")
         if "isCreative()" not in _damaged:
             fail("creative players can be wounded")
-        if ".wounded(" not in _damaged:
+        if "ElysiumInjury after = before.wounded(kind);" not in _damaged:
             fail("onDamaged no longer goes through ElysiumInjury.wounded, which "
                  "is where the cap lives")
 
@@ -3049,7 +3063,9 @@ else:
              "bay or asleep, so the room is decoration")
 
     _login = body_of(_mh, "public static void onLogin(")
-    if _login is None or "ElysiumMedical.apply(" not in _login:
+    if _login is None \
+            or "ElysiumMedical.apply(event.getEntity(), ElysiumMedical.of(event.getEntity()));" \
+            not in _login:
         fail("wound penalties are not re-applied at login. They are transient, "
              "so a wounded player who logs back in would walk at full speed for "
              "five seconds and then be slowed, which reads as a bug")
@@ -3061,7 +3077,7 @@ else:
 
     # 5. The bar never shows more health than it holds.
     _apply = body_of(_mm, "public static void apply(")
-    if _apply is None or "setHealth(" not in _apply:
+    if _apply is None or "player.setHealth(player.getMaxHealth());" not in _apply:
         fail("ElysiumMedical.apply no longer clamps health to the new maximum; "
              "a laceration would leave the bar showing hearts that are not there")
 
@@ -3155,7 +3171,8 @@ print(f"effect icons       : {len(_effect_ids)} effect(s), each with an 18x18 ic
 # tooltip and tier 1 in the fight, which nobody would ever notice.
 _sockets_src = strip_comments(read("item/ElysiumSockets.java"))
 _apply = body_of(_sockets_src, "public static ItemAttributeModifiers applyRunes(")
-if _apply is None or "socketed(" not in _apply or ".scale()" not in _apply:
+if _apply is None or "for (Socketed socketed : socketed(stack)) {" not in _apply \
+        or ".scale()" not in _apply:
     fail("ElysiumSockets.applyRunes no longer scales a rune's attribute bonus by "
          "its tier. A tier-4 Plasmaforge would add what a tier-1 adds")
 
@@ -3264,9 +3281,10 @@ if _capped:
          f"owner ruled no caps: pass ElysiumStats.UNCAPPED")
 
 _combat_code = strip_comments(read("event/ElysiumCombatHandler.java"))
-_inc = body_of(_combat_code, "public static void onIncomingDamage(")
-if _inc is not None:
-    if "ElysiumShares.add(" not in _inc:
+_inc = squashed(body_of(_combat_code, "public static void onIncomingDamage(") or "")
+if _inc:
+    if "dodge = com.elysium.lib.stats.ElysiumShares.add(dodge, ElysiumStats.dodgeChance(defender), " \
+            "ElysiumPassives.dodgeChance(defender, event.getSource()));" not in _inc:
         fail("dodge no longer adds runes, Reflexes and passives as stats")
     if re.search(r"Math\.min\(\s*0\.\d+F\s*,\s*blunt\s*\)", _inc) \
             or not re.search(r"ElysiumShares\.fromOdds\(\s*blunt", _inc):
@@ -4082,7 +4100,7 @@ if "now.equals(was)" not in _announce:
     fail("the weather is announced every second it blows, which is a message a "
          "player turns off")
 _draw = body_of(_weather_handler, "private static void draw(")
-if "canSeeSky(" not in _draw:
+if "if (!level.canSeeSky(at)) {" not in _draw:
     fail("a storm is drawn underground, where the hazard pipeline has already decided "
          "it does not reach - which tells the player exactly the wrong thing")
 for _key in ("elysium.weather.begins", "elysium.weather.clears"):

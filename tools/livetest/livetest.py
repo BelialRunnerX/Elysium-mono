@@ -194,6 +194,45 @@ def scenario(name):
     return wrap
 
 
+# --- the server's pace ------------------------------------------------------
+#
+# A scenario that sprints ticks and reads an entity back assumes the server
+# keeps up. It does not when a dev client, a compile or a negtest's javac shares
+# the machine: it falls hundreds of ticks behind ("Can't keep up!"), and the
+# entity-tick scenarios - pigeons breeding, a zombie burning, the Choir's
+# phases, an envoy leaving, a cart falling - fail and pass again on a quiet
+# rerun (1 October 2026: six such of seventy). `tick query` tells the average
+# time a tick took; a tick's budget is TICK_MS, so anything over it is a server
+# behind. The runner waits for it to settle before each scenario and, when it
+# will not, says so beside the result rather than letting the miss read as a
+# fault in the pack.
+
+TICK_MS = 50.0
+#: What counts as behind: the budget with a little room for the sprint's own tail.
+BEHIND_MS = 60.0
+#: How long the runner waits for the server to settle before a scenario.
+SETTLE_TRIES, SETTLE_SECONDS = 12, 5
+
+
+def tick_ms(answer):
+    """The average milliseconds a tick took, out of `tick query`'s answer, or None."""
+    found = re.search(r"Average time per tick:\s*([0-9]+(?:\.[0-9]+)?)\s*ms", answer)
+    return float(found.group(1)) if found else None
+
+
+def settled(rcon, verbose=False):
+    """Waits until the server keeps up, or gives up; returns the last reading (None when unknown)."""
+    last = None
+    for attempt in range(SETTLE_TRIES):
+        last = tick_ms(rcon.cmd("tick query"))
+        if last is None or last <= BEHIND_MS:
+            return last
+        if verbose or attempt == 0:
+            print(f"           (the server is behind: {last:.0f} ms a tick; waiting for it to settle)")
+        time.sleep(SETTLE_SECONDS)
+    return last
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--host", default="127.0.0.1")
@@ -214,30 +253,36 @@ def main():
     rcon.cmd("weather clear")
     rcon.cmd("gamerule doDaylightCycle false")
 
-    passed = failed = 0
+    passed = failed = under_load = 0
     for index, (name, fn) in enumerate(SCENARIOS):
         if args.only and args.only not in name:
             continue
+        before = settled(rcon, args.verbose)
         stage = Stage(rcon, index, name)
         stage.clear()
         try:
             fn(stage)
         except Exception as boom:            # a scenario that throws is a failure with a reason
             stage.problems.append(f"the scenario itself failed: {boom!r}")
+        after = tick_ms(rcon.cmd("tick query"))
+        behind = max(ms for ms in (before, after, 0.0) if ms is not None)
+        loaded = behind > BEHIND_MS
+        under_load += loaded
         if stage.problems:
             failed += 1
-            print(f"  FAIL   {name}")
+            print(f"  FAIL   {name}" + (f"   (the server was behind: {behind:.0f} ms a tick; rerun it alone before believing this)" if loaded else ""))
             for problem in stage.problems:
                 print(f"           {problem}")
         else:
             passed += 1
-            print(f"  pass   {name}")
+            print(f"  pass   {name}" + (f"   (under load: {behind:.0f} ms a tick)" if loaded else ""))
         if args.verbose:
             for command, out in stage.log:
                 print(f"           > {command}\n             {out[:160]}")
     rcon.cmd("gamerule doDaylightCycle true")
     rcon.cmd("forceload remove all")
-    print(f"live tests: {passed} passed, {failed} failed")
+    print(f"live tests: {passed} passed, {failed} failed"
+          + (f"; {under_load} ran with the server behind, so a FAIL among them is not yet a fault" if under_load else ""))
     return 0 if failed == 0 else 1
 
 

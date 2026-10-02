@@ -32,7 +32,8 @@ import java.util.UUID;
  * and the Vale side is filed under that anchor: the first trip looks for the
  * verdant vale nearest the ring (the gentlest crossing, where the bestiary
  * counts its rings from), builds a ring on the nearest dry ground there, or
- * on the nearest shore when that ground is all sea, and files it; every trip
+ * on the nearest shore when that ground is all sea, walked on inland until
+ * the ring's sill and both landings are dry, and files it; every trip
  * after goes to the same ring, rebuilt if somebody broke it. The player is put
  * down beside it on the far side from where they walked in, facing on, so
  * walking forward is walking away from it.
@@ -174,9 +175,14 @@ public final class ValeTravel {
      * sea level in a bay). Far, because the Vale has no ocean biome, so its
      * seas are low ground of the land biomes, and a fresh ring's first trip
      * landed in one where every column within sixty-four was water but the
-     * ring's own pads, the shore a hundred blocks off (1 October, late). The
-     * spiral, the lines and the dryness test are the rules', and the harness
-     * proves them; what is the world's is what stands at each column's top.
+     * ring's own pads, the shore a hundred blocks off (1 October, late). And
+     * settled on from the dry column either stage finds, because the first
+     * dry column met is at the waterline: a fresh ring's first trip landed at
+     * a shore with the ring astride it, its landing a block out over the
+     * water and the player on a built pad with land a step east (2 October).
+     * The spiral, the lines, the dryness test, the footprint and the walk
+     * inland are the rules', and the harness proves them; what is the
+     * world's is what stands at each column's top.
      */
     private static ValeLinks.Arrival settle(ServerLevel vale, BlockPos column, Direction.Axis axis) {
         ValeLinks.Arrival near = near(vale, column, axis);
@@ -184,12 +190,14 @@ public final class ValeTravel {
             return near;
         }
         // The spiral found only water. The shore the compass lines meet is
+        // walked on along its line until the ring's footing is dry, then
         // settled as the column was: a ring standing by it is used, and the
         // side goes to the nearest dry column to it, which, dry by the same
         // test, is the shore itself after one look.
         PortalRules.Column far = PortalRules.nearestFarDry(footing(vale, column));
         if (far != null) {
-            near = near(vale, column.offset(far.east(), 0, far.south()), axis);
+            PortalRules.Column shore = PortalRules.settled(footing(vale, column), far, axisOf(axis));
+            near = near(vale, column.offset(shore.east(), 0, shore.south()), axis);
             if (near != null) {
                 return near;
             }
@@ -201,7 +209,8 @@ public final class ValeTravel {
     /**
      * The near stage at a column: a ring already standing by it; else the Vale
      * side at the nearest dry column within
-     * {@link PortalRules#DRY_SEARCH_BLOCKS}, by a ring already standing there
+     * {@link PortalRules#DRY_SEARCH_BLOCKS}, walked on inland until the
+     * ring's sill and both landings are dry, by a ring already standing there
      * if there is one; null when everything within reach is water. It comes
      * first, and runs again at the shore the far stage finds, because it is
      * cheap and keeps a verdant landing verdant.
@@ -215,10 +224,18 @@ public final class ValeTravel {
         if (dry == null) {
             return null;
         }
-        BlockPos spot = column.offset(dry.east(), 0, dry.south());
-        // A ring standing by the dry column is used too, for the same reason.
+        // The first dry column met is at the waterline: the ring goes on
+        // along the line it was found on until its whole footing is dry.
+        PortalRules.Column site = PortalRules.settled(footing(vale, column), dry, axisOf(axis));
+        BlockPos spot = column.offset(site.east(), 0, site.south());
+        // A ring standing by the settled column is used too, for the same reason.
         standing = standingBy(vale, groundAt(vale, spot));
         return standing != null ? standing : on(vale, spot, axis);
+    }
+
+    /** Which way a ring runs, as the rules name it: the game's axis, read at the door. */
+    private static PortalRules.Axis axisOf(Direction.Axis axis) {
+        return axis == Direction.Axis.X ? PortalRules.Axis.X : PortalRules.Axis.Z;
     }
 
     /** The Vale side built on the ground at a spot, low enough that the lintel is inside the world. */

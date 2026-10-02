@@ -90,6 +90,16 @@ def body_of(src, signature):
     return src[open_at + 1:]
 
 
+def squashed(text):
+    """One method's source with every run of whitespace made one space.
+
+    A rule that names a whole statement has to survive the statement being
+    re-wrapped, or it fails the first time somebody tidies the file and then
+    gets deleted rather than fixed.
+    """
+    return re.sub(r"\s+", " ", text)
+
+
 def java_files():
     for root, _, names in os.walk(SRC):
         for name in names:
@@ -274,10 +284,10 @@ with tempfile.TemporaryDirectory() as tmp:
 # A town is progress: a floor, written through the library's one writer.
 progress = strip_comments(read(SRC, "event/ColonyProgress.java"))
 tick = body_of(progress, "public static void onTick")
-if "ColonyRules.worldFloor(" not in tick:
+if "int floor = ColonyRules.worldFloor(sizes);" not in tick:
     fail("a colony's contribution to the world tier is decided somewhere other than "
          "the rules, so the harness proves nothing about it")
-if "ElysiumTiers.lift(" not in tick:
+if "if (ElysiumTiers.lift(player, floor)) {" not in tick:
     fail("the colony's tier is written by some route other than lift(), which is the "
          "one place that refuses to let a floor fall - so a town raided down to ten "
          "citizens while its owner was out would cost them their progress")
@@ -307,15 +317,15 @@ if "SubscribeEvent" in standing:
 # A town is worth raiding properly: promoted, capped, and once.
 raids = strip_comments(read(SRC, "event/ColonyRaids.java"))
 raid_tick = body_of(raids, "public static void onTick")
-if "ColonyRules.raiderTier(" not in raid_tick:
+if "ElysiumElites.promote(raider, ColonyRules.raiderTier(tier));" not in raid_tick:
     fail("raiders are promoted at a tier nobody capped, so a capital eventually sends "
          "something that walks through a town of level-five guards")
-if "ColonyRules.promotes(" not in raid_tick:
+if "if (!ColonyRules.promotes(tier)) {" not in raid_tick:
     fail("every raid is promoted, including a new player's first, so the two systems "
          "meet before there is anything to meet about")
-if "ElysiumElites.decided(" not in raid_tick:
+if "if (ElysiumElites.decided(raider)) {" not in raid_tick:
     fail("a raider is examined on every tick of its life rather than once")
-if "ElysiumElites.promote(" not in raid_tick:
+if "ElysiumElites.promote(raider, ColonyRules.raiderTier(tier));" not in raid_tick:
     fail("nothing actually promotes a raider")
 for scaling in ("setBaseValue", "getAttribute", "setHealth", "MAX_HEALTH"):
     if scaling in raids:
@@ -463,7 +473,7 @@ if "ServerLevel" not in _tick:
 if "INTERVAL" not in _tick:
     fail("the reckoning is attempted on every tick of every level rather than on a "
          "schedule")
-_reckon = body_of(_life, "private static void reckon")
+_reckon = squashed(body_of(_life, "private static void reckon"))
 if "ledger.lastDay()" not in _reckon or "town.day()" not in _reckon:
     fail("a town is reckoned more than once a day, so development accrues at the tick "
          "rate rather than the day rate")
@@ -472,17 +482,18 @@ for _rule in ("CitizenStress.totalFor(", "CitizenRules.output(", "GrowthRules.pe
     if _rule not in _reckon:
         fail(f"the reckoning does not go through {_rule}, so the harness proves "
              f"nothing about what a day is worth")
-if "CharterRules.weighted(" not in _reckon:
+if "float world = CharterRules.weighted(CharterRules.workFactor(local), charter.reach());" \
+        not in _reckon:
     fail("distance does not weigh on the charter, so a town on the far side of the "
          "system can import its way out of its world exactly as easily as one next "
          "door")
 _raise = body_of(_life, "private static int raiseSomething")
-if "GrowthRules.willRaise(" not in _raise:
+if "if (!GrowthRules.willRaise(structure.level(), structure.maximum())) {" not in _raise:
     fail("a town raises buildings past the level it is allowed to, so its owner has "
          "nothing left to come home for")
-if "GrowthRules.affords(" not in _raise:
+if "if (!GrowthRules.affords(banked, structure.level() + 1)) {" not in _raise:
     fail("a town orders upgrades it has not paid for")
-if "GrowthRules.patient(" not in _reckon:
+if "if (GrowthRules.patient(town.day(), ledger.lastUpgrade())) {" not in _reckon:
     fail("a town orders every upgrade it can afford at once, so a returning player "
          "meets a builder with a queue and an empty warehouse")
 if "isPendingConstruction" in _life:
@@ -529,10 +540,11 @@ if "registerHappiness" not in main:
          "happiness screen, so every number it computes is invisible")
 if "CitizenRules.happiness(" not in main:
     fail("the happiness handed to the host is not the one the harness proves")
-_happy = body_of(seam, "public static boolean ensureHappiness")
-if "injectModifier(" not in _happy:
+_happy = squashed(body_of(seam, "public static boolean ensureHappiness"))
+if "colony.getCitizenManager().injectModifier(new StaticHappinessModifier( id, weight, " \
+        "new DynamicHappinessSupplier(HAPPINESS_FUNCTION)));" not in _happy:
     fail("the happiness modifier is built and never installed")
-if "getModifier(" not in _happy:
+if "if (data.getCitizenHappinessHandler().getModifier(id) != null) {" not in _happy:
     fail("the modifier is injected again on every reckoning, so a colony accumulates "
          "one copy of it per day")
 if "new DynamicHappinessSupplier(HAPPINESS_FUNCTION)" not in _happy:
@@ -559,34 +571,36 @@ _found = body_of(_life, "public static boolean foundNear")
 if "SiteRules." not in _found:
     fail("a town chooses where to build by arithmetic the harness does not see, so "
          "nothing stops it putting two buildings in one place")
-if "Colonies.inside(" not in _found:
+if "if (!Colonies.inside(level, town.id(), ground)) {" not in _found:
     fail("a town builds outside its own ground")
-if "Colonies.clearOf(" not in _found:
+if "if (!Colonies.clearOf(level, town.id(), ground, SiteRules.SPACING - 1)) {" not in _found:
     fail("a town builds on top of what it has already built")
-if "levelEnough(" not in _found:
+if "if (!SiteRules.levelEnough(hall.getY(), ground.getY())) {" not in _found:
     fail("a town builds up a cliff face, so nobody can walk between the huts")
 if "Charters.plan().next(" not in body_of(_life, "private static void reckon"):
     fail("a town founds buildings in an order nobody wrote down, so a pack cannot "
          "say what a settlement should be")
 
 _caretake = body_of(_life, "private static void caretake")
-if "Colonies.repair(" not in _caretake:
+if "Colonies.repair(level, town.id(), turn.at());" not in _caretake:
     fail("nothing ever goes over a damaged building, so one creeper can leave a town "
          "permanently short of a working hut and no player is coming to notice")
 if "% CARETAKING" not in _caretake:
     fail("the caretaker's round runs on no schedule at all")
 
 _exchange = strip_comments(read(SRC, "exchange/FrontierExchange.java"))
-_settle = body_of(_exchange, "public static int settle")
-if "Colonies.owed(" not in _settle:
+_settle = squashed(body_of(_exchange, "public static int settle"))
+if "List<Colonies.Owed> owed = Colonies.owed(level, town.id());" not in _settle:
     fail("nothing reads the list of things a town is waiting for, which is the one "
          "list that stops it dead")
-if "Colonies.deliver(" not in _settle:
+if "if (Colonies.deliver(level, town.id(), want, bought)) {" not in _settle:
     fail("a town works out what it needs and never hands it over")
-if "Colonies.take(" not in _settle or "MarketRules.purseFrom(" not in _settle:
+if "int taken = Colonies.take(level, town.id(), offer.getKey(), selling);" not in _settle \
+        or "purse += MarketRules.purseFrom(taken, Market.priceOf(where, offer.getKey(), town.day()));" \
+        not in _settle:
     fail("the exchange gives a town things it has not paid for, which is a town with "
          "no reason to produce anything")
-if "MarketRules.buys(" not in _settle \
+if "int bought = Math.min(missing, MarketRules.buys(purse, price));" not in _settle \
         or "Market.priceOf(where, want.wanted(), town.day())" not in _settle:
     fail("the exchange trades at a flat rate rather than at the market's prices, so "
          "where a town is stops mattering the moment it starts trading")
@@ -602,17 +616,17 @@ if "getPlayerResolver()" not in _owed:
     fail("the outstanding list is read from somewhere other than the player resolver, "
          "which is the only place a request goes when everything else has failed")
 _deliver = body_of(seam, "public static boolean deliver")
-if "overruleRequest(" not in _deliver:
+if "colony.getRequestManager().overruleRequest(token, giving);" not in _deliver:
     fail("a delivery closes the request by some route other than the one the town "
          "hall's own button uses, so the host's bookkeeping and this module's "
          "disagree")
 
 _found_seam = body_of(seam, "public static boolean found")
-if "setPlacedBy(" not in _found_seam:
+if "hut.setPlacedBy(level, where, state, null, ItemStack.EMPTY);" not in _found_seam:
     fail("a hut is put in the world without telling the block it was placed, so the "
          "colony never registers the building and a player is left with a hut nothing "
          "owns")
-if "blueprintFor(" not in _found_seam:
+if "String blueprint = blueprintFor(pack, entry);" not in _found_seam:
     fail("a hut is placed with no blueprint, so the builder can never raise it and a "
          "player has to find and break the block")
 if "removeBlock" not in _found_seam:
@@ -648,7 +662,7 @@ else:
 # the assumption that there is exactly one.
 
 _member = body_of(seam, "public static List<Settlement> memberOf")
-if "isColonyMember(" not in _member:
+if "if (colony.getPermissions().isColonyMember(player)) {" not in _member:
     fail("membership is read as ownership, so a player who joined a friend's town "
          "counts for nothing and a player with two towns has one")
 for _single in ("event/ColonyProgress.java", "event/ColonyStanding.java"):
@@ -680,17 +694,19 @@ _grant = body_of(_relief, "public static int grant")
 if not _grant:
     fail("there is no charter grant, so a new colony can never get the builder's hut "
          "without which it can build nothing - including the builder's hut")
-if "ReliefRules.granting(" not in _grant:
+if "int giving = ReliefRules.granting(want.count() - already, given);" not in _grant:
     fail("the grant hands over an amount nobody decided")
-if "Colonies.owed(" not in _grant:
+if "List<Colonies.Owed> owed = Colonies.owed(level, town.id());" not in _grant:
     fail("the grant gives a town things it was not waiting for, which is a colony as "
          "a way of getting free materials")
 
-_reckon3 = body_of(_life, "private static void reckon")
-if "ReliefRules.reliefFor(" not in _reckon3:
+_reckon3 = squashed(body_of(_life, "private static void reckon"))
+if "ReliefRules.Relief relief = ReliefRules.reliefFor(town.day(), ledger.lastProgress(), " \
+        "ledger.foundedOn());" not in _reckon3:
     fail("nothing notices that a town has stopped, so every lock this module did not "
          "foresee is permanent")
-if "ReliefRules.progressed(" not in _reckon3:
+if "boolean moved = ReliefRules.progressed(ledger.builtThen(), built.size(), " \
+        "ledger.development(), banked, ledger.citizensThen(), town.citizens());" not in _reckon3:
     fail("progress is judged by something other than the rule, so the harness proves "
          "nothing about when a town counts as stuck")
 if "foundedOn(town.day())" not in _reckon3:
@@ -699,15 +715,16 @@ if "foundedOn(town.day())" not in _reckon3:
 if "Relief.GRANT" not in _reckon3 or "Relief.REPORT" not in _reckon3:
     fail("the escalation stops before its last steps, so a stuck town is never helped "
          "or never reported")
-if "ReliefRules.alsoReport(" not in _reckon3:
+if "if (relief == ReliefRules.Relief.REPORT " \
+        "|| ReliefRules.alsoReport(town.day(), ledger.lastProgress())) {" not in _reckon3:
     fail("a town is only reported once its grant is spent, and the grant runs for a "
          "hundred days - so a colony stuck on something free materials cannot fix "
          "sits silent for months, which is the exact failure the watchdog exists to "
          "prevent")
-if "ReliefRules.dueToReport(" not in _reckon3:
+if "if (ReliefRules.dueToReport(town.day(), ledger.lastReported())) {" not in _reckon3:
     fail("a stuck town is reported every single day, which is a message that stops "
          "being read on the third")
-if "report(level, town," not in _reckon3 \
+if "if (report(level, town, ReliefRules.stuckFor(town.day(), ledger.lastProgress()))) {" not in _reckon3 \
         or not body_of(_life, "private static boolean report("):
     fail("nothing ever tells a player their colony has stopped, so going on quietly "
          "forever is how this ends")
@@ -726,9 +743,9 @@ if "familyOf(stack)" not in body_of(_market, "public static int priceOf"):
     fail("the market prices items rather than materials, so every mod's lead is a "
          "different commodity and unifying the pack bought nothing")
 _price = body_of(_market, "public static int priceOf")
-if "MarketRules.priceOf(" not in _price:
+if "int priced = MarketRules.priceOf(base, local, demand);" not in _price:
     fail("a price is worked out somewhere other than the rules")
-if "Charters.needs().contains(" not in _price:
+if "demand = Charters.needs().contains(family) ? 1.0F : 0.4F;" not in _price:
     fail("demand is not read from what a settlement actually consumes, so a world is "
          "equally short of everything it lacks")
 _seed = body_of(_market, "private static int seedFor")
@@ -1121,7 +1138,8 @@ if "Player steward = FakePlayerFactory.get(level, new GameProfile(stewardId, ste
         not in _settle \
         or "colony = manager.createColony(level, where, steward, name, pack);" not in _settle:
     fail("the seam does not found a colony for a fake steward")
-if "setPlacedBy(" not in _settle or "order(colony, hall, WorkOrderType.BUILD)" not in _settle:
+if "hut.setPlacedBy(level, where, state, null, ItemStack.EMPTY);" not in _settle \
+        or "order(colony, hall, WorkOrderType.BUILD)" not in _settle:
     fail("the seam founds a colony without a town hall to build")
 for _write, _method in (("createColony(", "public static int settle"),
                         ("addToQueue(", "public static boolean finish"),
@@ -1270,17 +1288,22 @@ print(f"settlements        : towns found themselves on {len(_settling) if _set e
 # quarter. Placement follows attendance; everything else does not.
 
 _reckon2 = body_of(_life, "private static void reckon")
-if "StewardRules.maySite(" not in _reckon2:
+# The same body on one line per statement, for the two statements that wrap.
+# _reckon2 itself stays as written: the window arithmetic below measures
+# distance in source characters, and squashing it would move the goalposts.
+_reckon2_flat = squashed(body_of(_life, "private static void reckon"))
+if "boolean townDecides = StewardRules.maySite(steward, town.day(), ledger.lastSeen());" \
+        not in _reckon2_flat:
     fail("a town sites buildings without asking whether its owner is tending it, so a "
          "player comes back to a hut where they were going to put the market")
-if "ownerIsHere(" not in _reckon2:
+if "if (ownerIsHere(level, town)) {" not in _reckon2:
     fail("nothing records that the owner was here, so attendance can never be "
          "established and the stewardship rule decides nothing")
 _here = body_of(_life, "private static boolean ownerIsHere")
-if "Colonies.inside(" not in _here:
+if "return Colonies.inside(level, town.id(), owner.blockPosition());" not in _here:
     fail("attendance is 'the owner is logged in' rather than 'the owner is here', so a "
          "player mining on the other side of the world stops their colony developing")
-if "seenOn(" not in _reckon2:
+if "ledger = ledger.seenOn(town.day());" not in _reckon2:
     fail("attendance is read and never written, so a visit is forgotten by the next day")
 
 # The gate is on founding and on nothing else. Raising, repairing and trading
@@ -1303,7 +1326,9 @@ _suggest = body_of(_life, "private static boolean suggest(")
 if not _suggest:
     fail("a town that defers to its owner never tells them what it wanted, so the "
          "player simply never learns what it needs")
-if "StewardRules.dueToSuggest(" not in _reckon2:
+if "if (wanted != null && !townDecides " \
+        "&& StewardRules.shouldSuggest(steward, town.day(), ledger.lastSeen()) " \
+        "&& StewardRules.dueToSuggest(town.day(), ledger.lastSuggested())) {" not in _reckon2_flat:
     fail("a deferring town nags its owner every single day, which is a message a "
          "player turns off")
 
@@ -1590,7 +1615,7 @@ for _needed, _why in (
                             "read, so a three-block stub counts")):
     if _needed not in _read:
         fail(f"the elevator reading does not look at {_needed}: {_why}")
-if "openAbove(" not in _read:
+if "boolean roofed = !openAbove(level, at);" not in _read:
     fail("nothing checks the sky above the counterweight, so a space elevator inside "
          "a mountain is a very tall warehouse")
 if "Heightmap.Types.MOTION_BLOCKING" not in body_of(_elevator,
@@ -1659,8 +1684,9 @@ if "Colonies.deliver(level, town.id(), want, shipping)" not in _freight \
         or _freight.find("Colonies.deliver(") > _freight.find("Colonies.take(theirs"):
     fail("freight takes from the seller before the buyer's request has accepted the "
          "goods, so a refused delivery destroys a player's materials")
-_pay = body_of(_ship, "private static void pay(")
-if "withTreasury(" not in _pay or "PortRules.banked(" not in _pay:
+_pay = squashed(body_of(_ship, "private static void pay("))
+if "memory.record(berth.colony(), ledger.withTreasury( " \
+        "PortRules.banked(ledger.treasury(), cost, berth.tether())));" not in _pay:
     fail("a freight sale is not banked in the seller's own treasury under its own "
          "ceiling, so either the seller is not paid or its treasury has no limit")
 
@@ -1671,7 +1697,7 @@ if "MarketRules.buys(purse - spent, price)" not in _buy:
          "treasury can be spent twice in one pass")
 if "MarketRules.costOf(buying, price)" not in _buy:
     fail("what the port bought is never taken out of the treasury")
-if "Market.priceOf(" not in _buy:
+if "int price = Market.priceOf(where, want.wanted(), town.day());" not in _buy:
     fail("imports are priced at something other than this world's market, so where a "
          "colony stands stops mattering")
 
@@ -1684,7 +1710,7 @@ if "verified(level, ports, town)" not in _run:
     fail("the port runs on its registry entry without ever re-reading the world, so "
          "cutting the tether does nothing")
 _verified = body_of(_ship, "private static PortRegistry.Berth verified(")
-if "hasChunkAt(" not in _verified:
+if "if (!level.hasChunkAt(berth.anchor())) {" not in _verified:
     fail("the daily pass reads a three-hundred-block column whether or not anybody is "
          "near it, which is a chunk load per port per day forever")
 if "ports.forget(town.dimension(), town.id())" not in _verified:
@@ -1701,8 +1727,9 @@ if "optionalFieldOf(\"treasury\"" not in strip_comments(
          "save fails to load the day this ships")
 
 # The anchor: it registers what it reads, and forgets it when it is broken.
-_remove = body_of(_anchor_block, "protected void onRemove(")
-if "forgetAt(" not in _remove:
+_remove = squashed(body_of(_anchor_block, "protected void onRemove("))
+if "if (PortRegistry.of(server.getServer()) .forgetAt(server.dimension().location(), pos)) {" \
+        not in _remove:
     fail("breaking the anchor leaves the port in the registry, so a spaceport survives "
          "being dismantled")
 if "!state.is(replacement.getBlock())" not in _remove:
@@ -1757,7 +1784,7 @@ for _copied in ("FOOT = 12", "WAIST = 3", "GATHER = 24", "BEND = 1.7"):
              f"PortRules, where a harness executes it")
 
 _reading = body_of(_elevator, "public static Reading read(")
-if "ElevatorBase.legs(" not in _reading:
+if "int legs = ElevatorBase.legs(level, anchor);" not in _reading:
     fail("the elevator is read without looking at what is holding it up, so a braced "
          "port and a bare mast ship the same amount")
 if "PortRules.throughput(tether, legs)" not in _elevator:
@@ -1862,31 +1889,34 @@ print(f"the flare          : {_ports_found} spaceport blueprint(s), legs on the 
 
 # The player's half of the port: the one place the market stops being a thing
 # you can only read.
-_sell = body_of(strip_comments(read(SRC, "command/ColonyCommand.java")),
-                "private static int sell(")
+_sell = squashed(body_of(strip_comments(read(SRC, "command/ColonyCommand.java")),
+                         "private static int sell("))
 if not _sell:
     fail("a player cannot sell anything through a spaceport, so the market is still "
          "a table of numbers nobody can act on")
-if "Colonies.owns(" not in _sell or "memberOf(player, here)" not in _sell:
+if "if (!Colonies.owns(level, here.id(), player.getUUID()) && !memberOf(player, here)) {" \
+        not in _sell:
     fail("a player can sell into a settlement they have nothing to do with, so the "
          "command quietly gives cargo away to strangers")
 if "berth.working()" not in _sell:
     fail("cargo is sold through a port that is not standing, so the elevator was "
          "never the point")
-if "MarketRules.purseFrom(" not in _sell:
+if "long paid = MarketRules.purseFrom(count, Market.priceOf(here.dimension(), carried, here.day()));" \
+        not in _sell:
     fail("a player selling a crate is paid something other than what the market offers "
          "for it, so the same crate is worth two different numbers depending on who "
          "carried it")
-if "PortRules.banked(" not in _sell:
+if "long held = PortRules.banked(ledger.treasury(), paid, berth.tether());" not in _sell:
     fail("a player sale ignores the treasury's ceiling, so one good route funds a "
          "colony forever and the port's height stops mattering")
-if "setItemInHand(" not in _sell or "ItemStack.EMPTY" not in _sell:
+if "player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, ItemStack.EMPTY);" \
+        not in _sell:
     fail("the cargo is paid for and never taken, which is not a market, it is a "
          "duplication bug with a shopfront")
 
 # The order in the day: the port, then the lifeline.
 _reckon4 = body_of(_life, "private static void reckon")
-if "Spaceport.run(level, town," not in _reckon4:
+if "Spaceport.Run shipped = Spaceport.run(level, town, ledger.treasury());" not in _reckon4:
     fail("the spaceport never runs, so it is scenery")
 if 0 <= _reckon4.find("FrontierExchange.settle(") < _reckon4.find("Spaceport.run("):
     fail("the emergency exchange is tried before the spaceport, so a town that built a "

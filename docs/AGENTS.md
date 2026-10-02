@@ -67,9 +67,16 @@ All four of these, every time. A feature that is done except for the validator
 is not done.
 
     ./compile.sh                       every module still type-checks
-    python3 validate.py                all 29 module validators and 17 root checks
+    python3 validate.py                all 29 module validators and the root checks,
+                                       check_obtainable.py among them: what you added
+                                       is reachable from a new world in survival
     python3 check_rules.py             no new entry on the rule-hygiene ratchet
     bash tools/negtest/negtest_<yours>.sh   every check you wrote proved effective
+
+And when the change is behaviour a player meets, a live scenario in
+`tools/livetest/scenarios.py` that asks the running server (run the suite on a
+quiet machine; see docs/CONVERSION.md §17), and `/elysium audit harvest` clean
+if you added a block.
 
 Then build, install into both test instances, and update the manifest rows for
 the jars you absorbed with a sentence saying what was actually built — not
@@ -123,7 +130,7 @@ order into one directory.
 ## Negative tests
 
 For each check you write, break the thing it checks — one way at a time — and
-prove it reports. `tools/negtest/` has a hundred and forty examples of the
+prove it reports. `tools/negtest/` has two hundred and twelve examples of the
 shape. `python3 tools/dryrun.py <script> "<ok phrase>"` builds a variant that
 writes nothing, so you can prove every anchor still matches the file before you
 run the real thing; a stale anchor is a test that has silently stopped testing.

@@ -1110,7 +1110,12 @@ for statement, why in (
          "when the spiral finds only water the Vale side is not walked out along the rules' compass "
          "lines to a shore, so a ring whose verdant column sits in a sea is built on the water and the "
          "player lands in it a hundred blocks from land"),
-        ("if (far != null) { near = near(vale, column.offset(far.east(), 0, far.south()), axis); "
+        ("PortalRules.Column shore = PortalRules.settled(footing(vale, column), far, axisOf(axis));",
+         "the shore the far stage finds is not walked on along its line until the ring's sill and both "
+         "landings are dry, so a ring found at a waterline is built astride it, its landing a block out "
+         "over the water (2 October 2026: the player stood on a built pad with land a step east)"),
+        ("if (far != null) { PortalRules.Column shore = PortalRules.settled(footing(vale, column), far, "
+         "axisOf(axis)); near = near(vale, column.offset(shore.east(), 0, shore.south()), axis); "
          "if (near != null) { return near; } }",
          "the shore the far stage finds is not settled the way the column was, so a ring standing "
          "there is built over, or the side goes somewhere other than the shore found"),
@@ -1133,13 +1138,30 @@ for statement, why in (
         ("if (dry == null) { return null; }",
          "the near stage does not say when everything within its reach is water, so the far stage "
          "is never asked and the sea is landed in"),
-        ("BlockPos spot = column.offset(dry.east(), 0, dry.south());",
-         "the Vale side goes somewhere other than the dry column found"),
+        ("PortalRules.Column site = PortalRules.settled(footing(vale, column), dry, axisOf(axis));",
+         "the dry column the spiral finds is not walked on along its line until the ring's sill and "
+         "both landings are dry, so a ring found at a waterline is built astride it, its landing a "
+         "block out over the water (2 October 2026: the player stood on a built pad with land a step "
+         "east)"),
+        ("BlockPos spot = column.offset(site.east(), 0, site.south());",
+         "the Vale side goes somewhere other than the column settled on"),
         ("return standing != null ? standing : on(vale, spot, axis);",
          "the Vale side is not built at the column settled on, or a ring standing by it is built "
          "over")):
     if statement not in nearing:
         fail(why)
+axing = squashed(body_of(travel_src, "private static PortalRules.Axis axisOf(Direction.Axis axis)"))
+if "return axis == Direction.Axis.X ? PortalRules.Axis.X : PortalRules.Axis.Z;" not in axing:
+    fail("the ring's axis is not read into the rules' as the game names it, so the footprint the "
+         "settling keeps dry runs the wrong way and it is the side posts' columns that are kept dry "
+         "rather than the landings")
+crossing = squashed(body_of(gate_src, "public static Direction across(Direction.Axis axis)"))
+outing = squashed(body_of(gate_src, "public static Direction out(Direction.Axis axis)"))
+if "return axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;" not in crossing \
+        or "return axis == Direction.Axis.X ? Direction.SOUTH : Direction.EAST;" not in outing:
+    fail("the ring in the world does not run east and through south along X, and south and through "
+         "east along Z, which is how the rules lay its footprint, so the columns the settling keeps "
+         "dry are not the ones the ring is built on")
 building = squashed(body_of(travel_src,
                             "private static ValeLinks.Arrival on(ServerLevel vale, BlockPos spot, Direction.Axis axis)"))
 if "return new ValeLinks.Arrival(new BlockPos(spot.getX(), y, spot.getZ()), axis);" not in building:
@@ -1206,6 +1228,46 @@ if not re.search(r"public static final int FAR_DRY_STEP = \d+;", portal_rules) \
     fail("the far stage does not walk the eight compass lines by PortalRules.FAR_DRY_STEP out to "
          "PortalRules.FAR_DRY_SEARCH_BLOCKS past the spiral's square, sorted nearest first, so how "
          "far a sea may be crossed and what it costs the server is not what the harness proved")
+# The footing: the first dry column either stage meets is at the waterline,
+# so a ring settled there straddles the shore with a landing over the water
+# (2 October 2026). The footprint is the rules', the sill's row and both
+# landing rows on the ring's own axes; a footing is dry when every column of
+# it is, by the one test; and the settling walks the column found on along
+# its line, within SETTLE_IN_BLOCKS, for the first dry footing, keeping the
+# column found when there is none. Held here is that the trip asks exactly
+# that, after both stages.
+printing = squashed(body_of(portal_rules, "private static List<Column> footprintOf(Axis axis)"))
+if ("for (int row : new int[] {-LANDING_OUT, 0, LANDING_OUT}) { for (int a = 0; a < LEAST_ACROSS; a++) { "
+        "columns.add(new Column(a * along.east() + row * out.east(), a * along.south() + row * out.south())); "
+        "} }") not in printing:
+    fail("a ring's footprint is not the sill's row and both landing rows, LEAST_ACROSS wide along the "
+         "across axis from the anchor and LANDING_OUT out either side along the through axis, so what "
+         "the settling keeps dry is not where the ring stands and a player lands")
+if "return axis == Axis.X ? new Column(1, 0) : new Column(0, 1);" \
+        not in squashed(body_of(portal_rules, "public static Column across(Axis axis)")) \
+        or "return axis == Axis.X ? new Column(0, 1) : new Column(1, 0);" \
+        not in squashed(body_of(portal_rules, "public static Column through(Axis axis)")):
+    fail("the rules' across and through do not run the way the ring in the world does, east and south "
+         "along X and south and east along Z, so the footprint is turned a quarter and it is the side "
+         "posts' columns that are kept dry rather than the landings")
+footed = squashed(body_of(portal_rules, "public static boolean footingDry(Surface surface, Column column, Axis axis)"))
+if ("for (Column one : footprint(axis)) { if (!dry(surface, new Column(column.east() + one.east(), "
+        "column.south() + one.south()))) { return false; } } return true;") not in footed:
+    fail("a footing is not dry only when every column of the footprint is dry by the rules' own test, "
+         "so a ring is settled with a landing over the water, or never settled at all")
+settled_src = squashed(body_of(portal_rules, "public static Column settled(Surface surface, Column found, Axis axis)"))
+if not re.search(r"public static final int SETTLE_IN_BLOCKS = \d+;", portal_rules) \
+        or ("Column way = new Column(Integer.signum(found.east()), Integer.signum(found.south()));") \
+        not in settled_src \
+        or ("for (int stride = 0; stride <= SETTLE_IN_BLOCKS; stride++) { Column at = new Column(found.east() "
+            "+ way.east() * stride, found.south() + way.south() * stride); if (footingDry(surface, at, axis)) "
+            "{ return at; } } return found;") not in settled_src \
+        or ("for (Column one : drySearch()) { if (within(one, SETTLE_IN_BLOCKS) && footingDry(surface, one, "
+            "axis)) { return one; } } return found;") not in settled_src:
+    fail("the settling does not walk the dry column found on along the line it was found on, within "
+         "PortalRules.SETTLE_IN_BLOCKS, for the first column whose footing is dry, or the spiral again "
+         "within the same reach when there is no line, keeping the column found when there is none, so "
+         "how far a ring may be walked inland is not the number the harness proved")
 if ("return ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath( "
         "ElysiumWilds.MODID, PortalRules.arrivalBiome()));") \
         not in squashed(body_of(travel_src, "gentlest() {")):

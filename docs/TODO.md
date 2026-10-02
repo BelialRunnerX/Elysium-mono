@@ -3,45 +3,43 @@
 A single place to pick this up from. Written 2026-09-24, at the end of a long
 session, against a tree that no longer fits in anybody's head.
 
-Read section 0 before anything else. The rest of this document is worthless if
-the work is gone.
+Read section 0 before anything else: it says where the source is now, which is
+not where this document first put it.
 
 ---
 
-## 0. The environment is not durable. The source is.
+## 0. Where the source is (rewritten 2 October 2026)
 
-**The tree lives in an ephemeral cloud container.** `/tmp/Elysium-mono` is
-reclaimed when the session ends, and none of this work is on the GitHub remote:
-`git remote -v` points at a repository whose last commit predates the whole
-29-module conversion, and GitHub is gated for `curl` here, so nothing can
-push from the container.
+**The tree is a git checkout on Dylan's machine**, branch `integration`, at
 
-So the source lives on your own machine instead, as plain files:
+    C:\Users\weaks\AppData\Local\Temp\Elysium-mono      (= /tmp/Elysium-mono in Git Bash)
 
-    C:\Users\weaks\curseforge\Elysium-mono
+After every commit it is fast-forwarded to two mirrors, `E:\Elysium-mono` and
+`D:\Elysium-mono`, and a bundle, a patch and the built jars are written to
+`E:\testingbuilds\Elysium\handback` and the same under `D:` (the lead's
+`sync_mirrors.sh` does all of it). The GitHub remote still predates the
+conversion; nothing is pushed there.
 
-Not an archive — the actual tree, 18058 files, every one verified against
-`MIRROR-MANIFEST.json` (a SHA-256 per file, written from the container) after
-it landed. Nothing has to be unpacked and nothing can half-unpack.
+To check a copy: `ls -d elysium-*` counts 29, `ls tools/negtest/*.sh` counts
+212, and `git log --oneline -1` is `84ef6ee2` or later.
 
-To check a copy arrived intact: `ls -d elysium-*` counts 29,
-`ls tools/negtest/*.sh` counts 140, and
+The test instances are `E:\testingbuilds\ElysiumServer` (the dedicated
+server the live suite drives over RCON) and `E:\testingbuilds\Elysium` (the dev
+client the stages drive); E: is FAT32 and the client's world fails to save
+oversized chunks there, which is noise, not a fault.
 
-    python3 - <<'PY'
-    import hashlib, json, os
-    manifest = json.load(open("MIRROR-MANIFEST.json"))
-    bad = [p for p, want in manifest.items()
-           if not os.path.isfile(p)
-           or hashlib.sha256(open(p, "rb").read()).hexdigest() != want]
-    print(len(manifest), "files,", len(bad), "wrong")
-    PY
-
-reports zero wrong.
-
-**Work is handed out through the board, not by reading this document.** See
-`docs/AGENTS.md`; `python3 tools/board.py list` is the current state.
+**Read the dated trail first:** `docs/handoff/2026-09-28-questbook-handoff.md`,
+then `docs/CONVERSION.md` §16.15–16.16 and §17, then `docs/PLAYTEST.md`.
+`python3 tools/board.py list` is still how work is taken.
 
 ## 1. Where things stand
+
+*2 October 2026:* `docs/features.json` (written by `tools/catalogue.py`) is the
+count that matters now — 5,052 blocks, 2,428 items, 398 creatures and 364 world
+features of our own, every one reached in survival by `check_obtainable.py`;
+212 negative-test scripts; a 70-scenario live suite; all 29 modules built,
+installed and run. The paragraphs below are the 24 September picture, kept
+for the shape of the argument.
 
 Twenty-nine modules. **1,687 named things** of our own — 936 items, 706 blocks,
 45 mobs — plus the systems behind them: three ages of power, logistics and

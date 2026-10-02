@@ -131,7 +131,9 @@ edit $R '                columns.add(new Column(east, south));
         }'
 expect_h "a dry search that is not nearest first" "the dry search is not nearest first"
 
-edit $R '        for (Column one : drySearch()) {' '        for (Column one : List.of(new Column(0, 0))) {'
+edit $R '        for (Column one : drySearch()) {
+            if (dry(surface, one)) {' '        for (Column one : List.of(new Column(0, 0))) {
+            if (dry(surface, one)) {'
 expect_h "a dry search of the one column" "has no bank within"
 
 edit $R '        return !top.fluid() && top.sturdy();' '        return !top.fluid();'
@@ -356,9 +358,40 @@ edit $VT '        PortalRules.Column far = PortalRules.nearestFarDry(footing(val
          '        PortalRules.Column far = null;'
 expect "the far stage dropped from the trip" "a hundred blocks from land"
 
-edit $VT '            near = near(vale, column.offset(far.east(), 0, far.south()), axis);' \
-         '            near = on(vale, column.offset(far.east(), 0, far.south()), axis);'
+edit $VT '            near = near(vale, column.offset(shore.east(), 0, shore.south()), axis);' \
+         '            near = on(vale, column.offset(shore.east(), 0, shore.south()), axis);'
 expect "a far shore built on without settling" "somewhere other than the shore found"
+
+echo "the footing"
+edit $VT '            PortalRules.Column shore = PortalRules.settled(footing(vale, column), far, axisOf(axis));' \
+         '            PortalRules.Column shore = far;'
+expect "a far shore's ring left astride the waterline" "the shore the far stage finds is not walked on along its line"
+
+edit $VT '        PortalRules.Column site = PortalRules.settled(footing(vale, column), dry, axisOf(axis));' \
+         '        PortalRules.Column site = dry;'
+expect "the spiral's dry column left astride the waterline" "the dry column the spiral finds is not walked on along its line"
+
+edit $VT '        return axis == Direction.Axis.X ? PortalRules.Axis.X : PortalRules.Axis.Z;' \
+         '        return axis == Direction.Axis.X ? PortalRules.Axis.Z : PortalRules.Axis.X;'
+expect "a ring's axis read into the rules the wrong way round" "the side posts' columns that are kept dry"
+
+edit $R '        for (int row : new int[] {-LANDING_OUT, 0, LANDING_OUT}) {' \
+        '        for (int row : new int[] {0, LANDING_OUT}) {'
+expect_h "a footprint missing a landing row" "is not the sill and both landings"
+
+edit $R '            if (!dry(surface, new Column(column.east() + one.east(), column.south() + one.south()))) {' \
+        '            if (dry(surface, new Column(column.east() + one.east(), column.south() + one.south()))) {'
+expect_h "the footing test read backwards" "dry ground is not a dry footing"
+
+edit $R '    public static final int SETTLE_IN_BLOCKS = 12;' '    public static final int SETTLE_IN_BLOCKS = 0;'
+expect_h "a ring never walked off the waterline" "stays astride it"
+
+edit $R '    public static final int SETTLE_IN_BLOCKS = 12;' '    public static final int SETTLE_IN_BLOCKS = 1_000;'
+expect_h "a ring walked a thousand blocks of chunks inland" "two chunks on from the shore"
+
+edit $R '        for (int stride = 0; stride <= SETTLE_IN_BLOCKS; stride++) {' \
+        '        for (int stride = 0; stride <= SETTLE_IN_BLOCKS * 3; stride++) {'
+expect_h "a settling that walks past its reach" "past 12"
 
 edit $VT '        ValeLinks.Arrival near = near(vale, column, axis);
         if (near != null) {

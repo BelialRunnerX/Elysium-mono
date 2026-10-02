@@ -25,13 +25,43 @@ doing anything else.
 
     python3 tools/dryrun.py tools/negtest/negtest_comforts.sh "all X checks passed"
 
-`dryrun.py` writes a `_dry.sh` beside the script with every mutation neutered —
-`edit()`, every python heredoc whatever it is tagged, `restore`, the
-generators, and every bare `rm`, `mv`, `cp`, `sed -i` and `tar`. The dry run
-reports nothing but stale anchors, which is the only thing worth knowing
-before a real run: an anchor that no longer matches means the script is
-testing a line that has since been rewritten, and it will silently test
-nothing.
+`dryrun.py` neuters every mutation it recognises — `edit()`, every python
+heredoc whatever it is tagged, `restore`, the generators, and every bare `rm`,
+`mv`, `cp`, `sed -i` and `tar` — and then, since 2 October, runs the result
+**inside a throwaway copy of the working tree**: a detached `git worktree` of
+HEAD with every uncommitted change and untracked file carried over, built one
+directory below `%TEMP%`, every `/tmp/Elysium-mono` in the script pointed at
+it (tar's `-C /tmp Elysium-mono/...` spelling too), and removed afterwards
+whatever happened. Any validator the dry script starts answers with the ok
+phrase at once — a `sitecustomize` on `PYTHONPATH`, so the validator files
+themselves are untouched and an anchor into `validate.py` still means
+something. The dry run reports nothing but stale anchors, which is the only
+thing worth knowing before a real run: an anchor that no longer matches means
+the script is testing a line that has since been rewritten, and it will
+silently test nothing.
+
+After the script's output it says three more things: what the dry script
+wrote *inside the copy* (the patterns missed those; the copy absorbed them),
+whether the **real tree is byte-identical** before and after the script ran —
+`git status`, the content of every modified file and every untracked file —
+and what the copy cost. That is the proof: a dry run that ends with "the real
+tree is unchanged" has, by construction, written nothing you keep. A tree
+somebody else is editing meanwhile shows up there too, and the report says
+whether the script even names the file that moved. Edits the patterns miss
+still happen, in the copy, and are not undone between cases, so a later
+anchor in the same file can fail as a consequence of an earlier edit — read
+the write list before believing a second `STALE` in the same file.
+
+`--in-place` is the old behaviour — write `negtest_<name>_dry.sh` beside the
+script and stop, nothing protecting the tree — and is only safe for a script
+whose dry run in the copy wrote nothing.
+
+What the copy costs on this machine: 6–7 s to build on a quiet machine (44k
+files; 20 s before parallel checkout), 11–19 s while another agent was
+building copies alongside, and 7–25 s to remove; plus the dry script itself,
+1–36 s depending on how many python processes it starts. The thirteen
+scripts measured on 2 October took 30–57 s each, wall clock, where an
+in-place dry run took seconds and a real validator run twenty minutes.
 
 A dry run that will not parse prints nothing, and nothing is exactly what a
 clean dry run prints. `dryrun.py` now runs `bash -n` over what it wrote and
@@ -59,15 +89,21 @@ the same family and all worth knowing before you trust a dry run:
   `keep $S/x; mv $S/x /tmp/bak` slips past a pattern anchored at the start of
   a line on the strength of the `keep`.
 
-**The approach is the bug.** Every hole ever found in this tool has been
-something that was not at the start of a line: a continuation, a second
-command after a semicolon, a helper that acted first, a heredoc with an
-unexpected tag. Patching the next pattern buys a week. Parsing the script, or
-running the dry copy inside a throwaway `git worktree` that is thrown away
-afterwards, would end the whole family at once — and the second of those is an
-afternoon's work. **One shape is still open**: the first of the three above is
-fixed, but nine scripts written in that family still leak on a dry run.
-`docs/handoff/STALE-ANCHORS.md` names them.
+**The approach was the bug, and the worktree is the answer.** Every hole ever
+found in this tool was something that was not at the start of a line: a
+continuation, a second command after a semicolon, a helper that acted first,
+a heredoc with an unexpected tag. Patching the next pattern bought a week.
+Since 2 October the dry copy runs inside a throwaway `git worktree` that is
+removed afterwards, so the whole family is closed by construction: a mutation
+the patterns miss lands in a copy nobody keeps, and the tool proves it by
+fingerprinting the real tree before and after. The pattern neutering stays
+because it is what makes a dry run take seconds rather than minutes. The
+first runs through the net showed what the patterns had been missing all
+along — `negtest_court.sh` regenerates 24 textures through a `gen_village.py`
+the `tools/gen_` pattern did not know, and the nine scripts of the
+`keep "$1"; python3 -c` family make their edits for real — and none of it
+reaches the tree. The nine `docs/handoff/STALE-ANCHORS.md` names can be
+dry-run again.
 
 A fifth hole, and the first found in a script written after `dryrun.py`
 existed: a helper whose body is an inline `python3 -c` that writes. Not a
@@ -77,9 +113,10 @@ wrote stayed written. `negtest_names.sh`'s dry run put nine creature names
 into a language file and took a word out of a data file, and the tree stayed
 broken until the next real run refused to start. Helpers are now neutered by
 what their body does rather than by what they are called, because the name is
-the part that keeps changing. If you add a helper that writes, check
-`dryrun.py` knows about it, and check by running the dry variant and diffing
-the tree rather than by reading the patterns.
+the part that keeps changing. If you add a helper that writes, the dry run's
+own report tells you whether the patterns knew about it — the list of what
+the script wrote inside the copy. Teach `dryrun.py` the shape for speed; the
+tree is safe either way.
 
 Two more holes have been found the hard way, both by it letting a
 write through: a bare `rm` in `negtest_atelier.sh` deleted a generated file

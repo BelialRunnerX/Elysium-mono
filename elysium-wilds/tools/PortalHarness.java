@@ -43,6 +43,7 @@ public final class PortalHarness {
         theArrival();
         theLanding();
         theFarShore();
+        theFooting();
         theControls();
 
         if (failures > 0) {
@@ -56,7 +57,8 @@ public final class PortalHarness {
                 + "ring by the same rule with the landing outside it, and a way in that "
                 + "costs one compass search and drops a player in the gentlest crossing, on "
                 + "the nearest dry ground, or past a sea on the nearest shore its compass "
-                + "lines meet");
+                + "lines meet, the ring walked on inland until its sill and both landings "
+                + "are dry");
     }
 
     // ==================================================================
@@ -667,6 +669,345 @@ public final class PortalHarness {
                 + " coasts landed on where they lie, " + easts + " eastern shores at the first stride "
                 + "past the water, a round sea rimmed, " + seas + " seas against the slow answer, a "
                 + "sea past the reach left as found, and a fence post not called ground");
+    }
+
+    /** The eight compass lines, as the far stage walks them. */
+    private static final int[][] WAYS = {
+            {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
+
+    /** A column so many strides on from another along a way. */
+    private static PortalRules.Column on(PortalRules.Column from, int[] way, int strides) {
+        return new PortalRules.Column(from.east() + way[0] * strides, from.south() + way[1] * strides);
+    }
+
+    /**
+     * The slow answer to settling: from the column found, along the way from
+     * the origin to it, the first stride whose footing is dry within reach;
+     * the column found when there is none; and when the column found is the
+     * origin, the nearest column within reach whose footing is dry, ties to
+     * the northernmost then westernmost, as the rules' order settles them.
+     */
+    private static PortalRules.Column slowlySettled(PortalRules.Surface surface, PortalRules.Column found,
+                                                    PortalRules.Axis axis) {
+        int reach = PortalRules.SETTLE_IN_BLOCKS;
+        int[] way = {Integer.signum(found.east()), Integer.signum(found.south())};
+        if (way[0] == 0 && way[1] == 0) {
+            PortalRules.Column best = null;
+            for (int south = -reach; south <= reach; south++) {
+                for (int east = -reach; east <= reach; east++) {
+                    PortalRules.Column one = new PortalRules.Column(east, south);
+                    if (!PortalRules.footingDry(surface, one, axis)) {
+                        continue;
+                    }
+                    if (best == null || PortalRules.farOf(one) < PortalRules.farOf(best)
+                            || (PortalRules.farOf(one) == PortalRules.farOf(best)
+                            && (one.south() < best.south()
+                            || (one.south() == best.south() && one.east() < best.east())))) {
+                        best = one;
+                    }
+                }
+            }
+            return best == null ? found : best;
+        }
+        for (int stride = 0; stride <= reach; stride++) {
+            if (PortalRules.footingDry(surface, on(found, way, stride), axis)) {
+                return on(found, way, stride);
+            }
+        }
+        return found;
+    }
+
+    /**
+     * A ring stands where its sill and both its landings are dry. The first
+     * dry column a stage meets is at the waterline, so the column found is
+     * walked on along its line until the footing is dry: a shore to the north
+     * moves a ring that runs east one stride south, and leaves one that runs
+     * south where it is, since its landings are east and west; a column dry
+     * all round is not moved; a bar off the shore is crossed by exactly as
+     * many strides as it takes; an islet or a spit narrower than a ring keeps
+     * the column found; and the walk never leaves its reach.
+     */
+    private static void theFooting() {
+        int reach = PortalRules.SETTLE_IN_BLOCKS;
+        int out = PortalRules.LANDING_OUT;
+        int wide = PortalRules.LEAST_ACROSS;
+        PortalRules.Column origin = new PortalRules.Column(0, 0);
+        PortalRules.Axis x = PortalRules.Axis.X;
+        PortalRules.Axis z = PortalRules.Axis.Z;
+        if (reach < 1 || reach > PortalRules.SETTLE_IN_MOST) {
+            // The numbers have said what is wrong; there is no walk to prove.
+            check(false, "the settling walks " + reach + " blocks: nothing to prove");
+            return;
+        }
+
+        // The shape: on X the ring runs east and is stepped through north and
+        // south, on Z it runs south and is stepped through east and west; the
+        // footprint is the sill's row and the two landing rows, nothing else,
+        // and one axis's is the other's with east and south swapped.
+        Set<PortalRules.Column> sillAndLandingsX = new HashSet<>();
+        Set<PortalRules.Column> sillAndLandingsZ = new HashSet<>();
+        for (int a = 0; a < wide; a++) {
+            for (int row : new int[] {-out, 0, out}) {
+                sillAndLandingsX.add(new PortalRules.Column(a, row));
+                sillAndLandingsZ.add(new PortalRules.Column(row, a));
+            }
+        }
+        List<PortalRules.Column> printX = PortalRules.footprint(x);
+        List<PortalRules.Column> printZ = PortalRules.footprint(z);
+        check(new HashSet<>(printX).equals(sillAndLandingsX) && printX.size() == sillAndLandingsX.size(),
+                "the footprint along X is not the sill and both landings: " + printX + " against "
+                        + sillAndLandingsX);
+        check(new HashSet<>(printZ).equals(sillAndLandingsZ) && printZ.size() == sillAndLandingsZ.size(),
+                "the footprint along Z is not the sill and both landings: " + printZ + " against "
+                        + sillAndLandingsZ);
+        check(printX.size() == 3 * wide && printZ.size() == 3 * wide,
+                "a footprint is " + printX.size() + " and " + printZ.size() + " columns, and three rows "
+                        + wide + " wide is " + 3 * wide);
+        Set<PortalRules.Column> swapped = new HashSet<>();
+        for (PortalRules.Column one : printX) {
+            swapped.add(new PortalRules.Column(one.south(), one.east()));
+        }
+        check(swapped.equals(new HashSet<>(printZ)), "the footprint along Z is not the one along X "
+                + "with east and south swapped");
+        check(PortalRules.across(x).equals(new PortalRules.Column(1, 0))
+                        && PortalRules.through(x).equals(new PortalRules.Column(0, 1))
+                        && PortalRules.across(z).equals(new PortalRules.Column(0, 1))
+                        && PortalRules.through(z).equals(new PortalRules.Column(1, 0)),
+                "across and through do not run east and south along X and south and east along Z, "
+                        + "as the ring in the world does");
+
+        // A footing is dry when every column of it is, and not otherwise.
+        PortalRules.Surface land = (east, south) -> PortalRules.Footing.GROUND;
+        PortalRules.Surface sea = (east, south) -> PortalRules.Footing.WATER;
+        for (PortalRules.Axis axis : PortalRules.Axis.values()) {
+            check(PortalRules.footingDry(land, origin, axis), "dry ground is not a dry footing along " + axis);
+            check(!PortalRules.footingDry(sea, origin, axis), "the sea is a dry footing along " + axis);
+            for (PortalRules.Column wet : PortalRules.footprint(axis)) {
+                PortalRules.Surface puddle = (east, south) -> top(east == wet.east() && south == wet.south());
+                check(!PortalRules.footingDry(puddle, origin, axis), "a footing with water under "
+                        + wet + " along " + axis + " is called dry");
+            }
+            PortalRules.Column beyond = new PortalRules.Column(-out - 1, -out - 1);
+            PortalRules.Surface beside = (east, south) -> top(east == beyond.east() && south == beyond.south());
+            check(PortalRules.footingDry(beside, origin, axis), "a footing is wet for water beside it at " + beyond);
+        }
+
+        // Dry all round: not moved, whether found at the origin or on a line,
+        // on either axis, and the footing looked at once.
+        for (PortalRules.Axis axis : PortalRules.Axis.values()) {
+            check(origin.equals(PortalRules.settled(land, origin, axis)),
+                    "a dry column found at the origin is moved along " + axis + " to "
+                            + PortalRules.settled(land, origin, axis));
+            PortalRules.Column found = new PortalRules.Column(5, -3);
+            int[] asked = {0};
+            PortalRules.Column kept = PortalRules.settled((east, south) -> {
+                asked[0]++;
+                return PortalRules.Footing.GROUND;
+            }, found, axis);
+            check(found.equals(kept), "a dry column found at " + found + " is moved along " + axis + " to " + kept);
+            check(asked[0] == PortalRules.footprint(axis).size(), "a dry footing was looked at "
+                    + asked[0] + " times, and a footprint is " + PortalRules.footprint(axis).size());
+        }
+
+        // The shore of 2 October, from each of the four quarters: the sea on
+        // one side, the first dry column at the waterline. A ring whose
+        // through axis crosses the shore has a landing over the water and is
+        // walked one landing's width inland; one whose across axis runs out
+        // from the anchor toward the sea has the far end of its sill over the
+        // water and is walked the sill's width less one; one whose across
+        // axis runs from the anchor away from the sea stands dry and stays.
+        int shoreAt = 3;
+        String[] quarters = {"north", "east", "south", "west"};
+        int[][] seaward = {{0, -1}, {1, 0}, {0, 1}, {-1, 0}};
+        int shores = 0;
+        for (int q = 0; q < quarters.length; q++) {
+            int de = seaward[q][0];
+            int ds = seaward[q][1];
+            // Wet on the seaward side, dry from shoreAt on in the landward direction.
+            PortalRules.Surface shore = (east, south) -> top(-(east * de + south * ds) < shoreAt);
+            PortalRules.Column found = PortalRules.nearestDry(shore);
+            PortalRules.Column waterline = new PortalRules.Column(-de * shoreAt, -ds * shoreAt);
+            check(waterline.equals(found), "a sea to the " + quarters[q] + " has its first dry column at "
+                    + found + " rather than " + waterline);
+            if (found == null) {
+                continue;
+            }
+            for (PortalRules.Axis axis : PortalRules.Axis.values()) {
+                PortalRules.Column along = PortalRules.across(axis);
+                PortalRules.Column through = PortalRules.through(axis);
+                int seaThrough = de * through.east() + ds * through.south();
+                int seaAcross = de * along.east() + ds * along.south();
+                int strides = seaThrough != 0 ? out : seaAcross > 0 ? wide - 1 : 0;
+                String why = seaThrough != 0 ? "a landing is over the water"
+                        : seaAcross > 0 ? "the far end of the sill is over the water"
+                        : "the sill runs from the anchor away from the sea";
+                PortalRules.Column settled = PortalRules.settled(shore, found, axis);
+                PortalRules.Column expected = new PortalRules.Column(found.east() - de * strides,
+                        found.south() - ds * strides);
+                check(expected.equals(settled), "a sea to the " + quarters[q] + " settles a ring along "
+                        + axis + " at " + settled + "; " + why + ", so it should go " + strides
+                        + " stride(s) inland to " + expected);
+                check(PortalRules.footingDry(shore, settled, axis), "the ring settled at " + settled
+                        + " along " + axis + " has a wet footing");
+                check((strides > 0) != PortalRules.footingDry(shore, found, axis), "the first dry column "
+                        + found + " along " + axis + (strides > 0 ? " is a dry footing already"
+                        : " has a wet footing, with the sill running away from the sea"));
+            }
+            shores++;
+        }
+
+        // A coast a hundred blocks off in each of the eight directions: the
+        // far stage lands on its line, and the settling walks on along it to
+        // a dry footing, within reach, never short of one, never past the
+        // first.
+        int coast = 100;
+        int coasts = 0;
+        for (int[] line : WAYS) {
+            int de = line[0];
+            int ds = line[1];
+            int along = de * de + ds * ds;
+            PortalRules.Surface shore = (east, south) -> top(east * de + south * ds < coast * along);
+            PortalRules.Column found = PortalRules.nearestFarDry(shore);
+            if (found == null) {
+                check(false, "a coast a hundred blocks off along " + Arrays.toString(line) + " is not found");
+                continue;
+            }
+            for (PortalRules.Axis axis : PortalRules.Axis.values()) {
+                PortalRules.Column settled = PortalRules.settled(shore, found, axis);
+                check(settled.equals(slowlySettled(shore, found, axis)), "a coast along "
+                        + Arrays.toString(line) + " settles a ring along " + axis + " at " + settled
+                        + " and the first dry footing on from " + found + " is " + slowlySettled(shore, found, axis));
+                check(PortalRules.footingDry(shore, settled, axis), "the coast's ring along " + axis
+                        + " at " + settled + " has a wet footing");
+                check(Math.max(Math.abs(settled.east() - found.east()), Math.abs(settled.south() - found.south()))
+                        <= reach, "the coast's ring walked from " + found + " to " + settled + ", past " + reach);
+                check(Integer.signum(settled.east() - found.east()) == de
+                        && Integer.signum(settled.south() - found.south()) == ds
+                        || settled.equals(found), "the coast's ring left the line from " + found + " to " + settled);
+            }
+            coasts++;
+        }
+
+        // A bar off the shore to the north: dry at the waterline, water for so
+        // many blocks behind it, land past that. Along X the ring is walked
+        // over the bar by exactly the strides it takes, until that is more
+        // than the reach, when the column found is kept.
+        int bars = 0;
+        for (int behind = 0; behind <= reach + 2; behind++) {
+            int gap = behind;
+            PortalRules.Surface bar = (east, south) -> top(south < shoreAt
+                    || (south > shoreAt && south <= shoreAt + gap));
+            PortalRules.Column found = PortalRules.nearestDry(bar);
+            check(new PortalRules.Column(0, shoreAt).equals(found), "a bar's first dry column is " + found);
+            if (found == null) {
+                continue;
+            }
+            // The footing runs out either side of the sill; its northern landing
+            // must be past the waterline, and past the water behind the bar
+            // when there is any: the sill goes to shoreAt + out, or to
+            // shoreAt + gap + 1 + out.
+            int strides = gap == 0 ? out : gap + 1 + out;
+            PortalRules.Column expected = strides <= reach
+                    ? new PortalRules.Column(0, shoreAt + strides) : found;
+            PortalRules.Column settled = PortalRules.settled(bar, found, x);
+            check(expected.equals(settled), "a bar with " + gap + " blocks of water behind it settles a "
+                    + "ring at " + settled + ", and " + (strides <= reach ? strides + " stride(s) in is "
+                    : "that takes " + strides + " strides, past " + reach + ", so it should keep ") + expected);
+            bars++;
+        }
+
+        // Narrower than a ring: an islet of one column at the origin, one on a
+        // line, and a spit one wide running south; each keeps the column
+        // found, on both axes, within the looks the rules allow.
+        int[] asked = {0};
+        PortalRules.Surface islet = (east, south) -> {
+            asked[0]++;
+            return top(!(east == 0 && south == 0));
+        };
+        PortalRules.Surface isletOff = (east, south) -> top(!(east == 0 && south == shoreAt));
+        PortalRules.Surface spit = (east, south) -> top(!(east == 0 && south >= shoreAt));
+        for (PortalRules.Axis axis : PortalRules.Axis.values()) {
+            check(origin.equals(PortalRules.nearestDry(islet)), "an islet of one column at the origin is "
+                    + "not the dry column found");
+            asked[0] = 0;
+            PortalRules.Column stayed = PortalRules.settled(islet, origin, axis);
+            check(origin.equals(stayed), "an islet of one column at the origin moves the ring along "
+                    + axis + " to " + stayed);
+            check(asked[0] <= PortalRules.settleLooks(), "an islet at the origin was looked at " + asked[0]
+                    + " times along " + axis + ", and the settling may look " + PortalRules.settleLooks());
+            PortalRules.Column off = new PortalRules.Column(0, shoreAt);
+            check(off.equals(PortalRules.nearestDry(isletOff)) && off.equals(PortalRules.settled(isletOff, off, axis)),
+                    "an islet of one column at " + off + " moves the ring along " + axis + " to "
+                            + PortalRules.settled(isletOff, off, axis));
+            check(off.equals(PortalRules.nearestDry(spit)) && off.equals(PortalRules.settled(spit, off, axis)),
+                    "a spit one wide moves the ring along " + axis + " to " + PortalRules.settled(spit, off, axis));
+        }
+
+        // A pond beside a dry column: there is no line, so the spiral is walked
+        // again for the nearest dry footing. Water from one to three north of
+        // the origin, seven wide: a ring along X, whose northern landing is in
+        // it, goes one south; one along Z, whose landings are east and west,
+        // stays.
+        PortalRules.Surface pond = (east, south) -> top(south <= -1 && south >= -3 && Math.abs(east) <= 3);
+        check(origin.equals(PortalRules.nearestDry(pond)), "a pond to the north moves the dry column found");
+        check(new PortalRules.Column(0, 1).equals(PortalRules.settled(pond, origin, x)),
+                "a pond one block north of a dry column settles a ring along X at "
+                        + PortalRules.settled(pond, origin, x) + " rather than one south");
+        check(origin.equals(PortalRules.settled(pond, origin, z)),
+                "a pond north of a dry column moves a ring along Z, whose landings are east and west, to "
+                        + PortalRules.settled(pond, origin, z));
+
+        // Shores and seas of every shape, against the slow answer: the ring
+        // settled is where the first dry footing on the line is, or the
+        // nearest within reach when there is no line, or the column found;
+        // and it never leaves the reach.
+        Random random = new Random(2_010_2026L);
+        int trials = 0;
+        for (int trial = 0; trial < 400; trial++) {
+            double angle = random.nextDouble() * Math.PI * 2;
+            double shoreLine = random.nextInt(2 * reach + 1) - reach;
+            boolean coastal = random.nextBoolean();
+            int[][] lakes = new int[random.nextInt(5)][];
+            for (int i = 0; i < lakes.length; i++) {
+                lakes[i] = new int[] {random.nextInt(4 * reach + 1) - 2 * reach,
+                        random.nextInt(4 * reach + 1) - 2 * reach, 1 + random.nextInt(reach)};
+            }
+            PortalRules.Surface mixed = (east, south) -> {
+                if (coastal && east * Math.cos(angle) + south * Math.sin(angle) < shoreLine) {
+                    return PortalRules.Footing.WATER;
+                }
+                for (int[] lake : lakes) {
+                    int de = east - lake[0];
+                    int ds = south - lake[1];
+                    if (de * de + ds * ds <= lake[2] * lake[2]) {
+                        return PortalRules.Footing.WATER;
+                    }
+                }
+                return PortalRules.Footing.GROUND;
+            };
+            PortalRules.Column found = PortalRules.nearestDry(mixed);
+            if (found == null) {
+                continue;
+            }
+            for (PortalRules.Axis axis : PortalRules.Axis.values()) {
+                PortalRules.Column settled = PortalRules.settled(mixed, found, axis);
+                PortalRules.Column slow = slowlySettled(mixed, found, axis);
+                check(settled.equals(slow), "a shore settles a ring along " + axis + " at " + settled
+                        + " from " + found + ", and the slow answer is " + slow);
+                check(settled.equals(found) || PortalRules.footingDry(mixed, settled, axis),
+                        "a ring moved from " + found + " to " + settled + " along " + axis + " has a wet footing");
+                check(Math.max(Math.abs(settled.east() - found.east()), Math.abs(settled.south() - found.south()))
+                        <= reach, "a ring walked from " + found + " to " + settled + ", past " + reach);
+            }
+            trials++;
+        }
+        System.out.println("  the footing: the sill and both landings, " + printX.size() + " columns on "
+                + "each axis, the first dry column walked on along its line up to " + reach + " blocks "
+                + "for a dry footing, " + shores + " shores from each quarter, the ring walked inland "
+                + "where a landing or the sill's far end was over the water and kept where the sill ran "
+                + "from the anchor away from the sea, " + coasts + " coasts, " + bars + " bars "
+                + "crossed by the strides they take or kept past the reach, an islet, a spit and a "
+                + "pond, " + trials + " shores against the slow answer");
     }
 
     /** The checks, checked. */

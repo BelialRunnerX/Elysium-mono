@@ -15,7 +15,7 @@ about the findings.
 |---|---|---|
 | `WHAT-CHANGED.md` | the naming work, and the three things every other module should check in itself | every agent |
 | `STALE-ANCHORS.md` | 24 negative-test scripts whose anchors no longer match the file — 52 anchors across 13 modules — with the owning module and the command that fixes each | the agent holding each named module |
-| `DRYRUN.md` | the state of `tools/dryrun.py`: six holes closed today, one shape still open, and the fix that would end the whole family | whoever wants the tooling to stop leaking |
+| `DRYRUN.md` | the state of `tools/dryrun.py`: six holes closed on 27 Sep by pattern, the whole family closed on 2 Oct by running every dry run in a throwaway worktree | whoever wants the tooling to stop leaking |
 | `elysium-playtest.pdf` | eight-page playtest guide for the build in both instances | Dylan |
 
 ## What is not here, because it is in the tree

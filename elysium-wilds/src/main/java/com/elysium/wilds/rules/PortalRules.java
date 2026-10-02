@@ -52,7 +52,10 @@ import java.util.Set;
  * side goes to the nearest dry column within {@link #DRY_SEARCH_BLOCKS}, and
  * when all of that is sea, to the nearest shore the eight compass lines meet
  * within {@link #FAR_DRY_SEARCH_BLOCKS}. Dry is nothing flowing at the top of
- * the column and a top that holds a player up.
+ * the column and a top that holds a player up. And the first dry column met
+ * is at the waterline, so from it the ring is walked on along the line it was
+ * found on, up to {@link #SETTLE_IN_BLOCKS}, until its whole footing, the
+ * sill and both landings, is dry.
  */
 public final class PortalRules {
 
@@ -602,6 +605,159 @@ public final class PortalRules {
         return null;
     }
 
+    // ------------------------------------------------------------------
+    // The footing
+    // ------------------------------------------------------------------
+
+    /**
+     * Which way a ring runs, as the game names its axes: along east (X) or
+     * along south (Z). The rules are the JDK alone, so the game's own axis
+     * is read into this one at the door, and the footprint below runs the
+     * way {@code ValePortal.across} and {@code ValePortal.out} do.
+     */
+    public enum Axis {
+        /** Across runs east, through runs south. */
+        X,
+        /** Across runs south, through runs east. */
+        Z
+    }
+
+    /** One block across a ring on this axis, as a column: east along X, south along Z. */
+    public static Column across(Axis axis) {
+        return axis == Axis.X ? new Column(1, 0) : new Column(0, 1);
+    }
+
+    /** One block out through a ring on this axis: south through X, east through Z. */
+    public static Column through(Axis axis) {
+        return axis == Axis.X ? new Column(0, 1) : new Column(1, 0);
+    }
+
+    /**
+     * How far the dry column a stage found may be walked on, for one whose
+     * whole footing is dry: {@value} blocks.
+     *
+     * <p>The spiral and the lines find a dry <em>column</em>, and the first
+     * dry column met is at the waterline by construction: the one before it
+     * was wet. A ring settled there straddles the shore, its sill on the
+     * first dry block and one of its landings over the water (2 October
+     * 2026: a fresh ring's first trip landed at a shore, the player on a
+     * built pad with land a step east). So the column found is walked on
+     * along the line it was found on, which points inland, until the sill
+     * and both landings are dry. A shore is seldom a straight line: a beach
+     * that steps down into the sea has its pools, a river mouth its bars,
+     * and the far stage strides {@link #FAR_DRY_STEP}, so the shore it meets
+     * can be three blocks back from the sample. Twelve is three of those
+     * strides, and at most {@link #settleLooks()} looks, on chunks the stage
+     * that found the column has generated already. A column with no dry
+     * footing within twelve, a spit or an islet narrower than a ring, is
+     * kept: the built pads still hold a player up.
+     */
+    public static final int SETTLE_IN_BLOCKS = 12;
+
+    /**
+     * And the most: {@value} blocks, two chunks. Every block walked past the
+     * column found can be a chunk neither stage generated, on the server
+     * thread; and a dry column with no dry footing within two chunks of it
+     * is one the pads are the honest answer to.
+     */
+    public static final int SETTLE_IN_MOST = 2 * CHUNK;
+
+    /** The column the way in found, which every other is measured from. */
+    private static final Column ORIGIN = new Column(0, 0);
+
+    /** The columns a settled ring needs dry on each axis, worked out once. */
+    private static final List<Column> FOOTPRINT_X = footprintOf(Axis.X);
+    private static final List<Column> FOOTPRINT_Z = footprintOf(Axis.Z);
+
+    /**
+     * A ring's footprint on this axis: the columns a settled ring needs dry,
+     * as offsets from its anchor. The sill's row, {@link #LEAST_ACROSS} wide
+     * along the across axis from the anchor, and both landing rows, one
+     * {@link #LANDING_OUT} out either side along the through axis. The side
+     * posts' columns and the pads' outer blocks are not asked: a player
+     * stands on a landing and walks off it across the sill's line, and a
+     * ring whose sill and landings are dry stands on a shore rather than
+     * across it.
+     */
+    public static List<Column> footprint(Axis axis) {
+        return axis == Axis.X ? FOOTPRINT_X : FOOTPRINT_Z;
+    }
+
+    private static List<Column> footprintOf(Axis axis) {
+        Column along = across(axis);
+        Column out = through(axis);
+        List<Column> columns = new ArrayList<>();
+        for (int row : new int[] {-LANDING_OUT, 0, LANDING_OUT}) {
+            for (int a = 0; a < LEAST_ACROSS; a++) {
+                columns.add(new Column(a * along.east() + row * out.east(),
+                        a * along.south() + row * out.south()));
+            }
+        }
+        return List.copyOf(columns);
+    }
+
+    /**
+     * Whether a ring settled at a column stands on dry ground: every column
+     * of its footprint is dry, by the one test.
+     */
+    public static boolean footingDry(Surface surface, Column column, Axis axis) {
+        Objects.requireNonNull(surface, "no ground to read");
+        for (Column one : footprint(axis)) {
+            if (!dry(surface, new Column(column.east() + one.east(), column.south() + one.south()))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Where a ring settles, from the dry column a stage found: the first
+     * column, walking on from it along the line it was found on, whose whole
+     * footing is dry, within {@link #SETTLE_IN_BLOCKS}; the column found
+     * when there is none.
+     *
+     * <p>The line is the one from the column the way in found to the dry
+     * one: the far stage's compass line, or the spiral's way from the wet
+     * column to the nearest dry, which points inland. The column found is
+     * tried first, so one whose footing is dry already is not moved. When
+     * the column the way in found was dry itself there is no line, and the
+     * spiral is walked again, nearest first and within the same reach, for
+     * the first column whose footing is dry.
+     */
+    public static Column settled(Surface surface, Column found, Axis axis) {
+        Objects.requireNonNull(surface, "no ground to read");
+        Column way = new Column(Integer.signum(found.east()), Integer.signum(found.south()));
+        if (way.equals(ORIGIN)) {
+            for (Column one : drySearch()) {
+                if (within(one, SETTLE_IN_BLOCKS) && footingDry(surface, one, axis)) {
+                    return one;
+                }
+            }
+            return found;
+        }
+        for (int stride = 0; stride <= SETTLE_IN_BLOCKS; stride++) {
+            Column at = new Column(found.east() + way.east() * stride, found.south() + way.south() * stride);
+            if (footingDry(surface, at, axis)) {
+                return at;
+            }
+        }
+        return found;
+    }
+
+    /** Whether a column is within so many blocks of the origin each way. */
+    private static boolean within(Column one, int reach) {
+        return Math.abs(one.east()) <= reach && Math.abs(one.south()) <= reach;
+    }
+
+    /**
+     * How many columns settling looks at, at most: the spiral walked again,
+     * every column within reach each way, at a whole footprint apiece. The
+     * walk along a line is far fewer, one footprint a stride.
+     */
+    public static int settleLooks() {
+        return (2 * SETTLE_IN_BLOCKS + 1) * (2 * SETTLE_IN_BLOCKS + 1) * FOOTPRINT_X.size();
+    }
+
     // ==================================================================
     // What has to be true
     // ==================================================================
@@ -656,6 +812,21 @@ public final class PortalRules {
             bad.add("the far stage reaches " + FAR_DRY_SEARCH_BLOCKS + " blocks, which is "
                     + farDrySamples() + " looks and the chunks under them generated on the server "
                     + "thread every first trip; " + FAR_DRY_SEARCH_MOST + " is the most");
+        }
+        if (SETTLE_IN_BLOCKS < 1) {
+            bad.add("the dry column found is walked on " + SETTLE_IN_BLOCKS + " blocks for a dry "
+                    + "footing, which is not at all, so a ring found at a waterline stays astride it "
+                    + "with a landing over the water");
+        }
+        if (SETTLE_IN_BLOCKS > SETTLE_IN_MOST) {
+            bad.add("the dry column found is walked on up to " + SETTLE_IN_BLOCKS + " blocks, which is "
+                    + settleLooks() + " looks in chunks nobody has generated; two chunks on from the "
+                    + "shore, " + SETTLE_IN_MOST + ", is the most");
+        }
+        if (SETTLE_IN_BLOCKS > DRY_SEARCH_BLOCKS) {
+            bad.add("the dry column found is walked on up to " + SETTLE_IN_BLOCKS + " blocks, and the "
+                    + "spiral walked again when there is no line reaches " + DRY_SEARCH_BLOCKS
+                    + ", so the settling reaches further along a line than off one");
         }
         ValeRules.Biome arrival = ValeRules.biome(ARRIVAL);
         if (arrival == null) {

@@ -33,6 +33,15 @@ All are recorded at length in `tools/negtest/README.md`. In short:
 
 ## The one still open
 
+**Closed on 2 October 2026, by construction rather than by pattern:** `tools/dryrun.py`
+now runs every dry script inside a throwaway `git worktree` copy of the working tree
+(HEAD plus the uncommitted diff and untracked files, every `/tmp/Elysium-mono` in the
+script rewritten to the copy), proves the real tree byte-identical afterwards, and
+removes the copy whatever happened; `--in-place` keeps the old behaviour. The pattern
+neutering below stays for speed. Details and costs in `tools/negtest/README.md`; the
+stale anchors the first thirteen runs found are in `STALE-ANCHORS.md`. What follows is
+the state as it was on 27 September.
+
 A helper that does something *before* its inline python:
 
     edit() { keep "$1"; python3 -c "

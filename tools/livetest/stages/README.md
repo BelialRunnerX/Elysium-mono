@@ -36,6 +36,19 @@ after every install. Screenshots land beside the script, or in
 * `stage_jei_client.ps1` - with a JEI jar dropped beside the seven, the item
   panel and a machine's own recipe category from the library's plugin
   (POLISH.md P6). Take the jar out again afterwards.
+* `stage_seven_client.ps1` - the pack as ours alone (26 Sep): the world opens
+  and a thing from each corner of it still works; it is the stage that found
+  the Emerald Bastion chunk crash (CONVERSION.md §16.7).
+* `stage_rocket_client.ps1` - a rocket built, fuelled, boarded and launched,
+  the countdown and the landing (28-29 Sep; the launch key is H).
+* `stage_almanac_client.ps1` - the quest book: a step finished by holding its
+  item, the three pages, a reward taken from the step's row (29 Sep).
+* `stage_web_client.ps1` - the Ledger Web tab: the three rings and the
+  frontier, a road out to a frontier node taken in survival (29 Sep).
+* `stage_vale_client.ps1` - the way into the Vale by hand: a ring of frames
+  lit by the compass, a survival player carried through and back (1 Oct).
+  Its header lists the traps it found: face north, aim at the sill, stand in
+  the gate rather than walk, and the driver's key flag is UP.
 
 Pitfalls the creature stage taught (28 Sep):
 

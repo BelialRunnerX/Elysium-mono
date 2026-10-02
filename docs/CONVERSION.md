@@ -1881,7 +1881,18 @@ each through rules, harness, generator, validator and negtest):
   first, and settles by the shore it meets as it would by the column, with
   the column as found still the last resort; and a column is dry only when
   the block its heightmap stopped under holds no fluid *and* would hold a
-  player up, so a fence post or a slab is not called ground.)
+  player up, so a fence post or a slab is not called ground. 2 October: the
+  first dry column either stage meets is at the waterline by construction,
+  and a fresh ring's first trip stood astride one, its landing a block out
+  over the water and the player on a built pad with land a step east; so
+  the column found is now walked on along the line it was found on, up to
+  `SETTLE_IN_BLOCKS`, for the first column whose whole footprint — the
+  sill's row and both landing rows, `PortalRules.footprint(axis)` — is dry,
+  the column found kept when there is none, the spiral walked again for a
+  dry footing when the column found was dry itself and there is no line;
+  the harness proves the footprint's shape on both axes, the stride count
+  over bars of every width, and that the walk never leaves its reach, and
+  the negtest breaks it eight ways.)
 * *almanac*: the book follows: the essence rungs in agronomy's order, the
   dig's first step counts the brush's use rather than a break, steps for the
   writs, the drawer key, the found template and the Vale gate, the words for
@@ -1965,6 +1976,11 @@ the result back with `/data get` and `/execute if block`. A scenario passes
 or says what it saw, in the words a player would use.
 
     python3 tools/livetest/livetest.py [--only cable] [--verbose]
+
+Before each scenario the runner asks `tick query` and waits (up to a minute) for
+the server to keep up; a scenario that still ran with the server behind is marked
+so beside its result, and the summary counts them, because a lagging server fails
+the entity-tick scenarios spuriously (2 October 2026).
 
 Forty scenarios: every run's plates and arms (and water poured at the end of each line); the dye rule; energy across a
 cable, water across a pipe, a red cable refusing a blue one; the industry

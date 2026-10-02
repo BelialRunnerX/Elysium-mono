@@ -108,7 +108,7 @@ for module in modules:
 
 if "--bless" in sys.argv:
     os.makedirs(os.path.dirname(BASELINE), exist_ok=True)
-    with open(BASELINE, "w", encoding="utf-8") as handle:
+    with open(BASELINE, "w", encoding="utf-8", newline="\n") as handle:   # LF on Windows too, or git sees a rewrite
         handle.write("# Validator rules that name a call where they should name a "
                      "statement.\n#\n# Written by check_rules.py --bless. Every line is "
                      "a rule that can be\n# defeated by an edit that leaves the call "
