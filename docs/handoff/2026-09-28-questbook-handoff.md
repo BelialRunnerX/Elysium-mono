@@ -280,6 +280,10 @@ why it is worth doing; never a restatement of the title).
   AGENTS (212 scripts, the live suite in "finished"), RESUME_PROMPT, the stages README (all eleven stages;
   stage_seven_client.ps1 copied in from the scratchpad since §16.7 cites it). Also under way: the Vale ring settled a
   stride inland so both landings are dry (wilds), and dryrun.py running every dry run in a throwaway git worktree.
+  Both landed in 39166e62. Then the sixteen stale negtest anchors repaired (STALE-ANCHORS.md "Repaired, 2 October"):
+  colonies3 30/0, tooltip 19/0, armour 5/0, runes 12/0, shares 10/0 on real runs; the sweep found a validator gap —
+  the colonies fake-player rule counted only FakePlayerFactory.get( and let getMinecraft( past, closed — and two
+  tooltip cases that read lang JSON in cp1252 and never injected their fault (UTF-8 now).
 * **29 Sep, ~01:15 — step 3, the Ledger Web wider.** A third ring, the frontier: sixteen clusters
   outside the starts, 723 nodes (was 419), 42 notables; each reached by a road out from the rim's
   nearest road. CONVERSION §16.14, SKILLTREE.md, SPEC_SKILLTREE.md. negtest_web 10/0; in the game

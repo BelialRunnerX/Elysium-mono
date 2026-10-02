@@ -81,11 +81,12 @@ edit $K 'return InputConstants.isKeyDown(client.getWindow().getWindow(),
 expect "a key press the rest of the game never sees" "never sees"
 restore
 
+# the lang file is UTF-8, and Windows' default is not
 python3 -c "
 import json
 p='$LANG'
-d=json.load(open(p)); d.pop('key.elysiumlib.detail')
-json.dump(d, open(p,'w'), indent=2)"
+d=json.load(open(p,encoding='utf-8')); d.pop('key.elysiumlib.detail')
+json.dump(d, open(p,'w',encoding='utf-8'), indent=2)"
 expect "a control with no name" "nothing translates it"
 restore
 
@@ -97,10 +98,11 @@ expect "neither small kindness" "neither quality-of-life feature ships"
 restore
 rm -f /tmp/q.away
 
-edit $Q 'public static void onDeath(LivingDeathEvent event) {' \
-        'public static void onNotDeath(LivingDeathEvent event) {'
+# One edit, not two: the second anchor used to depend on the first edit's
+# rename, which a dry run (edits neutered) reported as stale.
 edit $Q '@SubscribeEvent
-    public static void onNotDeath' 'public static void onNotDeath'
+    public static void onDeath(LivingDeathEvent event) {' \
+        'public static void onNotDeath(LivingDeathEvent event) {'
 expect "nothing saying where you died" "stops showing it"
 restore
 
@@ -133,8 +135,8 @@ restore
 python3 -c "
 import json
 p='$LANG'
-d=json.load(open(p)); d.pop('elysium.qol.died')
-json.dump(d, open(p,'w'), indent=2)"
+d=json.load(open(p,encoding='utf-8')); d.pop('elysium.qol.died')
+json.dump(d, open(p,'w',encoding='utf-8'), indent=2)"
 expect "a death message with no words behind it" "nothing translates it"
 restore
 

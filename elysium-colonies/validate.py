@@ -230,8 +230,13 @@ for path in java_files():
         # its orders. Anywhere else it is a thing other mods' handlers cope with.
         _allowed_fp = (body_of(_fp_src, "public static int settle")
                        + body_of(_fp_src, "public static boolean finish"))             if os.path.samefile(path, SEAM) else ""
-        _conjured = "FakePlayerFactory.get("
-        if _fp_src.count(_conjured) != _allowed_fp.count(_conjured) or not _allowed_fp                 or _fp_src.count(_conjured) == 0:
+        # Every overload that hands back a fake player: get( and getMinecraft(.
+        # Counting get( alone let a getMinecraft( conjured elsewhere straight
+        # through (found by the stale-anchor sweep, 2 Oct 2026).
+        _conjured = re.compile(r"FakePlayerFactory\.get(?:Minecraft)?\(")
+        _conjured_all = len(_conjured.findall(_fp_src))
+        _conjured_ok = len(_conjured.findall(_allowed_fp))
+        if _conjured_all != _conjured_ok or not _allowed_fp or _conjured_all == 0:
             fail(f"{os.path.relpath(path, WORK)} conjures a fake player outside the "
                  f"seam's settle and finish; the steward is the one fake player this "
                  f"module needs, and a fake player in a colony is a thing other mods' "

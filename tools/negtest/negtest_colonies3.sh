@@ -23,12 +23,10 @@ open(p,'w',encoding='utf-8').write(s.replace(old, new, 1))
 " "$@"; }
 
 echo "waiting for a player"
-edit $S/event/ColonyLife.java 'private static boolean found(ServerLevel level, Colonies.Settlement town,
-                                 String kind) {
-        BlockPos hall = town.centre();' \
-'private static boolean found(ServerLevel level, Colonies.Settlement town,
-                                 String kind) {
-        if (level.getServer().getPlayerList().getPlayer(town.owner()) == null) return false;
+# foundNear()'s first statement (the method was found() once; the statement
+# is unique in the file and outlives the signature).
+edit $S/event/ColonyLife.java '        BlockPos hall = town.centre();' \
+'        if (level.getServer().getPlayerList().getPlayer(town.owner()) == null) return false;
         BlockPos hall = town.centre();'
 expect "a town that only grows while somebody is logged in" "only grows while somebody is logged in"
 
@@ -61,7 +59,7 @@ edit $S/event/ColonyLife.java 'if (!SiteRules.levelEnough(hall.getY(), ground.ge
 expect "a town building up a cliff face" "cliff face"
 
 edit $S/event/ColonyLife.java 'String wanted = Charters.plan().next(town.citizens(),
-                    kind -> Colonies.has(level, town.id(), kind));' \
+                kind -> Colonies.has(level, town.id(), kind));' \
                               'String wanted = "minecolonies:builder";'
 expect "a build order nobody wrote down" "a pack cannot"
 
@@ -110,20 +108,22 @@ expect "the one list that stops a town, unread" "stops it dead"
 edit $S/exchange/FrontierExchange.java 'if (Colonies.deliver(level, town.id(), want, bought)) {' 'if (false) {'
 expect "a town that works out what it needs and never gets it" "never hands it over"
 
-edit $S/exchange/FrontierExchange.java 'int taken = Colonies.take(level, town.id(), offer.getKey(), cost);' \
-                                       'int taken = cost;'
+edit $S/exchange/FrontierExchange.java 'int taken = Colonies.take(level, town.id(), offer.getKey(), selling);' \
+                                       'int taken = selling;'
 expect "an exchange that charges nothing" "has not paid for"
 
-edit $S/exchange/FrontierExchange.java 'if (ItemStack.isSameItem(offer.getKey(), want.wanted())) {
-                    continue;
-                }' ''
+edit $S/exchange/FrontierExchange.java 'if (ItemStack.isSameItem(offer.getKey(), want.wanted())
+                        || offer.getValue() <= 0) {' 'if (offer.getValue() <= 0) {'
 expect "a town grinding a thing into itself" "into one of the same item"
 
-edit $S/exchange/FrontierExchange.java 'if (spent >= ExchangeRules.MOST_SPENT_PER_DAY) {
+# settle() tests the cap twice (per want, per offer) and the validator looks for
+# the phrase anywhere in the body, so both copies are broken.
+edit $S/exchange/FrontierExchange.java 'if (sold >= ExchangeRules.MOST_SPENT_PER_DAY) {
                 break;
-            }' 'if (spent >= Integer.MAX_VALUE) {
+            }' 'if (sold >= Integer.MAX_VALUE) {
                 break;
             }'
+edit $S/exchange/FrontierExchange.java '|| sold >= ExchangeRules.MOST_SPENT_PER_DAY) {' '|| sold >= Integer.MAX_VALUE) {'
 expect "an exchange with no daily limit in the code" "rather than a lifeline"
 
 edit $S/colony/Colonies.java 'requests.getPlayerResolver().getAllAssignedRequests()' \
@@ -135,22 +135,17 @@ edit $S/colony/Colonies.java 'colony.getRequestManager().overruleRequest(token, 
 expect "a delivery the host does not know about" "bookkeeping"
 
 echo "the arithmetic"
-edit $S/rules/ExchangeRules.java 'public static final int BASE_RATE = 8;' \
-                                 'public static final int BASE_RATE = 1;'
-expect "an exchange that trades one for one" "nothing is ever worth producing"
-
-edit $S/rules/ExchangeRules.java 'int budget = Math.max(0, MOST_SPENT_PER_DAY - Math.max(0, spent));' \
-                                 'int budget = Integer.MAX_VALUE;'
-expect "a day of trading with no cap" "than a lifeline"
-
+# Three cases were deleted here on 2 Oct 2026. ExchangeRules used to hold a flat
+# BASE_RATE, a daily budget and a world-factor rate; pricing moved to
+# Market/MarketRules and the daily cap into FrontierExchange.settle(), and the
+# validator no longer reads anything in ExchangeRules but KEEP. The flat-rate
+# fault ("a charter that stops mattering once a town trades") is
+# negtest_colonies5.sh's "an exchange trading at a flat rate"; the cap is the
+# exchange case above.
 edit $S/rules/ExchangeRules.java 'return Math.min(MOST_NOTICE_PER_DAY,
                 Math.max(0, trades) * NOTICE_PER_TRADE);' \
                                  'return Math.max(0, trades) * NOTICE_PER_TRADE;'
 expect "notice that scales without limit" "bring the Empire down"
-
-edit $S/rules/ExchangeRules.java 'int rate = Math.round(BASE_RATE / worldFactor);' \
-                                 'int rate = BASE_RATE;'
-expect "a charter that stops mattering once a town trades" "stops meaning anything"
 
 edit $S/rules/SiteRules.java 'if (at < side) {
             return -ring + at;               // north edge, west to east
