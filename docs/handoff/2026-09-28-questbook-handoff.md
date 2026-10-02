@@ -286,8 +286,9 @@ why it is worth doing; never a restatement of the title).
   tooltip cases that read lang JSON in cp1252 and never injected their fault (UTF-8 now).
   The ratchet finished: the last 27 half-statement anchors (space, ores, flora, logistics, industry, core, atomics,
   agronomy, kinetics, almanac) name whole statements; RULES_BASELINE.txt is empty (677 rules, none tolerated).
-  Its dry runs showed six more pre-existing stale anchors (atomics 4, logistics 1, space 1), recorded in
-  STALE-ANCHORS.md for the next sweep.
+  Its dry runs showed six more pre-existing stale anchors (atomics 4, logistics 1, space 1); repaired the same
+  morning (atomics 31/0, logistics 23/0, space 38/0 on real runs; the space one was a dry run's own earlier rename,
+  not drift). Nothing on the headless list is left; what remains needs the game (0538dbd8).
 * **29 Sep, ~01:15 — step 3, the Ledger Web wider.** A third ring, the frontier: sixteen clusters
   outside the starts, 723 nodes (was 419), 42 notables; each reached by a road out from the rim's
   nearest road. CONVERSION §16.14, SKILLTREE.md, SPEC_SKILLTREE.md. negtest_web 10/0; in the game
