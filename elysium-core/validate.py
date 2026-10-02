@@ -262,6 +262,16 @@ if len(items) < EXPECTED_MIN_ITEMS:
 print(f"blocks registered : {len(blocks)}")
 print(f"items registered  : {len(items)}")
 
+def squashed(text):
+    """One method's source with every run of whitespace made one space.
+
+    A rule that names a whole statement has to survive the statement being
+    re-wrapped, or it fails the first time somebody tidies the file and then
+    gets deleted rather than fixed.
+    """
+    return re.sub(r"\s+", " ", text)
+
+
 def body_of(src, signature):
     """The text between the braces of the method whose declaration starts with
     `signature`. A rule scoped to one method cannot pass because its token
@@ -975,12 +985,12 @@ else:
         fail("ascending a base no longer raises the owner's world tier, so the "
              "most expensive deliberate act in the mod buys ground and "
              "attention and nothing the worlds answer to")
-    _noticed = body_of(beacon, "private void noticed")
-    if "ElysiumTiers.lift(player," not in _noticed:
+    _noticed = squashed(body_of(beacon, "private void noticed"))
+    if "if (ElysiumTiers.lift(player, tier)) {" not in _noticed:
         fail("the base's ascension is written to the world floor by some route "
              "other than lift(), which is the one place that refuses to let a "
              "floor fall")
-    if "ElysiumWorldTier.tierForAscension(" not in _noticed:
+    if "int tier = ElysiumWorldTier.tierForAscension(claim.ascension());" not in _noticed:
         fail("the beacon converts ascensions to tiers with arithmetic of its "
              "own instead of the library's, so the two would drift")
     if "noticed(player, claim)" not in body_of(beacon, "private void report"):

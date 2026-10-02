@@ -259,19 +259,22 @@ else:
     if "grid.fromCells()" not in after or "grid.toCells()" not in after:
         fail("a cell's new contents are not worked out from what the grid said it moved")
 
-settle = body_of(plain, "public static Buffered settle(")
-if "IndustryRules.settle(" not in settle:
+settle = squashed(body_of(plain, "public static Buffered settle("))
+if "IndustryRules.Flow flow = IndustryRules.settle( " \
+        "List.of(new IndustryRules.Generator(Math.max(0.0F, supply), wire)), " \
+        "List.of(new IndustryRules.Machine(Math.max(0.0F, demand), wire)), " \
+        "wire, reserveOf(cells, stored));" not in settle:
     fail("Age III settles its own grid rather than handing its cells to Age II's as a "
          "reserve, so which tick a wire burns on is decided twice")
 if "reserveOf(cells, stored)" not in settle:
     fail("the bank a grid is told about is not the bank that is there")
 
-nxt = body_of(plain, "public static float nextTemperature(")
+nxt = squashed(body_of(plain, "public static float nextTemperature("))
 if "(temperature - AMBIENT)" not in nxt:
     fail("a core sheds a fixed amount of heat rather than a fraction of its excess, so "
          "its temperature does not settle — it runs away on its own while the player is "
          "somewhere else")
-if "Math.max(AMBIENT," not in nxt:
+if "return Math.max(AMBIENT, temperature + heatIn / THERMAL_MASS - shed);" not in nxt:
     fail("a core can cool below the temperature of the room it is in")
 
 settles = body_of(plain, "public static float settlesAt(float heatIn, float cooling)")

@@ -388,6 +388,71 @@ the machine, after the repair. What a case tests is unchanged unless said.
 - Real run: baseline clean, caught 10, missed 0 (06:51, after the two repairs above; the first run was 8 caught, 2 missed); git shows elysium-lib clean after it
 
 
+### Seen on 2 October, by the ratchet sweep — 3 script(s), 6 anchor(s): repaired the same day, see below the list
+
+The dry runs that proved the last 27 ratchet conversions (space, ores, flora,
+logistics, industry, core, atomics, agronomy, kinetics, almanac) showed these,
+all pre-existing Java and data drift unrelated to the conversions (as first
+read; the space one turned out to be the dry run's own doing):
+
+* `negtest_atomics.sh` — 4 anchors in `AtomicRules.java` (`} else if (surplus > 0.0F) {`,
+  `fromCells = Math.min(shortfall, ...`, `toCells = Math.min(surplus, ...`,
+  `float carried = ...`): `settle()` now delegates to `IndustryRules.settle` and
+  has none of those locals, so four cases inject nothing.
+* `negtest_logistics.sh` — 1 anchor in `LogisticRules.java`:
+  `return new IndustryRules.Machine(devices * DEVICE_DRAW,`; the line now reads
+  `devices * DEVICE_DRAW + extra * DEVICE_DRAW,` (the pack extras of 29 Sep).
+* `negtest_space.sh` — the case "silk touch gives cobblestone" sets up by editing
+  `data/elysiumspace/loot_table/blocks/pale_stone.json`, which no longer exists
+  under that name (the stones' drops were reworked on 29 Sep): `FileNotFoundError`
+  before the fault is injected.
+
+Repaired as the five above were — dry run to 0 stale, then one real run each,
+alone on the machine (no other `validate.py` running). What a case tests is
+unchanged unless said.
+
+**`negtest_atomics.sh`** (elysium-atomics) — 4 stale: 3 repointed, 1 deleted
+
+- The `Math.min`s and the `else if` the cases removed are Age II's now:
+  `settle()` hands `reserveOf(cells, stored)` to `IndustryRules.settle` and
+  reads `fromReserve`/`toReserve`/`burned` back, and the atomics validator's
+  source check wants exactly that call. What AtomicRules still owns is the
+  reserve it reports and the burn it reads, so the faults moved there: "a bank
+  that hands over more than it holds" has `couldGive()` return
+  `Float.MAX_VALUE` and "a bank that swallows a surplus it has no room for" has
+  `couldTake()` do the same — the same effect as the old `fromCells = shortfall`
+  / `toCells = surplus`, since Age II takes the min against what the reserve
+  claims; "a wire made safe by putting a battery on it" anchors the whole
+  two-line `return new Buffered(supply, demand, ...)` (the one-line
+  `flow.grid().burned());` also occurs in `after()`) and masks the burn while
+  charging (`burned() && !flow.charging()`). Same messages, all three.
+- "charging and draining written so they could both happen" deleted: the
+  exclusive branch is `IndustryRules.settle`'s, the atomics validator has never
+  printed "not exclusive" (the phrase is `elysium-industry/validate.py`'s), and
+  `negtest_industry.sh` ("lending and borrowing written so they could both
+  happen") injects that fault where it lives.
+- Real run: 31 caught, 0 missed, tree restored clean (07:47; the three repointed cases among the caught)
+
+**`negtest_logistics.sh`** (elysium-logistics) — 1 stale, repointed
+
+- The anchor now reads `devices * DEVICE_DRAW + extra * DEVICE_DRAW,`; the
+  fault (a constant draw) and the message are unchanged.
+- Real run: 23 caught, 0 missed, tree restored clean (08:03)
+
+**`negtest_space.sh`** (elysium-space) — 0 stale: the finding was the dry run's
+
+- `pale_stone.json` exists under that name and is the stone's loot table; no
+  anchor had drifted. The `FileNotFoundError` was the preceding case, "loot
+  table missing", which `os.rename`s that file: in a dry run `try()`'s python
+  runs for real inside the copy while `restore()` and the trailing
+  `; mv $LOOT.gone $LOOT` are neutered (`dryrun.py` rewrites `; mv …` to
+  `; true`), so the file stayed gone for every later reader. The case now comes
+  after "silk touch gives cobblestone", the last reader, with a comment saying
+  why. A real run was never affected (restore puts the file back between cases).
+- Dry run: no stale anchor; the copy's write list ends with `D pale_stone.json`
+  + `?? pale_stone.json.gone`, as it now should; real tree unchanged.
+- Real run: caught 38, missed 0 (08:23; both cases among the caught); git shows elysium-space and elysium-lib clean after it
+
 ## One more thing, while you are in there
 
 Several scripts name their runner something other than `out()` or

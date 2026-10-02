@@ -51,6 +51,16 @@ NS = "elysiumspace"
 problems = []
 
 
+def squashed(text):
+    """One method's source with every run of whitespace made one space.
+
+    A rule that names a whole statement has to survive the statement being
+    re-wrapped, or it fails the first time somebody tidies the file and then
+    gets deleted rather than fixed.
+    """
+    return re.sub(r"\s+", " ", text)
+
+
 def body_of(src, signature):
     """The text between the braces of one method. A rule scoped with `find`
     alone reaches past the method into everything after it, which is how a
@@ -1247,8 +1257,8 @@ else:
              "takes a working gate off the network")
 
     # Travel re-reads everything, because a packet is a request and not a fact.
-    _send = body_of(_travel, "public static Component send")
-    if "nearestAnchor(" not in _send:
+    _send = squashed(body_of(_travel, "public static Component send"))
+    if "BlockPos standing = nearestAnchor(from, traveller.blockPosition());" not in _send:
         fail("travel does not check that the traveller is still at a gate, so a kept "
              "packet is a teleport from anywhere")
     # The anchor is clicked from the game's block reach (4.5 blocks, 5 in
@@ -1277,7 +1287,7 @@ else:
     if "resetFallDistance" not in _send:
         fail("a traveller keeps their fall distance through a gate, so stepping through "
              "a doorway can kill them")
-    if "network.forget(" not in _send:
+    if "network.forget(going.dimension(), anchor);" not in _send:
         fail("a gate found broken at the far end is left on the network to be found "
              "broken again tomorrow")
 
@@ -1369,10 +1379,10 @@ else:
                  f"so an enchanted tool in a shipment loses its components and lands "
                  f"as a stick")
 
-    _land = body_of(_dispatch, "private static void land(")
+    _land = squashed(body_of(_dispatch, "private static void land("))
     if not _land:
         fail("nothing lands a shipment, so everything sent is in the air forever")
-    if "level.getChunk(" not in _land:
+    if "level.getChunk(at);" not in _land:
         fail("a landing needs somebody standing there, so a supply line only runs "
              "while you watch it")
     # Both of the ways a destination can fail to exist: a world that is no
@@ -1381,7 +1391,10 @@ else:
     if _land.count("returned(now)") < 2:
         fail("a shipment addressed to a terminal that is gone is not sent home, so "
              "mining the far end of a supply line destroys what is in the air")
-    if "if (!over.isEmpty())" not in _land or "replace(" not in _land:
+    if "if (!over.isEmpty())" not in _land \
+            or "network.replace(shipment, new FreightNetwork.Shipment(shipment.from(), " \
+               "shipment.to(), over, now - shipment.flight() + FreightRules.HOLD_TICKS, " \
+               "shipment.flight()));" not in _land:
         fail("a full destination does not hold the rocket, so cargo is dropped or "
              "deleted when a terminal fills")
     _tick = body_of(_dispatch, "public static void onTick(")
@@ -1389,7 +1402,7 @@ else:
         fail("the landing sweep runs in every world, so a shipment lands once per "
              "loaded dimension")
 
-    _launch = body_of(_dispatch, "public static Component launch(")
+    _launch = squashed(body_of(_dispatch, "public static Component launch("))
     for _needed, _why in (
             ("FreightRules.fuelFor(", "a run is not priced, so distance costs nothing"),
             ("FreightRules.flightTicks(", "a run takes no time, so distance is free "
@@ -1402,7 +1415,8 @@ else:
                                   "launching duplicates it")):
         if _needed not in _launch:
             fail(f"launching does not use {_needed}: {_why}")
-    if "SpaceRoute.fuelFor(" not in _launch:
+    if "int route = SpaceRoute.fuelFor(here.world(), there.world(), " \
+            "SpaceRoute.Fuel.FUEL);" not in _launch:
         fail("freight prices itself instead of using the route table the rockets "
              "already fly on, so the two disagree about how far away a world is")
 

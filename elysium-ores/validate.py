@@ -190,8 +190,8 @@ unify_rules = strip_comments(read(PURE, "UnifyRules.java"))
 if "public static boolean ambiguous(" not in unify_rules:
     fail("UnifyRules has no ambiguity guard, so an item tagged into two families "
          "would be converted and a material destroyed")
-conversions = body_of(unify_rules, "public static List<String> conversions")
-if "ambiguousIds.contains(" not in conversions:
+conversions = squashed(body_of(unify_rules, "public static List<String> conversions"))
+if "if (ambiguousIds.contains(id)) {" not in conversions:
     fail("conversions() does not consult the ambiguity guard, so the guard exists "
          "and protects nothing")
 if ".equals(canonical)" not in conversions:
@@ -201,10 +201,10 @@ unification = strip_comments(read(SRC, "unify/OreUnification.java"))
 if "UnifyRules.ambiguous(" not in unification:
     fail("the unification map never asks the guard, so the rules' protection never "
          "reaches the items it protects")
-recompute = body_of(unification, "public static void recompute")
+recompute = squashed(body_of(unification, "public static void recompute"))
 if "twoFamilies" not in recompute:
     fail("recompute() does not collect the items that answer to two families")
-if "UnifyRules.worthUnifying(" not in recompute:
+if "if (!UnifyRules.worthUnifying(ids)) {" not in recompute:
     fail("every family is unified, including the ones with a single supplier, which "
          "is a conversion recipe for every material in the game")
 
@@ -554,14 +554,14 @@ if 'String key = family + "|" + (vanilla == null ? "" : vanilla);' not in _of \
          "whatever worldgen asked first, which is coal dust")
 
 block_src = strip_comments(read(SRC, "ore/ElysiumOreBlock.java"))
-get_drops = body_of(block_src, "public List<ItemStack> getDrops")
-if "silked(" not in get_drops:
+get_drops = squashed(body_of(block_src, "public List<ItemStack> getDrops"))
+if "if (tool != null && silked(tool, params)) {" not in get_drops:
     fail("the ore ignores silk touch, so an ore whose drop is resolved at runtime "
          "can never be moved")
-if "OreRules.yield(" not in get_drops:
+if "int amount = OreRules.yield(tierOf(params), random.nextDouble());" not in get_drops:
     fail("the ore's yield is decided somewhere other than OreRules, so the world "
          "tier buys nothing at the rock face")
-if "OreRules.fortuned(" not in get_drops:
+if "amount = OreRules.fortuned(amount, fortune(tool, params), random.nextDouble());" not in get_drops:
     fail("fortune does nothing on this module's ores")
 if "ElysiumTiers.of(" not in block_src:
     fail("the ore never asks what tier the breaker is, so a deep world pays exactly "

@@ -7,30 +7,3 @@
 # come out as the modules they are in are next touched.
 #
 # Fewer lines here is the only direction this file may move.
-elysium-agronomy	AgronomyRules.potSpeed(
-elysium-agronomy	Math.min(1.0F,
-elysium-almanac	was.add(
-elysium-atomics	IndustryRules.settle(
-elysium-atomics	Math.max(AMBIENT,
-elysium-core	ElysiumTiers.lift(player,
-elysium-core	ElysiumWorldTier.tierForAscension(
-elysium-flora	FloraRules.fortuned(amount,
-elysium-flora	FloraRules.harvest(
-elysium-flora	FloraRules.ripe(
-elysium-flora	bonusChance(
-elysium-industry	Math.max(0.0F,
-elysium-industry	new Reading(supply + lent, demand,
-elysium-kinetics	Math.max(0.0F,
-elysium-logistics	LogisticRules.accepted(
-elysium-logistics	LogisticRules.leftOver(
-elysium-logistics	Math.min(
-elysium-ores	OreRules.fortuned(
-elysium-ores	OreRules.yield(
-elysium-ores	UnifyRules.worthUnifying(
-elysium-ores	ambiguousIds.contains(
-elysium-ores	silked(
-elysium-space	SpaceRoute.fuelFor(
-elysium-space	level.getChunk(
-elysium-space	nearestAnchor(
-elysium-space	network.forget(
-elysium-space	replace(

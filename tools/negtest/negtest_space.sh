@@ -57,9 +57,6 @@ try "stellaris id survives" space "still names" "$R
 jedit('$BIOME', lambda d: d['spawners'].__setitem__('monster', [{'type':'stellaris:alien_zombie','weight':5,'minCount':1,'maxCount':1}]))"
 try "dangling biome" space "which is neither a block nor a data file" "$R
 rep('$BPL', 'elysiumspace:emgrove_grove', 'elysiumspace:emgrove_grovee')"
-try "loot table missing" space "has no loot table" "
-import os; os.rename('$LOOT', '$LOOT.gone')
-" ; mv $LOOT.gone $LOOT 2>/dev/null
 # A world's stone breaks as vanilla stone does (29 Sep): its cobblestone to a
 # pickaxe, the stone to Silk Touch, a furnace back, and the pickaxe tag naming
 # the stones and the ores. The first case is the table the stones had before.
@@ -67,6 +64,13 @@ try "stone drops itself again" space "frost_stone gives elysiumspace:frost_stone
 json.dump({'type': 'minecraft:block', 'pools': [{'rolls': 1, 'bonus_rolls': 0, 'entries': [{'type': 'minecraft:item', 'name': 'elysiumspace:frost_stone'}], 'conditions': [{'condition': 'minecraft:survives_explosion'}]}]}, open('$FLOOT', 'w'), indent=2)"
 try "silk touch gives cobblestone" space "pale_stone gives elysiumspace:pale_cobblestone to Silk Touch" "$R
 jedit('$LOOT', lambda d: d['pools'][0]['entries'][0]['children'].reverse())"
+# Last of the cases that read pale_stone's table, on purpose: in a dry run
+# (tools/dryrun.py) try()'s python runs for real inside the copy while restore()
+# and the mv below are neutered, so the rename would leave every later reader
+# of the file with FileNotFoundError -- which is what the 2 October sweep saw.
+try "loot table missing" space "has no loot table" "
+import os; os.rename('$LOOT', '$LOOT.gone')
+" ; mv $LOOT.gone $LOOT 2>/dev/null
 try "cobblestone does not smelt back" space "no furnace recipe turns cinder_cobblestone back into cinder_stone" "
 import os; os.remove('$SMELT')"
 try "stone not pickaxe-mineable" space "frost_stone is in no mineable tag" "$R

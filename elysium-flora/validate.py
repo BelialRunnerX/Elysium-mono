@@ -78,6 +78,16 @@ def harness_trouble(output):
     return "\n".join(lines or output.strip().splitlines()[-12:])[:2000]
 
 
+def squashed(text):
+    """One method's source with every run of whitespace made one space.
+
+    A rule that names a whole statement has to survive the statement being
+    re-wrapped, or it fails the first time somebody tidies the file and then
+    gets deleted rather than fixed.
+    """
+    return re.sub(r"\s+", " ", text)
+
+
 def body_of(src, signature):
     start = src.find(signature)
     if start < 0:
@@ -193,8 +203,8 @@ if constant("FIBRE_PER_STRING") == "1":
 if constant("WILD_SEEDS") in (None, "0", "1"):
     fail("a wild plant gives at most one seed, so finding one specimen is not enough "
          "to start a field and a discovery becomes an errand")
-harvest = body_of(strip_comments(rules), "public static int harvest")
-if "bonusChance(" not in harvest:
+harvest = squashed(body_of(strip_comments(rules), "public static int harvest"))
+if "return roll < bonusChance(worldTier) ? BASE_YIELD + extra : BASE_YIELD;" not in harvest:
     fail("the harvest bonus is not rolled against the chance curve, so it either "
          "always or never lands")
 if "/ (at + BONUS_PACE)" not in rules:
@@ -205,14 +215,14 @@ if "/ (at + BONUS_PACE)" not in rules:
 # ---------------------------------------------------------------------------
 
 crop_src = strip_comments(read(SRC, "block/FibreCropBlock.java"))
-drops = body_of(crop_src, "public List<ItemStack> getDrops")
-if "FloraRules.ripe(" not in drops:
+drops = squashed(body_of(crop_src, "public List<ItemStack> getDrops"))
+if "if (!FloraRules.ripe(age)) {" not in drops:
     fail("the crop's drops do not check whether it was ripe, so trampling a seedling "
          "pays the same as harvesting a field")
-if "FloraRules.harvest(" not in drops:
+if "int amount = FloraRules.harvest(tierOf(params), random.nextDouble());" not in drops:
     fail("the crop's yield is decided somewhere other than the rules, so the world "
          "tier buys nothing in a field")
-if "FloraRules.fortuned(amount," not in drops:
+if "amount = FloraRules.fortuned(amount, fortune, random.nextDouble());" not in drops:
     fail("fortune does nothing to the fibre a field gives, whatever it does to the "
          "seeds")
 if "ElysiumTiers.of(" not in crop_src:

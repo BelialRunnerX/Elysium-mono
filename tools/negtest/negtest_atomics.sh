@@ -35,9 +35,12 @@ expect "rounding that falls on the side of the player having more" "holding more
 edit $R '            int given = (int) Math.ceil(grid.fromCells() * mine / couldHaveGiven);' '            int given = (int) Math.floor(grid.fromCells() * mine / couldHaveGiven);'
 expect "a bank that gives up less than the grid took from it" "made out of nothing"
 
-edit $R '        } else if (surplus > 0.0F) {' '        }
-        if (surplus > 0.0F) {'
-expect "charging and draining written so they could both happen" "not exclusive"
+# "charging and draining written so they could both happen" lived here until
+# 2 October: settle() now hands its cells to IndustryRules.settle as a reserve
+# and the exclusive branch is Age II's, where negtest_industry.sh ("lending and
+# borrowing written so they could both happen") injects that fault. The three
+# bank faults below moved with it: the Math.min each once removed is Age II's
+# now, so they break the reserve this age reports instead.
 
 edit $R '            float mine = Math.min(cell.mostIn(), cell.capacity() - was);' '            float mine = cell.mostIn();'
 edit $R '            return clamp(cell, was + taken);' '            return was + taken;'
@@ -47,13 +50,15 @@ edit $R '            float mine = Math.min(cell.mostOut(), was);' '            f
 edit $R '            return clamp(cell, was - given);' '            return was - given;'
 expect "a cell that ignores how little it has left" "when the grid drew on it"
 
-edit $R '            fromCells = Math.min(shortfall, couldGive(cells, stored));' '            fromCells = shortfall;'
+edit $R '        return available;' '        return Float.MAX_VALUE;'
 expect "a bank that hands over more than it holds" "an empty cell gives power away"
 
-edit $R '            toCells = Math.min(surplus, couldTake(cells, stored));' '            toCells = surplus;'
+edit $R '        return room;' '        return Float.MAX_VALUE;'
 expect "a bank that swallows a surplus it has no room for" "the difference was destroyed"
 
-edit $R '        float carried = Math.max(supply, Math.min(demand, supply + fromCells) + toCells);' '        float carried = 0.0F;'
+edit $R '        return new Buffered(supply, demand, flow.fromReserve(), flow.toReserve(),
+                flow.grid().burned());' '        return new Buffered(supply, demand, flow.fromReserve(), flow.toReserve(),
+                flow.grid().burned() && !flow.charging());'
 expect "a wire made safe by putting a battery on it" "on its way into a battery"
 
 edit $R '            if (mostIn > IndustryRules.MOST_FE || mostOut > IndustryRules.MOST_FE) {' '            if (false) {'

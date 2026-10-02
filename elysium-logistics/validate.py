@@ -306,8 +306,8 @@ def constant(name, kind=r"(?:float|int)"):
 # 3. Conservation, and a planner that terminates
 # ---------------------------------------------------------------------------
 
-accepted = body_of(plain, "public static int accepted(")
-if "Math.min(" not in accepted:
+accepted = squashed(body_of(plain, "public static int accepted("))
+if "return Math.max(0, Math.min(Math.max(0, offered), Math.max(0, room)));" not in accepted:
     fail("a store takes what it is offered without asking whether it has room, so the "
          "remainder is destroyed")
 leftover = body_of(plain, "public static int leftOver(")
@@ -650,8 +650,9 @@ print("runs               : the bus draw arms and plates, take a dye, and keep i
 # --- the blocks, and the ways they can be made to lose things -------------
 
 store = strip_comments(read(SRC, "block/DrawerStore.java"))
-inserting = body_of(store, "public ItemStack insertItem(")
-if "LogisticRules.accepted(" not in inserting or "LogisticRules.leftOver(" not in inserting:
+inserting = squashed(body_of(store, "public ItemStack insertItem("))
+if "int took = LogisticRules.accepted(stack.getCount(), roomIn(slot));" not in inserting \
+        or "int left = LogisticRules.leftOver(stack.getCount(), roomIn(slot));" not in inserting:
     fail("a drawer works out for itself how much of a stack it took, so the one piece of "
          "arithmetic the harness proves conserves items is not the one the game runs")
 if "LogisticRules.voids(voiding)" not in inserting:

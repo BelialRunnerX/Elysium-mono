@@ -301,10 +301,11 @@ if "Math.min(1.0F, share)" not in speed:
     fail("an accelerator on a grid with more than it needs runs faster than full, so "
          "over-building is a speed upgrade nobody documented")
 
-combs = body_of(plain, "public static float combsPerHour(")
+combs = squashed(body_of(plain, "public static float combsPerHour("))
 if "Math.min(MOST_BEES, bees)" not in combs:
     fail("a hive works more bees than it says it holds")
-if "Math.min(1.0F," not in combs:
+if "float crowding = wanted <= 0.0F ? 1.0F : Math.min(1.0F, " \
+        "Math.max(0, flowers) / wanted);" not in combs:
     fail("more flowers than the bees want makes a hive faster than full, or a crowded "
          "hive stops entirely — crowding is meant to be a fraction, not a switch")
 
@@ -445,8 +446,9 @@ if pot_box and os.path.isfile(pot_model):
 # --- the blocks ------------------------------------------------------------
 
 pot = strip_comments(read(SRC, "block/PotBlock.java"))
-speed_of = body_of(pot, "public float speed(")
-if "AgronomyRules.potSpeed(" not in speed_of:
+speed_of = squashed(body_of(pot, "public float speed("))
+if "return AgronomyRules.potSpeed(light, driver != null, " \
+        "driver == null ? 0.0F : driver.share());" not in speed_of:
     fail("a pot works out its own growth speed rather than asking the rules, so the "
          "light requirement and the accelerator's share are decided twice")
 if "getMaxLocalRawBrightness" not in speed_of:

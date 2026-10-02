@@ -266,11 +266,11 @@ def load_of(name):
 # agree with each other; this proves they are still the numbers the design
 # chose, and that the shapes that make the model what it is are still there.
 
-torque_at = body_of(plain, "public float torqueAt(float rpm)")
+torque_at = squashed(body_of(plain, "public float torqueAt(float rpm)"))
 if "1.0F - Math.abs(rpm) / freeSpeed" not in torque_at:
     fail("a source no longer falls off along a line between its stall torque and its "
          "free speed, so it is a fixed capacity again and the whole model is Create's")
-if "Math.max(0.0F," not in torque_at:
+if "return Math.max(0.0F, stallTorque * (1.0F - Math.abs(rpm) / freeSpeed));" not in torque_at:
     fail("a source driven past its free speed pushes backwards instead of freewheeling, "
          "so an overdriven line drives itself")
 

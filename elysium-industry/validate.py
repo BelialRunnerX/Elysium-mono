@@ -232,7 +232,7 @@ if "Math.min(1.0F, supply / demand)" not in share:
 if "burned" not in share:
     fail("a burned wire still feeds the machines behind it")
 
-lending = body_of(plain, "public static Flow settle(")
+lending = squashed(body_of(plain, "public static Flow settle("))
 if not lending:
     fail("the grid cannot be told that something on it lends or borrows power, so the "
          "age above has to run a second grid and the two will disagree")
@@ -254,7 +254,8 @@ else:
     # what the wire is carrying, so looking for it alone passes on a grid where
     # the loan is counted against the wire and never handed to a machine. The
     # whole expression, or nothing.
-    if "new Reading(supply + lent, demand," not in lending:
+    if "return new Flow(new Reading(supply + lent, demand, burns(wire, carried)), " \
+            "lent, kept);" not in lending:
         fail("what a reserve lends does not reach the machines, so storage is a hole "
              "rather than a battery")
 
@@ -270,10 +271,10 @@ if "Math.min(supply, demand)" not in settle:
 if "burns(wire, carried)" not in settle:
     fail("a grid never asks whether its wire survived what went through it")
 
-delivered = body_of(plain, "public static float delivered(")
+delivered = squashed(body_of(plain, "public static float delivered("))
 if "lossPerBlock()" not in delivered:
     fail("distance costs nothing, so a generator may as well be a mile from the work")
-if "Math.max(0.0F," not in delivered:
+if "return Math.max(0.0F, sent * kept);" not in delivered:
     fail("a long enough wire delivers negative power")
 
 burns = body_of(plain, "public static boolean burns(")

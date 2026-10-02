@@ -953,7 +953,10 @@ if "player.setData(DONE.get(), List.copyOf(now));" not in finish_body:
     fail("finishing a quest does not set the data back on the player, so the attachment "
          "is mutated in place and the sync never hears about it — the client's book "
          "stops updating and nothing looks wrong on the server")
-if "was.add(" in finish_body:
+# A prohibition, not a statement: there is nothing to name whole, because the
+# bug is the call existing at all. A regex, so a space before the paren does
+# not let it through.
+if re.search(r"\bwas\.add\s*\(", finish_body):
     fail("finishing a quest adds to the list the player handed out rather than replacing "
          "it, which is the same bug wearing a different hat")
 

@@ -81,7 +81,7 @@ edit $R '        for (String name : stuck) {
 expect "a cycle check that blames everything downstream of the fault" "rather than the cycle"
 
 echo "the network, and the grid it hangs off"
-edit $R '            return new IndustryRules.Machine(devices * DEVICE_DRAW,' '            return new IndustryRules.Machine(DEVICE_DRAW,'
+edit $R '            return new IndustryRules.Machine(devices * DEVICE_DRAW + extra * DEVICE_DRAW,' '            return new IndustryRules.Machine(DEVICE_DRAW,'
 expect "a network that costs the same however big it is" "not its devices times what one costs"
 
 edit $R '            return BANDWIDTH * Math.min(1.0F, share);' '            return BANDWIDTH * share;'
