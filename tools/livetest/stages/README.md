@@ -50,6 +50,24 @@ after every install. Screenshots land beside the script, or in
   Its header lists the traps it found: face north, aim at the sill, stand in
   the gate rather than walk, and the driver's key flag is UP.
 
+Stages from the 26-28 September sessions, kept here because the by-hand run
+PLAYTEST.md still owes needs their rigs (none rerun since; expect anchors and
+coordinates to want a look):
+
+* `stage_settle_client.ps1` and `stage_days_client.ps1` - a self-founding
+  colony in a fresh world, then days skipped at Dunfield so the town raises
+  its hall and huts by itself (the colony day-cycle boxes).
+* `stage_report_client.ps1` - the colony report at Dunwell and the natural
+  listing.
+* `stage_kitchen_client.ps1` and `stage_stations_client.ps1` - the kitchen,
+  the pots and the three stations' models.
+* `stage_augment_client.ps1` - a sword through the reforging table and into
+  the augmenting table.
+* `stage_features_client.ps1` - Cordon drops from loot, found trinkets, an
+  importer at work, a rod that catches.
+* `stage_agent8_client.ps1` - creatures by kindred and court, comforts
+  fittings, arcana budding blocks.
+
 Pitfalls the creature stage taught (28 Sep):
 
 * A `/fill` over 32768 blocks does nothing and says so only in chat: split

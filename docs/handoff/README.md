@@ -16,6 +16,7 @@ about the findings.
 | `WHAT-CHANGED.md` | the naming work, and the three things every other module should check in itself | every agent |
 | `STALE-ANCHORS.md` | 24 negative-test scripts whose anchors no longer match the file — 52 anchors across 13 modules — with the owning module and the command that fixes each | the agent holding each named module |
 | `DRYRUN.md` | the state of `tools/dryrun.py`: six holes closed on 27 Sep by pattern, the whole family closed on 2 Oct by running every dry run in a throwaway worktree | whoever wants the tooling to stop leaking |
+| `2026-09-28-questbook-handoff.md` | the dated trail since 28 Sep, newest entry at the bottom: the questbook, the web and XP; the survival walk (every item reachable), the tool-tag wave, the 70-scenario live suite, the Vale gate and its landing, the headless tooling day of 2 Oct | anyone picking the pack up: read this first |
 | `elysium-playtest.pdf` | eight-page playtest guide for the build in both instances | Dylan |
 
 ## What is not here, because it is in the tree

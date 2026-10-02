@@ -144,6 +144,20 @@ The 25 open boxes and the by-hand halves of the 41 partly-proved ones, grouped
 by what one client session can cover together. Each group is one world and one
 sitting; the log sweep (§0) closes every one of them.
 
+Drivers to start each sitting from, all in `tools/livetest/stages/` (the
+September ones have not run since they were written, so expect their
+coordinates and anchors to want a look first): the colony's days —
+`stage_settle_client.ps1`, `stage_days_client.ps1`, `stage_report_client.ps1`
+and `stage_seven_client.ps1`; the suited run — `stage_rocket_client.ps1`; the
+benches — `stage_augment_client.ps1`, `stage_menus_client.ps1` and
+`stage_screens_client.ps1`; the kitchen — `stage_kitchen_client.ps1` and
+`stage_stations_client.ps1`; the worldgen and tab walk —
+`stage_features_client.ps1`, `stage_agent8_client.ps1`,
+`stage_creatures_client.ps1` and `stage_jei_client.ps1`; the standing walk
+and the rift and road have no driver yet. `stage_vale_client.ps1` is the
+pattern to copy: it fronts the game before every step and its header lists
+the traps.
+
 1. **The colony's days** (one Overworld world, one colony, `/time add 24000`
    between reads): found it by supply camp and build tool and watch a builder
    work from requests; read every line of `/elysium colony` and `people`; the
