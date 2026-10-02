@@ -209,7 +209,10 @@ why it is worth doing; never a restatement of the title).
   finish those steps): no survival source for arcana shards (the_geodes cannot start); arsenal
   dig sites, fossils, totems and rotten wood are never placed in a world; the Vale has no
   entrance (its visit quest was dropped); pigeons never spawn; `neural_leggings`,
-  `dimensional_boots` and the armory `template` have no recipe or drop.
+  `dimensional_boots` and the armory `template` have no recipe or drop. *(All closed by the survival
+  walk of 29 Sep - 2 Oct: geodes grow wild, the dig generates, the Vale has its gate, pigeons spawn,
+  the template is found in chests, and the leggings and boots are crafted - check_obtainable.py reaches
+  every one; nothing here waits on Dylan any more.)*
 * **29 Sep, just after midnight — verified and committed.** Root validate green (29 module
   validators and the cross-checks); negtests almanac 73/0, web 9/0, experience 8/0, colonies3
   24 caught (its 9 misses are the old stale anchors). In the game on E: (screenshots in
