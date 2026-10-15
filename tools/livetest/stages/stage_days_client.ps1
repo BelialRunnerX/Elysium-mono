@@ -1,6 +1,6 @@
 . "$PSScriptRoot\mc.ps1"
 # Skip days at Dunfield so the town raises its hall and huts by itself, and photograph it.
-$log = 'E:\testingbuilds\Elysium\logs\latest.log'
+$log = $script:McLog   # the dev client's log under ELYSIUM_TEST_ROOT, set by mc.ps1
 function LogLines { Get-Content $log -ErrorAction SilentlyContinue }
 $x = if ($args.Count -ge 2) { [int]$args[0] } else { 4837 }; $z = if ($args.Count -ge 2) { [int]$args[1] } else { -5051 }
 MC-Place 0 0 1600 900

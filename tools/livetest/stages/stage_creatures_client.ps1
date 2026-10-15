@@ -1,7 +1,7 @@
 . "$PSScriptRoot\mc.ps1"
 # The creatures on their body plans, summoned in a row and photographed in the game.
 $Out = if ($env:ELYSIUM_SHOTS) { $env:ELYSIUM_SHOTS } else { $PSScriptRoot }
-$log = 'E:\testingbuilds\Elysium\logs\latest.log'
+$log = $script:McLog   # the dev client's log under ELYSIUM_TEST_ROOT, set by mc.ps1
 function LogLines { Get-Content $log -ErrorAction SilentlyContinue }
 function Chat($n, $pattern) { (LogLines)[$n..((LogLines).Count - 1)] | Select-String 'CHAT\]' | Select-String $pattern | ForEach-Object { $s = $_.Line; $s.Substring([Math]::Min(95, $s.Length)) } }
 

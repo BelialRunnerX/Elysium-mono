@@ -3,7 +3,7 @@
 $Out = if ($env:ELYSIUM_SHOTS) { $env:ELYSIUM_SHOTS } else { $PSScriptRoot }
 # The runs: every pipe-like block ends in a plate against the device it feeds,
 # a dye colours it, and dyed runs only join their own colour or an undyed run.
-$log = 'E:\testingbuilds\Elysium\logs\latest.log'
+$log = $script:McLog   # the dev client's log under ELYSIUM_TEST_ROOT, set by mc.ps1
 function LogLines { Get-Content $log -ErrorAction SilentlyContinue }
 function ChatSince($n) { (LogLines)[$n..((LogLines).Count - 1)] | Select-String 'CHAT\]' | ForEach-Object { $_.Line.Substring([Math]::Min(95, $_.Line.Length)) } }
 MC-Place 0 0 1600 900

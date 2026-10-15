@@ -8,25 +8,39 @@ not where this document first put it.
 
 ---
 
-## 0. Where the source is (rewritten 2 October 2026)
+## 0. Where the source is (rewritten 15 October 2026)
 
-**The tree is a git checkout on Dylan's machine**, branch `integration`, at
+**The tree is a git checkout at `C:\Users\weaks\Elysium-mono`**, branch `main`,
+tracking the private GitHub repository `BelialRunnerX/Elysium-mono` (remote
+`github`, default branch `main`; the pre-conversion `master` is kept there as
+`archive/master-2026-08-29`). `%TEMP%\Elysium-mono` (`/tmp/Elysium-mono` in Git
+Bash) is a junction to it, for the paths older notes spell. `D:\Elysium-mono` is
+the only mirror. After a commit, `bash tools/sync.sh` fast-forwards the mirror,
+refreshes the handbacks (`C:\testingbuilds\Elysium\handback` and the same
+under `D:`) and pushes `main` to GitHub. Merges are staged in a second clone,
+`C:\Users\weaks\Elysium-merge`, never in the working tree.
 
-    C:\Users\weaks\AppData\Local\Temp\Elysium-mono      (= /tmp/Elysium-mono in Git Bash)
+**Any clone needs `core.autocrlf false`.** Git for Windows sets it true
+system-wide, and a CRLF checkout fails 19 module validators on "generated files
+differ". `tools/setup_env.py` checks it, sets it in the clone's own config, and
+prints the re-checkout that rewrites files already CRLF.
 
-After every commit it is fast-forwarded to two mirrors, `E:\Elysium-mono` and
-`D:\Elysium-mono`, and a bundle, a patch and the built jars are written to
-`E:\testingbuilds\Elysium\handback` and the same under `D:` (the lead's
-`sync_mirrors.sh` does all of it). The GitHub remote still predates the
-conversion; nothing is pushed there.
+**The build environment is rebuilt by `python3 tools/setup_env.py`** and lives
+at `C:\Users\weaks\Elysium-env` (`mc`, `mcwin`, `mods`, `ref\stellaris`),
+built from the local CurseForge install. It verifies every piece (`--check`
+verifies and writes nothing) and prints the exports for the validators and for
+`compile.sh`. Storage Sense emptied %TEMP% on 11 October 2026 and took the old
+`/tmp/mc`, `C:/tmp/mcwin`, `/tmp/mods` and `/tmp/ref/stellaris` with it; those
+paths, and the build outputs `/tmp/elysium-classes` (compile.sh) and
+`/tmp/elysium-loadtest` (check_loadtest.py), are now junctions into Elysium-env
+that the script re-creates. Nothing durable goes in %TEMP% or `C:\tmp` again.
 
-To check a copy: `ls -d elysium-*` counts 29, `ls tools/negtest/*.sh` counts
-212, and `git log --oneline -1` is `84ef6ee2` or later.
+**The test rigs live under `C:\testingbuilds`** (`ELYSIUM_TEST_ROOT` moves
+them): `ElysiumServer`, the dedicated server the live suite drives over RCON,
+and `Elysium`, the dev client the stages drive. The E: drive that held them and
+the second mirror was lost on 14 October 2026, and they were rebuilt on C:.
 
-The test instances are `E:\testingbuilds\ElysiumServer` (the dedicated
-server the live suite drives over RCON) and `E:\testingbuilds\Elysium` (the dev
-client the stages drive); E: is FAT32 and the client's world fails to save
-oversized chunks there, which is noise, not a fault.
+To check a copy: `ls -d elysium-*` counts 29 and `ls tools/negtest/*.sh` 212.
 
 **Read the dated trail first:** `docs/handoff/2026-09-28-questbook-handoff.md`,
 then `docs/CONVERSION.md` §16.15–16.16 and §17, then `docs/PLAYTEST.md`.

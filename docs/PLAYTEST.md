@@ -156,7 +156,9 @@ benches — `stage_augment_client.ps1`, `stage_menus_client.ps1` and
 `stage_creatures_client.ps1` and `stage_jei_client.ps1`; the standing walk
 and the rift and road have no driver yet. `stage_vale_client.ps1` is the
 pattern to copy: it fronts the game before every step and its header lists
-the traps.
+the traps. How a sitting is run, the machine and the report it ends with, is
+`docs/handoff/SITTING_BRIEF.md`; `tools/livetest/stages/client_up.ps1` brings
+the client up on the installed jar and waits for the join.
 
 1. **The colony's days** (one Overworld world, one colony, `/time add 24000`
    between reads): found it by supply camp and build tool and watch a builder
@@ -263,9 +265,13 @@ Run the suite on a quiet machine: with a client, a compile or a negtest's javac 
 `tools/livetest/livetest.py` (CONVERSION.md §17) runs seventy scenarios (the
 forty core ones, the mechanics pass, the catalogue, the registries and the
 world sweep) over
-RCON against `E:\testingbuilds\ElysiumServer` (RCON 127.0.0.1:25575, the
+RCON against `C:\testingbuilds\ElysiumServer` (RCON 127.0.0.1:25575, the
 password in `ELYSIUM_RCON` or the test default), each on its own plot of a
-force-loaded stage at 9000, 200, 9000. Run it after installing a build;
+force-loaded stage at 9000, 200, 9000. The server and the dev client
+(`C:\testingbuilds\Elysium`) live under `ELYSIUM_TEST_ROOT` (default
+`C:\testingbuilds`); the E: drive that held them was lost, and on 14 October
+2026 the rigs were rebuilt on C:. Run it after installing a build
+(`bash tools/livetest/install.sh`);
 `--only <word>` runs a subset, `--verbose` prints every command and answer.
 The stage is left standing so a failing rig can be probed with `/data get`.
 Random ticks do not run there without a player, so crops and pots are

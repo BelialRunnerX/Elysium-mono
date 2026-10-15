@@ -1123,10 +1123,61 @@ if pending and not manifest:
 print(f"working machines   : {len(working)} with block entities, energy and "
       f"no marker left on them")
 
-# Where the real Minecraft data lives, when it is available. Several checks
-# below are only honest against it; each says so when it has to skip.
-_mc = os.environ.get("ELYSIUM_MC_LIBS", "/tmp/mc")
-_classpath_file = os.path.join(_mc, "cp.txt")
+# Where the real Minecraft data lives. Several checks below are only honest
+# against it, and none of them skips without it: each FAILS, naming what is
+# missing. Until 15 October they split cp.txt on ":" here, which on Windows
+# reads "C:/..." as two entries that do not exist, found no jar, and printed
+# "32 entries, not cross-checked" for the kiln and nothing at all for the
+# recipes' vanilla ids and tags - three checks reporting a pass for three
+# weeks without opening a jar.
+sys.path.insert(0, str(WORK.parent / "tools"))
+import mcpath  # noqa: E402
+_classpath_file = os.path.join(mcpath.libs(), "cp.txt")
+_classpath = mcpath.classpath(_classpath_file)
+
+
+def _vanilla_data_jar():
+    """
+    The jar carrying the game's own data, or None (and a failure) without one.
+
+    Vanilla's, not the first jar with a data/minecraft/ folder: NeoForge's jar
+    sits first on the classpath and carries 190 recipes of its own, none of
+    them smelting, so "the first jar with recipes in it" reads as every stone
+    in the game having stopped being smeltable (tools/classpath/README.md,
+    point 3). Vanilla's data jars - the client jar, its -extra split, and
+    vanilla-assets.jar - all carry version.json at the root; NeoForge's does
+    not. The classpath is looked at first, then vanilla.jar beside cp.txt,
+    which is where setup_env.py puts it because its classes must not be on
+    the compile path.
+    """
+    import zipfile
+    candidates = [part for part in _classpath if part.endswith(".jar")] + [
+        os.path.join(mcpath.libs(), "vanilla.jar"),
+        os.path.join(mcpath.libs(), "libs", "vanilla-assets.jar"),
+        os.environ.get("MC_JAR", "")]
+    for jar in candidates:
+        if not jar or not os.path.isfile(jar):
+            continue
+        try:
+            with zipfile.ZipFile(jar) as archive:
+                if "version.json" in archive.namelist():
+                    return jar
+        except Exception:
+            continue
+    return None
+
+
+_unusable = mcpath.problem(_classpath_file)
+if _unusable:
+    fail(f"{_unusable}, so the machine harness, the recipes' vanilla ids and "
+         f"tags and the kiln's inputs cannot be checked")
+_vanilla_jar = _vanilla_data_jar()
+if _vanilla_jar is None:
+    fail(f"no jar with the game's own data (version.json at its root) on the "
+         f"classpath in {_classpath_file}, nor at "
+         f"{os.path.join(mcpath.libs(), 'vanilla.jar')} or in MC_JAR, so no "
+         f"recipe's vanilla item or tag and none of the kiln's inputs can be "
+         f"checked (run tools/setup_env.py)")
 
 
 # ---------------------------------------------------------------------------
@@ -1279,47 +1330,37 @@ if _tree.is_file():
 # machine working correctly and the player being wrong.
 
 def _vanilla_items():
-    """Every vanilla item id, from the jar's item models. None without a jar."""
+    """Every vanilla item id, from the jar's item models. None (failed) without."""
     import zipfile
-    if not os.path.isfile(_classpath_file):
+    if _vanilla_jar is None:
+        return None                       # already failed, naming the jar
+    with zipfile.ZipFile(_vanilla_jar) as archive:
+        found = {"minecraft:" + name.split("/")[-1][:-len(".json")]
+                 for name in archive.namelist()
+                 if name.startswith("assets/minecraft/models/item/")
+                 and name.endswith(".json")}
+    if not found:
+        fail(f"{_vanilla_jar} carries no assets/minecraft/models/item/, so no "
+             f"recipe's vanilla item can be checked against it")
         return None
-    for jar in open(_classpath_file, encoding="utf-8").read().strip().split(":"):
-        if not jar.endswith(".jar") or not os.path.isfile(jar):
-            continue
-        try:
-            archive = zipfile.ZipFile(jar)
-        except Exception:
-            continue
-        with archive:
-            found = {"minecraft:" + name.split("/")[-1][:-len(".json")]
-                     for name in archive.namelist()
-                     if name.startswith("assets/minecraft/models/item/")
-                     and name.endswith(".json")}
-            if found:
-                return found
-    return None
+    return found
 
 
 def _vanilla_item_tags():
-    """Every vanilla *item* tag id. None without a jar."""
+    """Every vanilla *item* tag id. None (failed) without."""
     import zipfile
-    if not os.path.isfile(_classpath_file):
+    if _vanilla_jar is None:
+        return None                       # already failed, naming the jar
+    prefix = "data/minecraft/tags/item/"
+    with zipfile.ZipFile(_vanilla_jar) as archive:
+        found = {"minecraft:" + name[len(prefix):-len(".json")]
+                 for name in archive.namelist()
+                 if name.startswith(prefix) and name.endswith(".json")}
+    if not found:
+        fail(f"{_vanilla_jar} carries no {prefix}, so no recipe's vanilla tag "
+             f"can be checked against it")
         return None
-    for jar in open(_classpath_file, encoding="utf-8").read().strip().split(":"):
-        if not jar.endswith(".jar") or not os.path.isfile(jar):
-            continue
-        try:
-            archive = zipfile.ZipFile(jar)
-        except Exception:
-            continue
-        with archive:
-            prefix = "data/minecraft/tags/item/"
-            found = {"minecraft:" + name[len(prefix):-len(".json")]
-                     for name in archive.namelist()
-                     if name.startswith(prefix) and name.endswith(".json")}
-            if found:
-                return found
-    return None
+    return found
 
 
 # Which block reads which recipe type. Read from the Java rather than repeated,
@@ -1342,6 +1383,9 @@ else:
     _by_machine = gen_solarpunk.processing_recipes()
     _vanilla_ids = _vanilla_items()
     _vanilla_tags = _vanilla_item_tags()
+    #: How many vanilla ids and tags were actually looked up, so a run that
+    #: looked up none of them says so instead of "every id resolved".
+    _vanilla_asked = 0
     _own_tags = {f"{NS}:{path.stem}" for path in
                  (RES / f"data/{NS}/tags/item").glob("*.json")}
 
@@ -1398,10 +1442,12 @@ else:
                 if _tag_id not in _own_tags:
                     fail(f"{_name}.json takes #{_tag_id} and this mod ships no "
                          f"such item tag")
-            elif _vanilla_tags is not None and _tag_id not in _vanilla_tags:
-                fail(f"{_name}.json takes #{_tag_id}, which is not a vanilla "
-                     f"*item* tag. A block tag used as an ingredient resolves "
-                     f"to nothing and the recipe fails to load in silence")
+            elif _vanilla_tags is not None:   # None has failed, naming the jar
+                _vanilla_asked += 1
+                if _tag_id not in _vanilla_tags:
+                    fail(f"{_name}.json takes #{_tag_id}, which is not a vanilla "
+                         f"*item* tag. A block tag used as an ingredient resolves "
+                         f"to nothing and the recipe fails to load in silence")
         else:
             _named.append(_input["item"])
 
@@ -1410,8 +1456,10 @@ else:
                 if _id.split(":", 1)[1] not in item_ids:
                     fail(f"{_name}.json names {_id}, which this mod does not "
                          f"register")
-            elif _vanilla_ids is not None and _id not in _vanilla_ids:
-                fail(f"{_name}.json names {_id}, which is not a vanilla item")
+            elif _vanilla_ids is not None:    # None has failed, naming the jar
+                _vanilla_asked += 1
+                if _id not in _vanilla_ids:
+                    fail(f"{_name}.json names {_id}, which is not a vanilla item")
 
     # The point of a machine: it has to beat doing the same thing by hand.
     for _row in gen_solarpunk.PROCESSING:
@@ -1490,8 +1538,14 @@ else:
 
     _totals = ", ".join(f"{len(rows)} for {machine}"
                         for machine, rows in sorted(_by_machine.items()))
+    if process_recipes and _vanilla_ids is not None and not _vanilla_asked:
+        fail(f"{len(process_recipes)} processing recipes and not one vanilla id "
+             f"or tag among them looked up in {_vanilla_jar}: either they all "
+             f"name this mod's items now, or the lookup stopped being reached")
     print(f"processing         : {len(process_recipes)} recipes ({_totals}), "
-          f"every id resolved, each beating the hand recipe it replaces")
+          f"every id resolved ({_vanilla_asked} vanilla ids and tags against "
+          f"{os.path.basename(_vanilla_jar or 'no jar')}), each beating the "
+          f"hand recipe it replaces")
     for _line in _lines:
         print(f"recipe economics   : {_line}")
 
@@ -1511,42 +1565,40 @@ else:
 # says so, and it makes the next reader believe a decision was made that was
 # not.
 def _vanilla_smelting_by_category():
-    """{category: {ingredient}} read from whichever jar carries vanilla data."""
+    """{category: {ingredient}} read from vanilla's own data jar. None (failed) without."""
     import zipfile
-    if not os.path.isfile(_classpath_file):
-        return None
-    for jar in open(_classpath_file, encoding="utf-8").read().strip().split(":"):
-        if not jar.endswith(".jar") or not os.path.isfile(jar):
-            continue
-        try:
-            archive = zipfile.ZipFile(jar)
-        except Exception:
-            continue
-        with archive:
-            names = [n for n in archive.namelist()
-                     if n.startswith("data/minecraft/recipe/") and n.endswith(".json")]
-            if not names:
+    if _vanilla_jar is None:
+        return None                       # already failed, naming the jar
+    found = {}
+    with zipfile.ZipFile(_vanilla_jar) as archive:
+        names = [n for n in archive.namelist()
+                 if n.startswith("data/minecraft/recipe/") and n.endswith(".json")]
+        for name in names:
+            try:
+                recipe = json.loads(archive.read(name))
+            except Exception:
                 continue
-            found = {}
-            for name in names:
-                try:
-                    recipe = json.loads(archive.read(name))
-                except Exception:
-                    continue
-                if recipe.get("type") != "minecraft:smelting":
-                    continue
-                ingredient = recipe.get("ingredient")
-                if isinstance(ingredient, dict) and "item" in ingredient:
-                    value = ingredient["item"]
-                elif isinstance(ingredient, dict) and "tag" in ingredient:
-                    value = "#" + ingredient["tag"]
-                elif isinstance(ingredient, str):
-                    value = ingredient
-                else:
-                    continue        # a list of alternatives; only in `misc`
-                found.setdefault(recipe.get("category", "misc"), set()).add(value)
-            return found
-    return None
+            if recipe.get("type") != "minecraft:smelting":
+                continue
+            ingredient = recipe.get("ingredient")
+            if isinstance(ingredient, dict) and "item" in ingredient:
+                value = ingredient["item"]
+            elif isinstance(ingredient, dict) and "tag" in ingredient:
+                value = "#" + ingredient["tag"]
+            elif isinstance(ingredient, str):
+                value = ingredient
+            else:
+                continue        # a list of alternatives; only in `misc`
+            found.setdefault(recipe.get("category", "misc"), set()).add(value)
+    if not found.get("blocks"):
+        # Vanilla files dozens of smelting recipes under `blocks`. None at all
+        # is a jar that is not vanilla's data, and comparing the kiln against
+        # it would report every input as an extra.
+        fail(f"{_vanilla_jar} has {len(names)} recipes and no smelting recipe "
+             f"in the `blocks` category, so it is not vanilla's data and the "
+             f"kiln's inputs cannot be checked against it")
+        return None
+    return found
 
 _kiln_tag = WORK / f"src/main/resources/data/{NS}/tags/item/kiln_inputs.json"
 if not _kiln_tag.is_file():
@@ -1558,8 +1610,7 @@ else:
     _shipped = set(json.loads(_kiln_tag.read_text(encoding="utf-8"))["values"])
     _vanilla = _vanilla_smelting_by_category()
     if _vanilla is None:
-        print(f"kiln inputs        : {len(_shipped)} entries, not cross-checked "
-              f"(no Minecraft classpath at {_classpath_file})")
+        pass                              # failed above, naming the missing jar
     else:
         _blocks = _vanilla.get("blocks", set())
         _expected = (_blocks - set(gen_solarpunk.KILN_DROPS)) \
@@ -1608,16 +1659,15 @@ _harness = WORK / "tools/MachineHarness.java"
 if not _harness.is_file():
     fail("tools/MachineHarness.java is missing — the machines' numbers are no "
          "longer executed anywhere, only read")
-elif not os.path.isfile(_classpath_file):
-    print(f"machine numbers    : not run, no Minecraft classpath at "
-          f"{_classpath_file} (set ELYSIUM_MC_LIBS)")
+elif _unusable:
+    pass                                  # failed above: no classpath, no harness
 else:
     import subprocess
     import tempfile
 
-    _cp = open(_classpath_file, encoding="utf-8").read().strip()
-    _annotations = os.environ.get(
-        "ELYSIUM_ANNOTATIONS", "/opt/gradle-8.14.3/lib/annotations-24.0.1.jar")
+    _cp = mcpath.join(_classpath)
+    _annotations = mcpath.native(os.environ.get(
+        "ELYSIUM_ANNOTATIONS", "/opt/gradle-8.14.3/lib/annotations-24.0.1.jar"))
     if os.path.isfile(_annotations):
         _cp += os.pathsep + _annotations
     # The conduit is a run and reads the library's run package, so the

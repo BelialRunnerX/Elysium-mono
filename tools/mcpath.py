@@ -42,6 +42,8 @@ def split(text):
         return []
     if ";" in text:
         parts = text.split(";")
+    elif re.fullmatch(r"[a-zA-Z]:[\\/][^:]*", text):
+        parts = [text]                    # one Windows entry: "C:/x.jar" is not "C" and "/x.jar"
     elif re.search(r":(?=/)", text) or (":" in text and not re.search(r"^[a-zA-Z]:[\\/]", text)):
         parts = text.split(":")
     else:
@@ -60,3 +62,25 @@ def classpath(path=None):
 def join(parts):
     """One -cp argument for this OS."""
     return os.pathsep.join(p for p in parts if p)
+
+
+def problem(path=None):
+    """
+    Why this classpath cannot be asked anything, or None when it can.
+
+    For a check to FAIL on, never to skip on. Three checks spent September
+    splitting this file on ":" themselves, reading "C:/..." as two entries
+    neither of which exists, and reporting "0 checked" as a pass. A check that
+    reads its jars through here and stops on this cannot do that quietly.
+    """
+    path = path or os.path.join(MC, "cp.txt")
+    if not os.path.isfile(path):
+        return (f"there is no classpath file at {path} (set ELYSIUM_MC_LIBS to the "
+                f"folder holding cp.txt, or run tools/setup_env.py)")
+    parts = classpath(path)
+    if not parts:
+        return f"the classpath file {path} names no jars"
+    if not any(os.path.exists(part) for part in parts):
+        return (f"the classpath file {path} names {len(parts)} entries and none of "
+                f"them exists here (the first is {parts[0]})")
+    return None

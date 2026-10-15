@@ -5,7 +5,7 @@ reads the result back. Coordinates are relative to the plot's origin.
 A rig is described in one place, read the way a player would build it, so a
 failing scenario names a thing a player would meet.
 """
-from livetest import scenario
+from livetest import scenario, SERVER_LOG
 
 RUNS = [
     # (run block, device block, own colour, a device face to check)
@@ -700,7 +700,7 @@ def agronomy_cutting_board(t):
     on_disk = (len(_glob.glob(_os.path.join(_AGRONOMY_DATA, "cooking", "*.json")))
                + len(_glob.glob(_os.path.join(_AGRONOMY_DATA, "larder", "*.json"))),
                len(_glob.glob(_os.path.join(_AGRONOMY_DATA, "cutting", "*.json"))))
-    log = _os.environ.get("ELYSIUM_SERVER_LOG", "E:/testingbuilds/ElysiumServer/logs/latest.log")
+    log = _os.environ.get("ELYSIUM_SERVER_LOG", SERVER_LOG)
     known = None
     if _os.path.isfile(log):
         with open(log, encoding="utf-8", errors="replace") as f:
@@ -1067,7 +1067,7 @@ def colony_ruin(t):
     # ruin a failure (1 Oct). RuinRules keeps nineteen in twenty of the floor row and
     # never all of the roof, so a fiftieth of the building, and never fewer than
     # twenty blocks, is the least that can stand.
-    log = _os.environ.get("ELYSIUM_SERVER_LOG", "E:/testingbuilds/ElysiumServer/logs/latest.log")
+    log = _os.environ.get("ELYSIUM_SERVER_LOG", SERVER_LOG)
     account = None
     if _os.path.isfile(log):
         with open(log, encoding="utf-8", errors="replace") as f:

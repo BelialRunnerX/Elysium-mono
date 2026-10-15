@@ -1,6 +1,6 @@
 . "$PSScriptRoot\mc.ps1"
 # The pack as ours alone: the world opens, and a thing from each corner of it still works.
-$log = 'E:\testingbuilds\Elysium\logs\latest.log'
+$log = $script:McLog   # the dev client's log under ELYSIUM_TEST_ROOT, set by mc.ps1
 function LogLines { Get-Content $log -ErrorAction SilentlyContinue }
 function ChatSince($n) { (LogLines)[$n..((LogLines).Count - 1)] | Select-String 'CHAT\]' | ForEach-Object { $_.Line.Substring([Math]::Min(95, $_.Line.Length)) } }
 MC-Place 0 0 1600 900

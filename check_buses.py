@@ -35,7 +35,9 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CLASSPATH_FILE = "/tmp/mc/cp.txt"
+sys.path.insert(0, os.path.join(HERE, "tools"))
+import mcpath  # noqa: E402
+CLASSPATH_FILE = os.path.join(mcpath.libs(), "cp.txt")
 MARKER = "net.neoforged.fml.event.IModBusEvent"
 
 problems = []
@@ -59,11 +61,25 @@ def strip_comments(text):
 # Asking the jars
 # ---------------------------------------------------------------------------
 
-if not os.path.isfile(CLASSPATH_FILE):
-    print(f"buses             : skipped, no {CLASSPATH_FILE} to ask")
-    sys.exit(0)
+def stop(why):
+    """
+    No jars, no check, and that is a failure rather than a skip.
 
-CLASSPATH = open(CLASSPATH_FILE, encoding="utf-8").read().strip()
+    From late September to 15 October this file split cp.txt on ":" itself,
+    which on Windows turns "C:/..." into two entries that do not exist, and
+    reported "0 listener(s) checked ... (277 not in the jars, skipped)" as a
+    pass. Nothing was asked of any jar in all that time.
+    """
+    print("buses              : FAILED")
+    print("  - " + why + ", so not one listener's bus can be checked")
+    sys.exit(1)
+
+
+_unusable = mcpath.problem(CLASSPATH_FILE)
+if _unusable:
+    stop(_unusable)
+
+CLASSPATH = mcpath.join(mcpath.classpath(CLASSPATH_FILE))
 _known = {}
 
 
@@ -82,6 +98,38 @@ def _javap(fqcn):
     return line
 
 
+DECLARED = re.compile(r"\b(?:class|interface)\s+([\w.$]+)")
+
+
+def _prefetch(names):
+    """
+    Ask for many classes in one javap, and their superclasses after them.
+
+    The same answers _javap gives one at a time; one JVM per class made this
+    check take two and a half minutes once it was finally asking the jars
+    anything, which is long enough for nobody to run it.
+    """
+    wanted = sorted({n for n in names if n and n not in _known})
+    while wanted:
+        for start in range(0, len(wanted), 100):
+            chunk = wanted[start:start + 100]
+            result = subprocess.run(["javap", "-cp", CLASSPATH] + chunk,
+                                    capture_output=True, text=True)
+            for text in result.stdout.splitlines():
+                declared = DECLARED.search(text)
+                if declared and declared.group(1) in chunk and declared.group(1) not in _known:
+                    _known[declared.group(1)] = text
+            for name in chunk:
+                _known.setdefault(name, None)
+        parents = set()
+        for name in wanted:
+            line = _known.get(name)
+            parent = re.search(r"\bextends\s+([\w.$]+)", line) if line else None
+            if parent and parent.group(1) != "java.lang.Object":
+                parents.add(parent.group(1))
+        wanted = sorted(parents - set(_known))
+
+
 def on_mod_bus(fqcn, seen=()):
     """Whether this event class implements IModBusEvent, inherited or not."""
     if fqcn in seen:
@@ -95,6 +143,13 @@ def on_mod_bus(fqcn, seen=()):
     if not parent or parent.group(1) == "java.lang.Object":
         return False
     return on_mod_bus(parent.group(1), seen + (fqcn,))
+
+
+# The one class every answer below depends on. A classpath that has files on it
+# and not this one (the wrong cp.txt, or the right one handed over in a form
+# javap cannot read) answers "not in the jars" for every event in the tree.
+if _javap(MARKER) is None:
+    stop(f"javap cannot find {MARKER} on the classpath in {CLASSPATH_FILE}")
 
 
 # ---------------------------------------------------------------------------
@@ -234,8 +289,11 @@ for name, (module, path, body) in sorted(files.items()):
             continue
         listeners.append((module, name, event, owner_body, bus, "addListener"))
 
+_prefetch(resolve(event, body) for _, _, event, body, _, _ in listeners)
+
 checked = 0
 unresolved = 0
+missing = []
 for module, name, event, body, bus, how in listeners:
     fqcn = resolve(event, body)
     if fqcn is None:
@@ -244,6 +302,12 @@ for module, name, event, body, bus, how in listeners:
     mod_bus = on_mod_bus(fqcn)
     if mod_bus is None:
         unresolved += 1
+        if fqcn.startswith(("net.neoforged.", "net.minecraft.")):
+            # The game's own event, which the jars that answered for
+            # IModBusEvent above cannot find: the resolver misread the name,
+            # or the classpath is not the game's. Neither is a skip.
+            missing.append(f"{module}/{name}: {event} resolves to {fqcn}, which "
+                           f"is not on the classpath in {CLASSPATH_FILE}")
         continue                          # a compat jar that is not on this classpath
     checked += 1
     if mod_bus and bus == "game":
@@ -253,6 +317,12 @@ for module, name, event, body, bus, how in listeners:
         fail(f"{module}/{name}: {event} is a game-bus event and {how} put it on "
              f"the mod bus — NeoForge refuses that at construction and the game "
              f"crashes before the title screen")
+
+for line in missing:
+    fail(line)
+if listeners and not checked:
+    fail(f"{len(listeners)} listener(s) found and not one of them checked against "
+         f"the jars in {CLASSPATH_FILE}: a check that asks nothing must not pass")
 
 if problems:
     print("buses              : FAILED")

@@ -86,6 +86,89 @@ else
 fi
 restore
 
+echo "the classpath itself (15 Oct 2026)"
+# From late September this check split cp.txt on ":" itself, read "C:/..." as
+# two entries that do not exist, and printed "0 listener(s) checked ... (277
+# not in the jars, skipped)" as a pass. Each way of having no jars to ask must
+# now FAIL and name what is missing. Every cp.txt below is written in a scratch
+# folder handed over as ELYSIUM_MC_LIBS; the real one is never touched.
+CPD=$(mktemp -d)
+cp_out() { (cd $ROOT && ELYSIUM_MC_LIBS="$CPD" timeout 600 python3 check_buses.py 2>&1); }
+cp_expect() { local w="$2" g; g="$(cp_out)"
+  if [[ "$g" == *"FAILED"* && "$g" == *"$w"* ]]; then echo "  caught : $1"; pass=$((pass+1));
+  else echo "  MISSED : $1"; fail=$((fail+1)); fi; restore; }
+cp_write() { python3 - "$CPD" "$1" "$ROOT/tools" <<'PYX'
+import os, re, sys, zipfile
+folder, how, tools = sys.argv[1], sys.argv[2], sys.argv[3]
+sys.path.insert(0, tools)
+import mcpath
+target = os.path.join(folder, "cp.txt")
+if how == "none":
+    if os.path.exists(target):
+        os.remove(target)
+    sys.exit(0)
+if how == "absent":
+    text = "/nowhere/neoforge.jar:/nowhere/loader.jar"
+elif how == "stranger":
+    jar = os.path.join(folder, "stranger.jar")
+    with zipfile.ZipFile(jar, "w") as out:
+        out.writestr("stranger/Nothing.txt", "not the game")
+    text = jar
+elif how == "posix":
+    real = mcpath.classpath()
+    if not real:
+        sys.exit("the real classpath is empty; this case needs it")
+    text = ":".join("/" + p[0].lower() + p[2:] if re.match(r"^[A-Za-z]:", p) else p
+                    for p in real)
+open(target, "w", encoding="utf-8", newline=chr(10)).write(text + chr(10))
+PYX
+}
+cp_write none
+cp_expect "no cp.txt at all, which used to print skipped and pass" "there is no classpath file at"
+cp_write absent
+cp_expect "a cp.txt naming jars that are not here" "none of them exists here"
+cp_write stranger
+cp_expect "a cp.txt naming a real jar that is not the game's" "javap cannot find net.neoforged.fml.event.IModBusEvent"
+
+cp_write posix
+g="$(cp_out)"
+if [[ "$g" == *"every one on the bus its event is fired on"* && "$g" != *" 0 listener(s)"* ]]; then
+  echo "  allowed: the colon-joined POSIX cp.txt, read through mcpath"; pass=$((pass+1))
+else
+  echo "  FALSE POSITIVE : the colon-joined POSIX cp.txt, read through mcpath"; fail=$((fail+1))
+fi
+restore
+
+case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*)
+  # The September bug itself, which only Windows can show: the POSIX file
+  # handed to javap whole instead of through mcpath.
+  edit $ROOT/check_buses.py 'CLASSPATH = mcpath.join(mcpath.classpath(CLASSPATH_FILE))' \
+    'CLASSPATH = open(CLASSPATH_FILE, encoding="utf-8").read().strip()'
+  cp_expect "the POSIX cp.txt handed to javap unread, as from September to 15 October" \
+    "javap cannot find net.neoforged.fml.event.IModBusEvent" ;;
+esac
+
+# The guard under the per-event one: with that switched off and every event
+# answering "not in the jars", 0 of N checked must still fail on its own.
+edit $ROOT/check_buses.py '        if fqcn.startswith(("net.neoforged.", "net.minecraft.")):' \
+  '        if False:'
+edit $ROOT/check_buses.py 'def on_mod_bus(fqcn, seen=()):' 'def on_mod_bus(fqcn, seen=()):
+    return None'
+g="$(out)"
+if [[ "$g" == *"FAILED"* && "$g" == *"not one of them checked against"* ]]; then
+  echo "  caught : the jars answering for the marker and for no event, 0 of N checked"; pass=$((pass+1))
+else
+  echo "  MISSED : the jars answering for the marker and for no event, 0 of N checked"; fail=$((fail+1))
+fi
+restore
+
+edit $ROOT/check_buses.py 'def on_mod_bus(fqcn, seen=()):' 'def on_mod_bus(fqcn, seen=()):
+    if fqcn.endswith("PlayerTickEvent$Post"):
+        return None'
+expect "one of the game's own events not found in the jars, which used to be skipped" \
+  "which is not on the classpath in"
+rm -rf "$CPD"
+
 echo
 echo "restoring and re-checking"
 restore

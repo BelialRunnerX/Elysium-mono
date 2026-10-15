@@ -1,6 +1,6 @@
 . "$PSScriptRoot\mc.ps1"
 # Agent 8's work in the E client: creatures by kindred and court, comforts fittings, arcana budding blocks.
-$log = 'E:\testingbuilds\Elysium\logs\latest.log'
+$log = $script:McLog   # the dev client's log under ELYSIUM_TEST_ROOT, set by mc.ps1
 function LogLines { Get-Content $log -ErrorAction SilentlyContinue }
 function ChatSince($n) { (LogLines)[$n..((LogLines).Count - 1)] | Select-String 'CHAT\]' | ForEach-Object { $_.Line.Substring([Math]::Min(95, $_.Line.Length)) } }
 MC-Place 0 0 1600 900

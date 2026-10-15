@@ -113,7 +113,12 @@ CP="$CP$COMPAT_JARS"
 # pointing the wrong way fails here rather than at build time.
 MODULES="elysium-lib elysium-core elysium-dungeons elysium-mobs elysium-npcs elysium-trinkets elysium-solarpunk elysium-armory elysium-ascendancy elysium-enchanting elysium-spawners elysium-space elysium-ores elysium-flora elysium-kinetics elysium-industry elysium-atomics elysium-logistics elysium-agronomy elysium-foundry elysium-almanac elysium-transit elysium-arcana elysium-comforts elysium-atelier elysium-arsenal elysium-bestiary elysium-wilds elysium-colonies"
 
-rm -rf "$OUT"
+# Empty the output folder; never remove it. On Windows /tmp/elysium-classes is
+# a junction into C:/Users/weaks/Elysium-env (tools/setup_env.py), and rm -rf
+# on a junction removes the link, so the mkdir below would put the classes
+# back in %TEMP%. -H lets find start inside a linked $OUT.
+mkdir -p "$OUT" || exit 2
+find -H "$OUT" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 failed=0
 
 for module in $MODULES; do

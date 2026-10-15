@@ -1,6 +1,6 @@
 . "$PSScriptRoot\mc.ps1"
 # Player-side test of the self-founding colonies, in the E client's fresh world.
-$log = 'E:\testingbuilds\Elysium\logs\latest.log'
+$log = $script:McLog   # the dev client's log under ELYSIUM_TEST_ROOT, set by mc.ps1
 function LogLines { Get-Content $log -ErrorAction SilentlyContinue }
 function WaitFor([string]$pattern, [int]$seconds, [int]$from) {
     for ($i = 0; $i -lt $seconds; $i++) {

@@ -1,6 +1,6 @@
 . "$PSScriptRoot\mc.ps1"
 # Player-side checks of the kitchen and the pots, in the E client, creative.
-$log = 'E:\testingbuilds\Elysium\logs\latest.log'
+$log = $script:McLog   # the dev client's log under ELYSIUM_TEST_ROOT, set by mc.ps1
 function LogLines { Get-Content $log -ErrorAction SilentlyContinue }
 function ChatSince($n) { (LogLines)[$n..((LogLines).Count - 1)] | Select-String 'CHAT\]' | ForEach-Object { $_.Line.Substring([Math]::Min(95, $_.Line.Length)) } }
 function Hold([string]$item) { MC-Cmd '/clear @s'; Start-Sleep -Milliseconds 300; MC-Cmd "/give @s $item"; Start-Sleep -Milliseconds 500 }

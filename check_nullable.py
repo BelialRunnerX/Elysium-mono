@@ -34,7 +34,9 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CLASSPATH_FILE = "/tmp/mc/cp.txt"
+sys.path.insert(0, os.path.join(HERE, "tools"))
+import mcpath  # noqa: E402
+CLASSPATH_FILE = os.path.join(mcpath.libs(), "cp.txt")
 
 problems = []
 
@@ -58,11 +60,25 @@ def strip_comments(text):
     return re.sub(r"//[^\n]*", "", text)
 
 
-if not os.path.isfile(CLASSPATH_FILE):
-    print(f"nullable           : skipped, no {CLASSPATH_FILE} to ask")
-    sys.exit(0)
+def stop(why):
+    """
+    No jars, no check, and that is a failure rather than a skip.
 
-CLASSPATH = open(CLASSPATH_FILE, encoding="utf-8").read().strip()
+    From late September to 15 October this file split nothing and handed the
+    POSIX cp.txt to javap whole, which on Windows finds no class at all, and
+    it reported "against 0 event class(es) ... nothing chains off one" as a
+    pass. Not one getter was read from any jar in all that time.
+    """
+    print("nullable           : FAILED")
+    print("  - " + why + ", so no event's @Nullable getters can be read")
+    sys.exit(1)
+
+
+_unusable = mcpath.problem(CLASSPATH_FILE)
+if _unusable:
+    stop(_unusable)
+
+CLASSPATH = mcpath.join(mcpath.classpath(CLASSPATH_FILE))
 
 IMPORT = re.compile(r"^import\s+(?:static\s+)?([\w.]+);", re.M)
 SUBSCRIBED = re.compile(r"@SubscribeEvent[^\n]*\n\s*(?:public\s+|private\s+|protected\s+|"
@@ -88,17 +104,71 @@ def resolve(name, body):
 
 
 _nullable = {}
+#: fqcn -> javap -v's text for it, or None when the classpath does not have it.
+_sections = {}
+DECLARED = re.compile(r"\b(?:class|interface)\s+([\w.$]+)")
+
+
+def _javap_v(names):
+    """
+    javap -v for many classes in one JVM, split back into one text per class.
+
+    One JVM per class was most of this check's run time once it was finally
+    reading a jar; the answers are the same either way.
+    """
+    wanted = sorted({n for n in names if n and n not in _sections})
+    for start in range(0, len(wanted), 100):
+        chunk = wanted[start:start + 100]
+        result = subprocess.run(["javap", "-v", "-cp", CLASSPATH] + chunk,
+                                capture_output=True, text=True)
+        blocks, block = [], []
+        for line in result.stdout.splitlines():
+            if line.startswith("Classfile ") and block:
+                blocks.append(block)
+                block = []
+            block.append(line)
+        if block:
+            blocks.append(block)
+        for block in blocks:
+            for line in block:
+                if line[:1].isspace() or line.startswith(("Classfile ", "Compiled from")):
+                    continue
+                declared = DECLARED.search(line)
+                if declared and declared.group(1) in chunk:
+                    _sections.setdefault(declared.group(1), "\n".join(block))
+                break
+        for name in chunk:
+            _sections.setdefault(name, None)
+
+
+def _parent(text):
+    parent = re.search(r"\bextends\s+([\w.$]+)", text) if text else None
+    return parent.group(1) if parent else None
+
+
+def prefetch(names):
+    """Every class named, then every superclass of those, a level at a time."""
+    wanted = {n for n in names if n}
+    while wanted:
+        _javap_v(wanted)
+        wanted = {p for p in (_parent(_sections.get(n)) for n in wanted)
+                  if p and p != "java.lang.Object" and p not in _sections}
+
+
+def on_classpath(fqcn):
+    _javap_v([fqcn])
+    return _sections.get(fqcn) is not None
 
 
 def nullable_getters(fqcn):
     """The no-argument methods this class declares as @Nullable, by name."""
     if fqcn in _nullable:
         return _nullable[fqcn]
-    result = subprocess.run(["javap", "-v", "-cp", CLASSPATH, fqcn],
-                            capture_output=True, text=True)
+    _javap_v([fqcn])
+    stdout = _sections.get(fqcn) or ""
     found = set()
     current = None
-    for line in result.stdout.splitlines():
+    for line in stdout.splitlines():
         stripped = line.strip()
         signature = re.match(r"(?:public|protected)\s+[\w.$<>\[\], ?]+\s+(\w+)\(\);", stripped)
         if signature:
@@ -111,9 +181,9 @@ def nullable_getters(fqcn):
             found.add(current)
     # Superclasses carry most of an event's shape; walk one level up, which is
     # where getEntity() and friends live.
-    parent = re.search(r"\bextends\s+([\w.$]+)", result.stdout)
-    if parent and parent.group(1) not in ("java.lang.Object", fqcn):
-        found |= nullable_getters(parent.group(1))
+    parent = _parent(stdout)
+    if parent and parent not in ("java.lang.Object", fqcn):
+        found |= nullable_getters(parent)
     _nullable[fqcn] = found
     return found
 
@@ -153,8 +223,7 @@ def body_after(text, brace_at):
 #: was in a private helper the handler passed the event to.
 TAKES = re.compile(r"\b(?P<type>[\w.]*[A-Z][\w.$]*)\s+(?P<name>\w+)\s*[,)]")
 
-checked = 0
-classes = set()
+handled = []
 for module, path, body in files:
     events = set(SUBSCRIBED.findall(body)) | set(LAMBDA.findall(body))
     for owner, method in METHOD_REF.findall(body):
@@ -163,9 +232,19 @@ for module, path, body in files:
                           source)
         if found:
             events.add(found.group(1))
-    if not events:
-        continue
+    if events:
+        handled.append((module, path, body, events))
 
+asked = {fqcn for _, _, body, events in handled for fqcn in
+         (resolve(event, body) for event in events) if fqcn}
+prefetch(asked)
+#: The game's own event classes this tree handles, and which of them the jars had.
+games = {fqcn for fqcn in asked if fqcn.startswith(("net.neoforged.", "net.minecraft."))}
+read = {fqcn for fqcn in games if on_classpath(fqcn)}
+
+checked = 0
+classes = set()
+for module, path, body, events in handled:
     # Each event's nullable getters are checked only against parameters
     # declared as THAT event. Pooling the names across a file and matching
     # them anywhere in it flags LivingDeathEvent.getEntity() — which is not
@@ -201,6 +280,16 @@ for module, path, body in files:
                          f"{name}.{getter}() on a {simple}, which the jar declares "
                          f"@Nullable — put it in a local and check it, or the first "
                          f"time the game passes null the world stops where it is")
+
+# What was actually asked, made a condition of passing. "Against 0 event
+# class(es)" was this check's whole output for three weeks, and it passed.
+for fqcn in sorted(games - read):
+    fail(f"the tree handles {fqcn} and javap cannot find it on the classpath in "
+         f"{CLASSPATH_FILE}: the name was misread or the classpath is not the game's")
+if games and read and not classes:
+    fail(f"{len(read)} of the game's event classes read from the jars and not one "
+         f"@Nullable getter among them, when FinalizeSpawnEvent.getSpawner() alone "
+         f"is one: the annotations are not being read, so nothing here was checked")
 
 if problems:
     print("nullable           : FAILED")

@@ -107,13 +107,84 @@ edit $S '        Either<BlockEntity, Entity> spawner = event.getSpawner();
         }
         BlockEntity entity = spawner.left().orElse(null);' \
         '        BlockEntity entity = event.getSpawner().left().orElse(null);'
+# Until 15 October this case expected the check to PASS here, proving only
+# that the catch above came from the jar. A check reading no annotation at all
+# now says so itself.
 g="$(out)"
-if [[ "$g" == *"nothing chains off one"* ]]; then
+if [[ "$g" == *"FAILED"* && "$g" == *"not one @Nullable getter among them"* ]]; then
   echo "  caught : the jar no longer asked which getters return null"; pass=$((pass+1))
 else
   echo "  MISSED : the jar no longer asked which getters return null"; fail=$((fail+1))
 fi
 restore
+
+echo "the classpath itself (15 Oct 2026)"
+# From late September this check handed the POSIX cp.txt to javap whole, found
+# no class, and printed "against 0 event class(es) ... nothing chains off one"
+# as a pass. Each way of having no jars to ask must now FAIL and name what is
+# missing. Every cp.txt below is written in a scratch folder handed over as
+# ELYSIUM_MC_LIBS; the real one is never touched.
+CPD=$(mktemp -d)
+cp_out() { (cd $ROOT && ELYSIUM_MC_LIBS="$CPD" timeout 900 python3 check_nullable.py 2>&1); }
+cp_expect() { local w="$2" g; g="$(cp_out)"
+  if [[ "$g" == *"FAILED"* && "$g" == *"$w"* ]]; then echo "  caught : $1"; pass=$((pass+1));
+  else echo "  MISSED : $1"; fail=$((fail+1)); fi; restore; }
+cp_write() { python3 - "$CPD" "$1" "$ROOT/tools" <<'PYX'
+import os, re, sys, zipfile
+folder, how, tools = sys.argv[1], sys.argv[2], sys.argv[3]
+sys.path.insert(0, tools)
+import mcpath
+target = os.path.join(folder, "cp.txt")
+if how == "none":
+    if os.path.exists(target):
+        os.remove(target)
+    sys.exit(0)
+if how == "absent":
+    text = "/nowhere/neoforge.jar:/nowhere/loader.jar"
+elif how == "stranger":
+    jar = os.path.join(folder, "stranger.jar")
+    with zipfile.ZipFile(jar, "w") as out:
+        out.writestr("stranger/Nothing.txt", "not the game")
+    text = jar
+elif how == "posix":
+    real = mcpath.classpath()
+    if not real:
+        sys.exit("the real classpath is empty; this case needs it")
+    text = ":".join("/" + p[0].lower() + p[2:] if re.match(r"^[A-Za-z]:", p) else p
+                    for p in real)
+open(target, "w", encoding="utf-8", newline=chr(10)).write(text + chr(10))
+PYX
+}
+cp_write none
+cp_expect "no cp.txt at all, which used to print skipped and pass" "there is no classpath file at"
+cp_write absent
+cp_expect "a cp.txt naming jars that are not here" "none of them exists here"
+cp_write stranger
+cp_expect "a cp.txt naming a real jar that is not the game's" "javap cannot find it on the classpath"
+
+cp_write posix
+g="$(cp_out)"
+if [[ "$g" == *"nothing chains off one"* && "$g" != *"against 0 event"* ]]; then
+  echo "  allowed: the colon-joined POSIX cp.txt, read through mcpath"; pass=$((pass+1))
+else
+  echo "  FALSE POSITIVE : the colon-joined POSIX cp.txt, read through mcpath"; fail=$((fail+1))
+fi
+restore
+
+case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*)
+  # The September bug itself, which only Windows can show.
+  edit $ROOT/check_nullable.py 'CLASSPATH = mcpath.join(mcpath.classpath(CLASSPATH_FILE))' \
+    'CLASSPATH = open(CLASSPATH_FILE, encoding="utf-8").read().strip()'
+  cp_expect "the POSIX cp.txt handed to javap unread, as from September to 15 October" \
+    "javap cannot find it on the classpath" ;;
+esac
+
+edit $ROOT/check_nullable.py 'def on_classpath(fqcn):' 'def on_classpath(fqcn):
+    if fqcn.endswith("FinalizeSpawnEvent"):
+        return False'
+expect "one of the game's own events not found in the jars, which used to be passed over" \
+  "FinalizeSpawnEvent and javap cannot find it"
+rm -rf "$CPD"
 
 echo
 echo "restoring and re-checking"

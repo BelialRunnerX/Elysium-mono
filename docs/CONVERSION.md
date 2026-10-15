@@ -1969,12 +1969,17 @@ cables, testing power generation, making sure crop farm machines actually
 farm crops and generate items, testing I/O of all block inventories.*
 
 `tools/livetest/livetest.py` runs against the dedicated test server over
-RCON. Each scenario in `tools/livetest/scenarios.py` builds a rig with
+RCON: `C:\testingbuilds\ElysiumServer`, beside the dev client
+`C:\testingbuilds\Elysium`, both under `ELYSIUM_TEST_ROOT` (default
+`C:\testingbuilds`). The E: drive that held them was lost, and on 14 October
+2026 the rigs were rebuilt on C:. Each scenario in
+`tools/livetest/scenarios.py` builds a rig with
 commands on its own plot of a force-loaded stage far from spawn (9000, 200,
 9000; plots 24 apart), sprints the tick clock (`tick sprint`), and reads
 the result back with `/data get` and `/execute if block`. A scenario passes
 or says what it saw, in the words a player would use.
 
+    bash tools/livetest/install.sh [--smoke]       a new build on both rigs, the server restarted
     python3 tools/livetest/livetest.py [--only cable] [--verbose]
 
 Before each scenario the runner asks `tick query` and waits (up to a minute) for

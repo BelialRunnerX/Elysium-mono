@@ -7,7 +7,7 @@ $Out = if ($env:ELYSIUM_SHOTS) { $env:ELYSIUM_SHOTS } else { $PSScriptRoot }
 # growth under a player's random ticks, a rift key lighting a frame and the portal
 # taking the player in, and a grave on death. The stage stands at y 100, under the
 # altitude cold (140).
-$log = 'E:\testingbuilds\Elysium\logs\latest.log'
+$log = $script:McLog   # the dev client's log under ELYSIUM_TEST_ROOT, set by mc.ps1
 function LogLines { Get-Content $log -ErrorAction SilentlyContinue }
 function Chat($n, $pattern) { (LogLines)[$n..((LogLines).Count - 1)] | Select-String 'CHAT\]' | Select-String $pattern | ForEach-Object { $s = $_.Line; $s.Substring([Math]::Min(95, $s.Length)) } }
 function MC-SneakRClick { MC-Guard; [Win32MC]::Key([uint16]0xA0, $false); Start-Sleep -Milliseconds 400; MC-RClick; Start-Sleep -Milliseconds 200; [Win32MC]::Key([uint16]0xA0, $true); Start-Sleep -Milliseconds 300 }

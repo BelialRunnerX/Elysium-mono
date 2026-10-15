@@ -7,7 +7,7 @@
 # centre is y 210 px, the fifth tab's centre x 1131; the canvas centre (the hub) sits at
 # (800, 540) px and the fit zoom is 0.59 px per web unit, both read off the first runs' shots.
 $Out = if ($env:ELYSIUM_SHOTS) { $env:ELYSIUM_SHOTS } else { $PSScriptRoot }
-$log = 'E:\testingbuilds\Elysium\logs\latest.log'
+$log = $script:McLog   # the dev client's log under ELYSIUM_TEST_ROOT, set by mc.ps1
 function LogLines { Get-Content $log -ErrorAction SilentlyContinue }
 function Chat($n, $pattern) { (LogLines)[$n..((LogLines).Count - 1)] | Select-String 'CHAT\]' | Select-String $pattern | ForEach-Object { $s = $_.Line; $s.Substring([Math]::Min(95, $s.Length)) } }
 function Say($s) { Write-Host "$(Get-Date -Format HH:mm:ss) $s" }

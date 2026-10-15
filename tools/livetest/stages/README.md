@@ -1,20 +1,25 @@
 # Client stages
 
-The dedicated server answers questions over RCON (`../livetest.py`); these
-stages drive the test client at `E:\testingbuilds\Elysium` for what only a
-player reaches, and take the screenshots. `mc.ps1` is the driver: it finds the
-Minecraft window, sends keys and mouse through `SendInput` (only while that
+The dedicated server answers questions over RCON (`../livetest.py`, or one
+command at a time with `../rcon.py`); these stages drive the test client at
+`C:\testingbuilds\Elysium` for what only a player reaches, and take the
+screenshots. Both rigs live under `ELYSIUM_TEST_ROOT` (default
+`C:\testingbuilds`), which `mc.ps1` reads; the E: drive that held them was
+lost, and on 14 October 2026 the rigs were rebuilt on C:. `mc.ps1` is the
+driver: it finds the Minecraft window, sends keys and mouse through `SendInput` (only while that
 window is foreground), reads the chat back out of `logs/latest.log`, and
 captures the window. `MC-Resume` gets the game answering first: it asks the
 clock, presses ESC if the pause menu is up, and clicks Respawn if the world was
 saved with a dead player.
 
-Run one from PowerShell with the client already in its world:
+Run one from PowerShell with the client already in its world (`client_up.ps1`
+launches it on the installed jar if it is not up and waits for the join):
 
     powershell -NoProfile -ExecutionPolicy Bypass -File stage_mechanics_client.ps1
 
 A stage is only as new as the jar the client booted with: rerun the launcher
-after every install. Screenshots land beside the script, or in
+after every install (`bash ../install.sh` puts a build on both rigs).
+Screenshots land beside the script, or in
 `$env:ELYSIUM_SHOTS` when set.
 
 * `stage_runs_client.ps1` - the runs' plates and the dye rule, by hand placement.
@@ -27,7 +32,8 @@ after every install. Screenshots land beside the script, or in
   (POLISH.md P3). It remakes the client's world through `elysium-run-e.ps1
   -FreshWorld`, which copies a reference `level.dat` through `StripPlayer.java`
   (player removed, spawn set on land for this seed). Both live here with it;
-  their paths are this machine's test rig.
+  the launcher finds the client under `ELYSIUM_TEST_ROOT` and the jars in
+  the repository's own `dist`.
 * `stage_screens_client.ps1` - every block that opens a menu, opened once and
   photographed with a verdict, then two minutes of night with the natural
   spawns counted around the player.

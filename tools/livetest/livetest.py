@@ -19,6 +19,10 @@ gets no random ticks without a player - so those stay in the client stages;
 everything with a block-entity ticker is testable.
 
 Scenarios live in scenarios.py, one function each, decorated with @scenario.
+
+The server is the one under ELYSIUM_TEST_ROOT (default C:/testingbuilds, so
+C:/testingbuilds/ElysiumServer); tools/livetest/install.sh puts a new build on
+it and tools/livetest/rcon.py sends it one command at a time.
 """
 import argparse
 import importlib
@@ -30,6 +34,15 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+
+# Where the test rigs live. ELYSIUM_TEST_ROOT is the one override (default
+# C:/testingbuilds); the dedicated server and the dev client are folders under
+# it. The E: drive that held them was lost, and on 14 October 2026 the rigs
+# were rebuilt on C:.
+TEST_ROOT = os.environ.get("ELYSIUM_TEST_ROOT", "C:/testingbuilds").replace("\\", "/").rstrip("/")
+SERVER_DIR = TEST_ROOT + "/ElysiumServer"
+CLIENT_DIR = TEST_ROOT + "/Elysium"
+SERVER_LOG = SERVER_DIR + "/logs/latest.log"
 
 
 class Rcon:

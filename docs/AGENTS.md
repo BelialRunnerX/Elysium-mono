@@ -78,9 +78,12 @@ And when the change is behaviour a player meets, a live scenario in
 quiet machine; see docs/CONVERSION.md §17), and `/elysium audit harvest` clean
 if you added a block.
 
-Then build, install into both test instances, and update the manifest rows for
-the jars you absorbed with a sentence saying what was actually built — not
-"done", but what a player would notice.
+Then build, install into both test instances (`bash tools/livetest/install.sh`:
+the dedicated server `C:\testingbuilds\ElysiumServer` and the dev client
+`C:\testingbuilds\Elysium`, both under `ELYSIUM_TEST_ROOT`; the E: drive that
+held them was lost, and on 14 October 2026 the rigs were rebuilt on C:), and
+update the manifest rows for the jars you absorbed with a sentence saying
+what was actually built — not "done", but what a player would notice.
 
 ## The house rules
 

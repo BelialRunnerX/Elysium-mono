@@ -13,11 +13,13 @@ import os
 ARMORY = "elysium-armory/src/main/java/com/elysium/armory"
 DUNGEONS = "elysium-dungeons/src/main/java/com/elysium/dungeons"
 PARTS_DIR = "elysium-armory/src/main/resources/data/elysiumarmory/elysium_parts"
+#: The checkout this file is in: tools/obtainable/crafts.py -> the repo root.
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def _root(declared):
     root = getattr(declared, "__globals__", {}).get("ROOT")
-    return root or os.environ.get("ELYSIUM_MONO", "C:/Users/weaks/AppData/Local/Temp/Elysium-mono")
+    return root or os.environ.get("ELYSIUM_MONO") or REPO
 
 
 def _parts(root):

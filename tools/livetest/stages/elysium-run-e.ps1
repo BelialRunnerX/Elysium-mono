@@ -1,9 +1,11 @@
-# Install a chosen elysium-all jar into the E:\testingbuilds instance, optionally recreate the ElysiumBoot world from the
+# Install a chosen elysium-all jar into the dev client under ELYSIUM_TEST_ROOT (default C:\testingbuilds\Elysium), optionally recreate the ElysiumBoot world from the
 # reference level.dat, launch straight into it, and watch the log until the player joins / crash / exit.
-param([int]$TimeoutSec = 420, [string]$Jar = 'C:\ClaudeElysium\Elysium-mono\dist\elysium-all-1.0.0.jar', [switch]$NoInstall, [switch]$FreshWorld)
-$inst = 'E:\testingbuilds\Elysium'
-$dist = 'C:\ClaudeElysium\Elysium-mono\dist'
-$sp = 'C:\Users\weaks\AppData\Local\Temp\claude\C--ClaudeElysium\ca2c35be-f747-499c-a78d-35940a32ad46\scratchpad'
+param([int]$TimeoutSec = 420, [string]$Jar = '', [switch]$NoInstall, [switch]$FreshWorld)
+$root = if ($env:ELYSIUM_TEST_ROOT) { $env:ELYSIUM_TEST_ROOT } else { 'C:\testingbuilds' }
+$inst = [System.IO.Path]::Combine($root, 'Elysium')
+# the repository's own dist, three folders up from tools\livetest\stages; -Jar defaults to its elysium-all
+$dist = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..\..\dist'))
+if (-not $Jar) { $Jar = Join-Path $dist 'elysium-all-1.0.0.jar' }
 $javaHome = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot'
 
 # stop any previous run of ours and wait until it is really gone (log4j otherwise appends two processes into one log)
@@ -29,13 +31,13 @@ if ($FreshWorld) {
     # The reference world: the dedicated test server's own level.dat and serverconfig,
     # saved from a world the seven-jar pack generated under the current wilds preset
     # (POLISH.md P4); no Valoria dimension, no retired mod's config, the game's own spawn.
-    $ref = 'C:\Users\weaks\AppData\Local\Temp\Elysium-mono\tools\livetest\stages\reference'
+    $ref = Join-Path $PSScriptRoot 'reference'
     foreach ($d in 'datapacks', 'serverconfig') { if (Test-Path "$ref\$d") { Copy-Item "$ref\$d" $world -Recurse -Force } }
     $lib = 'C:\Users\weaks\curseforge\minecraft\Install\libraries'
     $last = (Get-Content 'C:\Users\weaks\curseforge\minecraft\Instances\Claude\logs\instance_audit.txt' | ? { $_ -match 'Launch attempted' })[-1]
     $cpL = ([regex]::Match($last, ' -cp (\S+) ').Groups[1].Value -split ';') | ? { $_ -notmatch '\\versions\\' }
     $cp = (@("$lib\net\minecraft\client\1.21.1-20240808.144430\client-1.21.1-20240808.144430-srg.jar") + $cpL) -join ';'
-    & "$javaHome\bin\java.exe" -cp $cp "$sp\StripPlayer.java" "$ref\level.dat" "$world\level.dat" 'ElysiumBoot' | % { Write-Host "world: $_" }
+    & "$javaHome\bin\java.exe" -cp $cp "$PSScriptRoot\StripPlayer.java" "$ref\level.dat" "$world\level.dat" 'ElysiumBoot' | % { Write-Host "world: $_" }
 }
 
 Remove-Item "$inst\logs\latest.log", "$inst\logs\debug.log" -Force -ErrorAction SilentlyContinue

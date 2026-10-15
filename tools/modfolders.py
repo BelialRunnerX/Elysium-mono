@@ -2,7 +2,7 @@
 """
 The two mod folders on the stick: the client's, and the server's.
 
-    python3 tools/modfolders.py [--from E:/testingbuilds/ElysiumServer/mods] [--to E:/]
+    python3 tools/modfolders.py [--from <ELYSIUM_TEST_ROOT>/ElysiumServer/mods] [--to <folder>]
 
 Dylan, 27 September 2026: *two mod folders - one is client side, one is only
 what's necessary server side - both clearly named and on the usb stick.*
@@ -19,6 +19,11 @@ Reads every jar in the source mods folder (never `_superseded`), opens its
 Each folder gets a `README.txt` naming the game and loader version, the date,
 every jar and why it is there, so the stick explains itself. The folders are
 rebuilt from scratch every time so they cannot hold a stale jar.
+
+The source is the dedicated server under ELYSIUM_TEST_ROOT (default
+C:/testingbuilds). The stick, E:, was lost in October 2026 (on 14 October the
+test rigs were rebuilt on C:), so the folders now land in ELYSIUM_TEST_ROOT
+unless --to names a stick.
 """
 import argparse
 import datetime
@@ -28,6 +33,7 @@ import shutil
 import sys
 import zipfile
 
+TEST_ROOT = os.environ.get("ELYSIUM_TEST_ROOT", "C:/testingbuilds").replace("\\", "/").rstrip("/")
 CLIENT_ONLY_MARK = re.compile(r'^\s*side\s*=\s*"CLIENT"', re.M)
 
 
@@ -52,8 +58,8 @@ def sides_of(jar):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--from", dest="source", default="E:/testingbuilds/ElysiumServer/mods")
-    parser.add_argument("--to", dest="target", default="E:/")
+    parser.add_argument("--from", dest="source", default=TEST_ROOT + "/ElysiumServer/mods")
+    parser.add_argument("--to", dest="target", default=TEST_ROOT)
     parser.add_argument("--loader", default="NeoForge 21.1.248 for Minecraft 1.21.1")
     args = parser.parse_args()
 

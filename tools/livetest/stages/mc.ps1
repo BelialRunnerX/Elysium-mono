@@ -69,8 +69,14 @@ function MC-RClick { MC-Guard; [Win32MC]::Mouse(0x0008,0,0,0); Start-Sleep -Mill
 # Strict guard: never steal focus. Input is sent only if Minecraft already is the foreground window.
 function MC-Guard { $p = MC-Window; if(-not $p){ throw 'no Minecraft window' }; if([Win32MC]::GetForegroundWindow() -ne $p.MainWindowHandle){ throw 'Minecraft is not the foreground window - input aborted to avoid leaking into another app' } }
 function MC-Type([string]$text) { MC-Guard; foreach($c in $text.ToCharArray()){ [Win32MC]::Unicode($c, $false); Start-Sleep -Milliseconds 8; [Win32MC]::Unicode($c, $true); Start-Sleep -Milliseconds 12 } }
+# The test rigs: ELYSIUM_TEST_ROOT (default C:\testingbuilds) holds the dev client (Elysium) and the
+# dedicated server (ElysiumServer); every stage reads the client's log through $script:McLog. The E: drive
+# that held them was lost, and on 14 October 2026 the rigs were rebuilt on C:.
+$script:McRoot = if ($env:ELYSIUM_TEST_ROOT) { $env:ELYSIUM_TEST_ROOT } else { 'C:\testingbuilds' }
+$script:McClient = [System.IO.Path]::Combine($script:McRoot, 'Elysium')
+$script:McServer = [System.IO.Path]::Combine($script:McRoot, 'ElysiumServer')
+$script:McLog = [System.IO.Path]::Combine($script:McClient, 'logs', 'latest.log')
 # Open chat with T, type a command, press Enter
-$script:McLog = 'E:\testingbuilds\Elysium\logs\latest.log'
 function MC-CmdOnce([string]$cmd) { MC-Key 'T'; Start-Sleep -Milliseconds 700; MC-Key 'BACK'; MC-Key 'BACK'; MC-Key 'BACK'; Start-Sleep -Milliseconds 80; MC-Type $cmd; Start-Sleep -Milliseconds 250; MC-Key 'RETURN'; Start-Sleep -Milliseconds 400 }
 # Under lag the chat box opens late and swallows the first letters, and the rest goes out as a
 # chat line "<ElysiumTester> ...". Every command in this game answers in chat, so a command is

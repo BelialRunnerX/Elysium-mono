@@ -10,14 +10,18 @@ I'm continuing work on Elysium, a private Minecraft 1.21.1 / NeoForge modpack
 conversion. It is for my own use — not commercial, not public — so licensing is
 my problem to handle with mod authors, not a reason to stop.
 
-**Where the source is (2 October 2026).** The working tree is a git
-checkout on branch `integration` at
+**Where the source is (14 October 2026).** The working tree is a git
+checkout on branch `main` at
 
-    C:\Users\weaks\AppData\Local\Temp\Elysium-mono      (= /tmp/Elysium-mono in Git Bash)
+    C:\Users\weaks\Elysium-mono
 
-mirrored by fast-forward to `E:\Elysium-mono` and `D:\Elysium-mono` after
-every commit, with a bundle, patch and the built jars in
-`E:\testingbuilds\Elysium\handback` and the same under `D:`. Check it:
+(`C:\Users\weaks\AppData\Local\Temp\Elysium-mono`, = `/tmp/Elysium-mono` in
+Git Bash, is a junction to it), tracking the private GitHub repo
+`BelialRunnerX/Elysium-mono` (remote `github`). After every commit
+`bash tools/sync.sh` fast-forwards the mirror at `D:\Elysium-mono` (when that
+removable drive is in), writes a bundle, patch and the built jars to
+`C:\testingbuilds\Elysium\handback` and the same under `D:`, and pushes
+`main` to `github`. Check it:
 
     ls -d elysium-*            should count 29
     ls tools/negtest/*.sh      should count 212
@@ -42,9 +46,11 @@ mistakes this project has actually made and now checks for.
 (`check_obtainable.py` among them: every item, block and creature the pack
 adds is reachable from a new world in survival); 212 negative-test scripts;
 a 70-scenario live suite over RCON (`tools/livetest/livetest.py`) on the
-dedicated server at `E:\testingbuilds\ElysiumServer`, and client stages
+dedicated server at `C:\testingbuilds\ElysiumServer`, and client stages
 (`tools/livetest/stages/`) that drive the dev client at
-`E:\testingbuilds\Elysium`. `docs/MANIFEST.md` is the ledger and
+`C:\testingbuilds\Elysium`, both under `ELYSIUM_TEST_ROOT` (default
+`C:\testingbuilds`). The E: drive that held them was lost, and on 14 October
+2026 the rigs were rebuilt on C:. `docs/MANIFEST.md` is the ledger and
 `docs/SPLITS.md` holds the jars that span several modules.
 
 **Before you hand anything back:**
@@ -56,10 +62,11 @@ dedicated server at `E:\testingbuilds\ElysiumServer`, and client stages
     python3 tools/ownership.py --as <yourname>
 
 Then build with `./compile.sh --jars --bundle` and install `dist/elysium-all-1.0.0.jar`
-and `dist/elysiumcolonies-1.0.0.jar` into both E: instances' `mods` (retire the
-old jars to `mods/_superseded`, never delete), restart the server, and run the
-live suite on a quiet machine. Never compile while a negtest has a module
-snapshotted; never run a client stage beside a compile or negtest.
+and `dist/elysiumcolonies-1.0.0.jar` into both test instances' `mods` with
+`bash tools/livetest/install.sh` (it retires the old jars to `mods/_superseded`,
+never deletes, and restarts the server; `--smoke` adds the harvest and ruin
+scenarios), and run the live suite on a quiet machine. Never compile while a
+negtest has a module snapshotted; never run a client stage beside a compile or negtest.
 
 **Standing preferences.** One feature all the way through before the next —
 architected, ruled, harnessed, generated, validated, negative-tested, built.

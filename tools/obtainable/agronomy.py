@@ -24,6 +24,8 @@ import sys
 
 NS = "elysiumagronomy"
 JAVA = "elysium-agronomy/src/main/java/com/elysium/agronomy"
+#: The checkout this file is in: tools/obtainable/agronomy.py -> the repo root.
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def _root():
@@ -31,7 +33,7 @@ def _root():
     for guess in (getattr(__main__, "ROOT", None),
                   os.path.dirname(os.path.abspath(sys.argv[0])) if sys.argv and sys.argv[0] else None,
                   os.environ.get("ELYSIUM_MONO"),
-                  "C:/Users/weaks/AppData/Local/Temp/Elysium-mono"):
+                  REPO):
         if guess and os.path.isdir(os.path.join(guess, JAVA)):
             return guess
     raise RuntimeError("sources_agronomy.py cannot find the monorepo (set ELYSIUM_MONO)")

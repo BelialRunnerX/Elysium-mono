@@ -4,7 +4,7 @@
 # reaches; then the Oil Finder read against a chunk. The rocket answers on the action bar, so
 # every answer is a screenshot with the bar in it.
 $Out = if ($env:ELYSIUM_SHOTS) { $env:ELYSIUM_SHOTS } else { $PSScriptRoot }
-$log = 'E:\testingbuilds\Elysium\logs\latest.log'
+$log = $script:McLog   # the dev client's log under ELYSIUM_TEST_ROOT, set by mc.ps1
 function LogLines { Get-Content $log -ErrorAction SilentlyContinue }
 function Say($s) { Write-Host "$(Get-Date -Format HH:mm:ss) $s" }
 

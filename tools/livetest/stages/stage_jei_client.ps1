@@ -8,7 +8,7 @@
 # inventory is plain, JEI's search box takes the click and the text, and the rhythm is
 # fixed: E opens, U opens the uses, ESC returns to the inventory, ESC closes it.
 $Out = if ($env:ELYSIUM_SHOTS) { $env:ELYSIUM_SHOTS } else { $PSScriptRoot }
-$log = 'E:\testingbuilds\Elysium\logs\latest.log'
+$log = $script:McLog   # the dev client's log under ELYSIUM_TEST_ROOT, set by mc.ps1
 function LogLines { Get-Content $log -ErrorAction SilentlyContinue }
 
 MC-Place 0 0 1600 900
