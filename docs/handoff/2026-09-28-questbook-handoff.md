@@ -295,4 +295,37 @@ why it is worth doing; never a restatement of the title).
   the marksman's road led out to the rift. No frontier keystones (they need doctrine readers):
   a choice for Dylan. The test stage's spawn is camped by hostile mobs at night (the tester died
   four times): stages now set noon and resistance before any survival step.
+* **14-16 Oct — recovery, GitHub, a second agent, and no check passes by skipping.** (Anvil)
+  - **Loss and recovery.** On 11 Oct Windows Storage Sense deleted every file in %TEMP% idle for a week:
+    the working tree, the scratchpad helper scripts and the build inputs (C:/tmp is a link into %TEMP%).
+    On 14 Oct the E: test drive was lost (server, client, a mirror). No committed work was lost: D: held
+    51ea88d7. The tree now lives at C:/Users/weaks/Elysium-mono (the Temp path is a junction to it), and
+    Dylan had it pushed to his private GitHub repo BelialRunnerX/Elysium-mono: `main` is the default
+    branch; the pre-conversion master is `archive/master-2026-08-29`. Commit and push after every step.
+  - **Rebuilt** (32805ed7): `tools/setup_env.py` (the build env at C:/Users/weaks/Elysium-env, junctions at
+    the old Temp paths, core.autocrlf false - a fresh clone had turned 37,190 files CRLF), the test rigs on
+    NTFS under C:/testingbuilds (server: NeoForge 21.1.248 from the official installer, RCON on loopback,
+    the reference world; client: the seven-jar pack), the tooling on `ELYSIUM_TEST_ROOT`, and the
+    scratchpad scripts recovered from the transcript into the repo (tools/sync.sh, tools/livetest/install.sh,
+    rcon.py, stages/client_up.ps1, docs/handoff/SITTING_BRIEF.md). check_buses, check_nullable and two
+    solarpunk checks had checked nothing on Windows since September (they split cp.txt on ":"); they run now.
+  - **No check passes by skipping** (e8ae401d, local until the heavy gate): every remaining "skipped / not run"
+    path in check_datapack, check_construct and twelve module validators fails, naming the missing input;
+    tools/catalogue.py parses prints with ast and leaves skip rows out; FEATURES regenerated (439 mechanics).
+    The Vale stages get per-command chat markers so an answer can never be credited to the wrong command;
+    an adversarial fix-and-attack loop runs until no false pass is found.
+  - **Quill** (a cloud-session agent, Dylan's second agent) converts the remaining jars. Coordination:
+    D:/Elysium-mono/AGENT-COORDINATION.md; each agent writes only its own note in D:/_elysium_transfer
+    (QUILL.md, ANVIL.md); Quill hands work over as git bundles in D:/_elysium_transfer/quill/; merges are
+    staged only in C:/Users/weaks/Elysium-merge (branch merge/<date>), gated there, then pushed. The first
+    bundle, Fangs n Claws (10 commits, 311 files), is staged on merge/2026-10-16 and under review.
+  - **Owed when the PC is free** (Dylan's local model holds most of the RAM; live tests wait): the heavy gate on
+    merge/2026-10-16 (compile, root validate, every negtest either side touched, path-rewritten to the merge
+    clone); the real runs of the new negtest cases in almanac, armory, atelier (its timeout 400 is tight under
+    load), c, comforts, construct, convergence (compiles twice), datapack, flora, gamesown, mobart,
+    processing, solarpunk, space, buses, nullable; the full 70-scenario suite on the rebuilt server plus RCON
+    scenarios for the 24 uniques from Quill's spec; the client's first launch (client_up builds ElysiumBoot),
+    stage_vale_footing_client.ps1, and the six by-hand sittings (docs/PLAYTEST.md).
+  - **Bugs found and owed:** core `elysium_regalia` four-piece Speed (`levels [0]`, skipped by the set engine);
+    arcana `RelicPassives` on-hit target (`perform(ability, player)` should strike what was hit).
 
