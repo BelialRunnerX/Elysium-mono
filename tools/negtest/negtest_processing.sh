@@ -143,6 +143,20 @@ edit $P '    public static final List<String> SEEDED = List.of(
             "onion", "barley", "garlic",'
 expect "a crop dropped out of the seed supply, leaving a recipe nothing declares" "the rules do not declare"
 
+echo "no game jar to sweep the game's routes in (15 Oct 2026)"
+# Until 15 October no vanilla.jar printed "the game's jar is not here" and the
+# loop rule passed looking at half its graph. It must now FAIL and name
+# ELYSIUM_MC_LIBS, which is pointed at an empty folder for this one run; the
+# real jar is not touched.
+env_expect() { local what="$1" w="$2" g; shift 2
+  g="$(cd $M && env "$@" timeout 400 python3 validate.py 2>&1)"
+  if [[ "$g" == *"PROBLEM(S)"* && "$g" == *"$w"* ]]; then echo "  caught : $what"; pass=$((pass+1));
+  else echo "  MISSED : $what"; echo "         got: $(echo "$g" | tail -2 | head -1 | cut -c1-150)"; fail=$((fail+1)); fi; restore; }
+NOWHERE=$(mktemp -d)
+env_expect "no vanilla.jar where ELYSIUM_MC_LIBS points, which used to print not swept for and pass" \
+  "the game's routes cannot be swept for loops: the game's jar is not at" ELYSIUM_MC_LIBS="$NOWHERE"
+rmdir "$NOWHERE"
+
 echo
 echo "restoring and re-checking"
 restore

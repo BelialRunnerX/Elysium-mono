@@ -78,19 +78,29 @@ def fail(msg):
     problems.append(msg)
 
 
-def skip(why):
-    print(f"construction       : skipped, {why}")
-    sys.exit(0)
+def stop(why):
+    """
+    Nothing to build with, or nothing to build, and that is a failure rather
+    than a skip.
+
+    Until 15 October each of these printed "skipped" and exited 0, so a machine
+    without the build environment reported every block and item as one FML can
+    build without constructing any of them. check_buses, check_nullable and
+    solarpunk passed that way on Windows for three weeks; this one could have too.
+    """
+    print("construction       : FAILED")
+    print("  - " + why + ", so not one block or item can be built")
+    sys.exit(1)
 
 
-
-
-
-if not os.path.isfile(CLASSPATH_FILE):
-    skip(f"no {CLASSPATH_FILE}")
+_unusable = mcpath.problem(CLASSPATH_FILE)
+if _unusable:
+    stop(_unusable)
 missing = [n for n in LOG4J if not os.path.isfile(os.path.join(LIBS, n))]
 if missing:
-    skip(f"log4j is not in {LIBS}, and the game cannot start without it")
+    stop(f"{', '.join(missing)} {'is' if len(missing) == 1 else 'are'} not in {LIBS} "
+         f"(set ELYSIUM_MC_LIBS to the folder whose libs/ holds them, or run "
+         f"tools/setup_env.py), and the game cannot start without log4j")
 
 classpath = mcpath.join(mcpath.classpath(CLASSPATH_FILE))
 
@@ -149,7 +159,8 @@ for module in sorted(os.listdir(HERE)):
             classes.append(rel[:-5].replace(os.sep, "."))
 
 if not classes:
-    skip("no registry classes found, which cannot be right")
+    stop(f"no class under src/main/java in any of {len(modules)} module(s) in {HERE} "
+         f"uses DeferredRegister, which cannot be right")
 
 sources = []
 for module in modules:
@@ -206,6 +217,20 @@ if ran is not None:
              + (ran.stdout + ran.stderr).strip()[-1500:])
     for one in broken:
         fail(one)
+    # The two counts are the only evidence anything was built. Until 15
+    # October a harness that exited 0 and printed neither line passed as
+    # "? block(s), item(s) and type(s) built from ? register(s)": a run that
+    # constructed nothing, reported as a run that constructed everything.
+    if ran.returncode == 0:
+        for key, what in (("REGISTERS", "register was asked for its suppliers"),
+                          ("BUILT", "block, item or type was built")):
+            value = counts.get(key)
+            if value is None:
+                fail(f"the harness exited 0 without a {key} line, so nothing "
+                     f"says a single {what}")
+            elif not value.isdigit() or int(value) == 0:
+                fail(f"the harness reports {key} {value}: not one {what}, "
+                     f"which cannot be right for {len(classes)} registry class(es)")
 
 if problems:
     print("construction       : FAILED")
@@ -215,6 +240,6 @@ if problems:
         print(f"  - ...and {len(problems) - 20} more")
     sys.exit(1)
 
-print(f"construction       : {counts.get('BUILT', '?')} block(s), item(s) and type(s) "
-      f"built from {counts.get('REGISTERS', '?')} register(s) across {len(modules)} "
+print(f"construction       : {counts['BUILT']} block(s), item(s) and type(s) "
+      f"built from {counts['REGISTERS']} register(s) across {len(modules)} "
       f"module(s), the way FML will build them")

@@ -501,6 +501,14 @@ vanilla = set()
 if MC_JAR and os.path.isfile(MC_JAR):
     with zipfile.ZipFile(MC_JAR) as jar:
         vanilla = set(jar.namelist())
+else:
+    # Named, not left to an empty set: until 15 October no jar left this empty
+    # and every minecraft: task was reported as a thing no module makes, which
+    # blamed the book and never said MC_JAR.
+    fail("the tasks that name the base game's things cannot be checked: no game jar "
+         "(MC_JAR is " + (f"{MC_JAR}, which is not a file" if MC_JAR else "not set")
+         + "); set MC_JAR to vanilla-assets.jar or the 1.21.1 client jar, or run "
+         "python3 tools/setup_env.py and use the MC_JAR it exports")
 
 #: What sort of language key each kind of task's id has to have. A quest
 #: pointing at a mob nothing spawns is exactly as invisible as one pointing at

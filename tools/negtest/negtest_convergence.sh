@@ -74,6 +74,22 @@ expect "a foreign type with no import line" "in its bytecode"
 cp /tmp/gc.bak $C/GearConvergence.java
 ( cd /tmp/Elysium-mono && ./compile.sh >/dev/null 2>&1 )
 
+# Nothing compiled to scan (15 Oct 2026). Until 15 October no build printed
+# "bytecode not scanned" and the module passed with the guard above never run.
+# Now no build, and a build folder with nothing in it (compile.sh empties its
+# output rather than removing it), each FAIL and name ELYSIUM_OUT, which is
+# pointed elsewhere for one run each; the real build is not touched.
+env_expect() { local n="$1" w="$2" g; shift 2; g="$(env "$@" python3 validate.py 2>&1)"
+  if [[ "$g" == *"PROBLEM(S)"* && "$g" == *"$w"* ]]; then echo "  caught : $n"; pass=$((pass+1));
+  else echo "  MISSED : $n"; fail=$((fail+1)); fi; }
+NOCLASSES=$(mktemp -d)
+env_expect "no compiled classes, which used to print not scanned and pass" \
+  "the core's compiled classes are not at" ELYSIUM_OUT="$NOCLASSES/nothing"
+mkdir "$NOCLASSES/elysium-core"
+env_expect "an emptied build folder, which would have scanned 0 classes and passed" \
+  "holds no compiled class under com/elysium/core" ELYSIUM_OUT="$NOCLASSES"
+rmdir "$NOCLASSES/elysium-core" "$NOCLASSES"
+
 echo "the manifest"
 cp $R/META-INF/neoforge.mods.toml /tmp/toml.bak
 python3 -c "

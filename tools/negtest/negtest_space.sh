@@ -124,4 +124,28 @@ try "source crash spreads" lib "does not isolate a failing source" "$R
 rep('$HF', '} catch (RuntimeException | LinkageError e) {\n                if (BROKEN', '} catch (StackOverflowError e) {\n                if (BROKEN')"
 try "unit lets NaN through" lib "hazards harness failed" "$R
 rep('$HF', 'if (!(value > 0.0F)) {', 'if (value < 0.0F) {')"
+# Nothing to bake the mobs with, nothing to rebuild the generated files from
+# (15 Oct 2026). Until 15 October each of these four printed "skipped" and the
+# module passed with not one mob baked or not one file rebuilt. Each must now
+# FAIL and name what is missing. Two runs, two cases each: the inputs are
+# pointed at an empty folder, or at a file that is not there, for one run; the
+# real classpath, build, Stellaris and jar are never touched.
+env_cases() { local g; g="$(env $1 timeout 1700 python3 elysium-space/validate.py 2>&1)"; shift
+  while [ $# -ge 2 ]; do
+    if [[ "$g" == *"PROBLEM(S)"* && "$g" == *"$2"* ]]; then echo "CAUGHT : $1"; pass=$((pass+1))
+    else echo "MISSED : $1  (expected: $2)"; miss=$((miss+1)); fi
+    shift 2
+  done; }
+NOWHERE=$(mktemp -d)
+env_cases "ELYSIUM_MC_LIBS=$NOWHERE STELLARIS=$NOWHERE" \
+  "no cp.txt, which used to print geometry skipped and pass" \
+  "mob geometry cannot be baked: there is no classpath file at" \
+  "no Stellaris data, which used to print generated skipped and pass" \
+  "the generated files cannot be rebuilt to compare with the shipped ones: there is no Stellaris data at"
+env_cases "ELYSIUM_OUT=$NOWHERE MC_JAR=$NOWHERE/vanilla-assets.jar" \
+  "no compiled space classes, which used to print geometry skipped and pass" \
+  "mob geometry cannot be baked: the space module's compiled classes are not at" \
+  "no game jar, which used to print generated skipped and pass" \
+  "the generated files cannot be rebuilt to compare with the shipped ones: no game jar here"
+rmdir "$NOWHERE"
 echo "caught $pass, missed $miss"

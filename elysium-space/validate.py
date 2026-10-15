@@ -950,8 +950,16 @@ for w in _SKY_WORLDS:
         fail(f"the {w} sky has {sky['stars']['count']} stars; the renderer builds them all into one buffer")
 _cp = os.environ.get("ELYSIUM_MC_LIBS", "/tmp/mc") + "/cp.txt"
 _classes = os.environ.get("ELYSIUM_OUT", "/tmp/elysium-classes") + "/elysium-space"
-_baked = "skipped (no Minecraft classpath)"
-if os.path.isfile(_cp) and os.path.isdir(_classes):
+_baked = "not baked"
+if not os.path.isfile(_cp):
+    # Failures, not a status line: until 15 October either input missing
+    # printed "geometry skipped" and the module passed with not one mob baked.
+    fail(f"mob geometry cannot be baked: there is no classpath file at {_cp} (set "
+         f"ELYSIUM_MC_LIBS to the folder holding cp.txt, or run python3 tools/setup_env.py)")
+elif not os.path.isdir(_classes):
+    fail(f"mob geometry cannot be baked: the space module's compiled classes are not at "
+         f"{_classes} (run ./compile.sh first, or set ELYSIUM_OUT to where it wrote them)")
+else:
     with tempfile.TemporaryDirectory() as out:
         cp = os.pathsep.join([open(_cp).read().strip(), _classes, os.path.join(WORK, "src/main/resources")])
         r = subprocess.run(["javac", "-nowarn", "-cp", cp, "-d", out, os.path.join(WORK, "tools/GeometryCheck.java")],
@@ -1121,9 +1129,19 @@ for _relative in SPACE_GENERATORS:
     if not os.path.isfile(os.path.join(WORK, _relative)):
         fail(f"there is no {_relative}, so the files it writes are kept by hand")
 if not os.path.isdir(os.path.join(_stellaris, "assets/stellaris")):
-    _generated_note = f"skipped (no Stellaris data at {_stellaris} to rebuild from)"
+    # Failures, not status lines: until 15 October either input missing printed
+    # "generated : skipped" and the module passed with not one file rebuilt.
+    _generated_note = "not rebuilt"
+    fail(f"the generated files cannot be rebuilt to compare with the shipped ones: there is "
+         f"no Stellaris data at {_stellaris} (set STELLARIS to the unpacked Stellaris "
+         f"1.4.25 jar, or run python3 tools/setup_env.py and use the STELLARIS it exports)")
 elif not _mc_jar or not os.path.isfile(_mc_jar):
-    _generated_note = "skipped (no Minecraft jar to rebuild from; set MC_JAR)"
+    _generated_note = "not rebuilt"
+    fail("the generated files cannot be rebuilt to compare with the shipped ones: no game "
+         "jar here (MC_JAR is " + (f"{_mc_jar}, which is not a file" if _mc_jar else
+                                   "not set, and none of the usual places has one")
+         + "); set MC_JAR to vanilla-assets.jar or the 1.21.1 client jar, or run "
+         "python3 tools/setup_env.py and use the MC_JAR it exports")
 elif all(os.path.isfile(os.path.join(WORK, _relative)) for _relative in SPACE_GENERATORS):
     _generated_note = "not rebuilt"
     with tempfile.TemporaryDirectory() as _scratch:

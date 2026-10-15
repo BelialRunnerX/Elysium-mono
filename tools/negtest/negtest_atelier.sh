@@ -298,6 +298,26 @@ edit $HH '            System.out.println("HARVEST " + one.id() + " " + one.roste
                     + one.kind() + " " + one.material() + " " + one.tool());' '            if (false) { System.out.println(""); }'
 expect "a harness that stops printing what mines each block" "compared against nothing"
 
+echo "the joins and the cuts with no game jar (15 Oct 2026)"
+# Until 15 October no game jar printed "the game's jar is not here" for both
+# and the module passed with neither compared. Each must now FAIL and name
+# MC_JAR. MC_JAR is pointed at a file that is not there and made the only place
+# looked, for this one run (no env var can empty the fallback list; the real jar
+# is never touched), so this is a machine without the jar. One run, two cases.
+env_cases() { local setting="$1" g; shift
+  g="$(cd $M && env "$setting" timeout 400 python3 validate.py 2>&1)"
+  while [ $# -ge 2 ]; do
+    if [[ "$g" == *"PROBLEM(S)"* && "$g" == *"$2"* ]]; then echo "  caught : $1"; pass=$((pass+1));
+    else echo "  MISSED : $1"; fail=$((fail+1)); fi
+    shift 2
+  done; restore; }
+edit $V 'VANILLA_JAR = next((_j for _j in [' 'VANILLA_JAR = os.environ.get("MC_JAR") or next((_j for _j in ['
+env_cases MC_JAR="$(mktemp -u)/vanilla-assets.jar" \
+  "the joins with no game jar, which used to print not compared and pass" \
+  "the joins' blockstates cannot be compared with the game's: no game jar here" \
+  "the cuts with no game jar, which used to print not checked and pass" \
+  "what the game already cuts cannot be checked against the game: no game jar here"
+
 echo
 echo "restoring and re-checking"
 restore

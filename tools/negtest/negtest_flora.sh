@@ -174,6 +174,33 @@ edit $M/tools/gen_flora.py 'block_tag("mineable/pickaxe", [f"{NS}:emberwood_char
 (cd $M && python3 tools/gen_flora.py >/dev/null 2>&1)
 expect "a charcoal block no pickaxe gets anything from" "tool lists of the block each copies"
 
+echo "the wood with no game jar to compare it with (15 Oct 2026)"
+# Until 15 October no game jar printed "drawn and tooled : skipped" and the
+# module passed with not one shape compared. It must now FAIL and name MC_JAR.
+# MC_JAR is pointed at a file that is not there, and the validator's fallback
+# places are taken out for this one run (no env var can empty them; the real
+# jar is never touched), so this is a machine without the jar.
+env_expect() { local what="$1" w="$2" g; shift 2
+  g="$(cd $M && env "$@" python3 validate.py 2>&1)"
+  if [[ "$g" == *"PROBLEM(S)"* && "$g" == *"$w"* ]]; then echo "  caught : $what"; pass=$((pass+1));
+  else echo "  MISSED : $what"; fail=$((fail+1)); fi; restore; }
+edit $M/validate.py 'if p and os.path.isfile(p)), None)' \
+  'if p and os.path.isfile(p) and p == os.environ.get("MC_JAR")), None)'
+env_expect "no game jar anywhere, which used to print skipped and pass" \
+  "the wood cannot be compared with the game's: no game jar here (MC_JAR is" \
+  MC_JAR="$(mktemp -u)/vanilla-assets.jar"
+
+echo "the textures with no Pillow to open them (15 Oct 2026)"
+# Until 15 October no Pillow broke out of the texture loop without a word and
+# the module passed with not one frame counted. It must now FAIL and say pip
+# install Pillow. Pillow is hidden from the validator for one run by spelling
+# its import wrong; Pillow itself is never touched.
+edit $M/validate.py 'from PIL import Image
+' 'from PIL import NoSuchName as Image
+'
+expect "a python with no Pillow, which used to stop counting quietly and pass" \
+  "the block and item textures cannot be opened to check their frames: Pillow is not installed"
+
 echo
 echo "restoring and re-checking"
 restore

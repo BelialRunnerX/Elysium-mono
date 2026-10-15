@@ -5776,19 +5776,23 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), none of the ten named"
+    "… source file(s), none of the ten named, and the grid its machines hang off declared"
    ],
    [
     "the arithmetic",
-    ""
+    "…"
    ],
    [
     "the margin",
-    "a farm measured against a mine, at"
+    "a farm measured against a mine, at … of it at most, with the tiers a stated step apart"
    ],
    [
     "the machines",
-    "a pot that wants light, an accelerator that shares the"
+    "a pot that wants light, an accelerator that shares the grid, a hive that crowds, and rock that costs power above the first rung"
+   ],
+   [
+    "the game's own",
+    "… vanilla ingredient(s) allowed by name, every one of them checked against the … the game actually ships, and every cutting recipe naming only things that exist"
    ],
    [
     "what it declares",
@@ -5796,55 +5800,63 @@
    ],
    [
     "bees",
-    "… species in … home(s)"
+    "… species in … home(s), every resource bee naming a material the foundry makes or the game ships, and … of … foundry materials with a bee of their own"
    ],
    [
     "fish",
-    "… species across …"
+    "… species across … famil(ies), … rod(s) and a bait apiece, every one of them modelled, bucketed, named and catchable"
    ],
    [
     "pots",
-    "… across … material(s)"
+    "… across … material(s) with all three fittings, … soil(s) of which … are ours, and … sprout(s), each written out as data"
    ],
    [
     "generators",
-    "… vein(s), each under …"
+    "… vein(s), each under … of a mine and each slower than the vein below it"
    ],
    [
     "kitchen",
-    "… meal(s) across"
+    "… meal(s) across … station(s) with … effect(s), … ingredient(s), … cut(s) and … block(s), none of them pointless"
    ],
    [
     "the apiary",
-    "… rung(s) of housing"
+    "… rung(s) of housing, … upgrade(s) of which … earn and the rest buy attention, a centrifuge, and … material(s) a comb comes apart into"
    ],
    [
     "the altar",
-    "… block(s)"
+    "… block(s), … awakening(s), a sixth rung made rather than grown, and an awakened farm of half the plots earning what a whole one does"
    ],
    [
     "the tackle",
-    "… hook(s), … bobber(s)"
+    "… hook(s), … bobber(s), … mount(s) and two stations, none of them taking a fish away and no hook making the rare one harder to get"
    ],
    [
     "the crops",
-    "… crop(s) on the frontier of time"
+    "… crop(s) on the frontier of time against yield, a wild patch apiece in … sort(s) of place, … larder recipe(s), and every ingredient the kitchen asks for coming from somewhere"
    ],
    [
     "the diet",
-    "… different"
+    "… different foods for … hearts, kept as a set, surviving death, and applied as one modifier that replaces itself"
    ],
    [
     "fishing and bees",
-    "…"
+    "… famil(ies) of fish in the water and the rod-only one bucketed at a table, … wild bee(s) in … full nest(s) and a nest in every one of … homes, rods that cast their tackle, and every comb off a bee or out of a hive of its own"
    ],
    [
     "the stations",
-    "the cooking, larder and cutting folders read by a reload"
+    "the cooking, larder and cutting folders read by a reload listener, and four stations that match, heat, cook and cut by the rules"
+   ],
+   [
+    "the pots, filled",
+    "… soil(s) and … sprout(s) read off disk, a soil slot in every pot, and a sprout grown only over a soil that takes it"
    ],
    [
     "the colony",
-    "a random-ticking block that grows a mushroom every"
+    "a random-ticking block that grows a mushroom every COLONY_TICKS on the game's clock, up to COLONY_MOST, taken by hand"
+   ],
+   [
+    "what mines them",
+    "… block(s) — …, and … broken by hand for a reason the registry bears out; every kind held to the statement that registers it"
    ]
   ],
   "item_models": [
@@ -7070,35 +7082,35 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), and not one of the six"
+    "… source file(s), and not one of the six modules the book describes named anywhere but in a string"
    ],
    [
     "the graph played",
-    ""
+    "…"
    ],
    [
     "the graph",
-    "… quest(s) over … chapter(s)"
+    "… quest(s) over … chapter(s), no cycle, nothing stranded, nothing dangling, longest chain … deep — checked again here, by other arithmetic"
    ],
    [
     "what it asks for",
-    "… item(s), block(s) and beast(s), … tag(s)"
+    "… item(s), block(s) and beast(s), … tag(s) (… of the book's own families, … member(s)) and … world(s) named across … module(s), every one of them made, shipped or spawned by something in this tree"
    ],
    [
     "the whole pack",
-    "… block(s), item(s) and creature(s) introduced"
+    "… block(s), item(s) and creature(s) introduced, … excused with a reason, … left out"
    ],
    [
     "the rewards",
-    "every step pays through the library's door, once, for a step"
+    "every step pays through the library's door, once, for a step that is done; … kinds of task, every one answered and labelled"
    ],
    [
     "the words",
-    "… key(s), a title and a reason for every quest"
+    "… key(s), a title and a reason for every quest and every chapter, a line for every kind of task and every world, all of them generated"
    ],
    [
     "the book",
-    "craftable out of the base game, handed out once, kept"
+    "craftable out of the base game, handed out once, kept through death, synced, and drawn on the library's own screens"
    ],
    [
     "what it declares",
@@ -8449,19 +8461,23 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), nothing it replaces"
+    "… source file(s), nothing it replaces named, and not one of the modules whose items it prices"
    ],
    [
     "the arithmetic",
-    ""
+    "…"
    ],
    [
     "the table",
-    "… decided values, cheapest wins, nothing worth"
+    "… decided values, cheapest wins, nothing worth nothing, and the whole of it closed against profit"
+   ],
+   [
+    "the two directions",
+    "dissolving returns …, condensing costs all of it, and both round the way that favours the game"
    ],
    [
     "who decides",
-    "the catalogue, the price, the balance and what a worn item"
+    "the catalogue, the price, the balance and what a worn item is worth, all re-decided on the server; the packet carries only which row"
    ],
    [
     "what it declares",
@@ -8469,23 +8485,23 @@
    ],
    [
     "geodes",
-    "… material(s) —"
+    "… material(s) — … the foundry mines and … the game's own — in … shapes each, every chain whole and every block modelled, dropped and named"
    ],
    [
     "what mines them",
-    "…"
+    "… block(s), … of them asking for the right tool and every one of those in a tool's tag; the storage block, the budding block and the four crystals by pickaxe, as the game's amethyst, and … broken by hand with a reason; and no recipe back from a storage block to shards"
    ],
    [
     "the seeding",
-    "… material(s), every one of them"
+    "… material(s), every one of them made of its own blocks in the number its row prices, with a catalyst that is not another material's shard, small enough for a grid of … — so GeOre can leave the mods folder"
    ],
    [
     "the first shard",
-    "… geode(s), … in the overworld and"
+    "… geode(s), … in the overworld and … in the Nether, one chunk in … to … at … chunk(s) a shard of the seeding, each placed by one biome modifier in a world a player walks to and made of its own material's blocks in the game's rock"
    ],
    [
     "relics",
-    "… across"
+    "… across … slot(s), carrying every one of … abilities the library defines, each list legal by the library's own rule"
    ]
   ],
   "item_models": [
@@ -9212,27 +9228,27 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), no reference to"
+    "… source file(s), no reference to Silent Gear, depends on the library only"
    ],
    [
     "property engine",
-    ""
+    "…"
    ],
    [
     "data",
-    "… materials, … parts and"
+    "… materials, … parts and … traits, exactly what the inventory states"
    ],
    [
     "the cordon",
-    "… of Valoria's materials, each armoured as Valoria numbered it"
+    "… of Valoria's materials, each armoured as Valoria numbered it, in the cordon category, granting a trait that exists"
    ],
    [
     "material harness",
-    "not run, no compiled classes or classpath (…)"
+    "…"
    ],
    [
-    "material harness",
-    ""
+    "what mines them",
+    "… block(s), … asking for the right tool, every one in exactly one tool's tag or broken by hand with a reason: …, … by hand"
    ],
    [
     "compounds",
@@ -9240,19 +9256,19 @@
    ],
    [
     "benches",
-    "… benches, each drawn, named, breakable and craftable"
+    "… benches, each drawn, named, breakable and craftable; salvage rolls, reforge keeps its seed, the press takes ingots, the charger only counts nights it can see"
    ],
    [
     "traits",
-    "… traits, … effect kinds all acted on"
+    "… traits, … effect kinds all acted on, … carried in code"
    ],
    [
     "loot",
-    "a gear condition and a set_parts function, both"
+    "a gear condition and a set_parts function, both registered and both reading the shared engine"
    ],
    [
     "items",
-    "… gear and … part items"
+    "… gear and … part items, matching the data, drawn grey and named"
    ],
    [
     "json files parsed",
@@ -9260,19 +9276,19 @@
    ],
    [
     "sample gear",
-    "one built piece per gear type, through the same builder"
+    "one built piece per gear type, through the same builder the recipe uses"
    ],
    [
     "jewellery",
-    "… kind(s) declared wearable through"
+    "… kind(s) declared wearable through the library, tagged for the slot, and no accessory mod named here"
    ],
    [
     "the plan book",
-    "learns plans, answers for one at a time, and a template"
+    "learns plans, answers for one at a time, and a template is still a template"
    ],
    [
     "survival",
-    "any affixed piece salvages and a reforge pays back no more than it cost"
+    "any affixed piece salvages and a reforge pays back no more than it cost; a template is found in … chests; … shapes convert by one rule; extras are charged"
    ]
   ],
   "item_models": [
@@ -11861,27 +11877,35 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), nothing it replaces"
+    "… source file(s), nothing it replaces named, and not one dependency beyond the game"
    ],
    [
     "the band",
-    "every tool slower than its specialist on one block and"
+    "every tool slower than its specialist on one block and faster over a … by …, and the one that does every job worse than all of them"
    ],
    [
     "a swing",
-    "every block paid for singly, nothing instant, nothing the"
+    "every block paid for singly, nothing instant, nothing the specialist could not take, nothing much harder, and no swing inside a swing"
    ],
    [
     "the catalogue",
-    "… tool(s), every one drawn"
+    "… tool(s), every one drawn, modelled, named and built out of the vanilla tool it replaces"
    ],
    [
     "generated",
-    "every sprite, model, recipe and name written by the"
+    "every sprite, model, recipe and name written by the generator, and nothing shipped that it no longer writes"
+   ],
+   [
+    "the cordon's rungs",
+    "… tiers from elysium-ores' roster, each with Valoria's own numbers, its material's tag and its ingot's colour"
    ],
    [
     "the weapons",
-    "none of them beaten on every axis by another, each the best"
+    "none of them beaten on every axis by another, each the best at something, and the piercing half split at the source rather than added on top"
+   ],
+   [
+    "the bows and names",
+    "… bow(s) in … kinds, … kind(s) of ammunition and … named weapon(s), every one drawn, modelled, named, smithed or crafted, registered and counted"
    ],
    [
     "grade attributes",
@@ -11889,19 +11913,19 @@
    ],
    [
     "reforging",
-    "… grade(s) across … kinds"
+    "… grade(s) across … kinds of gear, … hammer(s) that roll them, every grade named and every hammer craftable"
    ],
    [
     "the digging",
-    "… brush(es), … site(s)"
+    "… brush(es), … site(s), … fossil(s) in …-stage digs, … artefact(s) and … totem(s), every block drawn, modelled, named, dropping itself and registered"
    ],
    [
     "the two sets",
-    "… shape(s), each"
+    "… shape(s), each its class's own states drawn …, doors dropping once and double slabs twice, and every dig block on a tool's list"
    ],
    [
     "in survival",
-    "… site(s) laid by a feature in their"
+    "… site(s) laid by a feature in their biomes, … fossil halves, … totems and 3 other finds in the pools, every whole fossil and both sets made from what a dig turns up, and the songless disc retired"
    ],
    [
     "what it declares",
@@ -12230,11 +12254,11 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), no reference to"
+    "… source file(s), no reference to Apotheosis, depends on the library only"
    ],
    [
     "weighting engine",
-    ""
+    "…"
    ],
    [
     "json files parsed",
@@ -24216,59 +24240,55 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), nothing it replaces"
+    "… source file(s), nothing it replaces named, and not one dependency beyond the game"
    ],
    [
     "the prices",
-    "… shapes, none of them profitable to craft"
+    "… shapes, none of them profitable to craft, none of them profitable to craft and break, and none wasting a whole block"
    ],
    [
     "the catalogue",
-    "… block(s), every one modelled, stated"
+    "… block(s), every one modelled, stated, dropped, named, craftable and mineable, and every one of them registered from a loop"
    ],
    [
     "the geometry",
-    "… shape(s) whose model and collision box"
+    "… shape(s) whose model and collision box are the same size, and … that are whole blocks in both"
    ],
    [
     "generated",
-    "every model, state, drop, recipe and name written by the"
+    "every model, state, drop, recipe and name written by the generator, and every grid using exactly what its price is worked out from"
    ],
    [
     "the joins",
-    "the game's jar is not here, so the blockstates were"
-   ],
-   [
-    "the joins",
-    "… tag file(s) matching the rules"
+    "… tag file(s) matching the rules block for block, … blockstate(s) identical to the game's own, and … model(s) built on the templates the game builds them on"
    ],
    [
     "the building",
-    "… piece(s) in …"
+    "… piece(s) in … material(s) = … block(s), every one drawn exactly as it collides, stated, dropped, named, craftable and registered from a loop"
    ],
    [
     "the cuts",
-    "the game's jar is not here, so what it already"
-   ],
-   [
-    "the cuts",
-    "…"
+    "… cut(s) the game already ships, every one of them checked against the game's own blockstates and left out"
    ],
    [
     "the courses",
-    "… kind(s) over …"
+    "… kind(s) over … material(s) = … block(s), … of them cut on a stonecutter one block at a time, every one drawn exactly as it collides, tagged, dropped, named and registered from the catalogue"
    ],
    [
     "the fittings",
-    "… kind(s) over …"
+    "… kind(s) over … material(s) = … block(s) and … refused for being cut out of something a hand cannot work, every one drawn exactly as it collides, tagged, dropped, named and registered from the catalogue"
    ],
    [
     "the colours",
-    "… dye(s) x … wood(s) x"
+    "… dye(s) x … wood(s) x … seat(s) plus … thing(s) of cloth alone = … block(s), every one wearing its own colour's wool on the boxes the rules pad and its wood everywhere else"
    ],
    [
     "the diagonals",
-    "… kind(s) over …"
+    "… kind(s) over … material(s) = … block(s), every one an unbroken run of overlapping boxes from one corner of its block to the other and through the middle where an ordinary fence keeps its post"
+   ],
+   [
+    "what mines it",
+    "… block(s) on … tool list(s), … of them asking for the right tool and every one of those in its tool's tag; wood by axe and stone by pickaxe as the game's own, and … broken by hand with a reason"
    ],
    [
     "what it declares",
@@ -27360,31 +27380,35 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), no mod it replaces"
+    "… source file(s), no mod it replaces, no age above it, and both ages below declared"
    ],
    [
     "the arithmetic",
-    ""
-   ],
-   [
-    "the model",
-    "energy kept in whole units and rounded against the player"
-   ],
-   [
-    "the ladder",
-    "ore 1, 2, 3 by construction; a servo through Age II's proof"
-   ],
-   [
-    "the reactor hall",
     "…"
    ],
    [
+    "the model",
+    "energy kept in whole units and rounded against the player, one direction a tick, and heat that settles where the readout says"
+   ],
+   [
+    "the ladder",
+    "ore 1, 2, 3 by construction; a servo through Age II's proof; and a shaft that will do at … above … rpm"
+   ],
+   [
+    "the reactor hall",
+    "… size(s) of reactor built out of three blocks, each one making more altogether than the one below and less per rod - heat goes as the cube of the side and cooling goes as the square, which is what makes the size a decision rather than a ladder"
+   ],
+   [
     "what it declares",
-    "the game, the library, both ages below, and a spec the age"
+    "the game, the library, both ages below, and a spec the age above can read"
    ],
    [
     "runs",
     "the coolant channel draw arms and plates, take a dye, and keep it"
+   ],
+   [
+    "the recipe browser",
+    "every Kind handed to the library's table for JEI to show, and JEI named nowhere here"
    ]
   ],
   "item_models": [
@@ -28800,99 +28824,103 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), nothing it replaces"
+    "… source file(s), nothing it replaces named, and not one dependency beyond the game and the library"
    ],
    [
     "the arithmetic",
-    ""
+    "…"
    ],
    [
     "purity",
-    "the rules are the JDK alone, and the reward is derived in"
+    "the rules are the JDK alone, and the reward is derived in order of danger rather than written down"
+   ],
+   [
+    "as big as it looks",
+    "… beasts and animals, every one of them exactly as tall and as wide on screen as the box you swing at, on its plan's measured bounds"
    ],
    [
     "the shapes",
-    "… body plan(s) of"
+    "… body plan(s) of … boxes, each a part tree with its bounds published, listed by family or kind and worn by every beast and animal"
    ],
    [
     "what it drops",
-    "the game's jar is not here, so the drops"
-   ],
-   [
-    "what it drops",
-    "… distinct drop(s), every"
+    "… distinct drop(s), every one of them a thing the game or this pack really makes"
    ],
    [
     "what it leaves",
-    "… loot table(s) read back, and every one"
+    "… loot table(s) read back, and every one hands out exactly what the bestiary says it does"
    ],
    [
     "what you meet",
-    "the game's jar is not here, so the biome"
-   ],
-   [
-    "what you meet",
-    "… beast(s) across"
+    "… beast(s) across … spawn rule(s), each named once, each at the weight its row declares"
    ],
    [
     "the words",
-    "every sprite, model, shape class, loot table and"
+    "every sprite, model, shape class, loot table and spawn rule rebuilt and identical"
    ],
    [
     "in the world",
-    "every beast, attribute, spawn rule, renderer and egg"
+    "every beast, attribute, spawn rule, renderer and egg walked out of the one table"
    ],
    [
     "where they are",
-    "… haunt(s)"
+    "… haunt(s), every biome tag one the game really ships, every light and height band one a world has and one the game is actually told about, and every group small enough to fit where it is asked to appear"
    ],
    [
     "the summons",
-    "… shape(s) of ability that cannot"
+    "… shape(s) of ability that cannot happen without something in the world, each given one here, each going out on its own, and a check after registration that none of them was left empty"
    ],
    [
     "the other half",
-    "… animal(s) over"
+    "… animal(s) over … shape(s), every one exactly as big as it looks, leaving what the arithmetic says it leaves, bred on something the game really makes, and not one of them registered by hand"
    ],
    [
     "a mechanic apiece",
-    "… verb(s) over … beast(s)"
+    "… verb(s) over … beast(s), one each and none spare, each with exactly one branch to happen in, no beast named in it, and every magnitude asked of the rules rather than typed"
    ],
    [
     "the summons",
-    "… thing(s) the ability system cannot"
+    "… thing(s) the ability system cannot do without, each drawn by a renderer that is registered and a texture that is on disk, each carrying the rules' numbers rather than its own, and neither outlasting the cooldown meant to limit it"
    ],
    [
     "the myths",
-    "… creature(s) over …"
+    "… creature(s) over … way(s) past armour, one each and none spare, every one of them answered by something the pack really makes, drawn on a shape this module already had, and not one carrying a number of its own"
    ],
    [
     "the companions",
-    "… creature(s) over"
+    "… creature(s) over … job(s) a block would otherwise do, one each and none spare, every one of them held under a block the pack really makes, and not one doing its job for free"
    ],
    [
     "the kindred",
-    "… creature(s) in …"
+    "… creature(s) in … kindred(s) over … thing(s) a player has to do differently and … place(s) the game really has, no two of one kindred doing one thing or standing in one place on disk, and not one of them named in the branch that makes its difference happen"
+   ],
+   [
+    "what mines them",
+    "… block(s), … asking for the right tool, every one in exactly one tool's tag or broken by hand with a reason: … by …, … by hand"
    ],
    [
     "the farm",
-    "… machine(s) over …"
+    "… machine(s) over … kind(s), every one of them built out of something the game really makes and costing on disk what its row says, not one of them named in the branch that makes its kind happen, and the only numbers that can reorder the bestiary asked of the rules rather than typed"
    ],
    [
     "the courts",
-    "… creature(s) in …"
+    "… creature(s) in … court(s) over … role(s), one head each, every one of them allowed on the floor in exactly the numbers its court's budget was computed against, every phase answered by something the pack really makes, and not one of them named in the branch that makes its role happen"
    ],
    [
     "the warded",
-    "… creature(s) over …"
+    "… creature(s) over … kind(s) of protection, every one of them answered by something the pack really makes, told to the player as the row's own answer rather than a second copy of it, and what each takes off asked of its row both with the gear and without"
+   ],
+   [
+    "the Vale",
+    "… creature(s) across … crossing(s), every one of them put on disk in the biome its row names and in a biome this pack really grows, and how far out each lives drawn on the screen rather than left for the player to work out from how badly the fight went"
    ],
    [
     "every roster",
-    "… creature(s) across"
+    "… creature(s) across … roster(s), every one of them under a name no other roster in this module uses"
    ],
    [
     "no leftovers",
-    "every spawn rule, egg and loot table on"
+    "every spawn rule, egg and loot table on disk is named for a creature a roster still has"
    ]
   ],
   "item_models": [
@@ -29138,35 +29166,35 @@
   "mechanics": [
    [
     "one seam",
-    "exactly one file knows MineColonies, and it hands out a"
+    "exactly one file knows MineColonies, and it hands out a record"
    ],
    [
     "three writes",
-    "an order, a repair, a delivery - all through the seam, and"
+    "an order, a repair, a delivery - all through the seam, and nothing reaches past them"
    ],
    [
     "the arithmetic",
-    ""
-   ],
-   [
-    "the charter",
-    "… world(s), each agreeing with the world it"
-   ],
-   [
-    "the reckoning",
-    "once a day, on the server, through the rules, and it shows"
-   ],
-   [
-    "the styles",
-    "… style(s)"
-   ],
-   [
-    "the market",
     "…"
    ],
    [
+    "the charter",
+    "… world(s), each agreeing with the world it describes; a settlement consumes …"
+   ],
+   [
+    "the reckoning",
+    "once a day, on the server, through the rules, and it shows in the colony's own screen"
+   ],
+   [
+    "the styles",
+    "… style(s), … blueprints re-read and intact"
+   ],
+   [
+    "the market",
+    "… famil(ies) priced by where you are and what day it is"
+   ],
+   [
     "the ruins",
-    "a marker on its own grid (…/…), never on a town, raising"
+    "a marker on its own grid (…/…), never on a town, raising one building decayed by the rules through one seam read, founding nothing, one chest from …"
    ],
    [
     "settlement plan",
@@ -29174,23 +29202,27 @@
    ],
    [
     "settlements",
-    "towns found themselves on … world(s)"
+    "towns found themselves on … world(s), one site per … chunks, in … biome(s); a steward who is nobody, a director that builds whole, and a claim that hands it on"
    ],
    [
     "whose map it is",
-    "placement follows attendance, everything else carries on"
+    "placement follows attendance, everything else carries on, and the owner can say otherwise"
    ],
    [
     "autonomy",
-    "founds, raises, repairs and trades with nobody logged in"
+    "founds, raises, repairs and trades with nobody logged in; … building(s) planned"
+   ],
+   [
+    "what mines them",
+    "… block(s), … asking for the right tool, every one in exactly one tool's tag or broken by hand with a reason: …, … by hand"
    ],
    [
     "the flare",
-    "… spaceport blueprint(s), legs on the curve"
+    "… spaceport blueprint(s), legs on the curve the rules state and the game looks for"
    ],
    [
     "the spaceport",
-    "… blocks, one unbroken column, and"
+    "… blocks, one unbroken column, and nothing leaves a warehouse unpaid for"
    ],
    [
     "what it declares",
@@ -30008,31 +30040,51 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), nothing it replaces"
+    "… source file(s), nothing it replaces named, and not one of the modules whose items it buries"
    ],
    [
     "the counting",
-    "a grave sized to what it is handed, up to …, and"
+    "a grave sized to what it is handed, up to …, and nothing ever spilled"
    ],
    [
     "where and whose",
-    "clamped into the world, never in bedrock, yours for"
+    "clamped into the world, never in bedrock, yours for … minutes, and …% of your levels kept"
+   ],
+   [
+    "the three ways out",
+    "opened, broken, or refusing to be pushed; and the grave is emptied only after its contents are somewhere else"
+   ],
+   [
+    "catching the drops",
+    "whatever would have hit the floor, taken whole, so a mod this module has never heard of is buried like anything else"
+   ],
+   [
+    "loot that is yours",
+    "a roll derived rather than remembered, an original that is never unpacked, and a table that empties itself"
+   ],
+   [
+    "a villager carried",
+    "its whole ledger kept, and a clock that goes on being the clock while it is in your pocket"
    ],
    [
     "what it declares",
     "the game and the library, and nothing it buries"
    ],
    [
+    "somewhere to sleep",
+    "… block(s) over … kind(s) and … colour(s), every one of them craftable, breakable back into itself and named, six refusals each with its own sentence, and not one of them moving your spawn"
+   ],
+   [
     "the wind in them",
-    "… chime(s) over …"
+    "… chime(s) over … note(s), each made of something the game really has, each ringing at a note of its own, and a room of them no louder than one of them however many are in it"
    ],
    [
     "the post",
-    "… pigeonhole(s), … kind(s)"
+    "… pigeonhole(s), … kind(s) of mail and … bird(s); a journey the block takes from the rules rather than from a number typed into it, a parcel that is never in two places and never in none, and a seal that only opens in the hands it is addressed to"
    ],
    [
     "lighting a room",
-    "… fitting(s) in …"
+    "… fitting(s) in … shape(s) over … kind(s), … of them priced on disk at exactly what their row says, nothing over … light, and … of … shape(s) at or under … — which is elysium-bestiary's own number for the brightest a room can be and still have most of its monsters in it"
    ],
    [
     "the birds",
@@ -31871,6 +31923,10 @@
   },
   "mechanics": [
    [
+    "blocks registered",
+    "…"
+   ],
+   [
     "items registered",
     "…"
    ],
@@ -31879,12 +31935,16 @@
     "… config(s), all STARTUP"
    ],
    [
+    "obtainable in survival",
+    "…/…  (+… creative-only by design, +… gated on a modded ingredient tag)"
+   ],
+   [
     "race balance",
-    "… races at … base"
+    "… races at … base, …/level growth"
    ],
    [
     "class balance",
-    "… classes at"
+    "… classes at …/level growth"
    ],
    [
     "library wiring",
@@ -31892,7 +31952,7 @@
    ],
    [
     "material gear",
-    "… items across"
+    "… items across … materials, all with recipes"
    ],
    [
     "loot functions",
@@ -31903,24 +31963,32 @@
     "… material(s), crafting blocks complete"
    ],
    [
+    "json files parsed",
+    "…"
+   ],
+   [
     "registry beacon",
-    "strikes on destruction by any hand, erases"
+    "strikes on destruction by any hand, erases nothing, anchors respawn, and its ascension is a world tier"
+   ],
+   [
+    "inspection beacon",
+    "never overwrites, resisting is filed, unobtainable by design"
    ],
    [
     "shade maps",
-    "… sprites at"
+    "… sprites at …x…, each accent on the sprite"
    ],
    [
     "material palette",
-    "… materials, closest pair"
+    "… materials, closest pair …/… at … CIELAB (floor …)"
    ],
    [
     "tool shapes",
-    "… in the Shape enum"
+    "… in the Shape enum, every one of them drawable"
    ],
    [
     "gear sprites",
-    "… checked, all 16x16, flattest"
+    "… checked, all 16x16, flattest is … at … luminance (floor …)"
    ],
    [
     "tool handles",
@@ -31928,47 +31996,51 @@
    ],
    [
     "gear generator",
-    "rewrites what it owns, reserves what"
+    "rewrites what it owns, reserves what art/build.py draws by name"
+   ],
+   [
+    "convergence guard",
+    "… compiled classes scanned, foreign references confined to the … bridge class(es) in the bytecode as well as the source"
    ],
    [
     "gear convergence",
-    "bytecode not scanned, no compiled classes"
-   ],
-   [
-    "gear convergence",
-    "… compat file(s), foreign"
+    "… compat file(s), foreign imports in … of them, … shapes and 4 slots mapped, …"
    ],
    [
     "field rations",
-    "… edible, one per hazard"
+    "… edible, one per hazard, each granting the library's own ward for its full duration"
    ],
    [
     "recipe codecs",
-    "unit codecs share one value that answers equals"
+    "unit codecs share one value that answers equals; every crafting category is one the game has"
    ],
    [
     "recipe tags",
-    "every tag a recipe names resolves —"
+    "every tag a recipe names resolves — … shipped, NeoForge's own, or a gated modded metal"
    ],
    [
     "ledger web",
-    "the Pufferfish datapack and its generator retired, no words for it left"
+    "the Pufferfish datapack and its generator retired, no words for it left, and /elysium tree in the command"
+   ],
+   [
+    "kills and benches",
+    "weapons at most 5% of a top-shelf drop, material in handfuls, and the three benches built without obsidian, one vanilla station apiece"
    ],
    [
     "humanoid skins",
-    "… at 64x64, each named by the"
+    "… at 64x64, each named by the renderer that draws it"
    ],
    [
     "gems and sigils",
-    "… items and … benches; dust only from"
+    "… items and … benches; dust only from grinding, cutting priced like merging, no sigil spent on nothing"
    ],
    [
     "underground",
-    "… things waiting, each rare, each on a floor, and"
+    "… things waiting, each rare, each on a floor, and the spawners run out"
    ],
    [
     "starting kit",
-    "one gift table, given once, remembered through death, and"
+    "one gift table, given once, remembered through death, and the codex left to the library's join handler"
    ],
    [
     "the tier command",
@@ -31976,7 +32048,7 @@
    ],
    [
     "harvest audit",
-    "/elysium audit harvest asks the running game about every block of every module"
+    "/elysium audit harvest asks the running game about every block of every module, and writes the whole list to logs/harvest-audit.txt"
    ]
   ],
   "item_models": [
@@ -32426,7 +32498,7 @@
    ],
    [
     "room types",
-    "… registered, kinds covered:"
+    "… registered, kinds covered: …"
    ],
    [
     "json files parsed",
@@ -32652,11 +32724,11 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), no reference to"
+    "… source file(s), no reference to Apothic Enchanting, depends on the library only"
    ],
    [
     "enchanting rules",
-    ""
+    "…"
    ],
    [
     "json files parsed",
@@ -32664,15 +32736,15 @@
    ],
    [
     "shelves",
-    "… stat block(s), … of them made, all"
+    "… stat block(s), … of them made, all four numbers buildable, … past what a player starts with"
    ],
    [
     "the ladder",
-    "… enchantment(s) re-paced"
+    "… enchantment(s) re-paced, … treasure(s) behind arcana, everything else vanilla's"
    ],
    [
     "new enchantments",
-    "…, every effect a component the game has"
+    "…, every effect a component the game has, every one offered, found and sold"
    ],
    [
     "infusion",
@@ -32684,7 +32756,7 @@
    ],
    [
     "the anvil",
-    "… tome(s), and the wall lifted only where vanilla"
+    "… tome(s), and the wall lifted only where vanilla refuses"
    ],
    [
     "client and tiers",
@@ -32692,11 +32764,11 @@
    ],
    [
     "advancements",
-    "… in one tree, every trigger real and"
+    "… in one tree, every trigger real and every name written"
    ],
    [
     "the tome tower",
-    "… heights, … blocks, each"
+    "… heights, … blocks, each floored, laddered, shelved and stocked"
    ],
    [
     "language",
@@ -32862,39 +32934,35 @@
    ],
    [
     "the arithmetic",
-    ""
+    "…"
    ],
    [
     "the plants",
-    "2 crops, … stages each, wild forms that give seeds"
+    "2 crops, … stages each, wild forms that give seeds and no fibre"
    ],
    [
     "the wood",
-    "… block(s), each modelled, tagged, named and"
+    "… block(s), each modelled, tagged, named and droppable"
    ],
    [
     "drawn and tooled",
-    "skipped, no game jar to compare the wood with (set MC_JAR)"
-   ],
-   [
-    "drawn and tooled",
-    "… emberwood shape(s) drawn, modelled"
+    "… emberwood shape(s) drawn, modelled and held as the game's own, and … block(s) on the tool lists of the block each copies"
    ],
    [
     "where they grow",
-    "… feature(s) across"
+    "… feature(s) across … modifier(s)"
    ],
    [
     "generated",
-    "… file(s) rebuilt from the two generators"
+    "… file(s) rebuilt from the two generators, each the same as the one shipped"
    ],
    [
     "atlas textures",
-    "… block and item texture(s), each square or"
+    "… block and item texture(s), each square or declared frames"
    ],
    [
     "model textures",
-    "… reference(s) from block and item models, each"
+    "… reference(s) from block and item models, each to a shipped file"
    ],
    [
     "language",
@@ -33530,27 +33598,31 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), no chain it replaces"
+    "… source file(s), no chain it replaces named, and all three ages below declared"
    ],
    [
     "the arithmetic",
-    ""
+    "…"
    ],
    [
     "the chain",
-    "no cycles, every material rooted in something you can dig"
+    "no cycles, every material rooted in something you can dig, and the ore ladder left where Age III ended it"
    ],
    [
     "recovery",
-    "… companions, a third of a unit each, the refinery"
+    "… companions, a third of a unit each, the refinery wired and fed only raw ore; … Cordon metals worked, none shipped twice; the design's … prices held to the rules"
    ],
    [
     "the debt",
-    "… ore famil(ies) generated by the pack, every"
+    "… ore famil(ies) generated by the pack, every one of them supplied and every raw form here dug from one; the gear's … metals each with an ingot; … metal item(s) modelled and named"
    ],
    [
     "what it declares",
     "the game, the library, and the three ages it is built on"
+   ],
+   [
+    "the recipe browser",
+    "2 kind(s) handed to the library's table for JEI to show, and JEI named nowhere here"
    ]
   ],
   "item_models": [
@@ -33823,35 +33895,43 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), no mod it replaces"
+    "… source file(s), no mod it replaces, no age above it, and the age below declared"
    ],
    [
     "the arithmetic",
-    ""
+    "…"
    ],
    [
     "the model",
-    "a grid that shares, a wire that burns on what flows, and"
+    "a grid that shares, a wire that burns on what flows, and distance that costs"
    ],
    [
     "the ladder",
-    "turbine -> diesel, crusher -> arc furnace; a wire that"
+    "turbine -> diesel, crusher -> arc furnace; a wire that forces the step up, ore doubled once, and a shaft that will do at … of the speed"
    ],
    [
     "the books",
-    "a grid hands out what it made and borrowed, less"
+    "a grid hands out what it made and borrowed, less what the wire took, on ten thousand grids built at random - and the loss is charged where the arithmetic can see it rather than by the block that walks the wire"
+   ],
+   [
+    "the brick machines",
+    "… multiblock(s) out of … brick(s), every orientation accepted and every one-block mutation of every one of them refused by name, and … job(s) that want no wire at all"
    ],
    [
     "fed and emptied",
-    "an empty hand takes what a formed one made, a thing with"
+    "an empty hand takes what a formed one made, a thing with no job there passes through, and a blast burns … coke, which burns … ticks in any furnace"
    ],
    [
     "what it declares",
-    "the game, the library, the age below, and a spec the ages"
+    "the game, the library, the age below, and a spec the ages above can read"
    ],
    [
     "runs",
     "the wires draw arms and plates, take a dye, and keep it"
+   ],
+   [
+    "the recipe browser",
+    "every Kind handed to the library's table for JEI to show, and JEI named nowhere here"
    ]
   ],
   "item_models": [
@@ -34003,43 +34083,47 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), no mod it replaces"
+    "… source file(s), no mod it replaces, no age above it"
    ],
    [
     "the arithmetic",
-    ""
+    "…"
    ],
    [
     "the model",
-    "a curve not a number, a line that settles, teeth that cost"
+    "a curve not a number, a line that settles, teeth that cost power, a shaft that can shear, and a tree of speeds that jams rather than insisting a shaft turns at two of them"
    ],
    [
     "the ladder",
-    "crank -> wheel -> gearing -> steam; 4 source(s) and"
+    "crank -> wheel -> gearing -> steam; 4 source(s) and 5 machine(s), each one a rung the one before it could not reach"
    ],
    [
     "the machine hall",
-    "three ways to connect and no more - along a shaft, through"
+    "three ways to connect and no more - along a shaft, through a mesh, and round a gearbox - one walk per change, every member told its own speed, and five things a player can tell apart"
    ],
    [
     "the engines",
-    "… engine(s) on a ladder of"
+    "… engine(s) on a ladder of … fuel(s), … of them ours and every one with a way up to it, and a refinery to climb it with"
    ],
    [
     "the anchors",
-    "… of them over … width(s)"
+    "… of them over … width(s), each a load rather than a block you place and forget, letting go when the line stops, when it is broken and when a world comes back up holding what it left behind"
    ],
    [
     "the processing",
-    "… recipe(s) across"
+    "… recipe(s) across … machine(s), … of them the kitchen's knife done by machine and none yielding more than the hand does, joined to … of the game's own recipes - every one of them swept for rather than thought of - with no loop anywhere that comes back with more than it started with"
    ],
    [
     "the seam",
-    "one dynamo, bad on purpose - a round trip out"
+    "one dynamo, bad on purpose - a round trip out through it and back through Age II's motor comes home with … of what it left with, and the gearing that gets the most out of it is solved rather than guessed"
    ],
    [
     "what it declares",
     "the game, the library, and a spec the later ages can read"
+   ],
+   [
+    "the recipe browser",
+    "every Kind handed to the library's table for JEI to show, and JEI named nowhere here"
    ]
   ],
   "item_models": [
@@ -34389,7 +34473,7 @@
    ],
    [
     "the undeclared",
-    "a player under the declaration screen takes no damage"
+    "a player under the declaration screen takes no damage until a race and a calling are recorded"
    ],
    [
     "lang keys",
@@ -34397,7 +34481,7 @@
    ],
    [
     "stat tooltips",
-    "… stats, each with a name and a"
+    "… stats, each with a name and a description the screen renders on hover"
    ],
    [
     "standing causes",
@@ -34409,107 +34493,111 @@
    ],
    [
     "palette",
-    "… colours"
+    "… colours, … metrics, generated file is current"
    ],
    [
     "roaming bands",
-    "gaps …-… ticks by band"
+    "gaps …-… ticks by band, …-… per band, cap …, one tag literal"
    ],
    [
     "claims",
-    "§A.2 floor …..… verified"
+    "§A.2 floor …..… verified at 6 sizes, monotonic, radius … cylinder"
    ],
    [
     "villager memory",
-    "… kinds, refusal at …"
+    "… kinds, refusal at …, ledger … deep"
    ],
    [
     "gear gate",
-    "no direct instanceof outside the resolver"
+    "no direct instanceof outside the resolver, cache cleared on reload"
    ],
    [
     "loot categories",
-    "… kinds in the tree"
+    "… kinds in the tree, … resolved from vanilla shapes, items asked first, cache cleared on reload"
    ],
    [
     "world tiers",
-    "derived from level with a world floor that only rises"
+    "derived from level with a world floor that only rises, worlds declared rather than listed, kept through death; augments re-asserted for players and applied once to mobs"
    ],
    [
     "gear sets",
-    "… sets, on the one engine"
+    "… sets, on the one engine, with bonuses that come off with the armour"
    ],
    [
     "elites",
-    "… augments across …"
+    "… augments across … world-tier gates, drawn by the affix pool, applied once at spawn"
    ],
    [
     "item effects",
-    "… kinds"
+    "… kinds (… read off a finished item), … affixes in … prefixes and … suffixes across … world-tier gates, all on the one engine"
    ],
    [
     "codex navigation",
-    "the sheet packet refreshes an open screen"
+    "the sheet packet refreshes an open screen rather than rebuilding it, and refresh leaves the page alone"
    ],
    [
     "heat",
-    "gated on altitude and on fire, with the"
+    "gated on altitude and on fire, with the scan bounded and the cold term kept out of scorching biomes"
    ],
    [
     "hazards",
-    "… bound to …"
+    "… bound to … distinct elements, each with a name, a cheap counter and an engineered one"
    ],
    [
     "hazard wards",
-    "… hazards, each with an effect"
+    "… hazards, each with an effect that is registered, bound, named, and asked by the damage tick as the third named immunity"
    ],
    [
     "discovery",
-    "not present"
+    "… kinds and … offices, all named, first-find-only and kept across death"
    ],
    [
-    "discovery",
-    "… kinds and … offices"
-   ],
-   [
-    "rooms",
-    "not present"
+    "points and scaling",
+    "uncapped in the spend, uncapped in the curves, and the sheet's bars scale with the character"
    ],
    [
     "rooms",
-    "… kinds, each named"
+    "… kinds, each named, described, built from tags that exist, and read by the damage tick"
    ],
    [
     "gui textures",
-    "… re-skinned"
+    "… re-skinned, … recesses under vanilla's own slot coordinates"
    ],
    [
     "health bar",
-    "one readout, vanilla's cancelled, scaled to the"
+    "one readout, vanilla's cancelled, scaled to the player's own maximum and drawn in the mod's palette"
    ],
    [
     "research",
-    "… unlock(s), every one"
+    "… unlock(s), every one read somewhere and none of them power; … language key(s) present"
    ],
    [
     "stress bands",
-    "… reasons and …"
+    "… reasons and … bands, derived rather than stored, each reason printed with its weight"
    ],
    [
     "telegraph",
-    "the cap is in the pipeline for every attacker"
+    "the cap is in the pipeline for every attacker, … mob source file(s) checked for a bare melee goal"
+   ],
+   [
+    "maker's marks",
+    "… grades from practice alone, durability only, stamped before the count is raised"
    ],
    [
     "contracts",
-    "… kinds, expiry applied on read"
+    "… kinds, expiry applied on read through one accessor, failing costs standing and never Suspicion"
    ],
    [
     "practice",
-    "keyed on what is sold, a proportional discount"
+    "keyed on what is sold, a proportional discount with a floor, set rather than added"
+   ],
+   [
+    "destructible cover",
+    "… tagged entries, … guards on every break, claims untouched, one block per blow"
    ],
    [
     "effect icons",
-    "… effect(s), each with an 18x18 icon"
+    "… effect(s), each with an 18x18 icon in its own namespace"
    ],
    [
     "hotbar",
@@ -34521,7 +34609,7 @@
    ],
    [
     "combat model",
-    "… attributes read by a rule"
+    "… attributes read by a rule, … effects, … potions, … brewing mixes"
    ],
    [
     "damage types",
@@ -34536,16 +34624,20 @@
     "consulted, worst-of, clamped and isolated"
    ],
    [
-    "executed rules",
-    "… file(s) across"
+    "an ability happens",
+    "6 shape(s), one branch each in the one place that performs them, not one ability named there, and every magnitude derived from what the ability is already worth"
    ],
    [
-    "harnesses",
-    "not run, no Minecraft classpath at"
+    "executed rules",
+    "… file(s) across … system(s) load without a game"
    ],
    [
     "add-on api",
-    "3 events, each fired by the system it is about, and one"
+    "3 events, each fired by the system it is about, and one file that posts"
+   ],
+   [
+    "attribute tooltips",
+    "one line per attribute, vanilla's put back on a key"
    ],
    [
     "quality of life",
@@ -34553,39 +34645,35 @@
    ],
    [
     "accessory seam",
-    "two questions, no accessory mod named, and the effect"
+    "two questions, no accessory mod named, and the effect engine reads worn accessories as it reads armour"
    ],
    [
     "weather",
-    "a hazard source read off the day, announced when it"
+    "a hazard source read off the day, announced when it turns, and drawn only where the sky is"
    ],
    [
     "valoria effects",
-    "the Null field as a sixth hazard with a gauge and a ward"
+    "the Null field as a sixth hazard with a gauge and a ward, … attributes, seven effects and … enchantments, all read by a rule"
    ],
    [
     "sound",
-    "… voices x …, … hums"
+    "… voices x …, … hums, … clicks: … Vorbis clips on disk, each mono at 22050 Hz, listed, subtitled and rebuilt identical"
+   ],
+   [
+    "the recipe browser",
+    "one plugin JEI loads itself, nothing else naming JEI, the dependency optional, and the kinds read off the table the modules fill"
    ],
    [
     "kind tags",
-    "vanilla's lists not checked, no vanilla-assets.jar (set MC_JAR)"
-   ],
-   [
-    "kind tags",
-    "the c: lists not checked, no NeoForge jar on the classpath"
-   ],
-   [
-    "kind tags",
-    "… kind(s) from the harness, every vanilla tag a list vanilla has"
+    "… kind(s) from the harness, every vanilla tag a list vanilla has and every gear kind on one the enchanting tables read; the pack walks the registry, asks the one resolver, and cannot be turned off"
    ],
    [
     "the ledger web",
-    "… nodes from the rules, every cluster, keystone, stat and"
+    "… nodes from the rules, every cluster, keystone, stat and refusal with words, the doctrines paired the same way on both sides, the stat sheet counting it, the two clicks carried and the state keeping its promises"
    ],
    [
     "experience",
-    ""
+    "…; every source paid through one capped door, kills and ore as before"
    ],
    [
     "runs",
@@ -36872,31 +36960,35 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), none of the seventeen"
+    "… source file(s), none of the seventeen named, and the grid it hangs off declared"
    ],
    [
     "the arithmetic",
-    ""
+    "…"
    ],
    [
     "the round trip",
-    ""
+    "…"
+   ],
+   [
+    "what a pack holds",
+    "…"
    ],
    [
     "the logic layer",
-    ""
+    "…"
    ],
    [
     "autocrafting",
-    "a plan that is ordered as well as costed, a walk with a"
+    "a plan that is ordered as well as costed, a walk with a budget, batches that fit in a slot, and … jobs at a time across hands that are machines on the grid"
    ],
    [
     "conservation",
-    "one place where a transfer is decided, one place where"
+    "one place where a transfer is decided, one place where destroying is allowed, and a planner that refuses cycles, depth and size"
    ],
    [
     "the ladder",
-    "drawers that step by"
+    "drawers that step by …, a network of at most … devices at … each, on Age II's grid"
    ],
    [
     "runs",
@@ -36904,15 +36996,19 @@
    ],
    [
     "compression",
-    "… material(s) x"
+    "… material(s) x … tier(s) = … block(s), every one compressed out of nine of the tier below and coming apart into nine again, and every tier framed in a different one of the game's own metals"
    ],
    [
     "what a pack holds",
-    "… body(s) and …"
+    "… body(s) and … part(s), every one drawn, named and craftable, every bag above the first built out of the bag below it, and none of them stacking"
+   ],
+   [
+    "the network's face",
+    "… device(s) filling … role(s) and … operator(s) in the logic layer, every device drawn as its own thing and every one of them built on the bus it hangs off"
    ],
    [
     "packs at work",
-    "every insertion, fitting and removal ruled by the"
+    "every insertion, fitting and removal ruled by the rules, … placed bod(ies) with a block, a drop and a capability, a page at a time in the game's own chest screen, and the parts' behaviours on the game bus"
    ],
    [
     "what it declares",
@@ -37594,10 +37690,6 @@
    ],
    [
     "model sheets",
-    "Pillow missing, texture sizes unchecked"
-   ],
-   [
-    "model sheets",
     "… textures, all matching their model"
    ],
    [
@@ -37618,23 +37710,19 @@
    ],
    [
     "roaming bands",
-    "despawn consent tagged, wave clearance excludes"
+    "despawn consent tagged, wave clearance excludes them, suppressed mid-action"
    ],
    [
     "base sieges",
-    "actions target the largest claim, fail when its"
+    "actions target the largest claim, fail when its beacon is struck"
    ],
    [
     "register actions",
-    "14.3 table matches, … Empire"
+    "14.3 table matches, … Empire families all counted, … lines translated"
    ],
    [
     "mob value range",
-    "not measured, Pillow or numpy missing"
-   ],
-   [
-    "mob value range",
-    "… textures, flattest"
+    "… textures, flattest … at std … (floor …), darkest … at mean … (floor …)"
    ]
   ],
   "item_models": [
@@ -37726,7 +37814,7 @@
    ],
    [
     "trade ledgers",
-    "… offers across … envoys"
+    "… offers across … envoys, all in range and in price order"
    ],
    [
     "price registry",
@@ -37734,11 +37822,11 @@
    ],
    [
     "court commissions",
-    "issued by … top-shelf office(s)"
+    "issued by … top-shelf office(s), … lines all translated"
    ],
    [
     "court wardrobes",
-    "… kinds"
+    "… kinds, … costume parts between them, plainest is … at …"
    ],
    [
     "dependencies",
@@ -37750,23 +37838,27 @@
    ],
    [
     "amnesty",
-    "sold by Suspicion offices, floors at the claim"
+    "sold by Suspicion offices, floors at the claim, refused rather than wasted"
    ],
    [
     "generated lang",
-    "… keys"
+    "… keys, matches gen_npcs.py + gen_village.py"
    ],
    [
     "wandering trader",
-    "… common and"
+    "… common and … rare offers, the rare ones dearer, and a registry anything can add to"
    ],
    [
     "writs of audience",
-    "every office sells its own, one a visit, off its top"
+    "every office sells its own, one a visit, off its top shelf, and the reroll leaves it sold"
+   ],
+   [
+    "what mines them",
+    "… bench(es), … asking for the right tool, every one in exactly one tool's tag or broken by hand with a reason: … by …, … by hand"
    ],
    [
     "who arrives",
-    ""
+    "…"
    ]
   ],
   "item_models": [
@@ -40176,15 +40268,15 @@
    ],
    [
     "the arithmetic",
-    ""
+    "…"
    ],
    [
     "the matrix",
-    "… ore(s), … material(s)"
+    "… ore(s), … material(s), … stone(s)"
    ],
    [
     "the worlds",
-    "… placed feature(s) across"
+    "… placed feature(s) across … world(s), each once"
    ],
    [
     "family tags",
@@ -40192,7 +40284,7 @@
    ],
    [
     "the stones",
-    "… retired mod(s) in the ledger, and every stone one of them"
+    "… retired mod(s) in the ledger, and every stone one of them once filled is filled here"
    ],
    [
     "the drop",
@@ -40200,15 +40292,19 @@
    ],
    [
     "the cordon",
-    "… sets on … materials"
+    "… sets on … materials, … items and … blocks, each modelled, drawn, named, tagged and made"
+   ],
+   [
+    "what mines them",
+    "… block(s), … asking for the right tool, every one in exactly one tool's tag or of a kind broken by hand with a reason: … by …, … by hand"
    ],
    [
     "the gem chunks",
-    "… gem(s) with an ore here, each smelted and blasted from"
+    "… gem(s) with an ore here, each smelted and blasted from its raw chunk"
    ],
    [
     "the roots",
-    "… roots left by … vanilla tables, each a listed"
+    "… roots left by … vanilla tables, each a listed loot modifier at the rules' chance, none twice"
    ],
    [
     "language",
@@ -40927,55 +41023,59 @@
    ],
    [
     "shapes",
-    "… stairs, … slabs"
+    "… stairs, … slabs, … walls, … machines, … building block(s) with behaviour"
    ],
    [
     "ingredients",
     "… — …"
    ],
    [
+    "blockstates + loot",
+    "checked for … blocks"
+   ],
+   [
     "models",
-    "… models"
+    "… models, … own textures referenced, … missing"
    ],
    [
     "textures",
-    "… PNGs, all 16x16"
+    "… PNGs, all 16x16, … blocks with an explicit render type"
    ],
    [
     "recipes",
-    "… files"
+    "… files, … of … items craftable"
    ],
    [
     "worldgen",
-    "… block(s) generate, every feature"
+    "… block(s) generate, every feature resolved from biome modifier to block"
    ],
    [
     "language",
-    "… entries, … tooltip keys"
+    "… entries, … tooltip keys all present"
+   ],
+   [
+    "what mines them",
+    "… block(s), … asking for the right tool, every one in exactly one tool's tag or broken by hand with a reason: …, … by hand"
    ],
    [
     "tags",
-    "… mineable, … walls"
+    "… mineable, … walls, … broken by hand with a reason"
    ],
    [
     "independence",
-    "0 imports from other Elysium mods"
+    "0 imports from other Elysium mods, … declared dependencies"
    ],
    [
     "working machines",
-    "… with block entities, energy and"
+    "… with block entities, energy and no marker left on them"
    ],
    [
     "tree harvester",
-    "soil, canopy and a bounded walk, all three"
+    "soil, canopy and a bounded walk, all three asked before anything is felled"
    ],
    [
     "processing",
-    "… recipes, generator not"
-   ],
-   [
-    "processing",
-    "… recipes (…)"
+    "… recipes (…), every id resolved (… vanilla ids and tags against …), each beating the hand recipe it replaces"
    ],
    [
     "recipe economics",
@@ -40983,39 +41083,27 @@
    ],
    [
     "kiln inputs",
-    "… entries, not cross-checked"
-   ],
-   [
-    "kiln inputs",
-    "… entries derived from"
+    "… entries derived from vanilla's `blocks` category, … addition(s) and … exclusion(s), each still necessary"
    ],
    [
     "machine numbers",
-    "not run, no Minecraft classpath at"
-   ],
-   [
-    "machine numbers",
-    "the library's classes are not at …"
-   ],
-   [
-    "machine numbers",
-    ""
+    "…"
    ],
    [
     "finished set",
-    "nothing owed, no orphan stubs, no dead"
+    "nothing owed, no orphan stubs, no dead tooltip string, scaffolding kept for the next one"
    ],
    [
     "pending machines",
-    "… registered, …"
+    "… registered, … classes in block/pending/, … rows in MACHINES.md, all describing the same work"
    ],
    [
     "generator",
-    "shipped tree matches the table"
+    "shipped tree matches the table (… blocks, … machines)"
    ],
    [
     "metal trim",
-    "… composed faces, each showing"
+    "… composed faces, each showing its own metal, all distinct"
    ],
    [
     "runs",
@@ -41023,15 +41111,23 @@
    ],
    [
     "automation rules",
-    "… conditions, one action that only"
+    "… conditions, one action that only subtracts, applied in the same walk that finds the receivers"
    ],
    [
     "power priority",
-    "5 classes in the spec's order"
+    "5 classes in the spec's order, … machine(s) ranked off industry, a bounded grid walk and a budget the harness executes"
+   ],
+   [
+    "conduit shape",
+    "a core and six arms, the collision boxes derived from the model's one arm by the rotations the blockstate applies"
    ],
    [
     "json files parsed",
     "…"
+   ],
+   [
+    "the recipe browser",
+    "3 kind(s) handed to the library's table for JEI to show, and JEI named nowhere here"
    ]
   ],
   "item_models": [
@@ -42554,7 +42650,7 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), no Stellaris or its libraries"
+    "… source file(s), no Stellaris or its libraries, depends on the library only"
    ],
    [
     "credit",
@@ -42562,7 +42658,7 @@
    ],
    [
     "world table",
-    ""
+    "…"
    ],
    [
     "references",
@@ -42570,15 +42666,15 @@
    ],
    [
     "completeness",
-    "… blocks drawn, named and dropping"
+    "… blocks drawn, named and dropping; … worlds each with a dimension"
    ],
    [
     "mineable",
-    "… block(s) in a mineable tag; … liquid(s) and"
+    "… block(s) in a mineable tag; … liquid(s) and … that break at a touch exempt, each read where it is registered"
    ],
    [
     "stone",
-    "… worlds' stone keeps itself to Silk Touch, gives its"
+    "… worlds' stone keeps itself to Silk Touch, gives its cobblestone to any other pickaxe and smelts back; stones and ores are pickaxe-mineable"
    ],
    [
     "runs",
@@ -42590,11 +42686,11 @@
    ],
    [
     "bastion terrain",
-    "plains from the overworld's erosion above"
+    "plains from the overworld's erosion above …, black volcanic ranges below it"
    ],
    [
     "emerald bastion",
-    "… biomes with no monsters, deepslate, no stone"
+    "… biomes with no monsters, deepslate, no stone, emerald most common (… a chunk), no oceans"
    ],
    [
     "mobs",
@@ -42602,7 +42698,7 @@
    ],
    [
     "stations",
-    "… sizes, templates match their rules, pads open to the sky"
+    "… sizes, templates match their rules, pads open to the sky; rockets land on the pilot's station"
    ],
    [
     "reskin",
@@ -42622,15 +42718,19 @@
    ],
    [
     "the waygate",
-    "a ring of …, one network on the overworld"
+    "a ring of …, one network on the overworld, both ends re-read, and nothing to pay"
+   ],
+   [
+    "gates in the world",
+    "a working …x… ring on a pad, opening clear, at the ruined portal's own 40/15"
    ],
    [
     "weather",
-    "… kind(s) across …"
+    "… kind(s) across … world(s), each raising a hazard the engine has, and two skies left calm on purpose"
    ],
    [
     "freight",
-    "one terminal, one clock on the overworld, cargo held"
+    "one terminal, one clock on the overworld, cargo held rather than lost, and up to … seconds to the far worlds"
    ]
   ],
   "item_models": [
@@ -42899,11 +42999,11 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), no reference to"
+    "… source file(s), no reference to Apothic Spawners, depends on the library only"
    ],
    [
     "spawner rules",
-    ""
+    "…"
    ],
    [
     "json files parsed",
@@ -42923,7 +43023,7 @@
    ],
    [
     "advancements",
-    "… in one tree, every trigger real and"
+    "… in one tree, every trigger real and every name written"
    ],
    [
     "language",
@@ -42997,23 +43097,23 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), nothing it replaces"
+    "… source file(s), nothing it replaces named, and the grid it hangs off declared"
    ],
    [
     "the arithmetic",
-    ""
+    "…"
    ],
    [
     "the price",
-    "a fixed … a jump, a price for distance that"
+    "a fixed … a jump, a price for distance that saturates rather than climbing, and a flat surcharge dearer than any jump inside one world"
    ],
    [
     "the jump",
-    "the distance, the block, the player's own list and the"
+    "the distance, the block, the player's own list and the price all re-decided on the server, and the packet carries only which row"
    ],
    [
     "the vehicles",
-    "… rung(s) of one class, each registered"
+    "… rung(s) of one class, each registered, modelled, painted, craftable and named; fuel billed on distance covered"
    ],
    [
     "what it declares",
@@ -43251,12 +43351,16 @@
     "… (…), all registered and tagged"
    ],
    [
+    "the companion slot",
+    "Valoria's pet slot with … companion(s) in it, each found, each a rule with a price, the slot iconed and ordered"
+   ],
+   [
     "found somewhere",
-    "… found trinkets in one aggregate, added to"
+    "… found trinkets in one aggregate, added to … vanilla chests at … and to the tier-3 reward shelf"
    ],
    [
     "potion charm",
-    "fills, refills, wears out and goes inert rather than"
+    "fills, refills, wears out and goes inert rather than breaking"
    ],
    [
     "recipes",
@@ -44727,59 +44831,71 @@
   "mechanics": [
    [
     "independence",
-    "… source file(s), nothing it replaces"
+    "… source file(s), nothing it replaces named, and not one dependency beyond the game and the library"
    ],
    [
     "the arithmetic",
-    ""
+    "…"
+   ],
+   [
+    "the Vale",
+    "…"
    ],
    [
     "the buildings",
-    ""
+    "…"
    ],
    [
     "the overworld",
-    ""
+    "…"
    ],
    [
     "the way in",
-    ""
+    "…"
    ],
    [
     "the metric",
-    "the game's own nearest-box rule — six axes in the game's"
+    "the game's own nearest-box rule — six axes in the game's order, inside costing nothing, offset a seventh, ties to whoever was first"
    ],
    [
     "the theorem",
-    "a claim inside an earlier claim reported without sampling"
+    "a claim inside an earlier claim reported without sampling, and every world made to be the world it said it was"
    ],
    [
     "the compass",
-    "one search of the stated size for anything, a cooldown"
+    "one search of the stated size for anything, a cooldown under it, a list that can be typed into, and a needle that spins rather than lies"
    ],
    [
     "the words",
-    "… needle frame(s), a model, a recipe"
+    "… needle frame(s), a model, a recipe and the words, rebuilt and identical"
+   ],
+   [
+    "the Vale",
+    "… biome(s) on a … by … grid, every rectangle exactly the band the rules work out, no two of the files alike, and a dimension and a type to put them in"
    ],
    [
     "the structures",
-    "… kind(s) of building, every one"
+    "… kind(s) of building, every one with a placement the game will accept, a salt of its own and a grammar that exists"
    ],
    [
     "the way in",
-    "a ring of Vale Frames found by the rules' flood on both axes"
+    "a ring of Vale Frames found by the rules' flood on both axes and lit by the compass without using it up, the gate a block with no item and no drop, one search a ring for the gentlest crossing, a landing beside the far ring, and the way back to where the player came in"
    ],
    [
     "the overworld",
-    "… biome(s) of ours in"
+    "… biome(s) of ours in … preset(s), declared ahead of vanilla's …, every one of vanilla's … biomes still with ground of its own, and every colour, spawn and feature in the files the arithmetic that was proved"
    ],
    [
     "the reference",
-    "the stages' reference world carries the preset's"
+    "the stages' reference world carries the preset's … biome entries exactly, so a fresh test world is the world the pack ships"
    ],
    [
     "the seam",
-    "the rules pointed at every dimension file in the"
+    "the rules pointed at every dimension file in the repository, a world with no row an error rather than a pass, and every register on the bus"
+   ],
+   [
+    "the tags",
+    "… biome(s) of ours in … tag(s), each the tags of the biome it models, read from the game's own files both ways"
    ]
   ],
   "item_models": [

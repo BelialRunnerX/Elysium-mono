@@ -284,6 +284,29 @@ expect "a loss priced and never rolled" "rolled nowhere"
 edit $M/src/main/resources/data/neoforge/loot_modifiers/global_loot_modifiers.json '"elysiumcomforts:lost_mail_from_cartographer"' '"elysiumcomforts:nothing"'
 expect "a loot modifier written and never listed" "never applies it"
 
+echo "no game jar and no Pillow (15 Oct 2026)"
+# Until 15 October no vanilla.jar left the game's names an empty set, every
+# check that reads it stood aside, and the module passed; and no Pillow measured
+# no bird's sheet and passed. Each must now FAIL and name what is missing. One
+# run, two cases: ELYSIUM_MC_LIBS is pointed at an empty folder (it is read for
+# nothing else here), and Pillow is hidden from the validator by spelling its
+# import wrong. The real jar and Pillow are never touched.
+env_cases() { local setting="$1" g; shift
+  g="$(cd $M && env "$setting" timeout 400 python3 validate.py 2>&1)"
+  while [ $# -ge 2 ]; do
+    if [[ "$g" == *"PROBLEM(S)"* && "$g" == *"$2"* ]]; then echo "  caught : $1"; pass=$((pass+1));
+    else echo "  MISSED : $1"; fail=$((fail+1)); fi
+    shift 2
+  done; restore; }
+NOWHERE=$(mktemp -d)
+edit $M/validate.py '        from PIL import Image as _Image' '        from PIL import NoSuchName as _Image'
+env_cases ELYSIUM_MC_LIBS="$NOWHERE" \
+  "no vanilla.jar, which used to check the game's names against nothing and pass" \
+  "the game's own item and block names cannot be read: there is no vanilla.jar at" \
+  "no Pillow, which used to measure no bird's sheet and pass" \
+  "the birds' sheets cannot be measured against the plan they were packed to: Pillow is not installed"
+rmdir "$NOWHERE"
+
 echo
 echo "restoring and re-checking"
 restore

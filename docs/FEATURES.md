@@ -35,7 +35,7 @@ Regenerate it after any change; do not edit by hand. How each kind is validated:
 
 Elysium Agronomy: things that grow. Pots that farm without a field, seeds that grow metal slowly enough to be worth mining anyway, bees, and a diet that makes a cook out of a player. Requires Elysium Library and Elysium Industry.
 
-465 blocks, 746 items, 203 creatures, 26 world features; 650 recipes; 18 validated mechanics.
+465 blocks, 746 items, 203 creatures, 26 world features; 650 recipes; 21 validated mechanics.
 
 ### Blocks (465)
 
@@ -1497,26 +1497,29 @@ Elysium Agronomy: things that grow. Pots that farm without a field, seeds that g
 | `wild_rice` |  |
 | `wild_tomato` |  |
 
-### Mechanics the validator executes (18)
+### Mechanics the validator executes (21)
 
-* **independence**: … source file(s), none of the ten named
-* **the arithmetic**: 
-* **the margin**: a farm measured against a mine, at
-* **the machines**: a pot that wants light, an accelerator that shares the
+* **independence**: … source file(s), none of the ten named, and the grid its machines hang off declared
+* **the arithmetic**: …
+* **the margin**: a farm measured against a mine, at … of it at most, with the tiers a stated step apart
+* **the machines**: a pot that wants light, an accelerator that shares the grid, a hive that crowds, and rock that costs power above the first rung
+* **the game's own**: … vanilla ingredient(s) allowed by name, every one of them checked against the … the game actually ships, and every cutting recipe naming only things that exist
 * **what it declares**: the game, the library, and the grid its machines hang off
-* **bees**: … species in … home(s)
-* **fish**: … species across …
-* **pots**: … across … material(s)
-* **generators**: … vein(s), each under …
-* **kitchen**: … meal(s) across
-* **the apiary**: … rung(s) of housing
-* **the altar**: … block(s)
-* **the tackle**: … hook(s), … bobber(s)
-* **the crops**: … crop(s) on the frontier of time
-* **the diet**: … different
-* **fishing and bees**: …
-* **the stations**: the cooking, larder and cutting folders read by a reload
-* **the colony**: a random-ticking block that grows a mushroom every
+* **bees**: … species in … home(s), every resource bee naming a material the foundry makes or the game ships, and … of … foundry materials with a bee of their own
+* **fish**: … species across … famil(ies), … rod(s) and a bait apiece, every one of them modelled, bucketed, named and catchable
+* **pots**: … across … material(s) with all three fittings, … soil(s) of which … are ours, and … sprout(s), each written out as data
+* **generators**: … vein(s), each under … of a mine and each slower than the vein below it
+* **kitchen**: … meal(s) across … station(s) with … effect(s), … ingredient(s), … cut(s) and … block(s), none of them pointless
+* **the apiary**: … rung(s) of housing, … upgrade(s) of which … earn and the rest buy attention, a centrifuge, and … material(s) a comb comes apart into
+* **the altar**: … block(s), … awakening(s), a sixth rung made rather than grown, and an awakened farm of half the plots earning what a whole one does
+* **the tackle**: … hook(s), … bobber(s), … mount(s) and two stations, none of them taking a fish away and no hook making the rare one harder to get
+* **the crops**: … crop(s) on the frontier of time against yield, a wild patch apiece in … sort(s) of place, … larder recipe(s), and every ingredient the kitchen asks for coming from somewhere
+* **the diet**: … different foods for … hearts, kept as a set, surviving death, and applied as one modifier that replaces itself
+* **fishing and bees**: … famil(ies) of fish in the water and the rod-only one bucketed at a table, … wild bee(s) in … full nest(s) and a nest in every one of … homes, rods that cast their tackle, and every comb off a bee or out of a hive of its own
+* **the stations**: the cooking, larder and cutting folders read by a reload listener, and four stations that match, heat, cook and cut by the rules
+* **the pots, filled**: … soil(s) and … sprout(s) read off disk, a soil slot in every pot, and a sprout grown only over a soil that takes it
+* **the colony**: a random-ticking block that grows a mushroom every COLONY_TICKS on the game's clock, up to COLONY_MOST, taken by hand
+* **what mines them**: … block(s) — …, and … broken by hand for a reason the registry bears out; every kind held to the statement that registers it
 
 ## Elysium Almanac — elysium-almanac (`elysiumalmanac`)
 
@@ -1537,21 +1540,21 @@ Elysium Almanac: the book that tells you what to do next. Every chapter of the p
 
 ### Mechanics the validator executes (9)
 
-* **independence**: … source file(s), and not one of the six
-* **the graph played**: 
-* **the graph**: … quest(s) over … chapter(s)
-* **what it asks for**: … item(s), block(s) and beast(s), … tag(s)
-* **the whole pack**: … block(s), item(s) and creature(s) introduced
-* **the rewards**: every step pays through the library's door, once, for a step
-* **the words**: … key(s), a title and a reason for every quest
-* **the book**: craftable out of the base game, handed out once, kept
+* **independence**: … source file(s), and not one of the six modules the book describes named anywhere but in a string
+* **the graph played**: …
+* **the graph**: … quest(s) over … chapter(s), no cycle, nothing stranded, nothing dangling, longest chain … deep — checked again here, by other arithmetic
+* **what it asks for**: … item(s), block(s) and beast(s), … tag(s) (… of the book's own families, … member(s)) and … world(s) named across … module(s), every one of them made, shipped or spawned by something in this tree
+* **the whole pack**: … block(s), item(s) and creature(s) introduced, … excused with a reason, … left out
+* **the rewards**: every step pays through the library's door, once, for a step that is done; … kinds of task, every one answered and labelled
+* **the words**: … key(s), a title and a reason for every quest and every chapter, a line for every kind of task and every world, all of them generated
+* **the book**: craftable out of the base game, handed out once, kept through death, synced, and drawn on the library's own screens
 * **what it declares**: the game and the library, and not one thing it describes
 
 ## Elysium Arcana — elysium-arcana (`elysiumarcana`)
 
 Elysium Arcana: turning things into other things, and the proof that it never makes something out of nothing. Requires Elysium Library.
 
-211 blocks, 90 items, 30 world features; 151 recipes; 10 validated mechanics.
+211 blocks, 90 items, 30 world features; 151 recipes; 11 validated mechanics.
 
 ### Blocks (211)
 
@@ -1899,18 +1902,19 @@ Elysium Arcana: turning things into other things, and the proof that it never ma
 | `uranium_geode` |  |
 | `zinc_geode` |  |
 
-### Mechanics the validator executes (10)
+### Mechanics the validator executes (11)
 
-* **independence**: … source file(s), nothing it replaces
-* **the arithmetic**: 
-* **the table**: … decided values, cheapest wins, nothing worth
-* **who decides**: the catalogue, the price, the balance and what a worn item
+* **independence**: … source file(s), nothing it replaces named, and not one of the modules whose items it prices
+* **the arithmetic**: …
+* **the table**: … decided values, cheapest wins, nothing worth nothing, and the whole of it closed against profit
+* **the two directions**: dissolving returns …, condensing costs all of it, and both round the way that favours the game
+* **who decides**: the catalogue, the price, the balance and what a worn item is worth, all re-decided on the server; the packet carries only which row
 * **what it declares**: the game and the library, and not one thing it prices
-* **geodes**: … material(s) —
-* **what mines them**: …
-* **the seeding**: … material(s), every one of them
-* **the first shard**: … geode(s), … in the overworld and
-* **relics**: … across
+* **geodes**: … material(s) — … the foundry mines and … the game's own — in … shapes each, every chain whole and every block modelled, dropped and named
+* **what mines them**: … block(s), … of them asking for the right tool and every one of those in a tool's tag; the storage block, the budding block and the four crystals by pickaxe, as the game's amethyst, and … broken by hand with a reason; and no recipe back from a storage block to shards
+* **the seeding**: … material(s), every one of them made of its own blocks in the number its row prices, with a catalyst that is not another material's shard, small enough for a grid of … — so GeOre can leave the mods folder
+* **the first shard**: … geode(s), … in the overworld and … in the Nether, one chunk in … to … at … chunk(s) a shard of the seeding, each placed by one biome modifier in a world a player walks to and made of its own material's blocks in the game's rock
+* **relics**: … across … slot(s), carrying every one of … abilities the library defines, each list legal by the library's own rule
 
 ## Elysium Armory — elysium-armory (`elysiumarmory`)
 
@@ -2036,28 +2040,28 @@ Elysium Armory: gear assembled from parts, each part from a material, the whole 
 
 ### Mechanics the validator executes (16)
 
-* **independence**: … source file(s), no reference to
-* **property engine**: 
-* **data**: … materials, … parts and
-* **the cordon**: … of Valoria's materials, each armoured as Valoria numbered it
-* **material harness**: not run, no compiled classes or classpath (…)
-* **material harness**: 
+* **independence**: … source file(s), no reference to Silent Gear, depends on the library only
+* **property engine**: …
+* **data**: … materials, … parts and … traits, exactly what the inventory states
+* **the cordon**: … of Valoria's materials, each armoured as Valoria numbered it, in the cordon category, granting a trait that exists
+* **material harness**: …
+* **what mines them**: … block(s), … asking for the right tool, every one in exactly one tool's tag or broken by hand with a reason: …, … by hand
 * **compounds**: … named mixtures, each one a rule can reach
-* **benches**: … benches, each drawn, named, breakable and craftable
-* **traits**: … traits, … effect kinds all acted on
-* **loot**: a gear condition and a set_parts function, both
-* **items**: … gear and … part items
+* **benches**: … benches, each drawn, named, breakable and craftable; salvage rolls, reforge keeps its seed, the press takes ingots, the charger only counts nights it can see
+* **traits**: … traits, … effect kinds all acted on, … carried in code
+* **loot**: a gear condition and a set_parts function, both registered and both reading the shared engine
+* **items**: … gear and … part items, matching the data, drawn grey and named
 * **json files parsed**: …
-* **sample gear**: one built piece per gear type, through the same builder
-* **jewellery**: … kind(s) declared wearable through
-* **the plan book**: learns plans, answers for one at a time, and a template
-* **survival**: any affixed piece salvages and a reforge pays back no more than it cost
+* **sample gear**: one built piece per gear type, through the same builder the recipe uses
+* **jewellery**: … kind(s) declared wearable through the library, tagged for the slot, and no accessory mod named here
+* **the plan book**: learns plans, answers for one at a time, and a template is still a template
+* **survival**: any affixed piece salvages and a reforge pays back no more than it cost; a template is found in … chests; … shapes convert by one rule; extras are charged
 
 ## Elysium Arsenal — elysium-arsenal (`elysiumarsenal`)
 
 Elysium Arsenal: the tools that take a wall at a time, and the proof that not one of them is simply better than what it replaces. Requires Elysium Library.
 
-41 blocks, 572 items, 3 world features, 1 damage types; 281 recipes; 12 validated mechanics.
+41 blocks, 572 items, 3 world features, 1 damage types; 281 recipes; 14 validated mechanics.
 
 ### Blocks (41)
 
@@ -2696,19 +2700,21 @@ Elysium Arsenal: the tools that take a wall at a time, and the proof that not on
 |---|---|
 | `piercing` |  |
 
-### Mechanics the validator executes (12)
+### Mechanics the validator executes (14)
 
-* **independence**: … source file(s), nothing it replaces
-* **the band**: every tool slower than its specialist on one block and
-* **a swing**: every block paid for singly, nothing instant, nothing the
-* **the catalogue**: … tool(s), every one drawn
-* **generated**: every sprite, model, recipe and name written by the
-* **the weapons**: none of them beaten on every axis by another, each the best
+* **independence**: … source file(s), nothing it replaces named, and not one dependency beyond the game
+* **the band**: every tool slower than its specialist on one block and faster over a … by …, and the one that does every job worse than all of them
+* **a swing**: every block paid for singly, nothing instant, nothing the specialist could not take, nothing much harder, and no swing inside a swing
+* **the catalogue**: … tool(s), every one drawn, modelled, named and built out of the vanilla tool it replaces
+* **generated**: every sprite, model, recipe and name written by the generator, and nothing shipped that it no longer writes
+* **the cordon's rungs**: … tiers from elysium-ores' roster, each with Valoria's own numbers, its material's tag and its ingot's colour
+* **the weapons**: none of them beaten on every axis by another, each the best at something, and the piercing half split at the source rather than added on top
+* **the bows and names**: … bow(s) in … kinds, … kind(s) of ammunition and … named weapon(s), every one drawn, modelled, named, smithed or crafted, registered and counted
 * **grade attributes**: …
-* **reforging**: … grade(s) across … kinds
-* **the digging**: … brush(es), … site(s)
-* **the two sets**: … shape(s), each
-* **in survival**: … site(s) laid by a feature in their
+* **reforging**: … grade(s) across … kinds of gear, … hammer(s) that roll them, every grade named and every hammer craftable
+* **the digging**: … brush(es), … site(s), … fossil(s) in …-stage digs, … artefact(s) and … totem(s), every block drawn, modelled, named, dropping itself and registered
+* **the two sets**: … shape(s), each its class's own states drawn …, doors dropping once and double slabs twice, and every dig block on a tool's list
+* **in survival**: … site(s) laid by a feature in their biomes, … fossil halves, … totems and 3 other finds in the pools, every whole fossil and both sets made from what a dig turns up, and the songless disc retired
 * **what it declares**: the game and the library, and not one thing beyond them
 
 ## Elysium Ascendancy — elysium-ascendancy (`elysiumascendancy`)
@@ -2729,15 +2735,15 @@ Elysium Ascendancy: loot that rolls rarities and affixes, weighted by how far a 
 
 ### Mechanics the validator executes (3)
 
-* **independence**: … source file(s), no reference to
-* **weighting engine**: 
+* **independence**: … source file(s), no reference to Apotheosis, depends on the library only
+* **weighting engine**: …
 * **json files parsed**: …
 
 ## Elysium Atelier — elysium-atelier (`elysiumatelier`)
 
 Elysium Atelier: the shapes a house is made of, in every material, and the proof that none of them makes wood out of nothing. Requires Elysium Library.
 
-2990 blocks, 0 items; 3287 recipes; 15 validated mechanics.
+2990 blocks, 0 items; 3287 recipes; 14 validated mechanics.
 
 ### Blocks (2990)
 
@@ -5739,29 +5745,28 @@ Elysium Atelier: the shapes a house is made of, in every material, and the proof
 | id | name |
 |---|---|
 
-### Mechanics the validator executes (15)
+### Mechanics the validator executes (14)
 
-* **independence**: … source file(s), nothing it replaces
-* **the prices**: … shapes, none of them profitable to craft
-* **the catalogue**: … block(s), every one modelled, stated
-* **the geometry**: … shape(s) whose model and collision box
-* **generated**: every model, state, drop, recipe and name written by the
-* **the joins**: the game's jar is not here, so the blockstates were
-* **the joins**: … tag file(s) matching the rules
-* **the building**: … piece(s) in …
-* **the cuts**: the game's jar is not here, so what it already
-* **the cuts**: …
-* **the courses**: … kind(s) over …
-* **the fittings**: … kind(s) over …
-* **the colours**: … dye(s) x … wood(s) x
-* **the diagonals**: … kind(s) over …
+* **independence**: … source file(s), nothing it replaces named, and not one dependency beyond the game
+* **the prices**: … shapes, none of them profitable to craft, none of them profitable to craft and break, and none wasting a whole block
+* **the catalogue**: … block(s), every one modelled, stated, dropped, named, craftable and mineable, and every one of them registered from a loop
+* **the geometry**: … shape(s) whose model and collision box are the same size, and … that are whole blocks in both
+* **generated**: every model, state, drop, recipe and name written by the generator, and every grid using exactly what its price is worked out from
+* **the joins**: … tag file(s) matching the rules block for block, … blockstate(s) identical to the game's own, and … model(s) built on the templates the game builds them on
+* **the building**: … piece(s) in … material(s) = … block(s), every one drawn exactly as it collides, stated, dropped, named, craftable and registered from a loop
+* **the cuts**: … cut(s) the game already ships, every one of them checked against the game's own blockstates and left out
+* **the courses**: … kind(s) over … material(s) = … block(s), … of them cut on a stonecutter one block at a time, every one drawn exactly as it collides, tagged, dropped, named and registered from the catalogue
+* **the fittings**: … kind(s) over … material(s) = … block(s) and … refused for being cut out of something a hand cannot work, every one drawn exactly as it collides, tagged, dropped, named and registered from the catalogue
+* **the colours**: … dye(s) x … wood(s) x … seat(s) plus … thing(s) of cloth alone = … block(s), every one wearing its own colour's wool on the boxes the rules pad and its wood everywhere else
+* **the diagonals**: … kind(s) over … material(s) = … block(s), every one an unbroken run of overlapping boxes from one corner of its block to the other and through the middle where an ordinary fence keeps its post
+* **what mines it**: … block(s) on … tool list(s), … of them asking for the right tool and every one of those in its tool's tag; wood by axe and stone by pickaxe as the game's own, and … broken by hand with a reason
 * **what it declares**: the game and the library, and not one thing beyond them
 
 ## Elysium Atomics — elysium-atomics (`elysiumatomics`)
 
 Elysium Atomics: the third age. Fission, coolant and the first energy a factory can keep. A grid that stores what it does not spend and spends what it stored, a reactor whose heat is the whole of the danger, and ore worth three times what the ground gave. Requires Elysium Library, Elysium Kinetics and Elysium Industry.
 
-13 blocks, 3 items, 3 recipe kinds; 43 recipes; 7 validated mechanics.
+13 blocks, 3 items, 3 recipe kinds; 43 recipes; 8 validated mechanics.
 
 ### Blocks (13)
 
@@ -5797,21 +5802,22 @@ Elysium Atomics: the third age. Fission, coolant and the first energy a factory 
 | `enriching` | 5 recipes |
 | `reacting` | 4 recipes |
 
-### Mechanics the validator executes (7)
+### Mechanics the validator executes (8)
 
-* **independence**: … source file(s), no mod it replaces
-* **the arithmetic**: 
-* **the model**: energy kept in whole units and rounded against the player
-* **the ladder**: ore 1, 2, 3 by construction; a servo through Age II's proof
-* **the reactor hall**: …
-* **what it declares**: the game, the library, both ages below, and a spec the age
+* **independence**: … source file(s), no mod it replaces, no age above it, and both ages below declared
+* **the arithmetic**: …
+* **the model**: energy kept in whole units and rounded against the player, one direction a tick, and heat that settles where the readout says
+* **the ladder**: ore 1, 2, 3 by construction; a servo through Age II's proof; and a shaft that will do at … above … rpm
+* **the reactor hall**: … size(s) of reactor built out of three blocks, each one making more altogether than the one below and less per rod - heat goes as the cube of the side and cooling goes as the square, which is what makes the size a decision rather than a ladder
+* **what it declares**: the game, the library, both ages below, and a spec the age above can read
 * **runs**: the coolant channel draw arms and plates, take a dye, and keep it
+* **the recipe browser**: every Kind handed to the library's table for JEI to show, and JEI named nowhere here
 
 ## Elysium Bestiary — elysium-bestiary (`elysiumbestiary`)
 
 Elysium Bestiary: things that hunt you, and the proof that fighting a harder one is always worth more than fighting an easier one. Requires Elysium Library.
 
-9 blocks, 166 items, 168 creatures, 1 creative tabs; 9 recipes; 24 validated mechanics.
+9 blocks, 166 items, 168 creatures, 1 creative tabs; 9 recipes; 25 validated mechanics.
 
 ### Blocks (9)
 
@@ -6177,38 +6183,39 @@ Elysium Bestiary: things that hunt you, and the proof that fighting a harder one
 |---|---|
 | `fauna` | Elysium Fauna |
 
-### Mechanics the validator executes (24)
+### Mechanics the validator executes (25)
 
-* **independence**: … source file(s), nothing it replaces
-* **the arithmetic**: 
-* **purity**: the rules are the JDK alone, and the reward is derived in
-* **the shapes**: … body plan(s) of
-* **what it drops**: the game's jar is not here, so the drops
-* **what it drops**: … distinct drop(s), every
-* **what it leaves**: … loot table(s) read back, and every one
-* **what you meet**: the game's jar is not here, so the biome
-* **what you meet**: … beast(s) across
-* **the words**: every sprite, model, shape class, loot table and
-* **in the world**: every beast, attribute, spawn rule, renderer and egg
-* **where they are**: … haunt(s)
-* **the summons**: … shape(s) of ability that cannot
-* **the other half**: … animal(s) over
-* **a mechanic apiece**: … verb(s) over … beast(s)
-* **the summons**: … thing(s) the ability system cannot
-* **the myths**: … creature(s) over …
-* **the companions**: … creature(s) over
-* **the kindred**: … creature(s) in …
-* **the farm**: … machine(s) over …
-* **the courts**: … creature(s) in …
-* **the warded**: … creature(s) over …
-* **every roster**: … creature(s) across
-* **no leftovers**: every spawn rule, egg and loot table on
+* **independence**: … source file(s), nothing it replaces named, and not one dependency beyond the game and the library
+* **the arithmetic**: …
+* **purity**: the rules are the JDK alone, and the reward is derived in order of danger rather than written down
+* **as big as it looks**: … beasts and animals, every one of them exactly as tall and as wide on screen as the box you swing at, on its plan's measured bounds
+* **the shapes**: … body plan(s) of … boxes, each a part tree with its bounds published, listed by family or kind and worn by every beast and animal
+* **what it drops**: … distinct drop(s), every one of them a thing the game or this pack really makes
+* **what it leaves**: … loot table(s) read back, and every one hands out exactly what the bestiary says it does
+* **what you meet**: … beast(s) across … spawn rule(s), each named once, each at the weight its row declares
+* **the words**: every sprite, model, shape class, loot table and spawn rule rebuilt and identical
+* **in the world**: every beast, attribute, spawn rule, renderer and egg walked out of the one table
+* **where they are**: … haunt(s), every biome tag one the game really ships, every light and height band one a world has and one the game is actually told about, and every group small enough to fit where it is asked to appear
+* **the summons**: … shape(s) of ability that cannot happen without something in the world, each given one here, each going out on its own, and a check after registration that none of them was left empty
+* **the other half**: … animal(s) over … shape(s), every one exactly as big as it looks, leaving what the arithmetic says it leaves, bred on something the game really makes, and not one of them registered by hand
+* **a mechanic apiece**: … verb(s) over … beast(s), one each and none spare, each with exactly one branch to happen in, no beast named in it, and every magnitude asked of the rules rather than typed
+* **the summons**: … thing(s) the ability system cannot do without, each drawn by a renderer that is registered and a texture that is on disk, each carrying the rules' numbers rather than its own, and neither outlasting the cooldown meant to limit it
+* **the myths**: … creature(s) over … way(s) past armour, one each and none spare, every one of them answered by something the pack really makes, drawn on a shape this module already had, and not one carrying a number of its own
+* **the companions**: … creature(s) over … job(s) a block would otherwise do, one each and none spare, every one of them held under a block the pack really makes, and not one doing its job for free
+* **the kindred**: … creature(s) in … kindred(s) over … thing(s) a player has to do differently and … place(s) the game really has, no two of one kindred doing one thing or standing in one place on disk, and not one of them named in the branch that makes its difference happen
+* **what mines them**: … block(s), … asking for the right tool, every one in exactly one tool's tag or broken by hand with a reason: … by …, … by hand
+* **the farm**: … machine(s) over … kind(s), every one of them built out of something the game really makes and costing on disk what its row says, not one of them named in the branch that makes its kind happen, and the only numbers that can reorder the bestiary asked of the rules rather than typed
+* **the courts**: … creature(s) in … court(s) over … role(s), one head each, every one of them allowed on the floor in exactly the numbers its court's budget was computed against, every phase answered by something the pack really makes, and not one of them named in the branch that makes its role happen
+* **the warded**: … creature(s) over … kind(s) of protection, every one of them answered by something the pack really makes, told to the player as the row's own answer rather than a second copy of it, and what each takes off asked of its row both with the gear and without
+* **the Vale**: … creature(s) across … crossing(s), every one of them put on disk in the biome its row names and in a biome this pack really grows, and how far out each lives drawn on the screen rather than left for the player to work out from how badly the fight went
+* **every roster**: … creature(s) across … roster(s), every one of them under a name no other roster in this module uses
+* **no leftovers**: every spawn rule, egg and loot table on disk is named for a creature a roster still has
 
 ## Elysium Colonies — elysium-colonies (`elysiumcolonies`)
 
 Elysium Colonies: a MineColonies add-on that makes the two progressions agree — your colony is how far you have come, your raiders know who they are raiding, and the Empire notices a settlement. Requires Elysium Library and MineColonies.
 
-8 blocks, 0 items, 2 structures, 2 structure templates; 6 recipes; 15 validated mechanics.
+8 blocks, 0 items, 2 structures, 2 structure templates; 6 recipes; 16 validated mechanics.
 
 ### Blocks (8)
 
@@ -6242,29 +6249,30 @@ Elysium Colonies: a MineColonies add-on that makes the two progressions agree �
 | `ruin_seed` |  |
 | `settlement_seed` |  |
 
-### Mechanics the validator executes (15)
+### Mechanics the validator executes (16)
 
-* **one seam**: exactly one file knows MineColonies, and it hands out a
-* **three writes**: an order, a repair, a delivery - all through the seam, and
-* **the arithmetic**: 
-* **the charter**: … world(s), each agreeing with the world it
-* **the reckoning**: once a day, on the server, through the rules, and it shows
-* **the styles**: … style(s)
-* **the market**: …
-* **the ruins**: a marker on its own grid (…/…), never on a town, raising
+* **one seam**: exactly one file knows MineColonies, and it hands out a record
+* **three writes**: an order, a repair, a delivery - all through the seam, and nothing reaches past them
+* **the arithmetic**: …
+* **the charter**: … world(s), each agreeing with the world it describes; a settlement consumes …
+* **the reckoning**: once a day, on the server, through the rules, and it shows in the colony's own screen
+* **the styles**: … style(s), … blueprints re-read and intact
+* **the market**: … famil(ies) priced by where you are and what day it is
+* **the ruins**: a marker on its own grid (…/…), never on a town, raising one building decayed by the rules through one seam read, founding nothing, one chest from …
 * **settlement plan**: …
-* **settlements**: towns found themselves on … world(s)
-* **whose map it is**: placement follows attendance, everything else carries on
-* **autonomy**: founds, raises, repairs and trades with nobody logged in
-* **the flare**: … spaceport blueprint(s), legs on the curve
-* **the spaceport**: … blocks, one unbroken column, and
+* **settlements**: towns found themselves on … world(s), one site per … chunks, in … biome(s); a steward who is nobody, a director that builds whole, and a claim that hands it on
+* **whose map it is**: placement follows attendance, everything else carries on, and the owner can say otherwise
+* **autonomy**: founds, raises, repairs and trades with nobody logged in; … building(s) planned
+* **what mines them**: … block(s), … asking for the right tool, every one in exactly one tool's tag or broken by hand with a reason: …, … by hand
+* **the flare**: … spaceport blueprint(s), legs on the curve the rules state and the game looks for
+* **the spaceport**: … blocks, one unbroken column, and nothing leaves a warehouse unpaid for
 * **what it declares**: the engine and the host, and … translated key(s)
 
 ## Elysium Comforts — elysium-comforts (`elysiumcomforts`)
 
 Elysium Comforts: the small mercies. A grave that holds everything you were carrying, and the proof that it holds all of it. Requires Elysium Library.
 
-179 blocks, 14 items, 2 creatures, 1 loot modifiers; 188 recipes; 8 validated mechanics.
+179 blocks, 14 items, 2 creatures, 1 loot modifiers; 188 recipes; 13 validated mechanics.
 
 ### Blocks (179)
 
@@ -6482,22 +6490,27 @@ Elysium Comforts: the small mercies. A grave that holds everything you were carr
 |---|---|
 | `lost_mail_from_cartographer` |  |
 
-### Mechanics the validator executes (8)
+### Mechanics the validator executes (13)
 
-* **independence**: … source file(s), nothing it replaces
-* **the counting**: a grave sized to what it is handed, up to …, and
-* **where and whose**: clamped into the world, never in bedrock, yours for
+* **independence**: … source file(s), nothing it replaces named, and not one of the modules whose items it buries
+* **the counting**: a grave sized to what it is handed, up to …, and nothing ever spilled
+* **where and whose**: clamped into the world, never in bedrock, yours for … minutes, and …% of your levels kept
+* **the three ways out**: opened, broken, or refusing to be pushed; and the grave is emptied only after its contents are somewhere else
+* **catching the drops**: whatever would have hit the floor, taken whole, so a mod this module has never heard of is buried like anything else
+* **loot that is yours**: a roll derived rather than remembered, an original that is never unpacked, and a table that empties itself
+* **a villager carried**: its whole ledger kept, and a clock that goes on being the clock while it is in your pocket
 * **what it declares**: the game and the library, and nothing it buries
-* **the wind in them**: … chime(s) over …
-* **the post**: … pigeonhole(s), … kind(s)
-* **lighting a room**: … fitting(s) in …
+* **somewhere to sleep**: … block(s) over … kind(s) and … colour(s), every one of them craftable, breakable back into itself and named, six refusals each with its own sentence, and not one of them moving your spawn
+* **the wind in them**: … chime(s) over … note(s), each made of something the game really has, each ringing at a note of its own, and a room of them no louder than one of them however many are in it
+* **the post**: … pigeonhole(s), … kind(s) of mail and … bird(s); a journey the block takes from the rules rather than from a number typed into it, a parcel that is never in two places and never in none, and a seal that only opens in the hands it is addressed to
+* **lighting a room**: … fitting(s) in … shape(s) over … kind(s), … of them priced on disk at exactly what their row says, nothing over … light, and … of … shape(s) at or under … — which is elysium-bestiary's own number for the brightest a room can be and still have most of its monsters in it
 * **the birds**: one winged plan of … boxes that flies, every colouring on its sheet
 
 ## Elysium — elysium-core (`elysium`)
 
 Elysium: a character and gear progression mod. Twelve stats, six races and nine classes chosen on first join; tiered elemental armour, weapons and area tools; socketable runes with material alignment; reforging and ascension that scale without a ceiling; and two opposed faction standings that drive spawning and loot. Optional hooks for Apotheosis, Silent Gear and Legendary Tooltips.
 
-15 blocks, 382 items, 2 creatures, 6 world features; 385 recipes; 27 validated mechanics.
+15 blocks, 382 items, 2 creatures, 6 world features; 385 recipes; 32 validated mechanics.
 
 ### Blocks (15)
 
@@ -6924,35 +6937,40 @@ Elysium: a character and gear progression mod. Twelve stats, six races and nine 
 | `swarm_spawner` |  |
 | `voidglass_ore` |  |
 
-### Mechanics the validator executes (27)
+### Mechanics the validator executes (32)
 
+* **blocks registered**: …
 * **items registered**: …
 * **config lifecycle**: … config(s), all STARTUP
-* **race balance**: … races at … base
-* **class balance**: … classes at
+* **obtainable in survival**: …/…  (+… creative-only by design, +… gated on a modded ingredient tag)
+* **race balance**: … races at … base, …/level growth
+* **class balance**: … classes at …/level growth
 * **library wiring**: declared as required, no library registers re-run here
-* **material gear**: … items across
+* **material gear**: … items across … materials, all with recipes
 * **loot functions**: … table(s), no functions 1.21 removed
 * **silentgear**: … material(s), crafting blocks complete
-* **registry beacon**: strikes on destruction by any hand, erases
-* **shade maps**: … sprites at
-* **material palette**: … materials, closest pair
-* **tool shapes**: … in the Shape enum
-* **gear sprites**: … checked, all 16x16, flattest
+* **json files parsed**: …
+* **registry beacon**: strikes on destruction by any hand, erases nothing, anchors respawn, and its ascension is a world tier
+* **inspection beacon**: never overwrites, resisting is filed, unobtainable by design
+* **shade maps**: … sprites at …x…, each accent on the sprite
+* **material palette**: … materials, closest pair …/… at … CIELAB (floor …)
+* **tool shapes**: … in the Shape enum, every one of them drawable
+* **gear sprites**: … checked, all 16x16, flattest is … at … luminance (floor …)
 * **tool handles**: … tools keep a wooden haft
-* **gear generator**: rewrites what it owns, reserves what
-* **gear convergence**: bytecode not scanned, no compiled classes
-* **gear convergence**: … compat file(s), foreign
-* **field rations**: … edible, one per hazard
-* **recipe codecs**: unit codecs share one value that answers equals
-* **recipe tags**: every tag a recipe names resolves —
-* **ledger web**: the Pufferfish datapack and its generator retired, no words for it left
-* **humanoid skins**: … at 64x64, each named by the
-* **gems and sigils**: … items and … benches; dust only from
-* **underground**: … things waiting, each rare, each on a floor, and
-* **starting kit**: one gift table, given once, remembered through death, and
+* **gear generator**: rewrites what it owns, reserves what art/build.py draws by name
+* **convergence guard**: … compiled classes scanned, foreign references confined to the … bridge class(es) in the bytecode as well as the source
+* **gear convergence**: … compat file(s), foreign imports in … of them, … shapes and 4 slots mapped, …
+* **field rations**: … edible, one per hazard, each granting the library's own ward for its full duration
+* **recipe codecs**: unit codecs share one value that answers equals; every crafting category is one the game has
+* **recipe tags**: every tag a recipe names resolves — … shipped, NeoForge's own, or a gated modded metal
+* **ledger web**: the Pufferfish datapack and its generator retired, no words for it left, and /elysium tree in the command
+* **kills and benches**: weapons at most 5% of a top-shelf drop, material in handfuls, and the three benches built without obsidian, one vanilla station apiece
+* **humanoid skins**: … at 64x64, each named by the renderer that draws it
+* **gems and sigils**: … items and … benches; dust only from grinding, cutting priced like merging, no sigil spent on nothing
+* **underground**: … things waiting, each rare, each on a floor, and the spawners run out
+* **starting kit**: one gift table, given once, remembered through death, and the codex left to the library's join handler
 * **the tier command**: the tier, where it came from, and what it is worth
-* **harvest audit**: /elysium audit harvest asks the running game about every block of every module
+* **harvest audit**: /elysium audit harvest asks the running game about every block of every module, and writes the whole list to logs/harvest-audit.txt
 
 ## Elysium Dungeons — elysium-dungeons (`elysiumdungeons`)
 
@@ -6985,7 +7003,7 @@ Elysium Dungeons: build a rift frame, light it, and step into a dungeon assemble
 * **blocks registered**: …
 * **items registered**: …
 * **fluids**: refused at RoomContext.set, none in any room
-* **room types**: … registered, kinds covered:
+* **room types**: … registered, kinds covered: …
 * **json files parsed**: …
 
 ## Elysium Enchanting — elysium-enchanting (`elysiumenchanting`)
@@ -7074,25 +7092,25 @@ Elysium Enchanting: an enchanting table whose power you build around it, a previ
 
 ### Mechanics the validator executes (13)
 
-* **independence**: … source file(s), no reference to
-* **enchanting rules**: 
+* **independence**: … source file(s), no reference to Apothic Enchanting, depends on the library only
+* **enchanting rules**: …
 * **json files parsed**: …
-* **shelves**: … stat block(s), … of them made, all
-* **the ladder**: … enchantment(s) re-paced
-* **new enchantments**: …, every effect a component the game has
+* **shelves**: … stat block(s), … of them made, all four numbers buildable, … past what a player starts with
+* **the ladder**: … enchantment(s) re-paced, … treasure(s) behind arcana, everything else vanilla's
+* **new enchantments**: …, every effect a component the game has, every one offered, found and sold
 * **infusion**: the certain path, priced, gated and paid for
 * **the library**: books in, one better book out, and the shelf survives a restart
-* **the anvil**: … tome(s), and the wall lifted only where vanilla
+* **the anvil**: … tome(s), and the wall lifted only where vanilla refuses
 * **client and tiers**: two tooltips, and a ceiling that rises with the world tier
-* **advancements**: … in one tree, every trigger real and
-* **the tome tower**: … heights, … blocks, each
+* **advancements**: … in one tree, every trigger real and every name written
+* **the tome tower**: … heights, … blocks, each floored, laddered, shelved and stocked
 * **language**: … key(s), every literal one reachable
 
 ## Elysium Flora — elysium-flora (`elysiumflora`)
 
 Elysium Flora: two fibre crops and a tree that grows where nothing should, so string and charcoal are things you farm rather than things you find. Requires Elysium Library.
 
-21 blocks, 5 items, 1 creative tabs, 3 world features; 18 recipes; 11 validated mechanics.
+21 blocks, 5 items, 1 creative tabs, 3 world features; 18 recipes; 10 validated mechanics.
 
 ### Blocks (21)
 
@@ -7144,25 +7162,24 @@ Elysium Flora: two fibre crops and a tree that grows where nothing should, so st
 | `wild_downbloom` |  |
 | `wild_loomflax` |  |
 
-### Mechanics the validator executes (11)
+### Mechanics the validator executes (10)
 
 * **independence**: the library and vanilla, and nothing else
-* **the arithmetic**: 
-* **the plants**: 2 crops, … stages each, wild forms that give seeds
-* **the wood**: … block(s), each modelled, tagged, named and
-* **drawn and tooled**: skipped, no game jar to compare the wood with (set MC_JAR)
-* **drawn and tooled**: … emberwood shape(s) drawn, modelled
-* **where they grow**: … feature(s) across
-* **generated**: … file(s) rebuilt from the two generators
-* **atlas textures**: … block and item texture(s), each square or
-* **model textures**: … reference(s) from block and item models, each
+* **the arithmetic**: …
+* **the plants**: 2 crops, … stages each, wild forms that give seeds and no fibre
+* **the wood**: … block(s), each modelled, tagged, named and droppable
+* **drawn and tooled**: … emberwood shape(s) drawn, modelled and held as the game's own, and … block(s) on the tool lists of the block each copies
+* **where they grow**: … feature(s) across … modifier(s)
+* **generated**: … file(s) rebuilt from the two generators, each the same as the one shipped
+* **atlas textures**: … block and item texture(s), each square or declared frames
+* **model textures**: … reference(s) from block and item models, each to a shipped file
 * **language**: … key(s), every literal one reachable
 
 ## Elysium Foundry — elysium-foundry (`elysiumfoundry`)
 
 Elysium Foundry: the fourth age. The full material chain, in one graph with no cycles in it and no step that makes matter out of nothing. Alloys, forms, and machines gated on what they are made of. Requires Elysium Library, Elysium Kinetics, Elysium Industry and Elysium Atomics.
 
-6 blocks, 141 items; 248 recipes; 6 validated mechanics.
+6 blocks, 141 items; 248 recipes; 7 validated mechanics.
 
 ### Blocks (6)
 
@@ -7321,20 +7338,21 @@ Elysium Foundry: the fourth age. The full material chain, in one graph with no c
 | `zinc_nugget` | Zinc Nugget |
 | `zinc_plate` | Zinc Plate |
 
-### Mechanics the validator executes (6)
+### Mechanics the validator executes (7)
 
-* **independence**: … source file(s), no chain it replaces
-* **the arithmetic**: 
-* **the chain**: no cycles, every material rooted in something you can dig
-* **recovery**: … companions, a third of a unit each, the refinery
-* **the debt**: … ore famil(ies) generated by the pack, every
+* **independence**: … source file(s), no chain it replaces named, and all three ages below declared
+* **the arithmetic**: …
+* **the chain**: no cycles, every material rooted in something you can dig, and the ore ladder left where Age III ended it
+* **recovery**: … companions, a third of a unit each, the refinery wired and fed only raw ore; … Cordon metals worked, none shipped twice; the design's … prices held to the rules
+* **the debt**: … ore famil(ies) generated by the pack, every one of them supplied and every raw form here dug from one; the gear's … metals each with an ingot; … metal item(s) modelled and named
 * **what it declares**: the game, the library, and the three ages it is built on
+* **the recipe browser**: 2 kind(s) handed to the library's table for JEI to show, and JEI named nowhere here
 
 ## Elysium Industry — elysium-industry (`elysiumindustry`)
 
 Elysium Industry: the second age. The Reconstruction, in steel and high voltage. Wires that burn if you overload them, a grid that shares out what there is rather than stopping, and machines that will take a shaft if you have no other way to turn them. Requires Elysium Library and Elysium Kinetics.
 
-16 blocks, 6 items, 4 recipe kinds; 87 recipes; 8 validated mechanics.
+16 blocks, 6 items, 4 recipe kinds; 87 recipes; 10 validated mechanics.
 
 ### Blocks (16)
 
@@ -7377,22 +7395,24 @@ Elysium Industry: the second age. The Reconstruction, in steel and high voltage.
 | `separating` | 4 recipes |
 | `smelting` | 7 recipes |
 
-### Mechanics the validator executes (8)
+### Mechanics the validator executes (10)
 
-* **independence**: … source file(s), no mod it replaces
-* **the arithmetic**: 
-* **the model**: a grid that shares, a wire that burns on what flows, and
-* **the ladder**: turbine -> diesel, crusher -> arc furnace; a wire that
-* **the books**: a grid hands out what it made and borrowed, less
-* **fed and emptied**: an empty hand takes what a formed one made, a thing with
-* **what it declares**: the game, the library, the age below, and a spec the ages
+* **independence**: … source file(s), no mod it replaces, no age above it, and the age below declared
+* **the arithmetic**: …
+* **the model**: a grid that shares, a wire that burns on what flows, and distance that costs
+* **the ladder**: turbine -> diesel, crusher -> arc furnace; a wire that forces the step up, ore doubled once, and a shaft that will do at … of the speed
+* **the books**: a grid hands out what it made and borrowed, less what the wire took, on ten thousand grids built at random - and the loss is charged where the arithmetic can see it rather than by the block that walks the wire
+* **the brick machines**: … multiblock(s) out of … brick(s), every orientation accepted and every one-block mutation of every one of them refused by name, and … job(s) that want no wire at all
+* **fed and emptied**: an empty hand takes what a formed one made, a thing with no job there passes through, and a blast burns … coke, which burns … ticks in any furnace
+* **what it declares**: the game, the library, the age below, and a spec the ages above can read
 * **runs**: the wires draw arms and plates, take a dye, and keep it
+* **the recipe browser**: every Kind handed to the library's table for JEI to show, and JEI named nowhere here
 
 ## Elysium Kinetics — elysium-kinetics (`elysiumkinetics`)
 
 Elysium Kinetics: the first age of machinery. Salvaged pre-collapse gear restarted with timber, brass and falling water. Shafts carry torque, a line finds its own speed under load, and gearing costs you something. Requires Elysium Library.
 
-20 blocks, 2 items, 5 recipe kinds; 65 recipes; 10 validated mechanics.
+20 blocks, 2 items, 5 recipe kinds; 65 recipes; 11 validated mechanics.
 
 ### Blocks (20)
 
@@ -7436,24 +7456,25 @@ Elysium Kinetics: the first age of machinery. Salvaged pre-collapse gear restart
 | `refining` | 2 recipes |
 | `sawing` | 14 recipes |
 
-### Mechanics the validator executes (10)
+### Mechanics the validator executes (11)
 
-* **independence**: … source file(s), no mod it replaces
-* **the arithmetic**: 
-* **the model**: a curve not a number, a line that settles, teeth that cost
-* **the ladder**: crank -> wheel -> gearing -> steam; 4 source(s) and
-* **the machine hall**: three ways to connect and no more - along a shaft, through
-* **the engines**: … engine(s) on a ladder of
-* **the anchors**: … of them over … width(s)
-* **the processing**: … recipe(s) across
-* **the seam**: one dynamo, bad on purpose - a round trip out
+* **independence**: … source file(s), no mod it replaces, no age above it
+* **the arithmetic**: …
+* **the model**: a curve not a number, a line that settles, teeth that cost power, a shaft that can shear, and a tree of speeds that jams rather than insisting a shaft turns at two of them
+* **the ladder**: crank -> wheel -> gearing -> steam; 4 source(s) and 5 machine(s), each one a rung the one before it could not reach
+* **the machine hall**: three ways to connect and no more - along a shaft, through a mesh, and round a gearbox - one walk per change, every member told its own speed, and five things a player can tell apart
+* **the engines**: … engine(s) on a ladder of … fuel(s), … of them ours and every one with a way up to it, and a refinery to climb it with
+* **the anchors**: … of them over … width(s), each a load rather than a block you place and forget, letting go when the line stops, when it is broken and when a world comes back up holding what it left behind
+* **the processing**: … recipe(s) across … machine(s), … of them the kitchen's knife done by machine and none yielding more than the hand does, joined to … of the game's own recipes - every one of them swept for rather than thought of - with no loop anywhere that comes back with more than it started with
+* **the seam**: one dynamo, bad on purpose - a round trip out through it and back through Age II's motor comes home with … of what it left with, and the gearing that gets the most out of it is solved rather than guessed
 * **what it declares**: the game, the library, and a spec the later ages can read
+* **the recipe browser**: every Kind handed to the library's table for JEI to show, and JEI named nowhere here
 
 ## Elysium Library — elysium-lib (`elysiumlib`)
 
 The engine behind Elysium, with no content of its own. Registries for stats, elements, races, classes and runes; the character sheet, levelling and point spending; the gear, socket and reforge framework; faction standing with pluggable dispatch and rewards; and the event handlers that make all of it happen during play. Installed alone it is inert but not broken. Add-ons register into it from their own constructors.
 
-0 blocks, 0 items, 3 enchantments, 20 effects, 41 attributes, 1 loot modifiers, 7 damage types; 0 recipes; 55 validated mechanics.
+0 blocks, 0 items, 3 enchantments, 20 effects, 41 attributes, 1 loot modifiers, 7 damage types; 0 recipes; 56 validated mechanics.
 
 ### Blocks (0)
 
@@ -7562,61 +7583,62 @@ The engine behind Elysium, with no content of its own. Registries for stats, ele
 | `null` |  |
 | `null_collapse` |  |
 
-### Mechanics the validator executes (55)
+### Mechanics the validator executes (56)
 
 * **library sources**: … files, no content references
 * **element ring**: … elements, each beats 2 and is beaten by 2
 * **stats registered**: …
-* **the undeclared**: a player under the declaration screen takes no damage
+* **the undeclared**: a player under the declaration screen takes no damage until a race and a calling are recorded
 * **lang keys**: …
-* **stat tooltips**: … stats, each with a name and a
+* **stat tooltips**: … stats, each with a name and a description the screen renders on hover
 * **standing causes**: … declared, all translated, all filed
 * **json files parsed**: …
-* **palette**: … colours
-* **roaming bands**: gaps …-… ticks by band
-* **claims**: §A.2 floor …..… verified
-* **villager memory**: … kinds, refusal at …
-* **gear gate**: no direct instanceof outside the resolver
-* **loot categories**: … kinds in the tree
-* **world tiers**: derived from level with a world floor that only rises
-* **gear sets**: … sets, on the one engine
-* **elites**: … augments across …
-* **item effects**: … kinds
-* **codex navigation**: the sheet packet refreshes an open screen
-* **heat**: gated on altitude and on fire, with the
-* **hazards**: … bound to …
-* **hazard wards**: … hazards, each with an effect
-* **discovery**: not present
-* **discovery**: … kinds and … offices
-* **rooms**: not present
-* **rooms**: … kinds, each named
-* **gui textures**: … re-skinned
-* **health bar**: one readout, vanilla's cancelled, scaled to the
-* **research**: … unlock(s), every one
-* **stress bands**: … reasons and …
-* **telegraph**: the cap is in the pipeline for every attacker
-* **contracts**: … kinds, expiry applied on read
-* **practice**: keyed on what is sold, a proportional discount
-* **effect icons**: … effect(s), each with an 18x18 icon
+* **palette**: … colours, … metrics, generated file is current
+* **roaming bands**: gaps …-… ticks by band, …-… per band, cap …, one tag literal
+* **claims**: §A.2 floor …..… verified at 6 sizes, monotonic, radius … cylinder
+* **villager memory**: … kinds, refusal at …, ledger … deep
+* **gear gate**: no direct instanceof outside the resolver, cache cleared on reload
+* **loot categories**: … kinds in the tree, … resolved from vanilla shapes, items asked first, cache cleared on reload
+* **world tiers**: derived from level with a world floor that only rises, worlds declared rather than listed, kept through death; augments re-asserted for players and applied once to mobs
+* **gear sets**: … sets, on the one engine, with bonuses that come off with the armour
+* **elites**: … augments across … world-tier gates, drawn by the affix pool, applied once at spawn
+* **item effects**: … kinds (… read off a finished item), … affixes in … prefixes and … suffixes across … world-tier gates, all on the one engine
+* **codex navigation**: the sheet packet refreshes an open screen rather than rebuilding it, and refresh leaves the page alone
+* **heat**: gated on altitude and on fire, with the scan bounded and the cold term kept out of scorching biomes
+* **hazards**: … bound to … distinct elements, each with a name, a cheap counter and an engineered one
+* **hazard wards**: … hazards, each with an effect that is registered, bound, named, and asked by the damage tick as the third named immunity
+* **discovery**: … kinds and … offices, all named, first-find-only and kept across death
+* **points and scaling**: uncapped in the spend, uncapped in the curves, and the sheet's bars scale with the character
+* **rooms**: … kinds, each named, described, built from tags that exist, and read by the damage tick
+* **gui textures**: … re-skinned, … recesses under vanilla's own slot coordinates
+* **health bar**: one readout, vanilla's cancelled, scaled to the player's own maximum and drawn in the mod's palette
+* **research**: … unlock(s), every one read somewhere and none of them power; … language key(s) present
+* **stress bands**: … reasons and … bands, derived rather than stored, each reason printed with its weight
+* **telegraph**: the cap is in the pipeline for every attacker, … mob source file(s) checked for a bare melee goal
+* **maker's marks**: … grades from practice alone, durability only, stamped before the count is raised
+* **contracts**: … kinds, expiry applied on read through one accessor, failing costs standing and never Suspicion
+* **practice**: keyed on what is sold, a proportional discount with a floor, set rather than added
+* **destructible cover**: … tagged entries, … guards on every break, claims untouched, one block per blow
+* **effect icons**: … effect(s), each with an 18x18 icon in its own namespace
 * **hotbar**: … sprites at vanilla's geometry, in the Elysium palette
 * **attributes**: … registered, named and synced; chances display through the tested rule
-* **combat model**: … attributes read by a rule
+* **combat model**: … attributes read by a rule, … effects, … potions, … brewing mixes
 * **damage types**: … types with death messages, … additive tag entries
 * **stack modifiers**: contributors namespaced, isolated and subscribed
 * **hazard sources**: consulted, worst-of, clamped and isolated
-* **executed rules**: … file(s) across
-* **harnesses**: not run, no Minecraft classpath at
-* **add-on api**: 3 events, each fired by the system it is about, and one
+* **an ability happens**: 6 shape(s), one branch each in the one place that performs them, not one ability named there, and every magnitude derived from what the ability is already worth
+* **executed rules**: … file(s) across … system(s) load without a game
+* **add-on api**: 3 events, each fired by the system it is about, and one file that posts
+* **attribute tooltips**: one line per attribute, vanilla's put back on a key
 * **quality of life**: where you died, and that it is about to break
-* **accessory seam**: two questions, no accessory mod named, and the effect
-* **weather**: a hazard source read off the day, announced when it
-* **valoria effects**: the Null field as a sixth hazard with a gauge and a ward
-* **sound**: … voices x …, … hums
-* **kind tags**: vanilla's lists not checked, no vanilla-assets.jar (set MC_JAR)
-* **kind tags**: the c: lists not checked, no NeoForge jar on the classpath
-* **kind tags**: … kind(s) from the harness, every vanilla tag a list vanilla has
-* **the ledger web**: … nodes from the rules, every cluster, keystone, stat and
-* **experience**: 
+* **accessory seam**: two questions, no accessory mod named, and the effect engine reads worn accessories as it reads armour
+* **weather**: a hazard source read off the day, announced when it turns, and drawn only where the sky is
+* **valoria effects**: the Null field as a sixth hazard with a gauge and a ward, … attributes, seven effects and … enchantments, all read by a rule
+* **sound**: … voices x …, … hums, … clicks: … Vorbis clips on disk, each mono at 22050 Hz, listed, subtitled and rebuilt identical
+* **the recipe browser**: one plugin JEI loads itself, nothing else naming JEI, the dependency optional, and the kinds read off the table the modules fill
+* **kind tags**: … kind(s) from the harness, every vanilla tag a list vanilla has and every gear kind on one the enchanting tables read; the pack walks the registry, asks the one resolver, and cannot be turned off
+* **the ledger web**: … nodes from the rules, every cluster, keystone, stat and refusal with words, the doctrines paired the same way on both sides, the stat sheet counting it, the two clicks carried and the state keeping its promises
+* **experience**: …; every source paid through one capped door, kills and ore as before
 * **runs**: the join rule, the plate, the dye and the tints, executed and shared
 * **the boxes**: a chest menu type per row count, one to six, each under the kit's screen
 
@@ -7624,7 +7646,7 @@ The engine behind Elysium, with no content of its own. Registries for stats, ele
 
 Elysium Logistics: storage that scales. Drawers that hold one thing and a great deal of it, a network that indexes them and costs power to run, and a digital core that stores what a warehouse could not. Requires Elysium Library, Elysium Kinetics and Elysium Industry.
 
-549 blocks, 16 items; 1112 recipes; 12 validated mechanics.
+549 blocks, 16 items; 1112 recipes; 14 validated mechanics.
 
 ### Blocks (549)
 
@@ -8201,26 +8223,28 @@ Elysium Logistics: storage that scales. Drawers that hold one thing and a great 
 | `small_pocket` | Small Pocket |
 | `void_seal` | Void Seal |
 
-### Mechanics the validator executes (12)
+### Mechanics the validator executes (14)
 
-* **independence**: … source file(s), none of the seventeen
-* **the arithmetic**: 
-* **the round trip**: 
-* **the logic layer**: 
-* **autocrafting**: a plan that is ordered as well as costed, a walk with a
-* **conservation**: one place where a transfer is decided, one place where
-* **the ladder**: drawers that step by
+* **independence**: … source file(s), none of the seventeen named, and the grid it hangs off declared
+* **the arithmetic**: …
+* **the round trip**: …
+* **what a pack holds**: …
+* **the logic layer**: …
+* **autocrafting**: a plan that is ordered as well as costed, a walk with a budget, batches that fit in a slot, and … jobs at a time across hands that are machines on the grid
+* **conservation**: one place where a transfer is decided, one place where destroying is allowed, and a planner that refuses cycles, depth and size
+* **the ladder**: drawers that step by …, a network of at most … devices at … each, on Age II's grid
 * **runs**: the bus draw arms and plates, take a dye, and keep it
-* **compression**: … material(s) x
-* **what a pack holds**: … body(s) and …
-* **packs at work**: every insertion, fitting and removal ruled by the
+* **compression**: … material(s) x … tier(s) = … block(s), every one compressed out of nine of the tier below and coming apart into nine again, and every tier framed in a different one of the game's own metals
+* **what a pack holds**: … body(s) and … part(s), every one drawn, named and craftable, every bag above the first built out of the bag below it, and none of them stacking
+* **the network's face**: … device(s) filling … role(s) and … operator(s) in the logic layer, every device drawn as its own thing and every one of them built on the bus it hangs off
+* **packs at work**: every insertion, fitting and removal ruled by the rules, … placed bod(ies) with a block, a drop and a capability, a page at a time in the game's own chest screen, and the parts' behaviours on the game bus
 * **what it declares**: the game, the library, and the grid a network hangs off
 
 ## Elysium Mobs — elysium-mobs (`elysiummobs`)
 
 Elysium Mobs: six families of custom creature - three Unsworn, three Imperial - with five sub-variants each, thirty in all, plus a boss for each side. Every one scales to the level of the players near it and to how far up the Favor and Suspicion meters they are. Requires Elysium Library; populates Elysium Dungeons when installed.
 
-0 blocks, 10 items, 10 creatures; 0 recipes; 14 validated mechanics.
+0 blocks, 10 items, 10 creatures; 0 recipes; 12 validated mechanics.
 
 ### Blocks (0)
 
@@ -8257,28 +8281,26 @@ Elysium Mobs: six families of custom creature - three Unsworn, three Imperial - 
 | `scavenger` | Scavenger |
 | `whisper` | Whisper |
 
-### Mechanics the validator executes (14)
+### Mechanics the validator executes (12)
 
 * **families**: …
 * **sub-variants**: …
 * **balance budget**: all … spend …
-* **model sheets**: Pillow missing, texture sizes unchecked
 * **model sheets**: … textures, all matching their model
 * **entity types**: …, all with model, renderer, attributes and placement
 * **factions**: both sides have families and a boss
 * **lang keys**: …
 * **json files parsed**: …
-* **roaming bands**: despawn consent tagged, wave clearance excludes
-* **base sieges**: actions target the largest claim, fail when its
-* **register actions**: 14.3 table matches, … Empire
-* **mob value range**: not measured, Pillow or numpy missing
-* **mob value range**: … textures, flattest
+* **roaming bands**: despawn consent tagged, wave clearance excludes them, suppressed mid-action
+* **base sieges**: actions target the largest claim, fail when its beacon is struck
+* **register actions**: 14.3 table matches, … Empire families all counted, … lines translated
+* **mob value range**: … textures, flattest … at std … (floor …), darkest … at mean … (floor …)
 
 ## Elysium Court — elysium-npcs (`elysiumnpcs`)
 
 Elysium Court: five named figures of the Black and Emerald Empire, met rather than fought. Each wanders, stays a while and leaves, and each accepts a tribute and answers with something from their own office - and what they will give you depends on what the Code thinks of you. Requires Elysium Library.
 
-6 blocks, 6 items, 1 creatures; 6 recipes; 13 validated mechanics.
+6 blocks, 6 items, 1 creatures; 6 recipes; 14 validated mechanics.
 
 ### Blocks (6)
 
@@ -8308,27 +8330,28 @@ Elysium Court: five named figures of the Black and Emerald Empire, met rather th
 |---|---|
 | `envoy` | Imperial Envoy |
 
-### Mechanics the validator executes (13)
+### Mechanics the validator executes (14)
 
 * **envoys declared**: … (…)
 * **standing coverage**: both meters have envoys
-* **trade ledgers**: … offers across … envoys
+* **trade ledgers**: … offers across … envoys, all in range and in price order
 * **price registry**: present, and names no mod's items
-* **court commissions**: issued by … top-shelf office(s)
-* **court wardrobes**: … kinds
+* **court commissions**: issued by … top-shelf office(s), … lines all translated
+* **court wardrobes**: … kinds, … costume parts between them, plainest is … at …
 * **dependencies**: library only, core stays optional
 * **json files parsed**: …
-* **amnesty**: sold by Suspicion offices, floors at the claim
-* **generated lang**: … keys
-* **wandering trader**: … common and
-* **writs of audience**: every office sells its own, one a visit, off its top
-* **who arrives**: 
+* **amnesty**: sold by Suspicion offices, floors at the claim, refused rather than wasted
+* **generated lang**: … keys, matches gen_npcs.py + gen_village.py
+* **wandering trader**: … common and … rare offers, the rare ones dearer, and a registry anything can add to
+* **writs of audience**: every office sells its own, one a visit, off its top shelf, and the reroll leaves it sold
+* **what mines them**: … bench(es), … asking for the right tool, every one in exactly one tool's tag or broken by hand with a reason: … by …, … by hand
+* **who arrives**: …
 
 ## Elysium Ores — elysium-ores (`elysiumores`)
 
 Elysium Ores: one canonical item per material across every mod that makes it, tags completed so every variant answers to the same recipes, and an ore for every material in every stone the worlds are made of. Requires Elysium Library.
 
-276 blocks, 37 items, 1 creative tabs, 255 world features, 21 loot modifiers; 93 recipes; 13 validated mechanics.
+276 blocks, 37 items, 1 creative tabs, 255 world features, 21 loot modifiers; 93 recipes; 14 validated mechanics.
 
 ### Blocks (276)
 
@@ -8945,20 +8968,21 @@ Elysium Ores: one canonical item per material across every mod that makes it, ta
 | `relic_shard_from_trail_ruins_rare` |  |
 | `unifying` |  |
 
-### Mechanics the validator executes (13)
+### Mechanics the validator executes (14)
 
 * **independence**: no mod named in Java, no required host, vanilla-only fallbacks
 * **the guard**: an item in two families is never converted, in all three places
 * **additive only**: recipes copied and appended, never edited or removed
-* **the arithmetic**: 
-* **the matrix**: … ore(s), … material(s)
-* **the worlds**: … placed feature(s) across
+* **the arithmetic**: …
+* **the matrix**: … ore(s), … material(s), … stone(s)
+* **the worlds**: … placed feature(s) across … world(s), each once
 * **family tags**: … file(s), every foreign entry optional, none replacing
-* **the stones**: … retired mod(s) in the ledger, and every stone one of them
+* **the stones**: … retired mod(s) in the ledger, and every stone one of them once filled is filled here
 * **the drop**: silk touch, fortune, the world tier, and the pack's own item
-* **the cordon**: … sets on … materials
-* **the gem chunks**: … gem(s) with an ore here, each smelted and blasted from
-* **the roots**: … roots left by … vanilla tables, each a listed
+* **the cordon**: … sets on … materials, … items and … blocks, each modelled, drawn, named, tagged and made
+* **what mines them**: … block(s), … asking for the right tool, every one in exactly one tool's tag or of a kind broken by hand with a reason: … by …, … by hand
+* **the gem chunks**: … gem(s) with an ore here, each smelted and blasted from its raw chunk
+* **the roots**: … roots left by … vanilla tables, each a listed loot modifier at the rules' chance, none twice
 * **language**: … key(s), every literal one reachable
 
 ## Elysium Solarpunk — elysium-solarpunk (`elysiumsolarpunk`)
@@ -9079,39 +9103,39 @@ Elysium Solarpunk: a building set for the other future - white marble, limestone
 ### Mechanics the validator executes (28)
 
 * **registered**: … blocks, … items
-* **shapes**: … stairs, … slabs
+* **shapes**: … stairs, … slabs, … walls, … machines, … building block(s) with behaviour
 * **ingredients**: … — …
-* **models**: … models
-* **textures**: … PNGs, all 16x16
-* **recipes**: … files
-* **worldgen**: … block(s) generate, every feature
-* **language**: … entries, … tooltip keys
-* **tags**: … mineable, … walls
-* **independence**: 0 imports from other Elysium mods
-* **working machines**: … with block entities, energy and
-* **tree harvester**: soil, canopy and a bounded walk, all three
-* **processing**: … recipes, generator not
-* **processing**: … recipes (…)
+* **blockstates + loot**: checked for … blocks
+* **models**: … models, … own textures referenced, … missing
+* **textures**: … PNGs, all 16x16, … blocks with an explicit render type
+* **recipes**: … files, … of … items craftable
+* **worldgen**: … block(s) generate, every feature resolved from biome modifier to block
+* **language**: … entries, … tooltip keys all present
+* **what mines them**: … block(s), … asking for the right tool, every one in exactly one tool's tag or broken by hand with a reason: …, … by hand
+* **tags**: … mineable, … walls, … broken by hand with a reason
+* **independence**: 0 imports from other Elysium mods, … declared dependencies
+* **working machines**: … with block entities, energy and no marker left on them
+* **tree harvester**: soil, canopy and a bounded walk, all three asked before anything is felled
+* **processing**: … recipes (…), every id resolved (… vanilla ids and tags against …), each beating the hand recipe it replaces
 * **recipe economics**: …
-* **kiln inputs**: … entries, not cross-checked
-* **kiln inputs**: … entries derived from
-* **machine numbers**: not run, no Minecraft classpath at
-* **machine numbers**: the library's classes are not at …
-* **machine numbers**: 
-* **finished set**: nothing owed, no orphan stubs, no dead
-* **pending machines**: … registered, …
-* **generator**: shipped tree matches the table
-* **metal trim**: … composed faces, each showing
+* **kiln inputs**: … entries derived from vanilla's `blocks` category, … addition(s) and … exclusion(s), each still necessary
+* **machine numbers**: …
+* **finished set**: nothing owed, no orphan stubs, no dead tooltip string, scaffolding kept for the next one
+* **pending machines**: … registered, … classes in block/pending/, … rows in MACHINES.md, all describing the same work
+* **generator**: shipped tree matches the table (… blocks, … machines)
+* **metal trim**: … composed faces, each showing its own metal, all distinct
 * **runs**: the conduit draws arms and plates, takes a dye, and keeps it
-* **automation rules**: … conditions, one action that only
-* **power priority**: 5 classes in the spec's order
+* **automation rules**: … conditions, one action that only subtracts, applied in the same walk that finds the receivers
+* **power priority**: 5 classes in the spec's order, … machine(s) ranked off industry, a bounded grid walk and a budget the harness executes
+* **conduit shape**: a core and six arms, the collision boxes derived from the model's one arm by the rotations the blockstate applies
 * **json files parsed**: …
+* **the recipe browser**: 3 kind(s) handed to the library's table for JEI to show, and JEI named nowhere here
 
 ## Elysium Space — elysium-space (`elysiumspace`)
 
 Elysium Space: other worlds, the air you cannot breathe on them, and the rooms that let you. Ported from Stellaris (Exodus Studio, CC BY-NC-SA 4.0) and rebuilt on Elysium Library. Requires Elysium Library.
 
-116 blocks, 55 items, 9 creatures, 11 biomes, 34 structures, 5 dimensions, 32 world features, 1 damage types, 11 biome definitions, 75 structure templates; 173 recipes; 20 validated mechanics.
+116 blocks, 55 items, 9 creatures, 11 biomes, 34 structures, 5 dimensions, 32 world features, 1 damage types, 11 biome definitions, 75 structure templates; 173 recipes; 21 validated mechanics.
 
 ### Blocks (116)
 
@@ -9512,28 +9536,29 @@ Elysium Space: other worlds, the air you cannot breathe on them, and the rooms t
 | `space_station_small` |  |
 | `waygate` |  |
 
-### Mechanics the validator executes (20)
+### Mechanics the validator executes (21)
 
-* **independence**: … source file(s), no Stellaris or its libraries
+* **independence**: … source file(s), no Stellaris or its libraries, depends on the library only
 * **credit**: Stellaris, Exodus Studio, CC BY-NC-SA 4.0, shipped in the jar
-* **world table**: 
+* **world table**: …
 * **references**: … …: ids resolve; no stellaris: id left; … structure templates clean
-* **completeness**: … blocks drawn, named and dropping
-* **mineable**: … block(s) in a mineable tag; … liquid(s) and
-* **stone**: … worlds' stone keeps itself to Silk Touch, gives its
+* **completeness**: … blocks drawn, named and dropping; … worlds each with a dimension
+* **mineable**: … block(s) in a mineable tag; … liquid(s) and … that break at a touch exempt, each read where it is registered
+* **stone**: … worlds' stone keeps itself to Silk Touch, gives its cobblestone to any other pickaxe and smelts back; stones and ores are pickaxe-mineable
 * **runs**: the cable and the pipe draw arms and plates, take a dye, and keep it
 * **rocket**: server re-checks pilot, phase and route before moving anyone; client code isolated
-* **bastion terrain**: plains from the overworld's erosion above
-* **emerald bastion**: … biomes with no monsters, deepslate, no stone
+* **bastion terrain**: plains from the overworld's erosion above …, black volcanic ranges below it
+* **emerald bastion**: … biomes with no monsters, deepslate, no stone, emerald most common (… a chunk), no oceans
 * **mobs**: … with stats, attributes, eggs, loot, renderers; geometry …
-* **stations**: … sizes, templates match their rules, pads open to the sky
+* **stations**: … sizes, templates match their rules, pads open to the sky; rockets land on the pilot's station
 * **reskin**: …; mobs wear their home world's palette
 * **machine screens**: one menu for every machine, packet … read in order
 * **generated**: …
 * **world tiers**: … worlds, each at or above the one closer to home
-* **the waygate**: a ring of …, one network on the overworld
-* **weather**: … kind(s) across …
-* **freight**: one terminal, one clock on the overworld, cargo held
+* **the waygate**: a ring of …, one network on the overworld, both ends re-read, and nothing to pay
+* **gates in the world**: a working …x… ring on a pad, opening clear, at the ruined portal's own 40/15
+* **weather**: … kind(s) across … world(s), each raising a hazard the engine has, and two skies left calm on purpose
+* **freight**: one terminal, one clock on the overworld, cargo held rather than lost, and up to … seconds to the far worlds
 
 ## Elysium Spawners — elysium-spawners (`elysiumspawners`)
 
@@ -9587,13 +9612,13 @@ Elysium Spawners: a spawner you can pick up, tune and rune, mobs that behave the
 
 ### Mechanics the validator executes (8)
 
-* **independence**: … source file(s), no reference to
-* **spawner rules**: 
+* **independence**: … source file(s), no reference to Apothic Spawners, depends on the library only
+* **spawner rules**: …
 * **json files parsed**: …
 * **the runes**: …, every axis and behaviour answered by one
 * **capturing**: an enchantment that is data and one modifier that reads it
 * **the command**: five axes, their numbers, and what the next step costs
-* **advancements**: … in one tree, every trigger real and
+* **advancements**: … in one tree, every trigger real and every name written
 * **language**: … key(s), every literal one reachable
 
 ## Elysium Transit — elysium-transit (`elysiumtransit`)
@@ -9628,18 +9653,18 @@ Elysium Transit: the short way home, and the long way everywhere else. Waystones
 
 ### Mechanics the validator executes (6)
 
-* **independence**: … source file(s), nothing it replaces
-* **the arithmetic**: 
-* **the price**: a fixed … a jump, a price for distance that
-* **the jump**: the distance, the block, the player's own list and the
-* **the vehicles**: … rung(s) of one class, each registered
+* **independence**: … source file(s), nothing it replaces named, and the grid it hangs off declared
+* **the arithmetic**: …
+* **the price**: a fixed … a jump, a price for distance that saturates rather than climbing, and a flat surcharge dearer than any jump inside one world
+* **the jump**: the distance, the block, the player's own list and the price all re-decided on the server, and the packet carries only which row
+* **the vehicles**: … rung(s) of one class, each registered, modelled, painted, craftable and named; fuel billed on distance covered
 * **what it declares**: the game, the library, and the grid a waystone hangs off
 
 ## Elysium Trinkets — elysium-trinkets (`elysiumtrinkets`)
 
 Elysium Trinkets: forty accessories worn in Curios slots. Twenty-four unique ones are found rather than made, each changing a rule rather than a number; sixteen are crafted and ascend without a ceiling. Every effect runs through the library's passive hooks, so a trinket can do anything a class can. Requires Elysium Library and Curios API.
 
-0 blocks, 45 items, 5 loot modifiers; 18 recipes; 9 validated mechanics.
+0 blocks, 45 items, 5 loot modifiers; 18 recipes; 10 validated mechanics.
 
 ### Blocks (0)
 
@@ -9706,12 +9731,13 @@ Elysium Trinkets: forty accessories worn in Curios slots. Twenty-four unique one
 | `found_in_stronghold_library` |  |
 | `found_in_woodland_mansion` |  |
 
-### Mechanics the validator executes (9)
+### Mechanics the validator executes (10)
 
 * **trinkets declared**: …  (… found, … crafted)
 * **curios slots**: … (…), all registered and tagged
-* **found somewhere**: … found trinkets in one aggregate, added to
-* **potion charm**: fills, refills, wears out and goes inert rather than
+* **the companion slot**: Valoria's pet slot with … companion(s) in it, each found, each a rule with a price, the slot iconed and ordered
+* **found somewhere**: … found trinkets in one aggregate, added to … vanilla chests at … and to the tier-3 reward shelf
+* **potion charm**: fills, refills, wears out and goes inert rather than breaking
 * **recipes**: … crafted trinkets, all with a valid recipe
 * **loot tables**: … found trinkets, each with a table the aggregate rolls
 * **curios dependency**: confined to … file(s)
@@ -9722,7 +9748,7 @@ Elysium Trinkets: forty accessories worn in Curios slots. Twenty-four unique one
 
 Elysium Wilds: things that hunt you, and the proof that fighting a harder one is always worth more than fighting an easier one. Requires Elysium Library.
 
-2 blocks, 17 items, 155 biomes, 8 structures, 1 dimensions, 6 world features, 155 biome definitions; 2 recipes; 14 validated mechanics.
+2 blocks, 17 items, 155 biomes, 8 structures, 1 dimensions, 6 world features, 155 biome definitions; 2 recipes; 17 validated mechanics.
 
 ### Blocks (2)
 
@@ -10103,19 +10129,22 @@ Elysium Wilds: things that hunt you, and the proof that fighting a harder one is
 | `vale_sulphur_springs` |  |
 | `vale_verdant_vale` |  |
 
-### Mechanics the validator executes (14)
+### Mechanics the validator executes (17)
 
-* **independence**: … source file(s), nothing it replaces
-* **the arithmetic**: 
-* **the buildings**: 
-* **the overworld**: 
-* **the way in**: 
-* **the metric**: the game's own nearest-box rule — six axes in the game's
-* **the theorem**: a claim inside an earlier claim reported without sampling
-* **the compass**: one search of the stated size for anything, a cooldown
-* **the words**: … needle frame(s), a model, a recipe
-* **the structures**: … kind(s) of building, every one
-* **the way in**: a ring of Vale Frames found by the rules' flood on both axes
-* **the overworld**: … biome(s) of ours in
-* **the reference**: the stages' reference world carries the preset's
-* **the seam**: the rules pointed at every dimension file in the
+* **independence**: … source file(s), nothing it replaces named, and not one dependency beyond the game and the library
+* **the arithmetic**: …
+* **the Vale**: …
+* **the buildings**: …
+* **the overworld**: …
+* **the way in**: …
+* **the metric**: the game's own nearest-box rule — six axes in the game's order, inside costing nothing, offset a seventh, ties to whoever was first
+* **the theorem**: a claim inside an earlier claim reported without sampling, and every world made to be the world it said it was
+* **the compass**: one search of the stated size for anything, a cooldown under it, a list that can be typed into, and a needle that spins rather than lies
+* **the words**: … needle frame(s), a model, a recipe and the words, rebuilt and identical
+* **the Vale**: … biome(s) on a … by … grid, every rectangle exactly the band the rules work out, no two of the files alike, and a dimension and a type to put them in
+* **the structures**: … kind(s) of building, every one with a placement the game will accept, a salt of its own and a grammar that exists
+* **the way in**: a ring of Vale Frames found by the rules' flood on both axes and lit by the compass without using it up, the gate a block with no item and no drop, one search a ring for the gentlest crossing, a landing beside the far ring, and the way back to where the player came in
+* **the overworld**: … biome(s) of ours in … preset(s), declared ahead of vanilla's …, every one of vanilla's … biomes still with ground of its own, and every colour, spawn and feature in the files the arithmetic that was proved
+* **the reference**: the stages' reference world carries the preset's … biome entries exactly, so a fresh test world is the world the pack ships
+* **the seam**: the rules pointed at every dimension file in the repository, a world with no row an error rather than a pass, and every register on the bus
+* **the tags**: … biome(s) of ours in … tag(s), each the tags of the biome it models, read from the game's own files both ways

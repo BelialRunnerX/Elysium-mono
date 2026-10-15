@@ -268,8 +268,14 @@ lib_classes = os.path.join(_out_root, "elysium-lib")
 MATERIAL_HARNESS = os.path.join(WORK, "tools/MaterialHarness.java")
 if not os.path.isfile(MATERIAL_HARNESS):
     fail("tools/MaterialHarness.java is missing; the material files are only read, never loaded")
-elif not (os.path.isfile(classpath_file) and os.path.isdir(classes)):
-    print(f"material harness   : not run, no compiled classes or classpath ({classpath_file})")
+elif not os.path.isfile(classpath_file):
+    # A failure, not a status line: until 15 October this printed "not run" and
+    # the module passed with not one material file loaded.
+    fail(f"the material harness cannot run: there is no classpath file at {classpath_file} "
+         f"(set ELYSIUM_MC_LIBS to the folder holding cp.txt, or run python3 tools/setup_env.py)")
+elif not os.path.isdir(classes):
+    fail(f"the material harness cannot run: the armory's compiled classes are not at {classes} "
+         f"(run ./compile.sh first, or set ELYSIUM_OUT to where it wrote them)")
 else:
     with tempfile.TemporaryDirectory() as out:
         # Joined with the platform's separator, so the harness runs wherever
@@ -291,7 +297,16 @@ else:
             if ran.returncode != 0:
                 fail("the MaterialHarness failed:\n      " + "\n      ".join(lines))
             else:
-                print("material harness   : " + (lines[0] if lines else "ran"))
+                # The harness's own result line, not whatever it printed first:
+                # until 15 October this showed lines[0], which was a log4j WARN,
+                # and passed with no result line at all ("ran").
+                result = next((l for l in lines if l.startswith("materials: ")), None)
+                if result is None:
+                    fail("the MaterialHarness exited cleanly and printed no result line "
+                         "(\"materials: N files ...\"), so nothing says a material file loaded:\n      "
+                         + "\n      ".join(lines[:12]))
+                else:
+                    print("material harness   : " + result)
 
 # ---------------------------------------------------------------------------
 # 4. The items (SPEC_CLONE P3)
@@ -1331,6 +1346,14 @@ if _mc_jar:
         _prefix = "assets/minecraft/models/item/"
         _vanilla_items = {n[len(_prefix):-len(".json")] for n in _jar.namelist()
                           if n.startswith(_prefix) and n.endswith(".json")}
+else:
+    # A failure, not a note on the summary line: until 15 October no jar here
+    # checked no minecraft: id a material or part names, and the module passed.
+    fail("the base game's items a material or part names cannot be checked: no game jar here "
+         "(MC_JAR is " + (f"{os.environ['MC_JAR']}, which is not a file" if os.environ.get("MC_JAR")
+                          else "not set") + ", and there is no /tmp/mc/libs/vanilla-assets.jar); "
+         "set MC_JAR to vanilla-assets.jar or the 1.21.1 client jar, or run "
+         "python3 tools/setup_env.py and use the MC_JAR it exports")
 _MONO = os.path.dirname(WORK)
 _module_res = [os.path.join(_MONO, d, "src/main/resources") for d in sorted(os.listdir(_MONO))
                if d.startswith("elysium-") and os.path.isdir(os.path.join(_MONO, d, "src/main/resources"))]
@@ -1381,8 +1404,7 @@ for _where, _id, _is_extra in _named:
 print(f"survival           : any affixed piece salvages and a reforge pays back no more than it cost; "
       f"a template is found in {len(_found_rows)} chests; {len(_conv_shapes)} shapes convert by one rule; "
       f"extras are charged")
-print(f"what the data names: {len(_named)} item(s) and tag(s) named by materials and parts, each one there"
-      + ("" if _vanilla_items is not None else " (the base game's not checked: no vanilla jar, set MC_JAR)"))
+print(f"what the data names: {len(_named)} item(s) and tag(s) named by materials and parts, each one there")
 
 if problems:
     print(f"{len(problems)} PROBLEM(S):")

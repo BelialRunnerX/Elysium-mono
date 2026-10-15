@@ -695,7 +695,14 @@ def the_game_makes():
 
 
 THE_GAME_MAKES = the_game_makes()
-if os.path.isfile(GAME_JAR) and len(THE_GAME_MAKES) < 2_000:
+if not os.path.isfile(GAME_JAR):
+    # A failure, not an empty set: until 15 October no jar here left the set
+    # empty, every check below that reads it stood aside, and the module passed.
+    fail(f"the game's own item and block names cannot be read: there is no vanilla.jar "
+         f"at {GAME_JAR}, so the dyes, wools and items this module names are checked "
+         f"against nothing (set ELYSIUM_MC_LIBS to the folder holding the 1.21.1 client "
+         f"jar as vanilla.jar, or run python3 tools/setup_env.py)")
+elif len(THE_GAME_MAKES) < 2_000:
     fail(f"the game's jar is here and only {len(THE_GAME_MAKES)} item or block "
          f"name(s) could be read out of it, so every check in this file that "
          f"asks whether a thing exists is checking nothing at all")
@@ -1852,14 +1859,18 @@ _bird_dir = os.path.join(RES, "assets", NS, "textures/entity")
 if _pigeon_sheet and os.path.isdir(_bird_dir):
     try:
         from PIL import Image as _Image
+    except ImportError:
+        # A failure, not a pass: until 15 October no Pillow measured no sheet.
+        _Image = None
+        fail("the birds' sheets cannot be measured against the plan they were packed to: "
+             "Pillow is not installed for this python (pip install Pillow)")
+    if _Image is not None:
         for _name in sorted(os.listdir(_bird_dir)):
             if _name.endswith(".png"):
                 with _Image.open(os.path.join(_bird_dir, _name)) as _img:
                     if _img.size != (_pigeon_sheet, _pigeon_sheet):
                         fail(f"{_name} is {_img.size[0]}x{_img.size[1]} and the bird's plan packed to "
                              f"{_pigeon_sheet}: the model reads pixels that are not there")
-    except ImportError:
-        pass
 print(f"the birds          : one winged plan of {_pigeon_boxes} boxes that flies, every colouring on its sheet")
 if problems:
     print(f"{len(problems)} PROBLEM(S):")

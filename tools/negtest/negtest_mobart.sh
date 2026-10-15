@@ -12,9 +12,9 @@ expect() { local w="$2" g; regen; g="$(out)"
 edit() { python3 -c "
 import sys
 p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
-s = open(p).read()
+s = open(p, encoding='utf-8', newline='').read()
 assert old in s, 'anchor not found in ' + p
-open(p,'w').write(s.replace(old, new, 1))
+open(p, 'w', encoding='utf-8', newline='').write(s.replace(old, new, 1))
 " "$@"; }
 
 echo "the palette going dark again"
@@ -45,6 +45,29 @@ open(p, "w").write(s.replace(old, old + "\n    return out", 1))
 EOF
 expect "every part made of the same thing" "nothing inside it"
 cp /tmp/gm.bak $G
+
+echo "the measurements with nothing to measure with (15 Oct 2026)"
+# Until 15 October a Python without Pillow printed "texture sizes unchecked",
+# one without Pillow or numpy "mob value range : not measured", and the module
+# passed with neither measured. Each must now FAIL and say what to install. The
+# import is broken in the validator for one run each (no env var uninstalls a
+# package), which is what a Python without it looks like to the check.
+fexpect() { local w="$2" g; g="$(out)"
+  if [[ "$g" == *"PROBLEM(S)"* && "$g" == *"$w"* ]]; then echo "  caught : $1"; pass=$((pass+1));
+  else echo "  MISSED : $1"; fail=$((fail+1)); fi; }
+cp $ROOT/validate.py /tmp/mv.bak
+edit $ROOT/validate.py '    from PIL import Image
+except ImportError:
+    Image = None' '    from PIL import ImageThatIsNotThere as Image
+except ImportError:
+    Image = None'
+fexpect "no Pillow for the model sheets, which used to print unchecked and pass" "Pillow does not import in"
+cp /tmp/mv.bak $ROOT/validate.py
+cp $ROOT/validate.py /tmp/mv.bak
+edit $ROOT/validate.py '    import numpy as _np' '    import numpy_that_is_not_here as _np'
+fexpect "no numpy for the value range, which used to print not measured and pass" \
+  "the mob value range cannot be measured: No module named 'numpy_that_is_not_here'"
+cp /tmp/mv.bak $ROOT/validate.py
 
 echo
 regen

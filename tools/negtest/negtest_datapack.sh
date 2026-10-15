@@ -95,6 +95,65 @@ p.write_text(json.dumps(d, indent=2) + "\n")
 PY
 reject "a vanilla biome tag, which we do not ship and should not have to"
 
+echo "the classpath itself (15 Oct 2026)"
+# Until 15 October a missing cp.txt printed "datapack: skipped" and exited 0,
+# so a machine without the build environment passed every data file without
+# asking one codec. Each way of having no jars to ask must now FAIL and name
+# what is missing. Every cp.txt below is written in a scratch folder handed
+# over as ELYSIUM_MC_LIBS; the real one is never touched. All three fail
+# before a data file is read, so they cost seconds.
+CPD=$(mktemp -d)
+cp_out() { (cd $ROOT && ELYSIUM_MC_LIBS="$CPD" timeout 600 python3 check_datapack.py 2>&1); }
+cp_expect() { local w="$2" g; g="$(cp_out)"
+  if [[ "$g" == *"FAILED"* && "$g" == *"$w"* ]]; then echo "  caught : $1"; pass=$((pass+1));
+  else echo "  MISSED : $1"; fail=$((fail+1)); fi; restore; }
+cp_write() { python3 - "$CPD" "$1" <<'PYX'
+import os, sys, zipfile
+folder, how = sys.argv[1], sys.argv[2]
+for name in os.listdir(folder):
+    os.remove(os.path.join(folder, name))
+if how == "none":
+    sys.exit(0)
+if how == "absent":
+    text = "/nowhere/neoforge.jar:/nowhere/loader.jar"
+elif how == "stranger":
+    jar = os.path.join(folder, "stranger.jar")
+    with zipfile.ZipFile(jar, "w") as out:
+        out.writestr("stranger/Nothing.txt", "not the game")
+    text = jar
+open(os.path.join(folder, "cp.txt"), "w", encoding="utf-8", newline=chr(10)).write(text + chr(10))
+PYX
+}
+cp_write none
+cp_expect "no cp.txt at all, which used to print skipped and pass" "there is no classpath file at"
+cp_write absent
+cp_expect "a cp.txt naming jars that are not here" "none of them exists here"
+cp_write stranger
+cp_expect "a cp.txt naming a real jar that is not the game's" \
+  "javap could not read EnchantmentEffectComponents"
+rm -rf "$CPD"
+
+echo "the feature list read from the jar (15 Oct 2026)"
+# Until 15 October an empty FEATURES set was not stopped on its own, as SHAPES
+# is: it went on to the checks below, which caught it only while the tree
+# happened to ship a configured feature. Asking javap for a class that is not
+# there leaves the enchantment table read and the feature list empty.
+edit() { python3 -c "
+import sys
+p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
+s = open(p, encoding='utf-8').read()
+if old not in s:
+    sys.stderr.write('STALE ANCHOR in ' + p + ': ' + old[:70] + '\n'); sys.exit(2)
+open(p,'w',encoding='utf-8').write(s.replace(old, new, 1))
+" "$@" || { echo "STALE ANCHOR"; restore; exit 2; }; }
+failed() { local w="$2" g; g="$(out)"
+  if [[ "$g" == *"FAILED"* && "$g" == *"$w"* ]]; then echo "  caught : $1"; pass=$((pass+1));
+  else echo "  MISSED : $1"; fail=$((fail+1)); fi; restore; }
+edit $ROOT/check_datapack.py '        javap("net.minecraft.world.level.levelgen.feature.Feature")):' \
+  '        javap("net.minecraft.world.level.levelgen.feature.NoSuchFeature")):'
+failed "a feature list javap read nothing into, which was not stopped on its own" \
+  "javap read no Feature constants out of"
+
 echo
 echo "restoring and re-checking"
 restore

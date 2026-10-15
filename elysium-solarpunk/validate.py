@@ -1377,8 +1377,13 @@ else:
                                         encoding="utf-8")))}
 
 if gen_solarpunk is None:
-    print(f"processing         : {len(process_recipes)} recipes, generator not "
-          f"importable so not cross-checked")
+    # A failure here, not a status line. Until 15 October this printed "N
+    # recipes, generator not importable so not cross-checked" as if that were
+    # a result; the run failed only because the import itself is reported far
+    # above, and a check whose verdict lives 1,200 lines away from it is one
+    # edit from passing on nothing.
+    fail(f"the {len(process_recipes)} processing recipe(s) cannot be checked against "
+         f"the table they are written from: tools/gen_solarpunk.py did not import")
 else:
     _by_machine = gen_solarpunk.processing_recipes()
     _vanilla_ids = _vanilla_items()
@@ -1605,7 +1610,9 @@ if not _kiln_tag.is_file():
     fail("the kiln ships no kiln_inputs tag, so it will refuse everything and "
          "look like a machine that does not work")
 elif gen_solarpunk is None:
-    pass
+    fail("the kiln's inputs cannot be checked against vanilla's `blocks` smelting "
+         "category: its additions and exclusions are tools/gen_solarpunk.py's, "
+         "and it did not import")
 else:
     _shipped = set(json.loads(_kiln_tag.read_text(encoding="utf-8"))["values"])
     _vanilla = _vanilla_smelting_by_category()
@@ -1655,12 +1662,22 @@ else:
 # compile.sh uses — because the machines are written in terms of vanilla's own
 # types and there is nothing honest to check them against without them.
 _harness = WORK / "tools/MachineHarness.java"
+# The conduit is a run and reads the library's run package, so the library's
+# compiled classes (compile.sh's output) join the classpath.
+_lib_classes = os.path.join(os.environ.get("ELYSIUM_OUT", "/tmp/elysium-classes"), "elysium-lib")
 
 if not _harness.is_file():
     fail("tools/MachineHarness.java is missing — the machines' numbers are no "
          "longer executed anywhere, only read")
 elif _unusable:
     pass                                  # failed above: no classpath, no harness
+elif not os.path.isdir(_lib_classes):
+    # A failure, not a status line. Until 15 October this only printed, and
+    # the run went on to compile a module that cannot see the runs it is
+    # written against; a harness with nothing to run against is not a pass.
+    fail(f"the library's classes are not at {_lib_classes} (run compile.sh "
+         f"first, or set ELYSIUM_OUT to where it wrote them), so the machine "
+         f"harness cannot see the runs and not one machine's numbers are executed")
 else:
     import subprocess
     import tempfile
@@ -1670,14 +1687,7 @@ else:
         "ELYSIUM_ANNOTATIONS", "/opt/gradle-8.14.3/lib/annotations-24.0.1.jar"))
     if os.path.isfile(_annotations):
         _cp += os.pathsep + _annotations
-    # The conduit is a run and reads the library's run package, so the
-    # library's compiled classes (compile.sh's output) join the classpath.
-    _lib_classes = os.path.join(os.environ.get("ELYSIUM_OUT", "/tmp/elysium-classes"), "elysium-lib")
-    if os.path.isdir(_lib_classes):
-        _cp += os.pathsep + _lib_classes
-    else:
-        print(f"machine numbers    : the library's classes are not at {_lib_classes}; "
-              f"run compile.sh first or the harness cannot see the runs")
+    _cp += os.pathsep + _lib_classes
 
     with tempfile.TemporaryDirectory() as scratch:
         _module = os.path.join(scratch, "module")
@@ -1706,6 +1716,19 @@ else:
                      + _summary.replace("\n", "\n      "))
                 break
         else:
+            # Until 15 October three steps that exited 0 and said nothing
+            # printed nothing here and passed: a harness whose main had stopped
+            # calling its checks read exactly like one whose checks all held.
+            # And a line or two of log4j noise is not a summary either: the
+            # harness's own last word is how many assertions it ran.
+            _assertions = re.search(r"(\d+) assertions\s*$", _summary, re.M)
+            if not _summary.strip():
+                fail("the machine harness exited 0 and printed nothing, so not "
+                     "one machine's numbers are shown to have been executed")
+            elif _assertions is None or int(_assertions.group(1)) == 0:
+                fail("the machine harness exited 0 without its closing \"N "
+                     "assertions\" line, or with N at 0, so nothing says one "
+                     "machine's numbers were checked")
             for line in _summary.split("\n"):
                 if line.strip():
                     print("machine numbers    : " + line.strip())

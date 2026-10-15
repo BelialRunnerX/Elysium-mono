@@ -212,6 +212,71 @@ edit $V '            elif _vanilla_ids is not None:    # None has failed, naming
 expect "the vanilla lookups unreachable and the line still saying every id resolved" \
   "not one vanilla id or tag among them looked up"
 
+echo "the generator itself (15 Oct 2026)"
+# Until 15 October a generator that would not import left the processing
+# recipes with a status line - "12 recipes, generator not importable so not
+# cross-checked" - and the kiln with nothing at all; the run failed only on the
+# import, reported 1,200 lines earlier. Each check that needs the generator now
+# fails where it stands, and the second case proves it with the import's own
+# failure turned into a print.
+gen_expect() { local what="$1" g ok=1 w; shift; g="$(out)"
+  [[ "$g" == *"PROBLEM(S)"* ]] || ok=0
+  for w in "$@"; do [[ "$g" == *"$w"* ]] || ok=0; done
+  if [ "$ok" -eq 1 ]; then echo "  caught : $what"; pass=$((pass+1));
+  else echo "  MISSED : $what"; fail=$((fail+1)); fi; restore; }
+edit $G 'import json
+import math' 'import json
+import math
+raise ImportError("broken on purpose by negtest_solarpunk")'
+gen_expect "a generator that will not import, failed at each check that needs it" \
+  "tools/gen_solarpunk.py will not import" \
+  "processing recipe(s) cannot be checked against the table they are written from" \
+  "the kiln's inputs cannot be checked against vanilla's"
+edit $G 'import json
+import math' 'import json
+import math
+raise ImportError("broken on purpose by negtest_solarpunk")'
+edit $V '    fail(f"tools/gen_solarpunk.py will not import ({exc}), so nothing can be "' \
+  '    print(f"tools/gen_solarpunk.py will not import ({exc}), so nothing can be "'
+gen_expect "the same, with the import's own failure only printed" \
+  "processing recipe(s) cannot be checked against the table they are written from" \
+  "the kiln's inputs cannot be checked against vanilla's"
+
+echo "the machine harness itself (15 Oct 2026)"
+# Until 15 October a harness whose three steps exited 0 and said nothing
+# printed nothing and passed, and the library's classes missing from the
+# classpath was a status line. Each must now FAIL where it stands. The second
+# case points ELYSIUM_OUT at an empty scratch folder; the real compile.sh
+# output is never touched.
+H=$M/tools/MachineHarness.java
+edit $H '    public static void main(String[] args) {
+        condenserCurve();' '    public static void main(String[] args) {
+        if (args.length == 0) {
+            return;
+        }
+        condenserCurve();'
+gen_expect "a harness whose main returns before one check, exiting 0 with nothing said" \
+  "the machine harness exited 0 and printed nothing"
+edit $H '    public static void main(String[] args) {
+        condenserCurve();' '    public static void main(String[] args) {
+        if (args.length == 0) {
+            System.out.println("WARN a stray line of log noise, and nothing checked");
+            return;
+        }
+        condenserCurve();'
+gen_expect "the same harness with one stray line of noise, which is not a summary" \
+  "without its closing \"N assertions\" line"
+LOD=$(mktemp -d)
+lib_out() { (cd $M && ELYSIUM_OUT="$LOD" timeout 600 python3 validate.py 2>&1); }
+lib_expect() { local what="$1" g ok=1 w; shift; g="$(lib_out)"
+  [[ "$g" == *"PROBLEM(S)"* ]] || ok=0
+  for w in "$@"; do [[ "$g" == *"$w"* ]] || ok=0; done
+  if [ "$ok" -eq 1 ]; then echo "  caught : $what"; pass=$((pass+1));
+  else echo "  MISSED : $what"; fail=$((fail+1)); fi; restore; }
+lib_expect "the library's classes not where compile.sh writes them, which used only to print" \
+  "the library's classes are not at" "so the machine harness cannot see the runs"
+rm -rf "$LOD"
+
 echo
 echo "restoring and re-checking"
 restore

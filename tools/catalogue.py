@@ -11,13 +11,15 @@ so it cannot drift from what ships: blocks from the blockstates, items from
 the item models, creatures, biomes, enchantments and effects from the
 language file's keys, structures, dimensions, recipe kinds, advancements and
 loot modifiers from the data folders, and the mechanics from the section
-lines each module's validator prints. The JSON beside it is what the live
+lines each module's validator prints as results (not its skip notices or the
+detail of a failure). The JSON beside it is what the live
 test reads to place every block, give every item and summon every creature
 (tools/livetest/scenarios.py, "catalogue").
 
 Each row carries how it is validated: `tree` when a validator reads it,
 `live` when a scenario exercises it, `client` when only eyes can tell.
 """
+import ast
 import json
 import os
 import re
@@ -33,7 +35,15 @@ DATA_KINDS = (("worldgen/structure", "Structures"), ("dimension", "Dimensions"),
               ("worldgen/configured_feature", "World features"), ("advancement", "Advancements"),
               ("loot_modifiers", "Loot modifiers"), ("damage_type", "Damage types"),
               ("worldgen/biome", "Biome definitions"), ("structure", "Structure templates"))
-SECTION = re.compile(r'print\(f?"([a-z][a-z0-9 /_-]*?)\s{2,}: ([^"]*)"')
+# A section line: "the name    : what it found", the name padded to the colon -
+# by one space when it is 18 letters or more, and a name may carry a capital,
+# an apostrophe or a comma ("the Vale", "maker's marks", "the pots, filled").
+SECTION = re.compile(r"([a-z][^:]*?)\s+: (.*)")
+# What a validator says when a section did not run: no prerequisite (a jar, the
+# compiled classes, Pillow, the source folder), so nothing was checked. A skip
+# notice is not a mechanic; listing one would claim a check that never happened.
+NOT_RUN = re.compile(r"\b(?:not run|skipped|unchecked|not (?:checked|compared|cross-checked|looked up"
+                     r"|measured|scanned|here|at|present))\b")
 
 
 def modid_of(module):
@@ -67,15 +77,71 @@ def lang(module, modid):
     return json.load(open(path, encoding="utf-8"))
 
 
+def shown(node):
+    """The text a print's first argument shows, each computed part an ellipsis:
+    a string however it is written (literals side by side, an f-string, a + of
+    them); None when it is not a string at all."""
+    if isinstance(node, ast.Constant):
+        return node.value if isinstance(node.value, str) else None
+    if isinstance(node, ast.JoinedStr):
+        return "".join(part.value if isinstance(part, ast.Constant) else "…" for part in node.values)
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+        left, right = shown(node.left), shown(node.right)
+        if left is None and right is None:
+            return None
+        return (left if left is not None else "…") + (right if right is not None else "…")
+    return None
+
+
+def failing(stmt):
+    """A statement that reports a failure whenever the block holding it runs."""
+    if isinstance(stmt, ast.Raise):
+        return True
+    if not (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call)):
+        return False
+    func = stmt.value.func
+    return (isinstance(func, ast.Name) and func.id == "fail") or (
+        isinstance(func, ast.Attribute) and func.attr == "exit"
+        and isinstance(func.value, ast.Name) and func.value.id == "sys")
+
+
 def sections(module):
+    """The mechanics a module's validator executes: the section lines it prints,
+    read with Python's own parser, so a line written over several pieces of
+    string is read whole. A line is listed only when it is a result: not one
+    in a block that reports a failure (it is the failure's detail), and not one
+    that says the section did not run (NOT_RUN: a skip notice)."""
     path = os.path.join(ROOT, module, "validate.py")
     if not os.path.exists(path):
         return []
+    tree = ast.parse(open(path, encoding="utf-8").read(), path)
+    found = []
+    for node in ast.walk(tree):
+        for field in ("body", "orelse", "finalbody"):
+            block = getattr(node, field, None)
+            if not isinstance(block, list):
+                continue
+            # A failing block's prints are the failure's detail: that is a
+            # branch (an if, an else, a handler). The file's own top level is
+            # not one; a sys.exit() or fail() written there would otherwise
+            # drop every top-level row of the module.
+            if not isinstance(node, ast.Module) and any(failing(stmt) for stmt in block):
+                continue
+            for stmt in block:
+                call = stmt.value if isinstance(stmt, ast.Expr) else None
+                if not (isinstance(call, ast.Call) and isinstance(call.func, ast.Name)
+                        and call.func.id == "print" and call.args):
+                    continue
+                # one print can write two section lines ("...\nconduit shape : ...")
+                for at, line in enumerate((shown(call.args[0]) or "").split("\n")):
+                    match = SECTION.match(line)
+                    if match and not NOT_RUN.search(match.group(2)):
+                        found.append((stmt.lineno, stmt.col_offset, at,
+                                      match.group(1).strip(), match.group(2).strip(" ,;")))
     out = []
-    for head, blurb in SECTION.findall(open(path, encoding="utf-8").read()):
-        row = (head.strip(), re.sub(r"\{[^}]*\}", "…", blurb).strip(" ,;"))
-        if row not in out:
-            out.append(row)
+    for _line, _col, _at, head, blurb in sorted(found):
+        if (head, blurb) not in out:
+            out.append((head, blurb))
     return out
 
 

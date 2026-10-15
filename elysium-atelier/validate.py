@@ -641,8 +641,10 @@ VANILLA_JAR = next((_j for _j in [os.environ.get("MC_JAR", ""), "/tmp/mc/mapped-
 SAME_AS = {"door": "oak_door", "trapdoor": "oak_trapdoor", "gate": "oak_fence_gate",
            "fence": "oak_fence", "pane": "glass_pane"}
 if not os.path.isfile(VANILLA_JAR):
-    print("the joins          : the game's jar is not here, so the blockstates were "
-          "not compared against it")
+    fail(f"the joins' blockstates cannot be compared with the game's: no game jar here "
+         f"(not MC_JAR, not {VANILLA_JAR}, not vanilla-assets.jar under /tmp/mc/libs); "
+         f"set MC_JAR to vanilla-assets.jar or the 1.21.1 client jar, or run "
+         f"python3 tools/setup_env.py and use the MC_JAR it exports")
 else:
     import zipfile
     compared = 0
@@ -899,8 +901,10 @@ course_stonecut = {course_named[name] for name in re.findall(
 # doors and only ever checked that it was *used*, which would not catch a
 # material the game gained later and would not catch one typed wrong here.
 if not os.path.isfile(VANILLA_JAR):
-    print("the cuts           : the game's jar is not here, so what it already "
-          "cuts was not checked against it")
+    fail(f"what the game already cuts cannot be checked against the game: no game jar "
+         f"here (not MC_JAR, not {VANILLA_JAR}, not vanilla-assets.jar under /tmp/mc/libs); "
+         f"set MC_JAR to vanilla-assets.jar or the 1.21.1 client jar, or run "
+         f"python3 tools/setup_env.py and use the MC_JAR it exports")
 else:
     import zipfile as _zip
     with _zip.ZipFile(VANILLA_JAR) as jar:

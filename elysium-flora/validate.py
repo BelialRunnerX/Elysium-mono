@@ -370,7 +370,13 @@ def _full_id(value):
 
 
 if _mc_jar is None:
-    print("drawn and tooled   : skipped, no game jar to compare the wood with (set MC_JAR)")
+    # A failure, not a status line: until 15 October this printed "skipped"
+    # and the wood passed with not one shape compared with the game's.
+    fail("the wood cannot be compared with the game's: no game jar here (MC_JAR is "
+         + (f"{os.environ['MC_JAR']}, which is not a file" if os.environ.get("MC_JAR") else "not set")
+         + ", and there is no /tmp/mc/libs/vanilla-assets.jar); set MC_JAR to "
+         "vanilla-assets.jar or the 1.21.1 client jar, or run python3 tools/setup_env.py "
+         "and use the MC_JAR it exports")
 else:
     import zipfile as _zipfile
     with _zipfile.ZipFile(_mc_jar) as _jar:
@@ -592,10 +598,18 @@ if all(os.path.isfile(os.path.join(WORK, relative)) for relative in FLORA_GENERA
 # the metadata: the atlas took the whole column as a single frame and squashed
 # it onto every log face. Nothing in the game logs that, so the check is here.
 
+try:
+    from PIL import Image
+except ImportError:
+    # A failure, not a quiet break out of the loop: until 15 October no Pillow
+    # opened no texture and the module passed with not one frame counted.
+    Image = None
+    fail("the block and item textures cannot be opened to check their frames: Pillow is "
+         "not installed for this python (pip install Pillow)")
 atlas_textures = 0
 for folder in ("textures/block", "textures/item"):
     root = os.path.join(ASSETS, folder)
-    if not os.path.isdir(root):
+    if Image is None or not os.path.isdir(root):
         continue
     for name in sorted(os.listdir(root)):
         if not name.endswith(".png"):
@@ -603,11 +617,8 @@ for folder in ("textures/block", "textures/item"):
         path = os.path.join(root, name)
         atlas_textures += 1
         try:
-            from PIL import Image
             with Image.open(path) as image:
                 width, height = image.size
-        except ImportError:
-            break
         except Exception as error:
             fail(f"{folder}/{name} is not a PNG the game can read: {error}")
             continue

@@ -249,6 +249,44 @@ edit $HR '            "stone_anvil", "alloy_forge", "material_grader", "starligh
         '            "alloy_forge", "material_grader", "starlight_charger");'
 expect "the rules moved a bench and the tag left where it was" "the tags are written from the rules by tools/gen_harvest.py"
 
+echo "nothing to run the material harness with (15 Oct 2026)"
+# Until 15 October either input missing printed "material harness : not run"
+# and the module passed with not one material file loaded. Each must now FAIL
+# and name what is missing. The real classpath and build are never touched:
+# ELYSIUM_MC_LIBS or ELYSIUM_OUT is pointed at an empty folder for one run.
+env_expect() { local what="$1" w="$2" g; shift 2
+  g="$(cd $M && env "$@" timeout 600 python3 validate.py 2>&1)"
+  if [[ "$g" == *"PROBLEM(S)"* && "$g" == *"$w"* ]]; then echo "  caught : $what"; pass=$((pass+1));
+  else echo "  MISSED : $what"; fail=$((fail+1)); fi; restore; }
+NOWHERE=$(mktemp -d)
+env_expect "no cp.txt where ELYSIUM_MC_LIBS points, which used to print not run and pass" \
+  "the material harness cannot run: there is no classpath file at" ELYSIUM_MC_LIBS="$NOWHERE"
+env_expect "no armory classes where ELYSIUM_OUT points, which used to print not run and pass" \
+  "the material harness cannot run: the armory's compiled classes are not at" ELYSIUM_OUT="$NOWHERE"
+rmdir "$NOWHERE"
+
+# The harness's result line (15 Oct 2026). Until 15 October the summary printed
+# whatever line came first, which was log4j's "WARN StatusConsoleListener ...",
+# and a clean exit with no result line at all passed as "ran". Here the result
+# line is taken out and a WARN put where it was: that must FAIL.
+edit $M/tools/MaterialHarness.java '        System.out.println("materials: " + materials.size()' \
+  '        System.out.println("WARN StatusLogger Log4j2 could not find a logging implementation."); String unusedResult = ("materials: " + materials.size()'
+expect "a harness that prints a WARN and no result line, which used to pass as its result" \
+  "the MaterialHarness exited cleanly and printed no result line"
+
+echo "the base game's items with no game jar (15 Oct 2026)"
+# Until 15 October no game jar appended "(the base game's not checked ...)" to
+# a passing line and checked no minecraft: id a material or part names. It must
+# now FAIL and name MC_JAR. MC_JAR is pointed at a file that is not there, and
+# the validator's fallback places are taken out for this one run (no env var
+# can empty them; the real jar is never touched), so this is a machine without
+# the jar.
+edit $M/validate.py 'if p and os.path.isfile(p)), None)' \
+  'if p and os.path.isfile(p) and p == os.environ.get("MC_JAR")), None)'
+env_expect "no game jar anywhere, which used to say so on a passing line" \
+  "the base game's items a material or part names cannot be checked: no game jar here (MC_JAR is" \
+  MC_JAR="$(mktemp -u)/vanilla-assets.jar"
+
 echo
 echo "restoring and re-checking"
 restore

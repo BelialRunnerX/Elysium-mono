@@ -336,6 +336,20 @@ expect "a block the book no longer introduces" "introduced by no step and excuse
 edit $G '    (r"^elysiumbestiary:.*_spawn_egg$",' '    (r"^elysiumbestiary:nothing_at_all$",'
 expect "an excusal that no longer excuses" "introduced by no step and excused by nothing"
 
+echo "the base game's things with no game jar (15 Oct 2026)"
+# Until 15 October no MC_JAR left the game's names an empty set, and the
+# failure that followed blamed the book: every minecraft: task "asks for things
+# no module in this tree makes", and nothing said MC_JAR. It must now name
+# MC_JAR, which is pointed at a file that is not there for this one run (this
+# validator looks nowhere else; the real jar is never touched).
+env_expect() { local what="$1" w="$2" g; shift 2
+  g="$(cd $M && env "$@" timeout 300 python3 validate.py 2>&1)"
+  if [[ "$g" == *"PROBLEM(S)"* && "$g" == *"$w"* ]]; then echo "  caught : $what"; pass=$((pass+1));
+  else echo "  MISSED : $what"; fail=$((fail+1)); fi; restore; }
+env_expect "no game jar, which used to be reported as minecraft: tasks nothing makes" \
+  "the tasks that name the base game's things cannot be checked: no game jar (MC_JAR is" \
+  MC_JAR="$(mktemp -u)/vanilla-assets.jar"
+
 echo
 echo "restoring and re-checking"
 restore

@@ -50,9 +50,23 @@ def fail(msg):
     problems.append(msg)
 
 
-if not os.path.isfile(CLASSPATH_FILE):
-    print(f"datapack           : skipped, no {CLASSPATH_FILE} to ask")
-    sys.exit(0)
+def stop(why):
+    """
+    No jars, no check, and that is a failure rather than a skip.
+
+    Until 15 October a missing cp.txt printed "skipped" here and exited 0, so a
+    machine without the build environment reported every data file as fine
+    without asking a single codec. check_buses, check_nullable and solarpunk
+    passed that way on Windows for three weeks; this one could have too.
+    """
+    print("datapack           : FAILED")
+    print("  - " + why + ", so not one data file can be checked against the game's codecs")
+    sys.exit(1)
+
+
+_unusable = mcpath.problem(CLASSPATH_FILE)
+if _unusable:
+    stop(_unusable)
 
 CLASSPATH = mcpath.join(mcpath.classpath(CLASSPATH_FILE))
 
@@ -86,8 +100,7 @@ for match in COMPONENT.finditer(javap("net.minecraft.world.item.enchantment.Ench
         SHAPES[key] = "object"
 
 if not SHAPES:
-    print("datapack           : could not read EnchantmentEffectComponents from the jars")
-    sys.exit(1)
+    stop(f"javap could not read EnchantmentEffectComponents from the jars {CLASSPATH_FILE} names")
 
 # ---------------------------------------------------------------------------
 # Which features exist, read from the jar
@@ -103,6 +116,15 @@ for match in re.finditer(
         r"public static final net\.minecraft\.world\.level\.levelgen\.feature\.Feature<[^>]*>\s+([A-Z0-9_]+);",
         javap("net.minecraft.world.level.levelgen.feature.Feature")):
     FEATURES.add("minecraft:" + match.group(1).lower())
+
+# Stopped on its own, as SHAPES is. Until 15 October an empty set went on to
+# the checks below, which fail every configured feature's type against it and
+# pass a tree that ships none: whether this caught anything depended on what
+# else happened to be in the tree.
+if not FEATURES:
+    stop(f"javap read no Feature constants out of "
+         f"net.minecraft.world.level.levelgen.feature.Feature in the jars "
+         f"{CLASSPATH_FILE} names")
 
 # ---------------------------------------------------------------------------
 # Every data file we ship

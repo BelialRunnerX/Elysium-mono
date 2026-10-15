@@ -775,8 +775,11 @@ if not kitchen_own:
          "that names a vanilla ingredient reads as naming nothing")
 
 if not os.path.isfile(VANILLA_JAR):
-    print("the game's own     : the game's jar is not here, so the allowlist was "
-          "not checked against it")
+    # A failure, not a status line: until 15 October this printed "not
+    # checked" and the allowlist passed on trust, the way it was written.
+    fail(f"the game's own cannot be checked: the game's jar is not at {VANILLA_JAR} "
+         f"(set ELYSIUM_MC_LIBS to the folder holding vanilla.jar, the 1.21.1 client "
+         f"jar, or run python3 tools/setup_env.py)")
 else:
     import zipfile
     with zipfile.ZipFile(VANILLA_JAR) as jar:

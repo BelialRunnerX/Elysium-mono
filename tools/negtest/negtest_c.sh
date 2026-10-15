@@ -69,6 +69,29 @@ check "flat sprite" "units of luminance"
 restore art/materials.py
 (cd elysium-core && python3 tools/gen_material_gear.py >/dev/null 2>&1)
 
+edit() { python3 -c "
+import sys
+p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
+s = open(p, encoding='utf-8', newline='').read()
+if old not in s:
+    sys.stderr.write('STALE ANCHOR in ' + p + ': ' + old[:60] + chr(10))
+    sys.exit(2)
+open(p, 'w', encoding='utf-8', newline='').write(s.replace(old, new, 1))
+" "$@" || { echo "STALE ANCHOR"; exit 2; }; }
+
+echo "7. no Pillow to open the sprites with (15 Oct 2026)"
+# Until 15 October a python without Pillow put a note in a list nothing ever
+# printed, and the module passed with not one shipped sprite opened. It must
+# now FAIL and say pip install Pillow. Pillow is hidden from the validator for
+# one run by spelling its import wrong; Pillow itself is never touched.
+save elysium-core/validate.py
+edit elysium-core/validate.py '        from PIL import Image
+    except ImportError:' '        from PIL import NoSuchName as Image
+    except ImportError:'
+check "a python with no Pillow, which used to note it nowhere and pass" \
+  "the shipped sprites cannot be opened, so only the palette they are drawn from was checked: Pillow is not installed"
+restore elysium-core/validate.py
+
 echo
 (cd elysium-core && python3 -W ignore validate.py >/dev/null 2>&1) && echo "  restored tree passes" || { echo "  RESTORE FAILED"; fail=$((fail+1)); }
 echo; echo "$pass caught, $fail missed"

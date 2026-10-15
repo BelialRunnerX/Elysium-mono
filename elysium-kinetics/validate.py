@@ -1063,8 +1063,11 @@ if not routes:
          "half the way back is always in")
 
 if not os.path.isfile(GAME_JAR):
-    print("the game's routes  : the game's jar is not here, so the loops that "
-          "close through its own recipes were not swept for")
+    # A failure, not a status line: until 15 October this printed "not swept
+    # for" and the loop rule passed looking at half its graph.
+    fail(f"the game's routes cannot be swept for loops: the game's jar is not at "
+         f"{GAME_JAR} (set ELYSIUM_MC_LIBS to the folder holding vanilla.jar, the "
+         f"1.21.1 client jar, or run python3 tools/setup_env.py)")
 else:
     import zipfile
 

@@ -190,7 +190,10 @@ except ImportError:
     Image = None
 
 if Image is None:
-    print("model sheets        : Pillow missing, texture sizes unchecked")
+    # A failure, not a status line: until 15 October this printed "unchecked"
+    # and the module passed with not one sheet measured.
+    fail(f"Pillow does not import in {sys.executable}, so not one texture's size "
+         f"was read against its model's sheet (python3 -m pip install Pillow)")
 else:
     checked = 0
     for type_name in types:
@@ -582,8 +585,11 @@ print(f"register actions   : 14.3 table matches, {len(empire_families)} Empire "
 try:
     import numpy as _np
     from PIL import Image as _Image
-except ImportError:
-    print("mob value range     : not measured, Pillow or numpy missing")
+except ImportError as _missing:
+    # A failure, not a status line: until 15 October this printed "not
+    # measured" and the module passed with not one texture's value read.
+    fail(f"the mob value range cannot be measured: {_missing} in {sys.executable} "
+         f"(it needs Pillow and numpy: python3 -m pip install Pillow numpy)")
 else:
     MEAN_FLOOR, MEAN_CEILING = 55.0, 165.0
     SPREAD_FLOOR = 24.0

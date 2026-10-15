@@ -60,6 +60,19 @@ expect "a game list that forgets the game's blocks" "checking nothing"
 edit $M/validate.py '                    if key.startswith(("item.minecraft.", "block.minecraft."))}' '                    if key.startswith(("item.nothing.", "block.nothing."))}'
 expect "a game list that reads as empty, so the check below it checks nothing" "checking nothing"
 
+echo "no game jar to check the list against (15 Oct 2026)"
+# Until 15 October no vanilla.jar printed "the game's jar is not here" and the
+# allowlist passed on trust. It must now FAIL and name ELYSIUM_MC_LIBS, which
+# is pointed at an empty folder for this one run; the real jar is not touched.
+env_expect() { local what="$1" w="$2" g; shift 2
+  g="$(cd $M && env "$@" timeout 600 python3 validate.py 2>&1)"
+  if [[ "$g" == *"PROBLEM(S)"* && "$g" == *"$w"* ]]; then echo "  caught : $what"; pass=$((pass+1));
+  else echo "  MISSED : $what"; echo "         got: $(echo "$g" | tail -2 | head -1 | cut -c1-150)"; fail=$((fail+1)); fi; restore; }
+NOWHERE=$(mktemp -d)
+env_expect "no vanilla.jar where ELYSIUM_MC_LIBS points, which used to print not checked and pass" \
+  "the game's own cannot be checked: the game's jar is not at" ELYSIUM_MC_LIBS="$NOWHERE"
+rmdir "$NOWHERE"
+
 echo
 echo "restoring and re-checking"
 restore

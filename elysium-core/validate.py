@@ -20,7 +20,6 @@ RES = os.path.join(WORK, "src/main/resources")
 JAVA = os.path.join(WORK, "src/main/java/com/elysium/core/Elysium.java")
 
 problems = []
-notes = []
 
 
 def fail(msg):
@@ -1172,9 +1171,11 @@ if pixelart is not None and art_error is None:
     try:
         from PIL import Image
     except ImportError:
+        # A failure, not a note: until 15 October this went into a list nothing
+        # printed, and the module passed with not one shipped sprite opened.
         Image = None
-        notes.append("Pillow is not installed, so the shipped sprites were not "
-                     "opened — only the palette they are drawn from was checked")
+        fail("the shipped sprites cannot be opened, so only the palette they are drawn "
+             "from was checked: Pillow is not installed for this python (pip install Pillow)")
 
     # Every shape the Java registers has to have something to draw it with.
     #
@@ -1467,13 +1468,16 @@ else:
     # would put a NoClassDefFoundError in front of a player who does not have
     # the mod, and none of them is visible in the source.
     #
-    # Runs only where the module has been compiled, which is the same condition
-    # the machine harness uses. Skipping is reported, not silent.
+    # Needs the module compiled, the same condition the machine harness has.
+    # Until 15 October a missing build printed "bytecode not scanned" and the
+    # module passed; no compiled classes is now a failure, and so is a folder
+    # with none in it (compile.sh empties its output rather than removing it).
     classes_dir = os.environ.get("ELYSIUM_OUT", "/tmp/elysium-classes")
     compiled = os.path.join(classes_dir, "elysium-core")
     if not os.path.isdir(compiled):
-        print(f"gear convergence  : bytecode not scanned, no compiled classes "
-              f"at {compiled} (run ./compile.sh first)")
+        fail(f"the bytecode cannot be scanned for foreign references: the core's "
+             f"compiled classes are not at {compiled} (run ./compile.sh first, or "
+             f"set ELYSIUM_OUT to where it wrote them)")
     else:
         # Read the class bytes directly rather than shelling out to javap.
         # A class file stores every type it references as a UTF8 constant in
@@ -1509,7 +1513,11 @@ else:
                  f"That class is loaded whether or not the mod is installed, "
                  f"so every player without it gets a NoClassDefFoundError — "
                  f"and no import line in the source says so")
-        if not leaked:
+        if not scanned:
+            fail(f"the bytecode was not scanned for foreign references: {compiled} "
+                 f"holds no compiled class under com/elysium/core (run ./compile.sh, "
+                 f"or set ELYSIUM_OUT to where it wrote them)")
+        elif not leaked:
             print(f"convergence guard : {scanned} compiled classes scanned, "
                   f"foreign references confined to the {len(bridge_classes)} "
                   f"bridge class(es) in the bytecode as well as the source")
