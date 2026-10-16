@@ -550,8 +550,11 @@ GEAR_SETS = {
                 {"type": "attribute", "modifiers": [
                     {"attribute": "elysiumlib:dodge_chance", "operation": "add_value",
                      "slot": "any", "value": 0.06}]},
+                # Level 1 is Speed I: the engine gives amplifier level - 1 and
+                # skips anything below 0, so a 0 here was a bonus that never
+                # applied (found by Quill, 15 Oct 2026).
                 {"type": "wielder_effect", "targets": [
-                    {"effect": "minecraft:speed", "levels": [0], "duration": 60}]}]},
+                    {"effect": "minecraft:speed", "levels": [1], "duration": 60}]}]},
         ],
     },
     "neutronium_plate": {
@@ -576,6 +579,24 @@ for _set, _body in GEAR_SETS.items():
     write(f"data/{NS}/elysium_gear_sets/{_set}.json",
           {"items": _body["items"], "bonuses": _body["bonuses"]})
     lang[f"elysium.gear_set.{NS}.{_set}"] = _body["name"]
+
+# --- the starting kit (SPEC_CLONE P12.18) -----------------------------------
+#
+# What a new player is handed once, by ElysiumStartingKit; the codex is left
+# to the library's join handler. Written here because this script clears data/
+# before anything else runs: the kit was kept by hand under data/, and every
+# regen.sh deleted it (found 15 Oct 2026, when the regen order was run).
+def _kit_pool(item, count):
+    return {"rolls": 1, "bonus_rolls": 0, "entries": [
+        {"type": "minecraft:item", "name": item,
+         "functions": [{"function": "minecraft:set_count", "count": count}]}]}
+
+
+write(f"data/{NS}/loot_table/gameplay/starting_kit.json", {
+    "type": "minecraft:gift",
+    "pools": [_kit_pool("minecraft:bread", 8), _kit_pool("minecraft:torch", 16)],
+    "random_sequence": f"{NS}:gameplay/starting_kit",
+})
 
 # --- lines the code has always sent and nobody had written ------------------
 #

@@ -2394,6 +2394,48 @@ if "logs/harvest-audit.txt" not in _audit_lang or 'LIST_FILE = "logs/harvest-aud
 print("harvest audit      : /elysium audit harvest asks the running game about every block of every "
       "module, and writes the whole list to logs/harvest-audit.txt")
 
+# A set bonus's wielder_effect, read the way the library's engine reads it
+# (ElysiumEffectHandlers.apply): a set hands itself on at level 1, so by its
+# level ("trait_level", the default) or as a full set ("full_set_only") the
+# first entry of `levels` is what is given, as amplifier entry - 1, and below
+# 0 nothing is given at all; by the pieces worn ("piece_count") entry n - 1
+# is given for n pieces. The four-piece Speed of elysium_regalia said 0 and
+# never applied (15 Oct 2026).
+_sets_dir = os.path.join(WORK, "src/main/resources/data/elysium/elysium_gear_sets")
+_set_files = sorted(f for f in os.listdir(_sets_dir) if f.endswith(".json")) if os.path.isdir(_sets_dir) else []
+if not _set_files:
+    fail(f"no gear sets in {_sets_dir}, so the set bonuses were not read")
+_set_effects = 0
+for _file in _set_files:
+    _set = json.load(open(os.path.join(_sets_dir, _file), encoding="utf-8"))
+    for _bonus in _set.get("bonuses", []):
+        _pieces = _bonus.get("pieces", 0)
+        for _effect in _bonus.get("effects", []):
+            if _effect.get("type") != "wielder_effect":
+                continue
+            for _target in _effect.get("targets", []):
+                _set_effects += 1
+                _levels = _target.get("levels", [])
+                _mode = _target.get("mode", "trait_level")
+                _what = f"gear set {_file}'s {_pieces}-piece {_target.get('effect')}"
+                if not all(isinstance(_n, int) for _n in _levels):
+                    fail(f"{_what} has levels {_levels}, which are not all whole numbers")
+                elif _mode in ("trait_level", "full_set_only"):
+                    if not _levels or _levels[0] < 1:
+                        fail(f"{_what} gives levels {_levels}: a set is worn at level 1, so the "
+                             f"engine gives amplifier {(_levels[0] - 1) if _levels else 'none'} and "
+                             f"skips it - the bonus never applies (level 1 is the effect's first rank)")
+                elif _mode == "piece_count":
+                    if len(_levels) < _pieces or _levels[_pieces - 1] < 1:
+                        fail(f"{_what} gives levels {_levels} by pieces worn, so at the {_pieces} "
+                             f"pieces the bonus is for it gives nothing")
+                else:
+                    fail(f"{_what} names mode '{_mode}', which the engine does not read")
+                if _target.get("duration", 38) < 1:
+                    fail(f"{_what} lasts {_target.get('duration')} ticks, so it never shows")
+print(f"set bonus effects  : {_set_effects} wielder effect(s) in {len(_set_files)} gear set(s), each at a "
+      "level the engine gives")
+
 if problems:
     print(f"{len(problems)} PROBLEM(S):")
     for problem in problems:

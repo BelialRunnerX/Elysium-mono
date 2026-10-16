@@ -42,7 +42,7 @@
             {
               "effect": "minecraft:speed",
               "levels": [
-                0
+                1
               ],
               "duration": 60
             }
