@@ -153,7 +153,10 @@ benches — `stage_augment_client.ps1`, `stage_menus_client.ps1` and
 `stage_screens_client.ps1`; the kitchen — `stage_kitchen_client.ps1` and
 `stage_stations_client.ps1`; the worldgen and tab walk —
 `stage_features_client.ps1`, `stage_agent8_client.ps1`,
-`stage_creatures_client.ps1` and `stage_jei_client.ps1`; the standing walk
+`stage_creatures_client.ps1` and `stage_jei_client.ps1`; the Vale —
+`stage_vale_client.ps1` (the way in and back) and
+`stage_vale_footing_client.ps1` (a fresh ring's first trip and its footing,
+`VALE FOOTING OK` or `BAD`); the standing walk
 and the rift and road have no driver yet. `stage_vale_client.ps1` is the
 pattern to copy: it fronts the game before every step and its header lists
 the traps. How a sitting is run, the machine and the report it ends with, is
@@ -222,6 +225,18 @@ the client up on the installed jar and waits for the join.
    of a dozen biomes; the eight grammar structures walked room by room with
    their chests; the Bastion by eye (ranges, emgroves, rivers, no oceans, no
    night monsters, emerald underground); the Vale's seams and structures;
+   the Vale footing, `stage_vale_footing_client.ps1` on the next slot the
+   world's own count gives (a scoreboard objective; each slot's ring 32 000
+   blocks from every other), its first trip proven by the mod's own
+   first-trip line, held against the world's own record of first trips
+   (the mod's saved data, read with `/elysium vale trips`, which neither a
+   log line nor a command can write), and its
+   Vale side taken from that line: underfoot not
+   water and not a built mossy-stone-brick pad, the ring's sill and both
+   landing rows on dry ground (the live confirmation
+   `PortalRules.SETTLE_IN_BLOCKS` waits for; no line, or a side that was a
+   ring already standing, fails and says to run again or start a fresh
+   world);
    Cordon ores in each stone family and aetherium, neutronium and voidglass in
    the Overworld; the wild crops, loomflax, downbloom and emberwood growing and
    rendering; a caged invader broken, the brutal and swarm spawners' waves and

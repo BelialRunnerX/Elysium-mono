@@ -1040,6 +1040,34 @@ if ("if (player.level().dimension().equals(VALE)) { leave(player, server); } "
         "else { enter(player, server, gatePos); }") not in using:
     fail("which way a gate leads is not read off the world the player is in, the one fact "
          "that cannot be wrong")
+# A ring's first trip says so in the log, once, in a fixed form, and says whether
+# its Vale side was built new or was a ring already standing where the search
+# ended: the live footing stage proves a first trip, and a fresh search's
+# footing, by that line and by nothing else (16 Oct 2026: the site list the
+# stages kept by hand, and the client's "Loaded N advancements" taken for a
+# change of world, let three rounds of review find fourteen false passes).
+# Whether the side was standing is the settling's own word (16 Oct 2026, round
+# 4): a side found by a lit gate near where it went (standingBy) is standing,
+# whatever its anchor cell holds. Asking the side's anchor instead called a
+# ring with its anchor cell broken by hand built, since the search still finds
+# and uses such a ring and the build lights it again (finding M1).
+# And the line is kept in the world, where no log line can write it: the
+# integrated server logs some text as it is, line breaks and all, so a named
+# entity's death can write a copy of an old first-trip line as a line of its own
+# (findings F1v, F1n). Kept in ValeLinks, the mod's own saved data, since round
+# 5 (OP1): it was command storage elysiumwilds:trips, which /data modify writes,
+# and the operator who can name a mob with line breaks could set it to agree.
+FIRST_TRIP_FORM = ('private static final String FIRST_TRIP = '
+                   '"Vale first trip: player %s ring %s %d %d %d side %d %d %d axis %s %s";')
+FIRST_TRIP_SETTLED = ("Settled settled = settle(vale, column != null ? column : anchor, axis); "
+                      "arrival = settled.arrival();")
+FIRST_TRIP_STANDING = "boolean standing = settled.standing();"
+FIRST_TRIP_SAID = ('String said = String.format(Locale.ROOT, FIRST_TRIP, player.getGameProfile().getName(), '
+                   'here.dimension().location(), anchor.getX(), anchor.getY(), anchor.getZ(), '
+                   'arrival.anchor().getX(), arrival.anchor().getY(), arrival.anchor().getZ(), '
+                   'arrival.axis().getName(), standing ? "standing" : "built");')
+FIRST_TRIP_LOGGED = 'ElysiumWilds.LOGGER.info("{}", said);'
+FIRST_TRIP_KEPT = "links.firstTrip(said);"
 entering = squashed(body_of(travel_src,
                             "private static void enter(ServerPlayer player, MinecraftServer server, BlockPos gatePos)"))
 for statement, why in (
@@ -1053,10 +1081,13 @@ for statement, why in (
          "a ring's Vale side is not looked up before a trip, so every trip through one ring "
          "searches and builds again"),
         ("if (arrival == null) { BlockPos column = nearestVerdant(vale, anchor); "
-         "arrival = settle(vale, column != null ? column : anchor, axis); "
-         "links.link(here.dimension(), anchor, arrival); }",
-         "a ring's first trip no longer searches once and files what it found, so either "
-         "every trip costs a compass search and a new ring, or none ever finds the verdant vale"),
+         + FIRST_TRIP_SETTLED + " links.link(here.dimension(), anchor, arrival); "
+         + FIRST_TRIP_STANDING + " " + FIRST_TRIP_SAID + " " + FIRST_TRIP_LOGGED + " "
+         + FIRST_TRIP_KEPT + " }",
+         "a ring's first trip no longer searches once and files what it found, saying so once in "
+         "the log, so either every trip costs a compass search and a new ring, or none ever finds "
+         "the verdant vale, or the line the live footing stage proves a first trip by is said on "
+         "some other trip or not at all"),
         ("if (!ValePortal.stands(vale, arrival.anchor())) { "
          "ValePortal.build(vale, arrival.anchor(), arrival.axis()); }",
          "the ring on the Vale side is not built, or not rebuilt once broken, so a player "
@@ -1069,7 +1100,127 @@ for statement, why in (
          "stepping into a gate does not take a player to the Vale")):
     if statement not in entering:
         fail(why)
-searching = squashed(body_of(travel_src, "private static BlockPos nearestVerdant(ServerLevel vale, BlockPos from)"))
+if FIRST_TRIP_FORM not in squashed(travel_src):
+    fail("the line a ring's first trip logs is not in the fixed form the live stages read "
+         "(Vale first trip: player, ring, side, axis, built or standing), so "
+         "stage_vale_footing_client.ps1 never sees a first trip and the Vale stages cannot "
+         "tell where a trip landed")
+if FIRST_TRIP_SAID not in entering or FIRST_TRIP_LOGGED not in entering:
+    fail("a ring's first trip is not said at INFO in the log with the player, the ring, its "
+         "Vale side and whether that side was built new, so the live footing stage has no word "
+         "of the game's that a trip was a first trip")
+if FIRST_TRIP_STANDING not in entering:
+    fail("whether a first trip's Vale side was a ring already standing is not the settling's "
+         "own word (Settled.standing), so the first-trip line calls a reused ring built when "
+         "its anchor cell is empty (asked of the anchor alone), or every side built or "
+         "standing, and the footing stage cannot tell a fresh search's footing from a ring it "
+         "reused")
+if len(re.findall(r"\bFIRST_TRIP\b", travel_src)) != 2 or travel_src.count("Vale first trip") != 1:
+    fail("the first-trip line is named somewhere other than its one declaration and the one "
+         "place a ring's first trip says it, so an ordinary trip can log it too and a second "
+         "trip through a ring reads as its first")
+# The world's own record of its trips (round 4, F1v and F1n; round 5, OP1 and
+# RZ1): what the footing stage backs the first-trip line with, and the vale
+# stage tells the way back from a way out to the spawn by. Kept in ValeLinks,
+# which no command writes, by a first trip and only there, and by a way out to
+# the spawn and only there; never in command storage, which any /data modify
+# writes; and read back by a command that writes nothing.
+if FIRST_TRIP_KEPT not in entering or squashed(travel_src).count(".firstTrip(") != 1:
+    fail("a ring's first trip is not kept in the world's own record of first trips, once and "
+         "only there, so the footing stage takes a copy of an old first-trip line written into "
+         "the log by a named entity's death for a first trip")
+if "getCommandStorage()" in squashed(travel_src) or "getCommandStorage()" in squashed(links_src):
+    fail("the record of the world's Vale trips is kept in command storage, which any operator's "
+         "/data modify writes, so the operator who can write a copy of an old first-trip line into "
+         "the log can set the record to agree with it")
+recording = squashed(body_of(links_src, "public void firstTrip(String said)"))
+for statement, why in (
+        ("firstTrips += 1;",
+         "the record of first trips does not count one more for each first trip, so the footing "
+         "stage cannot tell a first trip made now from none at all"),
+        ("lastFirstTrip = said;",
+         "the record of first trips does not keep the line the latest one logged, so the footing "
+         "stage cannot tell whose first trip it counted"),
+        ("setDirty();",
+         "a first trip kept in the record is not marked to be saved, so the record the footing "
+         "stage reads after a restart is not the world's")):
+    if statement not in recording:
+        fail(why)
+spawning = squashed(body_of(links_src, "public void outToSpawn(UUID player)"))
+for statement, why in (
+        ("outToSpawn.merge(player, 1, Integer::sum);",
+         "a way out of the Vale to the world's spawn is not counted one more for the player, so "
+         "the vale stage takes a way out to a spawn by the ring for the return ring"),
+        ("setDirty();",
+         "a way out to the spawn counted in the record is not marked to be saved")):
+    if statement not in spawning:
+        fail(why)
+for signature, statement in (("public int firstTrips()", "return firstTrips;"),
+                             ("public String lastFirstTrip()", "return lastFirstTrip;"),
+                             ("public int outToSpawnFor(UUID player)",
+                              "return outToSpawn.getOrDefault(player, 0);")):
+    if statement not in squashed(body_of(links_src, signature)):
+        fail(f"{signature.split('(')[0].split()[-1]} does not read back what the record keeps, so "
+             f"/elysium vale trips tells the live stages something other than the world's record")
+saving = squashed(body_of(links_src, "public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries)"))
+loading = squashed(body_of(links_src, "public static ValeLinks load(CompoundTag tag,"))
+for statement, where in (('tag.putInt("FirstTrips", firstTrips);', saving),
+                         ('tag.putString("LastFirstTrip", lastFirstTrip);', saving),
+                         ('one.putInt("Count", entry.getValue());', saving),
+                         ('tag.put("OutToSpawn", spawned);', saving),
+                         ('data.firstTrips = tag.getInt("FirstTrips");', loading),
+                         ('data.lastFirstTrip = tag.getString("LastFirstTrip");', loading),
+                         ('ListTag spawned = tag.getList("OutToSpawn", Tag.TAG_COMPOUND);', loading),
+                         ('data.outToSpawn.put(one.getUUID("Player"), one.getInt("Count"));', loading)):
+    if statement not in where:
+        fail("the world's record of its Vale trips is not saved and read back whole, so after a "
+             "restart its first trips, its last first-trip line or its ways out to the spawn start "
+             "again, and a stage run across one reads a record the world never kept")
+        break
+# Read back for the live stages: one fixed line, the player's own count, and
+# nothing written.
+command_src = strip_comments(read(SRC, "command/ValeCommand.java"), True)
+if not command_src:
+    fail("there is no /elysium vale trips (command/ValeCommand.java), so the live stages cannot "
+         "read the world's record of its Vale trips and every run fails before the gate")
+else:
+    if "@EventBusSubscriber(modid = ElysiumWilds.MODID)" not in command_src \
+            or "event.getDispatcher().register(root());" not in squashed(body_of(command_src, "public static void onRegister(RegisterCommandsEvent event)")):
+        fail("/elysium vale trips is written and never registered, so the live stages' reads of "
+             "the world's record answer that there is no such command")
+    if ('return Commands.literal("elysium").then(Commands.literal("vale").then(Commands.literal("trips") '
+            '.requires(source -> source.hasPermission(2)) .executes(context -> trips(context.getSource()))));') \
+            not in squashed(body_of(command_src, "private static LiteralArgumentBuilder<CommandSourceStack> root()")):
+        fail("the world's record of its Vale trips is not read by /elysium vale trips, for "
+             "operators, so the live stages ask a command that is not there")
+    if ('private static final String RECORD = "Vale trips: first %d, out to spawn %d, last %s";'
+            not in squashed(command_src)):
+        fail("the line /elysium vale trips answers is not in the fixed form the live stages read "
+             "(Vale trips: first, out to spawn, last), so every read of the record fails")
+    answering = squashed(body_of(command_src, "private static int trips(CommandSourceStack source)"))
+    for statement in ("ServerPlayer player = source.getPlayerOrException();",
+                      "ValeLinks links = ValeLinks.get(source.getServer());",
+                      'String last = links.lastFirstTrip().isEmpty() ? "none" : links.lastFirstTrip();',
+                      "String said = String.format(Locale.ROOT, RECORD, links.firstTrips(), "
+                      "links.outToSpawnFor(player.getUUID()), last);",
+                      "source.sendSuccess(() -> Component.literal(said), false);"):
+        if statement not in answering:
+            fail("/elysium vale trips does not answer the world's record as it stands, in one line: "
+                 "its first trips, the asking player's ways out to the spawn, and the latest "
+                 "first-trip line, so the live stages hold the log against something else")
+            break
+    if re.search(r"\.(?:firstTrip|outToSpawn|remember|link)\(|setDirty|getCommandStorage", command_src):
+        fail("/elysium vale trips writes to what it reads, so the command the live stages trust "
+             "to read the world's record is one an operator can use to set it")
+# The settling's word, from where it comes: only a ring found standing by a lit
+# gate is standing; a side the settling goes on to build is not.
+standing_by = squashed(body_of(travel_src, "private static Settled standingBy(ServerLevel vale, BlockPos ground)"))
+if ("return there == null ? null : new Settled(new ValeLinks.Arrival(there.anchor(), there.axis()), true);"
+        not in standing_by):
+    fail("a ring the search finds standing by a lit gate is not said to be standing, so the "
+         "first-trip line calls a reused ring built and the footing stage asserts a footing no "
+         "fresh search chose")
+searching =squashed(body_of(travel_src, "private static BlockPos nearestVerdant(ServerLevel vale, BlockPos from)"))
 for statement, why in (
         ("int radius = (int) PortalRules.ARRIVAL_SEARCH_BLOCKS;",
          "a way in looks as far as something other than the rules say, so what one trip "
@@ -1100,9 +1251,9 @@ for statement, why in (
 # the world says stands at each column's top, fluid and sturdiness both, and
 # settles for the column as found only when neither stage finds dry ground.
 settling = squashed(body_of(travel_src,
-                            "private static ValeLinks.Arrival settle(ServerLevel vale, BlockPos column, Direction.Axis axis)"))
+                            "private static Settled settle(ServerLevel vale, BlockPos column, Direction.Axis axis)"))
 for statement, why in (
-        ("ValeLinks.Arrival near = near(vale, column, axis); if (near != null) { return near; }",
+        ("Settled near = near(vale, column, axis); if (near != null) { return near; }",
          "the near stage, a ring standing by the column or the nearest dry column within the spiral's "
          "reach, is not tried first, so a verdant landing is walked off to a far shore or built over "
          "a standing ring"),
@@ -1119,15 +1270,16 @@ for statement, why in (
          "if (near != null) { return near; } }",
          "the shore the far stage finds is not settled the way the column was, so a ring standing "
          "there is built over, or the side goes somewhere other than the shore found"),
-        ("return on(vale, column, axis);",
+        ("return new Settled(on(vale, column, axis), false);",
          "the Vale side does not settle for the column as found when everything within reach of both "
-         "stages is water, so a ring whose verdant vale is all sea has no far side at all")):
+         "stages is water, so a ring whose verdant vale is all sea has no far side at all, or the "
+         "side built there is said to be a ring already standing")):
     if statement not in settling:
         fail(why)
 nearing = squashed(body_of(travel_src,
-                           "private static ValeLinks.Arrival near(ServerLevel vale, BlockPos column, Direction.Axis axis)"))
+                           "private static Settled near(ServerLevel vale, BlockPos column, Direction.Axis axis)"))
 for statement, why in (
-        ("ValeLinks.Arrival standing = standingBy(vale, groundAt(vale, column)); "
+        ("Settled standing = standingBy(vale, groundAt(vale, column)); "
          "if (standing != null) { return standing; }",
          "a ring already standing where a Vale side goes is not used first, so the side is built "
          "over it and breaks it"),
@@ -1145,9 +1297,9 @@ for statement, why in (
          "east)"),
         ("BlockPos spot = column.offset(site.east(), 0, site.south());",
          "the Vale side goes somewhere other than the column settled on"),
-        ("return standing != null ? standing : on(vale, spot, axis);",
+        ("return standing != null ? standing : new Settled(on(vale, spot, axis), false);",
          "the Vale side is not built at the column settled on, or a ring standing by it is built "
-         "over")):
+         "over, or the side built there is said to be a ring already standing")):
     if statement not in nearing:
         fail(why)
 axing = squashed(body_of(travel_src, "private static PortalRules.Axis axisOf(Direction.Axis axis)"))
@@ -1276,6 +1428,17 @@ if ("return ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceA
 leaving = squashed(body_of(travel_src, "private static void leave(ServerPlayer player, MinecraftServer server)"))
 if "teleport(player, server, home, back.where(), back.facing());" not in leaving:
     fail("the way back does not put a player where they came in")
+# A way out to the spawn is counted in the world's record, there and only there
+# (round 5, RZ1): the vale stage reads the count, since the log line saying so
+# can be lost with a log that rolled over at midnight.
+if ("ValeLinks links = ValeLinks.get(server); ValeLinks.Return back = links.returnFor(player.getUUID());"
+        not in leaving
+        or "if (back == null || home == null || home.dimension().equals(VALE)) { "
+           "links.outToSpawn(player.getUUID());" not in leaving
+        or squashed(travel_src).count(".outToSpawn(") != 1):
+    fail("a way out of the Vale to the world's spawn is not counted in the world's record, once "
+         "and only there, so the vale stage takes a way out to a spawn by the ring for the "
+         "return ring whenever the log line saying so was lost")
 if ("teleport(player, server, overworld, Vec3.atBottomCenterOf(overworld.getSharedSpawnPos()), "
         "player.getYRot());") not in leaving:
     fail("somebody in the Vale with no way in on record goes nowhere through a gate, and "

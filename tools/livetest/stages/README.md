@@ -52,9 +52,125 @@ Screenshots land beside the script, or in
 * `stage_web_client.ps1` - the Ledger Web tab: the three rings and the
   frontier, a road out to a frontier node taken in survival (29 Sep).
 * `stage_vale_client.ps1` - the way into the Vale by hand: a ring of frames
-  lit by the compass, a survival player carried through and back (1 Oct).
+  lit by the compass, a survival player carried through and back (1 Oct;
+  the survival is asked before the gate since 16 Oct).
   Its header lists the traps it found: face north, aim at the sill, stand in
-  the gate rather than walk, and the driver's key flag is UP.
+  the gate rather than walk, and the driver's key flag is UP. It ends on
+  `VALE OK` or `VALE BAD` with each failed check, exit 0 or 1. It needs no
+  first trip: a ring that has been through before logs no first-trip line, and
+  the two-minute hold then runs its course before the game is asked. Home is
+  read by the ring and, since 16 Oct (round 4), backed by more than where the
+  player stands, since a respawn or the mod's way out to the world's spawn can
+  put them there too: the stage's own deathCount objective
+  (`elysium_vale_deaths`, made fresh and set to nought) is read before the gate
+  and at home and must not move, and the mod's line for this player's way out
+  with no way in on record, read after the gate's fence, is a failure. Since
+  round 5 the world's own count of this player's ways out to the spawn
+  (`/elysium vale trips`, below) is read before the gate and at home and must
+  not move either, and a new log begun after the gate's fence is a failure in
+  itself, since a log that rolled over can hold that line unread. The ring is
+  cleared and built with fills that must say they filled, and its gate cell
+  is read unlit before the compass, so an earlier run's gate cannot pass for
+  this run's.
+* `stage_vale_footing_client.ps1` - the Vale footing (15 Oct, from the 3 Oct
+  check that never ran): a fresh ring's first trip, so the search, the far
+  shore and the walk inland all run; then the landing is read back and
+  asserted: underfoot neither water nor a built mossy-stone-brick pad, the
+  ring's own sill and both landing rows on dry ground; photographed from the
+  landing and from either side (`vale_footing_1-4`). It ends on
+  `VALE FOOTING OK` or `VALE FOOTING BAD` with each failed check, exit 0 or 1.
+  A first trip is proven by the mod's own first-trip line (16 Oct), held
+  against the world's own record of first trips (round 4): the mod keeps the
+  count of first trips and the latest one's line, word for word, where no log
+  line can write, and the stage reads them before the gate and after the
+  crossing, taking the line only when the count went up by one and the line
+  kept is that line. Since round 5 the record is the mod's own saved data
+  (ValeLinks), read with `/elysium vale trips`; it was command storage
+  `elysiumwilds:trips`, which `/data modify` writes. No line, or one saying the Vale side
+  was a ring already standing (the settling's own word, from a ring it found
+  by a lit gate), is a failure that says to run again or start a fresh world. The Vale side's
+  anchor and axis come from the line, and the player must be read at the
+  bottom centre of the landing they imply, facing on. The slot comes from the
+  world's own count, a scoreboard objective (`elysium_vale_slot`, held by
+  `#footing`) the stage adds one to and reads back before the trip; slot k's
+  ring stands at x 913..916 + 32000 (k + 1), z -278, with its own floor, so
+  no two slots' searches (12 800 blocks out at most) can meet, nor one meet
+  the vale stage's ring. `-Slot k` names one and leaves the count alone.
+
+Both Vale stages lay their own floor round their ring (smooth stone at y 89
+over x 880..940, z -290..-250, the footing stage's shifted 32000 (k + 1) east
+with its slot, eight layers of air above), since the client's world is built
+new from `reference/` and the platform the October runs stood on went with
+the old one. Neither keeps anything in the world folder: the site list
+(`elysium_vale_sites.txt`) they kept until 16 Oct is gone, with every filing
+and take-down, after three rounds of review found fourteen ways it let a run
+pass when the game had not done what it claimed. Both send every command through `answers.ps1` (15 Oct): each
+command is typed once and followed by its own marker, `/tellraw @s "elysium
+mark <pid> <n>"`, and is judged only on the chat lines between the marker
+before it and its own, since the server answers in order. A marker not back in
+ten seconds fails its command and a lone marker then shuts in what it still
+says; a read wants exactly one answer, so a command run twice fails; player
+chat is no answer; the log is read by byte offset, up to its last whole line.
+`mc.ps1`'s `MC-Cmd`, which the other stages still use, is not called: its retry
+on a stale garble once ran a verdict twice and the late second pass was read
+as the next verdict's. Nor, since round 5, is `MC-CmdOnce`: `answers.ps1`
+types each command itself, asking which window is in front before every key,
+and stops the stage the moment it is not the game, RETURN never pressed. A key
+sent while a console window had the focus for a moment went to that window,
+and the command that reached the server, a digit short, tested another block.
+
+Since 16 Oct a step (a command whose answer is not read) must answer too: one
+with nothing before its marker, such as a command typed into a screen or one
+whose letters came back late, failed. Only `/gamemode creative` is sent
+`-Quiet`, since a game mode the player already has answers nothing; and the
+vale stage, whose OK line says a survival player was carried, asks
+`/execute if entity @s[gamemode=survival]` before the gate and stops on
+anything but a pass. Only the client's chat-component lines are chat: a
+player can type any text, and the integrated server logs every chat message on
+its own thread. Only `<ElysiumTester>` lines are the player's own garbled
+commands.
+
+The crossing, since 16 Oct, is the game's own word. On a ring's first trip
+elysium-wilds logs one INFO line (ValeTravel):
+`Vale first trip: player NAME ring DIMENSION X Y Z side X Y Z axis x|z built|standing`.
+The gate step waits for that line, for this player and this ring, read after
+the echo of a fence sent just before the step, and is never typed again once
+it is read; then the game is asked where the player is, with
+`/execute if dimension elysiumwilds:vale run data get entity @s Dimension`,
+until it says the Vale. The line is matched only as a Server thread INFO line
+whose message starts right after its `]: `: from `[ElysiumWilds/]` in
+NeoForge's own log layout, and with no logger in the vanilla launcher's
+`client-1.12.xml` layout, which the test client's `launch.ps1` passes and so
+is what its `latest.log` has. A player's chat is logged as `<NAME> text` on
+the server thread and as `[CHAT]` on the render thread, so it is never the
+line. The integrated server does log some text as it is, line breaks and all
+(a named mob's death, a `/say` naming it), so a custom name can write a whole
+line of its own, a first-trip line or a `[CHAT]` line included (round 4): the
+footing stage's record of first trips is the answer to that, and as a guard
+besides, in a log whose lines end CR LF (log4j on Windows) a line after one
+that ended in a bare LF is inside a message and is read as nothing. Which
+line end a log has is decided from every line end in its last 64 KiB when
+reading starts, and kept when the log starts anew (round 5): one line alone
+can be the inside of a message being written, or a new log's first event, a
+named mob's death ending in its name's bare LF. Every
+pattern is matched case-sensitively, and every kind of answer is matched whole,
+the player's own reads by the player's name (round 5: a pet's death message,
+its name and its killer's given with an anvil, was taken for the Vale's
+answer). The client's `Loaded N advancements` is not read: it comes only with an
+advancement update, and a change of world sends none. A new log (the midnight
+rollover, or a restarted client) is told by its first bytes and by the bytes
+before the read offset, not by its length; it is read from its start, and
+every command still open is failed, never credited.
+
+The world's record of its trips, since round 5: elysium-wilds keeps in
+ValeLinks, its own saved data, how many first trips the world has had, the
+latest one's line, and for each player how many ways out of the Vale put them
+at the world's spawn for want of a way in on record; `/elysium vale trips`
+(operators) answers it in one line, `Vale trips: first N, out to spawn M, last
+LINE`, and writes nothing. The stages do not stand against an operator who
+sets out to fool them (one can move the player, set blocks, or write whole lines
+into the log past every guard with a CR LF in a mob's name); `answers.ps1` says
+what they do stand against.
 
 Stages from the 26-28 September sessions, kept here because the by-hand run
 PLAYTEST.md still owes needs their rigs (none rerun since; expect anchors and

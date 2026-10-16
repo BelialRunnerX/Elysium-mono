@@ -32049,6 +32049,10 @@
    [
     "harvest audit",
     "/elysium audit harvest asks the running game about every block of every module, and writes the whole list to logs/harvest-audit.txt"
+   ],
+   [
+    "set bonus effects",
+    "… wielder effect(s) in … gear set(s), each at a level the engine gives"
    ]
   ],
   "item_models": [

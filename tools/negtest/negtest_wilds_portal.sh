@@ -22,6 +22,7 @@ VF=$J/block/ValeFrameBlock.java
 VB=$J/block/ValePortalBlock.java
 VT=$J/level/ValeTravel.java
 VL=$J/level/ValeLinks.java
+VC=$J/command/ValeCommand.java
 WB=$J/registry/WildBlocks.java
 WI=$J/registry/WildItems.java
 MW=$J/ElysiumWilds.java
@@ -309,6 +310,221 @@ edit $VT '            links.link(here.dimension(), anchor, arrival);
 ' ''
 expect "a ring's Vale side never filed" "no longer searches once and files"
 
+# The first-trip line (16 Oct 2026): the live footing stage proves a ring's first
+# trip, and a fresh search's footing, by this one line and by the world's own
+# record of it (round 4: a named entity's death can write a copy of an old line
+# into the client's log, so the line is kept in command storage too).
+edit $VT '            ElysiumWilds.LOGGER.info("{}", said);
+' ''
+expect "a ring's first trip that says nothing" "is not said at INFO in the log"
+
+edit $VT '            ElysiumWilds.LOGGER.info("{}", said);' '            ElysiumWilds.LOGGER.debug("{}", said);'
+expect "the first-trip line said at debug, under the client log's INFO floor" "is not said at INFO in the log"
+
+edit $VT '                    arrival.anchor().getX(), arrival.anchor().getY(), arrival.anchor().getZ(),' \
+         '                    anchor.getX(), anchor.getY(), anchor.getZ(),'
+expect "the first-trip line naming the ring where its Vale side belongs" "is not said at INFO in the log"
+
+edit $VT '"Vale first trip: player %s ring %s %d %d %d side %d %d %d axis %s %s"' \
+         '"Vale first trip: %s ring %s %d %d %d side %d %d %d axis %s %s"'
+expect "the first-trip line reworded under the stages that read it" "not in the fixed form the live stages read"
+
+edit $VT '            boolean standing = settled.standing();' '            boolean standing = false;'
+expect "a reused ring called built" "is not the settling's own word"
+
+# Round 4, M1: the anchor-only test, which called a ring whose anchor cell was
+# broken by hand built though the search found it standing and used it.
+edit $VT '            boolean standing = settled.standing();' '            boolean standing = ValePortal.stands(vale, arrival.anchor());'
+expect "whether the side was standing asked of its anchor cell alone" "is not the settling's own word"
+
+edit $VT 'new Settled(new ValeLinks.Arrival(there.anchor(), there.axis()), true);' \
+         'new Settled(new ValeLinks.Arrival(there.anchor(), there.axis()), false);'
+expect "a ring the search found standing said to be built" "is not said to be standing"
+
+edit $VT '        return new Settled(on(vale, column, axis), false);' '        return new Settled(on(vale, column, axis), true);'
+expect "the side built on the sea said to be a ring already standing" "has no far side at all, or the side built there"
+
+edit $VT '        return standing != null ? standing : new Settled(on(vale, spot, axis), false);' \
+         '        return standing != null ? standing : new Settled(on(vale, spot, axis), true);'
+expect "the side built at the settled column said to be a ring already standing" "is built over, or the side built there"
+
+edit $VT '            String said = String.format(Locale.ROOT, FIRST_TRIP, player.getGameProfile().getName(),
+                    here.dimension().location(), anchor.getX(), anchor.getY(), anchor.getZ(),
+                    arrival.anchor().getX(), arrival.anchor().getY(), arrival.anchor().getZ(),
+                    arrival.axis().getName(), standing ? "standing" : "built");
+            ElysiumWilds.LOGGER.info("{}", said);
+            links.firstTrip(said);
+        }
+' '        }
+        String said = String.format(Locale.ROOT, FIRST_TRIP, player.getGameProfile().getName(),
+                here.dimension().location(), anchor.getX(), anchor.getY(), anchor.getZ(),
+                arrival.anchor().getX(), arrival.anchor().getY(), arrival.anchor().getZ(),
+                arrival.axis().getName(), "built");
+        ElysiumWilds.LOGGER.info("{}", said);
+        links.firstTrip(said);
+'
+expect "the first-trip line said and kept on every trip" "saying so once in the log"
+
+edit $VT '        teleport(player, server, vale, Vec3.atBottomCenterOf(landing), facing(arrival.axis(), onward));
+' '        teleport(player, server, vale, Vec3.atBottomCenterOf(landing), facing(arrival.axis(), onward));
+        ElysiumWilds.LOGGER.info(String.format(Locale.ROOT, FIRST_TRIP, player.getGameProfile().getName(), "", 0, 0, 0, 0, 0, 0, "x", "built"));
+'
+expect "a second trip through a ring that logs a first trip too" "named somewhere other than its one declaration"
+
+edit $VT '        teleport(player, server, vale, Vec3.atBottomCenterOf(landing), facing(arrival.axis(), onward));
+' '        teleport(player, server, vale, Vec3.atBottomCenterOf(landing), facing(arrival.axis(), onward));
+        ElysiumWilds.LOGGER.info("Vale first trip: player {} ring {} 0 0 0 side 0 0 0 axis x built", player.getGameProfile().getName(), "");
+'
+expect "a second trip that writes the first-trip line out by hand" "named somewhere other than its one declaration"
+
+# Round 4, F1v and F1n, and round 5, OP1: the world's own record of first trips,
+# which the footing stage reads before the gate and after the crossing, so a copy
+# of an old line written into the log by a named entity's death is not taken for
+# a first trip. Kept in ValeLinks since round 5: command storage, where it was,
+# is what any operator's /data modify writes.
+edit $VT '            links.firstTrip(said);
+' ''
+expect "a first trip not kept in the world's record" "is not kept in the world's own record of first trips"
+
+edit $VT '        teleport(player, server, vale, Vec3.atBottomCenterOf(landing), facing(arrival.axis(), onward));
+' '        teleport(player, server, vale, Vec3.atBottomCenterOf(landing), facing(arrival.axis(), onward));
+        links.firstTrip("");
+'
+expect "every trip kept in the record of first trips" "is not kept in the world's own record of first trips"
+
+edit $VT '            links.firstTrip(said);
+' '            links.firstTrip(said);
+            server.getCommandStorage().set(ResourceLocation.fromNamespaceAndPath(ElysiumWilds.MODID, "trips"), new net.minecraft.nbt.CompoundTag());
+'
+expect "the first trips kept in command storage too, where /data modify writes" "is kept in command storage, which any operator"
+
+edit $VL '    /** How many first trips the world has had. */' '    public void mirror(MinecraftServer server) {
+        server.getCommandStorage().set(ResourceLocation.fromNamespaceAndPath("elysiumwilds", "trips"), new CompoundTag());
+    }
+
+    /** How many first trips the world has had. */'
+expect "ValeLinks copying its record into command storage" "is kept in command storage, which any operator"
+
+edit $VL '        firstTrips += 1;' '        firstTrips = 1;'
+expect "the record's count not advanced" "does not count one more for each first trip"
+
+edit $VL '        lastFirstTrip = said;' '        lastFirstTrip = "";'
+expect "the record without the line" "does not keep the line the latest one logged"
+
+edit $VL '        lastFirstTrip = said;
+        setDirty();' '        lastFirstTrip = said;'
+expect "a first trip kept and never marked to be saved" "a first trip kept in the record is not marked to be saved"
+
+# Round 5, RZ1: each way out of the Vale to the world's spawn, counted for the
+# player in the same record, which the vale stage reads before the gate and at
+# home: the log line saying so is lost with a log that rolled over at midnight.
+edit $VL '        outToSpawn.merge(player, 1, Integer::sum);' '        outToSpawn.put(player, 1);'
+expect "a player's ways out to the spawn counted as one for ever" "is not counted one more for the player"
+
+edit $VL '        outToSpawn.merge(player, 1, Integer::sum);
+        setDirty();' '        outToSpawn.merge(player, 1, Integer::sum);'
+expect "a way out to the spawn counted and never marked to be saved" "counted in the record is not marked to be saved"
+
+edit $VL '        return firstTrips;' '        return 0;'
+expect "the record's first trips read back as nought" "firstTrips does not read back what the record keeps"
+
+edit $VL '        return lastFirstTrip;' '        return "";'
+expect "the record's last line read back as nothing" "lastFirstTrip does not read back what the record keeps"
+
+edit $VL '        return outToSpawn.getOrDefault(player, 0);' '        return 0;'
+expect "a player's ways out to the spawn read back as nought" "outToSpawnFor does not read back what the record keeps"
+
+edit $VL '        tag.putInt("FirstTrips", firstTrips);
+' ''
+expect "the record's first trips never saved" "is not saved and read back whole"
+
+edit $VL '        tag.putString("LastFirstTrip", lastFirstTrip);
+' ''
+expect "the record's last line never saved" "is not saved and read back whole"
+
+edit $VL '            one.putInt("Count", entry.getValue());
+' ''
+expect "a player's ways out to the spawn saved without their number" "is not saved and read back whole"
+
+edit $VL '        tag.put("OutToSpawn", spawned);
+' ''
+expect "the ways out to the spawn never saved" "is not saved and read back whole"
+
+edit $VL '        data.firstTrips = tag.getInt("FirstTrips");
+' ''
+expect "the record's first trips never read back" "is not saved and read back whole"
+
+edit $VL '        data.lastFirstTrip = tag.getString("LastFirstTrip");
+' ''
+expect "the record's last line never read back" "is not saved and read back whole"
+
+edit $VL '        ListTag spawned = tag.getList("OutToSpawn", Tag.TAG_COMPOUND);' '        ListTag spawned = new ListTag();'
+expect "the ways out to the spawn never read back" "is not saved and read back whole"
+
+edit $VL '                data.outToSpawn.put(one.getUUID("Player"), one.getInt("Count"));
+' ''
+expect "a player's ways out to the spawn read and dropped" "is not saved and read back whole"
+
+edit $VT '            links.outToSpawn(player.getUUID());
+' ''
+expect "a way out to the spawn not counted" "is not counted in the world's record, once"
+
+edit $VT '        teleport(player, server, home, back.where(), back.facing());' '        links.outToSpawn(player.getUUID());
+        teleport(player, server, home, back.where(), back.facing());'
+expect "the way back counted as a way out to the spawn" "is not counted in the world's record, once"
+
+edit $VT '        ValeLinks links = ValeLinks.get(server);
+        ValeLinks.Return back = links.returnFor(player.getUUID());' '        ValeLinks links = new ValeLinks();
+        ValeLinks.Return back = ValeLinks.get(server).returnFor(player.getUUID());'
+expect "a way out to the spawn counted in a record the world does not keep" "is not counted in the world's record, once"
+
+# Round 5, OP1 and RZ1: /elysium vale trips, the one way the live stages read the
+# record, in one fixed line, for operators, and writing nothing.
+rm -f $VC
+expect "no command to read the record" "there is no /elysium vale trips"
+
+edit $VC '        event.getDispatcher().register(root());
+' ''
+expect "the record's command written and never registered" "is written and never registered"
+
+edit $VC '@EventBusSubscriber(modid = ElysiumWilds.MODID)
+' ''
+expect "the record's command off the bus" "is written and never registered"
+
+edit $VC 'Commands.literal("trips")' 'Commands.literal("trip")'
+expect "the record's command under another name" "is not read by /elysium vale trips, for operators"
+
+edit $VC '                .requires(source -> source.hasPermission(2))
+' ''
+expect "the record read by anybody at all" "is not read by /elysium vale trips, for operators"
+
+edit $VC '"Vale trips: first %d, out to spawn %d, last %s"' '"Vale trips: %d first, out to spawn %d, last %s"'
+expect "the record's line reworded under the stages that read it" "not in the fixed form the live stages read (Vale trips"
+
+edit $VC '        ServerPlayer player = source.getPlayerOrException();' '        ServerPlayer player = source.getServer().getPlayerList().getPlayers().get(0);'
+expect "the ways out to the spawn answered for some other player" "does not answer the world's record as it stands"
+
+edit $VC '        ValeLinks links = ValeLinks.get(source.getServer());' '        ValeLinks links = new ValeLinks();'
+expect "the record answered from an empty one" "does not answer the world's record as it stands"
+
+edit $VC '? "none" : links.lastFirstTrip();' '? "" : links.lastFirstTrip();'
+expect "no first trip yet answered as an empty last line" "does not answer the world's record as it stands"
+
+edit $VC 'links.outToSpawnFor(player.getUUID()), last);' '0, last);'
+expect "the ways out to the spawn answered as nought" "does not answer the world's record as it stands"
+
+edit $VC '        source.sendSuccess(() -> Component.literal(said), false);
+' ''
+expect "the record never answered" "does not answer the world's record as it stands"
+
+edit $VC '        source.sendSuccess(() -> Component.literal(said), false);' '        source.sendSuccess(() -> Component.literal(said), false);
+        links.firstTrip(said);'
+expect "the record's command adding a first trip to what it reads" "writes to what it reads"
+
+edit $VC '        source.sendSuccess(() -> Component.literal(said), false);' '        source.sendSuccess(() -> Component.literal(said), false);
+        links.setDirty();'
+expect "the record's command marking what it reads to be saved" "writes to what it reads"
+
 edit $VT '        if (!ValePortal.stands(vale, arrival.anchor())) {' '        if (false) {'
 expect "a Vale side never built" "arrives with no way back"
 
@@ -341,16 +557,16 @@ expect "every column dry as far as the trip can tell" "a lake can count as groun
 edit $VT '        return vale.getBlockState(under).isFaceSturdy(vale, under, Direction.UP);' '        return true;'
 expect "a fence post called ground by the trip" "holds nobody up is called ground"
 
-edit $VT '        return on(vale, column, axis);
+edit $VT '        return new Settled(on(vale, column, axis), false);
     }' '        return null;
     }'
 expect "no settling for the column found when all of it is sea" "all sea has no far side at all"
 
-edit $VT '        ValeLinks.Arrival standing = standingBy(vale, groundAt(vale, column));
+edit $VT '        Settled standing = standingBy(vale, groundAt(vale, column));
         if (standing != null) {
             return standing;
         }
-        PortalRules.Column dry' '        ValeLinks.Arrival standing = null;
+        PortalRules.Column dry' '        Settled standing = null;
         PortalRules.Column dry'
 expect "a ring already standing built over" "built over it and breaks it"
 
@@ -359,7 +575,7 @@ edit $VT '        PortalRules.Column far = PortalRules.nearestFarDry(footing(val
 expect "the far stage dropped from the trip" "a hundred blocks from land"
 
 edit $VT '            near = near(vale, column.offset(shore.east(), 0, shore.south()), axis);' \
-         '            near = on(vale, column.offset(shore.east(), 0, shore.south()), axis);'
+         '            near = new Settled(on(vale, column.offset(shore.east(), 0, shore.south()), axis), false);'
 expect "a far shore built on without settling" "somewhere other than the shore found"
 
 echo "the footing"
@@ -393,11 +609,11 @@ edit $R '        for (int stride = 0; stride <= SETTLE_IN_BLOCKS; stride++) {' \
         '        for (int stride = 0; stride <= SETTLE_IN_BLOCKS * 3; stride++) {'
 expect_h "a settling that walks past its reach" "past 12"
 
-edit $VT '        ValeLinks.Arrival near = near(vale, column, axis);
+edit $VT '        Settled near = near(vale, column, axis);
         if (near != null) {
             return near;
         }
-' '        ValeLinks.Arrival near;
+' '        Settled near;
 '
 expect "the far stage before the near one" "walked off to a far shore"
 

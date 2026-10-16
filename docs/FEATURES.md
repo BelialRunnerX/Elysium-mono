@@ -6510,7 +6510,7 @@ Elysium Comforts: the small mercies. A grave that holds everything you were carr
 
 Elysium: a character and gear progression mod. Twelve stats, six races and nine classes chosen on first join; tiered elemental armour, weapons and area tools; socketable runes with material alignment; reforging and ascension that scale without a ceiling; and two opposed faction standings that drive spawning and loot. Optional hooks for Apotheosis, Silent Gear and Legendary Tooltips.
 
-15 blocks, 382 items, 2 creatures, 6 world features; 385 recipes; 32 validated mechanics.
+15 blocks, 382 items, 2 creatures, 6 world features; 385 recipes; 33 validated mechanics.
 
 ### Blocks (15)
 
@@ -6937,7 +6937,7 @@ Elysium: a character and gear progression mod. Twelve stats, six races and nine 
 | `swarm_spawner` |  |
 | `voidglass_ore` |  |
 
-### Mechanics the validator executes (32)
+### Mechanics the validator executes (33)
 
 * **blocks registered**: …
 * **items registered**: …
@@ -6971,6 +6971,7 @@ Elysium: a character and gear progression mod. Twelve stats, six races and nine 
 * **starting kit**: one gift table, given once, remembered through death, and the codex left to the library's join handler
 * **the tier command**: the tier, where it came from, and what it is worth
 * **harvest audit**: /elysium audit harvest asks the running game about every block of every module, and writes the whole list to logs/harvest-audit.txt
+* **set bonus effects**: … wielder effect(s) in … gear set(s), each at a level the engine gives
 
 ## Elysium Dungeons — elysium-dungeons (`elysiumdungeons`)
 
