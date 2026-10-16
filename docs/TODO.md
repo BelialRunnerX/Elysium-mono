@@ -39,8 +39,15 @@ that the script re-creates. Nothing durable goes in %TEMP% or `C:\tmp` again.
 them): `ElysiumServer`, the dedicated server the live suite drives over RCON,
 and `Elysium`, the dev client the stages drive. The E: drive that held them and
 the second mirror was lost on 14 October 2026, and they were rebuilt on C:.
+The server runs NeoForge 21.1.248 on JDK 21 (by full path in `run.bat`; a JDK 25
+is also installed) and its `server.properties` must have `server-ip=127.0.0.1`,
+`enable-rcon=true` (port 25575, password `elysiumtest`) and `max-tick-time=-1`
+- the world scenario's biome searches outlast the default 60-second watchdog,
+which killed the rebuilt server mid-suite until it was set (15 Oct).
+`tools/livetest/livetest.py` refuses to start without those three.
 
-To check a copy: `ls -d elysium-*` counts 29 and `ls tools/negtest/*.sh` 212.
+To check a copy: `ls -d elysium-*` counts 29 and `ls tools/negtest/*.sh` counts
+what `tools/negtest/README.md` says.
 
 **Read the dated trail first:** `docs/handoff/2026-09-28-questbook-handoff.md`,
 then `docs/CONVERSION.md` §16.15–16.16 and §17, then `docs/PLAYTEST.md`.

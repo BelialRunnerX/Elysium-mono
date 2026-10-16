@@ -246,6 +246,35 @@ def settled(rcon, verbose=False):
     return last
 
 
+# --- the server's own settings ---------------------------------------------
+#
+# What the dedicated test server must be set to for the suite to mean anything.
+# The rebuilt server of 14 Oct 2026 missed max-tick-time=-1, and the world
+# scenario's /locate biome (a +-100k grid; one search can take over a minute)
+# tripped the 60-second watchdog, which killed the server mid-suite and left
+# every later scenario unrun. Checked before anything is sent.
+REQUIRED_PROPERTIES = {
+    "max-tick-time": "-1",
+    "enable-rcon": "true",
+    "server-ip": "127.0.0.1",
+}
+
+
+def server_settings_problems(server_dir=SERVER_DIR):
+    """What in the server's server.properties would spoil a run, as sentences (empty when fine)."""
+    path = os.path.join(server_dir, "server.properties")
+    if not os.path.isfile(path):
+        return [f"there is no {path}; set ELYSIUM_TEST_ROOT to the folder holding ElysiumServer"]
+    found = {}
+    with open(path, encoding="utf-8", errors="replace") as f:
+        for line in f:
+            if "=" in line and not line.lstrip().startswith("#"):
+                key, _, value = line.strip().partition("=")
+                found[key] = value
+    return [f"{path} has {key}={found.get(key, '(unset)')}; the suite needs {key}={want}"
+            for key, want in REQUIRED_PROPERTIES.items() if found.get(key) != want]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--host", default="127.0.0.1")
@@ -260,6 +289,12 @@ def main():
     # name, so point that name at this very module or they register nowhere.
     sys.modules["livetest"] = sys.modules[__name__]
     importlib.import_module("scenarios")
+    problems = server_settings_problems()
+    if problems:
+        for problem in problems:
+            print(f"server settings: {problem}")
+        print("live tests: not run - fix the server's settings and restart it")
+        return 2
     rcon = Rcon(args.host, args.port, args.password)
     rcon.cmd("gamerule sendCommandFeedback true")
     rcon.cmd("time set 6000")

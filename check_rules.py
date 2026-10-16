@@ -52,11 +52,19 @@ place:
     loop over it binds; so does one entry of any collection of bodies (lib's
     `_mb_rank, _mb_req = _rooms_found["MED_BAY"]` out of a dict of regex
     captures), column by column where its rows are tuples, so a column that
-    holds a whole file is not taken for one;
+    holds a whole file is not taken for one; and so does one entry looked up
+    with `.get`, in place or named first, of a dict whose entries are bodies
+    (atelier's `statement not in roster_bodies.get(roster, "")`, a dict of
+    method bodies filled in a loop) — a dict of whole files is not one;
   - a regex capture, `m.group(n)` — lib's `_body = _appl.group(1)`;
   - a cut of a string: `text[text.find(...):]`, `text[a:b]` with a bound that
     is not a constant, `text.split(...)[i]`, `head, body = text.split(...)`,
     and each piece a loop takes from a split (`for method in re.split(...)`);
+  - each capture a loop takes from a `findall`, the same way as a piece of a
+    split: core's `for _lvl in re.findall(...)`, flora's `for name, body in
+    re.findall(...)` (every column, since every one is a capture), lib's
+    `any(not c.strip().endswith(...) for c in _ctors)` over a list of them
+    named first, and `re.findall(...)[i]` or `a, b = re.findall(...)`;
   - anything made from a body by reshaping it: `squashed(body)`,
     `strip_comments(body)`, `re.sub(..., body)`, `body.replace(...)`,
     `" ".join(body.split())`, `prefix + body`, `body if x else ""`, a function
@@ -78,7 +86,11 @@ another way — or was written in single quotes — never reached the ratchet, a
 half-statement rules read as zero. Helpers judged by what they return, the
 pieces of a split, functions that reshape, loop rows and helper parameters were
 added on 16 October 2026, after a review and then a sweep of every validator
-and root check found rules in this tree written each of those ways.
+and root check found rules in this tree written each of those ways. The
+captures of a `findall` and `.get` on a dict of bodies were added later the
+same day, when a second review found both in the tree and unread by the
+sweep (loops over captures in core, lib, colonies, flora and check_use_paths;
+`.get` in atelier), none of them hiding a half-statement.
 
 A literal is a single- or double-quoted string, adjacent strings joined, or an
 f-string or `+` whose pieces are literals or names bound to literals (expanded,
@@ -136,7 +148,9 @@ This is a lint over validator source, not a proof about it. It reads the forms
 listed above, which are every form a validator or root check in this tree used
 on 16 October 2026: a sweep listed every `in`, find, count, startswith and
 regex test whose haystack is derived from a body and looked at each one this
-did not read. It cannot read every way Python can spell a test, and does not
+did not read, and a second review found two kinds of body the sweep had not
+derived (findall captures and `.get`, above). It cannot read every way Python
+can spell a test, and does not
 try: an adversarial review the same day wrote thirty-four more spellings it
 misses, none of them in the tree, and they were deliberately not chased. What
 it does not see, among others:
@@ -149,8 +163,10 @@ it does not see, among others:
     pattern is read, counted and never suspect, since it is not this check's
     business; and `re.match` / `re.fullmatch`, which are not read at all (every
     one in the tree is such a pattern);
-  - a body held in an attribute, a class or a closure, or looked up in a dict
-    by a computed key; a helper passed around as a value, called through
+  - a body held in an attribute, a class or a closure; an entry of a
+    collection of bodies indexed in place inside the test (`"x(" in
+    bodies["a"]`, `"x(" in captures[0]`) rather than named first or looked up
+    with `.get`; a helper passed around as a value, called through
     another name, or followed more than two calls deep; a cutting helper named
     for it (BODY_HELPER), whose own searches are the cut, not a rule;
   - a test made inside `lambda`, `map`, `filter`, `operator.contains` or
@@ -167,9 +183,11 @@ it does not see, among others:
     of interest (`if "/models/" in path: continue`) reads as requiring its
     text, which errs the other way.
 
-The sweep's leftovers in this tree are the computed needles, the patterns and
-the tests handed back in a tuple above, and membership tests of lists, sets and
-dicts, which are not tests of text at all.
+What is left unread in this tree, after the sweep and the second review, is
+the computed and data-driven needles, the patterns and the tests handed back
+in a tuple above, and membership tests of lists, sets and dicts, which are not
+tests of text at all. The two entries the tree indexes in place (bestiary's
+`needed[0]`, lib's `_mapped[0]`) are searched with patterns, not for text.
 
 So the house rule for validator code is the other half of this check: write a
 rule as `"<whole statement>" in <body>`, or one of the forms above, so this can
@@ -199,8 +217,10 @@ RESHAPES = {"squashed", "strip_comments", "strip_java_comments", "dedent", "sub"
             "strip", "lstrip", "rstrip", "lower", "upper", "removeprefix", "removesuffix",
             "expandtabs", "str", "join", "split", "rsplit", "splitlines"}
 
-#: Calls whose pieces are cuts of the text they split.
-CUTS = {"split", "rsplit", "partition", "rpartition"}
+#: Calls whose pieces are cuts of the text they are handed: the pieces of a
+#: split, and the captures of a `findall` (`re.findall(pattern, text)` or
+#: `PATTERN.findall(text)`), each of which is some of the text and not all of it.
+CUTS = {"split", "rsplit", "partition", "rpartition", "findall"}
 
 #: Calls that hand a collection back as another collection of the same things.
 CARRIES = {"sorted", "list", "tuple", "set", "frozenset", "reversed", "enumerate", "zip", "dict"}
@@ -268,7 +288,10 @@ def is_body(node, bodies, more=None):
                 operands.append(node.func.value)
             if any(is_body(operand, bodies, more) for operand in operands):
                 return True
-        return more is not None and isinstance(node.func, ast.Name) and more(node)
+        # A helper of the validator's own, or one entry of a dict of bodies
+        # looked up by `.get` (atelier's `roster_bodies.get(roster, "")`).
+        return more is not None and (isinstance(node.func, ast.Name) or name == "get") \
+            and more(node)
     if isinstance(node, ast.Subscript):
         value = node.value
         if isinstance(value, ast.Call) and isinstance(value.func, ast.Attribute) \
@@ -322,9 +345,21 @@ def _positional(function):
 
 
 def _pieces(node):
-    """Whether a value is the pieces of a split: each one is a cut."""
+    """Whether a value is the pieces of a split or the captures of a findall: each one is a cut."""
     return isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) \
         and node.func.attr in CUTS
+
+
+def _looked_up(node, holders, columns):
+    """Whether a call is `bodies.get(key)` or `bodies.get(key, "")`: one entry of a dict of bodies.
+
+    Only of a dict whose entries are bodies themselves, not rows of them: an
+    entry of `HOW_BUILT` is a tuple, and a tuple is not a body.
+    """
+    return isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) \
+        and node.func.attr == "get" and 1 <= len(node.args) <= 2 and not node.keywords \
+        and isinstance(node.func.value, ast.Name) and node.func.value.id in holders \
+        and node.func.value.id not in columns
 
 
 def _bindings(nodes):
@@ -428,8 +463,12 @@ class Cuts:
                 sum(len(found) for found in self.passes.values()),
                 sum(sum(flags) for flags in self.columns.values()))
 
-    def more(self, node, bodies=None):
-        """A call to a function of the validator's own that hands back a body."""
+    def more(self, node, bodies=None, holders=None):
+        """A call to a function of the validator's own that hands back a body,
+        or one entry of a dict of bodies looked up by `.get`."""
+        holders = self.holders if holders is None else holders
+        if _looked_up(node, holders, self.columns):
+            return True
         if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)):
             return False
         name = node.func.id
@@ -437,12 +476,13 @@ class Cuts:
             return True
         bodies = self.bodies if bodies is None else bodies
         return any(index < len(node.args)
-                   and is_body(node.args[index], bodies, lambda inner: self.more(inner, bodies))
+                   and is_body(node.args[index], bodies,
+                               lambda inner: self.more(inner, bodies, holders))
                    for index in self.passes.get(name, ()))
 
     def holds(self, value, bodies, holders):
         """Whether a value is a collection with a body in it."""
-        more = lambda node: self.more(node, bodies)   # noqa: E731
+        more = lambda node: self.more(node, bodies, holders)   # noqa: E731
 
         def has(element):
             if isinstance(element, ast.Starred):
@@ -499,7 +539,7 @@ class Cuts:
             holders.update(names)
 
     def _settle(self, assigned, loops, fills, bodies, holders):
-        more = lambda node: self.more(node, bodies)   # noqa: E731
+        more = lambda node: self.more(node, bodies, holders)   # noqa: E731
         for names, value, unpacked in assigned:
             if (unpacked and _pieces(value)) or is_body(value, bodies, more):
                 bodies.update(names)
@@ -568,7 +608,8 @@ class Cuts:
                     return bodies, holders
 
         bodies, holders = analysed(())
-        if any(is_body(value, bodies, lambda node: self.more(node, bodies)) for value in returns):
+        if any(is_body(value, bodies, lambda node: self.more(node, bodies, holders))
+               for value in returns):
             self.cutters.add(name)
             return
         if any(self.holds(value, bodies, holders) for value in returns):
@@ -577,8 +618,9 @@ class Cuts:
         for index, param in enumerate(_positional(function)):
             if index in self.passes.get(name, ()):
                 continue
-            bodies, _ = analysed((param,))
-            if any(is_body(value, bodies, lambda node: self.more(node, bodies)) for value in returns):
+            bodies, holders = analysed((param,))
+            if any(is_body(value, bodies, lambda node: self.more(node, bodies, holders))
+                   for value in returns):
                 self.passes.setdefault(name, set()).add(index)
 
     def cutting(self, name):
@@ -957,6 +999,10 @@ class Reading:
     def more(self, node):
         """A body the flat set of names cannot see: a helper's, a parameter's, a row's."""
         if isinstance(node, ast.Call):
+            if _looked_up(node, self.cuts.holders, self.cuts.columns):
+                return True
+            if not isinstance(node.func, ast.Name):
+                return False
             name = node.func.id
             if name in self.cuts.cutters:
                 return True
