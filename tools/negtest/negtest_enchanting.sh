@@ -32,7 +32,7 @@ p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
 s = open(p).read()
 assert old in s, 'anchor not found in ' + p
 open(p,'w').write(s.replace(old, new, 1))
-" "$@"; }
+" "$@" || { echo "STALE ANCHOR: $1"; fail=$((fail+1)); }; }
 
 # Extracting alone would leave behind any file a break *added*, so the two
 # directories are removed first: a restore that only overwrites is a restore

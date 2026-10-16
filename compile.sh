@@ -130,10 +130,26 @@ for module in $MODULES; do
     find "$module/src/main/java" -name '*.java' > "$OUT/$module.srcs"
     count=$(wc -l < "$OUT/$module.srcs")
 
+    # What javac read, by content: the git blob id of every listed file, taken
+    # just before javac and again just after, and kept as $module.sha only when
+    # the two agree. tools/negtest/parallel.py takes these classes for a compile
+    # of a commit only by this record. An mtime cannot say it: a negtest that
+    # breaks a module and restores it with tar x puts the old mtime back too.
+    rm -f "$OUT/$module.sha"
+    read_before="$(git hash-object --no-filters --stdin-paths < "$OUT/$module.srcs" 2>/dev/null)"
+
     javac -nowarn -proc:none -d "$OUT/$module" -cp "$CP" \
           @"$OUT/$module.srcs" 2> "$OUT/$module.log"
     status=$?
     grep -v 'JAVA_TOOL_OPTIONS\|^Note:' "$OUT/$module.log"
+
+    read_after="$(git hash-object --no-filters --stdin-paths < "$OUT/$module.srcs" 2>/dev/null)"
+    if [ "$read_before" = "$read_after" ] && \
+            [ "$(printf '%s' "$read_before" | grep -c .)" -eq "$count" ]; then
+        paste -d' ' <(printf '%s\n' "$read_before") "$OUT/$module.srcs" > "$OUT/$module.sha"
+    else
+        echo "      (no $module.sha: a file changed while javac read it, or git could not hash them)"
+    fi
 
     if [ "$status" -eq 0 ]; then
         echo "ok    $module ($count files)"

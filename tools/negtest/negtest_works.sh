@@ -24,7 +24,7 @@ echo "baseline clean"
 try() { # label, validator(lib|core), expected, python edit
   local label="$1" which="$2" want="$3" edit="$4"
   snap
-  if ! python3 -c "$edit"; then echo "SETUP FAILED: $label"; restore; return; fi
+  if ! python3 -c "$edit"; then echo "SETUP FAILED: $label"; miss=$((miss+1)); restore; return; fi
   if timeout 1700 python3 elysium-$which/validate.py 2>&1 | grep -qF "$want"; then
     echo "CAUGHT : $label"; pass=$((pass+1))
   else
@@ -114,3 +114,4 @@ try "absorb registers nothing" core "no longer asks ElysiumWorks" "$R
 rep('$B', 'int cleared = com.elysium.lib.works.ElysiumWorks.of(level).registered(claim);', 'int cleared = 0;')"
 
 echo "---- caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

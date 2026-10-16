@@ -6,7 +6,7 @@ pass=0; miss=0
 try() {
   local label="$1" want="$2" file="$3" old="$4" new="$5"
   cp "$file" /tmp/_abs_backup.java
-  python3 - "$file" "$old" "$new" <<'PY' || { echo "SETUP FAILED: $label"; cp /tmp/_abs_backup.java "$file"; return; }
+  python3 - "$file" "$old" "$new" <<'PY' || { echo "SETUP FAILED: $label"; miss=$((miss+1)); cp /tmp/_abs_backup.java "$file"; return; }
 import sys
 p, old, new = sys.argv[1:4]
 s = open(p, encoding="utf-8").read()
@@ -30,3 +30,4 @@ try "the barrier rune set straight" "ElysiumRunes.java" \
   "com.elysium.lib.combat.ElysiumAbsorption.set(player, Math.min(cap, current + BARRIER_RECHARGE * scale));" "player.setAbsorptionAmount(Math.min(cap, current + BARRIER_RECHARGE * scale));"
 
 echo "---- caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

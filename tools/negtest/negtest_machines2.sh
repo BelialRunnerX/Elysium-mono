@@ -20,11 +20,17 @@ expect() {   # name, substring that must appear
   fi
 }
 
+# A phrase that is absent proves nothing unless the validator finished: a crash
+# or a kill prints no phrase either (16 Oct). So the validator must also pass,
+# with its own last line, before a must-not-flag case counts.
 reject() {   # name, substring that must NOT appear
-  local name="$1" unwanted="$2" got
-  got="$(out)"
+  local name="$1" unwanted="$2" got code
+  got="$(out)"; code=$?
   if printf '%s' "$got" | grep -qF -- "$unwanted"; then
     echo "  FALSE+ : $name"; fail=$((fail+1))
+  elif [ "$code" -ne 0 ] || ! printf '%s' "$got" | grep -qF -- "all solarpunk checks passed"; then
+    echo "  MISSED : $name (validate.py did not finish with its pass line: exit $code, ${#got} byte(s))"
+    fail=$((fail+1))
   else
     echo "  quiet  : $name"; pass=$((pass+1))
   fi
@@ -36,7 +42,7 @@ p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
 s = open(p).read()
 assert old in s, 'anchor not found in ' + p
 open(p, 'w').write(s.replace(old, new, 1))
-" "$@"; }
+" "$@" || { echo "STALE ANCHOR: $1"; fail=$((fail+1)); }; }
 
 echo "capability registration"
 cp $M/SolarpunkMachines.java /tmp/sm.bak

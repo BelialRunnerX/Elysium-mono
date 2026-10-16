@@ -20,7 +20,7 @@ echo "baseline clean"
 try() {
   local label="$1" want="$2" edit="$3"
   snap
-  if ! python3 -c "$edit"; then echo "SETUP FAILED: $label"; restore; return; fi
+  if ! python3 -c "$edit"; then echo "SETUP FAILED: $label"; miss=$((miss+1)); restore; return; fi
   if timeout 1700 python3 elysium-lib/validate.py 2>&1 | grep -qF "$want"; then
     echo "CAUGHT : $label"; pass=$((pass+1))
   else
@@ -87,3 +87,4 @@ rep('$I', 'if (count(kind) < kind.stack()) {', 'if (true) {')"
 try "registry in the rule" "takes the whole system out of the tests" "$R_
 rep('$D', 'package com.elysium.lib.medical;', 'package com.elysium.lib.medical;\n\nimport net.neoforged.neoforge.attachment.AttachmentType;')"
 echo "---- caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

@@ -8,7 +8,7 @@ restore() { rm -rf $S/craft; cp -r /tmp/_cf/craft $S/craft; cp /tmp/_cf/ElysiumC
 try() {
   local label="$1" want="$2" break_it="$3"
   snap
-  bash -c "$break_it" || { echo "SETUP FAILED: $label"; restore; return; }
+  bash -c "$break_it" || { echo "SETUP FAILED: $label"; miss=$((miss+1)); restore; return; }
   if timeout 1800 python3 validate.py 2>&1 | grep -qF "$want"; then
     echo "CAUGHT : $label"; pass=$((pass+1))
   else
@@ -79,3 +79,4 @@ try "the counting ceiling put below mastery" "they are one number written twice"
   "sed -i 's|    public static final int COUNT_CEILING = 129;|    public static final int COUNT_CEILING = 64;|' $S/craft/ElysiumQuality.java"
 
 echo "---- caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

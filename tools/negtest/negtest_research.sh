@@ -8,7 +8,7 @@ restore() { rm -rf $R; cp -r /tmp/_rs/research $R; cp /tmp/_rs/lang.json $L; cp 
 try() {
   local label="$1" want="$2" break_it="$3"
   snap
-  bash -c "$break_it" || { echo "SETUP FAILED: $label"; restore; return; }
+  bash -c "$break_it" || { echo "SETUP FAILED: $label"; miss=$((miss+1)); restore; return; }
   if timeout 1800 python3 validate.py 2>&1 | grep -qF "$want"; then
     echo "CAUGHT : $label"; pass=$((pass+1))
   else
@@ -97,3 +97,4 @@ io.open(p,'w',encoding='utf-8').write(s)
 \""
 
 echo "---- caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

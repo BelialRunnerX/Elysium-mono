@@ -7,7 +7,7 @@ S=src/main/java/com/elysium/ores
 pass=0; failn=0
 t() {
     cp "$1" /tmp/nb_vm
-    python3 - "$1" "$2" "$3" <<'PY'
+    python3 - "$1" "$2" "$3" <<'PY' || { echo "STALE ANCHOR: $4"; failn=$((failn+1)); return; }
 import sys; p,o,n=sys.argv[1:]; s=open(p,encoding="utf-8").read(); assert o in s, "pattern missing: "+o; open(p,'w',encoding="utf-8",newline="\n").write(s.replace(o,n,1))
 PY
     out=$(timeout 900 python3 validate.py 2>&1)
@@ -33,4 +33,11 @@ F=src/main/resources/assets/elysiumores/textures/item/jade.png
 cp $F /tmp/nb_vm_c; cp src/main/resources/assets/elysiumores/textures/item/ruby.png $F
 out=$(timeout 900 python3 validate.py 2>&1); cp /tmp/nb_vm_c $F
 grep -q "not what tools/gen_material_art.py draws" <<<"$out" && { pass=$((pass+1)); echo "ok   : hand-swapped sprite"; } || { failn=$((failn+1)); echo "MISS : hand-swapped sprite"; }
+# The tree the cases leave must pass its validator: a case is "caught" just as
+# well off a break the tree had before the first one (16 Oct: run on a snapshot
+# taken half way through negtest_p2.sh, whose iron.json was still broken, the
+# first case passed that way and nothing looked again).
+if timeout 900 python3 validate.py >/dev/null 2>&1; then echo "tree restored clean"
+else echo "RESTORE FAILED: validate.py does not pass on the tree the cases left"; failn=$((failn+1)); fi
 echo "$pass passed, $failn missed"
+[ "$failn" -eq 0 ]

@@ -11,7 +11,7 @@ pass=0; failn=0
 t() {
     local dir="$1" file="$2" old="$3" new="$4" want="$5"
     cp "$dir/$file" /tmp/nb_pt
-    python3 - "$dir/$file" "$old" "$new" <<'PY'
+    python3 - "$dir/$file" "$old" "$new" <<'PY' || { echo "STALE ANCHOR: $want"; failn=$((failn+1)); return; }
 import sys; p,o,n=sys.argv[1:]; s=open(p,encoding="utf-8").read(); assert o in s, "pattern missing: "+o; open(p,'w',encoding="utf-8",newline="\n").write(s.replace(o,n,1))
 PY
     if [ "$dir" = "." ]; then
@@ -50,12 +50,18 @@ t . elysium-flora/src/main/resources/assets/elysiumflora/models/block/loomflax_s
 t . elysium-agronomy/src/main/resources/assets/elysiumagronomy/models/block/barley_crop_stage0.json '"render_type": "minecraft:cutout",' '' "on the solid layer"
 t . elysium-logistics/src/main/resources/assets/elysiumlogistics/models/block/compressed_ice.json '"render_type": "minecraft:translucent"' '"render_type_": "minecraft:translucent"' "on the solid layer"
 # root: glass that says cutout when every pixel is part-transparent is still wrong only if it says nothing; a shaft whose faces read opaque pixels needs none (no failure expected, so the check must stay quiet)
+# The key must be there to take out (pop(..., None) once made this a case set up
+# on nothing), and the phrase being absent counts only when check_models.py
+# finished and passed: a kill (exit 124) or a crash prints no "brass_shaft"
+# either (16 Oct).
 cp elysium-kinetics/src/main/resources/assets/elysiumkinetics/models/block/brass_shaft.json /tmp/nb_pt_shaft
-python3 - <<'PY'
-import json; p="elysium-kinetics/src/main/resources/assets/elysiumkinetics/models/block/brass_shaft.json"; m=json.load(open(p,encoding="utf-8")); m.pop("render_type",None); open(p,"w",encoding="utf-8",newline="\n").write(json.dumps(m,indent=2)+"\n")
+python3 - <<'PY' || { echo "SETUP FAILED: a shaft reading only opaque pixels is left alone"; failn=$((failn+1)); }
+import json; p="elysium-kinetics/src/main/resources/assets/elysiumkinetics/models/block/brass_shaft.json"; m=json.load(open(p,encoding="utf-8")); assert "render_type" in m, "pattern missing: render_type in "+p; m.pop("render_type"); open(p,"w",encoding="utf-8",newline="\n").write(json.dumps(m,indent=2)+"\n")
 PY
-out=$(timeout 1800 python3 check_models.py 2>&1); cp /tmp/nb_pt_shaft elysium-kinetics/src/main/resources/assets/elysiumkinetics/models/block/brass_shaft.json
-if grep -q "brass_shaft" <<<"$out"; then failn=$((failn+1)); echo "MISS : a shaft reading only opaque pixels was flagged"; else pass=$((pass+1)); echo "ok   : a shaft reading only opaque pixels is left alone"; fi
+out=$(timeout 1800 python3 check_models.py 2>&1); code=$?; cp /tmp/nb_pt_shaft elysium-kinetics/src/main/resources/assets/elysiumkinetics/models/block/brass_shaft.json
+if grep -q "brass_shaft" <<<"$out"; then failn=$((failn+1)); echo "MISS : a shaft reading only opaque pixels was flagged"
+elif [ "$code" -ne 0 ] || ! grep -q "every model, blockstate and texture reference resolves" <<<"$out"; then failn=$((failn+1)); echo "MISS : a shaft reading only opaque pixels: check_models.py did not finish with its pass line (exit $code, ${#out} byte(s))"
+else pass=$((pass+1)); echo "ok   : a shaft reading only opaque pixels is left alone"; fi
 # space: a traveller must be accepted from as far as the anchor can be clicked
 t elysium-space src/main/java/com/elysium/space/gate/WaygateTravel.java 'public static final int REACH = 5;' 'public static final int REACH = 2;' "less than the block reach"
 t elysium-space src/main/java/com/elysium/space/gate/WaygateTravel.java 'at.offset(-REACH, -REACH, -REACH)' 'at.offset(-2, -2, -2)' "hard-coded distance"
@@ -69,8 +75,12 @@ t elysium-space $BW/noise_settings/emerald_bastion.json '"elysiumspace:emerald_b
 # space: a generated lang key and a generated worldgen file edited by hand no longer match the four generators
 SA=src/main/resources/assets/elysiumspace
 t elysium-space $SA/lang/en_us.json '"elysiumspace.freight.run": "%s"' '"elysiumspace.freight.run": "Run %s"' "differ from what the generators write"
-t elysium-space $BW/placed_feature/emerald_bastion_lake.json '"chance": 6' '"chance": 7' "differ from what the generators write"
+# (emerald_bastion_lake.json, the file this case edited, went in 1360fd0e; the
+# case printed a traceback and a MISS for it until 16 October. oil_lake_space.json
+# is written by the same tools/gen_space.py.)
+t elysium-space $BW/placed_feature/oil_lake_space.json '"chance": 12' '"chance": 13' "differ from what the generators write"
 # lib: the elite class no longer loaded by the constructor
 t elysium-lib src/main/java/com/elysium/lib/ElysiumLib.java '        com.elysium.lib.elite.ElysiumElites.bootstrap();' '' "nothing loads the class before RegisterEvent"
+git status --short | grep -q . && { echo "TREE DIRTY"; failn=$((failn+1)); } || echo "tree restored clean"
 echo "$pass passed, $failn missed"
-git status --short | grep -q . && echo "TREE DIRTY" || echo "tree restored clean"
+[ "$failn" -eq 0 ]

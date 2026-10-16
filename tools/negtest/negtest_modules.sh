@@ -23,7 +23,7 @@ for v in armory ascendancy lib; do
 done
 echo "baseline clean"
 try() { local label="$1" which="$2" want="$3" edit="$4"; snap
-  if ! python3 -c "$edit"; then echo "SETUP FAILED: $label"; restore; return; fi
+  if ! python3 -c "$edit"; then echo "SETUP FAILED: $label"; miss=$((miss+1)); restore; return; fi
   if timeout 1700 python3 elysium-$which/validate.py 2>&1 | grep -qF "$want"; then echo "CAUGHT : $label"; pass=$((pass+1))
   else echo "MISSED : $label  (expected: $want)"; miss=$((miss+1)); fi
   restore; }
@@ -68,3 +68,4 @@ try "selection covers item" lib "paints over the item" "
 from PIL import Image
 im=Image.open('$HS').convert('RGBA'); im.putpixel((12,12),im.getpixel((0,0)) if im.getpixel((0,0))[3] else im.getpixel((1,1))); im.save('$HS')"
 echo "caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

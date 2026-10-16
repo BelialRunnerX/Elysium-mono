@@ -23,7 +23,7 @@ p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
 s = open(p, encoding='utf-8').read()
 assert old in s, 'anchor not found in ' + p
 open(p,'w',encoding='utf-8').write(s.replace(old, new, 1))
-" "$@"; }
+" "$@" || { echo "STALE ANCHOR: $1"; fail=$((fail+1)); }; }
 
 echo "the charter grant"
 edit $S/rules/ReliefRules.java 'public static final int GRANT_DAYS = 100;' 'public static final int GRANT_DAYS = 12;'

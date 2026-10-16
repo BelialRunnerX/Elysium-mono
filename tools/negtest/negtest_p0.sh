@@ -21,7 +21,7 @@ for v in lib armory ascendancy; do
 done
 echo "baseline clean"
 try() { local label="$1" which="$2" want="$3" edit="$4"; snap
-  if ! python3 -c "$edit"; then echo "SETUP FAILED: $label"; restore; return; fi
+  if ! python3 -c "$edit"; then echo "SETUP FAILED: $label"; miss=$((miss+1)); restore; return; fi
   if timeout 1700 python3 elysium-$which/validate.py 2>&1 | grep -qF "$want"; then echo "CAUGHT : $label"; pass=$((pass+1))
   else echo "MISSED : $label  (expected: $want)"; miss=$((miss+1)); fi
   restore; }
@@ -80,3 +80,4 @@ rep('$GC', 'dimensions == null || dimensions.isEmpty() || dimensions.contains(di
 try "GenContext ignores tier" ascendancy "WeightHarness failed" "$R
 rep('$GC', 'w.weightAt(tier, luck)', 'w.weightAt(4, luck)')"
 echo "caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

@@ -22,7 +22,7 @@ E=$ROOT/elysium-enchanting/src/main/resources/data/elysiumenchanting/enchantment
 S=$ROOT/elysium-space/src/main/resources/data/elysiumspace/worldgen
 
 echo "the four that shipped"
-python3 - <<'PY'
+python3 - <<'PY' || { echo "SETUP FAILED: a tag written inside a list of biomes"; fail=$((fail+1)); }
 import json, pathlib, collections
 p = pathlib.Path("/tmp/Elysium-mono/elysium-flora/src/main/resources/data/elysiumflora/neoforge/biome_modifier/emberwood.json")
 d = json.loads(p.read_text(), object_pairs_hook=collections.OrderedDict)
@@ -31,7 +31,7 @@ p.write_text(json.dumps(d, indent=2) + "\n")
 PY
 expect "a tag written inside a list of biomes" "inside a list"
 
-python3 - <<'PY'
+python3 - <<'PY' || { echo "SETUP FAILED: a single-value effect written as a list"; fail=$((fail+1)); }
 import json, pathlib, collections
 p = pathlib.Path("/tmp/Elysium-mono/elysium-enchanting/src/main/resources/data/elysiumenchanting/enchantment/maelstrom.json")
 d = json.loads(p.read_text(), object_pairs_hook=collections.OrderedDict)
@@ -41,7 +41,7 @@ p.write_text(json.dumps(d, indent=2) + "\n")
 PY
 expect "a single-value effect written as a list" "is a single effect in the jar"
 
-python3 - <<'PY'
+python3 - <<'PY' || { echo "SETUP FAILED: a configured feature whose type names itself"; fail=$((fail+1)); }
 import json, pathlib, collections
 p = pathlib.Path("/tmp/Elysium-mono/elysium-space/src/main/resources/data/elysiumspace/worldgen/configured_feature/pale_moon_dripstone_cluster.json")
 d = json.loads(p.read_text(), object_pairs_hook=collections.OrderedDict)
@@ -54,7 +54,7 @@ rm $S/placed_feature/emgrove.json $S/placed_feature/tall_emgrove.json
 expect "a random_selector pointing at features with no placed form" "there is no worldgen/placed_feature by that name"
 
 echo "the rest of the surface"
-python3 - <<'PY'
+python3 - <<'PY' || { echo "SETUP FAILED: an effect component that does not exist, silently ignored"; fail=$((fail+1)); }
 import json, pathlib, collections
 p = pathlib.Path("/tmp/Elysium-mono/elysium-enchanting/src/main/resources/data/elysiumenchanting/enchantment/maelstrom.json")
 d = json.loads(p.read_text(), object_pairs_hook=collections.OrderedDict)
@@ -63,7 +63,7 @@ p.write_text(json.dumps(d, indent=2) + "\n")
 PY
 expect "an effect component that does not exist, silently ignored" "not an enchantment effect component"
 
-python3 - <<'PY'
+python3 - <<'PY' || { echo "SETUP FAILED: a conditional effect with its 'effect' unwrapped"; fail=$((fail+1)); }
 import json, pathlib, collections, glob
 for f in glob.glob("/tmp/Elysium-mono/elysium-enchanting/src/main/resources/data/elysiumenchanting/enchantment/*.json"):
     d = json.loads(pathlib.Path(f).read_text(), object_pairs_hook=collections.OrderedDict)
@@ -75,7 +75,7 @@ for f in glob.glob("/tmp/Elysium-mono/elysium-enchanting/src/main/resources/data
 PY
 expect "a conditional effect with its 'effect' unwrapped" "has no 'effect'"
 
-python3 - <<'PY'
+python3 - <<'PY' || { echo "SETUP FAILED: a placed feature naming a configured feature we do not ship"; fail=$((fail+1)); }
 import json, pathlib, collections
 p = pathlib.Path("/tmp/Elysium-mono/elysium-space/src/main/resources/data/elysiumspace/worldgen/placed_feature/emgrove.json")
 d = json.loads(p.read_text(), object_pairs_hook=collections.OrderedDict)
@@ -86,7 +86,7 @@ expect "a placed feature naming a configured feature we do not ship" "there is n
 
 echo "things that must not be flagged"
 reject "crafting patterns, which are rows of hashes"
-python3 - <<'PY'
+python3 - <<'PY' || { echo "SETUP FAILED: a vanilla biome tag, which we do not ship and should not have to"; fail=$((fail+1)); }
 import json, pathlib, collections
 p = pathlib.Path("/tmp/Elysium-mono/elysium-flora/src/main/resources/data/elysiumflora/neoforge/biome_modifier/emberwood.json")
 d = json.loads(p.read_text(), object_pairs_hook=collections.OrderedDict)

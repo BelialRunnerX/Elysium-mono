@@ -20,7 +20,7 @@ p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
 s = open(p).read()
 assert old in s, 'anchor not found in ' + p
 open(p,'w').write(s.replace(old, new, 1))
-" "$@"; }
+" "$@" || { echo "STALE ANCHOR: $1"; fail=$((fail+1)); }; }
 
 echo "the spawners"
 cp $CSRC/block/RogueSpawnerBlockEntity.java /tmp/rs.bak

@@ -30,7 +30,7 @@ p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
 s = open(p).read()
 assert old in s, 'anchor not found in ' + p
 open(p,'w').write(s.replace(old, new, 1))
-" "$@"; }
+" "$@" || { echo "STALE ANCHOR: $1"; fail=$((fail+1)); }; }
 restore() { rm -rf $N; tar xzf $SNAP -C /tmp; }
 
 echo "the wardrobes"
@@ -165,7 +165,7 @@ p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
 s = open(p, encoding='utf-8').read()
 assert old in s, 'anchor not found in ' + p
 open(p, 'w', encoding='utf-8').write(s.replace(old, new, 1))
-" "$@"; }
+" "$@" || { echo "STALE ANCHOR: $1"; fail=$((fail+1)); }; }
 regen_village() { (cd $M && python3 elysium-npcs/tools/gen_village.py >/dev/null 2>&1); }
 
 python3 - "$T" <<'PYX'

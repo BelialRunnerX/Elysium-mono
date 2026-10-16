@@ -9,7 +9,7 @@ restore() { rm -rf $T; cp -r /tmp/_tr/tree $T; cp /tmp/_tr/ElysiumDoctrine.java 
 try() {
   local label="$1" want="$2" break_it="$3"
   snap
-  bash -c "$break_it" || { echo "SETUP FAILED: $label"; restore; return; }
+  bash -c "$break_it" || { echo "SETUP FAILED: $label"; miss=$((miss+1)); restore; return; }
   if timeout 1800 python3 validate.py 2>&1 | grep -qF "$want"; then
     echo "CAUGHT : $label"; pass=$((pass+1))
   else
@@ -120,3 +120,4 @@ try "a missing config file" "refuses the category without them" \
   "rm $T/connections.json"
 
 echo "---- caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

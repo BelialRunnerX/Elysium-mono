@@ -35,7 +35,7 @@ expect "a bee bred from something that is not a bee" "not a bee"
 edit $R 'resource("steel", "iron", "coal_dust"),' 'resource("steel", "iron", "stainless"),'
 expect "a breeding cycle" "own ancestor"
 
-python3 - <<'PYU'
+python3 - <<'PYU' || { echo "  STALE ANCHOR, counted as a miss"; fail=$((fail+1)); }
 import pathlib, sys
 p = pathlib.Path("/tmp/Elysium-mono/elysium-agronomy/src/main/java/com/elysium/agronomy/rules/BeeRules.java")
 s = p.read_text(encoding="utf-8")

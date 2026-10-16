@@ -35,7 +35,7 @@ edit $R 'relic("wardens_regalia", "relic", 4, List.of("ward_pulse", "ironhide", 
 expect "a relic carrying more abilities than an item may" "no item is allowed to carry"
 
 echo "what rarity means"
-python3 - <<'PYR'
+python3 - <<'PYR' || { echo "  STALE ANCHOR, counted as a miss"; fail=$((fail+1)); }
 import pathlib, sys
 p = pathlib.Path("/tmp/Elysium-mono/elysium-arcana/src/main/java/com/elysium/arcana/rules/RelicRules.java")
 s = p.read_text(encoding="utf-8")

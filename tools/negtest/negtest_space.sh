@@ -22,7 +22,7 @@ restore() { i=0; for f in $FILES; do cp "/tmp/_ns/$i" "$f"; i=$((i+1)); done; }
 for v in space lib; do timeout 1700 python3 elysium-$v/validate.py >/dev/null 2>&1 || { echo "SETUP FAILED: $v not clean"; exit 2; }; done
 echo "baseline clean"
 try() { local label="$1" which="$2" want="$3" edit="$4"; snap
-  if ! python3 -c "$edit"; then echo "SETUP FAILED: $label"; restore; return; fi
+  if ! python3 -c "$edit"; then echo "SETUP FAILED: $label"; miss=$((miss+1)); restore; return; fi
   if timeout 1700 python3 elysium-$which/validate.py 2>&1 | grep -qF "$want"; then echo "CAUGHT : $label"; pass=$((pass+1))
   else echo "MISSED : $label  (expected: $want)"; miss=$((miss+1)); fi
   restore; }
@@ -149,3 +149,4 @@ env_cases "ELYSIUM_OUT=$NOWHERE MC_JAR=$NOWHERE/vanilla-assets.jar" \
   "the generated files cannot be rebuilt to compare with the shipped ones: no game jar here"
 rmdir "$NOWHERE"
 echo "caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

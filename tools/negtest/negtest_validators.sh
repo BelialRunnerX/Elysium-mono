@@ -55,7 +55,7 @@ expect "a module built by compile.sh that nothing validates" "checked by nothing
 edit $ROOT/compile.sh 'MODULES="elysium-lib' 'MODULES_WAS="elysium-lib'
 expect "compile.sh with no module list to read" "no MODULES= line"
 
-python3 - <<'PYW'
+python3 - <<'PYW' || { echo "  STALE ANCHOR, counted as a miss"; fail=$((fail+1)); }
 import pathlib, sys
 p = pathlib.Path("/tmp/Elysium-mono/validate.py")
 s = p.read_text(encoding="utf-8")
@@ -81,7 +81,7 @@ p.write_text(s[:i] + "    if problems:\n        pass\n" + s[i:], encoding="utf-8
 PYX
 expect "a real second report block, which blanking must not hide" "reports 2 times"
 
-python3 - <<'PYZ'
+python3 - <<'PYZ' || { echo "  STALE ANCHOR, counted as a miss"; fail=$((fail+1)); }
 import pathlib, sys
 p = pathlib.Path("/tmp/Elysium-mono/check_validators.py")
 s = p.read_text(encoding="utf-8")

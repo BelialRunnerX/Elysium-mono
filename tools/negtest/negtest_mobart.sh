@@ -15,7 +15,7 @@ p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
 s = open(p, encoding='utf-8', newline='').read()
 assert old in s, 'anchor not found in ' + p
 open(p, 'w', encoding='utf-8', newline='').write(s.replace(old, new, 1))
-" "$@"; }
+" "$@" || { echo "STALE ANCHOR: $1"; fail=$((fail+1)); }; }
 
 echo "the palette going dark again"
 cp $G /tmp/gm.bak

@@ -14,7 +14,7 @@ restore() { i=0; for f in $FILES; do cp /tmp/_nr/$i "$f"; i=$((i+1)); done; }
 python3 elysium-space/validate.py >/dev/null 2>&1 || { echo "SETUP FAILED: not clean"; exit 2; }
 echo "baseline clean"
 try() { local label="$1" want="$2" edit="$3"; snap
-  if ! python3 -c "$edit"; then echo "SETUP FAILED: $label"; restore; return; fi
+  if ! python3 -c "$edit"; then echo "SETUP FAILED: $label"; miss=$((miss+1)); restore; return; fi
   if python3 elysium-space/validate.py 2>&1 | grep -qF "$want"; then echo "CAUGHT : $label"; pass=$((pass+1))
   else echo "MISSED : $label  (expected: $want)"; miss=$((miss+1)); fi
   restore; }
@@ -56,3 +56,4 @@ rep('$RK', 'case RADIOACTIVE -> {', 'default -> {')"
 try "a motor fitted over a full tank" "does not require an empty tank" "$R
 rep('$RK', 'if (phase() != Phase.IDLE || motor() == fitted || fuel() > 0) {', 'if (phase() != Phase.IDLE || motor() == fitted) {')"
 echo "caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

@@ -8,7 +8,7 @@ restore() { rm -rf $S/stress; cp -r /tmp/_st/stress $S/stress; cp /tmp/_st/Elysi
 try() {
   local label="$1" want="$2" break_it="$3"
   snap
-  bash -c "$break_it" || { echo "SETUP FAILED: $label"; restore; return; }
+  bash -c "$break_it" || { echo "SETUP FAILED: $label"; miss=$((miss+1)); restore; return; }
   if timeout 1800 python3 validate.py 2>&1 | grep -qF "$want"; then
     echo "CAUGHT : $label"; pass=$((pass+1))
   else
@@ -88,3 +88,4 @@ try "the peak overwritten by improvement" "getting better overwrote the peak" \
   "sed -i 's|        return candidate.atLeast(peak) \&\& candidate != peak;|        return candidate != peak;|' $S/stress/ElysiumStress.java"
 
 echo "---- caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

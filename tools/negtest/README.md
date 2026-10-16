@@ -1,6 +1,6 @@
 # The negative tests
 
-213 scripts. Each one takes a validator that passes, breaks the thing it
+214 scripts. Each one takes a validator that passes, breaks the thing it
 checks — one way at a time — and proves the validator says so.
 
 They are here because they were not, for most of this project's life. They
@@ -20,6 +20,267 @@ re-runs the validator, checks the message, restores, and finishes by asserting
 the tree is clean again. A script that ends `tree restored clean` has left
 nothing behind. One that does not has, and you should `git status` before
 doing anything else.
+
+## Running many at once
+
+    python3 tools/negtest/parallel.py -j 4 negtest_quick_move.sh negtest_spawners.sh ...
+    python3 tools/negtest/parallel.py -j 4 --list names.txt     # one name per line
+    python3 tools/negtest/parallel.py --all --plan              # rewrite all, run nothing
+    python3 tools/negtest/parallel.py --resume <logs>/summary.json   # run again what was not ok
+
+One at a time, in the live tree, the corpus takes more than a day: every
+script works on `/tmp/Elysium-mono` itself and keeps its scratch at fixed
+names (`/tmp/h.bak`, `/tmp/<module>_snap.tar`, lock dirs), so two at once
+would spoil each other. `parallel.py` gives each of `-j` workers a world of its
+own under `C:/Users/weaks/Elysium-env/negwork/w<N>`: a detached git worktree of
+the base commit (`tree`), its own `/tmp` (`tmp`, emptied before every script),
+its own build outputs (`classes`, `loadtest`), and a junction
+`%TEMP%/elysium-negw<N>` to all of it. Each script is rewritten into the
+worker's scratch first. Every spelling of the tree becomes the worktree, tar's
+`-C /tmp Elysium-mono/x` becomes `-C /tmp/elysium-negw<N> tree/x`, every other
+`/tmp/<name>` becomes the scratch, `/tmp/mc`, `mcwin`, `mods` and `ref` are left
+alone, and `"$0"` becomes the script's place in the worktree. It runs with
+`ELYSIUM_ROOT`, `ELYSIUM_MONO`, `ELYSIUM_OUT`, `TMP`, `TEMP` and `TMPDIR`
+pointed at the worker and the validator exports from `tools/setup_env.py`. The
+paths stay under `/tmp` on purpose: Git Bash, Windows Python and tar all
+resolve them, where tar reads `C:/x.tar` as a file on a host called C. Python
+files that hard-code a scratch path (`check_loadtest.py`'s build folder, which
+the root validator runs) are rewritten by the same rules as they load, through
+a `sitecustomize` on the worker's `PYTHONPATH`, so nothing tracked is edited.
+`--plan` prints what every script would be rewritten to, its gitignored
+inputs, and refuses any that would still name the tree, another worker, a temp
+path in a spelling it does not know, or a product file nobody has built.
+
+The workers take the lowest numbers whose `%TEMP%/elysium-negw<N>` junction is
+free or already theirs. A junction that leads into another run's folder is
+skipped and never taken down, so a second run can go alongside a first one
+with a `--negwork` of its own (`Elysium-env/negwork-<name>`); one negwork holds
+one run at a time (`parallel.lock`). A finished `--compile` cache in the
+default negwork is read by the others too.
+
+What it guarantees, and checks rather than assumes:
+
+- **The paths a running script names stay as they were in the live tree.**
+  Every script's names are worked out before it runs: its words, with each
+  `VAR=value` it assigns expanded, that start with a top-level entry of the
+  tree or follow `Elysium-mono/`. A module named bare (a `cd` into it, an
+  `M=elysium-agronomy`) stands for the whole module. After every script, under
+  one lock, the live tree is compared with the start: `git status`, and the
+  bytes of every file it lists or listed. A file that changed under a path
+  that script names, or that a script still running names, is a leak or
+  somebody editing what it tests. Every script is killed, the ones that name
+  the file are marked `leaked`, and the run stops with exit 3. A change
+  anywhere else is somebody else's work: it is noted, in the log and in
+  `summary.json`, and the run carries on. A commit or a `git add` changes
+  status but no file, and is noted too. Nothing a script names may appear in
+  the real `%TEMP%` or in another worker's scratch either (`leaked`, exit 3).
+  `--live-ignore GLOB` exempts a path outright.
+- **A gitignored input is the live tree's, frozen.** `dist/` is not in git, so
+  no worktree has `dist/elysium-all-1.0.0.jar`, which `negtest_bundle.sh`
+  reads. A gitignored file a script names that the live tree has is copied
+  once at the start, recorded by its sha256 (in the log and in
+  `summary.json`), put into the worktree before that script and taken out
+  after it. A script that changes it is `dirty`; the live copy changing while
+  the script runs is a leak. A file under `dist/` or `repo/` that the live
+  tree lacks as well fails the script before it runs, with the reason, rather
+  than letting it test nothing.
+- **The output decides, not only the exit status.** A `SETUP FAILED`,
+  `STALE ANCHOR` or `GENERATOR BROKE` line makes the script an `error`
+  whatever it exits with, and so does a setup's own Python dying: an
+  `anchor not found`, a `pattern missing`, an `AssertionError`, or a
+  traceback from a heredoc (`File "<stdin>"`) or a `python3 -c`
+  (`File "<string>"`). So does printing no caught line at all (no `caught`,
+  `CAUGHT` or `ok :` case and no summary with anything caught). A `MISSED` or
+  `MISS` line anywhere is a miss. `RESTORE FAILED`, `TREE LEFT BROKEN` and
+  `TREE DIRTY` are `restore-failed`. Only after all of that does a non-zero
+  exit make an `error`. The scripts hold up their end too since 16 October:
+  one that prints any of those three counts it as a miss and exits non-zero.
+  Before that, 29 of them returned from a `SETUP FAILED` with nothing counted
+  and ended on an `echo`, so a script whose every case failed to set up
+  exited 0; `negtest_grids.sh` counted its `STALE ANCHOR` and still exited 0;
+  and four ran a python heredoc that printed `STALE ANCHOR` without the shell
+  looking at its status. A second review the same day found 72 more whose
+  edit helper reported a stale anchor only as the `AssertionError` above,
+  which nothing read: an expect case after it usually missed, but a
+  must-not-flag case passed, and so did a case whose phrase the tree already
+  printed. Each of those helpers now ends `|| { echo "STALE ANCHOR: ..."; fail=...; }`
+  (73 helpers; the `t()` heredocs of the p-style scripts also put the file back
+  and skip the case), and `negtest_datapack.sh` and `negtest_playtest.sh` say
+  `SETUP FAILED` when a heredoc setup dies.
+- **A check killed by the script's own timeout is a check that never
+  finished.** The scripts run their validators as
+  `out=$(timeout 1800 python3 validate.py 2>&1)`, which throws a 124 away, so
+  a must-not-flag case ("nothing says brass_shaft") passed off a
+  `check_models.py` that was killed before it printed a byte. Every worker's
+  bash sources a `BASH_ENV` whose `timeout()` writes each kill down
+  (`events.log`, proved by a self-test when the worker is built), and a
+  Python check killed that way makes the script an `error`. Anything else
+  killed by its timeout (the java harness in `negtest_wilds_portal.sh`, whose
+  flood is meant to run out of time) is noted and decides nothing. The two
+  scripts with must-not-flag cases that read only the absence of a phrase,
+  `negtest_machines2.sh`'s `reject()` and `negtest_playtest.sh`'s shaft case,
+  now also want the validator's own pass line and exit 0, as
+  `negtest_datapack.sh`, `negtest_recursion.sh` and `negtest_buses.sh`
+  already did, and count a kill, a crash or silence as a miss.
+- **The base passes before anything runs.** A case is caught just as well
+  off a break the base already carries. Before the first script, every
+  module validator a queued script names is run once on the base, in the
+  workers' worktrees (`base-check-<module>.log`), and a script that names a
+  module whose validator fails there is `refused` with the validator's last
+  lines. A pass is remembered in `negwork/base-checks.json` by base tree,
+  module, validator jars and compiled classes, so a second run of the same
+  base starts at once. The p-style scripts (`negtest_p1.sh`, `p2`, `p3`,
+  `p3b`, `skies`, `mobs`, `s8`, `foundry_recovery`, `valoria_*`), which cd
+  into one module and ended on an `echo`, now end by running that module's
+  validator on the tree they leave (`RESTORE FAILED` if it does not pass) and
+  exit non-zero on any miss.
+- **Each script starts from the base.** The worktree is checked with
+  `git status --porcelain` after every script; one that leaves it dirty is
+  reported as `dirty` and the worktree is put back with `git checkout -- .`
+  and `git clean -fdq`. A script that recompiles (`negtest_convergence.sh`)
+  has the worker's classes restored after it.
+- **The compiled classes are the base's.** `/tmp/elysium-classes` is copied
+  only if what javac read there was the base's Java, by content: since 16
+  October `compile.sh` writes `<module>.sha`, the git blob id of every file
+  it hands javac, hashed just before javac and again just after and kept
+  only when the two agree, and every id must be the base's. Otherwise the run
+  is refused. Until then this was read off mtimes, and 122 scripts restore
+  with `tar x`, which puts the archived mtime back with the bytes: a module
+  compiled while a negtest had it broken, then restored, passed as a compile
+  of the base. Classes from a `compile.sh` older than that have no `.sha` and
+  are refused. `--compile` builds them with `compile.sh` in a worktree
+  instead (two minutes on a quiet machine), kept in
+  `negwork/classes-<digest of the base's Java and compile.sh>` for every later
+  run whose Java is the same. `--trust-classes` skips the check, which is
+  right only when comparing with a run that used those same classes.
+- **The workers come down.** Worktrees, scratch, junctions and the frozen
+  inputs are removed at the end, on a timeout, a failure, Ctrl-C or
+  Ctrl-Break.
+
+What it cannot see. The guard above has blind spots, and a clean run says
+nothing about them:
+
+- **Gitignored paths in the live tree.** `git status` does not list them, so a
+  write that escapes into `dist/`, `build/`, `logs/`, `__pycache__` or any
+  other ignored path of the live tree is not noticed. Only the ignored inputs
+  a script names are hashed.
+- **The real `%TEMP%`.** Git Bash's `/tmp` is the real `%TEMP%` whatever `TEMP`
+  says (its mount is fixed for the session), and it is shared with every
+  program on the machine. The guard looks only at the top-level names a
+  script spells under `/tmp`. A write to a name made at run time (`mktemp`, a
+  name joined from parts) or spelt only inside a validator is not seen.
+- **A write that is put back before the guard looks.** The live tree is
+  compared when a script ends. A script that leaks into the live tree and
+  then restores its own snapshot, as every script does at its end, leaves the
+  bytes as they were and nothing is reported, although the live tree was
+  broken for whoever read it in the meantime. A change somebody else makes
+  and undoes between two script ends is not seen either.
+- **A path reached without being named.** A script's names are what it
+  spells. A file it reaches only through a validator (the root `validate.py`
+  reads every module) is not one of them, so a change there while it runs is
+  noted as somebody else's, not stopped.
+- **What the product was built from.** A gitignored input is frozen and
+  hashed, but nothing ties `dist/elysium-all-1.0.0.jar` to the base: it is
+  whatever the last `gradlew collectJars` or `compile.sh --jars` built, from
+  whatever tree that was.
+- **A break made and undone inside one javac.** `compile.sh` hashes its
+  sources before javac and after it. A negtest that broke a file and put it
+  back with `tar x` entirely while javac ran would leave both hashes the
+  base's and the classes not.
+
+`--base live` tests the working tree as it is, uncommitted and untracked files
+included (a commit made through a private index, nobody's branch). It refuses
+without `--force` when the live tree may be half way through a negtest run the
+ordinary way, because a snapshot then could hold a module half broken: a
+running bash whose command line names `tools/negtest` (other than a
+`parallel.py` run or a `dryrun.py` working in a copy), or anything a
+live-tree script keeps in `/tmp` (any `/tmp/<name>` it spells: a snapshot, a
+backup, a lock dir, and `/tmp/negtest_*_snapshot.tgz`) beside modified tracked
+files of a module that script names. A tar is asked what it holds; anything
+else stands for every module the scripts that spell it name. Until 16 October
+only names with `snap`, `.tar` or `.tgz` in them counted, and 79 of the 214
+scripts keep their backups under other names (`/tmp/nb_p2`, `/tmp/sm.bak`,
+`/tmp/_abs_backup.java`, `/tmp/gates_bak`, `/tmp/negtest_<x>.lockdir`), so a
+tree snapshotted half way through `negtest_p2.sh` was taken as whole and p2
+passed off its own leftover break. A script started as `bash negtest_x.sh`
+from inside `tools/negtest` does not name the folder and is not seen; what it
+keeps in `/tmp` is. Old backups left behind by a run that died trip this too:
+look at the date it prints, and at the base check, which runs either way.
+
+Timeouts: three times a script's last recorded time and never under 30
+minutes (`negtest_agronomy_fishbees.sh` took 75 minutes at `-j 3`), four hours
+for a script never timed (`--timeout-unknown MIN`), or `--timeout MIN` for all
+of them. Default base `HEAD`, default `-j 4`.
+
+`--resume SUMMARY` reads an earlier run's `summary.json` and does not run
+again the scripts it found ok, as long as the base tree, the compiled classes,
+the script's own text and the sha256 of every gitignored input it was given
+are the same, and the run read its scripts by the same rules against the same
+validator jars (`rules_digest`, a digest of the parser and status rules and
+the timeout shim; `exports_digest`, the content of every file the validator
+exports name, the jars a `cp.txt` lists included). A script whose input
+changed runs again; a summary written by other rules or against other jars
+carries nothing. Before 16 October only the first three were compared, so an
+ok decided against an old `dist/` jar, or by a parser since fixed, was
+carried as it was. Its base is
+the default, a `--base live` snapshot included, so an aborted day-long run
+picks up where it stopped: `parallel.py --resume <logs>/summary.json` runs the
+rest of the list it had, or name the scripts to run. The new `summary.json`
+holds the carried results too (`resumed_from`), so it can be resumed in its
+turn. A script given as a path outside the tree (a throwaway copy) is read
+from there and is never added to the timing hints.
+
+Logs go to `Elysium-env/logs/negtests-<timestamp>/<script>.log` with
+`summary.json` beside them (status, caught and missed, from the script's
+summary line and its own `caught :` / `MISSED :` lines, the larger miss count
+winning, exit, time, timeout, inputs, the ordered case lines, the base tree
+and classes digest); timings go to `Elysium-env/logs/negtest-timings.json`
+and the next run starts the longest first. Exit 0 only if every script caught
+everything and left its tree clean; 1 a script missed, errored, timed out,
+was refused or left its tree dirty; 2 the run was refused before it started;
+3 a leak, and everything was stopped.
+
+Proved on 15 October against three scripts run the ordinary way first: the
+output of `negtest_quick_move.sh`, `negtest_harvest_audit.sh` and
+`negtest_spawners.sh` (3, 7 and 84 caught) was byte-identical, case for case,
+and the live tree was byte-identical before and after.
+
+Proved again on 16 October, after a review found the gaps closed above (logs
+in `Elysium-env/logs/negtest-proof-20261016`). `--all --plan --base live`
+rewrote all 214 scripts and refused none. A real run at `-j 3` of
+`negtest_bundle.sh` (its jar frozen from the live tree), `negtest_quick_move.sh`,
+`negtest_harvest_audit.sh`, `negtest_set_bonus.sh`, `negtest_absorption.sh` and
+`negtest_slots.sh` was ok throughout, 37 caught, with the live tree
+byte-identical. Two throwaway copies of `negtest_absorption.sh` with a stale
+anchor, kept outside the repository, were both errors: the fixed one exits 1,
+the one from before the fix exits 0. A run stopped by a throwaway script that
+writes into the real `/tmp` (`leaked`, exit 3, `negtest_harvest_audit.sh`
+aborted) was resumed: the resume ran `negtest_harvest_audit.sh` alone and
+carried the two scripts that were already ok.
+
+Proved a third time on 16 October, after a second review, each fix with the
+reviewer's own probe (logs in `Elysium-env/logs/negtest-fix-20261016`). The
+stale-anchor copy of `negtest_machines2.sh`, helpers verbatim, is now an
+`error` on its `AssertionError`; the same copy with the fixed helpers prints
+`STALE ANCHOR` and exits 1. The shaft case cut to `timeout 1` is an `error`
+(its own timeout killed `check_models.py`), and the fixed case is a miss as
+well. A `--resume` across a changed gitignored input ran the script again,
+which missed; one from a summary written by the old rules carried nothing.
+`--base live` on a tree left the way `negtest_p2.sh` leaves it mid-case was
+refused for `/tmp/nb_p2` beside the modified `iron.json`, and with `--force`
+the base check failed `elysium-armory` and refused p2. The provenance probe is
+refused at every step, and with `.sha` records written the way `compile.sh`
+now writes them it accepts the clean compile and refuses the one made while
+the file was broken, after the `tar` restore too. On a live snapshot at `-j 4`
+the six scripts above were ok again (37 caught), the two stale absorption
+copies were errors, and `negtest_p2.sh`, `negtest_datapack.sh` and
+`negtest_playtest.sh` were ok with their new checks; a copy of p2 whose last
+restore does not happen is `restore-failed`. The first playtest run found a
+real stale anchor that had only ever shown as a MISS: its generator-drift case
+edited `emerald_bastion_lake.json`, gone since 1360fd0e, and now edits
+`oil_lake_space.json`. Still open: `negtest_machines2.sh` leaves 83
+generated files changed (a case runs `gen_solarpunk.py` with a rule taken out
+and puts back only the generator and the tag), at HEAD as well.
 
 ## Checking a script before running it
 

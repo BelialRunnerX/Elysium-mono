@@ -265,7 +265,7 @@ p.write_text(json.dumps(d, indent=2) + "\n")
 PYX
 expect "a block with no name in any language" "water_wheel has no name in any language"
 
-python3 - <<'PYX'
+python3 - <<'PYX' || { echo "  STALE ANCHOR, counted as a miss"; fail=$((fail+1)); }
 import pathlib, os
 p = pathlib.Path(os.environ["ELYSIUM_ROOT"] + "/elysium-kinetics/src/main/java/com/elysium/kinetics/registry/KineticItems.java")
 s = p.read_text()

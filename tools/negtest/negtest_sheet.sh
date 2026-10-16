@@ -7,7 +7,7 @@ restore() { cp /tmp/_sh/CharacterSheet.java $S/network/; cp /tmp/_sh/ElysiumChar
 try() {
   local label="$1" want="$2" break_it="$3"
   snap
-  bash -c "$break_it" || { echo "SETUP FAILED: $label"; restore; return; }
+  bash -c "$break_it" || { echo "SETUP FAILED: $label"; miss=$((miss+1)); restore; return; }
   if timeout 1800 python3 validate.py 2>&1 | grep -qF "$want"; then
     echo "CAUGHT : $label"; pass=$((pass+1))
   else
@@ -45,3 +45,4 @@ try "a tab constant with no case in the switch" "draws the default page" \
   "sed -i 's|            case TAB_RESEARCH -> renderResearchTab(g, x, y, inner, bodyBottom, mouseX, mouseY);||' $S/screen/ElysiumCharacterScreen.java"
 
 echo "---- caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

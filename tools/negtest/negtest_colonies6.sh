@@ -21,7 +21,7 @@ p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
 s = open(p, encoding='utf-8').read()
 assert old in s, 'anchor not found in ' + p
 open(p,'w',encoding='utf-8').write(s.replace(old, new, 1))
-" "$@"; }
+" "$@" || { echo "STALE ANCHOR: $1"; fail=$((fail+1)); }; }
 
 echo "== towns that found themselves"
 # the structure set drifts from the rule
@@ -107,3 +107,4 @@ expect "hand-edited pool" "differ from what tools/gen_settlements.py writes"
 
 echo "$pass passed, $fail missed"
 (cd $ROOT && git status --short elysium-colonies | grep -q "^ M\|^??" ) && echo "tree has changes (expected: the feature is uncommitted)" || echo "tree clean"
+[ "$fail" -eq 0 ]

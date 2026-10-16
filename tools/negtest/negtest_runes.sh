@@ -19,7 +19,7 @@ def rep(path, old, new):
     open(path, "w").write(s.replace(old, new, 1))
 '
 t() { snap; python3 -c "$R
-$3" || { echo "SETUP FAILED $1"; restore; return; }
+$3" || { echo "SETUP FAILED $1"; miss=$((miss+1)); restore; return; }
   if timeout 1700 python3 elysium-lib/validate.py 2>&1 | grep -qF "$2"; then echo "CAUGHT : $1"; pass=$((pass+1)); else echo "MISSED : $1"; miss=$((miss+1)); fi
   restore; }
 t "affix ignores tier" "tier-4 Plasmaforge" "rep('$SO', 'float scale = alignmentScale(rune, element) * socketed.scale();', 'float scale = alignmentScale(rune, element);')"
@@ -45,3 +45,4 @@ t "new rune lands in the wrong socket" "added beside two old ones read as" "rep(
 ''')"
 t "registry in the rule" "takes the whole system out of the tests" "rep('$TI', 'package com.elysium.lib.item;', 'package com.elysium.lib.item;\n\nimport net.neoforged.neoforge.attachment.AttachmentType;')"
 echo "---- lib: caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

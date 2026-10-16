@@ -19,4 +19,11 @@ P=tools/port_mobs.py
 cp $P /tmp/nb3; sed -i 's/"frost_raptor": "frostfall"/"frost_raptor": "cinderveil"/' $P
 out=$(timeout 900 python3 validate.py 2>&1); cp /tmp/nb3 $P
 grep -q "another world's palette" <<<"$out" && { pass=$((pass+1)); echo "ok   : mob palette"; } || { failn=$((failn+1)); echo "MISS : mob palette"; }
+# The tree the cases leave must pass its validator: a case is "caught" just as
+# well off a break the tree had before the first one (16 Oct: run on a snapshot
+# taken half way through negtest_p2.sh, whose iron.json was still broken, the
+# first case passed that way and nothing looked again).
+if timeout 900 python3 validate.py >/dev/null 2>&1; then echo "tree restored clean"
+else echo "RESTORE FAILED: validate.py does not pass on the tree the cases left"; failn=$((failn+1)); fi
 echo "$pass passed, $failn missed"
+[ "$failn" -eq 0 ]

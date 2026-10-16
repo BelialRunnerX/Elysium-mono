@@ -11,7 +11,7 @@ pass=0; miss=0
 snap(){ rm -rf /tmp/_nm2; mkdir -p /tmp/_nm2; i=0; for f in $FILES; do cp "$f" /tmp/_nm2/$i; i=$((i+1)); done; }
 restore(){ i=0; for f in $FILES; do cp /tmp/_nm2/$i "$f"; i=$((i+1)); done; }
 python3 elysium-space/validate.py >/dev/null 2>&1 || { echo "SETUP FAILED"; exit 2; }; echo "baseline clean"
-try(){ snap; if ! python3 -c "$3"; then echo "SETUP FAILED: $1"; restore; return; fi
+try(){ snap; if ! python3 -c "$3"; then echo "SETUP FAILED: $1"; miss=$((miss+1)); restore; return; fi
   if python3 elysium-space/validate.py 2>&1 | grep -qF "$2"; then echo "CAUGHT : $1"; pass=$((pass+1)); else echo "MISSED : $1 ($2)"; miss=$((miss+1)); fi; restore; }
 R='
 import sys, json
@@ -45,3 +45,4 @@ rep('$RT', 'LARGE_TANK_MB = 6000;', 'LARGE_TANK_MB = 4000;')"
 try "fluid unnamed" "has no fluid_type lang entry" "$R
 d=json.load(open('$LANG')); del d['fluid_type.elysiumspace.oxygen']; json.dump(d,open('$LANG','w'))"
 echo "caught $pass, missed $miss"
+[ "$miss" -eq 0 ]

@@ -46,3 +46,4 @@ echo
 restore
 if (cd $M && python3 tools/gen_atelier.py >/dev/null 2>&1); then echo "  tree restored clean"; else echo "  TREE LEFT BROKEN"; fail=$((fail+1)); fi
 echo "grids: $pass caught, $fail missed"
+[ "$fail" -eq 0 ]
