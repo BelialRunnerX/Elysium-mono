@@ -269,7 +269,7 @@ ceiling = method_body(rules_code, "public static float ceiling(")
 if not ceiling:
     fail("EnchantingRules has no ceiling(): the room's cap and the player's cap are two "
          "different questions and something has to answer both")
-elif "Math.min(" not in ceiling:
+elif "return Math.min(Math.max(0.0F, roomCap), Math.max(0.0F, playerMax));" not in ceiling:
     fail("ceiling() does not take the smaller of the two caps, so either a room or a "
          "player alone decides what a table holds and the other is decoration")
 
@@ -439,25 +439,26 @@ else:
     if re.search(r"\blevel\.random\b", changed):
         fail("the offers are drawn from the world's random rather than from a seed, so "
              "they change every time the screen is opened")
-    if "EnchantingSurvey.survey(" not in changed:
+    if "EnchantingRules.Stats stats = EnchantingSurvey.survey(level, pos, owner);" not in changed:
         fail("the menu no longer reads the room, so the blocks around the table do "
              "nothing")
     if "target.isEnchantable()" not in changed:
         fail("the table offers enchantments for things that cannot take one")
-    if "EnchantingRules.rolledLevel(" not in bought:
+    if "int rolled = EnchantingRules.rolledLevel(stats, EnchantingRules.offerLevel(stats, slot), " \
+            "level.random::nextDouble);" not in " ".join(bought.split()):
         fail("uncertainty is never applied, so quanta is a number on a screen and "
              "rectification is a thing to build for that does nothing")
-    if "player.onEnchantmentPerformed(" not in bought:
+    if "player.onEnchantmentPerformed(target, cost);" not in bought:
         fail("buying an offer costs no experience")
     if "inputs.removeItem(1, cost)" not in bought:
         fail("buying an offer costs no lapis")
     if "if (!player.getAbilities().instabuild) {" not in bought:
         fail("creative mode is charged for an enchantment, which no other table in the "
              "game does")
-    if "target.enchant(" not in bought:
+    if "target.enchant(instance.enchantment, instance.level);" not in bought:
         fail("buying an offer does not enchant anything")
 clues = method_body(menu_code, "public List<EnchantmentInstance> clues(")
-if "EnchantingRules.clues(" not in clues:
+if "int shown = Math.min(all.size(), EnchantingRules.clues(current(), slot));" not in clues:
     fail("the screen decides for itself how much to tell a player, so the rule the "
          "harness checks is not the rule the game uses")
 if "EnchantmentTags.IN_ENCHANTING_TABLE" not in menu_code:
@@ -809,22 +810,24 @@ changed = method_body(basin_code, "public void slotsChanged(")
 if not planned or not bought:
     fail("InfusionMenu no longer both works out what it would do and does it")
 else:
-    if "EnchantingSurvey.survey(" not in changed:
+    if "EnchantingRules.Stats stats = EnchantingSurvey.survey(level, pos, owner);" not in changed:
         fail("the basin does not read the room, so the blocks around it do nothing and "
              "the two benches are not two rooms")
     if "enchantment.value().canEnchant(gear)" not in planned:
         fail("the basin never asks whether an enchantment may go on the item at all, so "
              "a book of Respiration lands on a shovel")
-    if "InfusionRules.allows(" not in planned:
+    if "if (!InfusionRules.allows(stats, enchantment.value().getWeight())) {" not in planned:
         fail("the basin never asks whether the room is strange enough, so every rare "
              "book in a chest is a rare enchantment for nothing")
-    if "Enchantment.areCompatible(" not in planned:
+    if "if (!worn.equals(enchantment) && !Enchantment.areCompatible(worn, enchantment)) {" \
+            not in planned:
         fail("the basin never asks whether an enchantment argues with what is already "
              "on the gear, so Silk Touch and Fortune end up on one pickaxe")
     if "enchantment.value().getMaxLevel()" not in planned:
         fail("the basin does not hold a landing to the enchantment's own maximum, so a "
              "book edited by a command outranks the enchantment's own file")
-    if "InfusionRules.levelFor(" not in planned:
+    if "int wanted = InfusionRules.levelFor(entry.getIntValue(), stats.eterna(), " \
+            "enchantment.value().getMaxLevel());" not in " ".join(planned.split()):
         fail("the basin decides for itself how high a book lands, so the rule the "
              "harness checks is not the rule the game uses")
     if "plan(stats)" not in bought:
@@ -835,7 +838,7 @@ else:
     if "inputs.removeItem(1, 1)" not in bought:
         fail("the book survives being infused, so one book enchants every piece of gear "
              "a player owns and the only question left is how long they will stand there")
-    if "player.onEnchantmentPerformed(" not in bought:
+    if "player.onEnchantmentPerformed(gear, plan.cost());" not in bought:
         fail("infusing costs no experience")
     if "inputs.removeItem(2, plan.lapis())" not in bought:
         fail("infusing costs no lapis")
@@ -896,17 +899,19 @@ else:
              "recipe with nothing at the end of it")
     filing = method_body(shelf_menu_code, "private void file(")
     buying = method_body(shelf_menu_code, "private void buy(")
-    if "LibraryRules.room(" not in filing:
+    if "if (id.isEmpty() || !LibraryRules.room(shelf.pagesOf(id), entry.getIntValue(), " \
+            "shelf.capacity())) {" not in " ".join(filing.split()):
         fail("the Scriptorium files a book without asking whether it has room, so a "
              "full shelf eats the best book a player owns")
     if "books.removeItem(0, 1)" not in filing:
         fail("filing a book does not consume it, so one book fills a shelf")
-    if "LibraryRules.highest(" not in buying:
+    if "int best = LibraryRules.highest(shelf.pagesOf(chosen), maxLevel(level, chosen));" \
+            not in buying:
         fail("the Scriptorium decides for itself what a shelf will buy, so the rule the "
              "harness checks is not the rule the game uses")
     if "maxLevel(level, chosen)" not in buying:
         fail("a copy is bought without asking what the enchantment's own file allows")
-    if "giveExperienceLevels(" not in buying:
+    if "player.giveExperienceLevels(-LibraryRules.experience(best));" not in buying:
         fail("a copy costs no experience, so a filled shelf is a vending machine")
     if "shelf.take(chosen, best)" not in buying:
         fail("a copy is handed over without the pages being spent")
@@ -947,7 +952,8 @@ else:
                  "case is a bug report nobody can reproduce")
         if "return;" not in wall:
             fail("the handler never leaves an operation to vanilla")
-        if "Enchantment.areCompatible(" not in wall:
+        if "if (!worn.equals(enchantment) && !Enchantment.areCompatible(worn, enchantment)) {" \
+                not in wall:
             fail("the lifted cap lets incompatible enchantments onto one item, which is "
                  "a thing no anvil in the game has ever done")
         if "canEnchant(output)" not in wall:
@@ -955,7 +961,9 @@ else:
         if "enchantment.value().getMaxLevel()" not in wall:
             fail("the lifted cap ignores the enchantment's own maximum, so the cost is "
                  "the only thing that was ever holding a level back")
-        if "AnvilRules.nextPriorWork(" not in wall:
+        if "output.set(DataComponents.REPAIR_COST, " \
+                "AnvilRules.nextPriorWork(priorWork(left), priorWork(right)));" \
+                not in " ".join(wall.split()):
             fail("an item worked on past the cap does not age, so the prior-work penalty "
                  "is gone rather than answered and the anvil is free forever after")
         if "definition().anvilCost()" not in wall:
@@ -1037,7 +1045,8 @@ else:
         fail("the tooltip handler is not client-only, so a server loads a class that "
              "reads the language file")
 survey_tier = method_body(survey_code, "public static EnchantingRules.Stats survey(")
-if "EnchantingRules.tierBonus(" not in survey_tier:
+if "playerMax += EnchantingRules.tierBonus( com.elysium.lib.tier.ElysiumTiers.of(player));" \
+        not in " ".join(survey_tier.split()):
     fail("a player's world tier adds nothing to what their table may hold, so the one "
          "measure every other system in this mod scales against stops mattering here")
 if "ElysiumTiers.of(player)" not in survey_tier:

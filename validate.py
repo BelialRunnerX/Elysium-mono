@@ -142,6 +142,16 @@ def main():
         failures.append("manifest")
     print()
 
+    # The feature catalogue is generated, and the live suite builds its runs
+    # from features.json: two stale rows sat in both files for days because
+    # nothing re-ran tools/catalogue.py and compared.
+    print("=" * 70)
+    print("features — docs/FEATURES.md and features.json are what the catalogue writes today")
+    print("=" * 70)
+    if subprocess.run([sys.executable, "check_features.py"], cwd=HERE).returncode != 0:
+        failures.append("features")
+    print()
+
     # Cross-cutting, and about a tool rather than a mod: the tech reskin is a
     # generator that runs on somebody else's machine against somebody else's
     # art, so the only things that can be checked here are the promises it

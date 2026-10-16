@@ -8,10 +8,10 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 
 | count | status | means |
 |---|---|---|
-| 86 | DONE | an Elysium module already replaces it |
+| 87 | DONE | an Elysium module already replaces it |
 | 26 | SPLIT | spans several modules; see docs/SPLITS.md |
 | 0 | ACTIVE | being worked on now |
-| 2 | PLANNED | has a target module, not started |
+| 1 | PLANNED | has a target module, not started |
 | 14 | KEEP | stays in the pack on purpose |
 | 75 | DROP | library or performance: nothing to convert |
 | 0 | UNDECIDED | **needs a decision** |
@@ -21,7 +21,6 @@ See `docs/CONVERSION.md` for the architecture and the order of work.
 | module | mods to absorb |
 |---|---|
 | `elysium-agronomy` | 1 |
-| `elysium-foundry` | 1 |
 
 ## Every jar
 

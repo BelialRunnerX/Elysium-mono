@@ -954,6 +954,10 @@ def registries(t):
     for module, entry in sorted(modules.items()):
         modid = entry["modid"]
         for effect, _n in entry["kinds"].get("Effects", []):
+            # one probe takes every effect in turn, so whatever the last give left on it
+            # goes first: a ward or an antidote still running (cryogenic_ward, antitoxin)
+            # makes the effect it guards against refuse to apply, a false failure
+            t.cmd("effect clear @e[tag=elysium_probe]")
             out = t.cmd(f"effect give @e[tag=elysium_probe,limit=1] {modid}:{effect} 10 0 true")
             if "Applied" not in out:
                 bad.append(f"effect {modid}:{effect}: {out[:80]}")

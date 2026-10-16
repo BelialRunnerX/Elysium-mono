@@ -26,6 +26,12 @@ import sys
 ROOT = os.path.dirname(os.path.abspath(__file__))
 COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
 
+#: The call as a statement of its own, handed what moved. Not ".onTake(player, ",
+#: which is half a statement: `if (false) slot.onTake(player, stack);` and
+#: `slot.onTake(player, ItemStack.EMPTY);` both still name it. Whatever comes
+#: before it has to end a statement or open a block.
+TAKES = re.compile(r"[;{}]\s*\w+\.onTake\(player, \w+\);")
+
 
 def read(path):
     return COMMENT.sub(" ", open(path, encoding="utf-8").read())
@@ -68,7 +74,7 @@ def main():
                     continue
                 charging += 1
                 quick = body_of(text, "ItemStack quickMoveStack(")
-                if ".onTake(player, " not in quick:
+                if not TAKES.search(quick):
                     rel = os.path.relpath(path, ROOT).replace(os.sep, "/")
                     problems.append(f"{rel}: a slot here charges in onTake, and quickMoveStack never calls it, so a "
                                     f"shift-click takes the result for nothing and leaves the inputs in place")

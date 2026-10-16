@@ -360,7 +360,11 @@ for kind in kinds:
         # drawn. A deliberate test removed every costume in the project and
         # walked straight through.
         declared = model.split(f"this.{field} = new ModelPart[] {{", 1)
-        worn = declared[1].split("};", 1)[0].count("at(") if len(declared) > 1 else 0
+        # Counted as whole elements, at("bone", "part", ...), each standing
+        # between the commas of the array: a bare `at(` counts one inside a
+        # comment, a string or some other expression just the same.
+        wardrobe = " ".join(declared[1].split("};", 1)[0].split()) if len(declared) > 1 else ""
+        worn = len(re.findall(r'(?:^|,) ?at\("[a-z_]+"(?:, "[a-z0-9_]+")+\)(?= ?,| ?$)', wardrobe))
         if worn == 0:
             fail(f"{kind}'s wardrobe is empty, so that envoy renders as a bare "
                  f"body wearing nothing at all")
@@ -514,8 +518,15 @@ else:
         # write_lang() writes as a side effect and returns a count, so the
         # comparison is done on the file it produces rather than on a return
         # value: regenerate, read, and put the original back either way.
+        # Read twice: `before` with its line endings folded, for the
+        # comparison, and `original` exactly as it is, for the restore. Every
+        # write here is newline=chr(10): a text-mode write on Windows turns
+        # each LF into CRLF, and the restore below used to commit a whole-file
+        # line-ending flip with no content change after every Windows run.
         with open(lang_json, encoding="utf-8") as handle:
             before = handle.read()
+        with open(lang_json, encoding="utf-8", newline="") as handle:
+            original = handle.read()
         try:
             module.write_lang()
             if os.path.exists(village_generator):
@@ -526,7 +537,7 @@ else:
                 with open(lang_json, encoding="utf-8") as handle:
                     merged = json.load(handle)
                 merged.update(village.lang_entries())
-                with open(lang_json, "w", encoding="utf-8") as handle:
+                with open(lang_json, "w", encoding="utf-8", newline=chr(10)) as handle:
                     json.dump(merged, handle, indent=2, ensure_ascii=False,
                               sort_keys=True)
                     handle.write("\n")
@@ -537,8 +548,10 @@ else:
             with open(lang_json, encoding="utf-8") as handle:
                 after = handle.read()
         finally:
-            with open(lang_json, "w", encoding="utf-8") as handle:
-                handle.write(before)
+            # newline=chr(10) writes the string untranslated, so the file goes
+            # back byte for byte, whatever its line endings were
+            with open(lang_json, "w", encoding="utf-8", newline=chr(10)) as handle:
+                handle.write(original)
 
         if before != after:
             missing = sorted(set(json.loads(before)) - set(json.loads(after)))
@@ -1046,7 +1059,7 @@ elif rule_files:
         for source in [os.path.join(PURE, name) for name in rule_files] + [HARNESS]:
             with open(source, encoding="utf-8") as original, \
                     open(os.path.join(staged, os.path.basename(source)), "w",
-                         encoding="utf-8") as copy:
+                         encoding="utf-8", newline=chr(10)) as copy:
                 copy.write(original.read())
         compiled = subprocess.run(
             ["javac", "-nowarn", "-d", classes]

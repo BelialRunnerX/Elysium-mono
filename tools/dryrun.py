@@ -22,9 +22,11 @@ the worktree is what makes a hole in it harmless.
                     check it parses, and stop. Nothing protects the tree.
     --worktree-dir  where to put the copy (default: the system temp directory)
 
-Exit codes: 0 nothing stale; 1 a stale anchor was reported; 2 the dry script
-does not parse; 3 THE REAL TREE CHANGED; 4 the copy could not be built; 5 the
-copy could not be removed and is still on disk.
+Exit codes: 0 nothing stale; 1 a stale anchor was reported (or a traceback,
+or a file that was not there); 2 the dry script does not parse; 3 THE REAL TREE
+CHANGED; 4 the copy could not be built; 5 the copy could not be removed and is
+still on disk; 6 the script's ROOT, or a tree path it names, is not the copy,
+so it was not run at all.
 
 Why this exists: the first hand-rolled version of this neutered edit(), the
 python heredocs and restore(), and left a bare `rm` in the middle of one
@@ -52,8 +54,11 @@ import time
 ASSUMED_ROOT = "/tmp/Elysium-mono"
 
 EDIT = '''edit() { python3 -c "
-import sys
+import os, sys
 p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
+if not os.path.isfile(p):
+    print('STALE: missing file ' + p)
+    sys.exit(0)
 s = open(p, encoding='utf-8').read()
 if old not in s:
     print('STALE: ' + p.split('/')[-1] + ' :: ' + old.strip()[:80])
@@ -517,7 +522,86 @@ def in_place(source, phrases):
     return 0
 
 
-STALE = re.compile(r"STALE|anchor not found|^anchor: |SETUP FAILED")
+#: What a dry run prints when an anchor, or the file it is in, is not there.
+#:
+#: Tracebacks and missing files count too. A script whose every edit target
+#: was missing used to print one FileNotFoundError traceback per edit from the
+#: stubbed edit() above, none of which said STALE, and the run ended "no stale
+#: anchors reported" with status 0 -- negtest_fangs_effects.sh printed 48 of
+#: them that way and was reported clean.
+STALE = re.compile(r"STALE|anchor not found|^anchor: |SETUP FAILED"
+                   r"|Traceback \(most recent call last\)|FileNotFoundError|No such file")
+
+#: The line expect() prints for a case, so a stale line can be put to the case
+#: it belongs to: the edits come first, then the expect that names them.
+CASE = re.compile(r"^\s*(?:caught|MISSED|allowed)\s*:\s*(.*\S)")
+
+#: The first line that sets ROOT, and the assignments a ROOT can be built from.
+ROOT_LINE = re.compile(r"^\s*(?:export\s+)?ROOT=", re.M)
+ASSIGNMENT = re.compile(r"^\s*(?:export\s+)?[A-Za-z_]\w*=")
+
+#: An absolute path, and a component that names a tree (Elysium-mono,
+#: Elysium-int, ...). A path like that left after the rewrite points at a tree
+#: that is not the copy.
+ABSOLUTE = re.compile(r"""(?:(?<=[\s'"=:(])|^)((?:[A-Za-z]:)?[/\\][^\s'"`;|&<>(){}$]*)""", re.M)
+TREE_NAME = re.compile(r"(?:^|[/\\])Elysium-[\w.-]+(?=$|[/\\])")
+
+
+def _same_place(path):
+    """A path in one spelling, so two names for one directory compare equal."""
+    if path.startswith("/") and shutil.which("cygpath"):
+        converted = _run([shutil.which("cygpath"), "-m", path])
+        if converted.returncode == 0 and converted.stdout.strip():
+            path = converted.stdout.strip()
+    return os.path.normcase(os.path.realpath(path))
+
+
+def _inside(path, wt):
+    here, copy = _same_place(path), _same_place(wt)
+    return here == copy or here.startswith(copy.rstrip("\\/") + os.sep)
+
+
+def _not_the_copy(text, dry, wt, run_dir, env):
+    """Why the rewritten script would not be working on the copy, if it would not.
+
+    The rewrite only knows the spellings of this tree. A script that hard-codes
+    another one -- negtest_fangs_*.sh said ROOT=/tmp/Elysium-int, a tree on
+    another machine -- comes through it untouched, and its dry run edits
+    nothing, checks nothing and, if that other path existed, would mutate a
+    tree nobody is fingerprinting. So ROOT is worked out the way the script
+    works it out, next to it, and every absolute path naming a tree is looked at.
+    """
+    reasons = []
+    lines = text.splitlines()
+    first = next((n for n, line in enumerate(lines) if ROOT_LINE.match(line)), None)
+    if first is not None:
+        prelude = [line for line in lines[:first] if ASSIGNMENT.match(line)] + [lines[first]]
+        probe = dry.with_name(dry.stem + "_root.sh")
+        probe.write_text("\n".join(prelude) + "\n"
+                         'printf "%s\\n" "${ROOT:-}"\n'
+                         'cd "${ROOT:-/nonexistent}" 2>/dev/null && { pwd -W 2>/dev/null || pwd; }\n',
+                         encoding="utf-8", newline="\n")
+        try:
+            got = _run([BASH, str(probe)], cwd=wt, env=env).stdout.splitlines()
+        finally:
+            probe.unlink()
+        raw = got[0].strip() if got else ""
+        where = got[1].strip() if len(got) > 1 else ""
+        said = lines[first].strip()[:100]
+        if not raw:
+            reasons.append(f"line {first + 1}, {said}, comes to nothing")
+        elif not where:
+            reasons.append(f"line {first + 1}, {said}, comes to {raw}, which does not exist "
+                           f"-- it is not the copy")
+        elif not _inside(where, wt):
+            reasons.append(f"line {first + 1}, {said}, comes to {where}, which is not the copy")
+    for number, line in enumerate(lines, start=1):
+        if line.lstrip().startswith("#"):
+            continue
+        for path in ABSOLUTE.findall(line):
+            if TREE_NAME.search(path) and not (_inside(path, wt) or _inside(path, run_dir)):
+                reasons.append(f"line {number} names {path}, a tree that is not the copy")
+    return reasons
 
 
 def netted(source, phrases, worktree_dir):
@@ -539,6 +623,7 @@ def netted(source, phrases, worktree_dir):
     wt = _copy_path(run_dir)
     text = ""
     code, stale, wrote, ran = 4, 0, [], 0.0
+    staled = []   # (case, the stale lines printed before it)
     checkout = carry = 0.0
     try:
         wt, checkout, carry, changed, copied = _build_copy(real_root, run_dir)
@@ -555,6 +640,20 @@ def netted(source, phrases, worktree_dir):
                   f"would report nothing and that would look like a pass:\n"
                   + parsed.stderr.strip()[:600])
             return 2
+        # ${ELYSIUM_ROOT:-...} is how three scripts find the tree. Whatever the
+        # caller's shell has it set to, in a dry run it is the copy.
+        env = dict(os.environ)
+        env["PYTHONPATH"] = site + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
+        env["ELYSIUM_ROOT"] = wt
+        elsewhere = _not_the_copy(text, dry, wt, run_dir, env)
+        if elsewhere:
+            print(f"the dry run of {source.name} would not be working on the copy, so it was "
+                  f"not run -- a dry run of nothing prints nothing, which reads exactly like "
+                  f"a clean one:")
+            for reason in elsewhere:
+                print("   ", reason)
+            print("    point it at /tmp/Elysium-mono (or ${ELYSIUM_ROOT:-...}) and dry-run it again")
+            return 6
         # Stage the copy's starting state in its own index, so that afterwards
         # `git status` there lists exactly what the dry script wrote.
         _git("-C", wt, "add", "-A")
@@ -565,18 +664,28 @@ def netted(source, phrases, worktree_dir):
         for n, line in left:
             print(f"    still mentions the tree by name on line {n} (fine if it is a comment): {line[:100]}")
         print("---")
-        env = dict(os.environ)
-        env["PYTHONPATH"] = site + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
         before = _fingerprint(real_root)
         t = time.perf_counter()
         proc = subprocess.Popen([BASH, str(dry)], cwd=wt, env=env, stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT, text=True, encoding="utf-8",
                                 errors="replace", bufsize=1)
+        pending, last_case = [], None
         for line in proc.stdout:
             sys.stdout.write(line)
             sys.stdout.flush()
             if STALE.search(line):
                 stale += 1
+                pending.append(line.strip())
+                continue
+            case = CASE.match(line)
+            if case:
+                last_case = case.group(1)
+                if pending:
+                    staled.append((last_case, pending))
+                    pending = []
+        if pending:
+            staled.append(("after the last case" + (f" ({last_case})" if last_case else ""),
+                           pending))
         proc.wait()
         ran = time.perf_counter() - t
         after = _fingerprint(real_root)
@@ -622,7 +731,10 @@ def netted(source, phrases, worktree_dir):
                   "was running -- something else is editing this tree:)")
             _say_what_moved(wide_before, wide_after, text)
         if stale:
-            print(f"{stale} stale-anchor line(s) above")
+            print(f"{stale} stale-anchor line(s) above, in {len(staled)} case(s):")
+            for case, said in staled:
+                more = f" (and {len(said) - 1} more line(s))" if len(said) > 1 else ""
+                print(f"    {case}: {said[0][:110]}{more}")
         elif code in (0, 3, 5):
             print("no stale anchors reported")
         print(f"net: copy built in {checkout + carry:.1f}s (checkout {checkout:.1f}s, carrying the "

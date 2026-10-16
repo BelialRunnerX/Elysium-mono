@@ -1152,7 +1152,8 @@ if "NonNullList.withSize(input.size(), ItemStack.EMPTY)" not in _remaining:
 if "knows(part)" not in _learn:
     fail("a plan learned twice is learned twice, so a book grows a list of "
          "duplicates")
-if "more.sort(" not in _learn:
+if "more.sort(String::compareTo);" not in _learn \
+        or "return new ArmoryPlanBook(more);" not in _learn:
     fail("the plans are kept in the order they were learned, so two books that know "
          "the same plans are different items")
 if "fits(found.part(), found.materials())" not in _part_recipe:

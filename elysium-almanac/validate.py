@@ -948,7 +948,10 @@ for field, called in sorted(ATTACHMENTS.items()):
     for statement, why in (
             (".copyOnDeath()",
              "is lost when the player dies, which is not a difficulty setting"),
-            (".sync(",
+            (".sync(StreamCodec.of( (buffer, value) -> ByteBufCodecs.STRING_UTF8 "
+             ".apply(ByteBufCodecs.list()) .encode((RegistryFriendlyByteBuf) buffer, value), "
+             "buffer -> ByteBufCodecs.STRING_UTF8 .apply(ByteBufCodecs.list()) "
+             ".decode((RegistryFriendlyByteBuf) buffer)))",
              "is never sent to the client, so the book a player opens is blank "
              "however much they have done"),
             (".serialize(Codec.STRING.listOf())",

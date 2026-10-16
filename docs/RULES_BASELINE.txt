@@ -7,3 +7,21 @@
 # come out as the modules they are in are next touched.
 #
 # Fewer lines here is the only direction this file may move.
+elysium-lib	.built(
+elysium-lib	ElysiumCharacter.addXp(
+elysium-lib	ElysiumConspicuity.scaled(
+elysium-lib	ElysiumCraftLog.record(
+elysium-lib	ElysiumKindTags.tagsFor(
+elysium-lib	ElysiumLootCategory.of(
+elysium-lib	ElysiumShares.add(
+elysium-lib	ElysiumShares.sane(
+elysium-lib	ElysiumShares.share(
+elysium-lib	ElysiumXpRules.allow(
+elysium-lib	Math.max(
+elysium-lib	fromFire(
+elysium-lib	fromSources(
+elysium-lib	fromSun(
+elysium-lib	gradeFor(
+elysium-lib	pieceShare(
+elysium-lib	refresh(
+elysium-lib	unit(

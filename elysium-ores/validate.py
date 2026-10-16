@@ -568,7 +568,8 @@ if "ElysiumTiers.of(" not in block_src:
          "what the Overworld pays")
 
 gate = strip_comments(read(SRC, "place/FamilyPresent.java"))
-if "OreDrops.present(" not in body_of(gate, "protected boolean shouldPlace"):
+if "return OreDrops.present(family, vanilla.isEmpty() ? null : vanilla);" \
+        not in body_of(gate, "protected boolean shouldPlace"):
     fail("the family gate does not ask whether the material exists, so it gates on "
          "nothing")
 print("the drop           : silk touch, fortune, the world tier, and the pack's own item")

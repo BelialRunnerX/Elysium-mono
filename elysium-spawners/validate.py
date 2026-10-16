@@ -270,15 +270,21 @@ if "extends BaseSpawner" not in entity_code:
          "understands — the checks, the particles, the creature turning in the cage — "
          "would then be this module's to reimplement and get subtly wrong")
 applied = method_body(entity_code, "private void apply(")
-for key, call in (("MinSpawnDelay", "SpawnerRules.minDelay("),
-                  ("MaxSpawnDelay", "SpawnerRules.maxDelay("),
-                  ("SpawnCount", "SpawnerRules.spawnCount("),
-                  ("MaxNearbyEntities", "SpawnerRules.maxNearby("),
-                  ("SpawnRange", "SpawnerRules.spawnRange(")):
-    if key not in applied or call not in applied:
+for key, call in (
+        ("MinSpawnDelay", 'tag.putShort("MinSpawnDelay", '
+                          '(short) SpawnerRules.minDelay(tuning.delaySteps()));'),
+        ("MaxSpawnDelay", 'tag.putShort("MaxSpawnDelay", '
+                          '(short) SpawnerRules.maxDelay(tuning.delaySteps()));'),
+        ("SpawnCount", 'tag.putShort("SpawnCount", '
+                       '(short) SpawnerRules.spawnCount(tuning.countSteps()));'),
+        ("MaxNearbyEntities", 'tag.putShort("MaxNearbyEntities", '
+                              '(short) SpawnerRules.maxNearby(tuning.nearbySteps()));'),
+        ("SpawnRange", 'tag.putShort("SpawnRange", '
+                       '(short) SpawnerRules.spawnRange(tuning.spreadSteps()));')):
+    if call not in " ".join(applied.split()):
         fail(f"the tuning is not pushed into the spawner's {key}, so a rune raises a "
              f"number nothing reads")
-if "spawner.load(" not in applied:
+if "spawner.load(level, getBlockPos(), tag);" not in applied:
     fail("the tuning is written into a tag and never handed to the spawner")
 if "SpawnerRules.ALWAYS_AWAKE" not in entity_code:
     fail("a spawner told to ignore players is not given a range that always contains "
@@ -290,7 +296,7 @@ if "tuning.redstone()" not in ticked:
     fail("every spawner waits for a redstone signal rather than only the ones told to")
 loaded = method_body(entity_code, "protected void loadAdditional(")
 saved = method_body(entity_code, "protected void saveAdditional(")
-if "spawner.load(" not in loaded or "spawner.save(" not in saved:
+if "spawner.load(level, getBlockPos(), tag);" not in loaded or "spawner.save(tag);" not in saved:
     fail("the spawner's own contents are not both written and read, so what is in a "
          "spawner is lost on the next restart")
 if '"tuning"' not in loaded or '"tuning"' not in saved:
@@ -301,13 +307,13 @@ if "protected void collectImplicitComponents(" not in entity_code \
     fail("the spawner does not offer its tuning as a component, so a spawner picked up "
          "and put down again forgets what was done to it")
 used = method_body(block_code, "protected ItemInteractionResult useItemOn(")
-if "SpawnerModifiers.get().forItem(" not in used:
+if "SpawnerModifiers.Modifier modifier = SpawnerModifiers.get().forItem(held);" not in used:
     fail("what a held item does to a spawner is decided in Java rather than read from "
          "the data, so a pack cannot add a rune or change one")
 if "SpawnerRules.stepCost(steps)" not in used:
     fail("a step on an axis costs a flat number rather than one that climbs with the "
          "steps already taken, so it is a number this module made up on the spot")
-if "held.shrink(" not in method_body(block_code, "private static boolean spend("):
+if "held.shrink(cost);" not in method_body(block_code, "private static boolean spend("):
     fail("tuning a spawner does not consume the runes, so one rune tunes a spawner "
          "forever")
 if "instabuild" not in method_body(block_code, "private static boolean spend("):
@@ -410,7 +416,7 @@ dropped = method_body(pickup_code, "public static void onDrops(")
 if not dropped:
     fail("nothing picks a spawner up, which is the whole of what this module is for")
 else:
-    if "hasSilkTouch(" not in dropped:
+    if "if (!hasSilkTouch(event.getLevel(), event.getTool())) {" not in dropped:
         fail("a spawner comes up with any tool at all, so the silk-touch pickaxe every "
              "player saves for is worth nothing")
     if "DataComponents.BLOCK_ENTITY_DATA" not in dropped:
@@ -419,16 +425,17 @@ else:
     if "SpawnerComponents.TUNING.get()" not in dropped:
         fail("the dropped spawner does not carry what was done to it, so moving one "
              "loses a player every rune they spent")
-    if "isVanillaSpawner(" not in dropped:
+    if "boolean vanilla = isVanillaSpawner(entity);" not in dropped:
         fail("vanilla's own spawner is not picked up, so every spawner already in every "
              "world stays what it was and this module only applies to itself")
-    if "carriable(" not in dropped:
+    if "if (ours && !carriable(((ElysiumSpawnerBlockEntity) entity).tuning())) {" not in dropped:
         fail("an unstable spawner can be pocketed, which is the one thing it is not for")
-    if "smashed(" not in dropped:
+    if "smashed(event);" not in dropped:
         fail("a spawner broken without silk touch gives nothing, so smashing one is "
              "strictly worse than leaving it and every player smashes it anyway")
 smashed = method_body(pickup_code, "private static void smashed(")
-if "UNSTABLE" not in smashed or "getRandomItems(" not in smashed:
+if "UNSTABLE" not in smashed \
+        or "for (ItemStack stack : table.getRandomItems(params)) {" not in smashed:
     fail("what a smashed spawner is worth is decided in Java rather than by a loot "
          "table, so a pack cannot change it")
 if not os.path.isfile(os.path.join(RES, f"data/{NS}/loot_table/unstable_spawner.json")):

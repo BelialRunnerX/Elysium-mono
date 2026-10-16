@@ -1,6 +1,6 @@
 # The negative tests
 
-212 scripts. Each one takes a validator that passes, breaks the thing it
+213 scripts. Each one takes a validator that passes, breaks the thing it
 checks — one way at a time — and proves the validator says so.
 
 They are here because they were not, for most of this project's life. They
@@ -39,6 +39,15 @@ something. The dry run reports nothing but stale anchors, which is the only
 thing worth knowing before a real run: an anchor that no longer matches means
 the script is testing a line that has since been rewritten, and it will
 silently test nothing.
+
+A `Traceback`, a `FileNotFoundError` or a `No such file` in the dry output
+counts as stale too, named by the case it came before, since 15 October: a
+script whose every edit target was missing used to print one traceback per
+edit and still end "no stale anchors" with status 0 (`negtest_fangs_effects.sh`,
+48 of them). And a script whose `ROOT=`, or any absolute path naming an
+`Elysium-*` tree, does not resolve into the copy after the rewrite is refused
+with exit 6 before it runs, because `ROOT=/tmp/Elysium-int` is a dry run of
+nothing, which reads exactly like a clean one.
 
 After the script's output it says three more things: what the dry script
 wrote *inside the copy* (the patterns missed those; the copy absorbed them),

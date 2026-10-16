@@ -7,10 +7,13 @@ import com.elysium.lib.ability.ElysiumAbilityRules;
 import com.elysium.lib.ability.act.ElysiumAbilityUse;
 import com.elysium.lib.trinket.ElysiumTrinkets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -85,16 +88,48 @@ public final class RelicPassives {
         }
     }
 
+    /**
+     * Each player and trigger being fired right now, as "uuid trigger".
+     *
+     * <p>An on-hit ability that hurts is itself a hit: perform's own blow posts
+     * LivingIncomingDamageEvent, which comes straight back into fire("on_hit")
+     * before perform has returned. With the cooldown written after perform, the
+     * first melee hit with an emberbrand belt, a stormcoil, a sunder seal or a
+     * cleaving band went round until the server's stack ran out (the review of
+     * 16 October 2026). The cooldown now goes on before the call, as the
+     * arsenal's uniques do it, and this refuses a trigger fired from inside
+     * itself, so an ability with no cooldown at all cannot go round either.
+     * Events reach it on the server thread only.
+     */
+    private static final Set<String> FIRING = new HashSet<>();
+
     /** Fires every carried triggered ability with this trigger that is off its cooldown. */
     private static void fire(ServerPlayer player, String trigger) {
-        for (Carried one : carried(player)) {
-            ElysiumAbilityRules.Ability ability = one.ability();
-            if (ElysiumAbilityRules.TRIGGERED.equals(ability.kind()) && trigger.equals(ability.trigger())
-                    && !player.getCooldowns().isOnCooldown(one.stack().getItem())) {
-                if (ElysiumAbilityUse.perform(ability, player) && ability.cooldown() > 0) {
-                    player.getCooldowns().addCooldown(one.stack().getItem(), ability.cooldown());
+        String firing = player.getStringUUID() + " " + trigger;
+        if (!FIRING.add(firing)) {
+            return;
+        }
+        try {
+            for (Carried one : carried(player)) {
+                ElysiumAbilityRules.Ability ability = one.ability();
+                Item item = one.stack().getItem();
+                if (ElysiumAbilityRules.TRIGGERED.equals(ability.kind()) && trigger.equals(ability.trigger())
+                        && !player.getCooldowns().isOnCooldown(item)) {
+                    // Started before it fires, and taken back if nothing happened.
+                    if (ability.cooldown() > 0) {
+                        player.getCooldowns().addCooldown(item, ability.cooldown());
+                    }
+                    // Still the two-argument perform, so an on-hit lands on whatever
+                    // the library picks, not on the entity this hit struck. That waits
+                    // for Quill's ElysiumAbilityUse.perform(ability, user, struck) to
+                    // land on main; until then who is struck is unchanged here.
+                    if (!ElysiumAbilityUse.perform(ability, player) && ability.cooldown() > 0) {
+                        player.getCooldowns().removeCooldown(item);
+                    }
                 }
             }
+        } finally {
+            FIRING.remove(firing);
         }
     }
 

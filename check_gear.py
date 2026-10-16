@@ -47,6 +47,15 @@ ROOT = pathlib.Path(__file__).resolve().parent
 # the inner method. Everything else is content.
 LIBRARY_FILE = "ElysiumSocketable.java"
 
+# The whole statements that hand the treatment back, whitespace aside: the
+# override returns what elysiumModifiers makes of the default for its slot
+# group, or folds it into the modifiers it is building and returns those. The
+# bare call would pass with its answer thrown away.
+TREATED_RETURN = (r"return elysiumModifiers\(stack, super\.getDefaultAttributeModifiers\(stack\), "
+                  r"EquipmentSlotGroup\.[\w.()]+\);")
+TREATED_FOLD = "modifiers = elysiumModifiers(stack, modifiers, group);"
+FOLD_RETURNED = "return modifiers;"
+
 
 def mod_sources():
     """Every content mod's java, under either the multi-repo or mono layout."""
@@ -93,7 +102,8 @@ def check(mod_name, source_dir):
             if "getDefaultAttributeModifiers" not in body:
                 # Inherits the default, which is already the whole treatment.
                 continue
-            if "elysiumModifiers(" in body:
+            flat = " ".join(body.split())
+            if re.search(TREATED_RETURN, flat) or (TREATED_FOLD in flat and FOLD_RETURNED in flat):
                 continue
             if "applyRunes(" in body:
                 problems.append(
@@ -103,8 +113,10 @@ def check(mod_name, source_dir):
             else:
                 problems.append(
                     f"{mod_name}: {path.name}: {name} overrides getDefaultAttributeModifiers "
-                    f"without calling elysiumModifiers(...), so it gets neither its socketed "
-                    f"runes nor its ascension bonuses")
+                    f"without handing back what elysiumModifiers(...) makes ({TREATED_FOLD} "
+                    f"then {FOLD_RETURNED}, or return elysiumModifiers(stack, "
+                    f"super.getDefaultAttributeModifiers(stack), <its slot group>);), so it "
+                    f"gets neither its socketed runes nor its ascension bonuses")
     return sorted(set(problems))
 
 

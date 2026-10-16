@@ -1191,9 +1191,11 @@ def main():
         MODEL.format(parts=part_lines(boxes, sheet, skin), sheet=sheet,
                      fields="\n".join(fields) + "\n",
                      wiring="".join(wiring),
-                     toggles="".join(toggles)), encoding="utf-8")
-    (JAVA / "client/EnvoyRenderer.java").write_text(RENDERER, encoding="utf-8")
-    (JAVA / "client/ElysiumNpcsClient.java").write_text(CLIENT, encoding="utf-8")
+                     toggles="".join(toggles)), encoding="utf-8", newline=chr(10))
+    (JAVA / "client/EnvoyRenderer.java").write_text(RENDERER, encoding="utf-8",
+                                                     newline=chr(10))
+    (JAVA / "client/ElysiumNpcsClient.java").write_text(CLIENT, encoding="utf-8",
+                                                       newline=chr(10))
 
     for kind, palette in PALETTES.items():
         write_sheet(RES / f"textures/entity/envoy/{kind}.png",

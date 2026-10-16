@@ -941,19 +941,22 @@ else:
                     return beacon[start:index + 1]
         return None
 
-    for _signature, _what in (("private void stake(", "planting"),
-                              ("private InteractionResult ascend(", "ascending")):
+    for _signature, _what, _absorbs in (
+            ("private void stake(", "planting", "absorbWorks(level, player, claim);"),
+            ("private InteractionResult ascend(", "ascending", "absorbWorks(level, player, grown);")):
         _body = _beacon_body(_signature)
         if _body is None:
             fail(f"RegistryBeaconBlock has no {_signature.strip('(')}; the "
                  f"works check cannot find the {_what} path")
-        elif "absorbWorks(" not in _body:
+        elif _absorbs not in _body:
             fail(f"{_what} a Registry Beacon no longer absorbs the "
                  f"unregistered works it covers. The survey keeps watching a "
                  f"base its owner has put on the record, and registering buys "
                  f"nothing but the floor")
     _absorb = _beacon_body("private static void absorbWorks(")
-    if _absorb is not None and ".registered(" not in _absorb:
+    if _absorb is not None and (
+            "int cleared = com.elysium.lib.works.ElysiumWorks.of(level).registered(claim);"
+            not in _absorb):
         fail("absorbWorks no longer asks ElysiumWorks to register anything")
     # §E.1: "beacon destruction releases claim but does not erase constructed
     # world". Nothing in this block may remove or replace blocks.
@@ -1881,7 +1884,11 @@ if "resistanceAmplifier" in _runes_code:
 # would reach level V, all damage, at tier 3 aligned.
 _res = re.search(r"MobEffects\.DAMAGE_RESISTANCE,\s*DURATION,\s*(.*?)\)\s*,\s*false",
                  _runes_code, re.S)
-if _res is None or "percentileAmplifier(" not in _res.group(1):
+# The whole amplifier argument, not the name of the call inside it: a
+# `0 * percentileAmplifier(...)` or a call with its stat swapped still names it.
+_amplifier = re.sub(r"\s+", "", _res.group(1)) + ")" if _res else None
+if _amplifier != ("ElysiumRuneTiers.percentileAmplifier(baseLevel(aligned),tier(scale),"
+                  "ElysiumRuneTiers.RESISTANCE_PER_LEVEL)"):
     fail("Resistance is granted by the linear tier rule; it is a percentage of "
          "damage and must follow stat / (stat + b) via percentileAmplifier")
 
@@ -1910,19 +1917,23 @@ if _perform is None or _merge is None:
     fail("the forge menu has lost performAction or mergeRunes; runes cannot "
          "be merged")
 else:
-    _m = _perform.find("mergeRunes(")
-    _g = _perform.find("ElysiumGear.of(armor)")
-    if _m < 0 or "armor.isEmpty()" not in _perform[:_m] or (0 <= _g < _m):
+    # The whole gate, so the merge cannot be reached some other way or left
+    # standing after a guard that no longer returns.
+    _perform_flat = squashed(_perform)
+    _m = _perform_flat.find("if (armor.isEmpty()) { mergeRunes(player, material, rune); return; }")
+    _g = _perform_flat.find("ElysiumGear.of(armor)")
+    if _m < 0 or (0 <= _g < _m):
         fail("rune merging is not reached with the gear slot empty, before any "
              "gear logic; either it never runs or a rune meant for socketing "
              "gets merged instead")
     if "tierOf(rune)" not in _perform:
         fail("socketing ignores the rune's tier: a merged rune goes into gear "
              "as tier 1 and the runes spent merging it are simply lost")
-    if "canMerge(" not in _merge or "tierOf(material) == tier" not in _merge:
+    if "if (!com.elysium.lib.item.ElysiumRuneTiers.canMerge(tier, tier)) {" not in _merge \
+            or "tierOf(material) == tier" not in _merge:
         fail("mergeRunes does not insist on two of the same tier; a tier-1 "
              "and a tier-4 would make a tier 5")
-    if "player.drop(" not in _merge:
+    if "player.drop(merged, false);" not in _merge:
         fail("a merged rune that does not fit anywhere is not dropped, so it "
              "is destroyed")
 
@@ -1960,7 +1971,7 @@ if _tooltip_calls:
          f"(Relics) crashed the server this way. Use ElysiumSocketable.describe")
 
 _teardown = _menu_body("private void teardown(")
-if _teardown is None or ".describe(" not in _teardown \
+if _teardown is None or "socketable.describe(gear, lines);" not in _teardown \
         or not re.search(r"catch\s*\(\s*RuntimeException\s*\|\s*LinkageError", _teardown):
     fail("the bench's teardown readout is not built with describe() inside a guard "
          "that catches LinkageError; a readout must never be able to take a "
@@ -2344,7 +2355,9 @@ else:
     if "floorOf(player)" not in tier_block:
         fail("the tier command reports a tier and not where it came from — a player "
              "whose tier is held up by a world floor cannot tell")
-    if "ElysiumWorldTier.share(" not in tier_block:
+    if "source.sendSuccess(() -> Component.translatable(\"elysium.command.tier.share\", " \
+            "String.format(\"%.1f\", com.elysium.lib.tier.ElysiumWorldTier.share(tier) * 100.0D)) " \
+            ".withStyle(ChatFormatting.DARK_GRAY), false);" not in squashed(tier_block):
         fail("the tier command does not say what the tier is worth, which is the only "
              "part a player can act on")
     for key in ("elysium.command.tier.header", "elysium.command.tier.from",

@@ -1396,6 +1396,71 @@ if "ElysiumAbilityRules.ACTIVE.equals(ability.kind())" not in _active:
          "the one that is an active, so pressing it could set off something "
          "that is always on")
 
+# A carried relic's on-hit cannot fire itself.
+#
+# An on-hit that hurts is itself a hit: perform's own blow posts
+# LivingIncomingDamageEvent, which comes straight back into fire("on_hit")
+# before perform has returned. With the cooldown written after perform, the
+# first melee hit with an emberbrand belt, a stormcoil, a sunder seal or a
+# cleaving band went round until the server's stack ran out (the review of 16
+# October 2026), and no check here had ever read the file. Named whole and in
+# order, because addCooldown and perform are both still in the method after the
+# very edit that brings the crash back.
+_passives = strip_comments(read(SRC, "event/RelicPassives.java"), True)
+#: How fire() must open, squashed: the key, the refusal, and the try that
+#: holds everything else.
+FIRE_OPENS = ('{ String firing = player.getStringUUID() + " " + trigger; '
+              'if (!FIRING.add(firing)) { return; } try {')
+_fire = squashed(body_of(_passives,
+                         "private static void fire(ServerPlayer player, String trigger)"))
+if not _fire:
+    fail("RelicPassives has no fire(), so nothing says whether a carried "
+         "relic's on-hit ability can fire itself")
+else:
+    _write = _fire.find("if (ability.cooldown() > 0) { "
+                        "player.getCooldowns().addCooldown(item, ability.cooldown()); }")
+    _first = _fire.find("ElysiumAbilityUse.perform(ability, player)")
+    _call = _fire.find("if (!ElysiumAbilityUse.perform(ability, player) && "
+                       "ability.cooldown() > 0) { "
+                       "player.getCooldowns().removeCooldown(item); }")
+    _clear = _fire.rfind("} finally { FIRING.remove(firing); }")
+    if _write < 0 or _call < 0:
+        fail("a carried relic's triggered ability no longer starts its cooldown "
+             "and fires through the library in the statements this names, so "
+             "nobody can say which comes first")
+    elif _write > _first:
+        fail("a relic's on-hit cooldown goes on after the ability fires, so the "
+             "ability's own blow is a hit that fires it again, round and round "
+             "until the server's stack runs out")
+    # Exact rather than ordered: the key is taken and refused before anything
+    # else in the method, and the whole of everything after it is the try. A
+    # position chain (key < refuse < try < perform) passed with a statement
+    # slipped in between, and FIRING.remove(firing) is a statement.
+    if "private static final Set<String> FIRING = new HashSet<>();" \
+            not in squashed(_passives) or not _fire.startswith(FIRE_OPENS):
+        fail("fire() no longer refuses a trigger fired from inside itself, so an "
+             "on-hit ability with no cooldown recurses until the server's stack "
+             "runs out (its body must open with \"" + FIRE_OPENS + "\")")
+    if _clear < _call or not _fire.endswith("} finally { FIRING.remove(firing); } }"):
+        fail("fire() does not clear its guard in a finally after the ability "
+             "fires, so the first hit leaves that player's on-hit refused for good")
+    # That finally is the only release, and of the key that was taken: FIRING
+    # is named exactly three times in the file — the declaration, the add that
+    # opens fire(), the one remove in its finally — so a second remove in front
+    # of perform, a clear() somewhere else, or a second add is one too many. A
+    # list of the ways a Set can be emptied was a list somebody could finish.
+    _named = len(re.findall(r"\bFIRING\b", _passives))
+    if _named != 3:
+        fail(f"RelicPassives names FIRING {_named} time(s) rather than three (its "
+             f"declaration, the add that opens fire(), the one remove in its "
+             f"finally), so fire() lets go of its guard before the ability has "
+             f"fired, or takes or lets go of some other one, and an on-hit's own "
+             f"blow comes back in before perform has returned")
+    if len(re.findall(r"\bfiring\s*\+?=(?!=)", _fire)) != 1:
+        fail("fire() assigns firing more than once, so the key its finally "
+             "releases is not the key it took, and that player's on-hit is "
+             "refused for good")
+
 print(f"relics             : {len(relic_ids)} across "
       f"{len({row[1] for row in relic_rows})} slot(s), carrying every one of "
       f"{len(library_abilities)} abilities the library defines, each list legal by "

@@ -1616,9 +1616,13 @@ for name in presets:
              f"would generate")
         continue
     entries = source.get("biomes", [])
+    # The strangeness bands counted as whole elements, new WildRules.Span(a, b),
+    # each between the commas of the list: a bare `Span(` counts one nested in
+    # some other expression just the same.
     ours_count = len(roster) * len(re.findall(
-        r"Span\(", re.search(r"STRANGENESS\s*=\s*List\.of\((.*?)\);",
-                             over_src, re.S).group(1))) if roster else 0
+        r"(?:^ ?|, )new WildRules\.Span\(-?\d+\.\d+D, -?\d+\.\d+D\)(?=,|$)",
+        re.search(r"STRANGENESS\s*=\s*List\.of\((.*?)\);",
+                  over_src, re.S).group(1))) if roster else 0
     # A vanilla claim that lies wholly inside one of our crags' boxes is a tie
     # everywhere it is, and the game settles ties by the order its tree happens
     # to hold, not the order of the list: the crags lost every one and eight

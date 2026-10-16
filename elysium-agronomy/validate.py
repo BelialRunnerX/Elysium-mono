@@ -479,10 +479,14 @@ if "pots <= 0 ? null" not in drawing:
          "walled off is a permanent cost with no effect")
 
 hive = strip_comments(read(SRC, "block/HiveBlock.java"))
-if "AgronomyRules.combsPerHour(" not in body_of(hive, "public float rate()"):
+hive_rate = squashed(body_of(hive, "public float rate()"))
+if "float crowded = AgronomyRules.combsPerHour(bees(), flowering());" not in hive_rate \
+        or "float bare = AgronomyRules.combsPerHour(bees(), bees() * AgronomyRules.FLOWERS_PER_BEE);" \
+        not in hive_rate \
+        or "float share = bare <= 0.0F ? 0.0F : crowded / bare;" not in hive_rate:
     fail("a hive works out its own crowding, so how a full hive slows is decided "
          "somewhere the harness cannot execute it")
-if "ApiaryRules.perHour(" not in body_of(hive, "public float rate()"):
+if "return ApiaryRules.perHour(1, housing(), fitted()) * share * ratio();" not in hive_rate:
     fail("a hive works out its own rate rather than asking the rules for it, so the "
          "one line a hive may not cross is enforced over arithmetic the block does "
          "not use")

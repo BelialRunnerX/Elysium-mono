@@ -109,6 +109,12 @@ check at the end catches the thirty-sixth entry somebody forgot. A hand-written
 list of thirty-five does not, and the symptom is one item that quietly does not
 exist.
 
+**Write a validator rule the way the ratchet reads it.** Name it as
+`"<whole statement>" in <body>`, or in one of the other forms `check_rules.py`
+lists in its docstring, so the ratchet can see it; a rule spelled some cleverer
+way may be right and is still invisible to it, which is how half-statement
+rules once read as zero.
+
 ## What has actually gone wrong here
 
 Every one of these shipped at least once, and each is now checked:
@@ -117,8 +123,8 @@ A check guarded by the very thing it tests passes by never running. A rule that
 compared a weapon's damage to *its own* damage could not report anything and
 sat in the file looking like a check for weeks. A validator rule that names
 half a statement survives the edit it was written to catch — hence
-`check_rules.py`, which is a ratchet: ninety-four such rules are grandfathered
-and no new one may be added. A domination rule with no categorical axis demands
+`check_rules.py`, which is a ratchet: the rules still grandfathered are all in
+elysium-lib, and no new one may be added. A domination rule with no categorical axis demands
 that a bow and a pickaxe be compared, so it either reports everything or is
 turned off; give it an axis and then give it **positive controls**, or it will
 one day quietly stop being able to say yes.

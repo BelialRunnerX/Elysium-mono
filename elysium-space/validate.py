@@ -1296,7 +1296,16 @@ else:
         if "REACH" not in _near or re.search(r"offset\(\s*-?\d", _near):
             fail("nearestAnchor searches a hard-coded distance rather than REACH, so the "
                  "stated reach and the checked one can disagree")
-    if _send.count("WaygateRing.read(") < 2:
+    # Both ends, by name: a count of the call is satisfied by two reads of the
+    # same ring, or by one read whose answer nobody looks at.
+    if 'if (!WaygateRing.read(from, standing).complete()) { ' \
+            'return Component.translatable("elysiumspace.waygate.unbuilt"); }' not in _send:
+        fail("travel does not check the ring the traveller is standing in, so a gate "
+             "with its frame half broken still sends")
+    if 'if (!WaygateRing.read(there, anchor).complete()) { ' \
+            'network.forget(going.dimension(), anchor); ' \
+            'return Component.translatable("elysiumspace.waygate.broken_there", ' \
+            'going.shown()); }' not in _send:
         fail("travel checks one end of the journey and not the other, so a gate whose "
              "far ring was broken drops a player into the ground")
     if "addRegionTicket" not in _send:
@@ -1392,7 +1401,8 @@ else:
              "cannot be sent to from the overworld, which is the only thing freight "
              "is for")
     for _half in ("private static FreightNetwork load(", "public CompoundTag save("):
-        if "RegistryOps.create(" not in body_of(_freight_net, _half):
+        if "RegistryOps<Tag> ops = RegistryOps.create(NbtOps.INSTANCE, lookup);" \
+                not in body_of(_freight_net, _half):
             fail(f"cargo is read or written with plain NBT ops in {_half.split()[-1]}, "
                  f"so an enchanted tool in a shipment loses its components and lands "
                  f"as a stick")
@@ -1422,13 +1432,16 @@ else:
 
     _launch = squashed(body_of(_dispatch, "public static Component launch("))
     for _needed, _why in (
-            ("FreightRules.fuelFor(", "a run is not priced, so distance costs nothing"),
-            ("FreightRules.flightTicks(", "a run takes no time, so distance is free "
-                                          "in the other direction too"),
+            ("int need = FreightRules.fuelFor(route, terminal.stacksAboard());",
+             "a run is not priced, so distance costs nothing"),
+            ("int flight = FreightRules.flightTicks( SpaceRoute.gap(here.world(), "
+             "there.world()));",
+             "a run takes no time, so distance is free in the other direction too"),
             ("network.inFlightFrom(here) >= FreightRules.IN_FLIGHT",
              "a terminal can have any number of rockets in the air, so the queue "
              "that makes distance matter does not exist"),
-            ("drain(", "the fuel is checked and never spent"),
+            ("terminal.fuelTank().drain(need, IFluidHandler.FluidAction.EXECUTE);",
+             "the fuel is checked and never spent"),
             ("terminal.unload()", "the cargo is never taken out of the terminal, so "
                                   "launching duplicates it")):
         if _needed not in _launch:

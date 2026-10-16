@@ -920,20 +920,22 @@ def method_body(source, signature):
     return source[at:end if end >= 0 else len(source)]
 
 
-def calls(source, signature, callee):
-    """Whether one method actually calls another.
+def calls(source, signature, statement):
+    """Whether one method holds a whole statement, whitespace aside.
 
     This exists because the same mistake has now been made three times in this
     file: a check written as `if "thing(" not in source` finds the *declaration*
     of `thing` and passes when every call to it has been deleted. A guard that a
     method exists is not a guard that anything uses it, and the two look
-    identical at a glance.
+    identical at a glance. And a guard that names only the call (`thing(`)
+    passes when the call is still there and its answer is thrown away, so the
+    caller names the whole statement that uses it.
 
     Returns False when the method is not declared at all, which is also a
     failure worth reporting — the caller says which.
     """
     body = method_body(source, signature)
-    return body is not None and callee in body
+    return body is not None and statement in " ".join(body.split())
 
 
 def camel(block_id):
@@ -1211,9 +1213,22 @@ else:
              "capability, so the harvesters work with whatever class it names "
              "and with nothing else in the game")
 
-# Each machine that cuts something out of the world, and the method that cuts.
-for _machine, _cutter in (("HarvesterEntity", "private boolean harvest("),
-                          ("TreeHarvesterEntity", "private boolean fell(")):
+# Each machine that cuts something out of the world, the method that cuts, the
+# whole guard that stops it, the whole statement that cuts, and the method and
+# whole statement that pay for the replant out of the harvest — the call alone
+# stays green with its answer thrown away.
+for _machine, _cutter, _guard, _cut, _pays_in, _pays in (
+        ("HarvesterEntity", "private boolean harvest(",
+         "if (!SolarpunkOutput.fits(tray, drops)) { return false; }",
+         "server.setBlockAndUpdate(target, replanted);",
+         "private boolean harvest(",
+         "if (!seedPaid && paysForReplant(drop, replanted)) { drop.shrink(1); seedPaid = true; }"),
+        ("TreeHarvesterEntity", "private boolean fell(",
+         "if (!SolarpunkOutput.fits(tray, harvest)) { return false; }",
+         "server.setBlock(log, net.minecraft.world.level.block.Blocks.AIR .defaultBlockState(), "
+         "Block.UPDATE_ALL);",
+         "private void replant(",
+         "if (!payForSapling(sapling)) { return; } server.setBlockAndUpdate(base, sapling);")):
     _path = JAVA / f"machine/{_machine}.java"
     if not _path.is_file():
         continue
@@ -1231,39 +1246,36 @@ for _machine, _cutter in (("HarvesterEntity", "private boolean harvest("),
         # so the check passed on a harvester that cut into a full tray. A guard
         # that a method exists is not a guard that anything calls it.
         _body = _src[_at:_src.index("\n    }", _at)]
-        if "SolarpunkOutput.fits(" not in _body:
+        _flat = " ".join(_body.split())
+        if _guard not in _flat:
             fail(f"{_machine}'s cutting method never asks whether the harvest "
                  f"will fit before taking it, so a full tray means destroyed "
                  f"blocks rather than a paused machine")
-        else:
+        elif _cut not in _flat:
+            fail(f"{_machine} never changes the block it harvested ({_cut}), so "
+                 f"nothing is actually cut or replanted")
+        elif any(_call in _flat[:_flat.find(_guard)]
+                 for _call in ("setBlockAndUpdate(", "setBlock(", "destroyBlock(",
+                               "removeBlock(")):
             # Every way this codebase changes a block, not just the one the
-            # first machine happened to use. The tree harvester clears logs with
-            # setBlock and the crop harvester replaces with setBlockAndUpdate;
-            # a guard that knew only the second reported the first as never
-            # cutting anything.
-            _mutations = [_body.find(call) for call in
-                          ("setBlockAndUpdate(", "setBlock(", "destroyBlock(",
-                           "removeBlock(")]
-            _mutations = [i for i in _mutations if i >= 0]
-            if not _mutations:
-                fail(f"{_machine} never changes the block it harvested, so "
-                     f"nothing is actually cut or replanted")
-            elif _body.index("SolarpunkOutput.fits(") > min(_mutations):
-                fail(f"{_machine} breaks the block before it checks the harvest "
-                     f"will fit. A full tray then costs the player the block")
+            # first machine happened to use: the tree harvester clears logs with
+            # setBlock and the crop harvester replaces with setBlockAndUpdate.
+            # Forbidden, so the bare call is the strong form here: none at all
+            # may come before the guard.
+            fail(f"{_machine} breaks the block before it checks the harvest "
+                 f"will fit. A full tray then costs the player the block")
 
     if "insertItem" not in _src or "return stack;" not in _src:
         fail(f"{_machine}'s tray accepts insertion. A hopper feeding it would "
              f"fill the space the harvest needs and look like it was supplying "
              f"the replant")
 
-    # Scoped to the method that replants, not searched for in the file.
-    _replanters = (("private boolean harvest(", "paysForReplant("),
-                   ("private void replant(", "payForSapling("))
-    _paid = any(calls(_src, where, what) for where, what in _replanters)
-    if not _paid:
-        fail(f"{_machine} replants without consuming anything from the harvest, "
-             f"so it prints what it is supposed to farm")
+    # Scoped to the method that replants, not searched for in the file, and
+    # named as the whole statement: the payment and what it gates.
+    if not calls(_src, _pays_in, _pays):
+        fail(f"{_machine} replants without consuming anything from the harvest "
+             f"(\"{_pays}\" is gone from {_pays_in.split()[-1]}), so it prints "
+             f"what it is supposed to farm")
 
     if len(problems) == _before:
         print(f"{_machine[:-6].lower():<18} : checks the tray before it cuts, "
@@ -1302,9 +1314,12 @@ if _tree.is_file():
     _fell_at = _tsrc.find("private boolean fell(")
     if _fell_at >= 0:
         _fell = _tsrc[_fell_at:_tsrc.index("\n    }", _fell_at)]
-        for _call, _why in (("isTrunkBase(", "that the trunk stands on soil"),
-                            ("hasCanopy(", "that the mass carries leaves")):
-            if _call not in _fell:
+        _fell_flat = " ".join(_fell.split())
+        for _call, _why in (("if (!isTrunkBase(server, base)) { return false; }",
+                             "that the trunk stands on soil"),
+                            ("if (logs.isEmpty() || !hasCanopy(server, logs)) { return false; }",
+                             "that the mass carries leaves")):
+            if _call not in _fell_flat:
                 fail(f"TreeHarvesterEntity.fell() never checks {_why}, so the "
                      f"test exists and nothing consults it")
 
@@ -2008,11 +2023,14 @@ if "MAX_CONDUITS" not in _pg_src or "MAX_RECEIVERS" not in _pg_src:
          "an unbounded one hangs the server thread")
 # Both walks, separately. The word appears twice in the file, so a check for
 # the word would stay green with the guard deleted from either one of them.
-for _walk in ("public static Survey survey(", "int conduitCount("):
+for _walk, _skips in (
+        ("public static Survey survey(", "if (!level.isLoaded(side)) { continue; }"),
+        ("int conduitCount(",
+         "if (!seen.add(side.immutable()) || !level.isLoaded(side)) { continue; }")):
     _body = _method_body(_pg_src, _walk)
     if _body is None:
         fail(f"PowerGrid has no {_walk.strip('(')} method any more")
-    elif "isLoaded(" not in _body:
+    elif _skips not in " ".join(_body.split()):
         fail(f"PowerGrid's {_walk.strip('(')} walk no longer skips unloaded "
              f"chunks, so a generator loads the world around it by reading "
              f"through the edge of the loaded area")
@@ -2070,7 +2088,9 @@ if _store is None or "noteUnpaid()" not in _store or _spend is None or "notePaid
 # refuses the world, and the machine is not the world.
 _output = (WORK / "src/main/java/com/elysium/solarpunk/machine/SolarpunkOutput.java").read_text(encoding="utf-8")
 _store = _method_body(_output, "public static void store(ItemStackHandler tray, ItemStack stack)")
-if _store is None or "insertItemStacked(tray" in _store or "tray.insertItem(" in _store or "tray.setStackInSlot(" not in _store:
+if _store is None or "insertItemStacked(tray" in _store or "tray.insertItem(" in _store \
+        or "tray.setStackInSlot(slot, held.isEmpty() ? stack.copyWithCount(moved) " \
+           ": held.copyWithCount(held.getCount() + moved));" not in " ".join(_store.split()):
     fail("SolarpunkOutput.store fills the out-tray through insertItem, which the tray refuses "
          "for everyone, so every harvest is cut and lost. Place into the tray with setStackInSlot")
 

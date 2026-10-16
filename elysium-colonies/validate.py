@@ -482,9 +482,15 @@ _reckon = squashed(body_of(_life, "private static void reckon"))
 if "ledger.lastDay()" not in _reckon or "town.day()" not in _reckon:
     fail("a town is reckoned more than once a day, so development accrues at the tick "
          "rate rather than the day rate")
-for _rule in ("CitizenStress.totalFor(", "CitizenRules.output(", "GrowthRules.perDay(",
-              "GrowthRules.banked(", "CharterRules.workFactor("):
-    if _rule not in _reckon:
+for _rule, _statement in (
+        ("CitizenStress.totalFor",
+         "int stress = CitizenStress.totalFor(person, town, charter, built.size(), raided);"),
+        ("CitizenRules.output", "sum += CitizenRules.output(stress, wounds, practised, world);"),
+        ("GrowthRules.perDay", "int earned = GrowthRules.perDay(working, average);"),
+        ("GrowthRules.banked", "long banked = GrowthRules.banked(ledger.development(), earned);"),
+        ("CharterRules.workFactor",
+         "float world = CharterRules.weighted(CharterRules.workFactor(local), charter.reach());")):
+    if _statement not in _reckon:
         fail(f"the reckoning does not go through {_rule}, so the harness proves "
              f"nothing about what a day is worth")
 if "float world = CharterRules.weighted(CharterRules.workFactor(local), charter.reach());" \
@@ -582,7 +588,8 @@ if "if (!Colonies.clearOf(level, town.id(), ground, SiteRules.SPACING - 1)) {" n
     fail("a town builds on top of what it has already built")
 if "if (!SiteRules.levelEnough(hall.getY(), ground.getY())) {" not in _found:
     fail("a town builds up a cliff face, so nobody can walk between the huts")
-if "Charters.plan().next(" not in body_of(_life, "private static void reckon"):
+if "String wanted = Charters.plan().next(town.citizens(), kind -> Colonies.has(level, town.id(), kind));" \
+        not in squashed(body_of(_life, "private static void reckon")):
     fail("a town founds buildings in an order nobody wrote down, so a pack cannot "
          "say what a settlement should be")
 
@@ -1126,9 +1133,9 @@ for _guard, _why in (("charter.settles()", "a world whose charter does not settl
                      ("farEnoughFromSpawn", "a town may found itself on the world spawn"),
                      ("BlockPos ground = dryGroundNear(level, stake);", "a stake on a lake is wasted rather than looking around"),
                      ("Colonies.mayFoundAt", "the host's own distance between colonies is not asked"),
-                     ("SettleRules.name(", "the town is not named by the rule the harness proves"),
+                     ("String name = SettleRules.name(seed, style);", "the town is not named by the rule the harness proves"),
                      ("Steward.TOWN", "a self-founded town waits for an owner who does not exist"),
-                     ("Origin.settled(", "a self-founded town is not remembered as one"),
+                     ("memory.record(id, ColonyMemory.Origin.settled(stewardName, 0));", "a self-founded town is not remembered as one"),
                      ("firstWants()", "a self-founded town starts as a stake with a roof")):
     if _guard not in _found:
         fail(f"Settlements.found lacks {_guard}: {_why}")
@@ -1146,14 +1153,24 @@ if "Player steward = FakePlayerFactory.get(level, new GameProfile(stewardId, ste
 if "hut.setPlacedBy(level, where, state, null, ItemStack.EMPTY);" not in _settle \
         or "order(colony, hall, WorkOrderType.BUILD)" not in _settle:
     fail("the seam founds a colony without a town hall to build")
-for _write, _method in (("createColony(", "public static int settle"),
-                        ("addToQueue(", "public static boolean finish"),
-                        ("upgradeBuildingLevelToSchematicData(", "public static boolean finish"),
-                        ("removeWorkOrder(", "public static boolean finish"),
-                        ("setOwner(", "public static boolean handOver")):
-    _in = body_of(_seam_src, _method)
-    if _write not in _in:
-        fail(f"{_method} does not {_write}")
+# The token is counted across the whole seam, so a second call anywhere is
+# seen; the whole statement is what the method itself must do.
+for _write, _statement, _method in (
+        ("createColony(", "colony = manager.createColony(level, where, steward, name, pack);",
+         "public static int settle"),
+        ("addToQueue(",
+         "Manager.addToQueue(new PlaceStructureOperation(new StructurePlacer(handler), hands));",
+         "public static boolean finish"),
+        ("upgradeBuildingLevelToSchematicData(",
+         "if (building != null) { building.upgradeBuildingLevelToSchematicData(); }",
+         "public static boolean finish"),
+        ("removeWorkOrder(", "colony.getWorkManager().removeWorkOrder(orderId);",
+         "public static boolean finish"),
+        ("setOwner(", "if (!colony.getPermissions().setOwner(player)) { return false; }",
+         "public static boolean handOver")):
+    _in = squashed(body_of(_seam_src, _method))
+    if _statement not in _in:
+        fail(f"{_method} does not {_statement}")
     if _seam_src.count(_write) != 1:
         fail(f"{_write} appears {_seam_src.count(_write)} time(s) in the seam; it belongs to "
              f"{_method} alone")
@@ -1314,11 +1331,12 @@ if "ledger = ledger.seenOn(town.day());" not in _reckon2:
 # The gate is on founding and on nothing else. Raising, repairing and trading
 # change what is already standing where its owner put it.
 _found_call = _reckon2[_reckon2.find("townDecides"):]
-if "founded = foundNear(" not in _found_call:
+if "founded = foundNear(level, town, wanted);" not in _found_call:
     fail("the stewardship gate does not guard founding, which is the one thing it "
          "exists to guard")
-for _unguarded, _what in (("raiseSomething(", "raising"), ("caretake(", "repairing"),
-                          ("FrontierExchange.settle(", "trading")):
+for _unguarded, _what in (("spentOn = raiseSomething(level, town, built, banked);", "raising"),
+                          ("caretake(level, town, built);", "repairing"),
+                          ("int traded = FrontierExchange.settle(level, town);", "trading")):
     _at = _reckon2.find(_unguarded)
     if _at < 0:
         fail(f"{_what} no longer happens at all")
@@ -1616,9 +1634,11 @@ for _needed, _why in (
                             "ships as well as one with two hundred blocks of it"),
         ("ELEVATOR_COUNTERWEIGHT", "nothing checks for a counterweight, so a bare "
                                    "mast is a spaceport"),
-        ("PortRules.tall(", "the minimum height is not applied where the world is "
-                            "read, so a three-block stub counts")):
-    if _needed not in _read:
+        ("return new Reading(PortRules.tall(tether) && !roofed, tether, "
+         "PortRules.tall(tether) ? null : at.immutable(), roofed, legs);",
+         "the minimum height is not applied where the world is read, so a three-block "
+         "stub counts")):
+    if _needed not in squashed(_read):
         fail(f"the elevator reading does not look at {_needed}: {_why}")
 if "boolean roofed = !openAbove(level, at);" not in _read:
     fail("nothing checks the sky above the counterweight, so a space elevator inside "
@@ -1631,28 +1651,37 @@ if "Heightmap.Types.MOTION_BLOCKING" not in body_of(_elevator,
 # Every number the port uses comes from the pure rules, which are executed —
 # and each is looked for in the method that has to make it, because a rule
 # satisfied by the same call somewhere else in the file is no rule at all.
+#
+# Each is named as the whole statement that uses the answer: the call alone
+# stays green with its answer thrown away or replaced on the next line.
 _run_body = body_of(_ship, "public static Run run(")
 _freight_body = body_of(_ship, "private static Freight freight(")
 for _needed, _where, _scope, _why in (
-        ("PortRules.outbound(", "the day's run", _run_body,
+        ("Sale sale = sell(level, town, where, PortRules.outbound(tether, legs));",
+         "the day's run", _run_body,
          "how much a port can send is decided in the handler rather than in the "
          "rules, where it is tested"),
-        ("PortRules.inbound(", "the day's run", _run_body,
+        ("int room = PortRules.inbound(tether, legs);", "the day's run", _run_body,
          "how much a port can receive is decided in the handler"),
-        ("PortRules.banked(", "the day's run", _run_body,
+        ("long purse = PortRules.banked(treasury, sale.earned(), tether);",
+         "the day's run", _run_body,
          "takings are banked without the treasury's ceiling, so a decade of exports "
          "buys a tech tree in an afternoon"),
-        ("PortRules.spareFor(", "freight", _freight_body,
+        ("int shipping = Math.min(Math.min(missing, spare), Math.min(PortRules.spareFor("
+         "other.tether(), other.legs()), room - moved));", "freight", _freight_body,
          "a port would give a sister colony everything it had to send that day"),
-        ("PortRules.midPrice(", "freight", _freight_body,
+        ("int mid = PortRules.midPrice( Market.asking(town.dimension(), want.wanted(), "
+         "town.day()), Market.offering(seller.dimension(), want.wanted(), seller.day()));",
+         "freight", _freight_body,
          "freight is priced by the handler rather than at the mid price two ports "
          "agree on"),
-        ("PortRules.freightBuys(", "freight", _freight_body,
+        ("shipping = Math.min(shipping, PortRules.freightBuys(purse - spent, mid));",
+         "freight", _freight_body,
          "a colony orders freight without asking what its treasury covers"),
-        ("PortRules.freightCost(", "freight", _freight_body,
+        ("long cost = PortRules.freightCost(taken, mid);", "freight", _freight_body,
          "freight is taken without being priced")):
-    if _needed not in _scope:
-        fail(f"{_where} never calls {_needed}: {_why}")
+    if _needed not in squashed(_scope):
+        fail(f"{_where} no longer reads \"{_needed}\": {_why}")
 
 # Export: never sell the thing the town is stopped on.
 _sell = body_of(_ship, "private static Sale sell(")
@@ -1673,7 +1702,8 @@ _freight = _freight_body
 if not _freight:
     fail("there is no freight between colonies, so a second spaceport does nothing "
          "the first one did not")
-if "server.getLevel(" not in _freight:
+if "ServerLevel theirs = server.getLevel( ResourceKey.create(Registries.DIMENSION, other.dimension()));" \
+        not in squashed(_freight):
     fail("freight never leaves the world it started in, which is the one thing a space "
          "elevator was for")
 if "sameTown(other, town)" not in _freight:
@@ -1740,7 +1770,9 @@ if "if (PortRegistry.of(server.getServer()) .forgetAt(server.dimension().locatio
 if "!state.is(replacement.getBlock())" not in _remove:
     fail("the anchor deregisters itself on any block update, so a port is lost when a "
          "neighbour changes")
-if "ports.record(" not in body_of(_anchor_block, "public static void report("):
+if "ports.record(new PortRegistry.Berth(level.dimension().location(), town.id(), pos.immutable(), " \
+        "reading.tether(), reading.working(), town.day(), reading.legs()));" \
+        not in squashed(body_of(_anchor_block, "public static void report(")):
     fail("talking to an anchor does not record the port, and nothing else looks for "
          "one, so a built spaceport is never found")
 

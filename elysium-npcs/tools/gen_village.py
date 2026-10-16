@@ -346,7 +346,7 @@ def main():
     existing = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
     existing.update(lang_entries())
     path.write_text(json.dumps(existing, indent=2, ensure_ascii=False,
-                               sort_keys=True) + "\n", encoding="utf-8")
+                               sort_keys=True) + "\n", encoding="utf-8", newline=chr(10))
 
     print(f"village            : {len(PROFESSIONS)} professions, "
           f"{len(PROFESSIONS) * 3} bench textures, "

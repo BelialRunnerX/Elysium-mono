@@ -3,6 +3,8 @@
 The feature catalogue: everything the pack's own modules add, by name.
 
     python3 tools/catalogue.py            writes docs/FEATURES.md and docs/features.json
+    python3 tools/catalogue.py --out DIR  writes the same two files into DIR instead
+                                          (check_features.py compares those with docs/)
 
 Dylan, 27 September 2026: *systematically catalog every feature from all the
 mods that we're adding and then go through and validate everything one at a
@@ -196,7 +198,7 @@ def catalogue():
     return modules
 
 
-def write(modules):
+def write(modules, docs=DOCS):
     lines = ["# The feature catalogue", "",
              "Everything the pack's own modules add, read off the tree by `tools/catalogue.py`.",
              "Regenerate it after any change; do not edit by hand. How each kind is validated:",
@@ -233,15 +235,24 @@ def write(modules):
             lines.append("")
     summary = ["", "## Totals", ""] + [f"* {title}: {n}" for title, n in sorted(total.items())] + [""]
     lines[11:11] = summary
-    open(os.path.join(DOCS, "FEATURES.md"), "w", encoding="utf-8", newline="\n").write("\n".join(lines))
-    json.dump(modules, open(os.path.join(DOCS, "features.json"), "w", encoding="utf-8", newline="\n"),
-              indent=1, ensure_ascii=False)
+    with open(os.path.join(docs, "FEATURES.md"), "w", encoding="utf-8", newline="\n") as handle:
+        handle.write("\n".join(lines))
+    with open(os.path.join(docs, "features.json"), "w", encoding="utf-8", newline="\n") as handle:
+        json.dump(modules, handle, indent=1, ensure_ascii=False)
     return total
 
 
-def main():
+def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    docs = DOCS
+    if len(argv) == 2 and argv[0] == "--out":
+        docs = argv[1]
+        os.makedirs(docs, exist_ok=True)
+    elif argv:
+        print(__doc__)
+        return 2
     modules = catalogue()
-    total = write(modules)
+    total = write(modules, docs)
     print(f"catalogue          : {len(modules)} modules; " + ", ".join(f"{n} {t.lower()}" for t, n in sorted(total.items())))
     return 0
 

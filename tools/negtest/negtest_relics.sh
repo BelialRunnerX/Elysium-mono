@@ -67,6 +67,39 @@ edit $M/src/main/java/com/elysium/arcana/registry/RelicItems.java \
   'String.format("%.1f", ability.cooldown() / 20.0F))' 'String.format("%.1f", 3.0F))'
 expect "a tooltip that stops reading the cooldown off the ability" "stops being true"
 
+echo "the passives, fired from the events that mean those words"
+P=$M/src/main/java/com/elysium/arcana/event/RelicPassives.java
+edit $P '                    if (ability.cooldown() > 0) {
+                        player.getCooldowns().addCooldown(item, ability.cooldown());
+                    }
+' ''
+edit $P '                        player.getCooldowns().removeCooldown(item);
+                    }' '                        player.getCooldowns().removeCooldown(item);
+                    }
+                    if (ability.cooldown() > 0) {
+                        player.getCooldowns().addCooldown(item, ability.cooldown());
+                    }'
+expect "an on-hit whose cooldown goes on after it fires" "goes on after the ability fires"
+
+edit $P '        if (!FIRING.add(firing)) {
+            return;
+        }' '        FIRING.add(firing);'
+expect "an on-hit let back in from inside its own blow" "refuses a trigger fired from inside itself"
+
+edit $P '        } finally {
+            FIRING.remove(firing);
+        }' '        } finally {
+        }'
+expect "a guard that is never cleared" "clear its guard in a finally"
+
+edit $P '        if (!FIRING.add(firing)) {
+            return;
+        }' '        if (!FIRING.add(firing)) {
+            return;
+        }
+        FIRING.remove(firing);'
+expect "a guard let go before the ability fires" "lets go of its guard before the ability has fired"
+
 echo "the world the relics are actually in"
 rm -f $M/src/main/resources/data/elysiumarcana/recipe/phoenix_down.json
 expect "a relic that cannot be made" "a relic needs are not there"
