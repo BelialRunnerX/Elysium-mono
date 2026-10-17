@@ -33,24 +33,14 @@ rep('$RK', 'if (held.is(SpaceItems.FUEL_CANISTER.get())) {', 'if (held.is(SpaceI
 # Each fuel item is in exactly one case, but the wrong one: the reviewer's two
 # breaks (17 October 2026) that the one-case rule alone passed.
 try "hydrogen moved into the fuel case" "does not tie SpaceItems.HYDROGEN_CANISTER to its own motor" "$R
-rep('$RK', '            case HYDROGEN -> {
-                if (held.is(SpaceItems.HYDROGEN_CANISTER.get())) {
-                    return CANISTER_MB;
-                }
-            }', '            case HYDROGEN -> {
-            }')
+rep('$RK', '            case HYDROGEN -> {\n                if (held.is(SpaceItems.HYDROGEN_CANISTER.get())) {\n                    return CANISTER_MB;\n                }\n            }', '            case HYDROGEN -> {\n            }')
 rep('$RK', 'if (held.is(SpaceItems.FUEL_CANISTER.get())) {', 'if (held.is(SpaceItems.FUEL_CANISTER.get()) || held.is(SpaceItems.HYDROGEN_CANISTER.get())) {')"
 try "the two canisters swapped" "does not tie SpaceItems.FUEL_CANISTER to its own motor" "$R
 rep('$RK', 'if (held.is(SpaceItems.FUEL_CANISTER.get())) {', 'if (held.is(SpaceItems.SWAP_MARK.get())) {')
 rep('$RK', 'if (held.is(SpaceItems.HYDROGEN_CANISTER.get())) {', 'if (held.is(SpaceItems.FUEL_CANISTER.get())) {')
 rep('$RK', 'if (held.is(SpaceItems.SWAP_MARK.get())) {', 'if (held.is(SpaceItems.HYDROGEN_CANISTER.get())) {')"
 try "a motor's case left with none of its own fuel" "case takes none of hydrogen's own fuel" "$R
-rep('$RK', '            case HYDROGEN -> {
-                if (held.is(SpaceItems.HYDROGEN_CANISTER.get())) {
-                    return CANISTER_MB;
-                }
-            }', '            case HYDROGEN -> {
-            }')"
+rep('$RK', '            case HYDROGEN -> {\n                if (held.is(SpaceItems.HYDROGEN_CANISTER.get())) {\n                    return CANISTER_MB;\n                }\n            }', '            case HYDROGEN -> {\n            }')"
 try "a sixth motor the fuel table cannot name" "whose fuel this validator cannot name" "$R
 rep('$RT', 'PLUTONIUM(29.3D);', 'PLUTONIUM(29.3D), ANTIMATTER(40.0D);')"
 # Any item motorOf names fits a motor now, not only the hydrogen one, so the

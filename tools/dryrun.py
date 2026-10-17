@@ -158,9 +158,50 @@ WRITES = re.compile(r"open\([^\n]*['\"][wa]\b|\.write\(|\.writelines\(|"
                     r"os\.remove\(|os\.unlink\(|shutil\.|json\.dump\(")
 
 
+#: How a writing edit helper decides an anchor is stale, read off its own
+#: body: Quill's edit() refuses unless the anchor matches once, edit_every()
+#: unless it matches at least twice, and the older helpers refuse only a
+#: missing one. The stand-in asks the same question, so a dry run reports
+#: what the real run would stop on (17 October 2026: an anchor that matched
+#: twice dry-ran clean and stopped negtest_fangs_effects.sh after 29 cases).
+_COUNT_TEST = re.compile(r"if s\.count\(old\)\s*(!=|<=|<|==|>=|>)\s*(\d+)\s*:")
+_PRESENCE_TEST = re.compile(r"\bif old not in s\b|\bassert old in s\b")
+_EDIT_ARGS = re.compile(r"p, old, new = sys\.argv\[1\], sys\.argv\[2\], sys\.argv\[3\]"
+                        r"|p, old, new = sys\.argv\[1:4\]")
+
+
+def _anchor_stub(name, body):
+    """A writing edit helper's dry stand-in, or None when its test cannot be read."""
+    if not _EDIT_ARGS.search(body):
+        return None
+    counted = _COUNT_TEST.search(body)
+    if counted:
+        test = f"s.count(old) {counted.group(1)} {counted.group(2)}"
+    elif _PRESENCE_TEST.search(body):
+        test = "old not in s"
+    else:
+        return None
+    return (f'{name}() {{ python3 -c "\n'
+            "import os, sys\n"
+            "p, old = sys.argv[1], sys.argv[2]\n"
+            "if not os.path.isfile(p):\n"
+            "    print('STALE: missing file ' + p)\n"
+            "    sys.exit(0)\n"
+            "s = open(p, encoding='utf-8').read()\n"
+            f"if {test}:\n"
+            "    print('STALE: ' + p.split('/')[-1] + ' (' + str(s.count(old)) + ' match(es)) :: '"
+            " + old.strip()[:80])\n"
+            '" "$@"; }  # dry: refuses as the real helper does, writes nothing\n')
+
+
 def _inline_python(hit):
     name, body = hit.group(1), hit.group(0)
-    if name == "edit" or not WRITES.search(body):
+    if not WRITES.search(body):
+        return body
+    stub = _anchor_stub(name, body)
+    if stub is not None:
+        return stub
+    if name == "edit":
         return body
     return f"{name}() {{ :; }}  # inline python that writes, neutered\n"
 
@@ -217,8 +258,11 @@ def neuter(s, phrases):
                 break
     s = re.sub(r"\(cd \$M && python3 tools/gen_\w+\.py[^)]*\)", ":", s)
 
-    # edit(): report a stale anchor, write nothing.
-    s = re.sub(r'edit\(\) \{ [^\n]*python3 -c "\n(?:.*?\n)*?" "\$@"[^\n]*\n', EDIT, s, count=1)
+    # edit(): report a stale anchor the way the real one would, write nothing.
+    def _edit(hit):
+        return _anchor_stub("edit", hit.group(0)) or EDIT
+
+    s = re.sub(r'edit\(\) \{ [^\n]*python3 -c "\n(?:.*?\n)*?" "\$@"[^\n]*\n', _edit, s, count=1)
 
     s = re.sub(r'^(\w+)\(\) \{ [^\n]*python3 -c "\n(?:.*?\n)*?" "\$@"[^\n]*\n',
                _inline_python, s, flags=re.M)

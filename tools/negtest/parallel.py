@@ -402,7 +402,7 @@ SUMMARIES = [
     (re.compile(r"(\d+)\s+passed,\s+(\d+)\s+missed"), False),
 ]
 RESTORED = re.compile(r"tree restored clean|restored tree passes")
-BROKEN = re.compile(r"TREE LEFT BROKEN|RESTORE FAILED|TREE DIRTY")
+BROKEN = re.compile(r"TREE LEFT BROKEN|RESTORE FAILED|TREE DIRTY|TREE NOT RESTORED")
 #: A script that could not set up a case: whatever it exits with, an error.
 #: The last five are a setup's own Python dying. 72 scripts report a stale
 #: anchor only as an AssertionError from their edit helper, which the shell
@@ -410,7 +410,9 @@ BROKEN = re.compile(r"TREE LEFT BROKEN|RESTORE FAILED|TREE DIRTY")
 #: case set up on nothing; a must-not-flag case after it passes, and so does
 #: one whose phrase the base already prints. A validator's own traceback is
 #: never one of these: it names its file, and the scripts capture it.
-MARKERS = re.compile(r"SETUP FAILED|STALE ANCHOR|GENERATOR BROKE|anchor not found|pattern missing"
+#: STALE PATH and GENERATOR FAILED are how Quill's fangs scripts say it.
+MARKERS = re.compile(r"SETUP FAILED|STALE ANCHOR|STALE PATH|GENERATOR BROKE|GENERATOR FAILED"
+                     r"|anchor not found|pattern missing"
                      r"|AssertionError|File \"<stdin>\"|File \"<string>\"")
 #: A miss however it is spelt; CASE takes the usual "MISSED : x" shape.
 MISSED_ANYWHERE = re.compile(r"\bMISSED\b|^\s*MISS\b")
