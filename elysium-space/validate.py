@@ -670,6 +670,30 @@ else:
         elif len(_in) > 1:
             fail(f"RocketEntity.fuelIn does not tie {_item} to one motor: the {' and '.join(_in)} cases "
                  f"both take it, so two fuels would mix in one tank")
+    # ...and the case it is named in is its own motor's. Being in one case is
+    # not enough: the hydrogen canister moved from HYDROGEN into FUEL, or the
+    # two canisters swapped, each sit in exactly one case and passed (review,
+    # 17 October 2026). A fuel item is named for what it is, so each motor
+    # has the words its fuels are named by, and the case that takes an item
+    # must be the motor one of its words names; a motor this table does not
+    # know fails, so a sixth fuel is not passed by default.
+    _own_words = {"FUEL": ("fuel",), "HYDROGEN": ("hydrogen",), "URANIUM": ("uranium",),
+                  "PLUTONIUM": ("plutonium",), "RADIOACTIVE": ("heavy_metal",)}
+    for _fuel in _fuels:
+        if _fuel not in _own_words:
+            fail(f"SpaceRoute.Fuel has a {_fuel} motor whose fuel this validator cannot name; add "
+                 f"its words to _own_words so fuelIn's {_fuel} case is held to its own fuel")
+    def _is_own(item, motor):
+        return any(word in item.lower() for word in _own_words.get(motor, ()))
+    for _item, _in in sorted(_cased.items()):
+        for _case_name in _in:
+            if _case_name in _own_words and not _is_own(_item, _case_name):
+                fail(f"RocketEntity.fuelIn does not tie {_item} to its own motor: the {_case_name} case "
+                     f"takes it, so a {_case_name.lower()} rocket would burn a fuel that is not its own")
+    for _fuel in _fuels:
+        if _fuel in _own_words and not any(_fuel in _in and _is_own(_item, _fuel) for _item, _in in _cased.items()):
+            fail(f"RocketEntity.fuelIn's {_fuel} case takes none of {_fuel.lower()}'s own fuel, so a "
+                 f"rocket with that motor can never be fuelled")
 _motor_of = re.search(r"public static SpaceRoute\.Fuel motorOf\(ItemStack held\) \{(.*?)\n    \}", rocket, re.S)
 if not _motor_of:
     fail("RocketEntity.motorOf is gone; no upgrade fits any motor")
@@ -920,8 +944,26 @@ for mob in MOBS:
     if f"SpaceEntities.{c}.get()" not in _rend_src:
         fail(f"mob {mob} has no renderer; the client would crash when it appears")
     cls = open(os.path.join(SRC, "entity/mob", _class_of[mob] + ".java"), encoding="utf-8").read()
-    if re.search(r"extends (Hoglin|Piglin|PiglinBrute)\b", cls) and "setImmuneToZombification(true)" not in cls:
-        fail(f"{_class_of[mob]} would zombify outside the Nether, on its own world")
+    # A native of a world that is not the Nether never zombifies, and it takes
+    # three statements to say so: the constructor's, the load's (the piglin's
+    # and the hoglin's own readAdditionalSaveData read the saved flag back over
+    # it, false for anything summoned or put down by a structure), and an
+    # isConverting() that answers no whatever the flag says. The cinderlings
+    # had only the first, so one summoned off Cinderveil turned (17 Oct 2026).
+    if re.search(r"extends (Hoglin|Piglin|PiglinBrute)\b", cls):
+        _flat_cls = re.sub(r"\s+", " ", cls)
+        _name = _class_of[mob]
+        if not re.search(r"public " + _name + r"\(EntityType<[^)]*\) \{ super\(type, level\); "
+                         r"setImmuneToZombification\(true\);", _flat_cls):
+            fail(f"{_name} would zombify outside the Nether, on its own world: its constructor does not "
+                 f"call setImmuneToZombification(true)")
+        if ("public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag tag) { "
+                "super.readAdditionalSaveData(tag); setImmuneToZombification(true); }") not in _flat_cls:
+            fail(f"{_name} reads its immunity back from the save, false for one summoned or put down by a "
+                 f"structure, so it would zombify outside the Nether")
+        if "public boolean isConverting() { return false; }" not in _flat_cls:
+            fail(f"{_name} can still begin to convert: isConverting() does not answer false, so a lost "
+                 f"immunity flag turns it")
 geo_dir = os.path.join(ASSETS, "geometry")
 for mob in _rigged + ["cinderling"]:
     gp = os.path.join(geo_dir, mob + ".json")

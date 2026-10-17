@@ -14,13 +14,20 @@ PY
     cp /tmp/neg_backup "$1"
     if grep -q "$4" <<<"$out"; then pass=$((pass+1)); echo "ok   : $4"; else failn=$((failn+1)); echo "MISS : $4"; fi
 }
-# The cinder boar holds its immunity three times since 88af2f0e (the
-# constructor, readAdditionalSaveData, and isConverting() returning false), so
-# taking out the constructor's call, as this case did, left a boar that never
-# turns: no break, and the validator rightly said nothing. The cinderling holds
-# it once, in its constructor, so taking that out is a piglin that zombifies
-# off Cinderveil (17 Oct 2026).
-t $S/entity/mob/Cinderling.java "setImmuneToZombification(true);" "" "would zombify outside the Nether"
+# Every native piglin and hoglin holds its immunity three times: the
+# constructor, readAdditionalSaveData, and isConverting() answering false. The
+# validator asks for all three in each class (the cinderlings had only the
+# constructor's until 17 Oct 2026, and one summoned off Cinderveil turned), so
+# taking any one of them out is caught.
+t $S/entity/mob/Cinderling.java "        super(type, level);
+        setImmuneToZombification(true);" "        super(type, level);" "would zombify outside the Nether"
+t $S/entity/mob/CinderlingBrute.java "        super.readAdditionalSaveData(tag);
+        setImmuneToZombification(true);" "        super.readAdditionalSaveData(tag);" "reads its immunity back from the save"
+t $S/entity/mob/Cinderling.java "    public boolean isConverting() {
+        return false;" "    public boolean isConverting() {
+        return super.isConverting();" "can still begin to convert"
+t $S/entity/mob/CinderBoar.java "        super.readAdditionalSaveData(tag);
+        setImmuneToZombification(true);" "        super.readAdditionalSaveData(tag);" "reads its immunity back from the save"
 t $G/cinder_boar.json '"head": "head",' '"head": "snout",' "rig moves snout"
 t $S/registry/SpaceMobs.java "put(event, SpaceEntities.FROST_RAPTOR.get(), Monster.createMonsterAttributes(), MobRules.FROST_RAPTOR);" "" "frost_raptor gets no attributes"
 t $S/world/MobRules.java '40.0D, 0.4D, 9.0D' '40.0D, 0.4D, 0.0D' "only hunters deal damage"

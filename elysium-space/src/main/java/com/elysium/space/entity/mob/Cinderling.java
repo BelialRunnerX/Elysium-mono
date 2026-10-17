@@ -20,6 +20,24 @@ public class Cinderling extends Piglin {
         setImmuneToZombification(true);
     }
 
+    /**
+     * Never zombified. The constructor says so, and the piglin's own load reads
+     * the saved flag back over it - false for one summoned or put down by a
+     * structure - so without these a cinderling summoned off Cinderveil turned
+     * as a piglin does (the cinder boar's fault, 27 September 2026; found again
+     * here on 17 October 2026).
+     */
+    @Override
+    public boolean isConverting() {
+        return false;
+    }
+
+    @Override
+    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        setImmuneToZombification(true);
+    }
+
     @Override
     public boolean removeWhenFarAway(double distance) {
         return false;
