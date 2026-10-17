@@ -13,9 +13,9 @@ expect() { local n="$1" w="$2" g; g="$(out)"
 edit() { python3 -c "
 import sys
 p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
-s = open(p).read()
+s = open(p, encoding='utf-8', newline='').read()
 assert old in s, 'anchor not found in ' + p
-open(p,'w').write(s.replace(old, new, 1))
+open(p, 'w', encoding='utf-8', newline='').write(s.replace(old, new, 1))
 " "$@" || { echo "STALE ANCHOR: $1"; fail=$((fail+1)); }; }
 regen() { python3 tools/gen_solarpunk.py >/dev/null 2>&1; }
 
@@ -100,11 +100,20 @@ expect "a fish nobody will ever connect to the crops" "will never connect the tw
 cp /tmp/at.bak $M/AquaponicsTankEntity.java
 
 echo "the recipe types, derived rather than listed"
+# Running the generator rewrites everything it owns (main() deletes it first),
+# and the Pillow on this machine writes the same pixels as other bytes than the
+# PNGs in the repository: undoing this case by running it again on the
+# restored script left all 82 textures modified (17 Oct 2026). So all it owns
+# is kept and put back byte for byte.
+OWNS="src/main/resources/assets/elysiumsolarpunk src/main/resources/data src/main/java/com/elysium/solarpunk/SolarpunkContent.java $B/pending MACHINES.md"
 cp tools/gen_solarpunk.py /tmp/g.bak
+tar cf /tmp/tank_gen.tar $OWNS
 edit tools/gen_solarpunk.py '    "aquaponics_tank": "farming",' '    "aquaponics_tank": "farmingg",'
 regen
 expect "a machine whose recipe type nothing registers" "the recipe will not load"
-cp /tmp/g.bak tools/gen_solarpunk.py; regen
+cp /tmp/g.bak tools/gen_solarpunk.py
+rm -rf src/main/resources/assets/elysiumsolarpunk src/main/resources/data $B/pending
+tar xf /tmp/tank_gen.tar; rm -f /tmp/tank_gen.tar
 
 echo
 echo "negative tests: $pass caught, $fail missed"

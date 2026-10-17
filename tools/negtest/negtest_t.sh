@@ -11,6 +11,17 @@ check () {
 save(){ mkdir -p "$BK/$(dirname "$1")"; cp "$1" "$BK/$1"; }
 restore(){ cp "$BK/$1" "$1"; rm -rf art/__pycache__; }
 
+# The sprites tools/gen_material_gear.py draws, kept before case 4 runs it and
+# put back byte for byte after it (17 Oct 2026). Case 4 used to put them back
+# by running the generator again on the restored art, and that left all 372
+# modified: the generator redraws every sprite it owns, and the Pillow on this
+# machine writes the same pixels as other bytes than the PNGs in the
+# repository were written with. Its models, recipes and lang come out byte for
+# byte as they were (written only when missing, or sorted JSON).
+T=elysium-core/src/main/resources/assets/elysium/textures
+tar cf "$BK/sprites.tar" $T/item $T/models/armor
+putsprites(){ rm -rf $T/item $T/models/armor; tar xf "$BK/sprites.tar"; }
+
 echo "1. a shape is registered with no art for it"
 save elysium-core/src/main/java/com/elysium/core/item/ElysiumMaterialGear.java
 python3 - <<'PY'
@@ -63,7 +74,7 @@ if cmp -s elysium-core/src/main/resources/assets/elysium/textures/item/iron_axe.
 fi
 check "two shapes drawn identically" "differ by only"
 restore art/pixelart.py
-python3 elysium-core/tools/gen_material_gear.py >/dev/null 2>&1
+putsprites
 
 echo
 rm -rf art/__pycache__

@@ -12,6 +12,18 @@ save(){ mkdir -p "$BK/$(dirname "$1")"; cp "$1" "$BK/$1"; }
 checkpre(){ rm -rf art/__pycache__; }
 restore(){ cp "$BK/$1" "$1"; rm -rf art/__pycache__ elysium-core/tools/__pycache__; }
 
+# The sprites tools/gen_material_gear.py draws, kept before any case runs it
+# and put back byte for byte after each case that did (17 Oct 2026). Cases 4
+# and 6 used to put them back by running the generator again on the restored
+# art, and that left all 372 modified: the generator redraws every sprite it
+# owns, and the Pillow on this machine writes the same pixels as other bytes
+# than the PNGs in the repository were written with. A redraw is right when
+# the art changed and is no restore. Its models, recipes and lang come out
+# byte for byte as they were (written only when missing, or sorted JSON).
+T=elysium-core/src/main/resources/assets/elysium/textures
+tar cf "$BK/sprites.tar" $T/item $T/models/armor
+putsprites(){ rm -rf $T/item $T/models/armor; tar xf "$BK/sprites.tar"; }
+
 echo "1. two materials given the same colour"
 save art/materials.py
 sed -i 's|"brass":      "#c4a748",|"brass":      "#e6c34d",|' art/materials.py
@@ -47,7 +59,7 @@ PY
 (cd elysium-core && python3 tools/gen_material_gear.py >/dev/null 2>&1)
 check "handle-less tool" "no handle pixels left"
 restore art/pixelart.py
-(cd elysium-core && python3 tools/gen_material_gear.py >/dev/null 2>&1)
+putsprites
 
 echo "5. the generator goes back to skipping what exists"
 save elysium-core/tools/gen_material_gear.py
@@ -67,7 +79,7 @@ sed -i 's|^_STEPS = \[0.12, 0.24, 0.38, 0.55, 0.78\]|_STEPS = [0.40, 0.42, 0.44,
 (cd elysium-core && python3 tools/gen_material_gear.py >/dev/null 2>&1)
 check "flat sprite" "units of luminance"
 restore art/materials.py
-(cd elysium-core && python3 tools/gen_material_gear.py >/dev/null 2>&1)
+putsprites
 
 edit() { python3 -c "
 import sys

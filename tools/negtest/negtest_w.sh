@@ -11,6 +11,16 @@ save(){ mkdir -p "$BK/$(dirname "$1")"; cp "$1" "$BK/$1"; }
 restore(){ cp "$BK/$1" "$1"; rm -rf elysium-solarpunk/tools/__pycache__; }
 R=elysium-solarpunk/src/main/resources
 
+# Everything tools/gen_solarpunk.py owns (main() deletes these and writes them
+# again), kept before any case runs it and put back byte for byte after each
+# case that did (17 Oct 2026). Cases 4 and 5 used to put it back by running the
+# generator again on the restored script, and that left all 82 textures
+# modified: the Pillow on this machine writes the same pixels as other bytes
+# than the PNGs in the repository were written with.
+J=elysium-solarpunk/src/main/java/com/elysium/solarpunk
+tar cf "$BK/gen.tar" $R/assets/elysiumsolarpunk $R/data $J/SolarpunkContent.java $J/block/pending elysium-solarpunk/MACHINES.md
+putgen(){ rm -rf $R/assets/elysiumsolarpunk $R/data $J/block/pending; tar xf "$BK/gen.tar"; }
+
 echo "1. a biome modifier points at a placed feature that is not there"
 save $R/data/elysiumsolarpunk/neoforge/biome_modifier/add_alabaster.json
 python3 - <<'PY'
@@ -51,7 +61,7 @@ PY
 python3 elysium-solarpunk/tools/gen_solarpunk.py >/dev/null 2>&1
 check "trim with no trim on it" "pixel-identical to"
 restore elysium-solarpunk/tools/gen_solarpunk.py
-python3 elysium-solarpunk/tools/gen_solarpunk.py >/dev/null 2>&1
+putgen
 
 echo "5. the overlay draws in the stone instead of the metal"
 save elysium-solarpunk/tools/gen_solarpunk.py
@@ -65,7 +75,7 @@ PY
 python3 elysium-solarpunk/tools/gen_solarpunk.py >/dev/null 2>&1
 check "trim drawn in the wrong palette" "it was not the metal in its name"
 restore elysium-solarpunk/tools/gen_solarpunk.py
-python3 elysium-solarpunk/tools/gen_solarpunk.py >/dev/null 2>&1
+putgen
 
 echo "6. a generated stone drops nothing"
 save $R/data/elysiumsolarpunk/loot_table/blocks/alabaster.json
