@@ -54,7 +54,10 @@ expect "twelve metal blocks nobody needs a pickaxe for" "is in no mineable tag"
 edit $S/registry/IndustryItems.java '            STEAM_TURBINE, DIESEL_ENGINE,' '            DIESEL_ENGINE,'
 expect "a block in no creative tab" "is in no creative tab"
 
-edit $S/block/WireBlock.java 'box(6, 6, 6, 10, 10, 10)' 'box(4, 4, 4, 12, 12, 12)'
+# Since the wires became runs the collision is a core and six arms; the core
+# grown past the model is the same wire you can hit where you cannot see it,
+# and art/runs.py's shared check compares the core and every arm.
+edit $S/block/WireBlock.java 'CORE = box(5, 5, 5, 11, 11, 11)' 'CORE = box(4, 4, 4, 12, 12, 12)'
 expect "a wire you can hit where you cannot see it" "different sizes"
 
 edit $G '        write(os.path.join(ASSETS, "models/block", name + "_on.json"),

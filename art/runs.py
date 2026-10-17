@@ -158,13 +158,95 @@ def write_all(ns, name, texture, assets, data, write):
 # The checks a module validator runs over one of its runs
 # ---------------------------------------------------------------------------
 
+_NUM = r"\s*(-?\d+(?:\.\d+)?)[dDfF]?\s*"
+_BOX = r"(?:Block\.)?box\(" + ",".join([_NUM] * 6) + r"\)"
+
+
+def _turned(box, turn):
+    """A box turned the way a blockstate turns a model: x first, then y, about the middle."""
+    corners = [(box[0], box[1], box[2]), (box[3], box[4], box[5])]
+    for _ in range(turn.get("x", 0) // 90):
+        # x=90 takes north (-z) to down (-y)
+        corners = [(x, z, 16 - y) for x, y, z in corners]
+    for _ in range(turn.get("y", 0) // 90):
+        # y=90 takes north (-z) to east (+x)
+        corners = [(16 - z, y, x) for x, y, z in corners]
+    (ax, ay, az), (bx, by, bz) = corners
+    return (min(ax, bx), min(ay, by), min(az, bz), max(ax, bx), max(ay, by), max(az, bz))
+
+
+def collision_boxes(java_sources):
+    """
+    The core and the six arm boxes the block's Java collides with, as written:
+    `CORE = box(...)` and a `Direction.X, box(...)` pair for every face, in a
+    Map.of or a put. Returns (core, {side: box}); core is None when unwritten.
+    """
+    text = re.sub(r"/\*.*?\*/|//[^\n]*", " ", java_sources, flags=re.S)
+    core = re.search(r"\bCORE\s*=\s*" + _BOX, text)
+    arms = {}
+    for m in re.finditer(r"Direction\.([A-Z]+)\s*,\s*" + _BOX, text):
+        arms[m.group(1).lower()] = tuple(float(v) for v in m.groups()[1:])
+    return (tuple(float(v) for v in core.groups()) if core else None), arms
+
+
+def _drawn(path):
+    """The one element of a run model, as (x1, y1, z1, x2, y2, z2), or None."""
+    if not os.path.isfile(path):
+        return None  # check() reports the missing model itself
+    elements = json.load(open(path, encoding="utf-8")).get("elements", [])
+    if len(elements) != 1:
+        return ()
+    one = elements[0]
+    return tuple(float(v) for v in list(one["from"]) + list(one["to"]))
+
+
+def shape_problems(ns, name, resources, java_sources):
+    """
+    The box a player walks into against the one they see, face by face.
+
+    The Java's collision boxes and the models art/runs.py writes are two files
+    that cannot see each other; a core or an arm that differs between them is a
+    run that can be hit where it cannot be seen, or the other way round. The
+    arm model points north and the blockstate turns it, so each face's
+    collision box is compared with the north arm turned the way TURNS turns it.
+    """
+    bad = []
+    core, arms = collision_boxes(java_sources)
+    if core is None or set(arms) != set(SIDES):
+        return [f"{name}'s block no longer declares a core and six arm shapes "
+                f"(CORE = box(...) and a Direction.X, box(...) per face; found "
+                f"{'a' if core else 'no'} core and {len(arms)} arm(s)), so nothing "
+                f"compares the shape it collides with to the shape it draws"]
+    assets = os.path.join(resources, "assets", ns, "models/block")
+    drawn_core = _drawn(os.path.join(assets, name + "_core.json"))
+    drawn_arm = _drawn(os.path.join(assets, name + "_arm.json"))
+    for model, drawn in ((name + "_core", drawn_core), (name + "_arm", drawn_arm)):
+        if drawn == ():
+            bad.append(f"{model} is not the one box a run's {model.rsplit('_', 1)[1]} "
+                       f"is, so its collision box cannot be compared with it")
+    if drawn_core and drawn_core != core:
+        bad.append(f"{name}'s model and its collision box are different sizes: the "
+                   f"core collides at {core} and is drawn at {drawn_core}, so it can be "
+                   f"hit where it cannot be seen or the other way round")
+    if drawn_arm:
+        for side in SIDES:
+            want = _turned(drawn_arm, TURNS[side])
+            if arms[side] != want:
+                bad.append(f"{name}'s model and its collision box are different sizes: "
+                           f"the {side} arm collides at {arms[side]} and is drawn at "
+                           f"{want}, so it can be hit where it cannot be seen or the "
+                           f"other way round")
+    return bad
+
+
 def check(ns, name, resources, java_sources):
     """
     Everything wrong with one run block: the blockstate must draw arms for
     both kinds of link and a plate for a device on every face, the plate and
-    body must carry their tints, sixteen dye recipes must exist with the run
-    dye component, and the block's Java must go through Runs for its links,
-    its dye and its pick.
+    body must carry their tints, the core and every arm must collide where
+    they are drawn, sixteen dye recipes must exist with the run dye
+    component, and the block's Java must go through Runs for its links, its
+    dye and its pick.
 
     @param resources     the module's src/main/resources
     @param java_sources  the text of the block's Java class(es), joined
@@ -208,6 +290,7 @@ def check(ns, name, resources, java_sources):
                         or element["to"][2] != r["PLATE_DEPTH"]:
                     bad.append(f"{name}'s plate is not the {r['PLATE']}-pixel, "
                                f"{r['PLATE_DEPTH']}-deep square RunRules asks for")
+    bad.extend(shape_problems(ns, name, resources, java_sources))
     if not os.path.isfile(os.path.join(assets, "textures/block", name + "_plate.png")):
         bad.append(f"{name} has no plate texture")
     for dye in DYES:

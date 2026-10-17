@@ -123,7 +123,9 @@ edit $B '            return AnchorRules.loadAt(getBlockState().getValue(RADIUS))
 expect "an anchor that draws the same whatever it is holding" "widening it could be free"
 
 echo "the world the anchors are actually in"
-edit $G '    widest = ANCHOR_IDS[name]["widest"]' '    widest = 0'
+# The generator spans the RADIUS property (0..WIDEST) for every anchor since
+# ec8a3914; a blockstate that stops at radius 0 is the anchor drawn at one width.
+edit $G '        for radius in range(WIDEST + 1):' '        for radius in range(0 + 1):'
 gexpect "an anchor drawn at one width and settable to three" "a width the game draws as a missing model"
 
 rm -f $M/src/main/resources/data/elysiumkinetics/recipe/wide_anchor.json

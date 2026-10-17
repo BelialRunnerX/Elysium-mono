@@ -530,17 +530,11 @@ for name in parts:
         fail(f"{name} has no name in the language file")
 
 # The wire's model and its collision box are written in two files that cannot
-# see each other. A block you cannot hit where you can see it is the result.
-wire_box = re.search(r"SHAPE = box\((\d+), (\d+), (\d+), (\d+), (\d+), (\d+)\)",
-                     strip_comments(read(SRC, "block/WireBlock.java")))
-wire_model = os.path.join(RES, "assets", NS, "models/block/copper_wire.json")
-if wire_box and os.path.isfile(wire_model):
-    element = json.load(open(wire_model, encoding="utf-8"))["elements"][0]
-    want = [float(wire_box.group(n)) for n in (1, 2, 3)]
-    to = [float(wire_box.group(n)) for n in (4, 5, 6)]
-    if [float(v) for v in element["from"]] != want or [float(v) for v in element["to"]] != to:
-        fail("the wire's model and its collision box are different sizes, so it can be "
-             "hit where it cannot be seen or the other way round")
+# see each other. Since the wires became runs the box is a core and six arms
+# (WireBlock's CORE and ARMS) and the model is art/runs.py's core and arm, so
+# the shared check below compares every one of them, face by face. (The rule
+# that stood here read a single SHAPE = box(...) the block no longer has, and
+# skipped itself when it found none.)
 
 for engine in ("steam_turbine", "diesel_engine"):
     state_path = os.path.join(RES, "assets", NS, f"blockstates/{engine}.json")

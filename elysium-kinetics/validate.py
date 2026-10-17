@@ -930,10 +930,15 @@ for name, widest, _made in anchors:
     _wanted = {f"axis={_axis},radius={_radius}" for _axis in ("x", "y", "z")
                for _radius in range(WIDEST + 1)}
     _have = set(json.loads(states or "{}").get("variants", {}))
-    if _have != _wanted:
+    if _wanted - _have:
         fail(f"{name}'s blockstate holds {len(_have)} variant(s), not the "
              f"{len(_wanted)} the RADIUS property (0..{WIDEST}) and AXIS make: "
-             f"missing {sorted(_wanted - _have)[:4]}")
+             f"missing {sorted(_wanted - _have)[:4]}, so a width a player can set "
+             f"it to is a width the game draws as a missing model")
+    if _have - _wanted:
+        fail(f"{name}'s blockstate holds {len(_have)} variant(s), not the "
+             f"{len(_wanted)} the RADIUS property (0..{WIDEST}) and AXIS make: "
+             f"{sorted(_have - _wanted)[:4]} is a state that does not exist")
     # (The anchor's own width only says how far a player can cycle it; the
     # states, and so the models, are the property's, checked above.)
 

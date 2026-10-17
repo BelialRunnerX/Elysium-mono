@@ -114,14 +114,18 @@ expect "a rung of the ladder that holds less than the rung below it" "so one of 
 
 echo "the world the packs are actually in"
 edit $RI '        for (String name : PackRules.catalogue()) {
-            made.put(name, ITEMS.registerSimpleItem(name,' '        for (String name : PackRules.catalogue().subList(0, 3)) {
-            made.put(name, ITEMS.registerSimpleItem(name,'
+            PackRules.Body body = PackRules.body(name);' '        for (String name : PackRules.catalogue().subList(0, 3)) {
+            PackRules.Body body = PackRules.body(name);'
 wexpect "packs listed by hand rather than walked from the roster" "not registered by walking the roster"
 
 edit $RI '        if (made.size() != PackRules.howMany()) {' '        if (false) {'
 wexpect "a registry that does not count what it registered" "counts the packs registered"
 
-edit $RI '                    new Item.Properties().stacksTo(1)));' '                    new Item.Properties()));'
+# A bag, a crate's item and a part are registered by three statements now; the
+# bag's is the first and the one that matters most.
+edit $RI '                        properties -> new PackItem(properties, body),
+                        new Item.Properties().stacksTo(1)));' '                        properties -> new PackItem(properties, body),
+                        new Item.Properties()));'
 wexpect "a bag that stacks to sixty-four" "every one of them holds what the one on top holds"
 
 echo "the ladder in the recipes"

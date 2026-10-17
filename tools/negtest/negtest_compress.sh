@@ -141,7 +141,7 @@ edit $G '            "textures": {"material": face, "frame": frame, "particle": 
 regen
 wexpect "a compression framed in the thing it is made of" "it looks exactly like the block it compresses"
 
-edit $G '                  compress_model(faces[material], frames[markers[tier - 1]]))' '                  compress_model(faces[material], frames[markers[0]]))'
+edit $G '                  compress_model(faces[material], frames[markers[tier - 1]],' '                  compress_model(faces[material], frames[markers[0]],'
 regen
 wexpect "every tier framed in the same metal" "cannot tell them apart across a room"
 
