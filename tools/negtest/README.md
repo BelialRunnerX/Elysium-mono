@@ -278,9 +278,16 @@ copies were errors, and `negtest_p2.sh`, `negtest_datapack.sh` and
 restore does not happen is `restore-failed`. The first playtest run found a
 real stale anchor that had only ever shown as a MISS: its generator-drift case
 edited `emerald_bastion_lake.json`, gone since 1360fd0e, and now edits
-`oil_lake_space.json`. Still open: `negtest_machines2.sh` leaves 83
+`oil_lake_space.json`. Still open then: `negtest_machines2.sh` left 83
 generated files changed (a case runs `gen_solarpunk.py` with a rule taken out
-and puts back only the generator and the tag), at HEAD as well.
+and puts back only the generator and the tag), at HEAD as well. Closed on 17
+October with five more of its kind (`negtest_c.sh`, `t`, `w`, `recipes`,
+`tank`): the generators redraw every PNG they own, and Pillow 12.3 on this
+machine writes the same pixels as other bytes than the committed files, so a
+case undone by running the generator again left 82 or 372 textures modified.
+Those scripts now keep what the generator owns in a tar before the case and
+put it back byte for byte after it. The 83rd file was `SolarpunkMachines.java`,
+edited and then edited back by a helper whose bare `open()` wrote CRLF.
 
 ## Checking a script before running it
 

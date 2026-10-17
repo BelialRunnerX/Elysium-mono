@@ -36,12 +36,16 @@ reject() {   # name, substring that must NOT appear
   fi
 }
 
+# Bytes in, bytes out (17 Oct 2026). A bare open() on Windows reads cp1252 and
+# writes every line ending back as CRLF, so a file this edits and then edits
+# back, as the renamed-accessor case once did to SolarpunkMachines.java, came
+# back with every line changed.
 edit() { python3 -c "
 import sys
 p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
-s = open(p).read()
+s = open(p, encoding='utf-8', newline='').read()
 assert old in s, 'anchor not found in ' + p
-open(p, 'w').write(s.replace(old, new, 1))
+open(p, 'w', encoding='utf-8', newline='').write(s.replace(old, new, 1))
 " "$@" || { echo "STALE ANCHOR: $1"; fail=$((fail+1)); }; }
 
 echo "capability registration"
@@ -165,12 +169,13 @@ expect "bioreactor detour loses" "a detour that loses"
 cp /tmp/ck.bak $M/CeramicKilnEntity.java
 
 cp $M/CeramicKilnEntity.java /tmp/ck.bak
+cp $M/SolarpunkMachines.java /tmp/sm.bak
 edit $M/CeramicKilnEntity.java 'public ItemStackHandler getInventory()' \
   'public ItemStackHandler getInventoryX()'
 edit $M/SolarpunkMachines.java 'machine.getInventory()' 'machine.getInventoryX()'
 reject "renamed accessor still registered" "ceramic_kiln exposes getInventory()"
 cp /tmp/ck.bak $M/CeramicKilnEntity.java
-edit $M/SolarpunkMachines.java 'machine.getInventoryX()' 'machine.getInventory()'
+cp /tmp/sm.bak $M/SolarpunkMachines.java
 
 echo "the kiln's input set"
 cp tools/gen_solarpunk.py /tmp/gs.bak
@@ -180,14 +185,22 @@ cp /tmp/gs.bak tools/gen_solarpunk.py
 
 # The other direction, and the one a hand-list would reach by rotting: the rule
 # loses an entry, the tag is regenerated, and vanilla still fires it.
+#
+# Running the generator rewrites everything it owns (main() deletes it first),
+# not only the tag, and the Pillow on this machine writes the same pixels as
+# other bytes than the PNGs in the repository: putting back the generator and
+# the tag left 82 textures modified (17 Oct 2026). So all it owns is kept and
+# put back byte for byte.
+G_OWNS="src/main/resources/assets/elysiumsolarpunk src/main/resources/data src/main/java/com/elysium/solarpunk/SolarpunkContent.java src/main/java/com/elysium/solarpunk/block/pending MACHINES.md"
 cp tools/gen_solarpunk.py /tmp/gs.bak
-cp src/main/resources/data/elysiumsolarpunk/tags/item/kiln_inputs.json /tmp/kt.bak
+tar cf /tmp/machines2_gen.tar $G_OWNS
 edit tools/gen_solarpunk.py '    "minecraft:clay",
 ' ''
 python3 tools/gen_solarpunk.py >/dev/null 2>&1
 expect "the shipped list rots behind vanilla" "vanilla fires minecraft:clay and the kiln will not take it"
 cp /tmp/gs.bak tools/gen_solarpunk.py
-cp /tmp/kt.bak src/main/resources/data/elysiumsolarpunk/tags/item/kiln_inputs.json
+rm -rf src/main/resources/assets/elysiumsolarpunk src/main/resources/data src/main/java/com/elysium/solarpunk/block/pending
+tar xf /tmp/machines2_gen.tar; rm -f /tmp/machines2_gen.tar
 
 cp tools/gen_solarpunk.py /tmp/gs.bak
 edit tools/gen_solarpunk.py '"minecraft:redstone_ore": "an ore, whatever category it is filed under",' ''
