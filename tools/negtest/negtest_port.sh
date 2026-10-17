@@ -65,21 +65,23 @@ edit $S/port/SpaceElevator.java 'int highest = level.getHeight(Heightmap.Types.M
 expect "the sky counted one block at a time" "off the heightmap"
 
 echo "where the numbers come from"
+# Since dee03ffd each rule names the whole statement that uses the answer, and
+# says the method no longer reads it, rather than that a call is missing.
 edit $S/port/Spaceport.java 'long purse = PortRules.banked(treasury, sale.earned(), tether);' 'long purse = treasury + sale.earned();'
-expect "a treasury with no ceiling" "never calls PortRules.banked("
+expect "a treasury with no ceiling" "no longer reads \"long purse = PortRules.banked("
 
 edit $S/port/Spaceport.java 'Sale sale = sell(level, town, where, PortRules.outbound(tether, legs));' 'Sale sale = sell(level, town, where, 4096);'
-expect "how much a port can send, decided in the handler" "never calls PortRules.outbound("
+expect "how much a port can send, decided in the handler" "no longer reads \"Sale sale = sell(level, town, where, PortRules.outbound("
 
 edit $S/port/Spaceport.java 'int room = PortRules.inbound(tether, legs);' 'int room = 4096;'
-expect "how much a port can receive, decided in the handler" "never calls PortRules.inbound("
+expect "how much a port can receive, decided in the handler" "no longer reads \"int room = PortRules.inbound("
 
 edit $S/port/Spaceport.java 'Math.min(PortRules.spareFor(other.tether(), other.legs()),
                                 room - moved));' 'Math.min(spare, room - moved));'
-expect "a port that empties itself supplying a sister colony" "never calls PortRules.spareFor("
+expect "a port that empties itself supplying a sister colony" "no longer reads \"int shipping = Math.min(Math.min(missing, spare), Math.min(PortRules.spareFor("
 
 edit $S/port/Spaceport.java 'int mid = PortRules.midPrice(' 'int mid = Math.min('
-expect "freight priced by the handler" "never calls PortRules.midPrice("
+expect "freight priced by the handler" "no longer reads \"int mid = PortRules.midPrice("
 
 echo "selling"
 edit $S/port/Spaceport.java 'if (offer.getValue() <= 0 || waitingFor(waiting, offer.getKey())) {' 'if (offer.getValue() <= 0) {'

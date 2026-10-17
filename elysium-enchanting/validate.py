@@ -70,7 +70,16 @@ def items_named(body):
                 if key == "items" and isinstance(value, str):
                     found.append(value)
                 elif key == "items" and isinstance(value, list):
-                    found.extend(v for v in value if isinstance(v, str))
+                    # inventory_changed's "items" is a list of item predicates,
+                    # each a dict with "items" of its own, so the dicts are
+                    # walked too: read as strings only, every criterion this
+                    # module ships named nothing and an advancement waiting
+                    # for an item nobody registers passed (16 October 2026).
+                    for v in value:
+                        if isinstance(v, str):
+                            found.append(v)
+                        else:
+                            walk(v)
                 else:
                     walk(value)
         elif isinstance(node, list):

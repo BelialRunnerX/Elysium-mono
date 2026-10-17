@@ -1171,11 +1171,23 @@ def write_client_files(names):
         "        event.registerEntityRenderer(ElysiumMobs.%s.get(), %sRenderer::new);"
         % (name.upper(), camel(name)) for name in names)
 
-    (JAVA / "client/ElysiumMobLayers.java").write_text(
+    write_source(JAVA / "client/ElysiumMobLayers.java",
         LAYERS_TEMPLATE.format(constants=constants))
-    (JAVA / "client/ElysiumMobsClient.java").write_text(
+    write_source(JAVA / "client/ElysiumMobsClient.java",
         CLIENT_TEMPLATE.format(imports=imports, layers=layers, renderers=renderers))
     return 2
+
+
+def write_source(path, text):
+    """
+    One generated Java file, as UTF-8 with LF line ends.
+
+    Path.write_text with neither said wrote the locale's code page and CRLF on
+    Windows: every em dash in a template came out as a byte the validator's
+    UTF-8 read stops on, and each regen marked every generated Java file
+    changed (16 October 2026).
+    """
+    path.write_text(text, encoding="utf-8", newline="\n")
 
 
 def main():
@@ -1193,13 +1205,13 @@ def main():
         # things need two patches and the sheet has to be sized knowing that.
         skin = skin_for(family, boxes)
         family_sheet = smallest_sheet(boxes, skin=skin)
-        (model_dir / ("%sModel.java" % cls)).write_text(
+        write_source(model_dir / ("%sModel.java" % cls),
             MODEL_TEMPLATE.format(Cls=cls,
                                   parts=part_lines(boxes, family_sheet, skin),
                                   sheet=family_sheet, **gait_java(family)))
         written["models"] += 1
 
-        (JAVA / "client" / ("%sRenderer.java" % cls)).write_text(
+        write_source(JAVA / "client" / ("%sRenderer.java" % cls),
             RENDERER_TEMPLATE.format(Cls=cls, family=family,
                                      fallback=FAMILY_VARIANTS[family][0],
                                      CONST=family.upper(),
@@ -1229,12 +1241,12 @@ def main():
         boxes = boxes_for(boss, spec)
         skin = skin_for(boss, boxes, family)
         sheet = smallest_sheet(boxes, skin=skin)
-        (model_dir / ("%sModel.java" % cls)).write_text(
+        write_source(model_dir / ("%sModel.java" % cls),
             MODEL_TEMPLATE.format(Cls=cls,
                                   parts=part_lines(boxes, sheet, skin),
                                   sheet=sheet, **gait_java(boss)))
         written["models"] += 1
-        (JAVA / "client" / ("%sRenderer.java" % cls)).write_text(
+        write_source(JAVA / "client" / ("%sRenderer.java" % cls),
             RENDERER_TEMPLATE.format(Cls=cls, family=boss, fallback=boss,
                                      CONST=boss.upper(),
                                      shadow=round(scale * 0.6, 2)))

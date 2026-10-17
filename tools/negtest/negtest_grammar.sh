@@ -39,6 +39,11 @@ worldout() { python3 "$V" 2>&1 | grep -v JAVA_TOOL; }
 expect() { local w="$2" g; g="$(out)"
   if [[ "$g" == *"$w"* ]]; then echo "  caught : $1"; pass=$((pass+1));
   else echo "  MISSED : $1"; echo "         got: $(echo "$g" | tail -2 | head -1 | cut -c1-140)"; fail=$((fail+1)); fi; restore; }
+# A generator edit reaches the files only through a regen: the validator runs
+# the generator into a scratch folder and compares, so without one a broken
+# generator shows only as files that differ from it, and the check of the
+# files themselves never sees the break.
+gexpect() { regen; wexpect "$@"; }
 wexpect() { local w="$2" g; g="$(worldout)"
   if [[ "$g" == *"$w"* ]]; then echo "  caught : $1"; pass=$((pass+1));
   else echo "  MISSED : $1"; echo "         got: $(echo "$g" | tail -2 | head -1 | cut -c1-140)"; fail=$((fail+1)); fi; restore; }
@@ -129,13 +134,13 @@ wexpect "a separation the game refuses, caught before the file is written" "the 
 
 edit $G '    "shrine": (40, 16), "keep": (48, 20),' '    "shrine": (40, 40), "keep": (48, 20),'
 edit $G '        if guaranteed >= apart:' '        if False:'
-wexpect "a separation the game refuses, so the structure never appears" "the game refuses a separation"
+gexpect "a separation the game refuses, so the structure never appears" "the game refuses a separation"
 
 edit $G '            "salt": 900000 + sum(ord(letter) for letter in name),' '            "salt": 900000,'
-wexpect "two buildings placed with the same salt, so one always loses" "one of the two is always the one that loses"
+gexpect "two buildings placed with the same salt, so one always loses" "one of the two is always the one that loses"
 
 edit $G '            "grammar": name,' '            "grammar": "vestibule",'
-wexpect "a structure naming a grammar that is not one" "and a structure naming a grammar that is not one never generates"
+gexpect "a structure naming a grammar that is not one" "and a structure naming a grammar that is not one never generates"
 
 echo "the building a player walks through"
 edit $ST '        GrammarRules.Plan plan = GrammarRules.layOut(grammar, seed);' '        GrammarRules.Plan plan = new GrammarRules.Plan(grammar, java.util.List.of(), new int[] {0, 0, 0}, new int[] {0, 0, 0});'
