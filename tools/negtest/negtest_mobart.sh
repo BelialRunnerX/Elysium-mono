@@ -4,6 +4,14 @@ set -uo pipefail
 ROOT=/tmp/Elysium-mono/elysium-mobs
 G=$ROOT/tools/gen_mobs.py
 pass=0; fail=0
+# The module is put back from a copy at the end rather than by a last regen.
+# The textures come out of this Pillow with the same pixels and other zlib
+# bytes than the ones committed, so a regen leaves 42 PNGs changed in git that
+# samefile.py rightly calls the same (16 October 2026).
+SNAP=/tmp/mobart_snap.tar
+(cd /tmp/Elysium-mono && tar cf $SNAP elysium-mobs)
+restore() { rm -rf $ROOT && (cd /tmp/Elysium-mono && tar xf $SNAP); }
+trap 'restore' EXIT INT TERM
 regen() { (cd /tmp/Elysium-mono && python3 elysium-mobs/tools/gen_mobs.py >/dev/null 2>&1); }
 out() { (cd $ROOT && python3 validate.py 2>&1); }
 expect() { local w="$2" g; regen; g="$(out)"
@@ -38,10 +46,10 @@ cp /tmp/gm.bak $G
 cp $G /tmp/gm.bak
 python3 - <<'EOF'
 p = "/tmp/Elysium-mono/elysium-mobs/tools/gen_mobs.py"
-s = open(p).read()
+s = open(p, encoding="utf-8", newline="").read()
 old = 'def material_for(boxes):\n    """part name -> material key."""\n    out = {}'
 assert old in s
-open(p, "w").write(s.replace(old, old + "\n    return out", 1))
+open(p, "w", encoding="utf-8", newline="").write(s.replace(old, old + "\n    return out", 1))
 EOF
 expect "every part made of the same thing" "nothing inside it"
 cp /tmp/gm.bak $G
@@ -70,7 +78,7 @@ fexpect "no numpy for the value range, which used to print not measured and pass
 cp /tmp/mv.bak $ROOT/validate.py
 
 echo
-regen
+restore
 if (cd $ROOT && python3 validate.py >/dev/null 2>&1); then
   echo "  tree restored clean"
 else

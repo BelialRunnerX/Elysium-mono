@@ -29,9 +29,9 @@ expect() { local w="$2" g; g="$(out)"
 edit() { python3 -c "
 import sys
 p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
-s = open(p).read()
+s = open(p, encoding='utf-8', newline='').read()
 assert old in s, 'anchor not found in ' + p
-open(p,'w').write(s.replace(old, new, 1))
+open(p, 'w', encoding='utf-8', newline='').write(s.replace(old, new, 1))
 " "$@" || { echo "STALE ANCHOR: $1"; fail=$((fail+1)); }; }
 
 # Extracting alone would leave behind any file a break *added*, so the two

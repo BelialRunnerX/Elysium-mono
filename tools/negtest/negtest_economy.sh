@@ -15,8 +15,8 @@ expectc() { local w="$2" g; g="$(outcore)"; if [[ "$g" == *"$w"* ]]; then echo "
 edit() { python3 -c "
 import sys
 p, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
-s = open(p).read(); assert old in s, 'anchor not found in ' + p
-open(p,'w').write(s.replace(old, new, 1))" "$@" || { echo "STALE ANCHOR: $1"; fail=$((fail+1)); }; }
+s = open(p, encoding='utf-8', newline='').read(); assert old in s, 'anchor not found in ' + p
+open(p, 'w', encoding='utf-8', newline='').write(s.replace(old, new, 1))" "$@" || { echo "STALE ANCHOR: $1"; fail=$((fail+1)); }; }
 
 echo "the curve"
 cp $LV /tmp/lv.bak
@@ -48,12 +48,21 @@ expectc "an enforcer handing over its blade again" "drops its weapon"
 cp /tmp/en.bak $EN
 
 echo "the benches"
+# gen_data.py clears core's data/ and assets/ that later generators refill, so
+# the resources are put back from a copy rather than by a whole regen.sh, which
+# also rewrote 2537 files across the tree (16 October 2026). It writes nowhere
+# but core's resources.
+rm -rf /tmp/eco_res && cp -a $CORE/src/main/resources /tmp/eco_res
 cp $GD /tmp/gd.bak
-edit $GD '{"a": AET, "#": ING, "i": "minecraft:iron_ingot"},' '{"a": AET, "#": ING, "i": "minecraft:obsidian"},'
+# The forge's key carries a smithing table on a second line, and the old
+# one-line anchor matched nothing in any commit of gen_data.py.
+edit $GD '{"a": AET, "#": ING, "i": "minecraft:iron_ingot",
+              "t": "minecraft:smithing_table"},' '{"a": AET, "#": ING, "i": "minecraft:obsidian",
+              "t": "minecraft:smithing_table"},'
 (cd $M && python3 elysium-core/tools/gen_data.py >/dev/null 2>&1)
 expectc "the forge back on obsidian" "diamond pickaxe"
 cp /tmp/gd.bak $GD
-(cd $M && ./regen.sh >/dev/null 2>&1)
+rm -rf $CORE/src/main/resources && cp -a /tmp/eco_res $CORE/src/main/resources
 
 echo
 if (cd $M && python3 validate.py >/dev/null 2>&1); then echo "  tree restored clean"; else echo "  RESTORE FAILED"; fail=$((fail+1)); fi

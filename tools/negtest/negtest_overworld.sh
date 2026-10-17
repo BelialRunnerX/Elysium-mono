@@ -132,8 +132,11 @@ edit $G '    entries = [{"biome": name, "parameters": parameters}
                for name, parameters in overworld_claims(shape)]' '    entries = []'
 gexpect "a preset with none of our biomes in its list" "lists 7593 entries and the rules plus the dump"
 
-edit $G '    entries += vanilla_entries()' '    entries = entries + vanilla_entries()[:2000]'
-gexpect "a preset that drops most of vanilla's own list" "entries and the rules plus the dump come to"
+# Since 88af2f0e the generator drops the vanilla claims our boxes shadow
+# (unshadowed), and the count message names them before it says what the
+# list comes to.
+edit $G '    entries += unshadowed(vanilla_entries(), entries)' '    entries = entries + unshadowed(vanilla_entries(), entries)[:2000]'
+gexpect "a preset that drops most of vanilla's own list" "entries and the rules plus the dump less the"
 
 edit $G '        overworld["generator"]["biome_source"] = {
             "type": "minecraft:multi_noise",
@@ -146,9 +149,10 @@ gexpect "a preset that names vanilla's list instead of writing one" "still names
 
 edit $G '    entries = [{"biome": name, "parameters": parameters}
                for name, parameters in overworld_claims(shape)]
-    entries += vanilla_entries()' '    entries = vanilla_entries()
-    entries += [{"biome": name, "parameters": parameters}
-                for name, parameters in overworld_claims(shape)]'
+    entries += unshadowed(vanilla_entries(), entries)' '    ours = [{"biome": name, "parameters": parameters}
+            for name, parameters in overworld_claims(shape)]
+    entries = unshadowed(vanilla_entries(), ours)
+    entries += ours'
 gexpect "our biomes declared after vanilla's, which wins them nothing at all" "and a box inside a box declared first wins nothing"
 
 edit $G '        preset = json.loads(read(os.path.join(VANILLA_PRESETS, name)))' '        preset = json.loads(read(os.path.join(VANILLA_PRESETS, name)))
@@ -175,7 +179,11 @@ edit $G '        write(os.path.join(DATA, "worldgen/placed_feature", name + ".js
               {"feature": "%s:%s" % (NS, name), "placement": []})'
 gexpect "a feature of ours placed with no placement at all" "which is once at the corner of every chunk"
 
-edit $G '    for one in shape["lands"] + shape["caves"]:' '    for one in shape["caves"]:'
+# The tag files (8d7ef5e3) walk the same two lists first, so the anchor
+# carries the docstring of the function that names them.
+edit $G '    """A name a player reads, for every one of them."""
+    for one in shape["lands"] + shape["caves"]:' '    """A name a player reads, for every one of them."""
+    for one in shape["caves"]:'
 gexpect "biomes with no name a player reads" "have no name a player reads"
 
 echo "the dumps everything rests on"

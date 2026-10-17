@@ -1802,12 +1802,18 @@ for name in presets:
                 "erosion": numbers[6:8], "depth": numbers[8:10], "weirdness": numbers[10:12], "offset": numbers[12]}
     # Every box of ours presses the claim, not the crags alone: the hoar hill's wide box
     # held the game's cold claims whole, lost every tie and never generated either.
-    our_boxes = [one["parameters"] for one in entries[:ours_count]]
+    # Our boxes are the rules' (the printed roster, offset nought), not the head of
+    # the file: read off the file, a preset with none of ours in it took its first
+    # 840 vanilla claims for ours, they shadowed themselves, and the count came
+    # out right for a list with not one of our biomes in it (16 October 2026).
+    our_boxes = [_boxed(numbers[at:at + 12] + [0.0])
+                 for numbers in ([float(one) for one in parts[11:]] for parts in roster.values())
+                 for at in range(0, len(numbers), 12)]
     shadowed = sum(1 for _claim_name, numbers in vanilla_claims if any(_within(_boxed(numbers), box) for box in our_boxes))
-    if any(_within(one["parameters"], box) for one in entries[ours_count:] for box in our_boxes):
+    if any(_within(one["parameters"], box) for one in entries
+           if not one["biome"].startswith(NS + ":") for box in our_boxes):
         fail(f"{name} still lists a vanilla claim wholly inside a crag's box or another of ours, which "
              f"the game may hand every tie to, so that biome never generates")
-        continue
     if len(entries) != ours_count + len(vanilla_claims) - shadowed:
         fail(f"{name} lists {len(entries)} entries and the rules plus the dump less the "
              f"{shadowed} claim(s) our boxes shadow come to {ours_count + len(vanilla_claims) - shadowed}")

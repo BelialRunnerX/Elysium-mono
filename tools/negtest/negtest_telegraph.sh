@@ -17,7 +17,11 @@ try() {
   restore
 }
 
-try "a Minecraft import in the rule" "only stays walkable while this file" \
+# No validator in any commit has said "only stays walkable while this file":
+# the rule's own heading in elysium-lib/validate.py ("1. The rule loads without
+# a game.") has nothing under it, and the file is held pure by the table of
+# executed files (EXECUTED_PURE), which names the import it finds.
+try "a Minecraft import in the rule" "telegraph/ElysiumTelegraph.java imports 'import net.minecraft.world.level.Level;'" \
   "sed -i 's|^package com.elysium.lib.telegraph;|package com.elysium.lib.telegraph;\n\nimport net.minecraft.world.level.Level;|' $S/telegraph/ElysiumTelegraph.java"
 
 try "the cap removed from the pipeline" "holds only for mobs that choose" \
