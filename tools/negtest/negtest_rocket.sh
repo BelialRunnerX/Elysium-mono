@@ -27,8 +27,10 @@ def rep(path, old, new):
 '
 try "no pilot check" "checks that the sender is riding" "$R
 rep('$RK', 'if (phase() != Phase.AWAITING || pilot.getVehicle() != this) {', 'if (phase() != Phase.AWAITING) {')"
+# The route is priced for the fitted motor since the hydrogen motor (S6b), so
+# the check reads motor() where it read SpaceRoute.Fuel.FUEL.
 try "no route check" "checks the destination against the fuel" "$R
-rep('$RK', 'if (from == null || !SpaceRoute.canTravel(from, destination, fuel(), SpaceRoute.Fuel.FUEL)) {', 'if (from == null) {')"
+rep('$RK', 'if (from == null || !SpaceRoute.canTravel(from, destination, fuel(), motor())) {', 'if (from == null) {')"
 try "anyone launches" "does not check that the asker is its pilot" "$R
 rep('$RK', 'if (phase() != Phase.IDLE || getFirstPassenger() != asker) {', 'if (phase() != Phase.IDLE) {')"
 try "countdown shortened" "Stellaris's 200 ticks" "$R

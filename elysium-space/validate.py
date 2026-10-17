@@ -644,6 +644,32 @@ else:
     for _fuel in _fuels:
         if f"case {_fuel} ->" not in fi.group(1):
             fail(f"RocketEntity.fuelIn has no case for the {_fuel} motor, so a rocket with it can never be fuelled")
+    # ...and each fuel item is named in its own motor's case and nowhere else.
+    # The switch alone does not say so: a hydrogen canister tested before it,
+    # or beside the fuel canister in the FUEL case, fills a rocket of any motor
+    # with it. The hydrogen rule this replaced went with the switch (cf24eb16)
+    # and nothing took its place until negtest_s6b.sh asked (17 October 2026).
+    def _brace_body(text, opening):
+        depth = 0
+        for _at in range(opening, len(text)):
+            depth += {"{": 1, "}": -1}.get(text[_at], 0)
+            if depth == 0:
+                return text[opening + 1:_at]
+        return text[opening + 1:]
+    _fuel_item = r'SpaceItems\.[A-Z_]+|SpaceFluids\.[A-Z_]+\.bucket|"[a-z0-9_]+:[a-z0-9_/.]+"'
+    _named = re.findall(_fuel_item, fi.group(1))
+    _cased = {}
+    for _case in re.finditer(r"\bcase ([A-Z_]+) -> \{", fi.group(1)):
+        for _item in re.findall(_fuel_item, _brace_body(fi.group(1), _case.end() - 1)):
+            _cased.setdefault(_item, []).append(_case.group(1))
+    for _item in sorted(set(_named)):
+        _in = _cased.get(_item, [])
+        if _named.count(_item) > len(_in):
+            fail(f"RocketEntity.fuelIn does not tie {_item} to one motor: it is named outside the motor's "
+                 f"own case, so a rocket with any motor takes it and two fuels would mix in one tank")
+        elif len(_in) > 1:
+            fail(f"RocketEntity.fuelIn does not tie {_item} to one motor: the {' and '.join(_in)} cases "
+                 f"both take it, so two fuels would mix in one tank")
 _motor_of = re.search(r"public static SpaceRoute\.Fuel motorOf\(ItemStack held\) \{(.*?)\n    \}", rocket, re.S)
 if not _motor_of:
     fail("RocketEntity.motorOf is gone; no upgrade fits any motor")
@@ -722,9 +748,24 @@ if not fill or "for (FluidTank tank : inputs)" not in fill.group(0):
 if len(drains) != 2 or any("for (FluidTank tank : outputs)" not in d for d in drains):
     fail("MachineTanks.drain reaches past the output tanks; a pipe could suck a refinery's oil back out")
 caps = _src("registry/SpaceBlockEntities.java")
-for cap in ("Capabilities.EnergyStorage.BLOCK", "Capabilities.FluidHandler.BLOCK"):
-    if cap not in caps:
-        fail(f"SpaceBlockEntities does not register {cap}; other mods' cables and pipes could not connect")
+# The machines' own stores are handed over in register(), once per machine
+# type, and onCapabilities runs it over them. Asking only whether the file
+# names the capability passed with the machines' energy registration deleted,
+# because the cable's own registration names Capabilities.EnergyStorage.BLOCK
+# too (negtest_machines.sh, 17 October 2026), so the rule names the statements.
+_cap_register = re.search(r"private static <T extends MachineBlockEntity> void register\("
+                          r"RegisterCapabilitiesEvent event, BlockEntityType<T> type\) \{(.*?)\n    \}", caps, re.S)
+_cap_event = re.search(r"public static void onCapabilities\(RegisterCapabilitiesEvent event\) \{(.*?)\n    \}",
+                       caps, re.S)
+for cap, store in (("Capabilities.EnergyStorage.BLOCK", "be.energy()"),
+                   ("Capabilities.FluidHandler.BLOCK", "be.fluids()")):
+    _statement = f"event.registerBlockEntity({cap}, type, (be, side) -> {store});"
+    if not _cap_register or _statement not in " ".join(_cap_register.group(1).split()):
+        fail(f"SpaceBlockEntities does not register {cap} for its machines ({_statement} is not in "
+             f"register); other mods' cables and pipes could not connect")
+if not _cap_event or "register(event, type.get());" not in " ".join(_cap_event.group(1).split()):
+    fail("SpaceBlockEntities.onCapabilities no longer calls register(event, type.get()) for the machine "
+         "types, so no machine offers its Capabilities.EnergyStorage.BLOCK or its tanks to anything")
 cond = _src("machine/ConduitBlockEntity.java")
 if ".produce(" in cond or re.search(r"\.fill\(\s*new FluidStack", cond):
     fail("a conduit creates energy or fluid; cables and pipes may only move what they are given, "

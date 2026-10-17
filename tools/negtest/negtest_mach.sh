@@ -15,41 +15,50 @@ M=elysium-solarpunk/src/main/java/com/elysium/solarpunk/machine
 P=elysium-solarpunk/src/main/java/com/elysium/solarpunk/block/pending
 
 echo "1. a machine is half-graduated: written but still listed as owing work"
+# Every machine has graduated, so the MACHINES table is empty (`MACHINES = []`)
+# and the condenser is put back into it beside its WORKING row. The anchor used
+# to be the table's first row, mycelium_press; when that row went, the replace
+# matched nothing and the case tested the clean tree (17 Oct 2026).
 save $G
-python3 - <<'PY'
+if python3 - <<'PY'
 import pathlib
-p=pathlib.Path("elysium-solarpunk/tools/gen_solarpunk.py"); t=p.read_text()
-t=t.replace('MACHINES = [\n    {\n        "id": "mycelium_press"',
-            'MACHINES = [\n    {\n        "id": "solar_condenser", "name": "Solar Condenser",\n'
+p=pathlib.Path("elysium-solarpunk/tools/gen_solarpunk.py"); t=p.read_text(encoding="utf-8")
+old='\nMACHINES = []\n'
+assert t.count(old)==1, "pattern missing: MACHINES = []"
+t=t.replace(old,
+            '\nMACHINES = [\n    {\n        "id": "solar_condenser", "name": "Solar Condenser",\n'
             '        "glow": "bloom", "light": 4,\n'
             '        "owes": "Gathers power from direct skylight.",\n'
             '        "core": "minecraft:daylight_detector", "window": NS + ":bloom_glass",\n'
-            '    },\n    {\n        "id": "mycelium_press"',1)
-p.write_text(t)
+            '    },\n]\n',1)
+p.write_text(t, encoding="utf-8", newline="")
 PY
-check "finished and outstanding at once" "cannot be finished and outstanding at once"
+then check "finished and outstanding at once" "cannot be finished and outstanding at once"
+else echo "  SETUP FAILED: finished and outstanding at once"; fail=$((fail+1)); fi
 restore $G
 
 echo "2. a graduated machine keeps its stub in block/pending/"
-save $G
-python3 - <<'PY'
-import pathlib
-p=pathlib.Path("elysium-solarpunk/tools/gen_solarpunk.py"); t=p.read_text()
-t=t.replace('''    if directory.is_dir():
-        for stale in directory.glob("*Block.java"):''','''    if False and directory.is_dir():
-        for stale in directory.glob("*Block.java"):''',1)
-p.write_text(t)
+# The stub is the one the generator itself writes for a pending machine
+# (write_machine_java, with the condenser put in its MACHINES table for the
+# call), left behind in block/pending/ after the machine graduated. Until 17 Oct
+# 2026 this copied MyceliumPressBlock.java, which went when the last machine
+# graduated, and ran the whole generator twice around it, which rewrote 82
+# PNGs with this machine's Pillow and left them changed. Nothing here needs the
+# generator's other output, so only the stub is written.
+if python3 - <<'PY'
+import sys
+sys.path.insert(0, "elysium-solarpunk/tools")
+import gen_solarpunk as g
+g.MACHINES = [{"id": "solar_condenser", "name": "Solar Condenser",
+               "owes": "Gathers power from direct skylight."}]
+g.write_machine_java()
+stub = g.JAVA / "block/pending/SolarCondenserBlock.java"
+assert stub.is_file() and "extends PendingMachineBlock" in stub.read_text(encoding="utf-8"), \
+    "the generator wrote no stub for the condenser"
 PY
-python3 elysium-solarpunk/tools/gen_solarpunk.py >/dev/null 2>&1
-cp $P/SolarCondenserBlock.java /tmp/stub.java 2>/dev/null || true
-python3 - <<'PY'
-import pathlib,shutil
-src=pathlib.Path("elysium-solarpunk/src/main/java/com/elysium/solarpunk/block/pending")
-tpl=(src/"MyceliumPressBlock.java").read_text()
-(src/"SolarCondenserBlock.java").write_text(tpl.replace("MyceliumPressBlock","SolarCondenserBlock"))
-PY
-check "finished machine left in pending/" "still has a stub in block/pending"
-rm -f $P/SolarCondenserBlock.java; restore $G; python3 elysium-solarpunk/tools/gen_solarpunk.py >/dev/null 2>&1
+then check "finished machine left in pending/" "still has a stub in block/pending"
+else echo "  SETUP FAILED: finished machine left in pending/"; fail=$((fail+1)); fi
+rm -f $P/SolarCondenserBlock.java; rm -rf elysium-solarpunk/tools/__pycache__
 
 echo "3. a working machine has no block entity registered"
 save $M/SolarpunkMachines.java
