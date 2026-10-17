@@ -16,9 +16,9 @@ try(){ snap; if ! python3 -c "$3"; then echo "SETUP FAILED: $1"; miss=$((miss+1)
 R='
 import sys, json
 def rep(p, a, b):
-    s=open(p).read()
+    s=open(p, encoding="utf-8", newline="").read()
     if a not in s: sys.exit("anchor: "+a[:50])
-    open(p,"w").write(s.replace(a,b,1))
+    open(p,"w", encoding="utf-8", newline="").write(s.replace(a,b,1))
 '
 try "refinery recipe changed" "WorldHarness failed" "$R
 rep('$MR', 'FUEL_PER_BATCH = 5;', 'FUEL_PER_BATCH = 10;')"
@@ -26,8 +26,13 @@ try "power ignored" "WorldHarness failed" "$R
 rep('$MR', 'energy / REFINERY_FE_PER_BATCH));', '99999));')"
 try "free air" "WorldHarness failed" "$R
 rep('$MR', 'return Math.max(0, newBlocks) * OXYGEN_PER_NEW_BLOCK', 'return 0 * OXYGEN_PER_NEW_BLOCK')"
+# The refinery makes diesel as well as fuel, so the rule's call also takes the
+# diesel tank's space and wraps onto a second line; the anchor is that whole
+# statement. The one-line form this case was written against predates the
+# repository, so the case had never set up here (17 Oct 2026).
 try "refinery bypasses rules" "no longer calls MachineRules.refineryBatches(" "$R
-rep('$RF', 'if (MachineRules.refineryBatches(oil.getFluidAmount(), fuel.getSpace(), energy.getEnergyStored()) > 0) {', 'if (oil.getFluidAmount() >= 10) {')"
+rep('$RF', '''if (MachineRules.refineryBatches(oil.getFluidAmount(), fuel.getSpace(), diesel.getSpace(),
+                energy.getEnergyStored()) > 0) {''', 'if (oil.getFluidAmount() >= 10) {')"
 try "distributor own fill" "no longer calls ElysiumRoomScan.interior(" "$R
 rep('$OD', 'room.addAll(ElysiumRoomScan.interior(level, start, MAX_VOLUME));', 'room.add(start);')"
 try "pipes fill outputs" "reaches past the input tanks" "$R

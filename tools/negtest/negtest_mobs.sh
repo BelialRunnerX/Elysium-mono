@@ -14,7 +14,13 @@ PY
     cp /tmp/neg_backup "$1"
     if grep -q "$4" <<<"$out"; then pass=$((pass+1)); echo "ok   : $4"; else failn=$((failn+1)); echo "MISS : $4"; fi
 }
-t $S/entity/mob/CinderBoar.java "setImmuneToZombification(true);" "" "would zombify outside the Nether"
+# The cinder boar holds its immunity three times since 88af2f0e (the
+# constructor, readAdditionalSaveData, and isConverting() returning false), so
+# taking out the constructor's call, as this case did, left a boar that never
+# turns: no break, and the validator rightly said nothing. The cinderling holds
+# it once, in its constructor, so taking that out is a piglin that zombifies
+# off Cinderveil (17 Oct 2026).
+t $S/entity/mob/Cinderling.java "setImmuneToZombification(true);" "" "would zombify outside the Nether"
 t $G/cinder_boar.json '"head": "head",' '"head": "snout",' "rig moves snout"
 t $S/registry/SpaceMobs.java "put(event, SpaceEntities.FROST_RAPTOR.get(), Monster.createMonsterAttributes(), MobRules.FROST_RAPTOR);" "" "frost_raptor gets no attributes"
 t $S/world/MobRules.java '40.0D, 0.4D, 9.0D' '40.0D, 0.4D, 0.0D' "only hunters deal damage"

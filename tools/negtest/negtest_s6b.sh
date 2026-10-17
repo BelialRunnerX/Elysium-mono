@@ -14,20 +14,33 @@ try(){ snap; if ! python3 -c "$3"; then echo "SETUP FAILED: $1"; miss=$((miss+1)
 R='
 import sys
 def rep(p, a, b):
-    s=open(p).read()
+    s=open(p, encoding="utf-8", newline="").read()
     if a not in s: sys.exit("anchor: "+a[:50])
-    open(p,"w").write(s.replace(a,b,1))
+    open(p,"w", encoding="utf-8", newline="").write(s.replace(a,b,1))
 '
 try "route ignores motor" "assumes plain fuel" "$R
 rep('$RK', 'if (from == null || !SpaceRoute.canTravel(from, destination, fuel(), motor())) {', 'if (from == null || !SpaceRoute.canTravel(from, destination, fuel(), SpaceRoute.Fuel.FUEL)) {')"
-try "hydrogen into fuel motor" "does not tie hydrogen canisters" "$R
-rep('$RK', 'motor() == SpaceRoute.Fuel.HYDROGEN && held.is(SpaceItems.HYDROGEN_CANISTER.get())', 'held.is(SpaceItems.HYDROGEN_CANISTER.get())')"
+# Since cf24eb16 fuelIn is one switch on the motor with a case per fuel, so
+# the old guard (motor() == HYDROGEN && a hydrogen canister) is gone, and so is
+# the rule that read it. The same break in the new shape is a hydrogen canister
+# taken outside its motor's case: tested before the switch (what dropping the
+# motor test did before), or beside the fuel canister in the FUEL case. The
+# rule that replaced it in elysium-space/validate.py catches both.
+try "hydrogen into fuel motor" "does not tie SpaceItems.HYDROGEN_CANISTER to one motor" "$R
+rep('$RK', '        switch (motor()) {\n            case FUEL -> {', '        if (held.is(SpaceItems.HYDROGEN_CANISTER.get())) {\n            return CANISTER_MB;\n        }\n        switch (motor()) {\n            case FUEL -> {')"
+try "hydrogen in the fuel case" "does not tie SpaceItems.HYDROGEN_CANISTER to one motor" "$R
+rep('$RK', 'if (held.is(SpaceItems.FUEL_CANISTER.get())) {', 'if (held.is(SpaceItems.FUEL_CANISTER.get()) || held.is(SpaceItems.HYDROGEN_CANISTER.get())) {')"
+# Any item motorOf names fits a motor now, not only the hydrogen one, so the
+# guard reads motor() == fitted. negtest_rocket.sh's "a motor fitted over a
+# full tank" makes the same break.
 try "motor swap keeps fuel" "does not require an empty tank" "$R
-rep('$RK', 'if (phase() != Phase.IDLE || motor() == SpaceRoute.Fuel.HYDROGEN || fuel() > 0) {', 'if (phase() != Phase.IDLE || motor() == SpaceRoute.Fuel.HYDROGEN) {')"
+rep('$RK', 'if (phase() != Phase.IDLE || motor() == fitted || fuel() > 0) {', 'if (phase() != Phase.IDLE || motor() == fitted) {')"
+# A cable moves energy along its run with carryEnergy since the runs (1d7d704d).
 try "cable makes energy" "a conduit creates energy" "$R
-rep('$CO', '            pushEnergy(MachineRules.CABLE_FE_PER_TICK);', '            energy.produce(1);\n            pushEnergy(MachineRules.CABLE_FE_PER_TICK);')"
+rep('$CO', '            carryEnergy(MachineRules.CABLE_FE_PER_TICK);', '            energy.produce(1);\n            carryEnergy(MachineRules.CABLE_FE_PER_TICK);')"
+# The pipe hands out the side it was asked about since the runs (1d7d704d).
 try "pipe not exposed" "the pipe does not expose" "$R
-rep('$CAP', 'event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, PIPE.get(), (be, side) -> be.fluids());', '')"
+rep('$CAP', 'event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, PIPE.get(), (be, side) -> be.fluidsFrom(side));', '')"
 try "hydrogen weak" "WorldHarness failed" "$R
 rep('$RT', 'HYDROGEN(21.36D)', 'HYDROGEN(15.0D)')"
 echo "caught $pass, missed $miss"
