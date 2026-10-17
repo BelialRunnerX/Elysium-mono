@@ -1063,7 +1063,16 @@ if "if (made.size() != PackRules.howMany()) { throw new IllegalStateException(" 
         not in pack_src:
     fail("nothing counts the packs registered against the roster they were "
          "walked from")
-if "new Item.Properties().stacksTo(1)" not in pack_src:
+# A bag, a crate's item and a part are three registrations, one statement each,
+# so the rule reads every one of them: one stacksTo(1) anywhere in the file
+# survives the bag's own statement losing it.
+_packs_from = pack_src.find("Map<String, DeferredItem<? extends Item>> packs() {")
+_packs_to = pack_src.find("return Map.copyOf(made);", _packs_from)
+_pack_registrations = [one.split("));", 1)[0] for one in
+                       pack_src[_packs_from:_packs_to].split("made.put(name, ")[1:]] \
+    if 0 <= _packs_from < _packs_to else []
+if not _pack_registrations or any("new Item.Properties().stacksTo(1)" not in one
+                                  for one in _pack_registrations):
     fail("a pack stacks, so a player can put sixty-four bags in one slot and "
          "every one of them holds what the one on top holds")
 

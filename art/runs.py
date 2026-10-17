@@ -244,9 +244,10 @@ def check(ns, name, resources, java_sources):
     """
     Everything wrong with one run block: the blockstate must draw arms for
     both kinds of link and a plate for a device on every face, the plate and
-    body must carry their tints, sixteen dye recipes must exist with the run
-    dye component, and the block's Java must go through Runs for its links,
-    its dye and its pick.
+    body must carry their tints, the core and every arm must collide where
+    they are drawn, sixteen dye recipes must exist with the run dye
+    component, and the block's Java must go through Runs for its links, its
+    dye and its pick.
 
     @param resources     the module's src/main/resources
     @param java_sources  the text of the block's Java class(es), joined
@@ -358,7 +359,12 @@ def check(ns, name, resources, java_sources):
     # one arm model on disk, turned the way the blockstate on disk turns it for
     # that side, so the check cannot agree with the Java by construction.
     shapes = declared_shapes(java_sources)
-    if shapes is not None:
+    if shapes is None:
+        # Said rather than skipped: a shape call written any other way would
+        # leave the boxes unread and every comparison below unmade.
+        bad.append(f"{name}'s Java does not call Runs.shape(state, CORE, ARMS) with two named shapes, "
+                   f"so the shape it collides with cannot be compared with the shape it draws")
+    else:
         core, arms = shapes
         if core is None or sorted(arms) != sorted(SIDES) or any(len(b) != 1 for b in arms.values()):
             bad.append(f"{name}'s block no longer declares a core and six arm shapes "
@@ -368,7 +374,8 @@ def check(ns, name, resources, java_sources):
             drawn_core = _bounds(core_model_on_disk) if core_model_on_disk else None
             if drawn_core is not None and core != drawn_core:
                 bad.append(f"{name}'s collision core is {_box(core)} and its model's core is "
-                           f"{_box(drawn_core)}: a player would stand inside the {name}, or stop short of it")
+                           f"{_box(drawn_core)}, different sizes: a player would stand inside the {name}, "
+                           f"or stop short of it")
             drawn_arm = _bounds(arm_model_on_disk) if arm_model_on_disk else None
             for side in SIDES if drawn_arm is not None else ():
                 turn = next((p.get("apply", {}) for p in parts
@@ -377,6 +384,6 @@ def check(ns, name, resources, java_sources):
                 want = _turned(drawn_arm, turn.get("x", 0), turn.get("y", 0))
                 if arms[side][0] != want:
                     bad.append(f"{name}'s {side} arm collides at {_box(arms[side][0])} and the model draws "
-                               f"it at {_box(want)}; the shape a player sees and the shape they walk into "
-                               f"have drifted apart")
+                               f"it at {_box(want)}, different sizes: the shape a player sees and the shape "
+                               f"they walk into have drifted apart")
     return bad

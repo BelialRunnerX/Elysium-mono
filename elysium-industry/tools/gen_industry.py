@@ -418,11 +418,6 @@ def pillar(width, side, end):
     }
 
 
-#: The wire's own shape, which has to match WireBlock's collision box exactly.
-#: A model that disagreed with the box would be a block you cannot hit where
-#: you can see it, and there is no way to notice that from either file alone.
-WIRE_BOX = (6, 10)
-
 #: Blocks whose model is a full cube, as (top, side) sprites.
 CUBES = {
     BRICKS[0]: (BRICKS[0], BRICKS[0]),
@@ -447,27 +442,6 @@ ENGINES = {
 }
 
 WIRES = ("copper_wire", "gold_wire", "steel_wire")
-
-
-def wire_model(name):
-    low, high = WIRE_BOX
-    return {
-        "parent": "block/block",
-        "textures": {"side": f"{NS}:block/{name}", "end": f"{NS}:block/{name}_end",
-                     "particle": f"{NS}:block/{name}"},
-        "elements": [{
-            "from": [low, low, low],
-            "to": [high, high, high],
-            "faces": {
-                "down": {"texture": "#end"},
-                "up": {"texture": "#end"},
-                "north": {"texture": "#side"},
-                "south": {"texture": "#side"},
-                "west": {"texture": "#side"},
-                "east": {"texture": "#side"},
-            },
-        }],
-    }
 
 
 def engine_model(front, side, top):
