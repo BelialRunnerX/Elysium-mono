@@ -328,4 +328,53 @@ why it is worth doing; never a restatement of the title).
     stage_vale_footing_client.ps1, and the six by-hand sittings (docs/PLAYTEST.md).
   - **Bugs found and owed:** core `elysium_regalia` four-piece Speed (`levels [0]`, skipped by the set engine);
     arcana `RelicPassives` on-hit target (`perform(ability, player)` should strike what was hit).
+* **16-17 Oct - the gate that reads what the scripts say, the Vale stages on the game's word.** (Anvil)
+  - **On GitHub:** main 060a1bd5 (16 Oct) and 9d532876 (17 Oct), each after compile, root validate and
+    check_rules passed. The live suite on the rebuilt server was 70 of 70 (the solarpunk processors and the
+    comforts pigeons fail only under load, as the pigeons always have).
+  - **tools/negtest/parallel.py** runs negtests in isolated worktrees (Elysium-env/negwork/w<N>, junctions
+    %TEMP%/elysium-negw<N>, every /tmp path rewritten per worker) and reads their output: SETUP FAILED, STALE
+    ANCHOR, an AssertionError, a traceback, a MISSED line, no caught line, a validator killed by its timeout, a
+    tree left dirty or broken. It checks the base (each module's validator once), refuses a live base that may
+    be mid-negtest, takes compiled classes only by compile.sh's new <module>.sha content record, resumes only
+    when every input matches, and scales timeouts from recorded times. Two adversarial reviews, twelve false
+    oks found and fixed. Never run a negtest directly in the live tree while another agent works: it edits
+    the files it breaks.
+  - **The first full run** (all 214 at 060a1bd5, 21.6 h at -j 2): 158 ok, 56 not, every one a fault that had
+    passed silently before. 25 were in Anvil's modules and are fixed (re-anchored at the statement that does
+    the job now, lost rules restored: the run collision check in art/runs.py, the conduit's multipart rules,
+    the space capability registrations; generator output put back byte for byte, since this machine's Pillow
+    12.3 saves pixel-identical PNGs as different bytes); 45 rerun at 8624348d, all ok but the tiers script.
+    The 31 in Quill's modules are listed for Quill in ANVIL.md.
+  - **Bugs fixed in the game:** elysium_regalia's four-piece Speed (level 0 was skipped by the engine; core
+    validator reads every set bonus the engine's way, negtest_set_bonus); cinderlings and their brutes
+    zombified when summoned off Cinderveil (they now hold immunity three ways, as the boar does; the space
+    validator asks for all three in every native piglin and hoglin); the starting kit was deleted by every
+    regen.sh (gen_data.py writes it now). The rocket fuel rule holds each fuel to its own motor's case.
+  - **The Vale stages** (stage_vale_client.ps1, stage_vale_footing_client.ps1, answers.ps1) were redesigned
+    after three rounds of fresh attackers found 14 false passes in the hand-kept site list and in the belief
+    that the client logs "Loaded N advancements" on a change of world (it does not in 1.21.1). elysium-wilds
+    now logs "Vale first trip: player NAME ring DIM X Y Z side X Y Z axis x|z built|standing" once per ring,
+    keeps a count, the latest line and each player's ways out to spawn in ValeLinks, and answers the
+    operator-only /elysium vale trips. The footing stage takes a slot from a scoreboard counter (rings 32 000
+    blocks apart) and proves a first trip by the line plus the counted record. Round 6 found no false pass on
+    fakes. They have still never run in the game.
+  - **Quill's fix bundle** (quill/fangs-n-claws @ df7ae5e3) is fetched into Elysium-merge as
+    quill/fangs-n-claws-fixes. The re-review (D:/_elysium_transfer/anvil/rereview-fangs-n-claws-fixes-
+    2026-10-17.md) has four merge blockers for Quill (a bonus kill posts LivingDeathEvent twice; a duplicated
+    anchor stops negtest_fangs_effects.sh after 29 cases; four armory half-statement rules; two lib cases the
+    validator crashes before). Anvil's part is done on main (dry runs refuse an anchor the way the real helper
+    does; the runner reads Quill's words) or waits for the merge (RelicPassives on dealing() and the
+    three-argument perform; negtest_atelier.sh:314; the registries scenario's probe).
+  - **The client** launched on the rebuilt rig for the first time on 17 Oct (client_up built ElysiumBoot and the
+    player joined in 100 s), but the Windows session was locked (Dylan away about 40 hours), so nothing can be
+    typed or seen: the two Vale stages and the six by-hand sittings (docs/PLAYTEST.md) wait for an unlocked,
+    idle PC. Check with Get-Process LogonUI (locked) and GetLastInputInfo (idle) before driving the client.
+  - **Staging merge** in C:/Users/weaks/Elysium-merge, branch merge/2026-10-17: main + Quill's df7ae5e3 + the
+    at-merge commit (relics ignore the library's bonus and strike what was struck; the atelier and registries
+    tests follow Quill's changes). It compiles and every module validator passes; check_rules fails only on
+    Quill's four armory rules, as the re-review said. A player tier for the live suite (the dev client joined
+    to the loopback server over RCON) is being built there to run the uniques from Quill's spec.
+  - **Next:** the merge when Quill's four blockers are fixed; the Vale stages and the sittings when the PC is
+    unlocked.
 
